@@ -1,73 +1,144 @@
-# Welcome to your Lovable project
+# Your E-commerce Blueprint
 
-## Project info
+Frontend e-commerce (tema piante) costruito con React + Vite, con catalogo prodotti e checkout integrati tramite Shopify Storefront API.
 
-**URL**: https://lovable.dev/projects/95cad199-55fd-4870-9d5c-a2653edf88f5
+## Stack Tecnologico
 
-## How can I edit this code?
+### Frontend
+- `Vite` (build tool / dev server)
+- `React 18` + `TypeScript`
+- `React Router DOM` (routing SPA)
+- `Tailwind CSS` (styling)
+- `shadcn/ui` + `Radix UI` (componenti UI)
+- `Zustand` (stato globale carrello con persistenza)
+- `Sonner` + toaster UI (notifiche)
+- `TanStack React Query` (provider presente; estendibile per data fetching)
 
-There are several ways of editing your application.
+### Backend / Commerce Layer
+- `Shopify Storefront GraphQL API` come backend esterno per:
+  - recupero catalogo prodotti
+  - recupero dettaglio prodotto per `handle`
+  - creazione del checkout/cart Shopify
 
-**Use Lovable**
+Nota: il progetto non include un backend custom (Node/Express/Nest ecc.). La logica server-side è delegata a Shopify tramite API client-side.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/95cad199-55fd-4870-9d5c-a2653edf88f5) and start prompting.
+## Requisiti Locali
 
-Changes made via Lovable will be committed automatically to this repo.
+- `Node.js` 18+ (consigliato 20+)
+- `npm`
 
-**Use your preferred IDE**
+## Avvio in Locale
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. Installa le dipendenze:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+npm install
+```
 
-Follow these steps:
+2. Avvia il server di sviluppo:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+3. Apri l'URL mostrato in console (di solito `http://localhost:5173`).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Script Disponibili
 
-**Use GitHub Codespaces**
+- `npm run dev` avvia il dev server Vite
+- `npm run build` build di produzione
+- `npm run build:dev` build in modalità development
+- `npm run preview` preview locale della build
+- `npm run lint` lint del codice
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Architettura del Progetto (FE / BE)
 
-## What technologies are used for this project?
+## Frontend (SPA React)
 
-This project is built with:
+### Routing
+- `/` Home page (hero, catalogo, sezioni contenuto)
+- `/products/:handle` Pagina dettaglio prodotto
+- `*` Pagina 404
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+File chiave:
+- `src/main.tsx` bootstrap React
+- `src/App.tsx` provider globali + routing
+- `src/pages/*` pagine applicative
 
-## How can I deploy this project?
+### UI Layer
+- `src/components/` componenti di dominio (Header, ProductCard, CartDrawer, sezioni homepage)
+- `src/components/ui/` componenti base shadcn/ui (button, sheet, dialog, tabs, ecc.)
 
-Simply open [Lovable](https://lovable.dev/projects/95cad199-55fd-4870-9d5c-a2653edf88f5) and click on Share -> Publish.
+### State Management (Carrello)
+- `src/stores/cartStore.ts`
+- Stato globale con Zustand:
+  - items carrello
+  - loading checkout
+  - azioni add/remove/update quantity
+  - persistenza in `localStorage` (`shopify-cart`)
 
-## Can I connect a custom domain to my Lovable project?
+### Data Access Layer (Frontend -> Shopify)
+- `src/lib/shopify.ts`
+  - endpoint Storefront API
+  - query GraphQL prodotti e dettaglio
+  - helper `storefrontApiRequest`
+- `src/lib/shopify-checkout.ts`
+  - mutation `cartCreate`
+  - costruzione URL checkout Shopify
 
-Yes, you can!
+## Backend (esterno: Shopify)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Il progetto usa Shopify come backend commerce esterno.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Responsabilità Shopify in questo progetto:
+- catalogo prodotti
+- varianti e prezzi
+- disponibilità (`availableForSale`)
+- generazione checkout URL
+- gestione finale del pagamento (nel checkout Shopify)
+
+### Flusso dati end-to-end
+1. Il frontend carica i prodotti con query GraphQL Storefront API.
+2. L'utente aggiunge prodotti al carrello (stato locale Zustand).
+3. Al checkout, il frontend invia le linee carrello a Shopify (`cartCreate`).
+4. Shopify restituisce `checkoutUrl`.
+5. Il frontend apre il checkout Shopify in una nuova tab.
+
+## Struttura del Progetto (overview)
+
+```text
+.
+├── public/                 # asset statici
+├── src/
+│   ├── components/         # componenti UI di dominio (Header, CartDrawer, ecc.)
+│   ├── components/ui/      # componenti base shadcn/ui
+│   ├── hooks/              # hook custom
+│   ├── lib/                # integrazioni e helper (Shopify, utils)
+│   ├── pages/              # pagine route-level
+│   ├── stores/             # stato globale (Zustand)
+│   ├── App.tsx             # routing + providers
+│   ├── main.tsx            # bootstrap app
+│   └── index.css           # stili globali Tailwind
+├── index.html              # entry HTML Vite
+├── tailwind.config.ts      # config Tailwind
+├── vite.config.ts          # config Vite
+├── tsconfig*.json          # config TypeScript
+└── package.json            # script e dipendenze
+```
+
+## Note Importanti
+
+- Attualmente la configurazione Shopify (dominio e token storefront) è gestita nel frontend (`src/lib/shopify.ts`).
+- Per ambienti production, è consigliato spostare le configurazioni sensibili in variabili d'ambiente e/o introdurre un backend/proxy per maggiore controllo.
+- Alcune UI (es. filtri e ricerca in header) sono presenti ma non ancora collegate a logica di filtro/search reale.
+
+## Possibili Evoluzioni Architetturali
+
+- Introdurre un backend BFF (Backend for Frontend) per:
+  - protezione/separazione configurazioni API
+  - caching query Shopify
+  - logging / rate limit / osservabilità
+  - integrazioni con CMS, CRM, email marketing
+- Portare il data fetching a `React Query` in modo consistente
+- Aggiungere gestione auth/account cliente Shopify
+- Aggiungere test (unit + integration + e2e)
