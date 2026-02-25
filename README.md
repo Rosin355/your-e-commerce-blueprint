@@ -1,4 +1,4 @@
-# Your E-commerce Blueprint
+# ONLINEGARDEN PROJECT
 
 Frontend e-commerce (tema piante) costruito con React + Vite, con catalogo prodotti e checkout integrati tramite Shopify Storefront API.
 
