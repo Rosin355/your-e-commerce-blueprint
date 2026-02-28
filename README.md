@@ -142,3 +142,8 @@ Responsabilità Shopify in questo progetto:
 - Portare il data fetching a `React Query` in modo consistente
 - Aggiungere gestione auth/account cliente Shopify
 - Aggiungere test (unit + integration + e2e)
+
+## Prompt Lovable Consigliato
+
+- Prompt pronto per sezione admin import/sync Shopify (safe preview):
+  - `docs/lovable-admin-import-sync-prompt.md`
