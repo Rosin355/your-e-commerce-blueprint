@@ -1,6 +1,7 @@
 const ADMIN_EMAILS = [
   'admin@onlinegarden.it',
   'info@onlinegarden.it',
+  'romesh.singhabahu@gmail.com',
 ];
 
 const SESSION_KEY = 'admin_session';
