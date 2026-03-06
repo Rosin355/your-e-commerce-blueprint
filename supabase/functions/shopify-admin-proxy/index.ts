@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 const SHOPIFY_STORE = 'lovable-project-6tknn.myshopify.com';
-const API_VERSION = '2025-01';
+const API_VERSION = '2025-07';
 
 function adminUrl(path: string) {
   return `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/${path}`;
