@@ -1,37 +1,52 @@
 
-Diagnosi (perché non funziona)
-- Ho ritestato la funzione backend `shopify-admin-proxy`: risponde 500.
-- I log mostrano sempre: `Invalid API key or access token`.
-- Dal tuo screenshot, il valore che hai passato (`shpss_...`) è il **Secret della app** (client secret), non il **Admin API access token** richiesto dalle chiamate Admin.
-- La funzione invia quel valore nell’header `X-Shopify-Access-Token`: lì deve esserci un token `shpat_...`.
-- Quindi: app installata correttamente, ma credenziale sbagliata nel secret backend.
 
-Piano di risoluzione
-1) Recuperare il token corretto
-- In Shopify Admin dello store `lovable-project-6tknn`:
-  `Impostazioni → App e canali di vendita → Sviluppa app → [tua app] → API credentials`
-- Copiare **Admin API access token** (prefisso `shpat_`), non “API secret key” (`shpss_`).
+## Diagnosi
 
-2) Verificare scope app
-- Confermare che la app abbia almeno:
-  `read_customers`, `write_customers`, `read_products`, `write_products`.
-- Se modifichi scope: salva e reinstalla/aggiorna la app.
+Dalla documentazione Shopify che hai condiviso, ora è chiaro: con le app create dal Dev Dashboard, non ottieni direttamente un token `shpat_`. Devi **scambiare** il client_id e client_secret tramite il flusso OAuth `client_credentials` per ottenere un token temporaneo `shpat_` (valido 24 ore).
 
-3) Aggiornare il secret backend
-- Sostituire `SHOPIFY_ACCESS_TOKEN` con il nuovo `shpat_...`.
+## Piano: Aggiornare la Edge Function per usare il flusso client_credentials
 
-4) Retest tecnico immediato
-- Chiamata test `search_customer` su `shopify-admin-proxy`.
-- Esito atteso: risposta 200 con `{ found: ... }` (non 500).
+### Cosa cambia
 
-5) Verifica funzionale in UI
-- Da `/admin/import`: eseguire prima **Dry Run** clienti, poi **Sync Shopify**.
-- Esito atteso: niente errori “Invalid API key or access token”.
+La Edge Function `shopify-admin-proxy` verrà modificata per:
 
-Dettagli tecnici (breve)
-- Punto codice: `supabase/functions/shopify-admin-proxy/index.ts` usa `Deno.env.get('SHOPIFY_ACCESS_TOKEN')` in `X-Shopify-Access-Token`.
-- Dominio store in funzione è coerente (`lovable-project-6tknn.myshopify.com`), quindi non è il problema principale.
-- Possibile miglioramento (da implementare dopo): validazione formato token in funzione (se `shpss_` → errore esplicito guidato) per evitare futuri loop di debug.
+1. **Ottenere automaticamente un access token** prima di ogni batch di chiamate, usando:
+   - `POST https://lovable-project-6tknn.myshopify.com/admin/oauth/access_token`
+   - Body: `grant_type=client_credentials&client_id={id}&client_secret={secret}`
+   - Risposta: `{ "access_token": "shpat_xxxxx", "expires_in": 86399 }`
 
-Input che mi serve da te per procedere subito
-- Incolla il nuovo token **`shpat_...`** e faccio io update + retest end-to-end.
+2. **Usare il token ottenuto** nell'header `X-Shopify-Access-Token` per le chiamate Admin API.
+
+3. **Cache in-memory** del token per evitare di richiederne uno nuovo ad ogni singola richiesta (il token dura 24h).
+
+### Secrets necessari
+
+Servono **due** secrets invece di uno:
+- `SHOPIFY_CLIENT_ID` — il Client ID della tua app (lo vedi nello screenshot)
+- `SHOPIFY_CLIENT_SECRET` — il Client Secret (`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`)
+
+Il secret `SHOPIFY_ACCESS_TOKEN` attuale non servirà più (verrà generato automaticamente dalla funzione).
+
+### Passaggi implementativi
+
+1. **Aggiungere il secret `SHOPIFY_CLIENT_ID`** — ti chiederò di incollare il valore dal Dev Dashboard
+2. **Rinominare/aggiornare `SHOPIFY_ACCESS_TOKEN`** in `SHOPIFY_CLIENT_SECRET` con il valore `shpss_` che hai già fornito
+3. **Aggiornare `supabase/functions/shopify-admin-proxy/index.ts`**:
+   - Aggiungere funzione `getAccessToken()` che fa il POST OAuth e cachea il risultato
+   - Modificare `shopifyFetch()` per usare il token dinamico
+4. **Testare** con una chiamata `search_customer` per verificare che il flusso funzioni
+
+### Dettaglio tecnico della funzione token
+
+```text
+Edge Function startup
+  │
+  ├─ Richiesta in arrivo
+  │   ├─ Token in cache e non scaduto? → usa quello
+  │   └─ Altrimenti → POST /admin/oauth/access_token
+  │       ├─ client_id + client_secret
+  │       └─ Ritorna shpat_xxx (24h)
+  │
+  └─ Procedi con chiamata Admin API
+```
+
