@@ -147,3 +147,5 @@ Responsabilità Shopify in questo progetto:
 
 - Prompt pronto per sezione admin import/sync Shopify (safe preview):
   - `docs/lovable-admin-import-sync-prompt.md`
+- Prompt/analisi per AI Product Writer (generazione e rigenerazione testi su prodotti Shopify esistenti):
+  - `docs/lovable-ai-product-writer-compatible.md`
