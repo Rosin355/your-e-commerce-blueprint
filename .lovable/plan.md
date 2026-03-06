@@ -1,26 +1,20 @@
 
 
-# Fix: Aggiornare il SHOPIFY_ACCESS_TOKEN
+## Piano: Aggiornamento Token Storefront API
 
-## Problema
+### Modifica
 
-L'errore `Invalid API key or access token` indica che il secret `SHOPIFY_ACCESS_TOKEN` attualmente configurato non e valido. Tutte le chiamate alla Edge Function `shopify-admin-proxy` falliscono con 500.
+Un singolo file da modificare:
 
-## Soluzione
+**`src/lib/shopify.ts`** — Riga 4: sostituire il valore di `SHOPIFY_STOREFRONT_TOKEN`:
 
-Aggiornare il secret `SHOPIFY_ACCESS_TOKEN` con il token corretto (che inizia con `shpat_`).
+```
+// DA:
+export const SHOPIFY_STOREFRONT_TOKEN = '2567c84a97b802506f2b1b3759f7b286';
 
-### Come ottenere il token
+// A:
+export const SHOPIFY_STOREFRONT_TOKEN = '1d883bcf6107ac5e5389c7914625e55e';
+```
 
-1. Accedi al pannello admin Shopify del tuo store (`lovable-project-6tknn.myshopify.com`)
-2. Vai su **Settings → Apps and sales channels → Develop apps**
-3. Seleziona la tua app (o creane una nuova con permessi `read_customers`, `write_customers`, `read_products`, `write_products`)
-4. Vai su **API credentials**
-5. Copia l'**Admin API access token** (formato: `shpat_...`)
-
-### Implementazione
-
-Una volta approvato il piano, usero lo strumento `add_secret` per chiederti di inserire il nuovo token in modo sicuro. Il token verra salvato come secret nel backend e sara accessibile solo dalla Edge Function, mai esposto nel frontend.
-
-Nessuna modifica al codice necessaria -- la Edge Function gia legge `SHOPIFY_ACCESS_TOKEN` da `Deno.env.get()`.
+Nessun'altra modifica necessaria. Tutti i file che usano questo token importano già la costante da questo file.
 
