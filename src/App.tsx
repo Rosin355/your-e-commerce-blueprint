@@ -9,6 +9,8 @@ import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 
 const AdminGuard = lazy(() => import("./admin/AdminGuard"));
+const AccountCallback = lazy(() => import("./pages/AccountCallback"));
+const Account = lazy(() => import("./pages/Account"));
 
 const queryClient = new QueryClient();
 
@@ -21,6 +23,22 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/products/:handle" element={<ProductDetail />} />
+          <Route
+            path="/account/callback"
+            element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Caricamento...</div>}>
+                <AccountCallback />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Caricamento...</div>}>
+                <Account />
+              </Suspense>
+            }
+          />
           <Route
             path="/admin/import"
             element={

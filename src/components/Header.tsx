@@ -1,7 +1,8 @@
-import { Search, User, MessageCircle } from "lucide-react";
+import { Search, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CartDrawer } from "./CartDrawer";
+import { AccountButton } from "./AccountButton";
 import { useState } from "react";
 
 export const Header = () => {
@@ -66,10 +67,7 @@ export const Header = () => {
 
           {/* Account & Cart */}
           <div className="flex items-center gap-2 md:gap-4">
-            <Button variant="ghost" size="sm" className="hidden md:flex gap-2">
-              <User className="h-5 w-5" />
-              <span className="uppercase text-xs font-semibold">Accedi / Registrati</span>
-            </Button>
+            <AccountButton />
             <CartDrawer />
           </div>
         </div>
