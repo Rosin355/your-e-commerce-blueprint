@@ -26,19 +26,22 @@ async function getAccessToken(): Promise<string> {
     throw new Error('SHOPIFY_CLIENT_ID o SHOPIFY_CLIENT_SECRET non configurati');
   }
 
+  console.log('Attempting token exchange with client_id:', clientId?.substring(0, 8) + '...');
+  
   const res = await fetch(`https://${SHOPIFY_STORE}/admin/oauth/access_token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`,
   });
 
+  const text = await res.text();
+  console.log('Token exchange response:', res.status, text);
+  
   if (!res.ok) {
-    const text = await res.text();
-    console.error('OAuth token exchange failed:', res.status, text);
     throw new Error(`Token exchange fallito (${res.status}): ${text}`);
   }
 
-  const json = await res.json();
+  const json = JSON.parse(text);
   cachedToken = json.access_token;
   tokenExpiresAt = now + (json.expires_in || 86399) * 1000;
   console.log('Nuovo access token ottenuto, scade tra', json.expires_in, 'secondi');
