@@ -154,18 +154,20 @@ function normalizeProduct(product: any) {
 }
 
 async function listProducts(token: string, data: any) {
-  const limit = Math.max(1, Math.min(Number(data?.limit || 50), 100));
-  const page = Math.max(1, Number(data?.page || 1));
+  const limit = Math.max(1, Math.min(Number(data?.limit || 50), 250));
   const status = (data?.status || "active").toLowerCase();
   const tagFilter = (data?.tag || "").toLowerCase().trim();
   const query = (data?.query || "").toLowerCase().trim();
+  const pageInfo = data?.pageInfo || "";
 
   const search = new URLSearchParams({
     limit: String(limit),
-    page: String(page),
     fields: "id,title,handle,status,tags,updated_at",
     status,
   });
+  if (pageInfo) {
+    search.set("page_info", pageInfo);
+  }
   const res = await shopifyFetch(`products.json?${search.toString()}`, "GET", undefined, token);
   let products = Array.isArray(res.products) ? res.products : [];
   if (query) {
@@ -185,7 +187,6 @@ async function listProducts(token: string, data: any) {
   return {
     products: products.map(normalizeProduct),
     hasNextPage: products.length === limit,
-    page,
   };
 }
 
