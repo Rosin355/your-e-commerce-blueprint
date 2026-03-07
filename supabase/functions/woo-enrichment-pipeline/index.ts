@@ -29,7 +29,7 @@ serve(async (req) => {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    // For dry run: download only first ~20KB to preview rows
+    // For dry run: download a small portion to preview
     if (dryRun) {
       const { data: csvData, error: dlError } = await supabase.storage
         .from("csv-pipeline")
@@ -41,20 +41,22 @@ serve(async (req) => {
         });
       }
 
-      // Only read first chunk for preview
+      // Read only first 32KB for preview to avoid memory issues
       const fullText = await csvData.text();
-      const lines = fullText.split("\n");
-      const totalSourceRows = lines.length - 1; // minus header
+      const previewText = fullText.slice(0, 32768);
+      const allLines = fullText.split("\n");
+      const totalSourceRows = allLines.filter(l => l.trim()).length - 1;
+      const previewLines = previewText.split("\n");
 
-      // Count parent rows (simple + variable, not variation)
+      // Count parent rows from full text using minimal scanning
       let totalParentRows = 0;
-      if (lines.length > 1) {
-        const headers = parseHeaderLine(lines[0]);
+      if (allLines.length > 1) {
+        const headers = parseHeaderLine(allLines[0]);
         const typeIdx = headers.findIndex(h => h === "Tipo" || h === "Type");
-        for (let i = 1; i < lines.length; i++) {
-          if (!lines[i].trim()) continue;
+        for (let i = 1; i < allLines.length; i++) {
+          if (!allLines[i].trim()) continue;
           if (typeIdx >= 0) {
-            const type = extractFieldFromLine(lines[i], typeIdx).toLowerCase();
+            const type = extractFieldFromLine(allLines[i], typeIdx).toLowerCase();
             if (!type || type === "simple" || type === "variable") totalParentRows++;
           } else {
             totalParentRows++;
@@ -62,13 +64,13 @@ serve(async (req) => {
         }
       }
 
-      // Simple preview of first 5 data rows
+      // Preview first 5 data rows from preview text
       const sampleRows: Record<string, string>[] = [];
-      if (lines.length > 1) {
-        const headers = parseHeaderLine(lines[0]);
-        for (let i = 1; i <= Math.min(5, lines.length - 1); i++) {
-          if (!lines[i].trim()) continue;
-          const fields = parseHeaderLine(lines[i]);
+      if (previewLines.length > 1) {
+        const headers = parseHeaderLine(previewLines[0]);
+        for (let i = 1; i <= Math.min(5, previewLines.length - 1); i++) {
+          if (!previewLines[i].trim()) continue;
+          const fields = parseHeaderLine(previewLines[i]);
           const row: Record<string, string> = {};
           const nameIdx = headers.findIndex(h => h === "Nome" || h === "Name" || h === "Title");
           const skuIdx = headers.findIndex(h => h === "SKU");
@@ -96,42 +98,12 @@ serve(async (req) => {
       });
     }
 
-    // Full run: create job record (do NOT parse the CSV here)
-    // Count rows using a lightweight line counter
-    const { data: csvData, error: dlError } = await supabase.storage
-      .from("csv-pipeline")
-      .download(inputPath);
-
-    if (dlError || !csvData) {
-      return new Response(JSON.stringify({ success: false, error: "File non trovato in storage" }), {
-        status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const fullText = await csvData.text();
-    const lines = fullText.split("\n");
-
-    // Count parent rows
-    let totalParentRows = 0;
-    if (lines.length > 1) {
-      const headers = parseHeaderLine(lines[0]);
-      const typeIdx = headers.findIndex(h => h === "Tipo" || h === "Type");
-      for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) continue;
-        if (typeIdx >= 0) {
-          const type = extractFieldFromLine(lines[i], typeIdx).toLowerCase();
-          if (!type || type === "simple" || type === "variable") totalParentRows++;
-        } else {
-          totalParentRows++;
-        }
-      }
-    }
-
-    // Create job record
+    // ─── Full run: DO NOT download the CSV here ───
+    // Just create the job record. process-woo-job will count rows on first batch.
     const { error: insertError } = await supabase.from("pipeline_jobs").insert({
       id: jobId,
       status: "pending",
-      total_rows: totalParentRows,
+      total_rows: 0, // Will be set by process-woo-job on first batch
       processed_rows: 0,
       created_rows: 0,
       skipped_rows: 0,
@@ -156,13 +128,11 @@ serve(async (req) => {
       });
     }
 
-    console.log(`[Pipeline] Job created: ${jobId}, total_rows=${totalParentRows}`);
+    console.log(`[Pipeline] Job created: ${jobId} (lightweight, no CSV download)`);
 
     return new Response(JSON.stringify({
       success: true,
       jobId,
-      totalRows: totalParentRows,
-      totalSourceRows: lines.length - 1,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -176,7 +146,7 @@ serve(async (req) => {
   }
 });
 
-// ─── Minimal CSV helpers (no full parsing, just header extraction) ───
+// ─── Minimal CSV helpers ───
 
 function parseHeaderLine(line: string): string[] {
   const fields: string[] = [];

@@ -37,7 +37,7 @@ interface DryRunResult {
 export default function WooPipelinePanel() {
   const [file, setFile] = useState<File | null>(null);
   const [dryRun, setDryRun] = useState(true);
-  const [useAi, setUseAi] = useState(true);
+  const [useAi, setUseAi] = useState(false);
   const [limit, setLimit] = useState('');
   const [defaultVendor, setDefaultVendor] = useState('Online Garden');
   const [loading, setLoading] = useState(false);

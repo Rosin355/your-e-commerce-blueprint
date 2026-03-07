@@ -221,7 +221,7 @@ async function enrichWithAI(product: NormalizedProduct): Promise<{ result: AiRes
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
+    const timeout = setTimeout(() => controller.abort(), 15000);
 
     const prompt = `Sei un content editor per e-commerce di piante in Italia. Analizza questo prodotto e genera contenuti ottimizzati SEO.
 Prodotto: "${product.title}"
@@ -315,7 +315,7 @@ function mockEnrichment(product: NormalizedProduct): AiResult {
     seoTitle: clamp(product.title, 60),
     seoDescription: clamp(base, 155),
     imageAltText: product.title,
-    tags: ["ai-enriched"],
+    tags: [],
     productType: product.categories[0] || "",
     googleProductCategory: "",
   };
@@ -356,6 +356,7 @@ function mergeTags(tags: string[], categories: string[], aiTags: string[]): stri
     if (c) out.add(c);
   }
   out.add("woo-import");
+  out.add("legacy-onlinegarden-products");
   return [...out].join(", ");
 }
 
@@ -559,6 +560,15 @@ serve(async (req) => {
       variationsByParent.get(ref)!.push(v);
     }
 
+    // If total_rows is 0, this is the first batch — set total_rows now
+    if (!job.total_rows || job.total_rows === 0) {
+      await supabase.from("pipeline_jobs").update({
+        total_rows: parents.length,
+        updated_at: new Date().toISOString(),
+      }).eq("id", jobId);
+      job.total_rows = parents.length;
+    }
+
     // Determine batch range
     const offset = job.processed_rows || 0;
     const end = Math.min(offset + batchSize, parents.length);
@@ -583,7 +593,7 @@ serve(async (req) => {
     // Collect used handles from existing partial rows
     const usedHandles = new Set<string>();
     for (const row of existingPartialRows) {
-      if (row["URL handle"]) usedHandles.add(row["URL handle"]);
+      if ((row as Record<string, string>)["URL handle"]) usedHandles.add((row as Record<string, string>)["URL handle"]);
     }
 
     function ensureUniqueHandle(base: string): string {
@@ -610,7 +620,7 @@ serve(async (req) => {
         continue;
       }
 
-      // AI enrichment (concurrency 1 — sequential)
+      // AI enrichment (only if enabled)
       let ai: AiResult | null = null;
       if (useAi) {
         const { result, warning } = await enrichWithAI(parent);
