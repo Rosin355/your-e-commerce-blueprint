@@ -14,7 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      pipeline_jobs: {
+        Row: {
+          ai_enriched_count: number | null
+          created_at: string | null
+          created_rows: number | null
+          default_vendor: string | null
+          dry_run: boolean | null
+          error_count: number | null
+          error_message: string | null
+          errors: Json | null
+          fallback_count: number | null
+          id: string
+          input_file_path: string | null
+          output_file_path: string | null
+          partial_rows: Json | null
+          processed_rows: number | null
+          report_json: Json | null
+          row_limit: number | null
+          skipped_rows: number | null
+          status: string
+          total_rows: number | null
+          updated_at: string | null
+          use_ai: boolean | null
+          warning_count: number | null
+          warnings: Json | null
+        }
+        Insert: {
+          ai_enriched_count?: number | null
+          created_at?: string | null
+          created_rows?: number | null
+          default_vendor?: string | null
+          dry_run?: boolean | null
+          error_count?: number | null
+          error_message?: string | null
+          errors?: Json | null
+          fallback_count?: number | null
+          id?: string
+          input_file_path?: string | null
+          output_file_path?: string | null
+          partial_rows?: Json | null
+          processed_rows?: number | null
+          report_json?: Json | null
+          row_limit?: number | null
+          skipped_rows?: number | null
+          status?: string
+          total_rows?: number | null
+          updated_at?: string | null
+          use_ai?: boolean | null
+          warning_count?: number | null
+          warnings?: Json | null
+        }
+        Update: {
+          ai_enriched_count?: number | null
+          created_at?: string | null
+          created_rows?: number | null
+          default_vendor?: string | null
+          dry_run?: boolean | null
+          error_count?: number | null
+          error_message?: string | null
+          errors?: Json | null
+          fallback_count?: number | null
+          id?: string
+          input_file_path?: string | null
+          output_file_path?: string | null
+          partial_rows?: Json | null
+          processed_rows?: number | null
+          report_json?: Json | null
+          row_limit?: number | null
+          skipped_rows?: number | null
+          status?: string
+          total_rows?: number | null
+          updated_at?: string | null
+          use_ai?: boolean | null
+          warning_count?: number | null
+          warnings?: Json | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
