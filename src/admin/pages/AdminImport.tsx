@@ -100,6 +100,9 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
               <Zap className="h-4 w-4" /> AI Writer
             </TabsTrigger>
           )}
+          <TabsTrigger value="woo-pipeline" className="gap-2">
+            <ArrowRightLeft className="h-4 w-4" /> WooCommerce → Shopify
+          </TabsTrigger>
         </TabsList>
 
         {['customers', 'products'].map((tab) => (
