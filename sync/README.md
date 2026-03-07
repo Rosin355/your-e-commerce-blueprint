@@ -63,6 +63,38 @@ Note CSV:
 - per un catalogo da 1400+ prodotti è consigliato un primo test con limite:
   - `SYNC_LIMIT=20 npm run sync:csv:dry-run`
 
+## Woo CSV -> Shopify Template CSV (import-safe)
+
+Questo flusso converte un export WooCommerce (anche in italiano) nel template CSV Shopify
+e prova ad arricchire Description/SEO/alt con i contenuti già pubblicati su Shopify.
+
+Config in `sync/.env`:
+- `WOO_PRODUCTS_CSV_PATH=/path/wc-product-export.csv`
+- `SHOPIFY_TEMPLATE_CSV_PATH=/path/product_template.csv`
+- `SHOPIFY_OUTPUT_CSV_PATH=sync/out/shopify-products-import.csv`
+- `SHOPIFY_ADMIN_SHOP=...`
+- `SHOPIFY_ADMIN_API_VERSION=2025-07`
+- `SHOPIFY_ADMIN_ACCESS_TOKEN=...` (necessario per overlay AI da Shopify)
+- opzionale `WOO_PRODUCTS_LIMIT=100`
+
+Dry-run:
+
+```bash
+npm run sync:woo-to-shopify:dry-run
+```
+
+Run completo:
+
+```bash
+npm run sync:woo-to-shopify
+```
+
+Output:
+- `shopify-products-import.csv`
+- `shopify-products-import.warnings.csv`
+- `shopify-products-import.errors.csv`
+- `shopify-products-import.report.json`
+
 ## Clienti CSV (Woo -> Shopify import file)
 
 Se hai un CSV clienti (come `onlinegardecustomer.csv`) puoi convertirlo nel formato import Shopify:

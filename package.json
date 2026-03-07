@@ -13,6 +13,8 @@
     "sync:products": "node sync/product-sync.mjs",
     "sync:csv:dry-run": "node sync/product-sync-csv.mjs --dry-run",
     "sync:csv": "node sync/product-sync-csv.mjs",
+    "sync:woo-to-shopify:dry-run": "node sync/woocommerce-to-shopify-template.mjs --dry-run",
+    "sync:woo-to-shopify": "node sync/woocommerce-to-shopify-template.mjs",
     "sync:customers:convert": "node sync/customers-convert.mjs",
     "sync:customers:shopify:dry-run": "node sync/customers-sync-shopify.mjs --dry-run",
     "sync:customers:shopify": "node sync/customers-sync-shopify.mjs"
