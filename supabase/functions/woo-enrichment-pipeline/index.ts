@@ -147,11 +147,8 @@ serve(async (req) => {
     const totalParentRows = countParentRows(allRows);
     console.log(`[Pipeline] Validated CSV: ${allRows.length} total rows, ${totalParentRows} parent products, dryRun=${dryRun}`);
 
-    // ─── DRY RUN: process inline (max 5 rows preview) ───
+    // ─── DRY RUN: quick inline preview (no job created) ───
     if (dryRun) {
-      // Import the full processing logic inline for dry run only (small subset)
-      const { runDryRunPreview } = await import("./dry-run-preview.ts");
-      // We don't have a separate file, so we do a minimal inline dry run
       return new Response(JSON.stringify({
         success: true,
         dryRun: true,
