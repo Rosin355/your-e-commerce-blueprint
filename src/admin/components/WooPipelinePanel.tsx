@@ -29,9 +29,7 @@ interface JobData {
 interface DryRunResult {
   success: boolean;
   dryRun: boolean;
-  report: {
-    totalSourceRows: number;
-  };
+  report: { totalSourceRows: number };
   totalParentRows: number;
   sampleRows: Record<string, string>[];
 }
@@ -45,12 +43,10 @@ export default function WooPipelinePanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Dry run state
   const [dryRunResult, setDryRunResult] = useState<DryRunResult | null>(null);
-
-  // Job state
   const [jobId, setJobId] = useState<string | null>(null);
   const [job, setJob] = useState<JobData | null>(null);
   const [polling, setPolling] = useState(false);
@@ -81,17 +77,51 @@ export default function WooPipelinePanel() {
     abortRef.current = false;
 
     try {
-      const csvText = await file.text();
+      // Step 1: Get signed upload URL
+      setUploadProgress('Preparazione upload...');
+      const { data: urlData, error: urlError } = await supabase.functions.invoke('csv-upload-url', {
+        body: { fileName: file.name },
+      });
+
+      if (urlError || !urlData?.success) {
+        setError(urlError?.message || urlData?.error || 'Errore generazione URL upload');
+        setLoading(false);
+        setUploadProgress(null);
+        return;
+      }
+
+      const { jobId: newJobId, uploadUrl, token, path } = urlData;
+
+      // Step 2: Upload file directly to storage via signed URL
+      setUploadProgress('Caricamento file...');
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'text/csv' },
+        body: file,
+      });
+
+      if (!uploadRes.ok) {
+        const errText = await uploadRes.text();
+        setError(`Errore upload: ${errText}`);
+        setLoading(false);
+        setUploadProgress(null);
+        return;
+      }
+
+      // Step 3: Call pipeline with just the path (no CSV text)
+      setUploadProgress('Avvio pipeline...');
       const { data, error: fnError } = await supabase.functions.invoke('woo-enrichment-pipeline', {
         body: {
-          csvText,
+          jobId: newJobId,
+          inputPath: path,
           dryRun,
           useAi,
           limit: limit ? Number(limit) : undefined,
           defaultVendor,
-          fileName: file.name,
         },
       });
+
+      setUploadProgress(null);
 
       if (fnError) {
         setError(fnError.message);
@@ -103,7 +133,6 @@ export default function WooPipelinePanel() {
         setDryRunResult(data as DryRunResult);
         setLoading(false);
       } else {
-        // Async job created
         if (data?.jobId) {
           setJobId(data.jobId);
           startPolling(data.jobId);
@@ -115,6 +144,7 @@ export default function WooPipelinePanel() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Errore sconosciuto');
       setLoading(false);
+      setUploadProgress(null);
     }
   };
 
@@ -153,7 +183,6 @@ export default function WooPipelinePanel() {
         setLoading(false);
         pollingRef.current = false;
       } else {
-        // Wait 1s before next batch
         setTimeout(() => processNextBatch(id), 1000);
       }
     } catch (e) {
@@ -170,7 +199,6 @@ export default function WooPipelinePanel() {
     setLoading(false);
   };
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       pollingRef.current = false;
@@ -206,22 +234,15 @@ export default function WooPipelinePanel() {
               <FileText className="h-3 w-3" /> {file.name} ({(file.size / 1024).toFixed(0)} KB)
             </Badge>
           )}
-          <input
-            ref={inputRef}
-            type="file"
-            accept=".csv,text/csv"
-            className="hidden"
-            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-          />
+          <input ref={inputRef} type="file" accept=".csv,text/csv" className="hidden"
+            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
         </CardContent>
       </Card>
 
       {/* Options */}
       {file && !polling && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Opzioni Pipeline</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-base">Opzioni Pipeline</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-6">
               <div className="flex items-center gap-2">
@@ -243,10 +264,9 @@ export default function WooPipelinePanel() {
                 <Input id="vendor" value={defaultVendor} onChange={(e) => setDefaultVendor(e.target.value)} className="w-44" />
               </div>
             </div>
-
             <Button onClick={handleRun} disabled={loading} className="gap-2">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : dryRun ? <Play className="h-4 w-4" /> : <Zap className="h-4 w-4" />}
-              {loading ? 'Elaborazione...' : dryRun ? 'Esegui Dry Run' : 'Avvia Pipeline'}
+              {loading ? (uploadProgress || 'Elaborazione...') : dryRun ? 'Esegui Dry Run' : 'Avvia Pipeline'}
             </Button>
           </CardContent>
         </Card>
@@ -270,17 +290,12 @@ export default function WooPipelinePanel() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              {isComplete ? (
-                <><CheckCircle className="h-5 w-5 text-primary" /> Pipeline Completata</>
-              ) : isFailed ? (
-                <><AlertTriangle className="h-5 w-5 text-destructive" /> Pipeline Fallita</>
-              ) : (
-                <><Loader2 className="h-5 w-5 animate-spin" /> Elaborazione in corso...</>
-              )}
+              {isComplete ? <><CheckCircle className="h-5 w-5 text-primary" /> Pipeline Completata</> :
+               isFailed ? <><AlertTriangle className="h-5 w-5 text-destructive" /> Pipeline Fallita</> :
+               <><Loader2 className="h-5 w-5 animate-spin" /> Elaborazione in corso...</>}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Progress bar */}
             {job && (
               <>
                 <div className="flex justify-between text-sm text-muted-foreground">
@@ -288,8 +303,6 @@ export default function WooPipelinePanel() {
                   <span>{progressPercent}%</span>
                 </div>
                 <Progress value={progressPercent} className="h-3" />
-
-                {/* Live counters */}
                 <div className="flex gap-2 flex-wrap">
                   <Badge variant="secondary">✅ Creati: {job.created_rows}</Badge>
                   <Badge variant="outline">⏭️ Saltati: {job.skipped_rows}</Badge>
@@ -300,46 +313,20 @@ export default function WooPipelinePanel() {
                 </div>
               </>
             )}
-
-            {/* Stop button */}
             {polling && (
               <Button variant="outline" size="sm" onClick={handleStop} className="gap-2">
                 <StopCircle className="h-4 w-4" /> Ferma Pipeline
               </Button>
             )}
-
-            {/* Failed message */}
-            {isFailed && job?.error_message && (
-              <p className="text-sm text-destructive">{job.error_message}</p>
-            )}
-
-            {/* Download links on complete */}
+            {isFailed && job?.error_message && <p className="text-sm text-destructive">{job.error_message}</p>}
             {isComplete && files && (
               <div className="flex gap-2 flex-wrap">
-                {files.shopifyCsv && (
-                  <Button variant="outline" size="sm" className="gap-2" asChild>
-                    <a href={files.shopifyCsv} download="shopify-draft.csv"><Download className="h-4 w-4" /> CSV Shopify Draft</a>
-                  </Button>
-                )}
-                {files.warnings && (
-                  <Button variant="outline" size="sm" className="gap-2" asChild>
-                    <a href={files.warnings} download="warnings.csv"><Download className="h-4 w-4" /> Warnings</a>
-                  </Button>
-                )}
-                {files.errors && (
-                  <Button variant="outline" size="sm" className="gap-2" asChild>
-                    <a href={files.errors} download="errors.csv"><Download className="h-4 w-4" /> Errori</a>
-                  </Button>
-                )}
-                {files.report && (
-                  <Button variant="outline" size="sm" className="gap-2" asChild>
-                    <a href={files.report} download="report.json"><Download className="h-4 w-4" /> Report JSON</a>
-                  </Button>
-                )}
+                {files.shopifyCsv && <Button variant="outline" size="sm" className="gap-2" asChild><a href={files.shopifyCsv} download="shopify-draft.csv"><Download className="h-4 w-4" /> CSV Shopify Draft</a></Button>}
+                {files.warnings && <Button variant="outline" size="sm" className="gap-2" asChild><a href={files.warnings} download="warnings.csv"><Download className="h-4 w-4" /> Warnings</a></Button>}
+                {files.errors && <Button variant="outline" size="sm" className="gap-2" asChild><a href={files.errors} download="errors.csv"><Download className="h-4 w-4" /> Errori</a></Button>}
+                {files.report && <Button variant="outline" size="sm" className="gap-2" asChild><a href={files.report} download="report.json"><Download className="h-4 w-4" /> Report JSON</a></Button>}
               </div>
             )}
-
-            {/* Warnings preview */}
             {isComplete && job?.warnings && job.warnings.length > 0 && (
               <div>
                 <p className="text-sm font-medium mb-1">⚠️ Warnings ({job.warnings.length})</p>
@@ -349,14 +336,11 @@ export default function WooPipelinePanel() {
                       <span className="text-muted-foreground">riga {w.rowNumber}</span>
                       <Badge variant="outline" className="text-xs py-0">{w.code}</Badge>
                       <span>{w.message}</span>
-                      {w.sku && <span className="text-muted-foreground">({w.sku})</span>}
                     </div>
                   ))}
                 </div>
               </div>
             )}
-
-            {/* Errors preview */}
             {isComplete && job?.errors && job.errors.length > 0 && (
               <div>
                 <p className="text-sm font-medium mb-1">❌ Errori ({job.errors.length})</p>
@@ -380,8 +364,7 @@ export default function WooPipelinePanel() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-primary" />
-              Anteprima Dry Run
+              <CheckCircle className="h-5 w-5 text-primary" /> Anteprima Dry Run
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -389,7 +372,6 @@ export default function WooPipelinePanel() {
               <Badge variant="secondary">📦 Righe sorgente: {dryRunResult.report.totalSourceRows}</Badge>
               <Badge variant="secondary">👤 Prodotti parent: {dryRunResult.totalParentRows}</Badge>
             </div>
-
             {dryRunResult.sampleRows && dryRunResult.sampleRows.length > 0 && (
               <div>
                 <p className="text-sm font-medium mb-1">Anteprima prime {dryRunResult.sampleRows.length} righe</p>
