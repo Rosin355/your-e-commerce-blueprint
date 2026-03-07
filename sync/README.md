@@ -1,152 +1,85 @@
-# Product Sync (Old Site -> Shopify)
+# Sync Pipelines (External to Lovable Frontend)
 
-Script esterno al frontend Lovable per importare/sincronizzare prodotti dal vecchio sito verso Shopify Admin API.
+Questi script vivono fuori dal runtime frontend e sono compatibili con Lovable:
+- il frontend continua a leggere Shopify come source of truth
+- nessun segreto esposto client-side
+- import/sync interamente nel folder `sync/`
 
-Obiettivo:
-- non modificare il frontend Lovable
-- usare Shopify come source of truth del nuovo sito
-- gestire import iniziale + sync temporaneo one-way
+## Pipeline principale: Woo CSV -> Shopify Draft CSV + AI enrichment
 
-## Come funziona
+Script:
+- `npm run sync:woo:draft-csv:dry-run`
+- `npm run sync:woo:draft-csv`
 
-1. Legge prodotti dal vecchio sito (preferibilmente WooCommerce REST API).
-2. Mappa i dati in formato Shopify (product + variants + media + metafield base).
-3. Crea/aggiorna prodotti in Shopify Admin API.
-4. Scrive log sintetici in console (ok, skip, error).
+Input:
+- WooCommerce export CSV (`WOO_PRODUCTS_CSV_PATH`)
+- Shopify template CSV (`SHOPIFY_TEMPLATE_CSV_PATH`)
 
-## Requisiti
-
-- Node.js 18+ (fetch nativo)
-- Accesso API al vecchio sito (`wc/v3`) oppure endpoint equivalente
-- Token Shopify Admin API con permessi prodotti (`write_products`, `read_products`)
-
-## Setup
-
-1. Copia `sync/.env.example` in `sync/.env`
-2. Compila le credenziali
-
-## Esecuzione
-
-Dry-run (consigliato):
-
-```bash
-npm run sync:products:dry-run
-```
-
-Sync reale:
-
-```bash
-npm run sync:products
-```
-
-## Modalità CSV (WooCommerce export)
-
-Se non hai API WooCommerce, usa direttamente il file export CSV:
-
-1. Imposta `WOO_CSV_PATH` in `sync/.env` con path assoluto del CSV
-2. Esegui dry-run:
-
-```bash
-npm run sync:csv:dry-run
-```
-
-3. Esegui sync reale:
-
-```bash
-npm run sync:csv
-```
-
-Note CSV:
-- supporta bene prodotti `simple` e `variable` come base product
-- le righe `variation` (figlie) sono al momento ignorate nel mapping automatico
-- aggiunge sempre i tag tecnici `woo-import` e `legacy-onlinegarden-products`
-- per un catalogo da 1400+ prodotti è consigliato un primo test con limite:
-  - `SYNC_LIMIT=20 npm run sync:csv:dry-run`
-
-## Woo CSV -> Shopify Template CSV (import-safe)
-
-Questo flusso converte un export WooCommerce (anche in italiano) nel template CSV Shopify
-e prova ad arricchire Description/SEO/alt con i contenuti già pubblicati su Shopify.
-
-Config in `sync/.env`:
-- `WOO_PRODUCTS_CSV_PATH=/path/wc-product-export.csv`
-- `SHOPIFY_TEMPLATE_CSV_PATH=/path/product_template.csv`
-- `SHOPIFY_OUTPUT_CSV_PATH=sync/out/shopify-products-import.csv`
-- `SHOPIFY_ADMIN_SHOP=...`
-- `SHOPIFY_ADMIN_API_VERSION=2025-07`
-- `SHOPIFY_ADMIN_ACCESS_TOKEN=...` (necessario per overlay AI da Shopify)
-- opzionale `WOO_PRODUCTS_LIMIT=100`
-
-Dry-run:
-
-```bash
-npm run sync:woo-to-shopify:dry-run
-```
-
-Run completo:
-
-```bash
-npm run sync:woo-to-shopify
-```
-
-Output:
-- `shopify-products-import.csv`
-- `shopify-products-import.warnings.csv`
-- `shopify-products-import.errors.csv`
-- `shopify-products-import.report.json`
-
-## Clienti CSV (Woo -> Shopify import file)
-
-Se hai un CSV clienti (come `onlinegardecustomer.csv`) puoi convertirlo nel formato import Shopify:
-
-1. Imposta in `sync/.env`:
-   - `WOO_CUSTOMERS_CSV_PATH=/path/al/file-clienti.csv`
-   - `SHOPIFY_CUSTOMERS_CSV_OUTPUT=sync/out/shopify-customers-import.csv`
-2. Esegui:
-
-```bash
-npm run sync:customers:convert
-```
-
-Lo script:
-- legge clienti Woo/WordPress
-- scarta righe senza email valida
-- esclude campi sensibili (password hash, session tokens, ecc.)
-- genera un CSV importabile in Shopify
-
-## Clienti CSV -> Shopify API (sync diretto)
-
-Se vuoi evitare import manuale CSV su Shopify, puoi sincronizzare direttamente via Admin API:
-
-1. In `sync/.env` imposta:
-   - `WOO_CUSTOMERS_CSV_PATH=/path/onlinegardecustomer.csv`
-   - `SHOPIFY_ADMIN_SHOP=your-shop.myshopify.com`
-   - `SHOPIFY_ADMIN_API_VERSION=2025-07`
-   - `SHOPIFY_ADMIN_ACCESS_TOKEN=...`
-   - opzionale: `CUSTOMER_SYNC_LIMIT=20` per test
-2. Dry-run:
-
-```bash
-npm run sync:customers:shopify:dry-run
-```
-
-3. Sync reale:
-
-```bash
-npm run sync:customers:shopify
-```
+Output in `sync/out/`:
+- `shopify-products-draft-import.csv`
+- `shopify-products-draft-import.warnings.csv`
+- `shopify-products-draft-import.errors.csv`
+- `shopify-products-draft-import.report.json`
 
 Comportamento:
-- upsert per email (se esiste aggiorna, altrimenti crea)
-- nessun campo sensibile importato
-- log finale con conteggi created/updated/failed
+1. Parsing CSV robusto (UTF-8 BOM, multiline HTML, quote escaping)
+2. Mapping Woo (header italiani) -> template Shopify (57 colonne)
+3. Enrichment AI per prodotto (mode `mock|http|disabled`)
+4. Fallback sicuro al testo sorgente se AI fallisce
+5. Output forzato in draft:
+   - `Published on online store = FALSE`
+   - `Status = Draft`
+6. Report warning/error + JSON summary
 
-## Note progettuali
+## Enrichment AI adapter
 
-- Matching prodotti: usa `SKU` quando disponibile; fallback su `handle`.
-- Per minimizzare rischi, lo script aggiorna solo i campi mappati.
-- La parte immagini/metafield è predisposta ma potrebbe richiedere tuning sulla struttura dati reale di `onlinegarden.it`.
+Modulo: `sync/lib/ai-product-enricher.mjs`
 
-## Compatibilità Lovable
+Modalità:
+- `AI_ENRICH_MODE=mock` (default, test locale)
+- `AI_ENRICH_MODE=http` (POST su endpoint interno)
+- `AI_ENRICH_MODE=disabled` (pass-through)
 
-Totale: lo script vive fuori dal runtime del frontend. Il progetto React/Vite continua a leggere da Shopify Storefront API come oggi.
+Variabili:
+- `AI_ENRICH_ENDPOINT`
+- `AI_ENRICH_API_KEY`
+- `AI_ENRICH_TIMEOUT_MS`
+- `AI_ENRICH_CONCURRENCY`
+
+## Push opzionale dei draft su Shopify Admin API
+
+Script:
+- `npm run sync:woo:push-drafts:dry-run`
+- `npm run sync:woo:push-drafts`
+
+Funzione:
+- legge il CSV draft reviewed
+- cerca prodotto esistente per SKU, fallback handle
+- crea/aggiorna via Admin GraphQL
+- default status `DRAFT` (pubblica solo se `SHOPIFY_PUBLISH_ON_CREATE=true`)
+
+Note:
+- script indipendente dal frontend
+- throttle configurabile (`SHOPIFY_PUSH_DELAY_MS`)
+
+## Config rapida (`sync/.env`)
+
+Minimo per draft CSV:
+- `WOO_PRODUCTS_CSV_PATH=...`
+- `SHOPIFY_TEMPLATE_CSV_PATH=...`
+- `SHOPIFY_OUTPUT_CSV_PATH=sync/out/shopify-products-draft-import.csv`
+- `ALLOW_ZERO_PRICE=false`
+- `ALLOW_MISSING_SKU=true`
+- `DEFAULT_VENDOR=Online Garden`
+
+Minimo per push Shopify:
+- `SHOPIFY_ADMIN_SHOP=...`
+- `SHOPIFY_ADMIN_API_VERSION=2025-10`
+- `SHOPIFY_ADMIN_ACCESS_TOKEN=...`
+
+## Script legacy (compatibilità)
+
+- `npm run sync:woo-to-shopify`
+- `npm run sync:woo-to-shopify:dry-run`
+
+Il file `sync/woocommerce-to-shopify-template.mjs` ora delega alla nuova pipeline draft CSV.
