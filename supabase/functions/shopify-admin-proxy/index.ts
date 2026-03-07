@@ -9,11 +9,58 @@ const corsHeaders = {
 
 const SHOPIFY_STORE = Deno.env.get("SHOPIFY_STORE") || "lovable-project-6tknn.myshopify.com";
 const API_VERSION = Deno.env.get("SHOPIFY_API_VERSION") || "2025-01";
+const SHOPIFY_CLIENT_ID = Deno.env.get("SHOPIFY_CLIENT_ID");
+const SHOPIFY_CLIENT_SECRET = Deno.env.get("SHOPIFY_CLIENT_SECRET");
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const OPENAI_VISION_MODEL = Deno.env.get("OPENAI_VISION_MODEL") || "gpt-4o-mini";
 const OPENAI_COPY_MODEL = Deno.env.get("OPENAI_COPY_MODEL") || "gpt-4.1-mini";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+// OAuth client_credentials token cache
+let cachedToken: { token: string; expiresAt: number } | null = null;
+
+async function getAccessToken(): Promise<string> {
+  if (cachedToken && Date.now() < cachedToken.expiresAt) {
+    return cachedToken.token;
+  }
+
+  if (!SHOPIFY_CLIENT_ID || !SHOPIFY_CLIENT_SECRET) {
+    throw new Error("SHOPIFY_CLIENT_ID o SHOPIFY_CLIENT_SECRET non configurati");
+  }
+
+  const credentials = btoa(`${SHOPIFY_CLIENT_ID}:${SHOPIFY_CLIENT_SECRET}`);
+  const oauthUrl = `https://${SHOPIFY_STORE}/admin/oauth/access_token`;
+  console.log("OAuth request to:", oauthUrl);
+  const response = await fetch(
+    oauthUrl,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${credentials}`,
+      },
+      body: JSON.stringify({
+        grant_type: "client_credentials",
+        client_id: SHOPIFY_CLIENT_ID,
+        client_secret: SHOPIFY_CLIENT_SECRET,
+      }),
+    }
+  );
+
+  console.log("OAuth response status:", response.status);
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("OAuth error body:", errorText);
+    throw new Error(`OAuth token error (${response.status}): ${errorText}`);
+  }
+
+  const data = await response.json();
+  const token = data.access_token;
+  // Cache for 23 hours (token valid ~24h)
+  cachedToken = { token, expiresAt: Date.now() + 23 * 60 * 60 * 1000 };
+  return token;
+}
 
 function adminUrl(path: string) {
   return `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/${path}`;
@@ -107,18 +154,20 @@ function normalizeProduct(product: any) {
 }
 
 async function listProducts(token: string, data: any) {
-  const limit = Math.max(1, Math.min(Number(data?.limit || 50), 100));
-  const page = Math.max(1, Number(data?.page || 1));
+  const limit = Math.max(1, Math.min(Number(data?.limit || 50), 250));
   const status = (data?.status || "active").toLowerCase();
   const tagFilter = (data?.tag || "").toLowerCase().trim();
   const query = (data?.query || "").toLowerCase().trim();
+  const pageInfo = data?.pageInfo || "";
 
   const search = new URLSearchParams({
     limit: String(limit),
-    page: String(page),
     fields: "id,title,handle,status,tags,updated_at",
     status,
   });
+  if (pageInfo) {
+    search.set("page_info", pageInfo);
+  }
   const res = await shopifyFetch(`products.json?${search.toString()}`, "GET", undefined, token);
   let products = Array.isArray(res.products) ? res.products : [];
   if (query) {
@@ -138,7 +187,6 @@ async function listProducts(token: string, data: any) {
   return {
     products: products.map(normalizeProduct),
     hasNextPage: products.length === limit,
-    page,
   };
 }
 
@@ -307,15 +355,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const token = Deno.env.get("SHOPIFY_ACCESS_TOKEN");
-  if (!token) {
-    return new Response(JSON.stringify({ success: false, error: "Token Shopify non configurato" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
   try {
+    const token = await getAccessToken();
     const { action, data } = await req.json();
     let result: any;
 
