@@ -350,15 +350,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const token = Deno.env.get("SHOPIFY_ACCESS_TOKEN");
-  if (!token) {
-    return new Response(JSON.stringify({ success: false, error: "Token Shopify non configurato" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
   try {
+    const token = await getAccessToken();
     const { action, data } = await req.json();
     let result: any;
 
