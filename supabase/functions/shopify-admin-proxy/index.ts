@@ -30,8 +30,10 @@ async function getAccessToken(): Promise<string> {
   }
 
   const credentials = btoa(`${SHOPIFY_CLIENT_ID}:${SHOPIFY_CLIENT_SECRET}`);
+  const oauthUrl = `https://${SHOPIFY_STORE}/admin/oauth/access_token`;
+  console.log("OAuth request to:", oauthUrl);
   const response = await fetch(
-    `https://${SHOPIFY_STORE}/admin/oauth/access_token`,
+    oauthUrl,
     {
       method: "POST",
       headers: {
@@ -46,8 +48,10 @@ async function getAccessToken(): Promise<string> {
     }
   );
 
+  console.log("OAuth response status:", response.status);
   if (!response.ok) {
     const errorText = await response.text();
+    console.error("OAuth error body:", errorText);
     throw new Error(`OAuth token error (${response.status}): ${errorText}`);
   }
 
