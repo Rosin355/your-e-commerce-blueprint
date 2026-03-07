@@ -29,7 +29,7 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
   const aiWriterEnabled = import.meta.env.VITE_ENABLE_AI_PRODUCT_WRITER !== 'false';
 
   const handleTabChange = (value: string) => {
-    if (value === 'ai-writer') return;
+    if (value === 'ai-writer' || value === 'woo-pipeline') return;
     store.reset();
     store.setImportType(value as ImportType);
   };
