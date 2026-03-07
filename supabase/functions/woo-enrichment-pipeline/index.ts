@@ -10,195 +10,121 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-// ─── CSV Parser ───
-
-function stripBom(input: string): string {
-  return input.replace(/^\uFEFF/, "");
-}
-
-function parseCsvText(csvText: string): string[][] {
-  const text = stripBom(csvText);
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    const next = text[i + 1];
-    if (inQuotes) {
-      if (ch === '"' && next === '"') { field += '"'; i++; }
-      else if (ch === '"') { inQuotes = false; }
-      else { field += ch; }
-      continue;
-    }
-    if (ch === '"') inQuotes = true;
-    else if (ch === ",") { row.push(field); field = ""; }
-    else if (ch === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
-    else if (ch !== "\r") { field += ch; }
-  }
-  row.push(field);
-  if (row.length > 1 || row[0] !== "") rows.push(row);
-  return rows;
-}
-
-function csvToObjects(csvText: string): Record<string, string>[] {
-  const rows = parseCsvText(csvText);
-  if (rows.length <= 1) return [];
-  const headers = rows[0].map(h => h.trim());
-  return rows.slice(1).map((csvRow, idx) => {
-    const obj: Record<string, string> = { __rowNumber: String(idx + 2) };
-    for (let i = 0; i < headers.length; i++) {
-      obj[headers[i]] = String(csvRow[i] ?? "");
-    }
-    return obj;
-  });
-}
-
-// ─── Helpers ───
-
-function safeString(v: unknown): string { return String(v ?? "").trim(); }
-
-function pick(row: Record<string, string>, names: string[]): string {
-  for (const n of names) {
-    const v = row?.[n];
-    if (v !== undefined && v !== null && String(v).trim() !== "") return String(v).trim();
-  }
-  return "";
-}
-
-/**
- * Count "parent" rows (simple + variable products, not variations).
- * This is the total_rows for job tracking.
- */
-function countParentRows(rows: Record<string, string>[]): number {
-  let count = 0;
-  for (const row of rows) {
-    const type = pick(row, ["Tipo", "Type"]).toLowerCase();
-    if (!type || type === "simple" || type === "variable") count++;
-  }
-  return count;
-}
-
-// ─── Serve ───
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const contentType = req.headers.get("content-type") || "";
-    let csvText: string;
-    let dryRun = false;
-    let limit: number | undefined;
-    let defaultVendor = "Online Garden";
-    let useAi = true;
-    let originalFileName = "upload.csv";
+    const body = await req.json();
+    const { jobId, inputPath, dryRun, useAi, limit, defaultVendor } = body;
 
-    if (contentType.includes("multipart/form-data")) {
-      const formData = await req.formData();
-      const file = formData.get("file");
-      if (!file || !(file instanceof File)) {
-        return new Response(JSON.stringify({ success: false, error: "File CSV mancante" }), {
-          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (!file.name.endsWith(".csv") && file.type !== "text/csv") {
-        return new Response(JSON.stringify({ success: false, error: "Solo file CSV accettati" }), {
-          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (file.size > 50 * 1024 * 1024) {
-        return new Response(JSON.stringify({ success: false, error: "File troppo grande (max 50MB)" }), {
-          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      csvText = await file.text();
-      originalFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 100);
-      dryRun = formData.get("dryRun") === "true";
-      limit = formData.get("limit") ? Number(formData.get("limit")) : undefined;
-      if (formData.get("defaultVendor")) defaultVendor = String(formData.get("defaultVendor"));
-      useAi = formData.get("useAi") !== "false";
-    } else {
-      const body = await req.json();
-      csvText = body.csvText;
-      dryRun = body.dryRun === true;
-      limit = body.limit;
-      defaultVendor = body.defaultVendor || "Online Garden";
-      useAi = body.useAi !== false;
-      if (body.fileName) originalFileName = body.fileName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 100);
-    }
-
-    if (!csvText) {
-      return new Response(JSON.stringify({ success: false, error: "CSV vuoto" }), {
+    if (!jobId || !inputPath) {
+      return new Response(JSON.stringify({ success: false, error: "jobId e inputPath richiesti" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Quick validation: parse and count rows
-    const allRows = csvToObjects(csvText);
-    if (!allRows.length) {
-      return new Response(JSON.stringify({ success: false, error: "CSV vuoto o non valido" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
 
-    const totalParentRows = countParentRows(allRows);
-    console.log(`[Pipeline] Validated CSV: ${allRows.length} total rows, ${totalParentRows} parent products, dryRun=${dryRun}`);
-
-    // ─── DRY RUN: quick inline preview (no job created) ───
+    // For dry run: download only first ~20KB to preview rows
     if (dryRun) {
+      const { data: csvData, error: dlError } = await supabase.storage
+        .from("csv-pipeline")
+        .download(inputPath);
+
+      if (dlError || !csvData) {
+        return new Response(JSON.stringify({ success: false, error: "File non trovato in storage" }), {
+          status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Only read first chunk for preview
+      const fullText = await csvData.text();
+      const lines = fullText.split("\n");
+      const totalSourceRows = lines.length - 1; // minus header
+
+      // Count parent rows (simple + variable, not variation)
+      let totalParentRows = 0;
+      if (lines.length > 1) {
+        const headers = parseHeaderLine(lines[0]);
+        const typeIdx = headers.findIndex(h => h === "Tipo" || h === "Type");
+        for (let i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          if (typeIdx >= 0) {
+            const type = extractFieldFromLine(lines[i], typeIdx).toLowerCase();
+            if (!type || type === "simple" || type === "variable") totalParentRows++;
+          } else {
+            totalParentRows++;
+          }
+        }
+      }
+
+      // Simple preview of first 5 data rows
+      const sampleRows: Record<string, string>[] = [];
+      if (lines.length > 1) {
+        const headers = parseHeaderLine(lines[0]);
+        for (let i = 1; i <= Math.min(5, lines.length - 1); i++) {
+          if (!lines[i].trim()) continue;
+          const fields = parseHeaderLine(lines[i]);
+          const row: Record<string, string> = {};
+          const nameIdx = headers.findIndex(h => h === "Nome" || h === "Name" || h === "Title");
+          const skuIdx = headers.findIndex(h => h === "SKU");
+          const priceIdx = headers.findIndex(h => h === "Prezzo di listino" || h === "Regular price");
+          const typeIdx2 = headers.findIndex(h => h === "Tipo" || h === "Type");
+          const tagsIdx = headers.findIndex(h => h === "Tag" || h === "Tags");
+          row.Title = nameIdx >= 0 ? fields[nameIdx] || "" : "";
+          row.SKU = skuIdx >= 0 ? fields[skuIdx] || "" : "";
+          row.Price = priceIdx >= 0 ? fields[priceIdx] || "" : "";
+          row.Type = typeIdx2 >= 0 ? fields[typeIdx2] || "" : "";
+          row.Tags = tagsIdx >= 0 ? fields[tagsIdx] || "" : "";
+          row.Status = "draft";
+          sampleRows.push(row);
+        }
+      }
+
       return new Response(JSON.stringify({
         success: true,
         dryRun: true,
-        report: {
-          processedRows: 0,
-          createdRows: 0,
-          skippedRows: 0,
-          warningCount: 0,
-          errorCount: 0,
-          aiEnrichedCount: 0,
-          fallbackCount: 0,
-          dryRun: true,
-          startedAt: new Date().toISOString(),
-          finishedAt: new Date().toISOString(),
-          totalSourceRows: allRows.length,
-        },
+        report: { totalSourceRows },
         totalParentRows,
-        sampleRows: allRows.slice(0, 5).map(r => {
-          const title = pick(r, ["Nome", "Name", "Title"]);
-          const sku = pick(r, ["SKU"]);
-          const price = pick(r, ["Prezzo di listino", "Regular price"]);
-          const type = pick(r, ["Tipo", "Type"]);
-          const cats = pick(r, ["Categorie", "Categories"]);
-          const tags = pick(r, ["Tag", "Tags"]);
-          return { Title: title, SKU: sku, Price: price, Type: type, Tags: tags, Status: "draft", "URL handle": "", "SEO title": "" };
-        }),
+        sampleRows,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // ─── FULL RUN: Create async job ───
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-
-    // Generate job ID first
-    const jobId = crypto.randomUUID();
-
-    // Upload CSV to storage
-    const inputPath = `jobs/${jobId}/input.csv`;
-    const { error: uploadError } = await supabase.storage
+    // Full run: create job record (do NOT parse the CSV here)
+    // Count rows using a lightweight line counter
+    const { data: csvData, error: dlError } = await supabase.storage
       .from("csv-pipeline")
-      .upload(inputPath, new Blob([csvText], { type: "text/csv" }), { contentType: "text/csv" });
+      .download(inputPath);
 
-    if (uploadError) {
-      console.error("[Pipeline] Upload error:", uploadError);
-      return new Response(JSON.stringify({ success: false, error: `Errore upload: ${uploadError.message}` }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    if (dlError || !csvData) {
+      return new Response(JSON.stringify({ success: false, error: "File non trovato in storage" }), {
+        status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    const fullText = await csvData.text();
+    const lines = fullText.split("\n");
+
+    // Count parent rows
+    let totalParentRows = 0;
+    if (lines.length > 1) {
+      const headers = parseHeaderLine(lines[0]);
+      const typeIdx = headers.findIndex(h => h === "Tipo" || h === "Type");
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        if (typeIdx >= 0) {
+          const type = extractFieldFromLine(lines[i], typeIdx).toLowerCase();
+          if (!type || type === "simple" || type === "variable") totalParentRows++;
+        } else {
+          totalParentRows++;
+        }
+      }
     }
 
     // Create job record
@@ -215,8 +141,8 @@ serve(async (req) => {
       fallback_count: 0,
       input_file_path: inputPath,
       dry_run: false,
-      use_ai: useAi,
-      default_vendor: defaultVendor,
+      use_ai: useAi !== false,
+      default_vendor: defaultVendor || "Online Garden",
       row_limit: limit || null,
       warnings: [],
       errors: [],
@@ -236,7 +162,7 @@ serve(async (req) => {
       success: true,
       jobId,
       totalRows: totalParentRows,
-      totalSourceRows: allRows.length,
+      totalSourceRows: lines.length - 1,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -249,3 +175,48 @@ serve(async (req) => {
     });
   }
 });
+
+// ─── Minimal CSV helpers (no full parsing, just header extraction) ───
+
+function parseHeaderLine(line: string): string[] {
+  const fields: string[] = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') { field += '"'; i++; }
+      else if (ch === '"') { inQuotes = false; }
+      else { field += ch; }
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ",") { fields.push(field.trim()); field = ""; }
+      else if (ch !== "\r") { field += ch; }
+    }
+  }
+  fields.push(field.trim());
+  return fields;
+}
+
+function extractFieldFromLine(line: string, targetIdx: number): string {
+  let field = "";
+  let inQuotes = false;
+  let idx = 0;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') { field += '"'; i++; }
+      else if (ch === '"') { inQuotes = false; }
+      else if (idx === targetIdx) { field += ch; }
+    } else {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === ",") {
+        if (idx === targetIdx) return field.trim();
+        idx++;
+        field = "";
+      }
+      else if (ch !== "\r" && idx === targetIdx) { field += ch; }
+    }
+  }
+  return idx === targetIdx ? field.trim() : "";
+}
