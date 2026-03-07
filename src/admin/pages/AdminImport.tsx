@@ -143,6 +143,10 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
             <AiWriterPanel />
           </TabsContent>
         )}
+
+        <TabsContent value="woo-pipeline">
+          <WooPipelinePanel />
+        </TabsContent>
       </Tabs>
 
       <div className="mt-8">
