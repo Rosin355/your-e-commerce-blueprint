@@ -15,7 +15,12 @@ export function loadEnvFile(filePath) {
   }
 }
 
-export function parseCsv(text) {
+function stripBom(input) {
+  return input.replace(/^\uFEFF/, "");
+}
+
+export function parseCsv(csvText) {
+  const text = stripBom(String(csvText || ""));
   const rows = [];
   let row = [];
   let field = "";
@@ -56,38 +61,61 @@ export function parseCsv(text) {
   return rows;
 }
 
-export function loadCsv(filePath) {
-  const raw = fs.readFileSync(filePath, "utf8").replace(/^\uFEFF/, "");
+export function readCsvHeaders(filePath) {
+  const raw = fs.readFileSync(filePath, "utf8");
   const rows = parseCsv(raw);
-  if (!rows.length) return { headers: [], rows: [] };
-  const headers = rows[0].map((h) => String(h || "").trim());
-  const dataRows = rows.slice(1).map((csvRow) => {
-    const row = {};
-    for (let i = 0; i < headers.length; i += 1) row[headers[i]] = String(csvRow[i] || "").trim();
-    return row;
-  });
-  return { headers, rows: dataRows };
+  if (!rows.length) return [];
+  return rows[0].map((h) => String(h || "").trim());
 }
 
-export function toCsvCell(value) {
+export function readCsvFile(filePath) {
+  const raw = fs.readFileSync(filePath, "utf8");
+  const rows = parseCsv(raw);
+  if (rows.length <= 1) return [];
+  const headers = rows[0].map((h) => String(h || "").trim());
+  return rows.slice(1).map((csvRow, idx) => {
+    const row = { __rowNumber: idx + 2 };
+    for (let i = 0; i < headers.length; i += 1) {
+      row[headers[i]] = String(csvRow[i] || "");
+    }
+    return row;
+  });
+}
+
+function toCsvCell(value) {
   const s = String(value ?? "");
   if (s.includes('"') || s.includes(",") || s.includes("\n")) return `"${s.replace(/"/g, '""')}"`;
   return s;
 }
 
-export function writeCsv(filePath, headers, rows) {
-  const lines = [];
-  lines.push(headers.map(toCsvCell).join(","));
-  for (const row of rows) lines.push(headers.map((h) => toCsvCell(row[h] ?? "")).join(","));
+export function writeCsvFile(filePath, rows, headers) {
+  const out = [];
+  out.push(headers.map(toCsvCell).join(","));
+  for (const row of rows) {
+    out.push(headers.map((h) => toCsvCell(row?.[h] ?? "")).join(","));
+  }
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${lines.join("\n")}\n`, "utf8");
+  fs.writeFileSync(filePath, `${out.join("\n")}\n`, "utf8");
 }
 
-export function writeJson(filePath, payload) {
+export function writeJsonFile(filePath, payload) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), "utf8");
 }
 
 export function nowIso() {
   return new Date().toISOString();
+}
+
+// backward-compatible helpers used by older scripts
+export function loadCsv(filePath) {
+  return { headers: readCsvHeaders(filePath), rows: readCsvFile(filePath) };
+}
+
+export function writeCsv(filePath, headers, rows) {
+  return writeCsvFile(filePath, rows, headers);
+}
+
+export function writeJson(filePath, payload) {
+  return writeJsonFile(filePath, payload);
 }

@@ -1,306 +1,528 @@
 import path from "node:path";
 import process from "node:process";
-import { createAiProductEnricher } from "./lib/ai-product-enricher.mjs";
-import { loadCsv, loadEnvFile, nowIso, writeCsv, writeJson } from "./lib/csv-utils.mjs";
-import {
-  boolToCsv,
-  extractWooFields,
-  gramsFromKg,
-  mapPublishedAndStatus,
-  mergeTags,
-  pick,
-  sanitizeHandle,
-} from "./lib/product-normalizers.mjs";
+import { enrichProductContent } from "./lib/ai-product-enricher.mjs";
+import { loadEnvFile, nowIso, readCsvFile, readCsvHeaders, writeCsvFile, writeJsonFile } from "./lib/csv-utils.mjs";
+import { normalizeWooProduct } from "./lib/product-normalizers.mjs";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 loadEnvFile(path.join(__dirname, ".env"));
 
-const args = new Set(process.argv.slice(2));
-const isDryRun = args.has("--dry-run");
+function parseArgs(argv) {
+  const args = new Set(argv.slice(2));
+  const dryRun = args.has("--dry-run");
+  let limit;
+  for (const arg of argv.slice(2)) {
+    if (arg.startsWith("--limit=")) {
+      const n = Number(arg.split("=")[1]);
+      if (!Number.isNaN(n) && n > 0) limit = n;
+    }
+  }
+  return { dryRun, limit };
+}
 
-const cfg = {
-  wooFile: process.env.WOO_PRODUCTS_CSV_PATH || "",
-  templateFile: process.env.SHOPIFY_TEMPLATE_CSV_PATH || "",
-  outputFile: process.env.SHOPIFY_OUTPUT_CSV_PATH || "sync/out/shopify-products-draft-import.csv",
-  limit: Number(process.env.WOO_PRODUCTS_LIMIT || 0),
-  allowZeroPrice: String(process.env.ALLOW_ZERO_PRICE || "false").toLowerCase() === "true",
-  allowMissingSku: String(process.env.ALLOW_MISSING_SKU || "true").toLowerCase() === "true",
-  defaultVendor: process.env.DEFAULT_VENDOR || "Online Garden",
-};
+function toBooleanEnv(value, defaultValue) {
+  const raw = String(value ?? "").toLowerCase().trim();
+  if (!raw) return defaultValue;
+  if (["1", "true", "yes", "si", "sì"].includes(raw)) return true;
+  if (["0", "false", "no"].includes(raw)) return false;
+  return defaultValue;
+}
 
-function log(level, message, meta) {
+function toNumberEnv(value, defaultValue) {
+  const num = Number(value);
+  return Number.isNaN(num) ? defaultValue : num;
+}
+
+function safeString(value) {
+  return String(value ?? "");
+}
+
+function normalizeWhitespace(value) {
+  return safeString(value).replace(/\s+/g, " ").trim();
+}
+
+function stripHtmlUnsafeJunk(value) {
+  const html = safeString(value).replace(/\u0000/g, "");
+  return html.replace(/<script[\s\S]*?<\/script>/gi, "");
+}
+
+function slugifyHandle(value) {
+  const base = normalizeWhitespace(value)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return base || "product";
+}
+
+function ensureUniqueHandle(base, usedHandles) {
+  if (!usedHandles.has(base)) {
+    usedHandles.add(base);
+    return base;
+  }
+  let index = 2;
+  while (usedHandles.has(`${base}-${index}`)) index += 1;
+  const handle = `${base}-${index}`;
+  usedHandles.add(handle);
+  return handle;
+}
+
+function splitMultiValueField(value) {
+  return safeString(value)
+    .split(/[|,]/)
+    .map((v) => normalizeWhitespace(v))
+    .filter(Boolean);
+}
+
+function parseImages(value) {
+  return splitMultiValueField(value).filter((url) => /^https?:\/\//i.test(url));
+}
+
+function parseTags(value) {
+  return splitMultiValueField(value);
+}
+
+function parseCategories(value) {
+  return splitMultiValueField(value);
+}
+
+function kgToGrams(value) {
+  const raw = normalizeWhitespace(value);
+  if (!raw) return "";
+  const kg = Number(raw.replace(",", "."));
+  if (Number.isNaN(kg)) return "";
+  return String(Math.round(kg * 1000));
+}
+
+function normalizePrice(value) {
+  const raw = normalizeWhitespace(value);
+  if (!raw) return "";
+  const clean = raw.replace(/\./g, "").replace(",", ".").replace(/[^\d.-]/g, "");
+  const num = Number(clean);
+  if (Number.isNaN(num)) return "";
+  return num.toFixed(2);
+}
+
+function normalizeInventoryPolicy(stockStatus, backorders) {
+  const backordersEnabled = toBooleanEnv(backorders, false);
+  if (backordersEnabled) return "continue";
+  return "deny";
+}
+
+function pickBestDescription(fullHtml, shortHtml) {
+  const full = stripHtmlUnsafeJunk(fullHtml).trim();
+  const short = normalizeWhitespace(shortHtml);
+  if (full) return full;
+  if (short) return `<p>${short}</p>`;
+  return "";
+}
+
+function buildAiInput(normalizedProduct) {
+  return {
+    source: "woocommerce_csv",
+    language: "it",
+    brand: normalizedProduct.vendor,
+    title: normalizedProduct.title,
+    shortDescription: normalizedProduct.shortDescription,
+    descriptionHtml: normalizedProduct.descriptionHtml,
+    categories: normalizedProduct.categories || [],
+    tags: normalizedProduct.tags || [],
+    sku: normalizedProduct.sku,
+    images: normalizedProduct.images || [],
+    attributes: normalizedProduct.attributes || {},
+  };
+}
+
+function mergeTags(sourceTags, sourceCategories, aiTags) {
+  const out = new Set();
+  for (const value of [...(sourceTags || []), ...(sourceCategories || []), ...(aiTags || [])]) {
+    const clean = normalizeWhitespace(value);
+    if (clean) out.add(clean);
+  }
+  out.add("woo-import");
+  out.add("legacy-onlinegarden-products");
+  return [...out].join(", ");
+}
+
+function buildBaseShopifyRow(product, aiResult) {
+  const price = normalizePrice(product.price);
+  const compareAt = normalizePrice(product.compareAtPrice);
+  const description = pickBestDescription(
+    aiResult?.descriptionHtml || product.descriptionHtml,
+    product.shortDescription,
+  );
+
+  const row = {
+    Title: safeString(aiResult?.title || product.title),
+    "URL handle": safeString(product.handle),
+    Description: description,
+    Vendor: safeString(product.vendor),
+    "Product category": "",
+    Type: safeString(aiResult?.productType || product.categories?.[0] || product.sourceType || ""),
+    Tags: mergeTags(product.tags, product.categories, aiResult?.tags),
+    "Published on online store": "false",
+    Status: "draft",
+    SKU: safeString(product.sku),
+    Barcode: safeString(product.barcode),
+    "Option1 name": safeString(product.attributes?.option1Name || "Title"),
+    "Option1 value": safeString(product.attributes?.option1Value || "Default Title"),
+    "Option1 Linked To": "",
+    "Option2 name": safeString(product.attributes?.option2Name || ""),
+    "Option2 value": safeString(product.attributes?.option2Value || ""),
+    "Option2 Linked To": "",
+    "Option3 name": safeString(product.attributes?.option3Name || ""),
+    "Option3 value": safeString(product.attributes?.option3Value || ""),
+    "Option3 Linked To": "",
+    Price: price,
+    "Compare-at price": compareAt,
+    "Cost per item": "",
+    "Charge tax": product.chargeTax ? "true" : "false",
+    "Tax code": safeString(product.taxCode || ""),
+    "Unit price total measure": "",
+    "Unit price total measure unit": "",
+    "Unit price base measure": "",
+    "Unit price base measure unit": "",
+    "Inventory tracker": "shopify",
+    "Inventory quantity": String(product.inventoryQuantity ?? 0),
+    "Continue selling when out of stock": safeString(product.continueSelling || "deny"),
+    "Weight value (grams)": safeString(product.weightGrams ?? ""),
+    "Weight unit for display": product.weightGrams ? "g" : "",
+    "Requires shipping": product.requiresShipping ? "true" : "false",
+    "Fulfillment service": "manual",
+    "Product image URL": safeString(product.images?.[0] || ""),
+    "Image position": product.images?.length ? "1" : "",
+    "Image alt text": safeString(aiResult?.imageAltText || product.title),
+    "Variant image URL": "",
+    "Gift card": product.sourceType.includes("gift_card") ? "true" : "false",
+    "SEO title": safeString(aiResult?.seoTitle || product.title),
+    "SEO description": safeString(aiResult?.seoDescription || ""),
+    "Color (product.metafields.shopify.color-pattern)": "",
+    "Google Shopping / Google product category": safeString(aiResult?.googleProductCategory || ""),
+    "Google Shopping / Gender": "",
+    "Google Shopping / Age group": "",
+    "Google Shopping / Manufacturer part number (MPN)": "",
+    "Google Shopping / Ad group name": "",
+    "Google Shopping / Ads labels": "",
+    "Google Shopping / Condition": "",
+    "Google Shopping / Custom product": "",
+    "Google Shopping / Custom label 0": safeString(aiResult?.customLabels?.["0"] || ""),
+    "Google Shopping / Custom label 1": safeString(aiResult?.customLabels?.["1"] || ""),
+    "Google Shopping / Custom label 2": safeString(aiResult?.customLabels?.["2"] || ""),
+    "Google Shopping / Custom label 3": safeString(aiResult?.customLabels?.["3"] || ""),
+    "Google Shopping / Custom label 4": safeString(aiResult?.customLabels?.["4"] || ""),
+  };
+  return row;
+}
+
+function buildAdditionalImageRows(baseRow, imageUrls, altText) {
+  const rows = [];
+  for (let i = 1; i < imageUrls.length; i += 1) {
+    rows.push({
+      ...Object.fromEntries(Object.keys(baseRow).map((k) => [k, ""])),
+      "URL handle": baseRow["URL handle"],
+      "Product image URL": imageUrls[i],
+      "Image position": String(i + 1),
+      "Image alt text": altText,
+    });
+  }
+  return rows;
+}
+
+function writeWarningsCsv(filePath, warnings) {
+  writeCsvFile(filePath, warnings, ["rowNumber", "sku", "title", "code", "message"]);
+}
+
+function writeErrorsCsv(filePath, errors) {
+  writeCsvFile(filePath, errors, ["rowNumber", "sku", "title", "code", "message"]);
+}
+
+function writeReportJson(filePath, report) {
+  writeJsonFile(filePath, report);
+}
+
+function createWarning(rowNumber, sku, title, code, message) {
+  return { rowNumber, sku: safeString(sku), title: safeString(title), code, message };
+}
+
+function createError(rowNumber, sku, title, code, message) {
+  return { rowNumber, sku: safeString(sku), title: safeString(title), code, message };
+}
+
+function log(level, message, meta = undefined) {
   const line = `[${nowIso()}] ${level.toUpperCase()} ${message}`;
   if (meta) console.log(line, meta);
   else console.log(line);
 }
 
-function emptyRow(headers) {
-  const row = {};
-  for (const h of headers) row[h] = "";
-  return row;
+function normalizeFromWooRaw(raw, defaultVendor) {
+  const normalized = normalizeWooProduct(raw, { defaultVendor });
+  normalized.images = parseImages(normalized.images?.join?.("|") || normalized.raw?.Immagini || normalized.raw?.Immagine || "");
+  normalized.tags = parseTags(normalized.tags?.join?.(",") || normalized.raw?.Tag || normalized.raw?.Tags || "");
+  normalized.categories = parseCategories(normalized.categories?.join?.(",") || normalized.raw?.Categorie || normalized.raw?.Categories || "");
+  normalized.descriptionHtml = pickBestDescription(normalized.descriptionHtml, normalized.shortDescription);
+  normalized.price = normalizePrice(normalized.price);
+  normalized.compareAtPrice = normalizePrice(normalized.compareAtPrice);
+  normalized.weightGrams = normalized.weightGrams || kgToGrams(normalized.raw?.["Peso (kg)"]);
+  normalized.continueSelling = normalizeInventoryPolicy(normalized.raw?.["In stock?"], normalized.raw?.["Abilita gli ordini arretrati?"]);
+  normalized.inventoryQuantity = toNumberEnv(normalized.inventoryQuantity, 0);
+  normalized.vendor = normalizeWhitespace(normalized.vendor) || defaultVendor;
+  normalized.title = normalizeWhitespace(normalized.title);
+  normalized.shortDescription = normalizeWhitespace(normalized.shortDescription);
+  normalized.handleCandidate = slugifyHandle(normalized.handleCandidate || normalized.raw?.Slug || normalized.title || normalized.sku);
+  return normalized;
 }
 
-function splitValidUrls(value) {
-  return String(value || "")
-    .split(/[|,]/)
-    .map((s) => s.trim())
-    .filter((s) => /^https?:\/\//i.test(s));
-}
-
-function buildAiPayload(product) {
-  return {
-    source: "woocommerce_csv",
-    language: "it",
-    brand: "Online Garden",
-    title: product.title,
-    shortDescription: product.shortDescription,
-    descriptionHtml: product.descriptionHtml,
-    categories: product.categories ? [product.categories] : [],
-    tags: product.tags ? product.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
-    sku: product.sku,
-    images: product.images,
-    attributes: {
-      exposure: product.exposure,
-      soil: product.soil,
-      watering: product.watering,
-      petSafe: product.petSafe,
-      heightCm: product.heightCm,
-    },
-  };
-}
-
-async function runPool(items, worker, concurrency) {
-  const out = new Array(items.length);
-  let idx = 0;
-  async function loop() {
-    while (idx < items.length) {
-      const current = idx;
-      idx += 1;
-      out[current] = await worker(items[current], current);
+async function processWithConcurrency(items, concurrency, handler) {
+  const results = new Array(items.length);
+  let index = 0;
+  async function worker() {
+    while (index < items.length) {
+      const current = index;
+      index += 1;
+      results[current] = await handler(items[current], current);
     }
   }
-  const runners = Array.from({ length: Math.max(1, concurrency) }, () => loop());
-  await Promise.all(runners);
-  return out;
-}
-
-function resolvePrice(source) {
-  if (source.salePrice) return { price: source.salePrice, compareAtPrice: source.regularPrice || "" };
-  return { price: source.regularPrice || "", compareAtPrice: "" };
-}
-
-function validateOutputRow(row, errors, rowNumber) {
-  const allowedStatus = new Set(["Active", "Draft", "Archived", ""]);
-  if (!allowedStatus.has(row.Status)) {
-    errors.push({ code: "INVALID_STATUS", message: `Status non valido ${row.Status}`, row: rowNumber, sku: row.SKU, handle: row["URL handle"] });
-  }
-  if (row["Product image URL"] && !/^https?:\/\//i.test(row["Product image URL"])) {
-    errors.push({ code: "INVALID_IMAGE_URL", message: "Product image URL non valida", row: rowNumber, sku: row.SKU, handle: row["URL handle"] });
-  }
+  const workers = Array.from({ length: Math.max(1, concurrency) }, () => worker());
+  await Promise.all(workers);
+  return results;
 }
 
 async function main() {
-  if (!cfg.wooFile) throw new Error("WOO_PRODUCTS_CSV_PATH mancante");
-  if (!cfg.templateFile) throw new Error("SHOPIFY_TEMPLATE_CSV_PATH mancante");
-
   const startedAt = nowIso();
-  const woo = loadCsv(cfg.wooFile);
-  const template = loadCsv(cfg.templateFile);
-  const headers = template.headers;
-  if (headers.length !== 57) throw new Error(`Template Shopify non valido: attese 57 colonne, trovate ${headers.length}`);
+  const { dryRun, limit: cliLimit } = parseArgs(process.argv);
+
+  const envLimit = toNumberEnv(process.env.WOO_PRODUCTS_LIMIT, 0);
+  const limit = cliLimit || envLimit;
+  const allowZeroPrice = toBooleanEnv(process.env.ALLOW_ZERO_PRICE, false);
+  const allowMissingSku = toBooleanEnv(process.env.ALLOW_MISSING_SKU, true);
+  const defaultVendor = process.env.DEFAULT_VENDOR || "Online Garden";
+  const aiMode = process.env.AI_ENRICH_MODE || "mock";
+  const aiConcurrency = Math.max(1, toNumberEnv(process.env.AI_ENRICH_CONCURRENCY, 2));
+
+  const inputFile = process.env.WOO_PRODUCTS_CSV_PATH || "";
+  const templateFile = process.env.SHOPIFY_TEMPLATE_CSV_PATH || "";
+  const outputFile = process.env.SHOPIFY_OUTPUT_CSV_PATH || "sync/out/shopify-products-draft-import.csv";
+  if (!inputFile) throw new Error("WOO_PRODUCTS_CSV_PATH mancante");
+  if (!templateFile) throw new Error("SHOPIFY_TEMPLATE_CSV_PATH mancante");
+
+  const headers = readCsvHeaders(templateFile);
+  if (!headers.length) throw new Error("Template CSV vuoto o non valido");
+
+  const sourceRows = readCsvFile(inputFile);
+  const selectedSourceRows = limit > 0 ? sourceRows.slice(0, limit) : sourceRows;
 
   const warnings = [];
   const errors = [];
   const outputRows = [];
+  const usedHandles = new Set();
+  const seenSku = new Set();
 
-  const byType = { variable: [], variation: [], simple: [], other: [] };
-  for (const raw of woo.rows) {
-    const normalized = extractWooFields(raw);
-    if (normalized.type === "variable") byType.variable.push(normalized);
-    else if (normalized.type === "variation") byType.variation.push(normalized);
-    else if (normalized.type === "simple") byType.simple.push(normalized);
-    else byType.other.push(normalized);
-  }
-
-  const parentCandidates = [...byType.variable, ...byType.simple, ...byType.other];
-  const parents = cfg.limit > 0 ? parentCandidates.slice(0, cfg.limit) : parentCandidates;
-
-  const variationsByParentSku = new Map();
-  for (const v of byType.variation) {
-    if (!v.parentSku) {
-      warnings.push({ code: "VARIATION_PARENT_MISSING", message: "Variation senza parent SKU", row: "", sku: v.sku, handle: "" });
-      continue;
-    }
-    if (!variationsByParentSku.has(v.parentSku)) variationsByParentSku.set(v.parentSku, []);
-    variationsByParentSku.get(v.parentSku).push(v);
-  }
-
-  const handleSet = new Set();
-  const enricher = createAiProductEnricher(process.env);
-  const aiResults = await runPool(
-    parents,
-    async (parent) => {
-      const payload = buildAiPayload(parent);
-      return enricher.enrich(payload);
-    },
-    enricher.config.concurrency,
-  );
-
-  let aiEnrichedCount = 0;
-  let fallbackCount = 0;
+  let processedRows = 0;
   let createdRows = 0;
   let skippedRows = 0;
-  const skuSeen = new Map();
+  let aiEnrichedCount = 0;
+  let fallbackCount = 0;
+
+  const normalizedAll = selectedSourceRows.map((row) => normalizeFromWooRaw(row, defaultVendor));
+
+  const parents = [];
+  const parentByRef = new Map();
+  const variations = [];
+  for (const p of normalizedAll) {
+    if (!p.sourceType || p.sourceType === "simple") {
+      parents.push(p);
+      if (p.sku) parentByRef.set(p.sku, p);
+      continue;
+    }
+    if (p.sourceType === "variable") {
+      parents.push(p);
+      if (p.sku) parentByRef.set(p.sku, p);
+      continue;
+    }
+    if (p.sourceType === "variation") {
+      variations.push(p);
+      continue;
+    }
+    warnings.push(createWarning(p.sourceRowNumber, p.sku, p.title, "UNSUPPORTED_TYPE", `Tipo supportato parzialmente: ${p.sourceType}`));
+  }
+
+  const variationsByParent = new Map();
+  for (const variation of variations) {
+    const parentRef = safeString(variation.attributes?.parentReference);
+    if (!parentRef) {
+      warnings.push(createWarning(variation.sourceRowNumber, variation.sku, variation.title, "ORPHAN_VARIATION", "Variation senza parent"));
+      continue;
+    }
+    if (!variationsByParent.has(parentRef)) variationsByParent.set(parentRef, []);
+    variationsByParent.get(parentRef).push(variation);
+  }
+
+  const aiInputs = parents.map((p) => buildAiInput(p));
+  const aiResults = await processWithConcurrency(aiInputs, aiConcurrency, async (aiInput) => {
+    try {
+      const enriched = await enrichProductContent(aiInput, {
+        mode: aiMode,
+        endpoint: process.env.AI_ENRICH_ENDPOINT,
+        apiKey: process.env.AI_ENRICH_API_KEY,
+        timeoutMs: toNumberEnv(process.env.AI_ENRICH_TIMEOUT_MS, 30000),
+      });
+      aiEnrichedCount += 1;
+      return { enriched, warning: null };
+    } catch (error) {
+      fallbackCount += 1;
+      return { enriched: null, warning: error instanceof Error ? error.message : String(error) };
+    }
+  });
 
   for (let i = 0; i < parents.length; i += 1) {
     const parent = parents[i];
-    const ai = aiResults[i];
-    if (ai.usedFallback) fallbackCount += 1;
-    else aiEnrichedCount += 1;
-    if (ai.warning) warnings.push({ code: "AI_FALLBACK", message: ai.warning, row: "", sku: parent.sku, handle: "" });
-
-    const title = ai.enriched.title || parent.title;
-    const handle = sanitizeHandle(parent.handle, title || parent.sku, handleSet);
-    const variants = parent.type === "variable" ? variationsByParentSku.get(parent.sku) || [] : [];
-    const variantRows = variants.length ? variants : [parent];
-
-    for (let variantIndex = 0; variantIndex < variantRows.length; variantIndex += 1) {
-      const variant = variantRows[variantIndex];
-      const row = variantIndex === 0 ? emptyRow(headers) : emptyRow(headers);
-
-      const { publishedOnOnlineStore, status } = mapPublishedAndStatus(parent);
-      const forcedPublished = "FALSE";
-      const forcedStatus = "Draft";
-
-      row.Title = variantIndex === 0 ? title : "";
-      row["URL handle"] = handle;
-      row.Description = variantIndex === 0 ? ai.enriched.descriptionHtml || parent.descriptionHtml || parent.shortDescription || "" : "";
-      row.Vendor = variantIndex === 0 ? (parent.brand || cfg.defaultVendor) : "";
-      row["Product category"] = "";
-      row.Type = variantIndex === 0 ? (ai.enriched.productType || parent.type || "") : "";
-      row.Tags = variantIndex === 0 ? mergeTags({ categories: parent.categories, tags: [parent.tags, ...(ai.enriched.tags || [])].join(",") }) : "";
-      row["Published on online store"] = variantIndex === 0 ? forcedPublished || publishedOnOnlineStore : "";
-      row.Status = variantIndex === 0 ? forcedStatus || status : "";
-
-      row.SKU = variant.sku || "";
-      row.Barcode = variant.barcode || parent.barcode || "";
-      row["Option1 name"] = variantIndex === 0 ? (parent.option1Name || "Title") : "";
-      row["Option1 value"] = variant.option1Value || parent.option1Value || "Default Title";
-      row["Option1 Linked To"] = "";
-      row["Option2 name"] = variantIndex === 0 ? (parent.option2Name || "") : "";
-      row["Option2 value"] = variant.option2Value || parent.option2Value || "";
-      row["Option2 Linked To"] = "";
-      row["Option3 name"] = variantIndex === 0 ? (parent.option3Name || "") : "";
-      row["Option3 value"] = variant.option3Value || parent.option3Value || "";
-      row["Option3 Linked To"] = "";
-
-      const prices = resolvePrice(variant);
-      row.Price = prices.price;
-      row["Compare-at price"] = prices.compareAtPrice;
-      row["Cost per item"] = "";
-      row["Charge tax"] = parent.taxStatus === "none" ? "FALSE" : "TRUE";
-      row["Tax code"] = "";
-      row["Unit price total measure"] = "";
-      row["Unit price total measure unit"] = "";
-      row["Unit price base measure"] = "";
-      row["Unit price base measure unit"] = "";
-      row["Inventory tracker"] = "shopify";
-      row["Inventory quantity"] = String(variant.stock || 0);
-      row["Continue selling when out of stock"] = parent.backorders === "TRUE" ? "TRUE" : "FALSE";
-      row["Weight value (grams)"] = gramsFromKg(variant.weightKg || parent.weightKg);
-      row["Weight unit for display"] = "kg";
-      row["Requires shipping"] = parent.type.includes("gift_card") || parent.type.includes("virtual") ? "FALSE" : "TRUE";
-      row["Fulfillment service"] = "manual";
-
-      const variantImages = variant.images?.length ? variant.images : parent.images;
-      row["Product image URL"] = variantIndex === 0 ? (variantImages?.[0] || "") : "";
-      row["Image position"] = variantIndex === 0 && row["Product image URL"] ? "1" : "";
-      row["Image alt text"] = variantIndex === 0 ? (ai.enriched.imageAltText || title) : "";
-      row["Variant image URL"] = variantIndex > 0 ? (variantImages?.[0] || "") : "";
-      row["Gift card"] = parent.type.includes("gift_card") ? "TRUE" : "FALSE";
-      row["SEO title"] = variantIndex === 0 ? ai.enriched.seoTitle : "";
-      row["SEO description"] = variantIndex === 0 ? ai.enriched.seoDescription : "";
-      row["Color (product.metafields.shopify.color-pattern)"] = "";
-      row["Google Shopping / Google product category"] = variantIndex === 0 ? ai.enriched.googleProductCategory : "";
-      row["Google Shopping / Gender"] = "";
-      row["Google Shopping / Age group"] = "";
-      row["Google Shopping / Manufacturer part number (MPN)"] = "";
-      row["Google Shopping / Ad group name"] = "";
-      row["Google Shopping / Ads labels"] = "";
-      row["Google Shopping / Condition"] = "";
-      row["Google Shopping / Custom product"] = "";
-      row["Google Shopping / Custom label 0"] = variantIndex === 0 ? ai.enriched.customLabels["0"] : "";
-      row["Google Shopping / Custom label 1"] = variantIndex === 0 ? ai.enriched.customLabels["1"] : "";
-      row["Google Shopping / Custom label 2"] = variantIndex === 0 ? ai.enriched.customLabels["2"] : "";
-      row["Google Shopping / Custom label 3"] = variantIndex === 0 ? ai.enriched.customLabels["3"] : "";
-      row["Google Shopping / Custom label 4"] = variantIndex === 0 ? ai.enriched.customLabels["4"] : "";
-
-      if (!cfg.allowMissingSku && !row.SKU) {
-        warnings.push({ code: "SKU_MISSING", message: "SKU mancante, prodotto saltato", row: "", sku: "", handle });
-        skippedRows += 1;
-        continue;
-      }
-
-      if (!cfg.allowZeroPrice && !row.Price) {
-        warnings.push({ code: "PRICE_MISSING", message: "Prezzo mancante, prodotto saltato", row: "", sku: row.SKU, handle });
-        skippedRows += 1;
-        continue;
-      }
-
-      if (row.SKU) skuSeen.set(row.SKU, (skuSeen.get(row.SKU) || 0) + 1);
-      outputRows.push(row);
-      createdRows += 1;
+    processedRows += 1;
+    if (!parent.title) {
+      skippedRows += 1;
+      warnings.push(createWarning(parent.sourceRowNumber, parent.sku, parent.title, "MISSING_TITLE", "Titolo mancante"));
+      continue;
     }
 
-    const parentImages = splitValidUrls(parent.images?.join(",") || "");
-    for (let imageIndex = 1; imageIndex < parentImages.length; imageIndex += 1) {
-      const imageRow = emptyRow(headers);
-      imageRow["URL handle"] = handle;
-      imageRow["Product image URL"] = parentImages[imageIndex];
-      imageRow["Image position"] = String(imageIndex + 1);
-      imageRow["Image alt text"] = ai.enriched.imageAltText || title;
-      outputRows.push(imageRow);
+    const aiResult = aiResults[i]?.enriched;
+    if (!aiResult || aiResults[i]?.warning) {
+      fallbackCount += aiResult ? 0 : 1;
+      if (aiResults[i]?.warning) {
+        warnings.push(createWarning(parent.sourceRowNumber, parent.sku, parent.title, "AI_FALLBACK", aiResults[i].warning));
+      }
+    }
+
+    const handle = ensureUniqueHandle(slugifyHandle(parent.handleCandidate || parent.title), usedHandles);
+    parent.handle = handle;
+
+    let purchasableVariants = [parent];
+    if (parent.sourceType === "variable") {
+      const linked = variationsByParent.get(parent.sku || "");
+      if (!linked || linked.length === 0) {
+        skippedRows += 1;
+        warnings.push(
+          createWarning(
+            parent.sourceRowNumber,
+            parent.sku,
+            parent.title,
+            "VARIABLE_WITHOUT_VARIATIONS",
+            "Prodotto variable senza varianti ricostruibili",
+          ),
+        );
+        continue;
+      }
+      purchasableVariants = linked;
+    }
+
+    for (const variant of purchasableVariants) {
+      const rowForVariant = {
+        ...parent,
+        sku: variant.sku || parent.sku,
+        barcode: variant.barcode || parent.barcode,
+        price: normalizePrice(variant.price || parent.price),
+        compareAtPrice: normalizePrice(variant.compareAtPrice || parent.compareAtPrice),
+        inventoryQuantity: variant.inventoryQuantity ?? parent.inventoryQuantity ?? 0,
+        continueSelling: variant.continueSelling || parent.continueSelling,
+        weightGrams: variant.weightGrams || parent.weightGrams,
+        requiresShipping: variant.requiresShipping ?? parent.requiresShipping,
+        attributes: {
+          ...(parent.attributes || {}),
+          ...(variant.attributes || {}),
+        },
+      };
+
+      if (!rowForVariant.price && !allowZeroPrice) {
+        skippedRows += 1;
+        warnings.push(createWarning(variant.sourceRowNumber, rowForVariant.sku, parent.title, "MISSING_PRICE", "Prezzo mancante"));
+        continue;
+      }
+      if (!rowForVariant.sku && !allowMissingSku) {
+        skippedRows += 1;
+        warnings.push(createWarning(variant.sourceRowNumber, rowForVariant.sku, parent.title, "MISSING_SKU", "SKU mancante"));
+        continue;
+      }
+      if (rowForVariant.sku && seenSku.has(rowForVariant.sku)) {
+        warnings.push(createWarning(variant.sourceRowNumber, rowForVariant.sku, parent.title, "DUPLICATE_SKU", "SKU duplicato"));
+      }
+      if (rowForVariant.sku) seenSku.add(rowForVariant.sku);
+
+      const baseRow = buildBaseShopifyRow(rowForVariant, aiResult || {});
+      validateRow(baseRow, headers, errors, variant.sourceRowNumber, rowForVariant.sku, parent.title);
+      outputRows.push(baseRow);
       createdRows += 1;
+
+      const imageRows = buildAdditionalImageRows(
+        baseRow,
+        parseImages((rowForVariant.images || []).join(",")),
+        safeString((aiResult || {}).imageAltText || rowForVariant.title),
+      );
+      for (const imageRow of imageRows) {
+        validateRow(imageRow, headers, errors, variant.sourceRowNumber, rowForVariant.sku, parent.title);
+        outputRows.push(imageRow);
+        createdRows += 1;
+      }
     }
   }
 
-  for (const [sku, count] of skuSeen.entries()) {
-    if (count > 1) warnings.push({ code: "SKU_DUPLICATE", message: `SKU duplicato (${count})`, row: "", sku, handle: "" });
-  }
-
-  for (let idx = 0; idx < outputRows.length; idx += 1) validateOutputRow(outputRows[idx], errors, idx + 2);
-
-  const warningsPath = cfg.outputFile.replace(/\.csv$/i, ".warnings.csv");
-  const errorsPath = cfg.outputFile.replace(/\.csv$/i, ".errors.csv");
-  const reportPath = cfg.outputFile.replace(/\.csv$/i, ".report.json");
+  const warningsFile = outputFile.replace(/\.csv$/i, ".warnings.csv");
+  const errorsFile = outputFile.replace(/\.csv$/i, ".errors.csv");
+  const reportFile = outputFile.replace(/\.csv$/i, ".report.json");
   const report = {
-    inputFile: cfg.wooFile,
-    templateFile: cfg.templateFile,
-    outputFile: cfg.outputFile,
-    processedRows: parents.length,
+    inputFile,
+    templateFile,
+    outputFile,
+    processedRows,
     createdRows,
     skippedRows,
     warningCount: warnings.length,
     errorCount: errors.length,
     aiEnrichedCount,
     fallbackCount,
+    dryRun,
     startedAt,
     finishedAt: nowIso(),
   };
 
-  if (isDryRun) {
+  if (dryRun) {
     log("info", "Dry-run completato (nessun file scritto)", report);
     return;
   }
 
-  writeCsv(cfg.outputFile, headers, outputRows);
-  writeCsv(warningsPath, ["code", "message", "row", "sku", "handle"], warnings);
-  writeCsv(errorsPath, ["code", "message", "row", "sku", "handle"], errors);
-  writeJson(reportPath, report);
-  log("info", "Pipeline completata", report);
+  writeCsvFile(outputFile, outputRows, headers);
+  writeWarningsCsv(warningsFile, warnings);
+  writeErrorsCsv(errorsFile, errors);
+  writeReportJson(reportFile, report);
+  log("info", "CSV draft Shopify generato", report);
+}
+
+function validateRow(row, templateHeaders, errors, rowNumber, sku, title) {
+  for (const h of templateHeaders) {
+    if (!(h in row)) row[h] = "";
+    if (row[h] === undefined || row[h] === null) row[h] = "";
+  }
+  const isPrimaryProductRow = Boolean(safeString(row.Title) || safeString(row.SKU) || safeString(row.Price));
+  if (isPrimaryProductRow) {
+    if (safeString(row.Status) !== "draft") {
+      errors.push(createError(rowNumber, sku, title, "INVALID_STATUS", "Status deve essere 'draft'"));
+    }
+    if (safeString(row["Published on online store"]) !== "false") {
+      errors.push(
+        createError(
+          rowNumber,
+          sku,
+          title,
+          "INVALID_PUBLISHED_FLAG",
+          "Published on online store deve essere 'false'",
+        ),
+      );
+    }
+  }
+  if (row["Product image URL"] && !/^https?:\/\//i.test(safeString(row["Product image URL"]))) {
+    errors.push(createError(rowNumber, sku, title, "INVALID_IMAGE_URL", "Product image URL non valida"));
+  }
 }
 
 main().catch((error) => {
-  log("error", "Errore pipeline draft CSV", { message: error instanceof Error ? error.message : String(error) });
+  log("error", "Errore pipeline", { message: error instanceof Error ? error.message : String(error) });
   process.exit(1);
 });
