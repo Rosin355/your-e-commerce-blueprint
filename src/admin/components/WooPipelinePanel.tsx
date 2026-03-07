@@ -193,7 +193,7 @@ export default function WooPipelinePanel() {
               <Badge variant="secondary">📦 Righe sorgente: {result.report.totalSourceRows}</Badge>
               <Badge variant="secondary">✅ Creati: {result.report.createdRows}</Badge>
               <Badge variant="outline">⏭️ Saltati: {result.report.skippedRows}</Badge>
-              {result.report.warningCount > 0 && <Badge className="bg-yellow-500/20 text-yellow-700 border-yellow-300">⚠️ Warning: {result.report.warningCount}</Badge>}
+              {result.report.warningCount > 0 && <Badge className="bg-accent/20 text-accent-foreground border-accent">⚠️ Warning: {result.report.warningCount}</Badge>}
               {result.report.errorCount > 0 && <Badge variant="destructive">❌ Errori: {result.report.errorCount}</Badge>}
               <Badge variant="secondary">🤖 AI: {result.report.aiEnrichedCount}</Badge>
               {result.report.fallbackCount > 0 && <Badge variant="outline">🔄 Fallback: {result.report.fallbackCount}</Badge>}
