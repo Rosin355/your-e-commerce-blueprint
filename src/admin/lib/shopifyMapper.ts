@@ -18,6 +18,11 @@ export function mapToShopifyCustomerInput(row: CsvRow): ShopifyCustomerInput {
   if (address1 || city || zip || country) {
     customer.addresses = [{ address1, city, zip, country }];
   }
+  customer.email_marketing_consent = {
+    state: "subscribed",
+    opt_in_level: "single_opt_in",
+    consent_updated_at: new Date().toISOString(),
+  };
   return customer;
 }
 
