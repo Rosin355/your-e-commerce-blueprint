@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Package, CheckCircle, Play, Zap } from 'lucide-react';
+import { Users, Package, CheckCircle, Play, Zap, ArrowRightLeft } from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
 import CsvUploader from '../components/CsvUploader';
 import CsvPreview from '../components/CsvPreview';
@@ -11,6 +11,7 @@ import ImportProgress from '../components/ImportProgress';
 import ImportReport from '../components/ImportReport';
 import ImportHistory from '../components/ImportHistory';
 import AiWriterPanel from '../components/AiWriterPanel';
+import WooPipelinePanel from '../components/WooPipelinePanel';
 import { readFileAsCsv } from '../lib/csvParser';
 import { validateCsv } from '../lib/csvValidator';
 import { runImport } from '../lib/importEngine';
@@ -28,7 +29,7 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
   const aiWriterEnabled = import.meta.env.VITE_ENABLE_AI_PRODUCT_WRITER !== 'false';
 
   const handleTabChange = (value: string) => {
-    if (value === 'ai-writer') return;
+    if (value === 'ai-writer' || value === 'woo-pipeline') return;
     store.reset();
     store.setImportType(value as ImportType);
   };
@@ -99,6 +100,9 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
               <Zap className="h-4 w-4" /> AI Writer
             </TabsTrigger>
           )}
+          <TabsTrigger value="woo-pipeline" className="gap-2">
+            <ArrowRightLeft className="h-4 w-4" /> WooCommerce → Shopify
+          </TabsTrigger>
         </TabsList>
 
         {['customers', 'products'].map((tab) => (
@@ -139,6 +143,10 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
             <AiWriterPanel />
           </TabsContent>
         )}
+
+        <TabsContent value="woo-pipeline">
+          <WooPipelinePanel />
+        </TabsContent>
       </Tabs>
 
       <div className="mt-8">
