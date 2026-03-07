@@ -62,6 +62,11 @@ export interface ShopifyCustomerInput {
     zip?: string;
     country?: string;
   }>;
+  email_marketing_consent?: {
+    state: string;
+    opt_in_level: string;
+    consent_updated_at: string;
+  };
 }
 
 export interface ShopifyProductInput {
