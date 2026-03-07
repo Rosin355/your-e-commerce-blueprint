@@ -58,8 +58,8 @@ export default function WooPipelinePanel() {
 
   const handleFile = useCallback((f: File) => {
     if (f && (f.name.endsWith('.csv') || f.type === 'text/csv')) {
-      if (f.size > 10 * 1024 * 1024) {
-        setResult({ success: false, error: 'File troppo grande (max 10MB)' });
+      if (f.size > 50 * 1024 * 1024) {
+        setResult({ success: false, error: 'File troppo grande (max 50MB)' });
         return;
       }
       setFile(f);
