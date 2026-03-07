@@ -59,6 +59,7 @@ npm run sync:csv
 Note CSV:
 - supporta bene prodotti `simple` e `variable` come base product
 - le righe `variation` (figlie) sono al momento ignorate nel mapping automatico
+- aggiunge sempre i tag tecnici `woo-import` e `legacy-onlinegarden-products`
 - per un catalogo da 1400+ prodotti è consigliato un primo test con limite:
   - `SYNC_LIMIT=20 npm run sync:csv:dry-run`
 

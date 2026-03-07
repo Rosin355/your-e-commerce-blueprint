@@ -38,7 +38,7 @@ export function mapToShopifyProductInput(row: CsvRow): ShopifyProductInput {
 
   const tags = clean.tags || clean.tag;
   const categories = clean.categories || clean.category;
-  const allTags = [tags, categories].filter(Boolean).join(', ');
+  const allTags = [tags, categories, 'woo-import', 'legacy-onlinegarden-products'].filter(Boolean).join(', ');
   if (allTags) product.tags = allTags;
 
   const price = clean.regular_price || clean.price || '';

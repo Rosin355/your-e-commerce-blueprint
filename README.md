@@ -149,3 +149,25 @@ Responsabilità Shopify in questo progetto:
   - `docs/lovable-admin-import-sync-prompt.md`
 - Prompt/analisi per AI Product Writer (generazione e rigenerazione testi su prodotti Shopify esistenti):
   - `docs/lovable-ai-product-writer-compatible.md`
+
+## Admin AI Writer (implementato)
+
+- L'admin `/admin/import` include ora la tab `AI Writer`.
+- Funzioni principali:
+  - filtro prodotti Shopify (default `ACTIVE + tag woo-import`)
+  - generazione bozza AI
+  - rigenerazione versionata
+  - approvazione e publish su Shopify (descrizione, SEO, alt immagini)
+- Feature flag:
+  - `VITE_ENABLE_AI_PRODUCT_WRITER=false` per nascondere la tab.
+
+### Env server-side richieste (Edge Function)
+
+- `SHOPIFY_ACCESS_TOKEN`
+- `SHOPIFY_STORE` (opzionale, default attuale del progetto)
+- `SHOPIFY_API_VERSION` (opzionale)
+- `OPENAI_API_KEY`
+- `OPENAI_VISION_MODEL` (opzionale)
+- `OPENAI_COPY_MODEL` (opzionale)
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`

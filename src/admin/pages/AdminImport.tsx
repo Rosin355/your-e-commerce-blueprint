@@ -10,6 +10,7 @@ import ValidationReport from '../components/ValidationReport';
 import ImportProgress from '../components/ImportProgress';
 import ImportReport from '../components/ImportReport';
 import ImportHistory from '../components/ImportHistory';
+import AiWriterPanel from '../components/AiWriterPanel';
 import { readFileAsCsv } from '../lib/csvParser';
 import { validateCsv } from '../lib/csvValidator';
 import { runImport } from '../lib/importEngine';
@@ -24,8 +25,10 @@ interface AdminImportProps {
 
 export default function AdminImport({ onLogout }: AdminImportProps) {
   const store = useImportStore();
+  const aiWriterEnabled = import.meta.env.VITE_ENABLE_AI_PRODUCT_WRITER !== 'false';
 
   const handleTabChange = (value: string) => {
+    if (value === 'ai-writer') return;
     store.reset();
     store.setImportType(value as ImportType);
   };
@@ -91,6 +94,11 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
           <TabsTrigger value="products" className="gap-2">
             <Package className="h-4 w-4" /> Import Prodotti
           </TabsTrigger>
+          {aiWriterEnabled && (
+            <TabsTrigger value="ai-writer" className="gap-2">
+              <Zap className="h-4 w-4" /> AI Writer
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {['customers', 'products'].map((tab) => (
@@ -125,6 +133,12 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
             )}
           </TabsContent>
         ))}
+
+        {aiWriterEnabled && (
+          <TabsContent value="ai-writer">
+            <AiWriterPanel />
+          </TabsContent>
+        )}
       </Tabs>
 
       <div className="mt-8">

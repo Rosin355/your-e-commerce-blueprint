@@ -85,7 +85,18 @@ export interface ShopifyProductInput {
 }
 
 export interface ProxyRequest {
-  action: 'create_customer' | 'update_customer' | 'search_customer' | 'create_product' | 'update_product' | 'search_product';
+  action:
+    | 'create_customer'
+    | 'update_customer'
+    | 'search_customer'
+    | 'create_product'
+    | 'update_product'
+    | 'search_product'
+    | 'list_products'
+    | 'get_product'
+    | 'list_drafts'
+    | 'generate_product_copy_draft'
+    | 'publish_product_copy';
   data: any;
 }
 

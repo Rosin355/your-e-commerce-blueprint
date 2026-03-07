@@ -146,7 +146,9 @@ function mapCsvRowToProduct(row) {
   const handle = sanitizeHandle(row.Slug, title);
   const categories = toTags(row.Categories);
   const tags = toTags(row.Tags);
-  const mergedTags = [categories, tags].filter(Boolean).join(", ");
+  const mergedTags = [categories, tags, "woo-import", "legacy-onlinegarden-products"]
+    .filter(Boolean)
+    .join(", ");
 
   return {
     sourceId: row.ID || "",
