@@ -154,11 +154,28 @@ export default function ProductSyncPanel() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+          <Button
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading || running}
+            className="gap-2"
+          >
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {csvUploaded ? "Cambia CSV" : "Carica CSV"}
+          </Button>
           <Button onClick={() => start("sync")} disabled={!canStart} className="gap-2">
             {pendingMode === "sync" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
             Importa CSV nel DB
           </Button>
+          {!csvUploaded && <span className="text-xs text-muted-foreground">← Carica prima un file CSV</span>}
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
