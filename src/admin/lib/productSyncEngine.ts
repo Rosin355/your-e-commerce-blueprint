@@ -80,3 +80,25 @@ export async function fetchProductSyncDashboard(adminEmail: string, limit = 20):
 
   return typed.dashboard;
 }
+
+export async function uploadSyncCsv(file: File, adminEmail: string): Promise<string> {
+  const storagePath = "shopify-ready.csv";
+
+  const { error } = await supabase.functions.invoke("csv-upload-url", {
+    body: { bucket: "sync", path: storagePath },
+    headers: { "x-admin-email": adminEmail },
+  });
+
+  // Upload directly via storage using service role isn't available client-side,
+  // so we upload through the edge function that returns a signed URL
+  // Actually, let's upload directly to storage with the supabase client
+  const { error: uploadError } = await supabase.storage
+    .from("sync")
+    .upload(storagePath, file, { upsert: true, contentType: "text/csv" });
+
+  if (uploadError) {
+    throw new Error(`Errore upload CSV: ${uploadError.message}`);
+  }
+
+  return storagePath;
+}
