@@ -42,7 +42,7 @@ serve(async (req) => {
 
     const { data, error } = await supabase.storage
       .from(bucket)
-      .createSignedUploadUrl(path);
+      .createSignedUploadUrl(path, { upsert: true });
 
     if (error) {
       console.error("[UploadURL] Error:", error);
