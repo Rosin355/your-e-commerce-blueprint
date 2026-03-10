@@ -30,6 +30,9 @@ export default function ProductSyncPanel() {
   const [pendingMode, setPendingMode] = useState<SyncMode | null>(null);
   const [catalogDashboard, setCatalogDashboard] = useState<ProductSyncCatalogDashboard | null>(null);
   const [catalogLoading, setCatalogLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [csvUploaded, setCsvUploaded] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const tickInFlight = useRef(false);
 
   const percentage = useMemo(() => {
