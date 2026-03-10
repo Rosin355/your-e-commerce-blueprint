@@ -92,6 +92,48 @@ export type Database = {
         }
         Relationships: []
       }
+      product_sync_jobs: {
+        Row: {
+          created_at: string
+          failed_products: number
+          id: string
+          initiated_by: string | null
+          mode: string
+          report_json: Json | null
+          status: string
+          total_products: number
+          unchanged_products: number
+          updated_at: string
+          updated_products: number
+        }
+        Insert: {
+          created_at?: string
+          failed_products?: number
+          id?: string
+          initiated_by?: string | null
+          mode?: string
+          report_json?: Json | null
+          status?: string
+          total_products?: number
+          unchanged_products?: number
+          updated_at?: string
+          updated_products?: number
+        }
+        Update: {
+          created_at?: string
+          failed_products?: number
+          id?: string
+          initiated_by?: string | null
+          mode?: string
+          report_json?: Json | null
+          status?: string
+          total_products?: number
+          unchanged_products?: number
+          updated_at?: string
+          updated_products?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
