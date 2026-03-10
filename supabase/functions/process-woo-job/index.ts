@@ -751,7 +751,7 @@ serve(async (req) => {
 
 // ─── Finalize: generate CSV and upload ───
 
-async function finalizeJob(supabase: ReturnType<typeof createClient>, job: Record<string, unknown>, jobId: string) {
+async function finalizeJob(supabase: any, job: Record<string, unknown>, jobId: string) {
   try {
     const partialRows = Array.isArray(job.partial_rows) ? job.partial_rows as Record<string, string>[] : [];
     const warnings = Array.isArray(job.warnings) ? job.warnings as PipelineWarning[] : [];

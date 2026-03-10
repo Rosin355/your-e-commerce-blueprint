@@ -7,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
@@ -87,150 +89,6 @@ export type Database = {
           use_ai?: boolean | null
           warning_count?: number | null
           warnings?: Json | null
-        }
-        Relationships: []
-      }
-      product_ai_drafts: {
-        Row: {
-          copy_json: Json
-          created_at: string
-          created_by: string | null
-          error: string | null
-          facts_json: Json
-          handle: string | null
-          id: string
-          language: string
-          published_at: string | null
-          seed_style: string | null
-          shopify_product_id: string
-          status: string
-        }
-        Insert: {
-          copy_json?: Json
-          created_at?: string
-          created_by?: string | null
-          error?: string | null
-          facts_json?: Json
-          handle?: string | null
-          id?: string
-          language?: string
-          published_at?: string | null
-          seed_style?: string | null
-          shopify_product_id: string
-          status?: string
-        }
-        Update: {
-          copy_json?: Json
-          created_at?: string
-          created_by?: string | null
-          error?: string | null
-          facts_json?: Json
-          handle?: string | null
-          id?: string
-          language?: string
-          published_at?: string | null
-          seed_style?: string | null
-          shopify_product_id?: string
-          status?: string
-        }
-        Relationships: []
-      }
-      product_sync_csv_products: {
-        Row: {
-          barcode: string | null
-          compare_at_price: number | null
-          description: string | null
-          id: string
-          image_urls: Json
-          imported_at: string
-          inventory_quantity: number | null
-          price: number | null
-          product_category: string | null
-          product_category_id: string | null
-          sku: string
-          source_file: string | null
-          tags: Json
-          title: string | null
-          updated_at: string
-          weight_grams: number | null
-        }
-        Insert: {
-          barcode?: string | null
-          compare_at_price?: number | null
-          description?: string | null
-          id?: string
-          image_urls?: Json
-          imported_at?: string
-          inventory_quantity?: number | null
-          price?: number | null
-          product_category?: string | null
-          product_category_id?: string | null
-          sku: string
-          source_file?: string | null
-          tags?: Json
-          title?: string | null
-          updated_at?: string
-          weight_grams?: number | null
-        }
-        Update: {
-          barcode?: string | null
-          compare_at_price?: number | null
-          description?: string | null
-          id?: string
-          image_urls?: Json
-          imported_at?: string
-          inventory_quantity?: number | null
-          price?: number | null
-          product_category?: string | null
-          product_category_id?: string | null
-          sku?: string
-          source_file?: string | null
-          tags?: Json
-          title?: string | null
-          updated_at?: string
-          weight_grams?: number | null
-        }
-        Relationships: []
-      }
-      product_sync_jobs: {
-        Row: {
-          created_at: string
-          failed_products: number
-          id: string
-          initiated_by: string | null
-          mode: string
-          report_json: Json
-          status: string
-          total_products: number
-          unchanged_products: number
-          updated_at: string
-          updated_products: number
-        }
-        Insert: {
-          created_at?: string
-          failed_products?: number
-          id?: string
-          initiated_by?: string | null
-          mode?: string
-          report_json?: Json
-          status?: string
-          total_products?: number
-          unchanged_products?: number
-          updated_at?: string
-          updated_products?: number
-        }
-        Update: {
-          created_at?: string
-          failed_products?: number
-          id?: string
-          initiated_by?: string | null
-          mode?: string
-          report_json?: Json
-          status?: string
-          total_products?: number
-          unchanged_products?: number
-          updated_at?: string
-          updated_products?: number
         }
         Relationships: []
       }
