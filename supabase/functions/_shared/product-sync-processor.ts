@@ -49,13 +49,12 @@ async function loadCsvRows(): Promise<CsvProductRow[]> {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   if (!supabaseUrl) throw new Error("SUPABASE_URL mancante");
 
-  const publicStorageUrl = `${supabaseUrl}/storage/v1/object/${STORAGE_BUCKET}/${STORAGE_PATH}`;
-  const response = await fetch(publicStorageUrl, {
-    headers: getCsvAuthHeaders(),
-  });
+  const authHeaders = getCsvAuthHeaders();
+  const storageUrl = `${supabaseUrl}/storage/v1/object/authenticated/${STORAGE_BUCKET}/${STORAGE_PATH}`;
+  const response = await fetch(storageUrl, { headers: authHeaders });
 
   if (!response.ok) {
-    throw new Error(`CSV non disponibile in Storage (${response.status})`);
+    throw new Error(`CSV non disponibile in Storage (${response.status}). Carica prima un file CSV nel tab "Catalogo DB".`);
   }
 
   const csvText = await response.text();
