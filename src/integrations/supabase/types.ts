@@ -92,6 +92,57 @@ export type Database = {
         }
         Relationships: []
       }
+      product_sync_csv_products: {
+        Row: {
+          barcode: string | null
+          compare_at_price: number | null
+          description: string | null
+          image_urls: Json | null
+          imported_at: string
+          inventory_quantity: number | null
+          price: number | null
+          product_category: string | null
+          product_category_id: string | null
+          sku: string
+          source_file: string | null
+          tags: Json | null
+          title: string | null
+          weight_grams: number | null
+        }
+        Insert: {
+          barcode?: string | null
+          compare_at_price?: number | null
+          description?: string | null
+          image_urls?: Json | null
+          imported_at?: string
+          inventory_quantity?: number | null
+          price?: number | null
+          product_category?: string | null
+          product_category_id?: string | null
+          sku: string
+          source_file?: string | null
+          tags?: Json | null
+          title?: string | null
+          weight_grams?: number | null
+        }
+        Update: {
+          barcode?: string | null
+          compare_at_price?: number | null
+          description?: string | null
+          image_urls?: Json | null
+          imported_at?: string
+          inventory_quantity?: number | null
+          price?: number | null
+          product_category?: string | null
+          product_category_id?: string | null
+          sku?: string
+          source_file?: string | null
+          tags?: Json | null
+          title?: string | null
+          weight_grams?: number | null
+        }
+        Relationships: []
+      }
       product_sync_jobs: {
         Row: {
           created_at: string
