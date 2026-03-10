@@ -42,7 +42,31 @@ export default function ProductSyncPanel() {
     return Math.max(0, Math.min(100, Math.round((processed / job.total_products) * 100)));
   }, [job]);
 
-  const canStart = Boolean(session?.email) && !running;
+  const canStart = Boolean(session?.email) && !running && csvUploaded;
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !session?.email) return;
+    if (!file.name.endsWith(".csv")) {
+      toast.error("Seleziona un file .csv");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File troppo grande (max 10MB)");
+      return;
+    }
+    setUploading(true);
+    try {
+      await uploadSyncCsv(file, session.email);
+      setCsvUploaded(true);
+      toast.success(`CSV "${file.name}" caricato con successo`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Errore upload");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const loadCatalogDashboard = async (adminEmail: string) => {
     setCatalogLoading(true);
