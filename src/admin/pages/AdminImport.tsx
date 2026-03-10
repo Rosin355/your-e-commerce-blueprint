@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Package, CheckCircle, Play, Zap, ArrowRightLeft } from 'lucide-react';
+import { Users, Package, CheckCircle, Play, Zap, ArrowRightLeft, Database } from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
 import CsvUploader from '../components/CsvUploader';
 import CsvPreview from '../components/CsvPreview';
@@ -12,6 +12,7 @@ import ImportReport from '../components/ImportReport';
 import ImportHistory from '../components/ImportHistory';
 import AiWriterPanel from '../components/AiWriterPanel';
 import WooPipelinePanel from '../components/WooPipelinePanel';
+import ProductSyncPanel from '../components/ProductSyncPanel';
 import { readFileAsCsv } from '../lib/csvParser';
 import { validateCsv } from '../lib/csvValidator';
 import { runImport } from '../lib/importEngine';
@@ -29,7 +30,7 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
   const aiWriterEnabled = import.meta.env.VITE_ENABLE_AI_PRODUCT_WRITER !== 'false';
 
   const handleTabChange = (value: string) => {
-    if (value === 'ai-writer' || value === 'woo-pipeline') return;
+    if (value === 'ai-writer' || value === 'woo-pipeline' || value === 'smart-sync') return;
     store.reset();
     store.setImportType(value as ImportType);
   };
@@ -103,6 +104,9 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
           <TabsTrigger value="woo-pipeline" className="gap-2">
             <ArrowRightLeft className="h-4 w-4" /> WooCommerce → Shopify
           </TabsTrigger>
+          <TabsTrigger value="smart-sync" className="gap-2">
+            <Database className="h-4 w-4" /> Catalogo DB
+          </TabsTrigger>
         </TabsList>
 
         {['customers', 'products'].map((tab) => (
@@ -143,9 +147,11 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
             <AiWriterPanel />
           </TabsContent>
         )}
-
         <TabsContent value="woo-pipeline">
           <WooPipelinePanel />
+        </TabsContent>
+        <TabsContent value="smart-sync">
+          <ProductSyncPanel />
         </TabsContent>
       </Tabs>
 

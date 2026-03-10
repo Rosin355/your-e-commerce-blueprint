@@ -24,7 +24,7 @@ export default function AdminLayout({ children, onLogout }: AdminLayoutProps) {
             <Shield className="h-5 w-5 text-primary" />
             <div>
               <h1 className="text-lg font-semibold">Admin Tools</h1>
-              <p className="text-xs text-muted-foreground">Import CSV e AI Product Writer</p>
+              <p className="text-xs text-muted-foreground">Import CSV, Smart Sync e AI Product Writer</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
