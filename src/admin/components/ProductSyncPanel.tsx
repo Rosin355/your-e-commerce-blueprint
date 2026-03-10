@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Database, Loader2 } from "lucide-react";
+import { Database, Loader2, Upload } from "lucide-react";
 import { getAdminSession } from "../lib/adminAuth";
-import { fetchProductSyncDashboard, processProductSync, startProductSync } from "../lib/productSyncEngine";
+import { fetchProductSyncDashboard, processProductSync, startProductSync, uploadSyncCsv } from "../lib/productSyncEngine";
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
 
 const POLL_INTERVAL_MS = 2500;
