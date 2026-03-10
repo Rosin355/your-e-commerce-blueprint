@@ -80,3 +80,30 @@ export async function fetchProductSyncDashboard(adminEmail: string, limit = 20):
 
   return typed.dashboard;
 }
+
+export async function uploadSyncCsv(file: File, adminEmail: string): Promise<string> {
+  const storagePath = "shopify-ready.csv";
+
+  // Get signed upload URL via edge function
+  const { data, error } = await supabase.functions.invoke("csv-upload-url", {
+    body: { bucket: "sync", path: storagePath },
+    headers: { "x-admin-email": adminEmail },
+  });
+
+  if (error || !data?.success) {
+    throw new Error(data?.error || error?.message || "Errore generazione URL upload");
+  }
+
+  // Upload file using the signed URL
+  const uploadResponse = await fetch(data.uploadUrl, {
+    method: "PUT",
+    headers: { "Content-Type": "text/csv" },
+    body: file,
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error(`Errore upload CSV (${uploadResponse.status})`);
+  }
+
+  return storagePath;
+}

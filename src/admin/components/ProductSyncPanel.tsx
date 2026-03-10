@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Database, Loader2 } from "lucide-react";
+import { Database, Loader2, Upload } from "lucide-react";
 import { getAdminSession } from "../lib/adminAuth";
-import { fetchProductSyncDashboard, processProductSync, startProductSync } from "../lib/productSyncEngine";
+import { fetchProductSyncDashboard, processProductSync, startProductSync, uploadSyncCsv } from "../lib/productSyncEngine";
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
 
 const POLL_INTERVAL_MS = 2500;
@@ -30,6 +30,9 @@ export default function ProductSyncPanel() {
   const [pendingMode, setPendingMode] = useState<SyncMode | null>(null);
   const [catalogDashboard, setCatalogDashboard] = useState<ProductSyncCatalogDashboard | null>(null);
   const [catalogLoading, setCatalogLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [csvUploaded, setCsvUploaded] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const tickInFlight = useRef(false);
 
   const percentage = useMemo(() => {
@@ -39,7 +42,31 @@ export default function ProductSyncPanel() {
     return Math.max(0, Math.min(100, Math.round((processed / job.total_products) * 100)));
   }, [job]);
 
-  const canStart = Boolean(session?.email) && !running;
+  const canStart = Boolean(session?.email) && !running && csvUploaded;
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !session?.email) return;
+    if (!file.name.endsWith(".csv")) {
+      toast.error("Seleziona un file .csv");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File troppo grande (max 10MB)");
+      return;
+    }
+    setUploading(true);
+    try {
+      await uploadSyncCsv(file, session.email);
+      setCsvUploaded(true);
+      toast.success(`CSV "${file.name}" caricato con successo`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Errore upload");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const loadCatalogDashboard = async (adminEmail: string) => {
     setCatalogLoading(true);
@@ -127,11 +154,28 @@ export default function ProductSyncPanel() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+          <Button
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading || running}
+            className="gap-2"
+          >
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {csvUploaded ? "Cambia CSV" : "Carica CSV"}
+          </Button>
           <Button onClick={() => start("sync")} disabled={!canStart} className="gap-2">
             {pendingMode === "sync" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
             Importa CSV nel DB
           </Button>
+          {!csvUploaded && <span className="text-xs text-muted-foreground">← Carica prima un file CSV</span>}
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
