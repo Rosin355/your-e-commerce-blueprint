@@ -51,8 +51,8 @@ export default function ProductSyncPanel() {
       toast.error("Seleziona un file .csv");
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("File troppo grande (max 10MB)");
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("File troppo grande (max 50MB)");
       return;
     }
     setUploading(true);
