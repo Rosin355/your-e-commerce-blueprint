@@ -52,7 +52,7 @@ serve(async (request) => {
           logs: [
             ...(marked.report_json?.logs || []),
             {
-              level: "error",
+              level: "error" as const,
               message: error instanceof Error ? error.message : String(error),
               timestamp: new Date().toISOString(),
             },

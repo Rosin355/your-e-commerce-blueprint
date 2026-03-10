@@ -64,7 +64,8 @@ async function loadCsvRows(): Promise<CsvProductRow[]> {
 
 export async function verifyCatalogIntegrityCsvOnly(): Promise<SyncReportState["integrity"]> {
   const csvRows = await loadCsvRows();
-  const missingInShopify = Array.from(csvBySku.keys());
+  const csvBySku = mapCsvBySku(csvRows);
+  const missingInShopify: string[] = Array.from(csvBySku.keys());
   const missingInCsv: string[] = [];
   const productsWithoutImages = csvRows
     .filter((row) => !row.imageUrls?.length)
