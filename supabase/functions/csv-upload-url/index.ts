@@ -16,18 +16,32 @@ serve(async (req) => {
   }
 
   try {
-    const { fileName } = await req.json();
-    const safeName = (fileName || "upload.csv").replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 100);
-    const jobId = crypto.randomUUID();
-    const path = `jobs/${jobId}/input.csv`;
+    const body = await req.json();
+    const bucket = body.bucket || "csv-pipeline";
+    const allowedBuckets = ["csv-pipeline", "sync"];
+    if (!allowedBuckets.includes(bucket)) {
+      return new Response(JSON.stringify({ success: false, error: "Bucket non consentito" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    let path: string;
+    let jobId: string | undefined;
+
+    if (bucket === "sync" && body.path) {
+      path = String(body.path).replace(/[^a-zA-Z0-9._\-\/]/g, "_").slice(0, 200);
+    } else {
+      const safeName = (body.fileName || "upload.csv").replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 100);
+      jobId = crypto.randomUUID();
+      path = `jobs/${jobId}/input.csv`;
+    }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    // Generate signed upload URL (valid 10 minutes)
     const { data, error } = await supabase.storage
-      .from("csv-pipeline")
+      .from(bucket)
       .createSignedUploadUrl(path);
 
     if (error) {
@@ -39,7 +53,7 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({
       success: true,
-      jobId,
+      ...(jobId ? { jobId } : {}),
       uploadUrl: data.signedUrl,
       token: data.token,
       path,
