@@ -41,6 +41,7 @@ export default function ProductSyncPanel() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [lastJobId, setLastJobId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef(false);
 
