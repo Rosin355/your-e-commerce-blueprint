@@ -58,6 +58,7 @@ export interface ProductSyncCatalogPreviewRow {
 export interface ProductSyncCatalogDashboard {
   totalProducts: number;
   missingPriceCount: number;
+  missingImageCount: number;
   lastImportAt: string | null;
   sourceFiles: string[];
   preview: ProductSyncCatalogPreviewRow[];

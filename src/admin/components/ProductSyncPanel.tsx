@@ -673,7 +673,7 @@ export default function ProductSyncPanel() {
               </div>
             )}
 
-            <div className="grid gap-3 sm:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-5">
               <div className="rounded-md border p-2">
                 <p className="text-xs text-muted-foreground">Prodotti salvati</p>
                 <p className="text-lg font-semibold">{catalogDashboard?.totalProducts ?? 0}</p>
@@ -682,6 +682,12 @@ export default function ProductSyncPanel() {
                 <p className="text-xs text-muted-foreground">Senza prezzo</p>
                 <p className="text-lg font-semibold text-destructive">
                   {catalogDashboard?.missingPriceCount ?? 0}
+                </p>
+              </div>
+              <div className="rounded-md border p-2">
+                <p className="text-xs text-muted-foreground">Senza immagini</p>
+                <p className="text-lg font-semibold text-destructive">
+                  {catalogDashboard?.missingImageCount ?? 0}
                 </p>
               </div>
               <div className="rounded-md border p-2 sm:col-span-2">
