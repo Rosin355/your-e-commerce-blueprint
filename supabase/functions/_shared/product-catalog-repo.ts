@@ -164,6 +164,7 @@ export async function getCatalogDashboard(limit = 20): Promise<{
   return {
     totalProducts: Number(count || 0),
     missingPriceCount: Number(missingPriceCount || 0),
+    missingImageCount: Number(missingImageCount || 0),
     lastImportAt: lastRow?.imported_at || null,
     sourceFiles: Array.from(sourceSet),
     preview: (data || []).map((row) => {
