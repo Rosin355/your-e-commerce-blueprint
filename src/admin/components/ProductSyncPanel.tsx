@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Database, Loader2, Upload } from "lucide-react";
 import { getAdminSession } from "../lib/adminAuth";
-import { fetchProductSyncDashboard, processProductSync, startProductSync, uploadSyncCsv } from "../lib/productSyncEngine";
+import { fetchProductSyncDashboard, pollJobStatus, processProductSync, startProductSync, uploadSyncCsv } from "../lib/productSyncEngine";
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
 
 const POLL_INTERVAL_MS = 2500;
