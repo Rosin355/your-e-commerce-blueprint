@@ -94,51 +94,84 @@ export type Database = {
       }
       product_sync_csv_products: {
         Row: {
+          ai_enriched_at: string | null
+          ai_enrichment_json: Json | null
           barcode: string | null
           compare_at_price: number | null
           description: string | null
+          handle: string | null
           image_urls: Json | null
           imported_at: string
           inventory_quantity: number | null
+          metafields: Json | null
+          optimized_description: string | null
+          parent_sku: string | null
           price: number | null
           product_category: string | null
           product_category_id: string | null
+          product_type: string | null
+          seo_description: string | null
+          seo_title: string | null
+          short_description: string | null
           sku: string
           source_file: string | null
           tags: Json | null
           title: string | null
+          vendor: string | null
           weight_grams: number | null
         }
         Insert: {
+          ai_enriched_at?: string | null
+          ai_enrichment_json?: Json | null
           barcode?: string | null
           compare_at_price?: number | null
           description?: string | null
+          handle?: string | null
           image_urls?: Json | null
           imported_at?: string
           inventory_quantity?: number | null
+          metafields?: Json | null
+          optimized_description?: string | null
+          parent_sku?: string | null
           price?: number | null
           product_category?: string | null
           product_category_id?: string | null
+          product_type?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string | null
           sku: string
           source_file?: string | null
           tags?: Json | null
           title?: string | null
+          vendor?: string | null
           weight_grams?: number | null
         }
         Update: {
+          ai_enriched_at?: string | null
+          ai_enrichment_json?: Json | null
           barcode?: string | null
           compare_at_price?: number | null
           description?: string | null
+          handle?: string | null
           image_urls?: Json | null
           imported_at?: string
           inventory_quantity?: number | null
+          metafields?: Json | null
+          optimized_description?: string | null
+          parent_sku?: string | null
           price?: number | null
           product_category?: string | null
           product_category_id?: string | null
+          product_type?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string | null
           sku?: string
           source_file?: string | null
           tags?: Json | null
           title?: string | null
+          vendor?: string | null
           weight_grams?: number | null
         }
         Relationships: []

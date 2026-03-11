@@ -4,12 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Database, Loader2, Upload } from "lucide-react";
+import { Database, Loader2, Upload, Sparkles } from "lucide-react";
 import { getAdminSession } from "../lib/adminAuth";
 import {
   BATCH_SIZE,
   fetchProductSyncDashboard,
+  getAiEnrichCount,
   parseShopifyReadyCsv,
+  runAiEnrichBatch,
   sendBatch,
   startProductSync,
   uploadSyncCsv,
@@ -17,6 +19,13 @@ import {
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
 
 const STALE_TIMEOUT_MS = 5 * 60 * 1000;
+
+const SEED_STYLES = [
+  { value: "pratico", label: "Pratico" },
+  { value: "narrativo", label: "Narrativo" },
+  { value: "minimal", label: "Minimal" },
+  { value: "step-by-step", label: "Step-by-step" },
+];
 
 function statusVariant(status?: string): "default" | "secondary" | "destructive" | "outline" {
   if (status === "completed") return "default";
@@ -44,6 +53,14 @@ export default function ProductSyncPanel() {
   const [lastJobId, setLastJobId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef(false);
+
+  // AI Enrichment state
+  const [aiRunning, setAiRunning] = useState(false);
+  const [aiSeedStyle, setAiSeedStyle] = useState("pratico");
+  const [aiCounts, setAiCounts] = useState<{ total: number; unenriched: number } | null>(null);
+  const [aiProcessed, setAiProcessed] = useState(0);
+  const [aiErrors, setAiErrors] = useState<string[]>([]);
+  const aiAbortRef = useRef(false);
 
   const percentage = useMemo(() => {
     if (!job) return 0;
@@ -112,9 +129,20 @@ export default function ProductSyncPanel() {
     }
   };
 
+  const loadAiCounts = async () => {
+    if (!session?.email) return;
+    try {
+      const counts = await getAiEnrichCount(session.email);
+      setAiCounts(counts);
+    } catch (error) {
+      console.error("Errore conteggio AI:", error);
+    }
+  };
+
   useEffect(() => {
     if (!session?.email) return;
     loadCatalogDashboard(session.email);
+    loadAiCounts();
   }, [session?.email]);
 
   // Elapsed time ticker
@@ -220,7 +248,7 @@ export default function ProductSyncPanel() {
     }
 
     const bp = (job.report_json as any)?.batchProgress;
-    const resumeFrom = bp?.current ?? 0; // current = last completed batch index (1-based)
+    const resumeFrom = bp?.current ?? 0;
 
     setPendingMode(job.mode);
     setStartedAt(Date.now());
@@ -253,169 +281,318 @@ export default function ProductSyncPanel() {
     }
   };
 
+  // ── AI Enrichment ───────────────────────────────────────
+
+  const startAiEnrichment = async () => {
+    if (!session?.email) return;
+    setAiRunning(true);
+    setAiProcessed(0);
+    setAiErrors([]);
+    aiAbortRef.current = false;
+
+    try {
+      let totalProcessed = 0;
+      let remaining = aiCounts?.unenriched ?? 0;
+
+      while (remaining > 0 && !aiAbortRef.current) {
+        const result = await runAiEnrichBatch(session.email, 5, aiSeedStyle);
+        totalProcessed += result.processed;
+        remaining = result.remaining;
+        setAiProcessed(totalProcessed);
+
+        if (result.errors.length > 0) {
+          setAiErrors((prev) => [...prev, ...result.errors]);
+          // Stop on rate limit or credit errors
+          if (result.errors.some((e) => e.includes("Rate limit") || e.includes("Crediti"))) {
+            break;
+          }
+        }
+
+        if (result.processed === 0) break;
+
+        // Update counts
+        setAiCounts((prev) => prev ? { ...prev, unenriched: remaining } : null);
+      }
+
+      if (aiAbortRef.current) {
+        toast.info("Arricchimento AI interrotto");
+      } else {
+        toast.success(`Arricchimento AI completato: ${totalProcessed} prodotti elaborati`);
+      }
+
+      await loadAiCounts();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Errore AI enrichment");
+    } finally {
+      setAiRunning(false);
+    }
+  };
+
+  const aiPercentage = useMemo(() => {
+    if (!aiCounts || aiCounts.total === 0) return 0;
+    const enriched = aiCounts.total - aiCounts.unenriched + aiProcessed;
+    return Math.max(0, Math.min(100, Math.round((enriched / aiCounts.total) * 100)));
+  }, [aiCounts, aiProcessed]);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between gap-3">
-          <span>Importazione Catalogo Woo CSV nel Database</span>
-          {job && (
-            <Badge variant={statusVariant(job.status)}>
-              {job.status.toUpperCase()} {job.mode ? `• ${modeLabel(job.mode)}` : ""}
-            </Badge>
-          )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-2 items-center">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv"
-            className="hidden"
-            onChange={handleFileUpload}
-          />
-          <Button
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading || running}
-            className="gap-2"
-          >
-            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-            {csvFile ? "Cambia CSV" : "Carica CSV"}
-          </Button>
-          <Button onClick={() => start("sync")} disabled={!canStart} className="gap-2">
-            {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
-            Importa CSV nel DB
-          </Button>
-          {canResume && (
-            <Button variant="secondary" onClick={resume} disabled={running} className="gap-2">
-              <Database className="h-4 w-4" />
-              Riprendi da batch {((job?.report_json as any)?.batchProgress?.current ?? 0) + 1}
-            </Button>
-          )}
-          {running && (
-            <Button variant="destructive" size="sm" onClick={() => { abortRef.current = true; }}>
-              Annulla
-            </Button>
-          )}
-          {!csvFile && <span className="text-xs text-muted-foreground">← Carica prima un file CSV</span>}
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <div className="rounded-md border p-3">
-            <p className="text-xs text-muted-foreground">Totali</p>
-            <p className="text-xl font-semibold">{job?.total_products ?? 0}</p>
-          </div>
-          <div className="rounded-md border p-3">
-            <p className="text-xs text-muted-foreground">Aggiornati</p>
-            <p className="text-xl font-semibold">{job?.updated_products ?? 0}</p>
-          </div>
-          <div className="rounded-md border p-3">
-            <p className="text-xs text-muted-foreground">Invariati</p>
-            <p className="text-xl font-semibold">{job?.unchanged_products ?? 0}</p>
-          </div>
-          <div className="rounded-md border p-3">
-            <p className="text-xs text-muted-foreground">Errori</p>
-            <p className="text-xl font-semibold">{job?.failed_products ?? 0}</p>
-          </div>
-          <div className="rounded-md border p-3">
-            <p className="text-xs text-muted-foreground">Completamento</p>
-            <p className="text-xl font-semibold">{percentage}%</p>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            {phaseLabel && (
-              <span className="font-medium flex items-center gap-2">
-                {running && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                {phaseLabel}
-              </span>
+    <div className="space-y-4">
+      {/* ── Import CSV Card ──────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between gap-3">
+            <span>Importazione Catalogo Woo CSV nel Database</span>
+            {job && (
+              <Badge variant={statusVariant(job.status)}>
+                {job.status.toUpperCase()} {job.mode ? `• ${modeLabel(job.mode)}` : ""}
+              </Badge>
             )}
-            <span className="text-muted-foreground ml-auto">
-              {batchProgress && `Batch ${batchProgress.current}/${batchProgress.total} · `}
-              {startedAt && `Tempo: ${formatElapsed(elapsed)} · `}
-              {percentage}%
-            </span>
-          </div>
-          <Progress value={percentage} />
-        </div>
-
-        <div className="rounded-md border p-3 space-y-2">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-medium">Catalogo CSV salvato nel DB</p>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap gap-2 items-center">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
             <Button
               variant="outline"
-              size="sm"
-              disabled={catalogLoading || !session?.email}
-              onClick={() => session?.email && loadCatalogDashboard(session.email)}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading || running}
+              className="gap-2"
             >
-              {catalogLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aggiorna"}
+              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              {csvFile ? "Cambia CSV" : "Carica CSV"}
             </Button>
+            <Button onClick={() => start("sync")} disabled={!canStart} className="gap-2">
+              {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
+              Importa CSV nel DB
+            </Button>
+            {canResume && (
+              <Button variant="secondary" onClick={resume} disabled={running} className="gap-2">
+                <Database className="h-4 w-4" />
+                Riprendi da batch {((job?.report_json as any)?.batchProgress?.current ?? 0) + 1}
+              </Button>
+            )}
+            {running && (
+              <Button variant="destructive" size="sm" onClick={() => { abortRef.current = true; }}>
+                Annulla
+              </Button>
+            )}
+            {!csvFile && <span className="text-xs text-muted-foreground">← Carica prima un file CSV</span>}
           </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-md border p-2">
-              <p className="text-xs text-muted-foreground">Prodotti salvati</p>
-              <p className="text-lg font-semibold">{catalogDashboard?.totalProducts ?? 0}</p>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Totali</p>
+              <p className="text-xl font-semibold">{job?.total_products ?? 0}</p>
             </div>
-            <div className="rounded-md border p-2 sm:col-span-2">
-              <p className="text-xs text-muted-foreground">Ultimo import</p>
-              <p className="text-sm font-medium">
-                {catalogDashboard?.lastImportAt ? new Date(catalogDashboard.lastImportAt).toLocaleString() : "N/D"}
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Aggiornati</p>
+              <p className="text-xl font-semibold">{job?.updated_products ?? 0}</p>
+            </div>
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Invariati</p>
+              <p className="text-xl font-semibold">{job?.unchanged_products ?? 0}</p>
+            </div>
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Errori</p>
+              <p className="text-xl font-semibold">{job?.failed_products ?? 0}</p>
+            </div>
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Completamento</p>
+              <p className="text-xl font-semibold">{percentage}%</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              {phaseLabel && (
+                <span className="font-medium flex items-center gap-2">
+                  {running && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  {phaseLabel}
+                </span>
+              )}
+              <span className="text-muted-foreground ml-auto">
+                {batchProgress && `Batch ${batchProgress.current}/${batchProgress.total} · `}
+                {startedAt && `Tempo: ${formatElapsed(elapsed)} · `}
+                {percentage}%
+              </span>
+            </div>
+            <Progress value={percentage} />
+          </div>
+
+          <div className="rounded-md border p-3 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-medium">Catalogo CSV salvato nel DB</p>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={catalogLoading || !session?.email}
+                onClick={() => session?.email && loadCatalogDashboard(session.email)}
+              >
+                {catalogLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aggiorna"}
+              </Button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-md border p-2">
+                <p className="text-xs text-muted-foreground">Prodotti salvati</p>
+                <p className="text-lg font-semibold">{catalogDashboard?.totalProducts ?? 0}</p>
+              </div>
+              <div className="rounded-md border p-2 sm:col-span-2">
+                <p className="text-xs text-muted-foreground">Ultimo import</p>
+                <p className="text-sm font-medium">
+                  {catalogDashboard?.lastImportAt ? new Date(catalogDashboard.lastImportAt).toLocaleString() : "N/D"}
+                </p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Sorgenti: {catalogDashboard?.sourceFiles?.length ? catalogDashboard.sourceFiles.join(", ") : "Nessun file registrato"}
+            </p>
+
+            <div className="max-h-64 overflow-auto rounded-md border">
+              <table className="w-full text-xs">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="p-2 text-left">SKU</th>
+                    <th className="p-2 text-left">Titolo</th>
+                    <th className="p-2 text-left">Prezzo</th>
+                    <th className="p-2 text-left">Stock</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(catalogDashboard?.preview || []).map((row) => (
+                    <tr key={`${row.sku}-${row.imported_at}`} className="border-t">
+                      <td className="p-2 font-mono">{row.sku}</td>
+                      <td className="p-2">{row.title || "-"}</td>
+                      <td className="p-2">{row.price !== null ? row.price.toFixed(2) : "-"}</td>
+                      <td className="p-2">{row.inventory_quantity ?? "-"}</td>
+                    </tr>
+                  ))}
+                  {!catalogDashboard?.preview?.length && (
+                    <tr>
+                      <td className="p-2 text-muted-foreground" colSpan={4}>
+                        Nessun prodotto CSV salvato nel DB.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="rounded-md border p-3">
+            <p className="mb-2 text-sm font-medium">Log realtime</p>
+            <div className="max-h-64 overflow-auto space-y-1 text-xs font-mono">
+              {(job?.report_json?.logs || []).slice().reverse().map((log, index) => (
+                <div key={`${log.timestamp}-${index}`} className="border-b pb-1">
+                  <span className="text-muted-foreground">[{new Date(log.timestamp).toLocaleTimeString()}]</span>{" "}
+                  <span className={log.level === "error" ? "text-destructive" : log.level === "warn" ? "text-yellow-600" : "text-foreground"}>
+                    {log.level.toUpperCase()}
+                  </span>{" "}
+                  <span>{log.message}</span>
+                </div>
+              ))}
+              {!job?.report_json?.logs?.length && <p className="text-muted-foreground">Nessun log disponibile.</p>}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── AI SEO Enrichment Card ──────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            Genera testi SEO con AI
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Totale prodotti</p>
+              <p className="text-xl font-semibold">{aiCounts?.total ?? "–"}</p>
+            </div>
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Da arricchire</p>
+              <p className="text-xl font-semibold text-amber-600">
+                {aiCounts ? aiCounts.unenriched : "–"}
+              </p>
+            </div>
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Già arricchiti</p>
+              <p className="text-xl font-semibold text-green-600">
+                {aiCounts ? aiCounts.total - aiCounts.unenriched : "–"}
               </p>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Sorgenti: {catalogDashboard?.sourceFiles?.length ? catalogDashboard.sourceFiles.join(", ") : "Nessun file registrato"}
-          </p>
 
-          <div className="max-h-64 overflow-auto rounded-md border">
-            <table className="w-full text-xs">
-              <thead className="bg-muted/50">
-                <tr>
-                  <th className="p-2 text-left">SKU</th>
-                  <th className="p-2 text-left">Titolo</th>
-                  <th className="p-2 text-left">Prezzo</th>
-                  <th className="p-2 text-left">Stock</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(catalogDashboard?.preview || []).map((row) => (
-                  <tr key={`${row.sku}-${row.imported_at}`} className="border-t">
-                    <td className="p-2 font-mono">{row.sku}</td>
-                    <td className="p-2">{row.title || "-"}</td>
-                    <td className="p-2">{row.price !== null ? row.price.toFixed(2) : "-"}</td>
-                    <td className="p-2">{row.inventory_quantity ?? "-"}</td>
-                  </tr>
-                ))}
-                {!catalogDashboard?.preview?.length && (
-                  <tr>
-                    <td className="p-2 text-muted-foreground" colSpan={4}>
-                      Nessun prodotto CSV salvato nel DB.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex gap-1">
+              {SEED_STYLES.map((style) => (
+                <Button
+                  key={style.value}
+                  variant={aiSeedStyle === style.value ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setAiSeedStyle(style.value)}
+                  disabled={aiRunning}
+                >
+                  {style.label}
+                </Button>
+              ))}
+            </div>
+            <Button
+              onClick={startAiEnrichment}
+              disabled={aiRunning || !session?.email || (aiCounts?.unenriched ?? 0) === 0}
+              className="gap-2"
+            >
+              {aiRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {aiRunning ? `Elaborazione... (${aiProcessed})` : "Genera testi SEO"}
+            </Button>
+            {aiRunning && (
+              <Button variant="destructive" size="sm" onClick={() => { aiAbortRef.current = true; }}>
+                Annulla
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadAiCounts}
+              disabled={aiRunning}
+            >
+              Aggiorna conteggi
+            </Button>
           </div>
-        </div>
 
-        <div className="rounded-md border p-3">
-          <p className="mb-2 text-sm font-medium">Log realtime</p>
-          <div className="max-h-64 overflow-auto space-y-1 text-xs font-mono">
-            {(job?.report_json?.logs || []).slice().reverse().map((log, index) => (
-              <div key={`${log.timestamp}-${index}`} className="border-b pb-1">
-                <span className="text-muted-foreground">[{new Date(log.timestamp).toLocaleTimeString()}]</span>{" "}
-                <span className={log.level === "error" ? "text-destructive" : log.level === "warn" ? "text-yellow-600" : "text-foreground"}>
-                  {log.level.toUpperCase()}
-                </span>{" "}
-                <span>{log.message}</span>
+          {(aiRunning || aiProcessed > 0) && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium flex items-center gap-2">
+                  {aiRunning && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  {aiRunning ? "Arricchimento in corso..." : "Arricchimento completato"}
+                </span>
+                <span className="text-muted-foreground">
+                  {aiProcessed} elaborati · {aiPercentage}%
+                </span>
               </div>
-            ))}
-            {!job?.report_json?.logs?.length && <p className="text-muted-foreground">Nessun log disponibile.</p>}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+              <Progress value={aiPercentage} />
+            </div>
+          )}
+
+          {aiErrors.length > 0 && (
+            <div className="rounded-md border border-destructive/30 p-3 max-h-40 overflow-auto">
+              <p className="text-sm font-medium text-destructive mb-1">Errori ({aiErrors.length})</p>
+              <div className="space-y-1 text-xs font-mono">
+                {aiErrors.map((err, i) => (
+                  <p key={i} className="text-destructive">{err}</p>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

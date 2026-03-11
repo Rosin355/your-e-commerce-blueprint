@@ -65,14 +65,14 @@ function toInt(value: string | undefined): number | undefined {
 
 function toTags(value: string | undefined): string[] {
   return String(value || "")
-    .split(",")
+    .split(/[,|]/)
     .map((tag) => tag.trim())
     .filter(Boolean);
 }
 
 function toImageUrls(value: string | undefined): string[] {
   return String(value || "")
-    .split(",")
+    .split(/[,|]/)
     .map((url) => url.trim())
     .filter(Boolean);
 }
@@ -102,19 +102,50 @@ export function parseShopifyReadyCsv(text: string): CsvProductRow[] {
     const sku = pick(mapped, "variant_sku", "sku", "variant_sku_1");
     if (!sku) continue;
 
+    // Weight: WooCommerce uses kg, convert to grams
+    let weight = toFloat(pick(mapped, "variant_grams", "weight", "variant_weight", "peso_(kg)"));
+    const rawWeightKg = pick(mapped, "peso_(kg)");
+    if (rawWeightKg && !pick(mapped, "variant_grams")) {
+      const kg = toFloat(rawWeightKg);
+      if (kg !== undefined) weight = Math.round(kg * 1000);
+    }
+
+    // Metafields from WooCommerce ACF meta columns
+    const metaExposure = pick(mapped, "meta:_esposizione_pianta_acf", "meta:_esposizione_pianta", "esposizione");
+    const metaSoil = pick(mapped, "meta:_tipo_terreno_acf", "meta:_tipo_terreno", "tipo_terreno");
+    const metaWatering = pick(mapped, "meta:_irrigazione_acf", "meta:_irrigazione", "irrigazione");
+    const metaPetSafe = pick(mapped, "meta:_tossicita_per_animali_acf", "meta:_tossicita_per_animali", "tossicita");
+    const metaHeight = pick(mapped, "meta:_altezza_massima_pianta_acf", "meta:_altezza_massima_pianta", "altezza_massima");
+
+    const hasMetafields = metaExposure || metaSoil || metaWatering || metaPetSafe || metaHeight;
+
     parsed.push({
       sku,
-      title: pick(mapped, "title", "name"),
-      description: pick(mapped, "body_html", "description", "body_(html)"),
-      price: pick(mapped, "variant_price", "price", "regular_price"),
-      compareAtPrice: pick(mapped, "variant_compare_at_price", "compare_at_price", "sale_price"),
-      barcode: pick(mapped, "variant_barcode", "barcode"),
-      weight: toFloat(pick(mapped, "variant_grams", "weight", "variant_weight")),
-      inventoryQuantity: toInt(pick(mapped, "variant_inventory_qty", "inventory_quantity", "stock")),
-      tags: toTags(pick(mapped, "tags")),
-      productCategory: pick(mapped, "product_category", "category"),
+      title: pick(mapped, "title", "name", "nome"),
+      description: pick(mapped, "body_html", "description", "body_(html)", "descrizione"),
+      shortDescription: pick(mapped, "short_description", "breve_descrizione"),
+      handle: pick(mapped, "handle", "slug", "permalink"),
+      vendor: pick(mapped, "vendor", "marchi", "brand"),
+      productType: pick(mapped, "type", "tipo"),
+      parentSku: pick(mapped, "parent", "genitore", "parent_sku"),
+      price: pick(mapped, "variant_price", "price", "regular_price", "prezzo_di_listino"),
+      compareAtPrice: pick(mapped, "variant_compare_at_price", "compare_at_price", "sale_price", "prezzo_in_offerta"),
+      barcode: pick(mapped, "variant_barcode", "barcode", "gtin,_upc,_ean,_o_isbn"),
+      weight,
+      inventoryQuantity: toInt(pick(mapped, "variant_inventory_qty", "inventory_quantity", "stock", "magazzino")),
+      tags: toTags(pick(mapped, "tags", "tag")),
+      productCategory: pick(mapped, "product_category", "category", "categorie", "categories"),
       productCategoryId: pick(mapped, "product_category_id", "category_gid"),
-      imageUrls: toImageUrls(pick(mapped, "image_src", "images")),
+      imageUrls: toImageUrls(pick(mapped, "image_src", "images", "immagini", "immagine")),
+      metafields: hasMetafields
+        ? {
+            exposure: metaExposure,
+            soil: metaSoil,
+            watering: metaWatering,
+            petSafe: metaPetSafe,
+            heightCm: metaHeight,
+          }
+        : undefined,
     });
   }
 

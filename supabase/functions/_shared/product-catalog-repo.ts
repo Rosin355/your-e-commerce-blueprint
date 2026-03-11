@@ -65,6 +65,11 @@ export async function upsertCsvCatalogRows(rows: CsvProductRow[], sourceFile: st
       sku,
       title: safeText(row.title),
       description: safeText(row.description),
+      short_description: safeText(row.shortDescription),
+      handle: safeText(row.handle),
+      vendor: safeText(row.vendor),
+      product_type: safeText(row.productType),
+      parent_sku: safeText(row.parentSku),
       price: toNumber(row.price),
       compare_at_price: toNumber(row.compareAtPrice),
       barcode: safeText(row.barcode),
@@ -74,6 +79,7 @@ export async function upsertCsvCatalogRows(rows: CsvProductRow[], sourceFile: st
       product_category: safeText(row.productCategory),
       product_category_id: safeText(row.productCategoryId),
       image_urls: normalizeImages(row.imageUrls),
+      metafields: row.metafields ?? {},
       source_file: safeText(sourceFile),
       imported_at: importedAt,
     });
@@ -161,4 +167,50 @@ export async function getCatalogDashboard(limit = 20): Promise<{
       imported_at: String(row.imported_at),
     })),
   };
+}
+
+export async function getUnenrichedCount(): Promise<number> {
+  const client = getAdminClient();
+  const { count, error } = await client
+    .from("product_sync_csv_products")
+    .select("sku", { count: "exact", head: true })
+    .is("ai_enriched_at", null);
+
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
+export async function getUnenrichedBatch(batchSize: number): Promise<Array<Record<string, unknown>>> {
+  const client = getAdminClient();
+  const { data, error } = await client
+    .from("product_sync_csv_products")
+    .select("sku,title,description,short_description,product_category,tags,metafields,vendor,image_urls")
+    .is("ai_enriched_at", null)
+    .order("sku")
+    .limit(batchSize);
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function saveEnrichment(
+  sku: string,
+  seoTitle: string,
+  seoDescription: string,
+  optimizedDescription: string,
+  fullJson: Record<string, unknown>,
+): Promise<void> {
+  const client = getAdminClient();
+  const { error } = await client
+    .from("product_sync_csv_products")
+    .update({
+      seo_title: seoTitle,
+      seo_description: seoDescription,
+      optimized_description: optimizedDescription,
+      ai_enrichment_json: fullJson,
+      ai_enriched_at: new Date().toISOString(),
+    })
+    .eq("sku", sku);
+
+  if (error) throw new Error(`Errore salvataggio AI per SKU ${sku}: ${error.message}`);
 }
