@@ -241,10 +241,20 @@ export default function ProductSyncPanel() {
         </div>
 
         <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            {phaseLabel && (
+              <span className="font-medium flex items-center gap-2">
+                {running && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {phaseLabel}
+              </span>
+            )}
+            <span className="text-muted-foreground ml-auto">
+              {batchProgress && `Batch ${batchProgress.current}/${batchProgress.total} · `}
+              {startedAt && `Tempo: ${formatElapsed(elapsed)} · `}
+              {percentage}%
+            </span>
+          </div>
           <Progress value={percentage} />
-          <p className="text-xs text-muted-foreground">
-            Modalità corrente: solo persistenza su database con polling ogni {POLL_INTERVAL_MS / 1000}s.
-          </p>
         </div>
 
         <div className="rounded-md border p-3 space-y-2">
