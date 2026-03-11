@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Database, Download, Loader2, Upload, Sparkles, DollarSign } from "lucide-react";
+import { Database, Download, Loader2, Upload, Sparkles, DollarSign, RefreshCw } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -549,14 +549,54 @@ export default function ProductSyncPanel() {
           <div className="rounded-md border p-3 space-y-2">
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-medium">Catalogo CSV salvato nel DB</p>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={catalogLoading || !session?.email}
-                onClick={() => session?.email && loadCatalogDashboard(session.email)}
-              >
-                {catalogLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aggiorna"}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  disabled={fixingPrices || !csvFile || !session?.email}
+                  onClick={async () => {
+                    if (!session?.email || !csvFile) return;
+                    setFixingPrices(true);
+                    try {
+                      const csvText = await csvFile.text();
+                      const allRows = parseShopifyReadyCsv(csvText);
+                      const priceRows = allRows
+                        .filter((r) => r.price || r.compareAtPrice)
+                        .map((r) => ({ sku: r.sku, price: r.price, compareAtPrice: r.compareAtPrice }));
+                      if (!priceRows.length) {
+                        toast.error("Nessun prezzo trovato nel CSV");
+                        return;
+                      }
+                      let totalUpdated = 0;
+                      for (let i = 0; i < priceRows.length; i += 200) {
+                        const batch = priceRows.slice(i, i + 200);
+                        const result = await batchUpdatePrices(session.email, batch);
+                        totalUpdated += result.updated;
+                      }
+                      toast.success(`${totalUpdated} prezzi aggiornati dal CSV`);
+                      await loadCatalogDashboard(session.email);
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Errore");
+                    } finally {
+                      setFixingPrices(false);
+                    }
+                  }}
+                >
+                  {fixingPrices ? <Loader2 className="h-4 w-4 animate-spin" /> : <DollarSign className="h-4 w-4" />}
+                  Aggiorna prezzi da CSV
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={catalogLoading || !session?.email}
+                  onClick={() => session?.email && loadCatalogDashboard(session.email)}
+                  title="Ricarica dashboard"
+                >
+                  {catalogLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-4">
               <div className="rounded-md border p-2">
