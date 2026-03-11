@@ -289,31 +289,69 @@ export default function ProductSyncPanel() {
     if (!session?.email) return;
     setAiRunning(true);
     setAiProcessed(0);
+    setAiBatchIndex(0);
     setAiErrors([]);
     aiAbortRef.current = false;
+
+    const BATCH_AI_SIZE = 5;
+    const MAX_RETRIES = 3;
 
     try {
       let totalProcessed = 0;
       let remaining = aiCounts?.unenriched ?? 0;
+      const totalBatches = Math.ceil(remaining / BATCH_AI_SIZE);
+      setAiTotalBatches(totalBatches);
+      let batchIdx = 0;
+      let consecutiveFailures = 0;
 
       while (remaining > 0 && !aiAbortRef.current) {
-        const result = await runAiEnrichBatch(session.email, 5, aiSeedStyle);
+        batchIdx++;
+        setAiBatchIndex(batchIdx);
+
+        let result: Awaited<ReturnType<typeof runAiEnrichBatch>> | null = null;
+        let retryCount = 0;
+
+        while (retryCount <= MAX_RETRIES) {
+          try {
+            result = await runAiEnrichBatch(session.email, BATCH_AI_SIZE, aiSeedStyle);
+            break; // success
+          } catch (err) {
+            retryCount++;
+            if (retryCount > MAX_RETRIES) {
+              setAiErrors((prev) => [...prev, `Batch ${batchIdx}: ${err instanceof Error ? err.message : "Errore"} (max retry raggiunto)`]);
+              break;
+            }
+            const delay = Math.min(2000 * Math.pow(2, retryCount - 1), 30000);
+            setAiErrors((prev) => [...prev, `Batch ${batchIdx}: retry ${retryCount}/${MAX_RETRIES} tra ${Math.round(delay / 1000)}s...`]);
+            await new Promise((r) => setTimeout(r, delay));
+          }
+        }
+
+        if (!result) {
+          consecutiveFailures++;
+          if (consecutiveFailures >= 3) break;
+          continue;
+        }
+
+        consecutiveFailures = 0;
         totalProcessed += result.processed;
         remaining = result.remaining;
         setAiProcessed(totalProcessed);
+        setAiCounts((prev) => prev ? { ...prev, unenriched: remaining } : null);
 
         if (result.errors.length > 0) {
           setAiErrors((prev) => [...prev, ...result.errors]);
-          // Stop on rate limit or credit errors
-          if (result.errors.some((e) => e.includes("Rate limit") || e.includes("Crediti"))) {
-            break;
+          if (result.errors.some((e) => e.includes("Crediti"))) break;
+          if (result.errors.some((e) => e.includes("Rate limit"))) {
+            // Backoff on rate limit then continue
+            setAiErrors((prev) => [...prev, "Rate limit: attesa 30s prima di riprendere..."]);
+            await new Promise((r) => setTimeout(r, 30000));
+            if (aiAbortRef.current) break;
+            continue;
           }
         }
 
         if (result.processed === 0) break;
-
-        // Update counts
-        setAiCounts((prev) => prev ? { ...prev, unenriched: remaining } : null);
       }
 
       if (aiAbortRef.current) {
