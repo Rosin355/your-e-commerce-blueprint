@@ -878,6 +878,163 @@ export default function ProductSyncPanel() {
         </CardContent>
       </Card>
 
+      {/* ── AI Image Generation Card ──────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ImagePlus className="h-5 w-5" />
+            Immagini prodotto — AI + Segnalazione
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!session?.email}
+              onClick={async () => {
+                if (!session?.email) return;
+                try {
+                  const counts = await getImageCounts(session.email);
+                  setImageCounts(counts);
+                  toast.success(`${counts.missing_images} prodotti senza immagini trovati`);
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Errore");
+                }
+              }}
+            >
+              Analizza immagini mancanti
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              className="gap-2"
+              disabled={imageGenRunning || !session?.email || !imageCounts || imageCounts.missing_images === 0}
+              onClick={async () => {
+                if (!session?.email || !imageCounts) return;
+                setImageGenRunning(true);
+                setImageGenProcessed(0);
+                setImageGenErrors([]);
+                imageAbortRef.current = false;
+
+                let totalProcessed = 0;
+                const allErrors: string[] = [];
+                let remaining = imageCounts.missing_images;
+
+                while (remaining > 0 && !imageAbortRef.current) {
+                  try {
+                    const result = await runImageGenBatch(session.email, 3);
+                    totalProcessed += result.processed;
+                    setImageGenProcessed(totalProcessed);
+                    if (result.errors.length) {
+                      allErrors.push(...result.errors);
+                      setImageGenErrors([...allErrors]);
+                      // Stop on rate limit / credits errors
+                      if (result.errors.some(e => e.includes("Rate limit") || e.includes("Crediti"))) break;
+                    }
+                    remaining = result.remaining;
+                    if (result.processed === 0) break;
+                  } catch (err) {
+                    allErrors.push(err instanceof Error ? err.message : "Errore");
+                    setImageGenErrors([...allErrors]);
+                    break;
+                  }
+                }
+
+                toast.success(`${totalProcessed} immagini generate con AI`);
+                // Refresh counts
+                try {
+                  const counts = await getImageCounts(session.email);
+                  setImageCounts(counts);
+                } catch {}
+                setImageGenRunning(false);
+              }}
+            >
+              {imageGenRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              Genera immagini con AI
+            </Button>
+            {imageGenRunning && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => { imageAbortRef.current = true; }}
+              >
+                Stop
+              </Button>
+            )}
+          </div>
+
+          {imageCounts && (
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Prodotti parent</p>
+                <p className="text-xl font-semibold">{imageCounts.total_parents}</p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Con immagini</p>
+                <p className="text-xl font-semibold text-primary">{imageCounts.with_images}</p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Senza immagini</p>
+                <p className="text-xl font-semibold text-destructive">{imageCounts.missing_images}</p>
+              </div>
+            </div>
+          )}
+
+          {imageGenRunning && (
+            <div className="flex items-center gap-2 text-sm">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>{imageGenProcessed} immagini generate...</span>
+            </div>
+          )}
+
+          {imageCounts && imageCounts.missing_skus.length > 0 && (
+            <div className="space-y-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                onClick={() => setShowMissingSkus(!showMissingSkus)}
+              >
+                <AlertTriangle className="h-4 w-4" />
+                {showMissingSkus ? "Nascondi" : "Mostra"} prodotti senza immagini ({imageCounts.missing_skus.length}{imageCounts.missing_images > 50 ? "+" : ""})
+              </Button>
+              {showMissingSkus && (
+                <div className="max-h-48 overflow-auto rounded-md border">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="p-2 text-left">SKU</th>
+                        <th className="p-2 text-left">Titolo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {imageCounts.missing_skus.map((item) => (
+                        <tr key={item.sku} className="border-t">
+                          <td className="p-2 font-mono">{item.sku}</td>
+                          <td className="p-2">{item.title}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {imageGenErrors.length > 0 && (
+            <div className="rounded-md border border-destructive/30 p-3 max-h-40 overflow-auto">
+              <p className="text-sm font-medium text-destructive mb-1">Errori ({imageGenErrors.length})</p>
+              <div className="space-y-1 text-xs font-mono">
+                {imageGenErrors.map((err, i) => (
+                  <p key={i} className="text-destructive">{err}</p>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* ── Style Conflict Dialog ──────────────────── */}
       <AlertDialog open={showStyleDialog} onOpenChange={setShowStyleDialog}>
         <AlertDialogContent>
