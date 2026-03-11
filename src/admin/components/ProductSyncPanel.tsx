@@ -77,6 +77,8 @@ export default function ProductSyncPanel() {
   const [aiErrors, setAiErrors] = useState<string[]>([]);
   const aiAbortRef = useRef(false);
   const [exporting, setExporting] = useState(false);
+  const [styleConflictCount, setStyleConflictCount] = useState(0);
+  const [showStyleDialog, setShowStyleDialog] = useState(false);
   const percentage = useMemo(() => {
     if (!job) return 0;
     if (job.total_products <= 0) return 0;
