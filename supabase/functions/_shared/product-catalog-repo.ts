@@ -113,6 +113,7 @@ export async function getCatalogDashboard(limit = 20): Promise<{
     inventory_quantity: number | null;
     source_file: string | null;
     imported_at: string;
+    image_url: string | null;
   }>;
 }> {
   const client = getAdminClient();
