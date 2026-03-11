@@ -169,10 +169,12 @@ export default function ProductSyncPanel() {
     setElapsed(0);
     try {
       const startResponse = await startProductSync(mode, session.email);
-      setRunning(true);
       toast.success(`Job avviato: ${modeLabel(mode)}`);
 
-      await runTick(startResponse.job_id, session.email);
+      // Trigger background processing via POST (this starts EdgeRuntime.waitUntil)
+      const processResponse = await processProductSync(startResponse.job_id, session.email);
+      setJob(processResponse.job);
+      setRunning(true);
     } catch (error) {
       setPendingMode(null);
       setStartedAt(null);
