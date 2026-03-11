@@ -130,13 +130,64 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { batch_size = 5, seed_style = "pratico", count_only = false } = body;
+    const { batch_size = 5, seed_style = "pratico", count_only = false, count_style_conflict = false, reset_style_conflict = false } = body;
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const client = createClient(supabaseUrl, serviceKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
+
+    // Count products with a different style than selected
+    if (count_style_conflict) {
+      const { count, error } = await client
+        .from("product_sync_csv_products")
+        .select("sku", { count: "exact", head: true })
+        .not("ai_enriched_at", "is", null)
+        .neq("ai_seed_style", seed_style);
+
+      if (error) throw new Error(error.message);
+      return new Response(
+        JSON.stringify({ success: true, conflict_count: count ?? 0 }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    // Reset enrichment for products with a different style
+    if (reset_style_conflict) {
+      const { data: conflictRows, error: fetchErr } = await client
+        .from("product_sync_csv_products")
+        .select("sku")
+        .not("ai_enriched_at", "is", null)
+        .neq("ai_seed_style", seed_style);
+
+      if (fetchErr) throw new Error(fetchErr.message);
+      const skus = (conflictRows || []).map((r: { sku: string }) => r.sku);
+
+      if (skus.length > 0) {
+        // Reset in batches of 500
+        for (let i = 0; i < skus.length; i += 500) {
+          const batch = skus.slice(i, i + 500);
+          const { error: updateErr } = await client
+            .from("product_sync_csv_products")
+            .update({
+              ai_enriched_at: null,
+              ai_seed_style: null,
+              seo_title: null,
+              seo_description: null,
+              optimized_description: null,
+              ai_enrichment_json: null,
+            })
+            .in("sku", batch);
+          if (updateErr) throw new Error(updateErr.message);
+        }
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, reset_count: skus.length }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     // Count unenriched
     const { count: totalCount } = await client
