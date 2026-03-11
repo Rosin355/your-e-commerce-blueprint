@@ -979,11 +979,12 @@ export default function ProductSyncPanel() {
                 }
 
                 toast.success(`${totalProcessed} immagini generate con AI`);
-                // Refresh counts
+                // Refresh counts and gallery
                 try {
                   const counts = await getImageCounts(session.email);
                   setImageCounts(counts);
                 } catch {}
+                await loadProductsWithImages();
                 setImageGenRunning(false);
               }}
             >
