@@ -3,7 +3,6 @@ import { parseShopifyReadyCsv } from "./csv-parser.ts";
 import { upsertCsvCatalogRows } from "./product-catalog-repo.ts";
 import { updateSyncJob } from "./job-repo.ts";
 import type {
-  CsvProductRow,
   ProductSyncJobRow,
   SyncLogEntry,
   SyncReportState,
@@ -11,8 +10,8 @@ import type {
 
 const STORAGE_BUCKET = Deno.env.get("SYNC_CSV_BUCKET") || "sync";
 const STORAGE_PATH = Deno.env.get("SYNC_CSV_PATH") || "shopify-ready.csv";
-const MAX_LOG_ENTRIES = 300;
 const UPSERT_BATCH_SIZE = 200;
+const MAX_LOG_ENTRIES = 300;
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -36,6 +35,7 @@ function normalizeReport(report: SyncReportState | null | undefined, mode: Produ
     startedAt: report?.startedAt || nowIso(),
     finishedAt: report?.finishedAt,
     integrity: report?.integrity,
+    batchOffset: Number(report?.batchOffset || 0),
   };
 }
 
@@ -56,111 +56,133 @@ async function loadCsvText(): Promise<string> {
     .download(STORAGE_PATH);
 
   if (error || !data) {
-    throw new Error(`CSV non disponibile in Storage (${error?.message || "file non trovato"}). Carica prima un file CSV nel tab "Catalogo DB".`);
+    throw new Error(`CSV non disponibile in Storage (${error?.message || "file non trovato"}). Carica prima un file CSV.`);
   }
 
   return await data.text();
 }
 
 /**
- * Background processing: downloads CSV, parses it, and upserts in batches.
- * Updates the job row progressively so the frontend can poll progress.
+ * Incremental processing: each call processes ONE batch.
+ * Returns the updated job. The caller (client) should keep calling
+ * until done=true.
  */
-export async function processInBackground(job: ProductSyncJobRow): Promise<void> {
+export async function processOneBatch(job: ProductSyncJobRow): Promise<{ done: boolean; job: ProductSyncJobRow }> {
   let report = normalizeReport(job.report_json, job.mode);
+  const batchOffset = report.batchOffset || 0;
 
   try {
     // Step 1: Download and parse CSV
-    report = appendLog(report, { level: "info", message: "Download CSV da Storage..." });
+    report = appendLog(report, { level: "info", message: `Download e parsing CSV (offset ${batchOffset})...` });
     await updateSyncJob(job.id, { status: "processing", report_json: report });
 
     const csvText = await loadCsvText();
     const csvRows = parseShopifyReadyCsv(csvText);
     const totalRows = csvRows.length;
 
-    report = appendLog(report, { level: "info", message: `CSV parsato: ${totalRows} righe trovate` });
-    await updateSyncJob(job.id, {
-      total_products: totalRows,
-      report_json: report,
-    });
-
     if (totalRows === 0) {
       report = appendLog(report, { level: "warn", message: "Nessuna riga valida nel CSV" });
       report = { ...report, hasNextPage: false, finishedAt: nowIso() };
-      await updateSyncJob(job.id, { status: "completed", report_json: report });
-      return;
+      const updated = await updateSyncJob(job.id, { status: "completed", report_json: report });
+      return { done: true, job: updated };
     }
 
-    // Step 2: Upsert in batches
-    let persisted = 0;
-    let failed = 0;
-    const totalBatches = Math.ceil(totalRows / UPSERT_BATCH_SIZE);
+    // Update total count
+    await updateSyncJob(job.id, { total_products: totalRows });
 
-    for (let i = 0; i < totalRows; i += UPSERT_BATCH_SIZE) {
-      const batchIndex = Math.floor(i / UPSERT_BATCH_SIZE) + 1;
-      const batch = csvRows.slice(i, i + UPSERT_BATCH_SIZE);
-
+    // If we've already processed everything
+    if (batchOffset >= totalRows) {
       report = appendLog(report, {
         level: "info",
-        message: `Batch ${batchIndex}/${totalBatches} — righe ${i + 1}-${Math.min(i + UPSERT_BATCH_SIZE, totalRows)}`,
+        message: `Catalogo CSV salvato su DB (${report.updated} righe, ${report.failed} errori)`,
       });
-
-      try {
-        const count = await upsertCsvCatalogRows(batch, STORAGE_PATH);
-        persisted += count;
-      } catch (batchError) {
-        failed += batch.length;
-        report = appendLog(report, {
-          level: "error",
-          message: `Errore batch ${batchIndex}/${totalBatches}: ${batchError instanceof Error ? batchError.message : String(batchError)}`,
-        });
-      }
-
-      // Update progress after each batch
       report = {
         ...report,
-        processed: persisted + failed,
-        updated: persisted,
-        failed,
-        batchProgress: { current: batchIndex, total: totalBatches },
+        cursor: null,
+        hasNextPage: false,
+        processed: totalRows,
+        finishedAt: nowIso(),
+        csvSnapshot: {
+          persistedAt: nowIso(),
+          persistedCount: report.updated,
+          sourceFile: STORAGE_PATH,
+        },
       };
-      await updateSyncJob(job.id, {
-        updated_products: persisted,
-        failed_products: failed,
+      const updated = await updateSyncJob(job.id, {
+        status: "completed",
         total_products: totalRows,
+        updated_products: report.updated,
+        unchanged_products: 0,
+        failed_products: report.failed,
         report_json: report,
+      });
+      return { done: true, job: updated };
+    }
+
+    // Process current batch
+    const batch = csvRows.slice(batchOffset, batchOffset + UPSERT_BATCH_SIZE);
+    const totalBatches = Math.ceil(totalRows / UPSERT_BATCH_SIZE);
+    const currentBatch = Math.floor(batchOffset / UPSERT_BATCH_SIZE) + 1;
+
+    report = appendLog(report, {
+      level: "info",
+      message: `Batch ${currentBatch}/${totalBatches} — righe ${batchOffset + 1}-${Math.min(batchOffset + UPSERT_BATCH_SIZE, totalRows)}`,
+    });
+
+    let batchPersisted = 0;
+    let batchFailed = 0;
+
+    try {
+      const count = await upsertCsvCatalogRows(batch, STORAGE_PATH);
+      batchPersisted = count;
+    } catch (batchError) {
+      batchFailed = batch.length;
+      report = appendLog(report, {
+        level: "error",
+        message: `Errore batch ${currentBatch}: ${batchError instanceof Error ? batchError.message : String(batchError)}`,
       });
     }
 
-    // Step 3: Finalize
-    report = appendLog(report, {
-      level: "info",
-      message: `Catalogo CSV salvato su DB (${persisted} righe, ${failed} errori)`,
-    });
+    const newOffset = batchOffset + UPSERT_BATCH_SIZE;
+    const allDone = newOffset >= totalRows;
+
     report = {
       ...report,
-      cursor: null,
-      hasNextPage: false,
-      processed: totalRows,
-      updated: persisted,
-      unchanged: 0,
-      failed,
-      finishedAt: nowIso(),
-      csvSnapshot: {
-        persistedAt: nowIso(),
-        persistedCount: persisted,
-        sourceFile: STORAGE_PATH,
-      },
+      processed: Math.min(newOffset, totalRows),
+      updated: (report.updated || 0) + batchPersisted,
+      failed: (report.failed || 0) + batchFailed,
+      batchOffset: newOffset,
+      batchProgress: { current: currentBatch, total: totalBatches },
     };
 
-    await updateSyncJob(job.id, {
-      status: "completed",
+    if (allDone) {
+      report = appendLog(report, {
+        level: "info",
+        message: `Catalogo CSV salvato su DB (${report.updated} righe, ${report.failed} errori)`,
+      });
+      report = {
+        ...report,
+        cursor: null,
+        hasNextPage: false,
+        finishedAt: nowIso(),
+        csvSnapshot: {
+          persistedAt: nowIso(),
+          persistedCount: report.updated,
+          sourceFile: STORAGE_PATH,
+        },
+      };
+    }
+
+    const updated = await updateSyncJob(job.id, {
+      status: allDone ? "completed" : "processing",
       total_products: totalRows,
-      updated_products: persisted,
+      updated_products: report.updated,
       unchanged_products: 0,
-      failed_products: failed,
+      failed_products: report.failed,
       report_json: report,
     });
+
+    return { done: allDone, job: updated };
   } catch (error) {
     report = appendLog(report, {
       level: "error",
@@ -168,10 +190,12 @@ export async function processInBackground(job: ProductSyncJobRow): Promise<void>
     });
     report = { ...report, finishedAt: nowIso(), hasNextPage: false };
 
-    await updateSyncJob(job.id, {
+    const updated = await updateSyncJob(job.id, {
       status: "failed",
       failed_products: (job.failed_products || 0) + 1,
       report_json: report,
     });
+
+    return { done: true, job: updated };
   }
 }
