@@ -177,8 +177,8 @@ export function parseShopifyReadyCsv(text: string): CsvProductRow[] {
       vendor: pick(mapped, "vendor", "marchi", "brand"),
       productType: pick(mapped, "type", "tipo"),
       parentSku: pick(mapped, "parent", "genitore", "parent_sku"),
-      price: pick(mapped, "variant_price", "price", "regular_price", "prezzo_di_listino"),
-      compareAtPrice: pick(mapped, "variant_compare_at_price", "compare_at_price", "sale_price", "prezzo_in_offerta"),
+      price: pick(mapped, "variant_price", "price", "regular_price", "prezzo_di_listino", "prezzo_regolare", "prezzo"),
+      compareAtPrice: pick(mapped, "variant_compare_at_price", "compare_at_price", "sale_price", "prezzo_in_offerta", "prezzo_di_vendita", "prezzo_scontato"),
       barcode: pick(mapped, "variant_barcode", "barcode", "gtin,_upc,_ean,_o_isbn"),
       weight,
       inventoryQuantity: toInt(pick(mapped, "variant_inventory_qty", "inventory_quantity", "stock", "magazzino")),
@@ -347,20 +347,42 @@ export async function exportEnrichedCsv(adminEmail: string): Promise<Blob> {
 
   if (error) throw new Error(error.message || "Errore export CSV");
 
-  // The response may come as a string (CSV text) or an object with error
   if (typeof data === "object" && data?.error) {
     throw new Error(data.error);
   }
 
-  // data could be a string or blob depending on response type
   if (typeof data === "string") {
     return new Blob([data], { type: "text/csv;charset=utf-8;" });
   }
 
-  // If it's already a Blob
   if (data instanceof Blob) return data;
 
   throw new Error("Formato risposta non valido");
+}
+
+// ── Price fix utilities ─────────────────────────────────────
+
+export async function propagateVariantPrices(adminEmail: string): Promise<{ updated: number }> {
+  const { data, error } = await supabase.functions.invoke("update-product-prices", {
+    body: { action: "propagate_variants" },
+    headers: headers(adminEmail),
+  });
+
+  if (error) throw new Error(error.message || "Errore propagazione prezzi");
+  return { updated: data?.updated ?? 0 };
+}
+
+export async function batchUpdatePrices(
+  adminEmail: string,
+  rows: Array<{ sku: string; price?: string; compareAtPrice?: string }>,
+): Promise<{ updated: number }> {
+  const { data, error } = await supabase.functions.invoke("update-product-prices", {
+    body: { action: "update_prices", rows },
+    headers: headers(adminEmail),
+  });
+
+  if (error) throw new Error(error.message || "Errore aggiornamento prezzi");
+  return { updated: data?.updated ?? 0 };
 }
 
 // ── Batch size export for UI ────────────────────────────────
