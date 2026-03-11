@@ -419,5 +419,41 @@ export async function batchUpdatePrices(
   return { updated: data?.updated ?? 0 };
 }
 
+// ── Image generation ────────────────────────────────────────
+
+export interface ImageCountResponse {
+  total_parents: number;
+  with_images: number;
+  missing_images: number;
+  missing_skus: Array<{ sku: string; title: string }>;
+}
+
+export interface ImageGenResponse {
+  success: boolean;
+  processed: number;
+  remaining: number;
+  errors: string[];
+}
+
+export async function getImageCounts(adminEmail: string): Promise<ImageCountResponse> {
+  const { data, error } = await supabase.functions.invoke("generate-product-images", {
+    body: { count_only: true },
+    headers: headers(adminEmail),
+  });
+
+  if (error) throw new Error(error.message || "Errore conteggio immagini");
+  return data as ImageCountResponse;
+}
+
+export async function runImageGenBatch(adminEmail: string, batchSize = 3): Promise<ImageGenResponse> {
+  const { data, error } = await supabase.functions.invoke("generate-product-images", {
+    body: { batch_size: batchSize },
+    headers: headers(adminEmail),
+  });
+
+  if (error) throw new Error(error.message || "Errore generazione immagini");
+  return data as ImageGenResponse;
+}
+
 // ── Batch size export for UI ────────────────────────────────
 export { BATCH_SIZE };

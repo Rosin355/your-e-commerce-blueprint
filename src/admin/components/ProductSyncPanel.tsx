@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Database, Download, Loader2, Upload, Sparkles, DollarSign, RefreshCw } from "lucide-react";
+import { Database, Download, Loader2, Upload, Sparkles, DollarSign, RefreshCw, ImagePlus, AlertTriangle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,8 +31,10 @@ import {
   sendBatch,
   startProductSync,
   uploadSyncCsv,
+  getImageCounts,
+  runImageGenBatch,
 } from "../lib/productSyncEngine";
-import type { CsvHeaderDiagnostics } from "../lib/productSyncEngine";
+import type { CsvHeaderDiagnostics, ImageCountResponse } from "../lib/productSyncEngine";
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
 
 const STALE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -85,6 +87,14 @@ export default function ProductSyncPanel() {
   const [styleConflictCount, setStyleConflictCount] = useState(0);
   const [csvDiagnostics, setCsvDiagnostics] = useState<CsvHeaderDiagnostics | null>(null);
   const [showStyleDialog, setShowStyleDialog] = useState(false);
+
+  // Image generation state
+  const [imageCounts, setImageCounts] = useState<ImageCountResponse | null>(null);
+  const [imageGenRunning, setImageGenRunning] = useState(false);
+  const [imageGenProcessed, setImageGenProcessed] = useState(0);
+  const [imageGenErrors, setImageGenErrors] = useState<string[]>([]);
+  const [showMissingSkus, setShowMissingSkus] = useState(false);
+  const imageAbortRef = useRef(false);
   const percentage = useMemo(() => {
     if (!job) return 0;
     if (job.total_products <= 0) return 0;
@@ -596,6 +606,33 @@ export default function ProductSyncPanel() {
                   Aggiorna prezzi da CSV
                 </Button>
                 <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  disabled={exporting || !session?.email}
+                  onClick={async () => {
+                    if (!session?.email) return;
+                    setExporting(true);
+                    try {
+                      const blob = await exportEnrichedCsv(session.email);
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `shopify-export-${new Date().toISOString().slice(0, 10)}.csv`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      toast.success("CSV esportato con successo");
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Errore export");
+                    } finally {
+                      setExporting(false);
+                    }
+                  }}
+                >
+                  {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                  Esporta CSV Shopify
+                </Button>
+                <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
@@ -833,6 +870,163 @@ export default function ProductSyncPanel() {
               <p className="text-sm font-medium text-destructive mb-1">Errori ({aiErrors.length})</p>
               <div className="space-y-1 text-xs font-mono">
                 {aiErrors.map((err, i) => (
+                  <p key={i} className="text-destructive">{err}</p>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── AI Image Generation Card ──────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ImagePlus className="h-5 w-5" />
+            Immagini prodotto — AI + Segnalazione
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!session?.email}
+              onClick={async () => {
+                if (!session?.email) return;
+                try {
+                  const counts = await getImageCounts(session.email);
+                  setImageCounts(counts);
+                  toast.success(`${counts.missing_images} prodotti senza immagini trovati`);
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Errore");
+                }
+              }}
+            >
+              Analizza immagini mancanti
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              className="gap-2"
+              disabled={imageGenRunning || !session?.email || !imageCounts || imageCounts.missing_images === 0}
+              onClick={async () => {
+                if (!session?.email || !imageCounts) return;
+                setImageGenRunning(true);
+                setImageGenProcessed(0);
+                setImageGenErrors([]);
+                imageAbortRef.current = false;
+
+                let totalProcessed = 0;
+                const allErrors: string[] = [];
+                let remaining = imageCounts.missing_images;
+
+                while (remaining > 0 && !imageAbortRef.current) {
+                  try {
+                    const result = await runImageGenBatch(session.email, 3);
+                    totalProcessed += result.processed;
+                    setImageGenProcessed(totalProcessed);
+                    if (result.errors.length) {
+                      allErrors.push(...result.errors);
+                      setImageGenErrors([...allErrors]);
+                      // Stop on rate limit / credits errors
+                      if (result.errors.some(e => e.includes("Rate limit") || e.includes("Crediti"))) break;
+                    }
+                    remaining = result.remaining;
+                    if (result.processed === 0) break;
+                  } catch (err) {
+                    allErrors.push(err instanceof Error ? err.message : "Errore");
+                    setImageGenErrors([...allErrors]);
+                    break;
+                  }
+                }
+
+                toast.success(`${totalProcessed} immagini generate con AI`);
+                // Refresh counts
+                try {
+                  const counts = await getImageCounts(session.email);
+                  setImageCounts(counts);
+                } catch {}
+                setImageGenRunning(false);
+              }}
+            >
+              {imageGenRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              Genera immagini con AI
+            </Button>
+            {imageGenRunning && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => { imageAbortRef.current = true; }}
+              >
+                Stop
+              </Button>
+            )}
+          </div>
+
+          {imageCounts && (
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Prodotti parent</p>
+                <p className="text-xl font-semibold">{imageCounts.total_parents}</p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Con immagini</p>
+                <p className="text-xl font-semibold text-primary">{imageCounts.with_images}</p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Senza immagini</p>
+                <p className="text-xl font-semibold text-destructive">{imageCounts.missing_images}</p>
+              </div>
+            </div>
+          )}
+
+          {imageGenRunning && (
+            <div className="flex items-center gap-2 text-sm">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>{imageGenProcessed} immagini generate...</span>
+            </div>
+          )}
+
+          {imageCounts && imageCounts.missing_skus.length > 0 && (
+            <div className="space-y-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                onClick={() => setShowMissingSkus(!showMissingSkus)}
+              >
+                <AlertTriangle className="h-4 w-4" />
+                {showMissingSkus ? "Nascondi" : "Mostra"} prodotti senza immagini ({imageCounts.missing_skus.length}{imageCounts.missing_images > 50 ? "+" : ""})
+              </Button>
+              {showMissingSkus && (
+                <div className="max-h-48 overflow-auto rounded-md border">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="p-2 text-left">SKU</th>
+                        <th className="p-2 text-left">Titolo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {imageCounts.missing_skus.map((item) => (
+                        <tr key={item.sku} className="border-t">
+                          <td className="p-2 font-mono">{item.sku}</td>
+                          <td className="p-2">{item.title}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {imageGenErrors.length > 0 && (
+            <div className="rounded-md border border-destructive/30 p-3 max-h-40 overflow-auto">
+              <p className="text-sm font-medium text-destructive mb-1">Errori ({imageGenErrors.length})</p>
+              <div className="space-y-1 text-xs font-mono">
+                {imageGenErrors.map((err, i) => (
                   <p key={i} className="text-destructive">{err}</p>
                 ))}
               </div>
