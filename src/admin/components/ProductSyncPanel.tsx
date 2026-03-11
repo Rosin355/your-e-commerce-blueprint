@@ -19,6 +19,7 @@ import { getAdminSession } from "../lib/adminAuth";
 import {
   BATCH_SIZE,
   batchUpdatePrices,
+  detectCsvHeaders,
   exportEnrichedCsv,
   fetchProductSyncDashboard,
   getAiEnrichCount,
@@ -31,6 +32,7 @@ import {
   startProductSync,
   uploadSyncCsv,
 } from "../lib/productSyncEngine";
+import type { CsvHeaderDiagnostics } from "../lib/productSyncEngine";
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
 
 const STALE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -81,6 +83,7 @@ export default function ProductSyncPanel() {
   const [exporting, setExporting] = useState(false);
   const [fixingPrices, setFixingPrices] = useState(false);
   const [styleConflictCount, setStyleConflictCount] = useState(0);
+  const [csvDiagnostics, setCsvDiagnostics] = useState<CsvHeaderDiagnostics | null>(null);
   const [showStyleDialog, setShowStyleDialog] = useState(false);
   const percentage = useMemo(() => {
     if (!job) return 0;
@@ -128,6 +131,12 @@ export default function ProductSyncPanel() {
     try {
       await uploadSyncCsv(file, session.email);
       setCsvFile(file);
+      // Run header diagnostics
+      try {
+        const csvText = await file.text();
+        const diag = detectCsvHeaders(csvText);
+        setCsvDiagnostics(diag);
+      } catch { /* ignore diagnostics errors */ }
       toast.success(`CSV "${file.name}" caricato con successo`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Errore upload");
@@ -598,6 +607,35 @@ export default function ProductSyncPanel() {
                 </Button>
               </div>
             </div>
+
+            {/* Header diagnostics */}
+            {csvDiagnostics && (
+              <div className="rounded-md border border-border bg-muted/30 p-2 text-xs space-y-1">
+                <p className="font-medium">📋 Diagnostica header CSV ({csvDiagnostics.totalDataRows} righe dati)</p>
+                <p>
+                  Colonna prezzo:{" "}
+                  {csvDiagnostics.priceColumn ? (
+                    <span className="font-mono text-primary">{csvDiagnostics.priceColumn}</span>
+                  ) : (
+                    <span className="text-destructive font-semibold">⚠️ Non riconosciuta</span>
+                  )}
+                  {csvDiagnostics.priceColumn && (
+                    <span className="text-muted-foreground ml-2">
+                      ({csvDiagnostics.rowsWithPrice} righe con valore)
+                    </span>
+                  )}
+                </p>
+                <p>
+                  Colonna prezzo scontato:{" "}
+                  {csvDiagnostics.compareAtPriceColumn ? (
+                    <span className="font-mono text-primary">{csvDiagnostics.compareAtPriceColumn}</span>
+                  ) : (
+                    <span className="text-muted-foreground">Non trovata</span>
+                  )}
+                </p>
+              </div>
+            )}
+
             <div className="grid gap-3 sm:grid-cols-4">
               <div className="rounded-md border p-2">
                 <p className="text-xs text-muted-foreground">Prodotti salvati</p>

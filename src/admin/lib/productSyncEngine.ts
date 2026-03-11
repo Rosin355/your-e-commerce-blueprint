@@ -201,6 +201,40 @@ export function parseShopifyReadyCsv(text: string): CsvProductRow[] {
   return parsed;
 }
 
+// ── Header diagnostics ─────────────────────────────────────
+
+const PRICE_KEYS = ["variant_price", "price", "regular_price", "prezzo_di_listino", "prezzo_regolare", "prezzo"];
+const COMPARE_KEYS = ["variant_compare_at_price", "compare_at_price", "sale_price", "prezzo_in_offerta", "prezzo_di_vendita", "prezzo_scontato"];
+
+export interface CsvHeaderDiagnostics {
+  allHeaders: string[];
+  priceColumn: string | null;
+  compareAtPriceColumn: string | null;
+  rowsWithPrice: number;
+  totalDataRows: number;
+}
+
+export function detectCsvHeaders(text: string): CsvHeaderDiagnostics {
+  const rows = parseCsvRows(text.replace(/^\uFEFF/, ""));
+  if (!rows.length) return { allHeaders: [], priceColumn: null, compareAtPriceColumn: null, rowsWithPrice: 0, totalDataRows: 0 };
+
+  const headers = rows[0].map((h) => normalizeHeader(h));
+  const priceColumn = PRICE_KEYS.find((k) => headers.includes(k)) ?? null;
+  const compareAtPriceColumn = COMPARE_KEYS.find((k) => headers.includes(k)) ?? null;
+
+  let rowsWithPrice = 0;
+  const dataRows = rows.slice(1);
+  if (priceColumn) {
+    const idx = headers.indexOf(priceColumn);
+    for (const cells of dataRows) {
+      const val = String(cells[idx] || "").trim();
+      if (val && val !== "0") rowsWithPrice++;
+    }
+  }
+
+  return { allHeaders: headers, priceColumn, compareAtPriceColumn, rowsWithPrice, totalDataRows: dataRows.length };
+}
+
 // ── API calls ──────────────────────────────────────────────
 
 export async function startProductSync(mode: SyncMode, adminEmail: string): Promise<StartResponse> {
