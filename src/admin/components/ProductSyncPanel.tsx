@@ -8,6 +8,7 @@ import { Database, Download, Loader2, Upload, Sparkles } from "lucide-react";
 import { getAdminSession } from "../lib/adminAuth";
 import {
   BATCH_SIZE,
+  exportEnrichedCsv,
   fetchProductSyncDashboard,
   getAiEnrichCount,
   parseShopifyReadyCsv,
