@@ -163,14 +163,19 @@ export async function getCatalogDashboard(limit = 20): Promise<{
     missingPriceCount: Number(missingPriceCount || 0),
     lastImportAt: lastRow?.imported_at || null,
     sourceFiles: Array.from(sourceSet),
-    preview: (data || []).map((row) => ({
-      sku: String(row.sku || ""),
-      title: row.title ?? null,
-      price: row.price === null || row.price === undefined ? null : Number(row.price),
-      inventory_quantity: row.inventory_quantity === null || row.inventory_quantity === undefined ? null : Number(row.inventory_quantity),
-      source_file: row.source_file ?? null,
-      imported_at: String(row.imported_at),
-    })),
+    preview: (data || []).map((row) => {
+      const images = Array.isArray(row.image_urls) ? row.image_urls : [];
+      const firstImage = images.length > 0 ? String(images[0]) : null;
+      return {
+        sku: String(row.sku || ""),
+        title: row.title ?? null,
+        price: row.price === null || row.price === undefined ? null : Number(row.price),
+        inventory_quantity: row.inventory_quantity === null || row.inventory_quantity === undefined ? null : Number(row.inventory_quantity),
+        source_file: row.source_file ?? null,
+        imported_at: String(row.imported_at),
+        image_url: firstImage,
+      };
+    }),
   };
 }
 
