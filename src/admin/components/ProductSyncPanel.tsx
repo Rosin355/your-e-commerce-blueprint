@@ -125,6 +125,52 @@ export default function ProductSyncPanel() {
     return () => clearInterval(timer);
   }, [running, startedAt]);
 
+  const runBatches = async (
+    jobId: string,
+    allRows: ReturnType<typeof parseShopifyReadyCsv>,
+    startBatchIndex: number,
+    fileName: string,
+  ) => {
+    const totalBatches = Math.ceil(allRows.length / BATCH_SIZE);
+    let lastBatchTime = Date.now();
+
+    for (let i = startBatchIndex; i < totalBatches; i++) {
+      if (abortRef.current) {
+        toast.info("Importazione annullata");
+        break;
+      }
+
+      if (Date.now() - lastBatchTime > STALE_TIMEOUT_MS) {
+        toast.error("Job bloccato: nessun progresso negli ultimi 5 minuti.");
+        break;
+      }
+
+      const batchRows = allRows.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE);
+
+      const response = await sendBatch(
+        jobId,
+        batchRows,
+        i,
+        totalBatches,
+        allRows.length,
+        session!.email,
+        fileName,
+      );
+
+      setJob(response.job);
+      lastBatchTime = Date.now();
+
+      if (response.done) {
+        if (response.job.status === "completed") {
+          toast.success("Importazione completata!");
+        } else if (response.job.status === "failed") {
+          toast.error("Importazione terminata con errori");
+        }
+        break;
+      }
+    }
+  };
+
   const start = async (mode: SyncMode) => {
     if (!session?.email || !csvFile) {
       toast.error("Sessione admin non valida o CSV mancante");
@@ -138,7 +184,6 @@ export default function ProductSyncPanel() {
     abortRef.current = false;
 
     try {
-      // Step 1: Parse CSV in browser
       const csvText = await csvFile.text();
       const allRows = parseShopifyReadyCsv(csvText);
 
@@ -152,54 +197,54 @@ export default function ProductSyncPanel() {
 
       toast.success(`CSV parsato: ${allRows.length} righe. Invio batch...`);
 
-      // Step 2: Create job
       const startResponse = await startProductSync(mode, session.email);
       const jobId = startResponse.job_id;
+      setLastJobId(jobId);
 
-      // Step 3: Send batches sequentially
-      const totalBatches = Math.ceil(allRows.length / BATCH_SIZE);
-      let lastBatchTime = Date.now();
-
-      for (let i = 0; i < totalBatches; i++) {
-        if (abortRef.current) {
-          toast.info("Importazione annullata");
-          break;
-        }
-
-        // Stale check
-        if (Date.now() - lastBatchTime > STALE_TIMEOUT_MS) {
-          toast.error("Job bloccato: nessun progresso negli ultimi 5 minuti.");
-          break;
-        }
-
-        const batchRows = allRows.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE);
-
-        const response = await sendBatch(
-          jobId,
-          batchRows,
-          i,
-          totalBatches,
-          allRows.length,
-          session.email,
-          csvFile.name,
-        );
-
-        setJob(response.job);
-        lastBatchTime = Date.now();
-
-        if (response.done) {
-          if (response.job.status === "completed") {
-            toast.success("Importazione completata!");
-          } else if (response.job.status === "failed") {
-            toast.error("Importazione terminata con errori");
-          }
-          break;
-        }
-      }
-
+      await runBatches(jobId, allRows, 0, csvFile.name);
       await loadCatalogDashboard(session.email);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Errore durante l'importazione");
+    } finally {
+      setRunning(false);
+      setPendingMode(null);
+      setStartedAt(null);
+    }
+  };
+
+  const resume = async () => {
+    if (!session?.email || !csvFile || !lastJobId || !job) {
+      toast.error("CSV o job precedente mancante per riprendere");
+      return;
+    }
+
+    const bp = (job.report_json as any)?.batchProgress;
+    const resumeFrom = bp?.current ?? 0; // current = last completed batch index (1-based)
+
+    setPendingMode(job.mode);
+    setStartedAt(Date.now());
+    setElapsed(0);
+    setRunning(true);
+    abortRef.current = false;
+
+    try {
+      const csvText = await csvFile.text();
+      const allRows = parseShopifyReadyCsv(csvText);
+      const totalBatches = Math.ceil(allRows.length / BATCH_SIZE);
+
+      if (resumeFrom >= totalBatches) {
+        toast.info("Tutti i batch sono già stati processati");
+        setRunning(false);
+        setPendingMode(null);
+        setStartedAt(null);
+        return;
+      }
+
+      toast.success(`Ripresa dal batch ${resumeFrom + 1}/${totalBatches}`);
+      await runBatches(lastJobId, allRows, resumeFrom, csvFile.name);
+      await loadCatalogDashboard(session.email);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Errore durante la ripresa");
     } finally {
       setRunning(false);
       setPendingMode(null);
