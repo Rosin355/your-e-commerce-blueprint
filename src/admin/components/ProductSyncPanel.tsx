@@ -607,6 +607,35 @@ export default function ProductSyncPanel() {
                 </Button>
               </div>
             </div>
+
+            {/* Header diagnostics */}
+            {csvDiagnostics && (
+              <div className="rounded-md border border-border bg-muted/30 p-2 text-xs space-y-1">
+                <p className="font-medium">📋 Diagnostica header CSV ({csvDiagnostics.totalDataRows} righe dati)</p>
+                <p>
+                  Colonna prezzo:{" "}
+                  {csvDiagnostics.priceColumn ? (
+                    <span className="font-mono text-primary">{csvDiagnostics.priceColumn}</span>
+                  ) : (
+                    <span className="text-destructive font-semibold">⚠️ Non riconosciuta</span>
+                  )}
+                  {csvDiagnostics.priceColumn && (
+                    <span className="text-muted-foreground ml-2">
+                      ({csvDiagnostics.rowsWithPrice} righe con valore)
+                    </span>
+                  )}
+                </p>
+                <p>
+                  Colonna prezzo scontato:{" "}
+                  {csvDiagnostics.compareAtPriceColumn ? (
+                    <span className="font-mono text-primary">{csvDiagnostics.compareAtPriceColumn}</span>
+                  ) : (
+                    <span className="text-muted-foreground">Non trovata</span>
+                  )}
+                </p>
+              </div>
+            )}
+
             <div className="grid gap-3 sm:grid-cols-4">
               <div className="rounded-md border p-2">
                 <p className="text-xs text-muted-foreground">Prodotti salvati</p>
