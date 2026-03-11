@@ -113,6 +113,7 @@ export async function getCatalogDashboard(limit = 20): Promise<{
     inventory_quantity: number | null;
     source_file: string | null;
     imported_at: string;
+    image_url: string | null;
   }>;
 }> {
   const client = getAdminClient();
@@ -123,7 +124,7 @@ export async function getCatalogDashboard(limit = 20): Promise<{
     client.from("product_sync_csv_products").select("sku", { count: "exact", head: true }).is("price", null),
     client
       .from("product_sync_csv_products")
-      .select("sku,title,price,inventory_quantity,source_file,imported_at")
+      .select("sku,title,price,inventory_quantity,source_file,imported_at,image_urls")
       .order("imported_at", { ascending: false })
       .limit(cappedLimit),
     client
@@ -162,14 +163,19 @@ export async function getCatalogDashboard(limit = 20): Promise<{
     missingPriceCount: Number(missingPriceCount || 0),
     lastImportAt: lastRow?.imported_at || null,
     sourceFiles: Array.from(sourceSet),
-    preview: (data || []).map((row) => ({
-      sku: String(row.sku || ""),
-      title: row.title ?? null,
-      price: row.price === null || row.price === undefined ? null : Number(row.price),
-      inventory_quantity: row.inventory_quantity === null || row.inventory_quantity === undefined ? null : Number(row.inventory_quantity),
-      source_file: row.source_file ?? null,
-      imported_at: String(row.imported_at),
-    })),
+    preview: (data || []).map((row) => {
+      const images = Array.isArray(row.image_urls) ? row.image_urls : [];
+      const firstImage = images.length > 0 ? String(images[0]) : null;
+      return {
+        sku: String(row.sku || ""),
+        title: row.title ?? null,
+        price: row.price === null || row.price === undefined ? null : Number(row.price),
+        inventory_quantity: row.inventory_quantity === null || row.inventory_quantity === undefined ? null : Number(row.inventory_quantity),
+        source_file: row.source_file ?? null,
+        imported_at: String(row.imported_at),
+        image_url: firstImage,
+      };
+    }),
   };
 }
 

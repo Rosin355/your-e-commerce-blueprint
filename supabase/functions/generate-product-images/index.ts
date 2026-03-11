@@ -161,10 +161,9 @@ Style: professional product photography, high quality, clean composition.`;
           continue;
         }
 
-        // Get public URL
+        // Get public URL (bucket is now public)
         const { data: urlData } = client.storage.from(BUCKET).getPublicUrl(storagePath);
-        // Since bucket is private, construct authenticated URL
-        const imageUrl = `${supabaseUrl}/storage/v1/object/authenticated/${BUCKET}/${storagePath}`;
+        const imageUrl = urlData.publicUrl;
 
         // Update DB
         const { error: updateErr } = await client
