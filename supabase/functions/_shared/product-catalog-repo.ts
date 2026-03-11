@@ -142,10 +142,11 @@ export async function getCatalogDashboard(limit = 20): Promise<{
       .limit(200),
   ]);
 
-  if (countError || missingErr || rowsError || lastError || sourceError) {
+  if (countError || missingErr || missingImgErr || rowsError || lastError || sourceError) {
     throw new Error(
       countError?.message ||
       missingErr?.message ||
+      missingImgErr?.message ||
       rowsError?.message ||
       lastError?.message ||
       sourceError?.message ||
