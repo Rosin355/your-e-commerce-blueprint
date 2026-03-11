@@ -52,6 +52,7 @@ export interface ProductSyncCatalogPreviewRow {
   inventory_quantity: number | null;
   source_file: string | null;
   imported_at: string;
+  image_url: string | null;
 }
 
 export interface ProductSyncCatalogDashboard {

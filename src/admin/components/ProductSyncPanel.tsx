@@ -699,6 +699,7 @@ export default function ProductSyncPanel() {
               <table className="w-full text-xs">
                 <thead className="bg-muted/50">
                   <tr>
+                    <th className="p-2 text-left w-10">Img</th>
                     <th className="p-2 text-left">SKU</th>
                     <th className="p-2 text-left">Titolo</th>
                     <th className="p-2 text-left">Prezzo</th>
@@ -708,6 +709,18 @@ export default function ProductSyncPanel() {
                 <tbody>
                   {(catalogDashboard?.preview || []).map((row) => (
                     <tr key={`${row.sku}-${row.imported_at}`} className="border-t">
+                      <td className="p-2">
+                        {row.image_url ? (
+                          <img
+                            src={row.image_url}
+                            alt={row.title || row.sku}
+                            className="h-8 w-8 rounded object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="h-8 w-8 rounded bg-muted flex items-center justify-center text-muted-foreground text-[10px]">—</div>
+                        )}
+                      </td>
                       <td className="p-2 font-mono">{row.sku}</td>
                       <td className="p-2">{row.title || "-"}</td>
                       <td className="p-2">{row.price !== null ? row.price.toFixed(2) : "-"}</td>
@@ -716,7 +729,7 @@ export default function ProductSyncPanel() {
                   ))}
                   {!catalogDashboard?.preview?.length && (
                     <tr>
-                      <td className="p-2 text-muted-foreground" colSpan={4}>
+                      <td className="p-2 text-muted-foreground" colSpan={5}>
                         Nessun prodotto CSV salvato nel DB.
                       </td>
                     </tr>
