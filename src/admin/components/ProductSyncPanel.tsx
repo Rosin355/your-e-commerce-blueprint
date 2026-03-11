@@ -370,9 +370,9 @@ export default function ProductSyncPanel() {
 
   const aiPercentage = useMemo(() => {
     if (!aiCounts || aiCounts.total === 0) return 0;
-    const enriched = aiCounts.total - aiCounts.unenriched + aiProcessed;
+    const enriched = aiCounts.total - aiCounts.unenriched;
     return Math.max(0, Math.min(100, Math.round((enriched / aiCounts.total) * 100)));
-  }, [aiCounts, aiProcessed]);
+  }, [aiCounts]);
 
   return (
     <div className="space-y-4">
