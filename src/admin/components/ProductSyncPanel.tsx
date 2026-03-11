@@ -44,6 +44,28 @@ export default function ProductSyncPanel() {
     return Math.max(0, Math.min(100, Math.round((processed / job.total_products) * 100)));
   }, [job]);
 
+  const batchProgress = useMemo(() => {
+    const bp = (job?.report_json as any)?.batchProgress;
+    if (!bp) return null;
+    return { current: bp.current as number, total: bp.total as number };
+  }, [job]);
+
+  const phaseLabel = useMemo(() => {
+    if (!running && !pendingMode) return null;
+    if (!job || job.status === "pending") return "Avvio...";
+    if (job.total_products === 0 && job.status === "processing") return "Download e parsing CSV...";
+    if (job.status === "processing") return `Scrittura batch nel DB...`;
+    if (job.status === "completed") return "Completato ✓";
+    if (job.status === "failed") return "Errore ✗";
+    return "In attesa...";
+  }, [job, running, pendingMode]);
+
+  const formatElapsed = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
+
   const canStart = Boolean(session?.email) && !running && csvUploaded;
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
