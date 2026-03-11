@@ -15,6 +15,18 @@ export interface CsvProductRow {
   productCategory?: string;
   productCategoryId?: string;
   imageUrls?: string[];
+  handle?: string;
+  shortDescription?: string;
+  vendor?: string;
+  productType?: string;
+  parentSku?: string;
+  metafields?: {
+    exposure?: string;
+    soil?: string;
+    watering?: string;
+    petSafe?: string;
+    heightCm?: string;
+  };
 }
 
 export interface ShopifyVariantSnapshot {

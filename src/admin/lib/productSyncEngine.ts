@@ -36,14 +36,24 @@ interface CsvProductRow {
   productCategory?: string;
   productCategoryId?: string;
   imageUrls?: string[];
+  handle?: string;
+  shortDescription?: string;
+  vendor?: string;
+  productType?: string;
+  parentSku?: string;
+  metafields?: {
+    exposure?: string;
+    soil?: string;
+    watering?: string;
+    petSafe?: string;
+    heightCm?: string;
+  };
 }
 
 const BATCH_SIZE = 200;
 
 function headers(adminEmail: string): Record<string, string> {
-  return {
-    "x-admin-email": adminEmail,
-  };
+  return { "x-admin-email": adminEmail };
 }
 
 // ── CSV Parser (browser-side) ──────────────────────────────
@@ -109,11 +119,11 @@ function toInt(value: string | undefined): number | undefined {
 }
 
 function toTags(value: string | undefined): string[] {
-  return String(value || "").split(",").map((tag) => tag.trim()).filter(Boolean);
+  return String(value || "").split(/[,|]/).map((tag) => tag.trim()).filter(Boolean);
 }
 
 function toImageUrls(value: string | undefined): string[] {
-  return String(value || "").split(",").map((url) => url.trim()).filter(Boolean);
+  return String(value || "").split(/[,|]/).map((url) => url.trim()).filter(Boolean);
 }
 
 function pick(row: Record<string, string>, ...keys: string[]): string | undefined {
@@ -141,19 +151,50 @@ export function parseShopifyReadyCsv(text: string): CsvProductRow[] {
     const sku = pick(mapped, "variant_sku", "sku", "variant_sku_1");
     if (!sku) continue;
 
+    // Weight: WooCommerce uses kg, convert to grams
+    let weight = toFloat(pick(mapped, "variant_grams", "weight", "variant_weight", "peso_(kg)"));
+    const rawWeightKg = pick(mapped, "peso_(kg)");
+    if (rawWeightKg && !pick(mapped, "variant_grams")) {
+      const kg = toFloat(rawWeightKg);
+      if (kg !== undefined) weight = Math.round(kg * 1000);
+    }
+
+    // Metafields from WooCommerce ACF meta columns
+    const metaExposure = pick(mapped, "meta:_esposizione_pianta_acf", "meta:_esposizione_pianta", "esposizione");
+    const metaSoil = pick(mapped, "meta:_tipo_terreno_acf", "meta:_tipo_terreno", "tipo_terreno");
+    const metaWatering = pick(mapped, "meta:_irrigazione_acf", "meta:_irrigazione", "irrigazione");
+    const metaPetSafe = pick(mapped, "meta:_tossicita_per_animali_acf", "meta:_tossicita_per_animali", "tossicita");
+    const metaHeight = pick(mapped, "meta:_altezza_massima_pianta_acf", "meta:_altezza_massima_pianta", "altezza_massima");
+
+    const hasMetafields = metaExposure || metaSoil || metaWatering || metaPetSafe || metaHeight;
+
     parsed.push({
       sku,
-      title: pick(mapped, "title", "name"),
-      description: pick(mapped, "body_html", "description", "body_(html)"),
-      price: pick(mapped, "variant_price", "price", "regular_price"),
-      compareAtPrice: pick(mapped, "variant_compare_at_price", "compare_at_price", "sale_price"),
-      barcode: pick(mapped, "variant_barcode", "barcode"),
-      weight: toFloat(pick(mapped, "variant_grams", "weight", "variant_weight")),
-      inventoryQuantity: toInt(pick(mapped, "variant_inventory_qty", "inventory_quantity", "stock")),
-      tags: toTags(pick(mapped, "tags")),
-      productCategory: pick(mapped, "product_category", "category"),
+      title: pick(mapped, "title", "name", "nome"),
+      description: pick(mapped, "body_html", "description", "body_(html)", "descrizione"),
+      shortDescription: pick(mapped, "short_description", "breve_descrizione"),
+      handle: pick(mapped, "handle", "slug", "permalink"),
+      vendor: pick(mapped, "vendor", "marchi", "brand"),
+      productType: pick(mapped, "type", "tipo"),
+      parentSku: pick(mapped, "parent", "genitore", "parent_sku"),
+      price: pick(mapped, "variant_price", "price", "regular_price", "prezzo_di_listino"),
+      compareAtPrice: pick(mapped, "variant_compare_at_price", "compare_at_price", "sale_price", "prezzo_in_offerta"),
+      barcode: pick(mapped, "variant_barcode", "barcode", "gtin,_upc,_ean,_o_isbn"),
+      weight,
+      inventoryQuantity: toInt(pick(mapped, "variant_inventory_qty", "inventory_quantity", "stock", "magazzino")),
+      tags: toTags(pick(mapped, "tags", "tag")),
+      productCategory: pick(mapped, "product_category", "category", "categorie", "categories"),
       productCategoryId: pick(mapped, "product_category_id", "category_gid"),
-      imageUrls: toImageUrls(pick(mapped, "image_src", "images")),
+      imageUrls: toImageUrls(pick(mapped, "image_src", "images", "immagini", "immagine")),
+      metafields: hasMetafields
+        ? {
+            exposure: metaExposure,
+            soil: metaSoil,
+            watering: metaWatering,
+            petSafe: metaPetSafe,
+            heightCm: metaHeight,
+          }
+        : undefined,
     });
   }
 
@@ -168,14 +209,8 @@ export async function startProductSync(mode: SyncMode, adminEmail: string): Prom
     headers: headers(adminEmail),
   });
 
-  if (error) {
-    throw new Error(error.message || "Errore avvio sincronizzazione");
-  }
-
-  if (!data?.success) {
-    throw new Error(data?.error || "Errore avvio job");
-  }
-
+  if (error) throw new Error(error.message || "Errore avvio sincronizzazione");
+  if (!data?.success) throw new Error(data?.error || "Errore avvio job");
   return data as StartResponse;
 }
 
@@ -200,14 +235,8 @@ export async function sendBatch(
     headers: headers(adminEmail),
   });
 
-  if (error) {
-    throw new Error(error.message || "Errore processamento batch");
-  }
-
-  if (!data?.job) {
-    throw new Error(data?.error || "Risposta job non valida");
-  }
-
+  if (error) throw new Error(error.message || "Errore processamento batch");
+  if (!data?.job) throw new Error(data?.error || "Risposta job non valida");
   return data as ProcessResponse;
 }
 
@@ -219,14 +248,8 @@ export async function pollJobStatus(jobId: string, adminEmail: string): Promise<
     headers: headers(adminEmail),
   });
 
-  if (error) {
-    throw new Error(error.message || "Errore polling job");
-  }
-
-  if (!data?.job) {
-    throw new Error(data?.error || "Risposta job non valida");
-  }
-
+  if (error) throw new Error(error.message || "Errore polling job");
+  if (!data?.job) throw new Error(data?.error || "Risposta job non valida");
   return {
     success: true,
     done: data.job.status === "completed" || data.job.status === "failed",
@@ -240,21 +263,14 @@ export async function fetchProductSyncDashboard(adminEmail: string, limit = 20):
     headers: headers(adminEmail),
   });
 
-  if (error) {
-    throw new Error(error.message || "Errore caricamento dashboard catalogo");
-  }
-
+  if (error) throw new Error(error.message || "Errore caricamento dashboard catalogo");
   const typed = data as DashboardResponse;
-  if (!typed?.success || !typed.dashboard) {
-    throw new Error(typed?.error || "Risposta dashboard non valida");
-  }
-
+  if (!typed?.success || !typed.dashboard) throw new Error(typed?.error || "Risposta dashboard non valida");
   return typed.dashboard;
 }
 
 export async function uploadSyncCsv(file: File, _adminEmail: string): Promise<string> {
   const storagePath = "shopify-ready.csv";
-
   const { error } = await supabase.storage
     .from("sync")
     .upload(storagePath, file, {
@@ -263,11 +279,42 @@ export async function uploadSyncCsv(file: File, _adminEmail: string): Promise<st
       contentType: "text/csv",
     });
 
-  if (error) {
-    throw new Error(error.message || "Errore upload CSV");
-  }
-
+  if (error) throw new Error(error.message || "Errore upload CSV");
   return storagePath;
+}
+
+// ── AI Enrichment ──────────────────────────────────────────
+
+export interface AiEnrichResponse {
+  success: boolean;
+  processed: number;
+  remaining: number;
+  errors: string[];
+  error?: string;
+}
+
+export async function runAiEnrichBatch(
+  adminEmail: string,
+  batchSize = 5,
+  seedStyle = "pratico",
+): Promise<AiEnrichResponse> {
+  const { data, error } = await supabase.functions.invoke("ai-enrich-products", {
+    body: { batch_size: batchSize, seed_style: seedStyle },
+    headers: headers(adminEmail),
+  });
+
+  if (error) throw new Error(error.message || "Errore AI enrichment");
+  return data as AiEnrichResponse;
+}
+
+export async function getAiEnrichCount(adminEmail: string): Promise<{ total: number; unenriched: number }> {
+  const { data, error } = await supabase.functions.invoke("ai-enrich-products", {
+    body: { count_only: true },
+    headers: headers(adminEmail),
+  });
+
+  if (error) throw new Error(error.message || "Errore conteggio AI");
+  return { total: data.total ?? 0, unenriched: data.unenriched ?? 0 };
 }
 
 // ── Batch size export for UI ────────────────────────────────
