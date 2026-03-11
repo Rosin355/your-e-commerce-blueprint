@@ -131,6 +131,12 @@ export default function ProductSyncPanel() {
     try {
       await uploadSyncCsv(file, session.email);
       setCsvFile(file);
+      // Run header diagnostics
+      try {
+        const csvText = await file.text();
+        const diag = detectCsvHeaders(csvText);
+        setCsvDiagnostics(diag);
+      } catch { /* ignore diagnostics errors */ }
       toast.success(`CSV "${file.name}" caricato con successo`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Errore upload");
