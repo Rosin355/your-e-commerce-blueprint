@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Database, Download, Loader2, Upload, Sparkles, DollarSign, RefreshCw } from "lucide-react";
+import { Database, Download, Loader2, Upload, Sparkles, DollarSign, RefreshCw, ImagePlus, AlertTriangle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
