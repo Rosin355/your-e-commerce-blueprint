@@ -199,18 +199,102 @@ export async function saveEnrichment(
   seoDescription: string,
   optimizedDescription: string,
   fullJson: Record<string, unknown>,
+  seedStyle?: string,
 ): Promise<void> {
   const client = getAdminClient();
+  const updatePayload: Record<string, unknown> = {
+    seo_title: seoTitle,
+    seo_description: seoDescription,
+    optimized_description: optimizedDescription,
+    ai_enrichment_json: fullJson,
+    ai_enriched_at: new Date().toISOString(),
+  };
+  if (seedStyle) updatePayload.ai_seed_style = seedStyle;
+
   const { error } = await client
     .from("product_sync_csv_products")
-    .update({
-      seo_title: seoTitle,
-      seo_description: seoDescription,
-      optimized_description: optimizedDescription,
-      ai_enrichment_json: fullJson,
-      ai_enriched_at: new Date().toISOString(),
-    })
+    .update(updatePayload)
     .eq("sku", sku);
 
   if (error) throw new Error(`Errore salvataggio AI per SKU ${sku}: ${error.message}`);
+}
+
+/** Propagate prices from variant children to parent products */
+export async function propagateVariantPrices(): Promise<number> {
+  const client = getAdminClient();
+  
+  // Get parent SKUs that have null prices but have children with prices
+  const { data: parents, error: parentErr } = await client
+    .from("product_sync_csv_products")
+    .select("sku")
+    .is("price", null)
+    .not("sku", "is", null);
+
+  if (parentErr) throw new Error(parentErr.message);
+  if (!parents?.length) return 0;
+
+  const parentSkus = parents.map((p) => p.sku);
+
+  // Get children with prices grouped by parent_sku
+  const { data: children, error: childErr } = await client
+    .from("product_sync_csv_products")
+    .select("parent_sku,price")
+    .not("parent_sku", "is", null)
+    .not("price", "is", null)
+    .in("parent_sku", parentSkus);
+
+  if (childErr) throw new Error(childErr.message);
+  if (!children?.length) return 0;
+
+  // Group by parent_sku, find min price
+  const minPrices = new Map<string, number>();
+  for (const child of children) {
+    const psku = String(child.parent_sku);
+    const price = Number(child.price);
+    if (!Number.isFinite(price)) continue;
+    const existing = minPrices.get(psku);
+    if (existing === undefined || price < existing) {
+      minPrices.set(psku, price);
+    }
+  }
+
+  let updated = 0;
+  for (const [parentSku, minPrice] of minPrices) {
+    const { error } = await client
+      .from("product_sync_csv_products")
+      .update({ price: minPrice })
+      .eq("sku", parentSku)
+      .is("price", null);
+
+    if (!error) updated++;
+  }
+
+  return updated;
+}
+
+/** Count style conflicts */
+export async function countStyleConflicts(selectedStyle: string): Promise<number> {
+  const client = getAdminClient();
+  const { count, error } = await client
+    .from("product_sync_csv_products")
+    .select("sku", { count: "exact", head: true })
+    .not("ai_enriched_at", "is", null)
+    .neq("ai_seed_style", selectedStyle);
+
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
+/** Reset enrichment for products with a different style */
+export async function resetStyleConflicts(selectedStyle: string): Promise<number> {
+  const client = getAdminClient();
+  const { data, error } = await client
+    .from("product_sync_csv_products")
+    .update({ ai_enriched_at: null, ai_seed_style: null })
+    .not("ai_enriched_at", "is", null)
+    .neq("ai_seed_style", selectedStyle)
+    .select("sku");
+
+  if (error) throw new Error(error.message);
+  return data?.length ?? 0;
 }
