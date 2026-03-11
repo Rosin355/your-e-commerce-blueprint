@@ -442,6 +442,70 @@ export default function ProductSyncPanel() {
             {!csvFile && <span className="text-xs text-muted-foreground">← Carica prima un file CSV</span>}
           </div>
 
+          {/* Price fix tools */}
+          <div className="flex flex-wrap gap-2 items-center border-t pt-3">
+            <span className="text-sm font-medium text-muted-foreground">Fix prezzi:</span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              disabled={fixingPrices || !session?.email}
+              onClick={async () => {
+                if (!session?.email) return;
+                setFixingPrices(true);
+                try {
+                  const result = await propagateVariantPrices(session.email);
+                  toast.success(`${result.updated} prezzi parent aggiornati dalle varianti`);
+                  await loadCatalogDashboard(session.email);
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Errore");
+                } finally {
+                  setFixingPrices(false);
+                }
+              }}
+            >
+              {fixingPrices ? <Loader2 className="h-4 w-4 animate-spin" /> : <DollarSign className="h-4 w-4" />}
+              Propaga prezzi varianti → parent
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              disabled={fixingPrices || !csvFile || !session?.email}
+              onClick={async () => {
+                if (!session?.email || !csvFile) return;
+                setFixingPrices(true);
+                try {
+                  const csvText = await csvFile.text();
+                  const allRows = parseShopifyReadyCsv(csvText);
+                  const priceRows = allRows
+                    .filter((r) => r.price || r.compareAtPrice)
+                    .map((r) => ({ sku: r.sku, price: r.price, compareAtPrice: r.compareAtPrice }));
+                  if (!priceRows.length) {
+                    toast.error("Nessun prezzo trovato nel CSV");
+                    return;
+                  }
+                  // Send in batches of 200
+                  let totalUpdated = 0;
+                  for (let i = 0; i < priceRows.length; i += 200) {
+                    const batch = priceRows.slice(i, i + 200);
+                    const result = await batchUpdatePrices(session.email, batch);
+                    totalUpdated += result.updated;
+                  }
+                  toast.success(`${totalUpdated} prezzi aggiornati dal CSV`);
+                  await loadCatalogDashboard(session.email);
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Errore");
+                } finally {
+                  setFixingPrices(false);
+                }
+              }}
+            >
+              {fixingPrices ? <Loader2 className="h-4 w-4 animate-spin" /> : <DollarSign className="h-4 w-4" />}
+              Aggiorna prezzi da CSV
+            </Button>
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <div className="rounded-md border p-3">
               <p className="text-xs text-muted-foreground">Totali</p>
