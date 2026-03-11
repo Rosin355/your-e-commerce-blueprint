@@ -613,7 +613,8 @@ export default function ProductSyncPanel() {
                   {aiRunning && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                   {aiRunning ? "Arricchimento in corso..." : "Arricchimento completato"}
                 </span>
-                <span className="text-muted-foreground">
+              <span className="text-muted-foreground">
+                  {aiBatchIndex > 0 && `Batch ${aiBatchIndex}/${aiTotalBatches} · `}
                   {aiProcessed} elaborati · {aiPercentage}%
                 </span>
               </div>
