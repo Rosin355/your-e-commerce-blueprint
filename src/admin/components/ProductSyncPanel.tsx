@@ -87,12 +87,14 @@ export default function ProductSyncPanel() {
     tickInFlight.current = true;
 
     try {
-      const response = await processProductSync(jobId, adminEmail);
+      // Use lightweight GET polling instead of POST
+      const response = await pollJobStatus(jobId, adminEmail);
       setJob(response.job);
 
       if (response.done || response.job.status === "completed" || response.job.status === "failed") {
         setRunning(false);
         setPendingMode(null);
+        setStartedAt(null);
         await loadCatalogDashboard(adminEmail);
         if (response.job.status === "completed") {
           toast.success("Job completato");
@@ -103,6 +105,7 @@ export default function ProductSyncPanel() {
     } catch (error) {
       setRunning(false);
       setPendingMode(null);
+      setStartedAt(null);
       toast.error(error instanceof Error ? error.message : "Errore durante il polling job");
     } finally {
       tickInFlight.current = false;
@@ -113,6 +116,15 @@ export default function ProductSyncPanel() {
     if (!session?.email) return;
     loadCatalogDashboard(session.email);
   }, [session?.email]);
+
+  // Elapsed time ticker
+  useEffect(() => {
+    if (!running || !startedAt) return;
+    const timer = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [running, startedAt]);
 
   useEffect(() => {
     if (!running || !job?.id || !session?.email) return;
@@ -131,6 +143,8 @@ export default function ProductSyncPanel() {
     }
 
     setPendingMode(mode);
+    setStartedAt(Date.now());
+    setElapsed(0);
     try {
       const startResponse = await startProductSync(mode, session.email);
       setRunning(true);
@@ -139,6 +153,7 @@ export default function ProductSyncPanel() {
       await runTick(startResponse.job_id, session.email);
     } catch (error) {
       setPendingMode(null);
+      setStartedAt(null);
       toast.error(error instanceof Error ? error.message : "Errore avvio job");
     }
   };
