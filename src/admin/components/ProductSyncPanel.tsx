@@ -83,6 +83,7 @@ export default function ProductSyncPanel() {
   const [exporting, setExporting] = useState(false);
   const [fixingPrices, setFixingPrices] = useState(false);
   const [styleConflictCount, setStyleConflictCount] = useState(0);
+  const [csvDiagnostics, setCsvDiagnostics] = useState<CsvHeaderDiagnostics | null>(null);
   const [showStyleDialog, setShowStyleDialog] = useState(false);
   const percentage = useMemo(() => {
     if (!job) return 0;
