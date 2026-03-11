@@ -2,7 +2,9 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { assertAdminRequest } from "../_shared/admin-auth.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { getSyncJob, updateSyncJob } from "../_shared/job-repo.ts";
-import { processSyncBatch } from "../_shared/product-sync-processor.ts";
+import { processInBackground } from "../_shared/product-sync-processor.ts";
+
+declare const EdgeRuntime: { waitUntil(promise: Promise<unknown>): void };
 
 serve(async (request) => {
   if (request.method === "OPTIONS") {
@@ -32,42 +34,24 @@ serve(async (request) => {
     }
 
     const job = await getSyncJob(jobId);
+
+    // If already done, just return current state
     if (job.status === "completed" || job.status === "failed") {
       return jsonResponse({ success: true, done: true, job });
     }
 
+    // If already processing (background task running), just return current state for polling
+    if (job.status === "processing") {
+      return jsonResponse({ success: true, done: false, job });
+    }
+
+    // Start background processing (non-blocking)
     const marked = await updateSyncJob(jobId, { status: "processing" });
 
-    try {
-      const { updatedJob, done } = await processSyncBatch(marked);
-      const persisted = await updateSyncJob(jobId, updatedJob);
-      return jsonResponse({ success: true, done, job: persisted });
-    } catch (error) {
-      const failedJob = await updateSyncJob(jobId, {
-        status: "failed",
-        failed_products: marked.failed_products + 1,
-        report_json: {
-          ...marked.report_json,
-          failed: (marked.report_json?.failed || 0) + 1,
-          logs: [
-            ...(marked.report_json?.logs || []),
-            {
-              level: "error" as const,
-              message: error instanceof Error ? error.message : String(error),
-              timestamp: new Date().toISOString(),
-            },
-          ].slice(-300),
-          finishedAt: new Date().toISOString(),
-        },
-      });
+    EdgeRuntime.waitUntil(processInBackground(marked));
 
-      return jsonResponse({
-        success: false,
-        done: true,
-        error: error instanceof Error ? error.message : String(error),
-        job: failedJob,
-      }, 500);
-    }
+    // Return immediately - client will poll for progress
+    return jsonResponse({ success: true, done: false, job: marked });
   } catch (error) {
     return jsonResponse(
       {
