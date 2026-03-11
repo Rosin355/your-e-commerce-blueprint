@@ -32,6 +32,8 @@ export default function ProductSyncPanel() {
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [csvUploaded, setCsvUploaded] = useState(false);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [elapsed, setElapsed] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const tickInFlight = useRef(false);
 
