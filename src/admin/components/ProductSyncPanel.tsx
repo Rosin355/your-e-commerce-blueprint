@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Database, Download, Loader2, Upload, Sparkles, DollarSign, RefreshCw, ImagePlus, AlertTriangle } from "lucide-react";
+import { Database, Download, Loader2, Upload, Sparkles, DollarSign, RefreshCw, ImagePlus, AlertTriangle, ZoomIn, X, Image } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,6 +15,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { getAdminSession } from "../lib/adminAuth";
 import {
   BATCH_SIZE,
@@ -33,8 +38,9 @@ import {
   uploadSyncCsv,
   getImageCounts,
   runImageGenBatch,
+  getProductsWithImages,
 } from "../lib/productSyncEngine";
-import type { CsvHeaderDiagnostics, ImageCountResponse } from "../lib/productSyncEngine";
+import type { CsvHeaderDiagnostics, ImageCountResponse, ProductWithImage } from "../lib/productSyncEngine";
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
 
 const STALE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -95,6 +101,8 @@ export default function ProductSyncPanel() {
   const [imageGenErrors, setImageGenErrors] = useState<string[]>([]);
   const [showMissingSkus, setShowMissingSkus] = useState(false);
   const imageAbortRef = useRef(false);
+  const [productsWithImages, setProductsWithImages] = useState<ProductWithImage[]>([]);
+  const [zoomedImage, setZoomedImage] = useState<{ url: string; title: string } | null>(null);
   const percentage = useMemo(() => {
     if (!job) return 0;
     if (job.total_products <= 0) return 0;
@@ -177,11 +185,21 @@ export default function ProductSyncPanel() {
       console.error("Errore conteggio AI:", error);
     }
   };
+  const loadProductsWithImages = async () => {
+    if (!session?.email) return;
+    try {
+      const products = await getProductsWithImages(session.email);
+      setProductsWithImages(products);
+    } catch (err) {
+      console.error("Errore caricamento prodotti con immagini:", err);
+    }
+  };
 
   useEffect(() => {
     if (!session?.email) return;
     loadCatalogDashboard(session.email);
     loadAiCounts();
+    loadProductsWithImages();
   }, [session?.email]);
 
   // Elapsed time ticker
@@ -961,11 +979,12 @@ export default function ProductSyncPanel() {
                 }
 
                 toast.success(`${totalProcessed} immagini generate con AI`);
-                // Refresh counts
+                // Refresh counts and gallery
                 try {
                   const counts = await getImageCounts(session.email);
                   setImageCounts(counts);
                 } catch {}
+                await loadProductsWithImages();
                 setImageGenRunning(false);
               }}
             >
@@ -1053,6 +1072,62 @@ export default function ProductSyncPanel() {
           )}
         </CardContent>
       </Card>
+
+      {/* ── Products with Images Gallery ──────────────── */}
+      {productsWithImages.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Image className="h-5 w-5" />
+              Prodotti con immagini generate ({productsWithImages.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {productsWithImages.map((product) => (
+                <div
+                  key={product.sku}
+                  className="group relative rounded-lg border overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                  onClick={() => setZoomedImage({ url: product.image_url, title: product.title || product.sku })}
+                >
+                  <div className="aspect-square bg-muted">
+                    <img
+                      src={product.image_url}
+                      alt={product.title || product.sku}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                    <ZoomIn className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="p-1.5">
+                    <p className="text-[10px] font-mono text-muted-foreground truncate">{product.sku}</p>
+                    <p className="text-xs truncate">{product.title || "—"}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Image Zoom Dialog ──────────────────── */}
+      <Dialog open={!!zoomedImage} onOpenChange={() => setZoomedImage(null)}>
+        <DialogContent className="max-w-3xl p-2">
+          <DialogTitle className="sr-only">{zoomedImage?.title}</DialogTitle>
+          {zoomedImage && (
+            <div className="space-y-2">
+              <img
+                src={zoomedImage.url}
+                alt={zoomedImage.title}
+                className="w-full h-auto max-h-[80vh] object-contain rounded-md"
+              />
+              <p className="text-sm text-center text-muted-foreground">{zoomedImage.title}</p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* ── Style Conflict Dialog ──────────────────── */}
       <AlertDialog open={showStyleDialog} onOpenChange={setShowStyleDialog}>

@@ -455,5 +455,35 @@ export async function runImageGenBatch(adminEmail: string, batchSize = 3): Promi
   return data as ImageGenResponse;
 }
 
+// ── Products with images ────────────────────────────────────
+
+export interface ProductWithImage {
+  sku: string;
+  title: string | null;
+  image_url: string;
+}
+
+export async function getProductsWithImages(adminEmail: string): Promise<ProductWithImage[]> {
+  const { data, error } = await supabase
+    .from("product_sync_csv_products")
+    .select("sku, title, image_urls")
+    .not("image_urls", "is", null)
+    .is("parent_sku", null)
+    .order("ai_enriched_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+
+  return (data || [])
+    .filter((row: any) => {
+      const urls = row.image_urls as string[] | null;
+      return urls && urls.length > 0 && urls[0];
+    })
+    .map((row: any) => ({
+      sku: row.sku,
+      title: row.title,
+      image_url: (row.image_urls as string[])[0],
+    }));
+}
+
 // ── Batch size export for UI ────────────────────────────────
 export { BATCH_SIZE };
