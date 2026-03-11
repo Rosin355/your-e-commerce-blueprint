@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Database, Loader2, Upload, Sparkles } from "lucide-react";
+import { Database, Download, Loader2, Upload, Sparkles } from "lucide-react";
 import { getAdminSession } from "../lib/adminAuth";
 import {
   BATCH_SIZE,
+  exportEnrichedCsv,
   fetchProductSyncDashboard,
   getAiEnrichCount,
   parseShopifyReadyCsv,
@@ -63,7 +64,7 @@ export default function ProductSyncPanel() {
   const [aiTotalBatches, setAiTotalBatches] = useState(0);
   const [aiErrors, setAiErrors] = useState<string[]>([]);
   const aiAbortRef = useRef(false);
-
+  const [exporting, setExporting] = useState(false);
   const percentage = useMemo(() => {
     if (!job) return 0;
     if (job.total_products <= 0) return 0;
@@ -603,6 +604,33 @@ export default function ProductSyncPanel() {
               disabled={aiRunning}
             >
               Aggiorna conteggi
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              disabled={aiRunning || exporting || (aiCounts ? (aiCounts.total - aiCounts.unenriched) === 0 : true)}
+              onClick={async () => {
+                if (!session?.email) return;
+                setExporting(true);
+                try {
+                  const blob = await exportEnrichedCsv(session.email);
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `shopify-seo-enriched-${new Date().toISOString().slice(0, 10)}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast.success("CSV esportato con successo");
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Errore export");
+                } finally {
+                  setExporting(false);
+                }
+              }}
+            >
+              {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              Export CSV Shopify
             </Button>
           </div>
 

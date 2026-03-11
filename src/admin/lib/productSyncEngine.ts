@@ -317,5 +317,31 @@ export async function getAiEnrichCount(adminEmail: string): Promise<{ total: num
   return { total: data.total ?? 0, unenriched: data.unenriched ?? 0 };
 }
 
+// ── Export enriched CSV ─────────────────────────────────────
+
+export async function exportEnrichedCsv(adminEmail: string): Promise<Blob> {
+  const { data, error } = await supabase.functions.invoke("export-enriched-csv", {
+    body: {},
+    headers: headers(adminEmail),
+  });
+
+  if (error) throw new Error(error.message || "Errore export CSV");
+
+  // The response may come as a string (CSV text) or an object with error
+  if (typeof data === "object" && data?.error) {
+    throw new Error(data.error);
+  }
+
+  // data could be a string or blob depending on response type
+  if (typeof data === "string") {
+    return new Blob([data], { type: "text/csv;charset=utf-8;" });
+  }
+
+  // If it's already a Blob
+  if (data instanceof Blob) return data;
+
+  throw new Error("Formato risposta non valido");
+}
+
 // ── Batch size export for UI ────────────────────────────────
 export { BATCH_SIZE };
