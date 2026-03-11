@@ -286,6 +286,12 @@ export default function ProductSyncPanel() {
             {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
             Importa CSV nel DB
           </Button>
+          {canResume && (
+            <Button variant="secondary" onClick={resume} disabled={running} className="gap-2">
+              <Database className="h-4 w-4" />
+              Riprendi da batch {((job?.report_json as any)?.batchProgress?.current ?? 0) + 1}
+            </Button>
+          )}
           {running && (
             <Button variant="destructive" size="sm" onClick={() => { abortRef.current = true; }}>
               Annulla
