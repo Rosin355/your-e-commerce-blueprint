@@ -689,6 +689,46 @@ export default function ProductSyncPanel() {
           )}
         </CardContent>
       </Card>
+
+      {/* ── Style Conflict Dialog ──────────────────── */}
+      <AlertDialog open={showStyleDialog} onOpenChange={setShowStyleDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Stile diverso rilevato</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ci sono <strong>{styleConflictCount}</strong> prodotti già arricchiti con uno stile diverso da "{aiSeedStyle}".
+              Vuoi ri-elaborarli con il nuovo stile o elaborare solo quelli mancanti?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowStyleDialog(false);
+                startAiEnrichment();
+              }}
+            >
+              Solo mancanti
+            </AlertDialogAction>
+            <AlertDialogAction
+              onClick={async () => {
+                setShowStyleDialog(false);
+                if (!session?.email) return;
+                try {
+                  const reset = await resetStyleConflicts(session.email, aiSeedStyle);
+                  toast.success(`${reset} prodotti resettati, rielaborazione in corso...`);
+                  await loadAiCounts();
+                  startAiEnrichment();
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Errore reset");
+                }
+              }}
+            >
+              Rielabora tutto ({styleConflictCount})
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
