@@ -558,10 +558,16 @@ export default function ProductSyncPanel() {
                 {catalogLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aggiorna"}
               </Button>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-4">
               <div className="rounded-md border p-2">
                 <p className="text-xs text-muted-foreground">Prodotti salvati</p>
                 <p className="text-lg font-semibold">{catalogDashboard?.totalProducts ?? 0}</p>
+              </div>
+              <div className="rounded-md border p-2">
+                <p className="text-xs text-muted-foreground">Senza prezzo</p>
+                <p className="text-lg font-semibold text-destructive">
+                  {catalogDashboard?.missingPriceCount ?? 0}
+                </p>
               </div>
               <div className="rounded-md border p-2 sm:col-span-2">
                 <p className="text-xs text-muted-foreground">Ultimo import</p>
