@@ -69,6 +69,8 @@ export interface SyncReportState {
   logs: SyncLogEntry[];
   startedAt: string;
   finishedAt?: string;
+  batchOffset?: number;
+  batchProgress?: { current: number; total: number };
   csvSnapshot?: {
     persistedAt: string;
     persistedCount: number;
