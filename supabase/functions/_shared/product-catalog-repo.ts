@@ -104,6 +104,7 @@ export async function upsertCsvCatalogRows(rows: CsvProductRow[], sourceFile: st
 export async function getCatalogDashboard(limit = 20): Promise<{
   totalProducts: number;
   missingPriceCount: number;
+  missingImageCount: number;
   lastImportAt: string | null;
   sourceFiles: string[];
   preview: Array<{
@@ -119,9 +120,10 @@ export async function getCatalogDashboard(limit = 20): Promise<{
   const client = getAdminClient();
   const cappedLimit = Math.max(1, Math.min(Number(limit || 20), 100));
 
-  const [{ count, error: countError }, { count: missingPriceCount, error: missingErr }, { data, error: rowsError }, { data: lastRow, error: lastError }, { data: sourceRows, error: sourceError }] = await Promise.all([
+  const [{ count, error: countError }, { count: missingPriceCount, error: missingErr }, { count: missingImageCount, error: missingImgErr }, { data, error: rowsError }, { data: lastRow, error: lastError }, { data: sourceRows, error: sourceError }] = await Promise.all([
     client.from("product_sync_csv_products").select("sku", { count: "exact", head: true }),
     client.from("product_sync_csv_products").select("sku", { count: "exact", head: true }).is("price", null),
+    client.from("product_sync_csv_products").select("sku", { count: "exact", head: true }).is("parent_sku", null).or("image_urls.is.null,image_urls.eq.[]"),
     client
       .from("product_sync_csv_products")
       .select("sku,title,price,inventory_quantity,source_file,imported_at,image_urls")
