@@ -599,10 +599,10 @@ export default function ProductSyncPanel() {
                   variant="outline"
                   size="sm"
                   className="gap-2"
-                  disabled={exportingCsv || !session?.email}
+                  disabled={exporting || !session?.email}
                   onClick={async () => {
                     if (!session?.email) return;
-                    setExportingCsv(true);
+                    setExporting(true);
                     try {
                       const blob = await exportEnrichedCsv(session.email);
                       const url = URL.createObjectURL(blob);
@@ -615,11 +615,11 @@ export default function ProductSyncPanel() {
                     } catch (err) {
                       toast.error(err instanceof Error ? err.message : "Errore export");
                     } finally {
-                      setExportingCsv(false);
+                      setExporting(false);
                     }
                   }}
                 >
-                  {exportingCsv ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                  {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                   Esporta CSV Shopify
                 </Button>
                 <Button
