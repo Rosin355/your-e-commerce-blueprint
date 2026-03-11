@@ -19,6 +19,7 @@ import { getAdminSession } from "../lib/adminAuth";
 import {
   BATCH_SIZE,
   batchUpdatePrices,
+  detectCsvHeaders,
   exportEnrichedCsv,
   fetchProductSyncDashboard,
   getAiEnrichCount,
@@ -31,6 +32,7 @@ import {
   startProductSync,
   uploadSyncCsv,
 } from "../lib/productSyncEngine";
+import type { CsvHeaderDiagnostics } from "../lib/productSyncEngine";
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
 
 const STALE_TIMEOUT_MS = 5 * 60 * 1000;
