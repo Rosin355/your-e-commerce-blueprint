@@ -185,11 +185,21 @@ export default function ProductSyncPanel() {
       console.error("Errore conteggio AI:", error);
     }
   };
+  const loadProductsWithImages = async () => {
+    if (!session?.email) return;
+    try {
+      const products = await getProductsWithImages(session.email);
+      setProductsWithImages(products);
+    } catch (err) {
+      console.error("Errore caricamento prodotti con immagini:", err);
+    }
+  };
 
   useEffect(() => {
     if (!session?.email) return;
     loadCatalogDashboard(session.email);
     loadAiCounts();
+    loadProductsWithImages();
   }, [session?.email]);
 
   // Elapsed time ticker
