@@ -74,6 +74,7 @@ export default function ProductSyncPanel() {
   };
 
   const canStart = Boolean(session?.email) && !running && Boolean(csvFile);
+  const canResume = Boolean(session?.email) && !running && Boolean(csvFile) && Boolean(lastJobId) && job?.status === "processing";
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
