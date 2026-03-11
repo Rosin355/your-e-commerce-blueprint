@@ -599,7 +599,20 @@ export default function ProductSyncPanel() {
               ))}
             </div>
             <Button
-              onClick={startAiEnrichment}
+              onClick={async () => {
+                if (!session?.email) return;
+                try {
+                  const conflicts = await getStyleConflictCount(session.email, aiSeedStyle);
+                  if (conflicts > 0) {
+                    setStyleConflictCount(conflicts);
+                    setShowStyleDialog(true);
+                  } else {
+                    startAiEnrichment();
+                  }
+                } catch {
+                  startAiEnrichment();
+                }
+              }}
               disabled={aiRunning || !session?.email || (aiCounts?.unenriched ?? 0) === 0}
               className="gap-2"
             >
