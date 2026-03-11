@@ -124,7 +124,7 @@ export async function getCatalogDashboard(limit = 20): Promise<{
     client.from("product_sync_csv_products").select("sku", { count: "exact", head: true }).is("price", null),
     client
       .from("product_sync_csv_products")
-      .select("sku,title,price,inventory_quantity,source_file,imported_at")
+      .select("sku,title,price,inventory_quantity,source_file,imported_at,image_urls")
       .order("imported_at", { ascending: false })
       .limit(cappedLimit),
     client
