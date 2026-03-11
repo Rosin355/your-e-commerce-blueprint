@@ -87,6 +87,14 @@ export default function ProductSyncPanel() {
   const [styleConflictCount, setStyleConflictCount] = useState(0);
   const [csvDiagnostics, setCsvDiagnostics] = useState<CsvHeaderDiagnostics | null>(null);
   const [showStyleDialog, setShowStyleDialog] = useState(false);
+
+  // Image generation state
+  const [imageCounts, setImageCounts] = useState<ImageCountResponse | null>(null);
+  const [imageGenRunning, setImageGenRunning] = useState(false);
+  const [imageGenProcessed, setImageGenProcessed] = useState(0);
+  const [imageGenErrors, setImageGenErrors] = useState<string[]>([]);
+  const [showMissingSkus, setShowMissingSkus] = useState(false);
+  const imageAbortRef = useRef(false);
   const percentage = useMemo(() => {
     if (!job) return 0;
     if (job.total_products <= 0) return 0;
