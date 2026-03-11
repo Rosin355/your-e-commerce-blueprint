@@ -1,3 +1,4 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 import { mapCsvBySku, parseShopifyReadyCsv } from "./csv-parser.ts";
 import { upsertCsvCatalogRows } from "./product-catalog-repo.ts";
 import type {
@@ -36,28 +37,24 @@ function normalizeReport(report: SyncReportState | null | undefined, mode: Produ
   };
 }
 
-function getCsvAuthHeaders(): HeadersInit {
-  const headers: Record<string, string> = {};
-  const storageToken = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (storageToken) {
-    headers.Authorization = `Bearer ${storageToken}`;
-  }
-  return headers;
-}
-
 async function loadCsvRows(): Promise<CsvProductRow[]> {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  if (!supabaseUrl) throw new Error("SUPABASE_URL mancante");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceRoleKey) throw new Error("SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY mancante");
 
-  const authHeaders = getCsvAuthHeaders();
-  const storageUrl = `${supabaseUrl}/storage/v1/object/authenticated/${STORAGE_BUCKET}/${STORAGE_PATH}`;
-  const response = await fetch(storageUrl, { headers: authHeaders });
+  const supabase = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 
-  if (!response.ok) {
-    throw new Error(`CSV non disponibile in Storage (${response.status}). Carica prima un file CSV nel tab "Catalogo DB".`);
+  const { data, error } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .download(STORAGE_PATH);
+
+  if (error || !data) {
+    throw new Error(`CSV non disponibile in Storage (${error?.message || "file non trovato"}). Carica prima un file CSV nel tab "Catalogo DB".`);
   }
 
-  const csvText = await response.text();
+  const csvText = await data.text();
   return parseShopifyReadyCsv(csvText);
 }
 
