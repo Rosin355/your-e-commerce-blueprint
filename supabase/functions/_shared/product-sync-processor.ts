@@ -94,9 +94,17 @@ export async function processInBackground(job: ProductSyncJobRow): Promise<void>
     // Step 2: Upsert in batches
     let persisted = 0;
     let failed = 0;
+    const totalBatches = Math.ceil(totalRows / UPSERT_BATCH_SIZE);
 
     for (let i = 0; i < totalRows; i += UPSERT_BATCH_SIZE) {
+      const batchIndex = Math.floor(i / UPSERT_BATCH_SIZE) + 1;
       const batch = csvRows.slice(i, i + UPSERT_BATCH_SIZE);
+
+      report = appendLog(report, {
+        level: "info",
+        message: `Batch ${batchIndex}/${totalBatches} — righe ${i + 1}-${Math.min(i + UPSERT_BATCH_SIZE, totalRows)}`,
+      });
+
       try {
         const count = await upsertCsvCatalogRows(batch, STORAGE_PATH);
         persisted += count;
@@ -104,7 +112,7 @@ export async function processInBackground(job: ProductSyncJobRow): Promise<void>
         failed += batch.length;
         report = appendLog(report, {
           level: "error",
-          message: `Errore batch ${i}-${i + batch.length}: ${batchError instanceof Error ? batchError.message : String(batchError)}`,
+          message: `Errore batch ${batchIndex}/${totalBatches}: ${batchError instanceof Error ? batchError.message : String(batchError)}`,
         });
       }
 
@@ -114,6 +122,7 @@ export async function processInBackground(job: ProductSyncJobRow): Promise<void>
         processed: persisted + failed,
         updated: persisted,
         failed,
+        batchProgress: { current: batchIndex, total: totalBatches },
       };
       await updateSyncJob(job.id, {
         updated_products: persisted,

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Database, Loader2, Upload } from "lucide-react";
 import { getAdminSession } from "../lib/adminAuth";
-import { fetchProductSyncDashboard, processProductSync, startProductSync, uploadSyncCsv } from "../lib/productSyncEngine";
+import { fetchProductSyncDashboard, pollJobStatus, processProductSync, startProductSync, uploadSyncCsv } from "../lib/productSyncEngine";
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
 
 const POLL_INTERVAL_MS = 2500;
@@ -32,6 +32,8 @@ export default function ProductSyncPanel() {
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [csvUploaded, setCsvUploaded] = useState(false);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [elapsed, setElapsed] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const tickInFlight = useRef(false);
 
@@ -41,6 +43,28 @@ export default function ProductSyncPanel() {
     const processed = job.updated_products + job.unchanged_products + job.failed_products;
     return Math.max(0, Math.min(100, Math.round((processed / job.total_products) * 100)));
   }, [job]);
+
+  const batchProgress = useMemo(() => {
+    const bp = (job?.report_json as any)?.batchProgress;
+    if (!bp) return null;
+    return { current: bp.current as number, total: bp.total as number };
+  }, [job]);
+
+  const phaseLabel = useMemo(() => {
+    if (!running && !pendingMode) return null;
+    if (!job || job.status === "pending") return "Avvio...";
+    if (job.total_products === 0 && job.status === "processing") return "Download e parsing CSV...";
+    if (job.status === "processing") return `Scrittura batch nel DB...`;
+    if (job.status === "completed") return "Completato ✓";
+    if (job.status === "failed") return "Errore ✗";
+    return "In attesa...";
+  }, [job, running, pendingMode]);
+
+  const formatElapsed = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
 
   const canStart = Boolean(session?.email) && !running && csvUploaded;
 
@@ -85,12 +109,14 @@ export default function ProductSyncPanel() {
     tickInFlight.current = true;
 
     try {
-      const response = await processProductSync(jobId, adminEmail);
+      // Use lightweight GET polling instead of POST
+      const response = await pollJobStatus(jobId, adminEmail);
       setJob(response.job);
 
       if (response.done || response.job.status === "completed" || response.job.status === "failed") {
         setRunning(false);
         setPendingMode(null);
+        setStartedAt(null);
         await loadCatalogDashboard(adminEmail);
         if (response.job.status === "completed") {
           toast.success("Job completato");
@@ -101,6 +127,7 @@ export default function ProductSyncPanel() {
     } catch (error) {
       setRunning(false);
       setPendingMode(null);
+      setStartedAt(null);
       toast.error(error instanceof Error ? error.message : "Errore durante il polling job");
     } finally {
       tickInFlight.current = false;
@@ -111,6 +138,15 @@ export default function ProductSyncPanel() {
     if (!session?.email) return;
     loadCatalogDashboard(session.email);
   }, [session?.email]);
+
+  // Elapsed time ticker
+  useEffect(() => {
+    if (!running || !startedAt) return;
+    const timer = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [running, startedAt]);
 
   useEffect(() => {
     if (!running || !job?.id || !session?.email) return;
@@ -129,6 +165,8 @@ export default function ProductSyncPanel() {
     }
 
     setPendingMode(mode);
+    setStartedAt(Date.now());
+    setElapsed(0);
     try {
       const startResponse = await startProductSync(mode, session.email);
       setRunning(true);
@@ -137,6 +175,7 @@ export default function ProductSyncPanel() {
       await runTick(startResponse.job_id, session.email);
     } catch (error) {
       setPendingMode(null);
+      setStartedAt(null);
       toast.error(error instanceof Error ? error.message : "Errore avvio job");
     }
   };
@@ -202,10 +241,20 @@ export default function ProductSyncPanel() {
         </div>
 
         <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            {phaseLabel && (
+              <span className="font-medium flex items-center gap-2">
+                {running && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {phaseLabel}
+              </span>
+            )}
+            <span className="text-muted-foreground ml-auto">
+              {batchProgress && `Batch ${batchProgress.current}/${batchProgress.total} · `}
+              {startedAt && `Tempo: ${formatElapsed(elapsed)} · `}
+              {percentage}%
+            </span>
+          </div>
           <Progress value={percentage} />
-          <p className="text-xs text-muted-foreground">
-            Modalità corrente: solo persistenza su database con polling ogni {POLL_INTERVAL_MS / 1000}s.
-          </p>
         </div>
 
         <div className="rounded-md border p-3 space-y-2">

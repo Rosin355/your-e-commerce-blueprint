@@ -63,6 +63,29 @@ export async function processProductSync(jobId: string, adminEmail: string): Pro
   return data as ProcessResponse;
 }
 
+/** Lightweight GET poll — no re-trigger, just reads current job state */
+export async function pollJobStatus(jobId: string, adminEmail: string): Promise<ProcessResponse> {
+  const url = `process-product-sync?job_id=${encodeURIComponent(jobId)}`;
+  const { data, error } = await supabase.functions.invoke(url, {
+    method: "GET",
+    headers: headers(adminEmail),
+  });
+
+  if (error) {
+    throw new Error(error.message || "Errore polling job");
+  }
+
+  if (!data?.job) {
+    throw new Error(data?.error || "Risposta job non valida");
+  }
+
+  return {
+    success: true,
+    done: data.job.status === "completed" || data.job.status === "failed",
+    job: data.job,
+  } as ProcessResponse;
+}
+
 export async function fetchProductSyncDashboard(adminEmail: string, limit = 20): Promise<ProductSyncCatalogDashboard> {
   const { data, error } = await supabase.functions.invoke("get-product-sync-dashboard", {
     body: { limit },
