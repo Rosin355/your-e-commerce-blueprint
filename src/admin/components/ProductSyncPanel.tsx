@@ -101,6 +101,8 @@ export default function ProductSyncPanel() {
   const [imageGenErrors, setImageGenErrors] = useState<string[]>([]);
   const [showMissingSkus, setShowMissingSkus] = useState(false);
   const imageAbortRef = useRef(false);
+  const [productsWithImages, setProductsWithImages] = useState<ProductWithImage[]>([]);
+  const [zoomedImage, setZoomedImage] = useState<{ url: string; title: string } | null>(null);
   const percentage = useMemo(() => {
     if (!job) return 0;
     if (job.total_products <= 0) return 0;
