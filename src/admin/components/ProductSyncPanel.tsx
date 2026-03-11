@@ -18,10 +18,12 @@ import {
 import { getAdminSession } from "../lib/adminAuth";
 import {
   BATCH_SIZE,
+  batchUpdatePrices,
   exportEnrichedCsv,
   fetchProductSyncDashboard,
   getAiEnrichCount,
   getStyleConflictCount,
+  propagateVariantPrices,
   resetStyleConflicts,
   parseShopifyReadyCsv,
   runAiEnrichBatch,
