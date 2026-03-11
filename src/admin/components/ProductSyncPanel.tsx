@@ -1072,6 +1072,62 @@ export default function ProductSyncPanel() {
         </CardContent>
       </Card>
 
+      {/* ── Products with Images Gallery ──────────────── */}
+      {productsWithImages.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Image className="h-5 w-5" />
+              Prodotti con immagini generate ({productsWithImages.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {productsWithImages.map((product) => (
+                <div
+                  key={product.sku}
+                  className="group relative rounded-lg border overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                  onClick={() => setZoomedImage({ url: product.image_url, title: product.title || product.sku })}
+                >
+                  <div className="aspect-square bg-muted">
+                    <img
+                      src={product.image_url}
+                      alt={product.title || product.sku}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                    <ZoomIn className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="p-1.5">
+                    <p className="text-[10px] font-mono text-muted-foreground truncate">{product.sku}</p>
+                    <p className="text-xs truncate">{product.title || "—"}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Image Zoom Dialog ──────────────────── */}
+      <Dialog open={!!zoomedImage} onOpenChange={() => setZoomedImage(null)}>
+        <DialogContent className="max-w-3xl p-2">
+          <DialogTitle className="sr-only">{zoomedImage?.title}</DialogTitle>
+          {zoomedImage && (
+            <div className="space-y-2">
+              <img
+                src={zoomedImage.url}
+                alt={zoomedImage.title}
+                className="w-full h-auto max-h-[80vh] object-contain rounded-md"
+              />
+              <p className="text-sm text-center text-muted-foreground">{zoomedImage.title}</p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* ── Style Conflict Dialog ──────────────────── */}
       <AlertDialog open={showStyleDialog} onOpenChange={setShowStyleDialog}>
         <AlertDialogContent>
