@@ -96,6 +96,7 @@ export type Database = {
         Row: {
           ai_enriched_at: string | null
           ai_enrichment_json: Json | null
+          ai_seed_style: string | null
           barcode: string | null
           compare_at_price: number | null
           description: string | null
@@ -123,6 +124,7 @@ export type Database = {
         Insert: {
           ai_enriched_at?: string | null
           ai_enrichment_json?: Json | null
+          ai_seed_style?: string | null
           barcode?: string | null
           compare_at_price?: number | null
           description?: string | null
@@ -150,6 +152,7 @@ export type Database = {
         Update: {
           ai_enriched_at?: string | null
           ai_enrichment_json?: Json | null
+          ai_seed_style?: string | null
           barcode?: string | null
           compare_at_price?: number | null
           description?: string | null

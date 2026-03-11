@@ -1,0 +1,1 @@
+ALTER TABLE public.product_sync_csv_products ADD COLUMN ai_seed_style text;
