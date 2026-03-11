@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Database, Loader2, Upload, Sparkles } from "lucide-react";
+import { Database, Download, Loader2, Upload, Sparkles } from "lucide-react";
 import { getAdminSession } from "../lib/adminAuth";
 import {
   BATCH_SIZE,
