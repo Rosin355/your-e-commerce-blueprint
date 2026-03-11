@@ -307,7 +307,7 @@ export async function runAiEnrichBatch(
   return data as AiEnrichResponse;
 }
 
-export async function getAiEnrichCount(adminEmail: string): Promise<{ total: number; unenriched: number }> {
+export async function getAiEnrichCount(adminEmail: string): Promise<{ total: number; unenriched: number; enrichedWithDifferentStyle?: number }> {
   const { data, error } = await supabase.functions.invoke("ai-enrich-products", {
     body: { count_only: true },
     headers: headers(adminEmail),
@@ -315,6 +315,26 @@ export async function getAiEnrichCount(adminEmail: string): Promise<{ total: num
 
   if (error) throw new Error(error.message || "Errore conteggio AI");
   return { total: data.total ?? 0, unenriched: data.unenriched ?? 0 };
+}
+
+export async function getStyleConflictCount(adminEmail: string, selectedStyle: string): Promise<number> {
+  const { data, error } = await supabase.functions.invoke("ai-enrich-products", {
+    body: { count_style_conflict: true, seed_style: selectedStyle },
+    headers: headers(adminEmail),
+  });
+
+  if (error) throw new Error(error.message || "Errore conteggio stili");
+  return data?.conflict_count ?? 0;
+}
+
+export async function resetStyleConflicts(adminEmail: string, selectedStyle: string): Promise<number> {
+  const { data, error } = await supabase.functions.invoke("ai-enrich-products", {
+    body: { reset_style_conflict: true, seed_style: selectedStyle },
+    headers: headers(adminEmail),
+  });
+
+  if (error) throw new Error(error.message || "Errore reset stili");
+  return data?.reset_count ?? 0;
 }
 
 // ── Export enriched CSV ─────────────────────────────────────

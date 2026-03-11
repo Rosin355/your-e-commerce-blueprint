@@ -58,7 +58,7 @@ serve(async (req) => {
       );
     }
 
-    // Build Shopify-compatible CSV
+    // Build Shopify-compatible CSV with multi-image support
     const csvHeaders = [
       "Handle",
       "Title",
@@ -74,6 +74,7 @@ serve(async (req) => {
       "Variant Grams",
       "Variant Inventory Qty",
       "Image Src",
+      "Image Alt Text",
       "SEO Title",
       "SEO Description",
       "Short Description",
@@ -85,10 +86,10 @@ serve(async (req) => {
       "Key Benefits",
       "FAQ",
       "Keywords",
-      "Image Alt Texts",
       "Category",
     ];
 
+    const EMPTY_COUNT = csvHeaders.length;
     const csvLines = [csvHeaders.map(escapeCsv).join(",")];
 
     for (const row of allRows) {
@@ -96,15 +97,17 @@ serve(async (req) => {
       const careGuide = (ai.care_guide as Record<string, string>) || {};
       const tags = Array.isArray(row.tags) ? (row.tags as string[]).join(", ") : "";
       const imageUrls = Array.isArray(row.image_urls) ? (row.image_urls as string[]) : [];
+      const altTexts = Array.isArray(ai.image_alt_texts) ? (ai.image_alt_texts as string[]) : [];
       const keyBenefits = Array.isArray(ai.key_benefits) ? (ai.key_benefits as string[]).join(" | ") : "";
       const faq = Array.isArray(ai.faq)
         ? (ai.faq as Array<{ q: string; a: string }>).map((f) => `Q: ${f.q} A: ${f.a}`).join(" | ")
         : "";
       const keywords = Array.isArray(ai.keywords_suggested) ? (ai.keywords_suggested as string[]).join(", ") : "";
-      const altTexts = Array.isArray(ai.image_alt_texts) ? (ai.image_alt_texts as string[]).join(" | ") : "";
+      const handle = String(row.handle || "");
 
-      const line = [
-        row.handle || "",
+      // First row: all data + first image
+      const mainLine = [
+        handle,
         ai.h1_title || row.title || "",
         row.optimized_description || ai.optimized_description || row.description || "",
         row.vendor || "",
@@ -118,6 +121,7 @@ serve(async (req) => {
         row.weight_grams ?? "",
         row.inventory_quantity ?? "",
         imageUrls[0] || "",
+        altTexts[0] || "",
         row.seo_title || ai.seo_title || "",
         row.seo_description || ai.seo_description || "",
         ai.short_description || row.short_description || "",
@@ -129,11 +133,19 @@ serve(async (req) => {
         keyBenefits,
         faq,
         keywords,
-        altTexts,
         row.product_category || "",
       ].map(escapeCsv).join(",");
 
-      csvLines.push(line);
+      csvLines.push(mainLine);
+
+      // Additional rows for images 2+: only Handle + Image Src + Image Alt Text
+      for (let imgIdx = 1; imgIdx < imageUrls.length; imgIdx++) {
+        const imgRow = new Array(EMPTY_COUNT).fill("");
+        imgRow[0] = handle;                        // Handle
+        imgRow[csvHeaders.indexOf("Image Src")] = imageUrls[imgIdx] || "";
+        imgRow[csvHeaders.indexOf("Image Alt Text")] = altTexts[imgIdx] || "";
+        csvLines.push(imgRow.map(escapeCsv).join(","));
+      }
     }
 
     const csvContent = csvLines.join("\n");

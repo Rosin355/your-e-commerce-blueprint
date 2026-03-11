@@ -227,6 +227,7 @@ serve(async (req) => {
             optimized_description: seoData.optimized_description || null,
             ai_enrichment_json: seoData,
             ai_enriched_at: new Date().toISOString(),
+            ai_seed_style: seed_style,
           })
           .eq("sku", product.sku);
 
