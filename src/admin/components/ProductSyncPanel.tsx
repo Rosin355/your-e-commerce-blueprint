@@ -59,6 +59,8 @@ export default function ProductSyncPanel() {
   const [aiSeedStyle, setAiSeedStyle] = useState("pratico");
   const [aiCounts, setAiCounts] = useState<{ total: number; unenriched: number } | null>(null);
   const [aiProcessed, setAiProcessed] = useState(0);
+  const [aiBatchIndex, setAiBatchIndex] = useState(0);
+  const [aiTotalBatches, setAiTotalBatches] = useState(0);
   const [aiErrors, setAiErrors] = useState<string[]>([]);
   const aiAbortRef = useRef(false);
 
