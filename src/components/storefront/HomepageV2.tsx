@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, CheckCircle2, HeadphonesIcon, Loader2, PackageCheck, ShieldCheck, Sparkles, Star, Trees, HeartHandshake, SunMedium, Flower2, Leaf } from "lucide-react";
-import { ArrowRight, CheckCircle2, HeadphonesIcon, Loader2, PackageCheck, ShieldCheck, Sparkles, Star, Trees, HeartHandshake, SunMedium, Flower2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProductCard } from "@/components/ProductCard";
