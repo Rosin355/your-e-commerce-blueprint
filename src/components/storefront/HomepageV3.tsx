@@ -138,79 +138,46 @@ export const HomepageV3 = () => {
         </div>
       </section>
 
-      <section className="relative bg-background py-10 md:py-14">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[linear-gradient(180deg,hsl(var(--forest))/0.05,transparent)]" />
-        <div className="container mx-auto px-4">
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Inizia da qui</p>
-              <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Percorsi rapidi per orientarti meglio</h2>
-            </div>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {shortcuts.map((shortcut) => {
-              const Icon = shortcut.icon;
-              return (
-                <a
-                  key={shortcut.title}
-                  href="#catalogo"
-                  className="group rounded-[1.75rem] border border-glass-hero bg-background/80 p-5 shadow-soft backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-hero">
-                  
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-glass-hero bg-accent-bright/12 text-accent-bright transition-transform duration-500 group-hover:scale-105">
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-accent-bright" />
-                  </div>
-                  <h3 className="mt-6 text-xl font-heading font-semibold text-foreground">{shortcut.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{shortcut.subtitle}</p>
-                </a>);
-
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section id="catalogo" className="relative overflow-hidden bg-showcase py-14 md:py-20">
-        <div className="absolute inset-0 opacity-70 bg-[radial-gradient(circle_at_top,hsl(var(--primary-light)/0.12),transparent_25%)]" />
-        <div className="container relative mx-auto px-4 space-y-14">
+      <section id="catalogo" className="relative overflow-hidden bg-background py-12 md:py-16">
+        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,hsl(var(--primary-light)/0.08),transparent_24%)]" />
+        <div className="container relative mx-auto px-4 space-y-12">
           {[
-          { title: "Best seller", subtitle: "Prodotti che aprono la scelta con più immediatezza", items: curated.bestSellers },
-          { title: "Facili da scegliere", subtitle: "Una selezione più accessibile per iniziare senza attrito", items: curated.easyCare },
-          { title: "Collezione del momento", subtitle: "Scelte stagionali presentate con un taglio più editoriale", items: curated.seasonal }].
-          map((group, index) =>
-          <div key={group.title} className="space-y-6">
+            { title: "Best seller", subtitle: "Prodotti che aprono la scelta con più immediatezza", items: curated.bestSellers },
+            { title: "Facili da scegliere", subtitle: "Una selezione più accessibile per iniziare senza attrito", items: curated.easyCare },
+            { title: "Collezione del momento", subtitle: "Scelte stagionali presentate con un taglio più editoriale", items: curated.seasonal },
+          ].map((group) => (
+            <div key={group.title} className="space-y-5">
               <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <p className={`text-sm font-semibold uppercase tracking-[0.24em] ${index === 1 ? "text-primary-foreground/70" : "text-primary"}`}>
+                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
                     Selezione curata
                   </p>
-                  <h2 className={`mt-2 text-3xl font-heading font-bold md:text-4xl ${index === 1 ? "text-primary-foreground" : "text-foreground"}`}>
+                  <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">
                     {group.title}
                   </h2>
-                  <p className={`mt-2 max-w-2xl ${index === 1 ? "text-primary-foreground/72" : "text-muted-foreground"}`}>{group.subtitle}</p>
+                  <p className="mt-2 max-w-2xl text-muted-foreground">{group.subtitle}</p>
                 </div>
-                <Button asChild variant={index === 1 ? "secondary" : "outline"} className="rounded-full px-5 uppercase tracking-[0.18em]">
+                <Button asChild variant="outline" className="rounded-full px-5 uppercase tracking-[0.18em]">
                   <a href="#collezioni">Esplora</a>
                 </Button>
               </div>
-              {loading ?
-            <div className="flex items-center justify-center py-16">
+              {loading ? (
+                <div className="flex items-center justify-center py-16">
                   <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                </div> :
-            group.items.length > 0 ?
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-                  {group.items.map((product) =>
-              <ProductCard key={`${group.title}-${product.node.id}`} product={product} dark={index === 1} />
-              )}
-                </div> :
-
-            <div className={`rounded-[1.75rem] border px-6 py-12 text-center ${index === 1 ? "border-primary-foreground/10 bg-card/8 text-primary-foreground/72" : "border-border bg-card text-muted-foreground"}`}>
+                </div>
+              ) : group.items.length > 0 ? (
+                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 xl:gap-5">
+                  {group.items.map((product) => (
+                    <ProductCard key={`${group.title}-${product.node.id}`} product={product} />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-[1.75rem] border border-border bg-card px-6 py-12 text-center text-muted-foreground">
                   Nessun prodotto trovato.
                 </div>
-            }
+              )}
             </div>
-          )}
+          ))}
         </div>
       </section>
 
