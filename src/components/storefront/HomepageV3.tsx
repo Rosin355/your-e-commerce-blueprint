@@ -37,10 +37,10 @@ const trustItems = [
 
 
 const trustStatements = [
-"Confezioni studiate per il trasporto",
-"Percorso di acquisto chiaro e sicuro",
-"Supporto umano per dubbi e scelta"];
-
+  "Spedizione protetta",
+  "Checkout semplice",
+  "Supporto reale"
+];
 
 export const HomepageV3 = () => {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
