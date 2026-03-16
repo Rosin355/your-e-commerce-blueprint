@@ -129,8 +129,7 @@ export const HomepageV3 = () => {
               </div>
             </div>
 
-            <div className="hidden lg:flex lg:items-end lg:justify-end">
-              
+            
 
 
 
@@ -138,8 +137,9 @@ export const HomepageV3 = () => {
 
 
 
-              
-            </div>
+
+
+            
           </div>
         </div>
       </section>
