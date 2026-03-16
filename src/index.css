@@ -75,6 +75,7 @@ All colors MUST be HSL.
     --glass-hero-border: hsl(var(--accent-bright) / 0.22);
 
     --transition: all 0.3s ease-in-out;
+    --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
