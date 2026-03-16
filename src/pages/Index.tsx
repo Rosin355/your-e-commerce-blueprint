@@ -5,9 +5,22 @@ import { ContentSection } from "@/components/ContentSection";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { Footer } from "@/components/Footer";
 import { HomepageV2 } from "@/components/storefront/HomepageV2";
-import { isHomepageRefreshV2Enabled } from "@/lib/storefront-flags";
+import { HomepageV3 } from "@/components/storefront/HomepageV3";
+import { isHomepageRefreshV2Enabled, isHomepageVisualUpgradeV3Enabled } from "@/lib/storefront-flags";
 
 const Index = () => {
+  if (isHomepageVisualUpgradeV3Enabled) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-1">
+          <HomepageV3 />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   if (isHomepageRefreshV2Enabled) {
     return (
       <div className="min-h-screen flex flex-col bg-background">

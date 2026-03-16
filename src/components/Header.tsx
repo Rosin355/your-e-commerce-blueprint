@@ -1,4 +1,4 @@
-import { Search, MessageCircle, Menu, ShieldCheck, Truck, HeadphonesIcon } from "lucide-react";
+import { Search, MessageCircle, Menu, ShieldCheck, Truck, HeadphonesIcon, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -25,12 +25,12 @@ export const Header = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/90">
-      <div className="border-b border-border bg-primary text-primary-foreground">
+    <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/88 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/82">
+      <div className="border-b border-border/50 bg-showcase text-primary-foreground">
         <div className="container mx-auto flex h-9 items-center justify-center gap-4 overflow-x-auto px-4 text-xs font-medium md:justify-between md:text-sm">
-          <span className="hidden md:inline">Più che semplici piante</span>
-          <span className="whitespace-nowrap">Voto medio 4.9 / 5.0 ⭐⭐⭐⭐⭐</span>
-          <span className="hidden md:inline">Assistenza dedicata</span>
+          <span className="hidden md:inline">Selezione botanica più curata</span>
+          <span className="whitespace-nowrap">Spedizione protetta • supporto reale • acquisto sicuro</span>
+          <span className="hidden md:inline">Esperienza ecommerce più premium</span>
         </div>
       </div>
 
@@ -39,23 +39,26 @@ export const Header = () => {
           <div className="md:hidden">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full border border-border">
+                <Button variant="ghost" size="icon" className="rounded-full border border-border bg-card/80 shadow-soft">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[88%] max-w-sm">
+              <SheetContent side="left" className="w-[88%] max-w-sm border-border bg-background">
                 <SheetHeader>
-                  <SheetTitle className="text-left font-heading text-2xl text-primary">Online Garden</SheetTitle>
+                  <SheetTitle className="flex items-center gap-2 text-left font-heading text-2xl text-primary">
+                    <Leaf className="h-5 w-5" />
+                    Online Garden
+                  </SheetTitle>
                 </SheetHeader>
                 <div className="mt-8 space-y-6">
                   <div className="space-y-3">
                     {categories.map((cat) => (
-                      <a key={cat} href="#catalogo" className="block text-sm font-semibold tracking-wide text-foreground">
+                      <a key={cat} href="#catalogo" className="block text-sm font-semibold tracking-[0.18em] text-foreground">
                         {cat}
                       </a>
                     ))}
                   </div>
-                  <div className="space-y-3 rounded-2xl border border-border bg-muted/40 p-4">
+                  <div className="space-y-3 rounded-[1.5rem] border border-border bg-gradient-card p-4 shadow-soft">
                     {trustBar.map((item) => {
                       const Icon = item.icon;
                       return (
@@ -76,7 +79,7 @@ export const Header = () => {
           </a>
 
           <div className="hidden flex-1 md:flex">
-            <div className="flex w-full max-w-3xl items-center rounded-full border border-border bg-card p-1 shadow-sm">
+            <div className="flex w-full max-w-3xl items-center rounded-full border border-border/70 bg-card/82 p-1 shadow-soft backdrop-blur">
               <Input
                 type="text"
                 placeholder="Cerca la tua pianta ideale..."
@@ -85,7 +88,7 @@ export const Header = () => {
                 className="h-11 border-0 bg-transparent shadow-none focus-visible:ring-0"
               />
               <Button
-                className="h-11 rounded-full px-6 uppercase font-semibold"
+                className="h-11 rounded-full px-6 uppercase font-semibold tracking-[0.16em]"
                 onClick={() => console.log("Search:", searchQuery)}
               >
                 <Search className="mr-2 h-4 w-4" />
@@ -101,7 +104,7 @@ export const Header = () => {
         </div>
 
         <div className="mt-3 md:hidden">
-          <div className="flex items-center rounded-full border border-border bg-card p-1 shadow-sm">
+          <div className="flex items-center rounded-full border border-border/70 bg-card/85 p-1 shadow-soft backdrop-blur">
             <Input
               type="text"
               placeholder="Cerca pianta, vaso, idea regalo..."
@@ -119,7 +122,7 @@ export const Header = () => {
         </div>
       </div>
 
-      <div className="hidden border-t border-border bg-background md:block">
+      <div className="hidden border-t border-border/60 bg-background/75 md:block">
         <div className="container mx-auto flex h-12 items-center justify-between gap-6 px-4">
           <nav className="flex items-center gap-1 overflow-x-auto text-sm scrollbar-hide">
             {categories.map((cat) => (
