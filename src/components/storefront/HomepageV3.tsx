@@ -220,8 +220,9 @@ export const HomepageV3 = () => {
         </div>
       </section>
 
-      <section className="bg-background py-14 md:py-20">
-        <div className="container mx-auto px-4">
+      <section className="relative bg-background py-14 md:py-20">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--accent-bright))/0.08,transparent_22%)]" />
+        <div className="container relative mx-auto px-4">
           <div className="mb-8 max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Fiducia e rassicurazione</p>
             <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Elementi chiari che aiutano a comprare meglio</h2>
@@ -230,8 +231,8 @@ export const HomepageV3 = () => {
             {trustItems.map((item) => {
               const Icon = item.icon;
               return (
-                <Card key={item.title} className="rounded-[1.75rem] border-border bg-gradient-card p-6 shadow-soft">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Card key={item.title} className="group rounded-[1.75rem] border border-glass-hero bg-background/82 p-6 shadow-soft backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-hero">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-glass-hero bg-accent-bright/12 text-accent-bright transition-transform duration-500 group-hover:scale-105">
                     <Icon className="h-6 w-6" />
                   </div>
                   <h3 className="mt-5 text-xl font-heading font-semibold text-foreground">{item.title}</h3>
