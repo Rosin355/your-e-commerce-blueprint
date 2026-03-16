@@ -3,14 +3,8 @@ import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
-import { ArrowRight, CheckCircle2, HeadphonesIcon, Leaf, Loader2, PackageCheck, ShieldCheck, Sparkles, SunMedium, Trees, Flower2, HeartHandshake } from "lucide-react";
+import { ArrowRight, CheckCircle2, HeadphonesIcon, HeartHandshake, Leaf, Loader2, PackageCheck, ShieldCheck } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-
-const shortcuts = [
-{ title: "Interno", subtitle: "Soggiorni, camere e studio", icon: Trees },
-{ title: "Esterno", subtitle: "Balconi, terrazzi e giardini", icon: SunMedium },
-{ title: "Facili da curare", subtitle: "Scelte ideali per iniziare", icon: Sparkles },
-{ title: "Idee regalo", subtitle: "Pensieri verdi più eleganti", icon: Flower2 }];
 
 
 const trustItems = [
