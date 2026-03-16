@@ -84,57 +84,59 @@ export const HomepageV3 = () => {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-border bg-hero py-6 md:py-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary-light)/0.24),transparent_28%),radial-gradient(circle_at_bottom_right,hsl(var(--primary)/0.18),transparent_24%)]" />
-        <div className="container relative mx-auto px-4">
-          <div className="grid items-stretch gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8">
-            <div className="flex flex-col justify-center rounded-[2rem] border border-border/60 bg-card/78 p-7 shadow-elevated backdrop-blur md:p-10 lg:p-12">
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border/70 bg-background/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                <Leaf className="h-4 w-4 text-primary" />
+      <section className="relative isolate overflow-hidden border-b border-border/40 bg-hero">
+        <div className="absolute inset-0">
+          <img
+            src={heroBotanical}
+            alt="Ambiente elegante con piante da interno e luce naturale"
+            className="h-full min-h-[620px] w-full object-cover object-center"
+            loading="eager"
+          />
+        </div>
+        <div className="absolute inset-0 bg-hero-overlay" />
+        <div className="absolute inset-0 bg-hero-accent opacity-90" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-[linear-gradient(180deg,transparent_0%,hsl(var(--background))/0.72_100%)]" />
+
+        <div className="container relative mx-auto flex min-h-[620px] items-end px-4 py-8 md:min-h-[720px] md:py-12 lg:items-center lg:py-16">
+          <div className="grid w-full gap-6 lg:grid-cols-[minmax(0,700px)_1fr] lg:gap-10">
+            <div className="glass-hero-panel rounded-[2rem] p-6 text-primary-foreground shadow-hero md:p-8 lg:p-10">
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-glass-hero bg-background/10 px-4 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.26em] text-primary-foreground/88">
+                <Leaf className="h-4 w-4 text-accent-bright" />
                 Botanical living, shopping più chiaro
               </div>
-              <h1 className="mt-6 max-w-2xl font-heading text-5xl font-bold leading-[0.95] text-foreground md:text-6xl xl:text-7xl">
-                Piante e idee verdi con un'esperienza più calma, più chiara, più bella.
+              <h1 className="mt-6 max-w-3xl text-balance font-heading text-5xl font-bold leading-[0.92] text-primary-foreground md:text-6xl xl:text-7xl">
+                Piante e idee verdi in una hero più immersiva, elegante e desiderabile.
               </h1>
-              <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground md:text-lg">
-                Scopri una selezione più guidata, immagini più immersive e dettagli acquisto più leggibili per scegliere con sicurezza fin dal primo sguardo.
+              <p className="mt-5 max-w-2xl text-base leading-7 text-primary-foreground/78 md:text-lg">
+                Una selezione guidata tra immagini atmosferiche, dettagli più leggibili e un'esperienza d'acquisto più calma fin dal primo sguardo.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg" className="h-12 rounded-full px-7 text-sm font-semibold uppercase tracking-[0.18em] shadow-soft">
+                <Button asChild size="lg" className="h-12 rounded-full bg-accent-bright px-7 text-sm font-semibold uppercase tracking-[0.18em] text-accent-bright-foreground shadow-hero hover:bg-accent-bright/90">
                   <a href="#catalogo">Acquista ora</a>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="h-12 rounded-full border-border/80 bg-background/70 px-7 text-sm font-semibold uppercase tracking-[0.18em]">
+                <Button asChild variant="outline" size="lg" className="h-12 rounded-full border-glass-hero bg-background/10 px-7 text-sm font-semibold uppercase tracking-[0.18em] text-primary-foreground backdrop-blur hover:bg-background/16 hover:text-primary-foreground">
                   <a href="#collezioni">Scopri le collezioni</a>
                 </Button>
               </div>
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
                 {trustStatements.map((item) => (
-                  <div key={item} className="rounded-2xl border border-border/60 bg-background/70 px-4 py-3 text-sm text-foreground/90 shadow-soft">
+                  <div key={item} className="rounded-2xl border border-glass-hero bg-background/10 px-4 py-3 text-sm text-primary-foreground/88 backdrop-blur-md">
                     {item}
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-[2rem] border border-border/50 shadow-elevated">
-              <img
-                src={heroBotanical}
-                alt="Ambiente elegante con piante da interno e luce naturale"
-                className="h-full min-h-[420px] w-full object-cover"
-                loading="eager"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,hsl(var(--forest))/0.18_40%,hsl(var(--forest))/0.58_100%)]" />
-              <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
-                <Card className="rounded-[1.75rem] border-border/60 bg-card/82 p-5 backdrop-blur md:p-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">Selezione in evidenza</p>
-                  <h2 className="mt-3 text-2xl font-heading font-bold text-foreground md:text-3xl">
-                    Atmosfera botanica, merchandising più premium.
-                  </h2>
-                  <p className="mt-3 text-sm leading-6 text-muted-foreground md:text-base">
-                    Visual più immersivi, schede prodotto più pulite e un ritmo di sezione più elegante per accompagnare meglio la conversione.
-                  </p>
-                </Card>
-              </div>
+            <div className="hidden lg:flex lg:items-end lg:justify-end">
+              <Card className="max-w-sm rounded-[1.75rem] border-glass-hero bg-background/10 p-6 text-primary-foreground shadow-hero backdrop-blur-xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent-bright">Selezione in evidenza</p>
+                <h2 className="mt-3 text-2xl font-heading font-bold text-primary-foreground md:text-3xl">
+                  Atmosfera botanica, merchandising più premium.
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-primary-foreground/74 md:text-base">
+                  Overlay raffinati, superfici glass e accenti verde quasi fluo per un impatto above the fold molto più forte.
+                </p>
+              </Card>
             </div>
           </div>
         </div>

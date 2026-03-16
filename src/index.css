@@ -115,5 +115,35 @@ All colors MUST be HSL.
   .bg-hero {
     background-image: var(--gradient-hero);
   }
+
+  .bg-hero-overlay {
+    background-image: var(--gradient-hero-overlay);
+  }
+
+  .bg-hero-accent {
+    background-image: var(--gradient-hero-accent);
+  }
+
+  .bg-glass-hero {
+    background-image: var(--glass-hero);
+  }
+
+  .border-glass-hero {
+    border-color: var(--glass-hero-border);
+  }
+
+  .shadow-hero {
+    box-shadow: var(--shadow-hero);
+  }
+}
+
+@layer components {
+  .glass-hero-panel {
+    background-image: var(--glass-hero);
+    border: 1px solid var(--glass-hero-border);
+    box-shadow: var(--shadow-hero);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+  }
 }
 
