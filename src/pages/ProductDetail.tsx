@@ -140,6 +140,16 @@ const ProductDetail = () => {
     );
   }
 
+  if (isPdpRefreshV2Enabled) {
+    return (
+      <>
+        <Header />
+        <PdpV2 product={product} />
+        <Footer />
+      </>
+    );
+  }
+
   const { node } = product;
   const images = node.images.edges;
   const price = node.priceRange.minVariantPrice;
