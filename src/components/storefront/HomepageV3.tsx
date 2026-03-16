@@ -99,30 +99,30 @@ export const HomepageV3 = () => {
         <div className="pointer-events-none absolute right-[8%] top-[16%] hidden h-24 w-24 rounded-full bg-accent-bright/18 blur-3xl lg:block" />
         <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,transparent_0%,hsl(var(--background))/0.72_100%)]" />
 
-        <div className="container relative mx-auto flex min-h-[520px] items-end px-4 py-6 md:min-h-[580px] md:py-8 lg:items-center lg:py-10">
-          <div className="grid w-full gap-5 lg:grid-cols-[minmax(0,680px)_1fr] lg:gap-8">
-            <div className="glass-hero-panel animate-fade-up rounded-[2rem] p-5 text-primary-foreground shadow-hero md:p-7 lg:p-8 xl:p-9">
-              <div className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-glass-hero bg-background/10 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.26em] text-primary-foreground/88">
-                <Leaf className="h-4 w-4 text-accent-bright" />
-                Botanical living, shopping più chiaro
+        <div className="container relative mx-auto flex min-h-[440px] items-end px-4 py-4 md:min-h-[520px] md:py-6 lg:items-center lg:py-8">
+          <div className="grid w-full gap-4 lg:grid-cols-[minmax(0,640px)_1fr] lg:gap-8">
+            <div className="glass-hero-panel animate-fade-up rounded-[1.5rem] p-4 text-primary-foreground shadow-hero md:rounded-[1.85rem] md:p-6 lg:p-8">
+              <div className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-glass-hero bg-background/10 px-3 py-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-primary-foreground/88 md:px-4 md:py-2 md:text-[0.68rem] md:tracking-[0.26em]">
+                <Leaf className="h-3.5 w-3.5 text-accent-bright md:h-4 md:w-4" />
+                Botanical living
               </div>
-              <h1 className="mt-5 max-w-3xl text-balance font-heading text-[2.45rem] font-bold leading-[0.92] text-primary-foreground md:max-w-2xl md:text-[3.7rem] lg:max-w-3xl lg:text-[4.5rem] xl:text-[5.1rem]">
-                Piante e idee verdi in una hero più immersiva, elegante e desiderabile.
+              <h1 className="mt-4 max-w-3xl text-balance font-heading text-[2rem] font-bold leading-[0.94] text-primary-foreground md:mt-5 md:max-w-2xl md:text-[3.1rem] lg:max-w-3xl lg:text-[4.2rem] xl:text-[4.7rem]">
+                Piante belle, scelte facili.
               </h1>
-              <p className="animate-fade-up-delayed mt-4 max-w-2xl text-[0.95rem] leading-6 text-primary-foreground/78 md:max-w-xl md:text-[1.02rem] md:leading-7 lg:max-w-2xl lg:text-[1.06rem]">
-                Una selezione guidata tra immagini atmosferiche, dettagli più leggibili e un'esperienza d'acquisto più calma fin dal primo sguardo.
+              <p className="animate-fade-up-delayed mt-3 max-w-xl text-[0.88rem] leading-5 text-primary-foreground/78 md:mt-4 md:text-[0.98rem] md:leading-6 lg:max-w-xl lg:text-[1.02rem] lg:leading-7">
+                Scopri una selezione curata per casa, balcone e regali verdi.
               </p>
-              <div className="animate-fade-up-delayed mt-6 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg" className="h-11 rounded-full bg-accent-bright px-7 text-sm font-semibold uppercase tracking-[0.18em] text-accent-bright-foreground shadow-hero hover:bg-accent-bright/90">
-                  <a href="#catalogo">Acquista ora</a>
+              <div className="animate-fade-up-delayed mt-5 flex flex-col gap-2.5 sm:flex-row md:mt-6 md:gap-3">
+                <Button asChild size="lg" className="h-10 rounded-full bg-accent-bright px-5 text-xs font-semibold uppercase tracking-[0.16em] text-accent-bright-foreground shadow-hero hover:bg-accent-bright/90 md:h-11 md:px-7 md:text-sm md:tracking-[0.18em]">
+                  <a href="#catalogo">Shop</a>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="h-11 rounded-full border-glass-hero bg-background/10 px-7 text-sm font-semibold uppercase tracking-[0.18em] text-primary-foreground backdrop-blur hover:bg-background/16 hover:text-primary-foreground">
-                  <a href="#collezioni">Scopri le collezioni</a>
+                <Button asChild variant="outline" size="lg" className="h-10 rounded-full border-glass-hero bg-background/10 px-5 text-xs font-semibold uppercase tracking-[0.16em] text-primary-foreground backdrop-blur hover:bg-background/16 hover:text-primary-foreground md:h-11 md:px-7 md:text-sm md:tracking-[0.18em]">
+                  <a href="#collezioni">Collezioni</a>
                 </Button>
               </div>
-              <div className="animate-fade-up-delayed-2 mt-6 grid gap-3 sm:grid-cols-3">
+              <div className="animate-fade-up-delayed-2 mt-5 grid gap-2 sm:grid-cols-3 md:mt-6 md:gap-3">
                 {trustStatements.map((item) =>
-                <div key={item} className="rounded-2xl border border-glass-hero bg-background/10 px-4 py-3 text-sm text-primary-foreground/88 backdrop-blur-md transition-transform duration-500 hover:-translate-y-1">
+                <div key={item} className="rounded-2xl border border-glass-hero bg-background/10 px-3 py-2.5 text-xs text-primary-foreground/88 backdrop-blur-md transition-transform duration-500 hover:-translate-y-1 md:px-4 md:py-3 md:text-sm">
                     {item}
                   </div>
                 )}
