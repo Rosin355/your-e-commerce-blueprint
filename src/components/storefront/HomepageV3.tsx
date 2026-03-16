@@ -95,22 +95,24 @@ export const HomepageV3 = () => {
         </div>
         <div className="absolute inset-0 bg-hero-overlay" />
         <div className="absolute inset-0 bg-hero-accent opacity-90" />
+        <div className="pointer-events-none absolute -left-12 top-24 hidden h-40 w-40 rounded-full bg-accent-bright/22 blur-3xl lg:block" />
+        <div className="pointer-events-none absolute right-[8%] top-[18%] hidden h-28 w-28 rounded-full bg-accent-bright/18 blur-3xl lg:block" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-[linear-gradient(180deg,transparent_0%,hsl(var(--background))/0.72_100%)]" />
 
         <div className="container relative mx-auto flex min-h-[620px] items-end px-4 py-8 md:min-h-[720px] md:py-12 lg:items-center lg:py-16">
-          <div className="grid w-full gap-6 lg:grid-cols-[minmax(0,700px)_1fr] lg:gap-10">
-            <div className="glass-hero-panel rounded-[2rem] p-6 text-primary-foreground shadow-hero md:p-8 lg:p-10">
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-glass-hero bg-background/10 px-4 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.26em] text-primary-foreground/88">
+          <div className="grid w-full gap-6 lg:grid-cols-[minmax(0,720px)_1fr] lg:gap-10">
+            <div className="glass-hero-panel animate-fade-up rounded-[2rem] p-6 text-primary-foreground shadow-hero md:p-8 lg:p-10 xl:p-12">
+              <div className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-glass-hero bg-background/10 px-4 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.26em] text-primary-foreground/88">
                 <Leaf className="h-4 w-4 text-accent-bright" />
                 Botanical living, shopping più chiaro
               </div>
-              <h1 className="mt-6 max-w-3xl text-balance font-heading text-5xl font-bold leading-[0.92] text-primary-foreground md:text-6xl xl:text-7xl">
+              <h1 className="mt-6 max-w-3xl text-balance font-heading text-[2.9rem] font-bold leading-[0.9] text-primary-foreground md:max-w-2xl md:text-[4.4rem] lg:max-w-3xl lg:text-[5.3rem] xl:text-[6.1rem]">
                 Piante e idee verdi in una hero più immersiva, elegante e desiderabile.
               </h1>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-primary-foreground/78 md:text-lg">
+              <p className="animate-fade-up-delayed mt-5 max-w-2xl text-[0.98rem] leading-7 text-primary-foreground/78 md:max-w-xl md:text-lg lg:max-w-2xl">
                 Una selezione guidata tra immagini atmosferiche, dettagli più leggibili e un'esperienza d'acquisto più calma fin dal primo sguardo.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="animate-fade-up-delayed mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button asChild size="lg" className="h-12 rounded-full bg-accent-bright px-7 text-sm font-semibold uppercase tracking-[0.18em] text-accent-bright-foreground shadow-hero hover:bg-accent-bright/90">
                   <a href="#catalogo">Acquista ora</a>
                 </Button>
@@ -118,9 +120,9 @@ export const HomepageV3 = () => {
                   <a href="#collezioni">Scopri le collezioni</a>
                 </Button>
               </div>
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="animate-fade-up-delayed-2 mt-8 grid gap-3 sm:grid-cols-3">
                 {trustStatements.map((item) => (
-                  <div key={item} className="rounded-2xl border border-glass-hero bg-background/10 px-4 py-3 text-sm text-primary-foreground/88 backdrop-blur-md">
+                  <div key={item} className="rounded-2xl border border-glass-hero bg-background/10 px-4 py-3 text-sm text-primary-foreground/88 backdrop-blur-md transition-transform duration-500 hover:-translate-y-1">
                     {item}
                   </div>
                 ))}
@@ -128,7 +130,7 @@ export const HomepageV3 = () => {
             </div>
 
             <div className="hidden lg:flex lg:items-end lg:justify-end">
-              <Card className="max-w-sm rounded-[1.75rem] border-glass-hero bg-background/10 p-6 text-primary-foreground shadow-hero backdrop-blur-xl">
+              <Card className="glass-hero-panel animate-float-soft max-w-sm rounded-[1.75rem] p-6 text-primary-foreground">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent-bright">Selezione in evidenza</p>
                 <h2 className="mt-3 text-2xl font-heading font-bold text-primary-foreground md:text-3xl">
                   Atmosfera botanica, merchandising più premium.
@@ -143,6 +145,7 @@ export const HomepageV3 = () => {
       </section>
 
       <section className="relative bg-background py-10 md:py-14">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[linear-gradient(180deg,hsl(var(--forest))/0.05,transparent)]" />
         <div className="container mx-auto px-4">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
@@ -157,13 +160,13 @@ export const HomepageV3 = () => {
                 <a
                   key={shortcut.title}
                   href="#catalogo"
-                  className="group rounded-[1.75rem] border border-border bg-gradient-card p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated"
+                  className="group rounded-[1.75rem] border border-glass-hero bg-background/80 p-5 shadow-soft backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-hero"
                 >
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-glass-hero bg-accent-bright/12 text-accent-bright transition-transform duration-500 group-hover:scale-105">
                       <Icon className="h-6 w-6" />
                     </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
+                    <ArrowRight className="h-5 w-5 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-accent-bright" />
                   </div>
                   <h3 className="mt-6 text-xl font-heading font-semibold text-foreground">{shortcut.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">{shortcut.subtitle}</p>
@@ -217,8 +220,9 @@ export const HomepageV3 = () => {
         </div>
       </section>
 
-      <section className="bg-background py-14 md:py-20">
-        <div className="container mx-auto px-4">
+      <section className="relative bg-background py-14 md:py-20">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--accent-bright))/0.08,transparent_22%)]" />
+        <div className="container relative mx-auto px-4">
           <div className="mb-8 max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Fiducia e rassicurazione</p>
             <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Elementi chiari che aiutano a comprare meglio</h2>
@@ -227,8 +231,8 @@ export const HomepageV3 = () => {
             {trustItems.map((item) => {
               const Icon = item.icon;
               return (
-                <Card key={item.title} className="rounded-[1.75rem] border-border bg-gradient-card p-6 shadow-soft">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Card key={item.title} className="group rounded-[1.75rem] border border-glass-hero bg-background/82 p-6 shadow-soft backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-hero">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-glass-hero bg-accent-bright/12 text-accent-bright transition-transform duration-500 group-hover:scale-105">
                     <Icon className="h-6 w-6" />
                   </div>
                   <h3 className="mt-5 text-xl font-heading font-semibold text-foreground">{item.title}</h3>
