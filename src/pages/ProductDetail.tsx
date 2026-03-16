@@ -10,6 +10,8 @@ import { storefrontApiRequest, ShopifyProduct } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, ShoppingCart, Droplet, Sun, Ruler, Leaf, Heart, Shield, TrendingUp } from "lucide-react";
+import { isPdpRefreshV2Enabled } from "@/lib/storefront-flags";
+import { PdpV2 } from "@/components/storefront/PdpV2";
 
 const PRODUCT_BY_HANDLE_QUERY = `
   query GetProductByHandle($handle: String!) {
@@ -133,6 +135,16 @@ const ProductDetail = () => {
             Torna alla Home
           </Button>
         </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (isPdpRefreshV2Enabled) {
+    return (
+      <>
+        <Header />
+        <PdpV2 product={product} />
         <Footer />
       </>
     );

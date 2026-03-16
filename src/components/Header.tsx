@@ -1,6 +1,7 @@
-import { Search, MessageCircle } from "lucide-react";
+import { Search, MessageCircle, Menu, ShieldCheck, Truck, HeadphonesIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { CartDrawer } from "./CartDrawer";
 import { AccountButton } from "./AccountButton";
 import { useState } from "react";
@@ -14,77 +15,103 @@ export const Header = () => {
     "ROSE",
     "BULBI",
     "PIANTE DA FRUTTO",
-    "ALTRE CATEGORIE"
+    "ALTRE CATEGORIE",
+  ];
+
+  const trustBar = [
+    { label: "Spedizione protetta", icon: Truck },
+    { label: "Supporto reale", icon: HeadphonesIcon },
+    { label: "Acquisto sicuro", icon: ShieldCheck },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background shadow-md">
-      {/* Top Bar Verde */}
-      <div className="bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 h-10 flex items-center justify-between text-sm">
-          <div className="hidden md:block">
-            Più che Semplici Piante 🪴
-          </div>
-          <div className="flex-1 md:flex-none text-center">
-            <span className="font-medium">Voto Medio 4.9 / 5.0 ⭐⭐⭐⭐⭐</span>
-          </div>
-          <div className="hidden md:flex items-center gap-2">
-            <MessageCircle className="h-4 w-4" />
-            <span>WhatsApp</span>
-          </div>
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/90">
+      <div className="border-b border-border bg-primary text-primary-foreground">
+        <div className="container mx-auto flex h-9 items-center justify-center gap-4 overflow-x-auto px-4 text-xs font-medium md:justify-between md:text-sm">
+          <span className="hidden md:inline">Più che semplici piante</span>
+          <span className="whitespace-nowrap">Voto medio 4.9 / 5.0 ⭐⭐⭐⭐⭐</span>
+          <span className="hidden md:inline">Assistenza dedicata</span>
         </div>
       </div>
 
-      {/* Main Header */}
-      <div className="border-b">
-        <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-4">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <a href="/" className="text-2xl md:text-3xl font-heading font-bold text-primary">
-              Online Garden
-            </a>
+      <div className="container mx-auto px-4 py-3 md:py-4">
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full border border-border">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[88%] max-w-sm">
+                <SheetHeader>
+                  <SheetTitle className="text-left font-heading text-2xl text-primary">Online Garden</SheetTitle>
+                </SheetHeader>
+                <div className="mt-8 space-y-6">
+                  <div className="space-y-3">
+                    {categories.map((cat) => (
+                      <a key={cat} href="#catalogo" className="block text-sm font-semibold tracking-wide text-foreground">
+                        {cat}
+                      </a>
+                    ))}
+                  </div>
+                  <div className="space-y-3 rounded-2xl border border-border bg-muted/40 p-4">
+                    {trustBar.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.label} className="flex items-center gap-3 text-sm text-muted-foreground">
+                          <Icon className="h-4 w-4 text-primary" />
+                          <span>{item.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
 
-          {/* Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-2xl">
-            <div className="relative w-full flex">
+          <a href="/" className="shrink-0 font-heading text-2xl font-bold text-primary md:text-3xl">
+            Online Garden
+          </a>
+
+          <div className="hidden flex-1 md:flex">
+            <div className="flex w-full max-w-3xl items-center rounded-full border border-border bg-card p-1 shadow-sm">
               <Input
                 type="text"
-                placeholder="Cerca la tua Pianta es. 'Calathea'..."
+                placeholder="Cerca la tua pianta ideale..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="rounded-r-none border-r-0 h-11"
+                className="h-11 border-0 bg-transparent shadow-none focus-visible:ring-0"
               />
-              <Button 
-                className="rounded-l-none rounded-r-3xl px-6 h-11 uppercase font-semibold"
-                onClick={() => console.log('Search:', searchQuery)}
+              <Button
+                className="h-11 rounded-full px-6 uppercase font-semibold"
+                onClick={() => console.log("Search:", searchQuery)}
               >
-                <Search className="h-4 w-4 mr-2" />
+                <Search className="mr-2 h-4 w-4" />
                 Cerca
               </Button>
             </div>
           </div>
 
-          {/* Account & Cart */}
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="ml-auto flex items-center gap-1 md:gap-3">
             <AccountButton />
             <CartDrawer />
           </div>
         </div>
 
-        {/* Mobile Search */}
-        <div className="md:hidden border-t px-4 py-3">
-          <div className="relative w-full flex">
+        <div className="mt-3 md:hidden">
+          <div className="flex items-center rounded-full border border-border bg-card p-1 shadow-sm">
             <Input
               type="text"
-              placeholder="Cerca pianta..."
+              placeholder="Cerca pianta, vaso, idea regalo..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="rounded-r-none border-r-0"
+              className="h-10 border-0 bg-transparent shadow-none focus-visible:ring-0"
             />
-            <Button 
-              className="rounded-l-none rounded-r-3xl"
-              onClick={() => console.log('Search:', searchQuery)}
+            <Button
+              className="h-10 rounded-full px-4"
+              onClick={() => console.log("Search:", searchQuery)}
             >
               <Search className="h-4 w-4" />
             </Button>
@@ -92,24 +119,24 @@ export const Header = () => {
         </div>
       </div>
 
-      {/* Navigation Bar */}
-      <div className="border-b bg-background">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-12 overflow-x-auto scrollbar-hide">
-            <nav className="flex items-center gap-1 md:gap-3 text-sm">
-              {categories.map((cat, idx) => (
-                <a
-                  key={idx}
-                  href="#"
-                  className="whitespace-nowrap px-2 md:px-3 py-2 hover:text-primary transition-colors font-medium text-xs md:text-sm"
-                >
-                  {cat}
-                </a>
-              ))}
-            </nav>
-            <Button size="sm" className="hidden lg:flex gap-2 ml-4 uppercase font-semibold">
-              → Scrivici su WhatsApp
-            </Button>
+      <div className="hidden border-t border-border bg-background md:block">
+        <div className="container mx-auto flex h-12 items-center justify-between gap-6 px-4">
+          <nav className="flex items-center gap-1 overflow-x-auto text-sm scrollbar-hide">
+            {categories.map((cat) => (
+              <a
+                key={cat}
+                href="#catalogo"
+                className="whitespace-nowrap rounded-full px-3 py-2 font-medium text-foreground transition-colors hover:bg-muted hover:text-primary"
+              >
+                {cat}
+              </a>
+            ))}
+          </nav>
+          <div className="hidden items-center gap-4 lg:flex">
+            <a href="#catalogo" className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+              <MessageCircle className="h-4 w-4" />
+              Scrivici per scegliere meglio
+            </a>
           </div>
         </div>
       </div>
