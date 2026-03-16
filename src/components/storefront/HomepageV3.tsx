@@ -7,40 +7,40 @@ import { ArrowRight, CheckCircle2, HeadphonesIcon, Leaf, Loader2, PackageCheck, 
 import { useEffect, useMemo, useState } from "react";
 
 const shortcuts = [
-  { title: "Interno", subtitle: "Soggiorni, camere e studio", icon: Trees },
-  { title: "Esterno", subtitle: "Balconi, terrazzi e giardini", icon: SunMedium },
-  { title: "Facili da curare", subtitle: "Scelte ideali per iniziare", icon: Sparkles },
-  { title: "Idee regalo", subtitle: "Pensieri verdi più eleganti", icon: Flower2 },
-];
+{ title: "Interno", subtitle: "Soggiorni, camere e studio", icon: Trees },
+{ title: "Esterno", subtitle: "Balconi, terrazzi e giardini", icon: SunMedium },
+{ title: "Facili da curare", subtitle: "Scelte ideali per iniziare", icon: Sparkles },
+{ title: "Idee regalo", subtitle: "Pensieri verdi più eleganti", icon: Flower2 }];
+
 
 const trustItems = [
-  {
-    title: "Spedizione protetta",
-    description: "Imballaggi curati per ridurre stress, urti e sorprese all'arrivo.",
-    icon: PackageCheck,
-  },
-  {
-    title: "Qualità selezionata",
-    description: "Una proposta più leggibile, con prodotti presentati in modo chiaro e rassicurante.",
-    icon: CheckCircle2,
-  },
-  {
-    title: "Supporto reale",
-    description: "Aiuto prima e dopo l'acquisto per scegliere meglio senza incertezza.",
-    icon: HeadphonesIcon,
-  },
-  {
-    title: "Acquisto sereno",
-    description: "Flusso di carrello e checkout già collaudato, semplice anche da mobile.",
-    icon: ShieldCheck,
-  },
-];
+{
+  title: "Spedizione protetta",
+  description: "Imballaggi curati per ridurre stress, urti e sorprese all'arrivo.",
+  icon: PackageCheck
+},
+{
+  title: "Qualità selezionata",
+  description: "Una proposta più leggibile, con prodotti presentati in modo chiaro e rassicurante.",
+  icon: CheckCircle2
+},
+{
+  title: "Supporto reale",
+  description: "Aiuto prima e dopo l'acquisto per scegliere meglio senza incertezza.",
+  icon: HeadphonesIcon
+},
+{
+  title: "Acquisto sereno",
+  description: "Flusso di carrello e checkout già collaudato, semplice anche da mobile.",
+  icon: ShieldCheck
+}];
+
 
 const trustStatements = [
-  "Confezioni studiate per il trasporto",
-  "Percorso di acquisto chiaro e sicuro",
-  "Supporto umano per dubbi e scelta",
-];
+"Confezioni studiate per il trasporto",
+"Percorso di acquisto chiaro e sicuro",
+"Supporto umano per dubbi e scelta"];
+
 
 export const HomepageV3 = () => {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
@@ -60,27 +60,27 @@ export const HomepageV3 = () => {
   const curated = useMemo(() => ({
     bestSellers: products.slice(0, 4),
     easyCare: products.slice(4, 8),
-    seasonal: products.slice(8, 12),
+    seasonal: products.slice(8, 12)
   }), [products]);
 
   const editorialCollections = [
-    {
-      title: "Selezioni per interni luminosi",
-      description: "Scelte più decorative per ambienti domestici puliti, accoglienti e contemporanei.",
-    },
-    {
-      title: "Balconi e spazi outdoor",
-      description: "Prodotti pensati per dare struttura, freschezza e carattere agli spazi esterni.",
-    },
-    {
-      title: "Regali verdi",
-      description: "Idee facili da acquistare e belle da ricevere, con presentazione più curata.",
-    },
-    {
-      title: "Guide e cura",
-      description: "Contenuti di orientamento per capire meglio scelta, manutenzione e collocazione.",
-    },
-  ];
+  {
+    title: "Selezioni per interni luminosi",
+    description: "Scelte più decorative per ambienti domestici puliti, accoglienti e contemporanei."
+  },
+  {
+    title: "Balconi e spazi outdoor",
+    description: "Prodotti pensati per dare struttura, freschezza e carattere agli spazi esterni."
+  },
+  {
+    title: "Regali verdi",
+    description: "Idee facili da acquistare e belle da ricevere, con presentazione più curata."
+  },
+  {
+    title: "Guide e cura",
+    description: "Contenuti di orientamento per capire meglio scelta, manutenzione e collocazione."
+  }];
+
 
   return (
     <>
@@ -90,8 +90,8 @@ export const HomepageV3 = () => {
             src={heroBotanical}
             alt="Ambiente elegante con piante da interno e luce naturale"
             className="h-full min-h-[520px] w-full object-cover object-center"
-            loading="eager"
-          />
+            loading="eager" />
+          
         </div>
         <div className="absolute inset-0 bg-hero-overlay" />
         <div className="absolute inset-0 bg-hero-accent opacity-90" />
@@ -121,24 +121,24 @@ export const HomepageV3 = () => {
                 </Button>
               </div>
               <div className="animate-fade-up-delayed-2 mt-6 grid gap-3 sm:grid-cols-3">
-                {trustStatements.map((item) => (
-                  <div key={item} className="rounded-2xl border border-glass-hero bg-background/10 px-4 py-3 text-sm text-primary-foreground/88 backdrop-blur-md transition-transform duration-500 hover:-translate-y-1">
+                {trustStatements.map((item) =>
+                <div key={item} className="rounded-2xl border border-glass-hero bg-background/10 px-4 py-3 text-sm text-primary-foreground/88 backdrop-blur-md transition-transform duration-500 hover:-translate-y-1">
                     {item}
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
             <div className="hidden lg:flex lg:items-end lg:justify-end">
-              <Card className="glass-hero-panel animate-float-soft max-w-xs rounded-[1.75rem] p-5 text-primary-foreground xl:max-w-sm xl:p-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent-bright">Selezione in evidenza</p>
-                <h2 className="mt-3 text-xl font-heading font-bold text-primary-foreground xl:text-2xl">
-                  Atmosfera botanica, merchandising più premium.
-                </h2>
-                <p className="mt-3 text-sm leading-6 text-primary-foreground/74 md:text-base">
-                  Overlay raffinati, superfici glass e accenti verde quasi fluo per un impatto above the fold molto più forte.
-                </p>
-              </Card>
+              
+
+
+
+
+
+
+
+              
             </div>
           </div>
         </div>
@@ -160,8 +160,8 @@ export const HomepageV3 = () => {
                 <a
                   key={shortcut.title}
                   href="#catalogo"
-                  className="group rounded-[1.75rem] border border-glass-hero bg-background/80 p-5 shadow-soft backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-hero"
-                >
+                  className="group rounded-[1.75rem] border border-glass-hero bg-background/80 p-5 shadow-soft backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-hero">
+                  
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-glass-hero bg-accent-bright/12 text-accent-bright transition-transform duration-500 group-hover:scale-105">
                       <Icon className="h-6 w-6" />
@@ -170,8 +170,8 @@ export const HomepageV3 = () => {
                   </div>
                   <h3 className="mt-6 text-xl font-heading font-semibold text-foreground">{shortcut.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">{shortcut.subtitle}</p>
-                </a>
-              );
+                </a>);
+
             })}
           </div>
         </div>
@@ -181,11 +181,11 @@ export const HomepageV3 = () => {
         <div className="absolute inset-0 opacity-70 bg-[radial-gradient(circle_at_top,hsl(var(--primary-light)/0.12),transparent_25%)]" />
         <div className="container relative mx-auto px-4 space-y-14">
           {[
-            { title: "Best seller", subtitle: "Prodotti che aprono la scelta con più immediatezza", items: curated.bestSellers },
-            { title: "Facili da scegliere", subtitle: "Una selezione più accessibile per iniziare senza attrito", items: curated.easyCare },
-            { title: "Collezione del momento", subtitle: "Scelte stagionali presentate con un taglio più editoriale", items: curated.seasonal },
-          ].map((group, index) => (
-            <div key={group.title} className="space-y-6">
+          { title: "Best seller", subtitle: "Prodotti che aprono la scelta con più immediatezza", items: curated.bestSellers },
+          { title: "Facili da scegliere", subtitle: "Una selezione più accessibile per iniziare senza attrito", items: curated.easyCare },
+          { title: "Collezione del momento", subtitle: "Scelte stagionali presentate con un taglio più editoriale", items: curated.seasonal }].
+          map((group, index) =>
+          <div key={group.title} className="space-y-6">
               <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                 <div>
                   <p className={`text-sm font-semibold uppercase tracking-[0.24em] ${index === 1 ? "text-primary-foreground/70" : "text-primary"}`}>
@@ -200,23 +200,23 @@ export const HomepageV3 = () => {
                   <a href="#collezioni">Esplora</a>
                 </Button>
               </div>
-              {loading ? (
-                <div className="flex items-center justify-center py-16">
+              {loading ?
+            <div className="flex items-center justify-center py-16">
                   <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                </div>
-              ) : group.items.length > 0 ? (
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-                  {group.items.map((product) => (
-                    <ProductCard key={`${group.title}-${product.node.id}`} product={product} dark={index === 1} />
-                  ))}
-                </div>
-              ) : (
-                <div className={`rounded-[1.75rem] border px-6 py-12 text-center ${index === 1 ? "border-primary-foreground/10 bg-card/8 text-primary-foreground/72" : "border-border bg-card text-muted-foreground"}`}>
+                </div> :
+            group.items.length > 0 ?
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                  {group.items.map((product) =>
+              <ProductCard key={`${group.title}-${product.node.id}`} product={product} dark={index === 1} />
+              )}
+                </div> :
+
+            <div className={`rounded-[1.75rem] border px-6 py-12 text-center ${index === 1 ? "border-primary-foreground/10 bg-card/8 text-primary-foreground/72" : "border-border bg-card text-muted-foreground"}`}>
                   Nessun prodotto trovato.
                 </div>
-              )}
+            }
             </div>
-          ))}
+          )}
         </div>
       </section>
 
@@ -237,8 +237,8 @@ export const HomepageV3 = () => {
                   </div>
                   <h3 className="mt-5 text-xl font-heading font-semibold text-foreground">{item.title}</h3>
                   <p className="mt-3 text-sm leading-6 text-muted-foreground">{item.description}</p>
-                </Card>
-              );
+                </Card>);
+
             })}
           </div>
         </div>
@@ -278,18 +278,18 @@ export const HomepageV3 = () => {
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {editorialCollections.map((item) => (
-              <Card key={item.title} className="group rounded-[1.75rem] border-border bg-gradient-card p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated">
+            {editorialCollections.map((item) =>
+            <Card key={item.title} className="group rounded-[1.75rem] border-border bg-gradient-card p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated">
                 <h3 className="text-xl font-heading font-semibold text-foreground">{item.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">{item.description}</p>
                 <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary">
                   Approfondisci <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </div>
               </Card>
-            ))}
+            )}
           </div>
         </div>
       </section>
-    </>
-  );
+    </>);
+
 };
