@@ -30,6 +30,8 @@ All colors MUST be HSL.
 
     --accent: 87 20% 53%;
     --accent-foreground: 48 33% 97%;
+    --accent-bright: 111 88% 61%;
+    --accent-bright-foreground: 145 35% 12%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -62,10 +64,15 @@ All colors MUST be HSL.
     --shadow-sm: 0 10px 30px -18px hsl(var(--forest) / 0.18);
     --shadow-md: 0 20px 45px -22px hsl(var(--forest) / 0.2);
     --shadow-lg: 0 28px 70px -30px hsl(var(--forest) / 0.28);
+    --shadow-hero: 0 38px 90px -42px hsl(var(--forest) / 0.7);
 
     --gradient-card: linear-gradient(180deg, hsl(var(--card) / 0.98), hsl(var(--secondary) / 0.72));
     --gradient-showcase: linear-gradient(135deg, hsl(var(--forest)), hsl(var(--forest-soft)) 58%, hsl(var(--primary-dark)));
     --gradient-hero: linear-gradient(180deg, hsl(var(--cream)), hsl(var(--sand)));
+    --gradient-hero-overlay: linear-gradient(90deg, hsl(var(--forest) / 0.92) 0%, hsl(var(--forest-soft) / 0.72) 32%, hsl(var(--forest) / 0.28) 56%, hsl(var(--forest) / 0.14) 74%, hsl(var(--forest) / 0.56) 100%);
+    --gradient-hero-accent: radial-gradient(circle at 18% 24%, hsl(var(--accent-bright) / 0.32), transparent 28%), radial-gradient(circle at 84% 18%, hsl(var(--accent-bright) / 0.18), transparent 18%), radial-gradient(circle at 82% 82%, hsl(var(--primary-light) / 0.22), transparent 22%);
+    --glass-hero: linear-gradient(180deg, hsl(var(--card) / 0.18), hsl(var(--card) / 0.08));
+    --glass-hero-border: hsl(var(--accent-bright) / 0.22);
 
     --transition: all 0.3s ease-in-out;
   }
@@ -107,6 +114,36 @@ All colors MUST be HSL.
 
   .bg-hero {
     background-image: var(--gradient-hero);
+  }
+
+  .bg-hero-overlay {
+    background-image: var(--gradient-hero-overlay);
+  }
+
+  .bg-hero-accent {
+    background-image: var(--gradient-hero-accent);
+  }
+
+  .bg-glass-hero {
+    background-image: var(--glass-hero);
+  }
+
+  .border-glass-hero {
+    border-color: var(--glass-hero-border);
+  }
+
+  .shadow-hero {
+    box-shadow: var(--shadow-hero);
+  }
+}
+
+@layer components {
+  .glass-hero-panel {
+    background-image: var(--glass-hero);
+    border: 1px solid var(--glass-hero-border);
+    box-shadow: var(--shadow-hero);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
   }
 }
 
