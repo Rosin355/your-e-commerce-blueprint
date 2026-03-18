@@ -654,6 +654,38 @@ export default function ProductSyncPanel() {
                   Esporta CSV Shopify
                 </Button>
                 <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  disabled={exportingComplete || !session?.email}
+                  onClick={async () => {
+                    if (!session?.email) return;
+                    setExportingComplete(true);
+                    setCompleteExportStats(null);
+                    try {
+                      const result = await exportCompleteProductsCsv(session.email);
+                      setCompleteExportStats({
+                        analyzed: result.totalAnalyzed,
+                        exported: result.totalExported,
+                        skipped: result.totalSkipped,
+                      });
+                      const url = URL.createObjectURL(result.blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = "shopify-products-complete-only.csv";
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      toast.success(`Esportati ${result.totalExported} prodotti completi su ${result.totalAnalyzed} analizzati`);
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Errore export");
+                    } finally {
+                      setExportingComplete(false);
+                    }
+                  }}
+                >
+                  {exportingComplete ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                  Export CSV Shopify (Solo completi)
+                <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
