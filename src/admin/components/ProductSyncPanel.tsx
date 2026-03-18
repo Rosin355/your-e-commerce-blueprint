@@ -685,6 +685,7 @@ export default function ProductSyncPanel() {
                 >
                   {exportingComplete ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                   Export CSV Shopify (Solo completi)
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
