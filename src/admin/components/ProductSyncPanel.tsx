@@ -25,6 +25,7 @@ import {
   BATCH_SIZE,
   batchUpdatePrices,
   detectCsvHeaders,
+  exportCompleteProductsCsv,
   exportEnrichedCsv,
   fetchProductSyncDashboard,
   getAiEnrichCount,
@@ -40,7 +41,7 @@ import {
   runImageGenBatch,
   getProductsWithImages,
 } from "../lib/productSyncEngine";
-import type { CsvHeaderDiagnostics, ImageCountResponse, ProductWithImage } from "../lib/productSyncEngine";
+import type { CsvHeaderDiagnostics, ImageCountResponse, ProductWithImage, CompleteExportResult } from "../lib/productSyncEngine";
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
 
 const STALE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -93,6 +94,8 @@ export default function ProductSyncPanel() {
   const [styleConflictCount, setStyleConflictCount] = useState(0);
   const [csvDiagnostics, setCsvDiagnostics] = useState<CsvHeaderDiagnostics | null>(null);
   const [showStyleDialog, setShowStyleDialog] = useState(false);
+  const [exportingComplete, setExportingComplete] = useState(false);
+  const [completeExportStats, setCompleteExportStats] = useState<{ analyzed: number; exported: number; skipped: number } | null>(null);
 
   // Image generation state
   const [imageCounts, setImageCounts] = useState<ImageCountResponse | null>(null);
@@ -651,6 +654,39 @@ export default function ProductSyncPanel() {
                   Esporta CSV Shopify
                 </Button>
                 <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  disabled={exportingComplete || !session?.email}
+                  onClick={async () => {
+                    if (!session?.email) return;
+                    setExportingComplete(true);
+                    setCompleteExportStats(null);
+                    try {
+                      const result = await exportCompleteProductsCsv(session.email);
+                      setCompleteExportStats({
+                        analyzed: result.totalAnalyzed,
+                        exported: result.totalExported,
+                        skipped: result.totalSkipped,
+                      });
+                      const url = URL.createObjectURL(result.blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = "shopify-products-complete-only.csv";
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      toast.success(`Esportati ${result.totalExported} prodotti completi su ${result.totalAnalyzed} analizzati`);
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Errore export");
+                    } finally {
+                      setExportingComplete(false);
+                    }
+                  }}
+                >
+                  {exportingComplete ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                  Export CSV Shopify (Solo completi)
+                </Button>
+                <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
@@ -663,7 +699,35 @@ export default function ProductSyncPanel() {
               </div>
             </div>
 
-            {/* Header diagnostics */}
+            {/* Complete export stats */}
+            {completeExportStats && (
+              <div className="rounded-md border border-border bg-muted/30 p-3 text-sm space-y-1">
+                <p className="font-medium">📊 Risultato Export (Solo completi)</p>
+                <div className="grid gap-2 sm:grid-cols-4">
+                  <div className="rounded-md border p-2">
+                    <p className="text-xs text-muted-foreground">Analizzati</p>
+                    <p className="text-lg font-semibold">{completeExportStats.analyzed}</p>
+                  </div>
+                  <div className="rounded-md border p-2">
+                    <p className="text-xs text-muted-foreground">Esportati</p>
+                    <p className="text-lg font-semibold text-primary">{completeExportStats.exported}</p>
+                  </div>
+                  <div className="rounded-md border p-2">
+                    <p className="text-xs text-muted-foreground">Scartati</p>
+                    <p className="text-lg font-semibold text-destructive">{completeExportStats.skipped}</p>
+                  </div>
+                  <div className="rounded-md border p-2">
+                    <p className="text-xs text-muted-foreground">Completamento</p>
+                    <p className="text-lg font-semibold">
+                      {completeExportStats.analyzed > 0
+                        ? Math.round((completeExportStats.exported / completeExportStats.analyzed) * 100)
+                        : 0}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {csvDiagnostics && (
               <div className="rounded-md border border-border bg-muted/30 p-2 text-xs space-y-1">
                 <p className="font-medium">📋 Diagnostica header CSV ({csvDiagnostics.totalDataRows} righe dati)</p>

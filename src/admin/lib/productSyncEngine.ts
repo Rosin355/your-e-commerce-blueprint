@@ -371,6 +371,46 @@ export async function resetStyleConflicts(adminEmail: string, selectedStyle: str
   return data?.reset_count ?? 0;
 }
 
+// ── Export complete products CSV (only from Shopify Admin) ───
+
+export interface CompleteExportResult {
+  blob: Blob;
+  totalAnalyzed: number;
+  totalExported: number;
+  totalSkipped: number;
+}
+
+export async function exportCompleteProductsCsv(adminEmail: string): Promise<CompleteExportResult> {
+  const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+  const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const url = `https://${projectId}.supabase.co/functions/v1/export-complete-products-csv`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
+      "x-admin-email": adminEmail,
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    let msg = `HTTP ${response.status}`;
+    try { msg = JSON.parse(body).error || msg; } catch { /* */ }
+    throw new Error(msg);
+  }
+
+  const totalAnalyzed = Number(response.headers.get("X-Total-Analyzed") || "0");
+  const totalExported = Number(response.headers.get("X-Total-Exported") || "0");
+  const totalSkipped = Number(response.headers.get("X-Total-Skipped") || "0");
+  const blob = await response.blob();
+
+  return { blob, totalAnalyzed, totalExported, totalSkipped };
+}
+
 // ── Export enriched CSV ─────────────────────────────────────
 
 export async function exportEnrichedCsv(adminEmail: string): Promise<Blob> {
