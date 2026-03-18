@@ -25,6 +25,7 @@ import {
   BATCH_SIZE,
   batchUpdatePrices,
   detectCsvHeaders,
+  exportCompleteProductsCsv,
   exportEnrichedCsv,
   fetchProductSyncDashboard,
   getAiEnrichCount,
