@@ -94,6 +94,8 @@ export default function ProductSyncPanel() {
   const [styleConflictCount, setStyleConflictCount] = useState(0);
   const [csvDiagnostics, setCsvDiagnostics] = useState<CsvHeaderDiagnostics | null>(null);
   const [showStyleDialog, setShowStyleDialog] = useState(false);
+  const [exportingComplete, setExportingComplete] = useState(false);
+  const [completeExportStats, setCompleteExportStats] = useState<{ analyzed: number; exported: number; skipped: number } | null>(null);
 
   // Image generation state
   const [imageCounts, setImageCounts] = useState<ImageCountResponse | null>(null);
