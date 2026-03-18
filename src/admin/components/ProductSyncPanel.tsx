@@ -41,7 +41,7 @@ import {
   runImageGenBatch,
   getProductsWithImages,
 } from "../lib/productSyncEngine";
-import type { CsvHeaderDiagnostics, ImageCountResponse, ProductWithImage } from "../lib/productSyncEngine";
+import type { CsvHeaderDiagnostics, ImageCountResponse, ProductWithImage, CompleteExportResult } from "../lib/productSyncEngine";
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
 
 const STALE_TIMEOUT_MS = 5 * 60 * 1000;
