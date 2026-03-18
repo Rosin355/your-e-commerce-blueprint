@@ -699,7 +699,35 @@ export default function ProductSyncPanel() {
               </div>
             </div>
 
-            {/* Header diagnostics */}
+            {/* Complete export stats */}
+            {completeExportStats && (
+              <div className="rounded-md border border-border bg-muted/30 p-3 text-sm space-y-1">
+                <p className="font-medium">📊 Risultato Export (Solo completi)</p>
+                <div className="grid gap-2 sm:grid-cols-4">
+                  <div className="rounded-md border p-2">
+                    <p className="text-xs text-muted-foreground">Analizzati</p>
+                    <p className="text-lg font-semibold">{completeExportStats.analyzed}</p>
+                  </div>
+                  <div className="rounded-md border p-2">
+                    <p className="text-xs text-muted-foreground">Esportati</p>
+                    <p className="text-lg font-semibold text-primary">{completeExportStats.exported}</p>
+                  </div>
+                  <div className="rounded-md border p-2">
+                    <p className="text-xs text-muted-foreground">Scartati</p>
+                    <p className="text-lg font-semibold text-destructive">{completeExportStats.skipped}</p>
+                  </div>
+                  <div className="rounded-md border p-2">
+                    <p className="text-xs text-muted-foreground">Completamento</p>
+                    <p className="text-lg font-semibold">
+                      {completeExportStats.analyzed > 0
+                        ? Math.round((completeExportStats.exported / completeExportStats.analyzed) * 100)
+                        : 0}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {csvDiagnostics && (
               <div className="rounded-md border border-border bg-muted/30 p-2 text-xs space-y-1">
                 <p className="font-medium">📋 Diagnostica header CSV ({csvDiagnostics.totalDataRows} righe dati)</p>
