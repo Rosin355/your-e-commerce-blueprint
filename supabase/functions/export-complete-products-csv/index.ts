@@ -1,127 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { assertAdminRequest } from "../_shared/admin-auth.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-admin-email",
 };
-
-const SHOPIFY_STORE = Deno.env.get("SHOPIFY_STORE") || "";
-const SHOPIFY_ACCESS_TOKEN = Deno.env.get("SHOPIFY_ACCESS_TOKEN") || "";
-const SHOPIFY_API_VERSION = Deno.env.get("SHOPIFY_API_VERSION") || "2025-01";
-const PAGE_SIZE = 20;
-
-function shopifyEndpoint(): string {
-  if (!SHOPIFY_STORE) throw new Error("SHOPIFY_STORE mancante");
-  if (!SHOPIFY_ACCESS_TOKEN) throw new Error("SHOPIFY_ACCESS_TOKEN mancante");
-  return `https://${SHOPIFY_STORE}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`;
-}
-
-async function shopifyGraphql<T>(query: string, variables: Record<string, unknown>): Promise<T> {
-  const url = shopifyEndpoint();
-  let attempts = 0;
-  while (attempts < 3) {
-    attempts++;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN,
-      },
-      body: JSON.stringify({ query, variables }),
-    });
-    if (response.status === 429) {
-      const retryAfter = Number(response.headers.get("Retry-After") || "2");
-      await new Promise((r) => setTimeout(r, retryAfter * 1000));
-      continue;
-    }
-    const payload = await response.json();
-    if (!response.ok) throw new Error(`Shopify HTTP ${response.status}: ${JSON.stringify(payload).slice(0, 600)}`);
-    if (Array.isArray(payload?.errors) && payload.errors.length > 0) {
-      throw new Error(`Shopify GQL: ${payload.errors.map((e: { message: string }) => e.message).join(" | ")}`);
-    }
-    return payload.data as T;
-  }
-  throw new Error("Shopify rate limit persistente");
-}
-
-const PRODUCTS_QUERY = `
-query CompleteProducts($first: Int!, $after: String) {
-  products(first: $first, after: $after) {
-    pageInfo { hasNextPage endCursor }
-    nodes {
-      id
-      handle
-      title
-      descriptionHtml
-      vendor
-      productType
-      tags
-      status
-      seo { title description }
-      media(first: 10) {
-        nodes {
-          ... on MediaImage {
-            image { url altText }
-          }
-        }
-      }
-      variants(first: 100) {
-        nodes {
-          sku
-          price
-          compareAtPrice
-          barcode
-          inventoryQuantity
-          inventoryItem {
-            measurement { weight { value unit } }
-          }
-        }
-      }
-    }
-  }
-}
-`;
-
-interface ShopifyNode {
-  id: string;
-  handle: string;
-  title: string;
-  descriptionHtml: string;
-  vendor: string;
-  productType: string;
-  tags: string[];
-  status: string;
-  seo: { title: string | null; description: string | null };
-  media: { nodes: Array<{ image?: { url?: string; altText?: string | null } }> };
-  variants: {
-    nodes: Array<{
-      sku: string;
-      price: string;
-      compareAtPrice: string | null;
-      barcode: string | null;
-      inventoryQuantity: number | null;
-      inventoryItem?: { measurement?: { weight?: { value?: number; unit?: string } } };
-    }>;
-  };
-}
-
-function isComplete(node: ShopifyNode): boolean {
-  // 1) At least one media image
-  const images = node.media.nodes.filter((m) => m.image?.url);
-  if (images.length === 0) return false;
-  // 2) SEO title non-empty
-  if (!node.seo?.title?.trim()) return false;
-  // 3) SEO description non-empty
-  if (!node.seo?.description?.trim()) return false;
-  // 4) First variant price > 0
-  const firstVariant = node.variants.nodes[0];
-  if (!firstVariant) return false;
-  const price = parseFloat(firstVariant.price || "0");
-  if (!(price > 0)) return false;
-  return true;
-}
 
 function escapeCsv(value: unknown): string {
   const str = String(value ?? "");
@@ -131,120 +15,160 @@ function escapeCsv(value: unknown): string {
   return str;
 }
 
+interface DbRow {
+  sku: string;
+  title: string | null;
+  handle: string | null;
+  description: string | null;
+  short_description: string | null;
+  vendor: string | null;
+  product_type: string | null;
+  product_category: string | null;
+  price: number | null;
+  compare_at_price: number | null;
+  barcode: string | null;
+  weight_grams: number | null;
+  inventory_quantity: number | null;
+  tags: string[] | null;
+  image_urls: string[] | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  optimized_description: string | null;
+  ai_enrichment_json: Record<string, unknown> | null;
+  ai_enriched_at: string | null;
+}
+
+function isComplete(row: DbRow): boolean {
+  const images = Array.isArray(row.image_urls) ? row.image_urls : [];
+  if (images.length === 0) return false;
+
+  const ai = row.ai_enrichment_json || {};
+  const seoTitle = row.seo_title || (ai.seo_title as string) || "";
+  if (!seoTitle.trim()) return false;
+
+  const seoDesc = row.seo_description || (ai.seo_description as string) || "";
+  if (!seoDesc.trim()) return false;
+
+  const price = row.price ?? 0;
+  if (!(price > 0)) return false;
+
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    assertAdminRequest(req);
+    const client = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      { auth: { persistSession: false, autoRefreshToken: false } },
+    );
+
+    const allRows: DbRow[] = [];
+    const PAGE_SIZE = 1000;
+    let offset = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const { data, error } = await client
+        .from("product_sync_csv_products")
+        .select("sku,title,handle,description,short_description,vendor,product_type,product_category,price,compare_at_price,barcode,weight_grams,inventory_quantity,tags,image_urls,seo_title,seo_description,optimized_description,ai_enrichment_json,ai_enriched_at")
+        .not("ai_enriched_at", "is", null)
+        .order("sku")
+        .range(offset, offset + PAGE_SIZE - 1);
+
+      if (error) throw new Error(error.message);
+      if (!data || data.length === 0) {
+        hasMore = false;
+      } else {
+        allRows.push(...(data as unknown as DbRow[]));
+        offset += PAGE_SIZE;
+        if (data.length < PAGE_SIZE) hasMore = false;
+      }
+    }
+
+    const totalAnalyzed = allRows.length;
+    let totalExported = 0;
+    let totalSkipped = 0;
 
     const csvHeaders = [
       "Handle", "Title", "Body (HTML)", "Vendor", "Type", "Tags", "Published",
       "Variant SKU", "Variant Price", "Variant Compare At Price", "Variant Barcode",
       "Variant Grams", "Variant Inventory Qty", "Image Src", "Image Alt Text",
-      "SEO Title", "SEO Description", "Status",
+      "SEO Title", "SEO Description", "Short Description",
+      "Care Guide - Light", "Care Guide - Watering", "Care Guide - Soil",
+      "Care Guide - Temperature", "Care Guide - Notes",
+      "Key Benefits", "FAQ", "Keywords", "Category",
     ];
 
-    const csvLines: string[] = [csvHeaders.map(escapeCsv).join(",")];
+    const EMPTY_COUNT = csvHeaders.length;
+    const csvLines = [csvHeaders.map(escapeCsv).join(",")];
 
-    let cursor: string | null = null;
-    let hasNext = true;
-    let totalAnalyzed = 0;
-    let totalExported = 0;
-    let totalSkipped = 0;
-
-    while (hasNext) {
-      const data = await shopifyGraphql<{
-        products: {
-          pageInfo: { hasNextPage: boolean; endCursor: string | null };
-          nodes: ShopifyNode[];
-        };
-      }>(PRODUCTS_QUERY, { first: PAGE_SIZE, after: cursor });
-
-      const page = data.products;
-      totalAnalyzed += page.nodes.length;
-
-      for (const node of page.nodes) {
-        if (!isComplete(node)) {
-          totalSkipped++;
-          continue;
-        }
-        totalExported++;
-
-        const images = node.media.nodes
-          .filter((m) => m.image?.url)
-          .map((m) => ({ url: m.image!.url!, alt: m.image!.altText || "" }));
-
-        const firstVariant = node.variants.nodes[0];
-        const weight = firstVariant?.inventoryItem?.measurement?.weight;
-        const grams = weight
-          ? weight.unit === "KILOGRAMS"
-            ? Math.round((weight.value ?? 0) * 1000)
-            : Math.round(weight.value ?? 0)
-          : "";
-
-        // Main row with first image
-        const mainRow = [
-          node.handle,
-          node.title,
-          node.descriptionHtml,
-          node.vendor,
-          node.productType,
-          node.tags.join(", "),
-          "TRUE",
-          firstVariant?.sku || "",
-          firstVariant?.price || "",
-          firstVariant?.compareAtPrice || "",
-          firstVariant?.barcode || "",
-          grams,
-          firstVariant?.inventoryQuantity ?? "",
-          images[0]?.url || "",
-          images[0]?.alt || "",
-          node.seo.title || "",
-          node.seo.description || "",
-          node.status,
-        ].map(escapeCsv).join(",");
-        csvLines.push(mainRow);
-
-        // Additional variant rows (if multiple SKU variants)
-        for (let vi = 1; vi < node.variants.nodes.length; vi++) {
-          const v = node.variants.nodes[vi];
-          if (!v.sku) continue;
-          const vWeight = v.inventoryItem?.measurement?.weight;
-          const vGrams = vWeight
-            ? vWeight.unit === "KILOGRAMS"
-              ? Math.round((vWeight.value ?? 0) * 1000)
-              : Math.round(vWeight.value ?? 0)
-            : "";
-          const emptyRow = new Array(csvHeaders.length).fill("");
-          emptyRow[0] = node.handle;
-          emptyRow[csvHeaders.indexOf("Variant SKU")] = v.sku;
-          emptyRow[csvHeaders.indexOf("Variant Price")] = v.price || "";
-          emptyRow[csvHeaders.indexOf("Variant Compare At Price")] = v.compareAtPrice || "";
-          emptyRow[csvHeaders.indexOf("Variant Barcode")] = v.barcode || "";
-          emptyRow[csvHeaders.indexOf("Variant Grams")] = String(vGrams);
-          emptyRow[csvHeaders.indexOf("Variant Inventory Qty")] = String(v.inventoryQuantity ?? "");
-          csvLines.push(emptyRow.map(escapeCsv).join(","));
-        }
-
-        // Additional image rows
-        for (let ii = 1; ii < images.length; ii++) {
-          const emptyRow = new Array(csvHeaders.length).fill("");
-          emptyRow[0] = node.handle;
-          emptyRow[csvHeaders.indexOf("Image Src")] = images[ii].url;
-          emptyRow[csvHeaders.indexOf("Image Alt Text")] = images[ii].alt;
-          csvLines.push(emptyRow.map(escapeCsv).join(","));
-        }
+    for (const row of allRows) {
+      if (!isComplete(row)) {
+        totalSkipped++;
+        continue;
       }
+      totalExported++;
 
-      hasNext = page.pageInfo.hasNextPage;
-      cursor = page.pageInfo.endCursor;
+      const ai = row.ai_enrichment_json || {};
+      const careGuide = (ai.care_guide as Record<string, string>) || {};
+      const tags = Array.isArray(row.tags) ? row.tags.join(", ") : "";
+      const imageUrls = Array.isArray(row.image_urls) ? row.image_urls : [];
+      const altTexts = Array.isArray(ai.image_alt_texts) ? (ai.image_alt_texts as string[]) : [];
+      const keyBenefits = Array.isArray(ai.key_benefits) ? (ai.key_benefits as string[]).join(" | ") : "";
+      const faq = Array.isArray(ai.faq)
+        ? (ai.faq as Array<{ q: string; a: string }>).map((f) => `Q: ${f.q} A: ${f.a}`).join(" | ")
+        : "";
+      const keywords = Array.isArray(ai.keywords_suggested) ? (ai.keywords_suggested as string[]).join(", ") : "";
+      const handle = String(row.handle || "");
+
+      const mainLine = [
+        handle,
+        ai.h1_title || row.title || "",
+        row.optimized_description || ai.optimized_description || row.description || "",
+        row.vendor || "",
+        row.product_type || "",
+        tags,
+        "TRUE",
+        row.sku || "",
+        row.price ?? "",
+        row.compare_at_price ?? "",
+        row.barcode || "",
+        row.weight_grams ?? "",
+        row.inventory_quantity ?? "",
+        imageUrls[0] || "",
+        altTexts[0] || "",
+        row.seo_title || ai.seo_title || "",
+        row.seo_description || ai.seo_description || "",
+        ai.short_description || row.short_description || "",
+        careGuide.light || "",
+        careGuide.watering || "",
+        careGuide.soil || "",
+        careGuide.temperature || "",
+        careGuide.notes || "",
+        keyBenefits,
+        faq,
+        keywords,
+        row.product_category || "",
+      ].map(escapeCsv).join(",");
+
+      csvLines.push(mainLine);
+
+      for (let imgIdx = 1; imgIdx < imageUrls.length; imgIdx++) {
+        const imgRow = new Array(EMPTY_COUNT).fill("");
+        imgRow[0] = handle;
+        imgRow[csvHeaders.indexOf("Image Src")] = imageUrls[imgIdx] || "";
+        imgRow[csvHeaders.indexOf("Image Alt Text")] = altTexts[imgIdx] || "";
+        csvLines.push(imgRow.map(escapeCsv).join(","));
+      }
     }
 
     const csvContent = csvLines.join("\n");
 
-    // Return CSV with stats in custom headers
     return new Response(csvContent, {
       headers: {
         ...corsHeaders,
