@@ -185,8 +185,8 @@ export const HomepageV3 = () => {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--accent-bright))/0.08,transparent_22%)]" />
         <div className="container relative mx-auto px-4">
           <div className="mb-8 max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Fiducia e rassicurazione</p>
-            <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Elementi chiari che aiutano a comprare meglio</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Perché sceglierci</p>
+            <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Un'esperienza d'acquisto pensata per chi ama il verde</h2>
           </div>
           <div className="grid gap-5 lg:grid-cols-4">
             {trustItems.map((item) => {
