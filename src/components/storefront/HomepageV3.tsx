@@ -1,4 +1,4 @@
-import heroBotanical from "@/assets/hero-botanical-v3.jpg";
+import heroBotanical from "@/assets/hero-botanical-spring.jpg";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
