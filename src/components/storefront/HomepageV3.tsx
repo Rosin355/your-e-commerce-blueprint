@@ -59,20 +59,20 @@ export const HomepageV3 = () => {
 
   const editorialCollections = [
   {
-    title: "Selezioni per interni luminosi",
-    description: "Scelte più decorative per ambienti domestici puliti, accoglienti e contemporanei."
+    title: "Fioriture di primavera",
+    description: "Le piante più belle per portare colore e profumo in casa con l'arrivo della bella stagione."
   },
   {
-    title: "Balconi e spazi outdoor",
-    description: "Prodotti pensati per dare struttura, freschezza e carattere agli spazi esterni."
+    title: "Balconi e terrazze",
+    description: "Idee e soluzioni per creare angoli verdi all'aperto, resistenti e pieni di vita."
   },
   {
-    title: "Regali verdi",
-    description: "Idee facili da acquistare e belle da ricevere, con presentazione più curata."
+    title: "Regala una pianta",
+    description: "Idee regalo originali e facili da ordinare, perfette per ogni occasione primaverile."
   },
   {
-    title: "Guide e cura",
-    description: "Contenuti di orientamento per capire meglio scelta, manutenzione e collocazione."
+    title: "Guida alla cura",
+    description: "Consigli pratici per far crescere e mantenere le tue piante al meglio, stagione dopo stagione."
   }];
 
 
