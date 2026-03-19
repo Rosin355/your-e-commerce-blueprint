@@ -142,9 +142,9 @@ export const HomepageV3 = () => {
         <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,hsl(var(--primary-light)/0.08),transparent_24%)]" />
         <div className="container relative mx-auto px-4 space-y-12">
           {[
-            { title: "Best seller", subtitle: "Prodotti che aprono la scelta con più immediatezza", items: curated.bestSellers },
-            { title: "Facili da scegliere", subtitle: "Una selezione più accessibile per iniziare senza attrito", items: curated.easyCare },
-            { title: "Collezione del momento", subtitle: "Scelte stagionali presentate con un taglio più editoriale", items: curated.seasonal },
+            { title: "I più amati", subtitle: "Le piante più scelte dai nostri clienti questa primavera", items: curated.bestSellers },
+            { title: "Perfette per iniziare", subtitle: "Resistenti, belle e facili da curare: ideali per chi è alle prime armi", items: curated.easyCare },
+            { title: "Novità di stagione", subtitle: "Fioriture fresche e varietà primaverili appena arrivate", items: curated.seasonal },
           ].map((group) => (
             <div key={group.title} className="space-y-5">
               <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
