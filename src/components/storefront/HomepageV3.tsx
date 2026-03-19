@@ -216,13 +216,13 @@ export const HomepageV3 = () => {
               <div className="grid gap-4 md:grid-cols-2">
                 <Card className="rounded-[1.5rem] border-border bg-background/80 p-6 shadow-soft">
                   <Leaf className="h-6 w-6 text-primary" />
-                  <h3 className="mt-4 text-lg font-heading font-semibold text-foreground">Scelta più semplice</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Meno rumore visivo, più priorità chiare tra immagine, informazioni e acquisto.</p>
+                  <h3 className="mt-4 text-lg font-heading font-semibold text-foreground">Scelta chiara e veloce</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Ogni pianta è presentata con foto reali, informazioni essenziali e consigli di cura integrati.</p>
                 </Card>
                 <Card className="rounded-[1.5rem] border-border bg-background/80 p-6 shadow-soft">
                   <HeartHandshake className="h-6 w-6 text-primary" />
-                  <h3 className="mt-4 text-lg font-heading font-semibold text-foreground">Esperienza più umana</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Più fiducia nella navigazione e nella fase decisionale, soprattutto da mobile.</p>
+                  <h3 className="mt-4 text-lg font-heading font-semibold text-foreground">Vicini a te, sempre</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Un team pronto ad aiutarti nella scelta, nella cura e in ogni fase dell'ordine.</p>
                 </Card>
               </div>
             </div>
