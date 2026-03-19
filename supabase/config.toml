@@ -1,1 +1,4 @@
 project_id = "iekwvvihjwghosqdxrdi"
+
+[functions.create-product-ai]
+verify_jwt = false
