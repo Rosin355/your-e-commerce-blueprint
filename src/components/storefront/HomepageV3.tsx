@@ -31,9 +31,9 @@ const trustItems = [
 
 
 const trustStatements = [
-  "Spedizione protetta",
+  "Consegna protetta",
   "Checkout semplice",
-  "Supporto reale"
+  "Assistenza reale"
 ];
 
 export const HomepageV3 = () => {
