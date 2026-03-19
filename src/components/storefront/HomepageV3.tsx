@@ -82,7 +82,7 @@ export const HomepageV3 = () => {
         <div className="absolute inset-0">
           <img
             src={heroBotanical}
-            alt="Ambiente elegante con piante da interno e luce naturale"
+            alt="Piante primaverili in fiore con luce naturale calda"
             className="h-full min-h-[520px] w-full object-cover object-center"
             loading="eager" />
           
