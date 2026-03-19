@@ -108,7 +108,7 @@ export const HomepageV3 = () => {
               </p>
               <div className="animate-fade-up-delayed mt-5 flex flex-col gap-2.5 sm:flex-row md:mt-6 md:gap-3">
                 <Button asChild size="lg" className="h-10 rounded-full bg-accent-bright px-5 text-xs font-semibold uppercase tracking-[0.16em] text-accent-bright-foreground shadow-hero hover:bg-accent-bright/90 md:h-11 md:px-7 md:text-sm md:tracking-[0.18em]">
-                  <a href="#catalogo">Shop</a>
+                  <a href="#catalogo">Scopri la collezione</a>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-10 rounded-full border-glass-hero bg-background/10 px-5 text-xs font-semibold uppercase tracking-[0.16em] text-primary-foreground backdrop-blur hover:bg-background/16 hover:text-primary-foreground md:h-11 md:px-7 md:text-sm md:tracking-[0.18em]">
                   <a href="#collezioni">Collezioni</a>
