@@ -244,7 +244,7 @@ export const HomepageV3 = () => {
                 <h3 className="text-xl font-heading font-semibold text-foreground">{item.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">{item.description}</p>
                 <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                  Approfondisci <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  Scopri <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </div>
               </Card>
             )}
