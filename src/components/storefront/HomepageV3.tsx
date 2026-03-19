@@ -44,10 +44,13 @@ export const HomepageV3 = () => {
   const [loadingEasy, setLoadingEasy] = useState(true);
   const [loadingSeasonal, setLoadingSeasonal] = useState(true);
 
+  const withImages = (products: ShopifyProduct[]) =>
+    products.filter((p) => p.node.images.edges.length > 0);
+
   useEffect(() => {
-    fetchProducts(4, 'product_type:"Piante da Interno"').then((p) => { setBestSellers(p); setLoadingBest(false); });
-    fetchProducts(4).then((p) => { setEasyCare(p); setLoadingEasy(false); });
-    fetchProducts(4, 'product_type:variable').then((p) => { setSeasonal(p); setLoadingSeasonal(false); });
+    fetchProducts(12, 'product_type:"Piante da Interno"').then((p) => { setBestSellers(withImages(p).slice(0, 4)); setLoadingBest(false); });
+    fetchProducts(8).then((p) => { setEasyCare(withImages(p).slice(0, 4)); setLoadingEasy(false); });
+    fetchProducts(8, 'product_type:variable').then((p) => { setSeasonal(withImages(p).slice(0, 4)); setLoadingSeasonal(false); });
   }, []);
 
   const editorialCollections = [
