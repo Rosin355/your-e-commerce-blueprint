@@ -101,10 +101,10 @@ export const HomepageV3 = () => {
                 Botanical living
               </div>
               <h1 className="mt-4 max-w-3xl text-balance font-heading text-[2rem] font-bold leading-[0.94] text-primary-foreground md:mt-5 md:max-w-2xl md:text-[3.1rem] lg:max-w-3xl lg:text-[4.2rem] xl:text-[4.7rem]">
-                Piante belle, scelte facili.
+                È primavera: fai fiorire i tuoi spazi.
               </h1>
               <p className="animate-fade-up-delayed mt-3 max-w-xl text-[0.88rem] leading-5 text-primary-foreground/78 md:mt-4 md:text-[0.98rem] md:leading-6 lg:max-w-xl lg:text-[1.02rem] lg:leading-7">
-                Scopri una selezione curata per casa, balcone e regali verdi.
+                Scopri la nuova selezione primaverile: piante fiorite, aromatiche e da balcone pronte per te.
               </p>
               <div className="animate-fade-up-delayed mt-5 flex flex-col gap-2.5 sm:flex-row md:mt-6 md:gap-3">
                 <Button asChild size="lg" className="h-10 rounded-full bg-accent-bright px-5 text-xs font-semibold uppercase tracking-[0.16em] text-accent-bright-foreground shadow-hero hover:bg-accent-bright/90 md:h-11 md:px-7 md:text-sm md:tracking-[0.18em]">
