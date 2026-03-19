@@ -135,9 +135,9 @@ export const HomepageV3 = () => {
         <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,hsl(var(--primary-light)/0.08),transparent_24%)]" />
         <div className="container relative mx-auto px-4 space-y-12">
           {[
-            { title: "I più amati", subtitle: "Le piante più scelte dai nostri clienti questa primavera", items: curated.bestSellers },
-            { title: "Perfette per iniziare", subtitle: "Resistenti, belle e facili da curare: ideali per chi è alle prime armi", items: curated.easyCare },
-            { title: "Novità di stagione", subtitle: "Fioriture fresche e varietà primaverili appena arrivate", items: curated.seasonal },
+            { title: "I più amati", subtitle: "Le piante più scelte dai nostri clienti questa primavera", items: bestSellers, isLoading: loadingBest },
+            { title: "Perfette per iniziare", subtitle: "Resistenti, belle e facili da curare: ideali per chi è alle prime armi", items: easyCare, isLoading: loadingEasy },
+            { title: "Novità di stagione", subtitle: "Fioriture fresche e varietà primaverili appena arrivate", items: seasonal, isLoading: loadingSeasonal },
           ].map((group) => (
             <div key={group.title} className="space-y-5">
               <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -154,7 +154,7 @@ export const HomepageV3 = () => {
                   <a href="#collezioni">Esplora</a>
                 </Button>
               </div>
-              {loading ? (
+              {group.isLoading ? (
                 <div className="flex items-center justify-center py-16">
                   <Loader2 className="h-10 w-10 animate-spin text-primary" />
                 </div>
