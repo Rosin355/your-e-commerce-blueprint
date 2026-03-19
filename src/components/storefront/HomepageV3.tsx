@@ -210,8 +210,8 @@ export const HomepageV3 = () => {
           <div className="rounded-[2rem] border border-border bg-gradient-card p-7 shadow-soft md:p-10">
             <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Missione</p>
-                <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Un ecommerce verde più solido, elegante e facile da leggere.</h2>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">La nostra missione</p>
+                <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Portare il verde in ogni casa, con semplicità e stile.</h2>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <Card className="rounded-[1.5rem] border-border bg-background/80 p-6 shadow-soft">
