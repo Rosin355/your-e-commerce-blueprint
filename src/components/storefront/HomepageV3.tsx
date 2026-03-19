@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
 import { ArrowRight, CheckCircle2, HeadphonesIcon, HeartHandshake, Leaf, Loader2, PackageCheck, ShieldCheck } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 
 const trustItems = [
