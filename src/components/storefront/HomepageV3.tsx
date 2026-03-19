@@ -48,7 +48,11 @@ export const HomepageV3 = () => {
     products.filter((p) => p.node.images.edges.length > 0);
 
   useEffect(() => {
-    fetchProducts(12, 'product_type:"Piante da Interno"').then((p) => { setBestSellers(withImages(p).slice(0, 4)); setLoadingBest(false); });
+    fetchProducts(20).then((p) => {
+      const valid = withImages(p).filter((pr) => parseFloat(pr.node.priceRange.minVariantPrice.amount) > 0);
+      setBestSellers(valid.slice(0, 4));
+      setLoadingBest(false);
+    });
     fetchProducts(8).then((p) => { setEasyCare(withImages(p).slice(0, 4)); setLoadingEasy(false); });
     fetchProducts(8, 'product_type:variable').then((p) => { setSeasonal(withImages(p).slice(0, 4)); setLoadingSeasonal(false); });
   }, []);
