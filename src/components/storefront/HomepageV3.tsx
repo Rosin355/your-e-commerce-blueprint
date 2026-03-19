@@ -9,23 +9,23 @@ import { useEffect, useMemo, useState } from "react";
 
 const trustItems = [
 {
-  title: "Spedizione protetta",
-  description: "Imballaggi curati per ridurre stress, urti e sorprese all'arrivo.",
+  title: "Consegna sicura e protetta",
+  description: "Ogni pianta viene confezionata con cura per arrivare fresca e intatta, anche in primavera.",
   icon: PackageCheck
 },
 {
-  title: "Qualità selezionata",
-  description: "Una proposta più leggibile, con prodotti presentati in modo chiaro e rassicurante.",
+  title: "Selezione stagionale",
+  description: "Varietà scelte per la stagione: fioriture, profumi e colori pensati per questo momento dell'anno.",
   icon: CheckCircle2
 },
 {
-  title: "Supporto reale",
-  description: "Aiuto prima e dopo l'acquisto per scegliere meglio senza incertezza.",
+  title: "Assistenza dedicata",
+  description: "Ti aiutiamo a scegliere, piantare e curare. Prima, durante e dopo l'acquisto.",
   icon: HeadphonesIcon
 },
 {
-  title: "Acquisto sereno",
-  description: "Flusso di carrello e checkout già collaudato, semplice anche da mobile.",
+  title: "Acquisto senza pensieri",
+  description: "Checkout veloce, pagamento sicuro e un'esperienza fluida anche da smartphone.",
   icon: ShieldCheck
 }];
 
