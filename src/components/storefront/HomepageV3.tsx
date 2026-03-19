@@ -234,8 +234,8 @@ export const HomepageV3 = () => {
         <div className="container mx-auto px-4">
           <div className="mb-8 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Esplora il catalogo</p>
-              <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Accessi più profondi a collezioni e contenuti</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Collezioni</p>
+              <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Esplora le nostre raccolte primaverili</h2>
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
