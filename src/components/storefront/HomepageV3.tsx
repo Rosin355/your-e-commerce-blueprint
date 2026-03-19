@@ -1,4 +1,4 @@
-import heroBotanical from "@/assets/hero-botanical-v3.jpg";
+import heroBotanical from "@/assets/hero-botanical-spring.jpg";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,31 +9,31 @@ import { useEffect, useMemo, useState } from "react";
 
 const trustItems = [
 {
-  title: "Spedizione protetta",
-  description: "Imballaggi curati per ridurre stress, urti e sorprese all'arrivo.",
+  title: "Consegna sicura e protetta",
+  description: "Ogni pianta viene confezionata con cura per arrivare fresca e intatta, anche in primavera.",
   icon: PackageCheck
 },
 {
-  title: "Qualità selezionata",
-  description: "Una proposta più leggibile, con prodotti presentati in modo chiaro e rassicurante.",
+  title: "Selezione stagionale",
+  description: "Varietà scelte per la stagione: fioriture, profumi e colori pensati per questo momento dell'anno.",
   icon: CheckCircle2
 },
 {
-  title: "Supporto reale",
-  description: "Aiuto prima e dopo l'acquisto per scegliere meglio senza incertezza.",
+  title: "Assistenza dedicata",
+  description: "Ti aiutiamo a scegliere, piantare e curare. Prima, durante e dopo l'acquisto.",
   icon: HeadphonesIcon
 },
 {
-  title: "Acquisto sereno",
-  description: "Flusso di carrello e checkout già collaudato, semplice anche da mobile.",
+  title: "Acquisto senza pensieri",
+  description: "Checkout veloce, pagamento sicuro e un'esperienza fluida anche da smartphone.",
   icon: ShieldCheck
 }];
 
 
 const trustStatements = [
-  "Spedizione protetta",
+  "Consegna protetta",
   "Checkout semplice",
-  "Supporto reale"
+  "Assistenza reale"
 ];
 
 export const HomepageV3 = () => {
@@ -59,20 +59,20 @@ export const HomepageV3 = () => {
 
   const editorialCollections = [
   {
-    title: "Selezioni per interni luminosi",
-    description: "Scelte più decorative per ambienti domestici puliti, accoglienti e contemporanei."
+    title: "Fioriture di primavera",
+    description: "Le piante più belle per portare colore e profumo in casa con l'arrivo della bella stagione."
   },
   {
-    title: "Balconi e spazi outdoor",
-    description: "Prodotti pensati per dare struttura, freschezza e carattere agli spazi esterni."
+    title: "Balconi e terrazze",
+    description: "Idee e soluzioni per creare angoli verdi all'aperto, resistenti e pieni di vita."
   },
   {
-    title: "Regali verdi",
-    description: "Idee facili da acquistare e belle da ricevere, con presentazione più curata."
+    title: "Regala una pianta",
+    description: "Idee regalo originali e facili da ordinare, perfette per ogni occasione primaverile."
   },
   {
-    title: "Guide e cura",
-    description: "Contenuti di orientamento per capire meglio scelta, manutenzione e collocazione."
+    title: "Guida alla cura",
+    description: "Consigli pratici per far crescere e mantenere le tue piante al meglio, stagione dopo stagione."
   }];
 
 
@@ -82,7 +82,7 @@ export const HomepageV3 = () => {
         <div className="absolute inset-0">
           <img
             src={heroBotanical}
-            alt="Ambiente elegante con piante da interno e luce naturale"
+            alt="Piante primaverili in fiore con luce naturale calda"
             className="h-full min-h-[520px] w-full object-cover object-center"
             loading="eager" />
           
@@ -101,14 +101,14 @@ export const HomepageV3 = () => {
                 Botanical living
               </div>
               <h1 className="mt-4 max-w-3xl text-balance font-heading text-[2rem] font-bold leading-[0.94] text-primary-foreground md:mt-5 md:max-w-2xl md:text-[3.1rem] lg:max-w-3xl lg:text-[4.2rem] xl:text-[4.7rem]">
-                Piante belle, scelte facili.
+                È primavera: fai fiorire i tuoi spazi.
               </h1>
               <p className="animate-fade-up-delayed mt-3 max-w-xl text-[0.88rem] leading-5 text-primary-foreground/78 md:mt-4 md:text-[0.98rem] md:leading-6 lg:max-w-xl lg:text-[1.02rem] lg:leading-7">
-                Scopri una selezione curata per casa, balcone e regali verdi.
+                Scopri la nuova selezione primaverile: piante fiorite, aromatiche e da balcone pronte per te.
               </p>
               <div className="animate-fade-up-delayed mt-5 flex flex-col gap-2.5 sm:flex-row md:mt-6 md:gap-3">
                 <Button asChild size="lg" className="h-10 rounded-full bg-accent-bright px-5 text-xs font-semibold uppercase tracking-[0.16em] text-accent-bright-foreground shadow-hero hover:bg-accent-bright/90 md:h-11 md:px-7 md:text-sm md:tracking-[0.18em]">
-                  <a href="#catalogo">Shop</a>
+                  <a href="#catalogo">Scopri la collezione</a>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-10 rounded-full border-glass-hero bg-background/10 px-5 text-xs font-semibold uppercase tracking-[0.16em] text-primary-foreground backdrop-blur hover:bg-background/16 hover:text-primary-foreground md:h-11 md:px-7 md:text-sm md:tracking-[0.18em]">
                   <a href="#collezioni">Collezioni</a>
@@ -142,9 +142,9 @@ export const HomepageV3 = () => {
         <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,hsl(var(--primary-light)/0.08),transparent_24%)]" />
         <div className="container relative mx-auto px-4 space-y-12">
           {[
-            { title: "Best seller", subtitle: "Prodotti che aprono la scelta con più immediatezza", items: curated.bestSellers },
-            { title: "Facili da scegliere", subtitle: "Una selezione più accessibile per iniziare senza attrito", items: curated.easyCare },
-            { title: "Collezione del momento", subtitle: "Scelte stagionali presentate con un taglio più editoriale", items: curated.seasonal },
+            { title: "I più amati", subtitle: "Le piante più scelte dai nostri clienti questa primavera", items: curated.bestSellers },
+            { title: "Perfette per iniziare", subtitle: "Resistenti, belle e facili da curare: ideali per chi è alle prime armi", items: curated.easyCare },
+            { title: "Novità di stagione", subtitle: "Fioriture fresche e varietà primaverili appena arrivate", items: curated.seasonal },
           ].map((group) => (
             <div key={group.title} className="space-y-5">
               <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -185,8 +185,8 @@ export const HomepageV3 = () => {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--accent-bright))/0.08,transparent_22%)]" />
         <div className="container relative mx-auto px-4">
           <div className="mb-8 max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Fiducia e rassicurazione</p>
-            <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Elementi chiari che aiutano a comprare meglio</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Perché sceglierci</p>
+            <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Un'esperienza d'acquisto pensata per chi ama il verde</h2>
           </div>
           <div className="grid gap-5 lg:grid-cols-4">
             {trustItems.map((item) => {
@@ -210,19 +210,19 @@ export const HomepageV3 = () => {
           <div className="rounded-[2rem] border border-border bg-gradient-card p-7 shadow-soft md:p-10">
             <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Missione</p>
-                <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Un ecommerce verde più solido, elegante e facile da leggere.</h2>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">La nostra missione</p>
+                <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Portare il verde in ogni casa, con semplicità e stile.</h2>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <Card className="rounded-[1.5rem] border-border bg-background/80 p-6 shadow-soft">
                   <Leaf className="h-6 w-6 text-primary" />
-                  <h3 className="mt-4 text-lg font-heading font-semibold text-foreground">Scelta più semplice</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Meno rumore visivo, più priorità chiare tra immagine, informazioni e acquisto.</p>
+                  <h3 className="mt-4 text-lg font-heading font-semibold text-foreground">Scelta chiara e veloce</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Ogni pianta è presentata con foto reali, informazioni essenziali e consigli di cura integrati.</p>
                 </Card>
                 <Card className="rounded-[1.5rem] border-border bg-background/80 p-6 shadow-soft">
                   <HeartHandshake className="h-6 w-6 text-primary" />
-                  <h3 className="mt-4 text-lg font-heading font-semibold text-foreground">Esperienza più umana</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Più fiducia nella navigazione e nella fase decisionale, soprattutto da mobile.</p>
+                  <h3 className="mt-4 text-lg font-heading font-semibold text-foreground">Vicini a te, sempre</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Un team pronto ad aiutarti nella scelta, nella cura e in ogni fase dell'ordine.</p>
                 </Card>
               </div>
             </div>
@@ -234,8 +234,8 @@ export const HomepageV3 = () => {
         <div className="container mx-auto px-4">
           <div className="mb-8 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Esplora il catalogo</p>
-              <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Accessi più profondi a collezioni e contenuti</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Collezioni</p>
+              <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Esplora le nostre raccolte primaverili</h2>
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -244,7 +244,7 @@ export const HomepageV3 = () => {
                 <h3 className="text-xl font-heading font-semibold text-foreground">{item.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">{item.description}</p>
                 <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                  Approfondisci <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  Scopri <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </div>
               </Card>
             )}
