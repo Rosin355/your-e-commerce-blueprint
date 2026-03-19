@@ -37,25 +37,18 @@ const trustStatements = [
 ];
 
 export const HomepageV3 = () => {
-  const [products, setProducts] = useState<ShopifyProduct[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [bestSellers, setBestSellers] = useState<ShopifyProduct[]>([]);
+  const [easyCare, setEasyCare] = useState<ShopifyProduct[]>([]);
+  const [seasonal, setSeasonal] = useState<ShopifyProduct[]>([]);
+  const [loadingBest, setLoadingBest] = useState(true);
+  const [loadingEasy, setLoadingEasy] = useState(true);
+  const [loadingSeasonal, setLoadingSeasonal] = useState(true);
 
   useEffect(() => {
-    const loadProducts = async () => {
-      setLoading(true);
-      const fetchedProducts = await fetchProducts(12);
-      setProducts(fetchedProducts);
-      setLoading(false);
-    };
-
-    loadProducts();
+    fetchProducts(4, 'product_type:"Piante da Interno"').then((p) => { setBestSellers(p); setLoadingBest(false); });
+    fetchProducts(4).then((p) => { setEasyCare(p); setLoadingEasy(false); });
+    fetchProducts(4, 'product_type:variable').then((p) => { setSeasonal(p); setLoadingSeasonal(false); });
   }, []);
-
-  const curated = useMemo(() => ({
-    bestSellers: products.slice(0, 4),
-    easyCare: products.slice(4, 8),
-    seasonal: products.slice(8, 12)
-  }), [products]);
 
   const editorialCollections = [
   {
