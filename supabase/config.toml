@@ -2,3 +2,6 @@ project_id = "iekwvvihjwghosqdxrdi"
 
 [functions.create-product-ai]
 verify_jwt = false
+
+[functions.validate-shopify-connection]
+verify_jwt = false
