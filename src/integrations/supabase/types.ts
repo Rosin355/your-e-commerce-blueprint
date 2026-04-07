@@ -221,15 +221,201 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shopify_connections: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          installed_at: string | null
+          installed_by: string | null
+          is_active: boolean
+          metadata: Json | null
+          scopes: string | null
+          shop_domain: string
+          token_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          id?: string
+          installed_at?: string | null
+          installed_by?: string | null
+          is_active?: boolean
+          metadata?: Json | null
+          scopes?: string | null
+          shop_domain: string
+          token_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          installed_at?: string | null
+          installed_by?: string | null
+          is_active?: boolean
+          metadata?: Json | null
+          scopes?: string | null
+          shop_domain?: string
+          token_type?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shopify_oauth_states: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          metadata: Json | null
+          shop_domain: string
+          state: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          metadata?: Json | null
+          shop_domain: string
+          state: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          metadata?: Json | null
+          shop_domain?: string
+          state?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      shopify_token_locks: {
+        Row: {
+          created_at: string
+          id: string
+          lock_key: string
+          locked_until: string
+          shop_domain: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lock_key: string
+          locked_until: string
+          shop_domain: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lock_key?: string
+          locked_until?: string
+          shop_domain?: string
+        }
+        Relationships: []
+      }
+      shopify_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          refreshed_at: string | null
+          scope: string | null
+          shop_domain: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          refreshed_at?: string | null
+          scope?: string | null
+          shop_domain: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          refreshed_at?: string | null
+          scope?: string | null
+          shop_domain?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -356,6 +542,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
