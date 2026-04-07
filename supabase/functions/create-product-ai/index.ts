@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SHOPIFY_STORE = Deno.env.get("SHOPIFY_STORE") || "lovable-project-6tknn.myshopify.com";
+const SHOPIFY_STORE = Deno.env.get("SHOPIFY_STORE") || "";
 const API_VERSION = Deno.env.get("SHOPIFY_API_VERSION") || "2025-01";
 const SHOPIFY_CLIENT_ID = Deno.env.get("SHOPIFY_CLIENT_ID");
 const SHOPIFY_CLIENT_SECRET = Deno.env.get("SHOPIFY_CLIENT_SECRET");
