@@ -251,6 +251,69 @@ export type Database = {
         }
         Relationships: []
       }
+      shopify_connections: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          installed_by: string | null
+          is_active: boolean
+          scopes: string | null
+          shop_domain: string
+          token_expires_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          id?: string
+          installed_by?: string | null
+          is_active?: boolean
+          scopes?: string | null
+          shop_domain: string
+          token_expires_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          installed_by?: string | null
+          is_active?: boolean
+          scopes?: string | null
+          shop_domain?: string
+          token_expires_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shopify_oauth_states: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          shop_domain: string
+          state: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          shop_domain: string
+          state: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          shop_domain?: string
+          state?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
