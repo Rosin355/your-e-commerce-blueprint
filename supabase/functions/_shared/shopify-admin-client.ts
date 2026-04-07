@@ -1,8 +1,8 @@
 /**
  * Centralized Shopify Admin API client.
- * All Admin API calls go through this module.
- * Uses static env vars: SHOPIFY_ADMIN_SHOP, SHOPIFY_ADMIN_ACCESS_TOKEN, SHOPIFY_ADMIN_API_VERSION
+ * Reads token from DB (shopify_connections) with fallback to env vars.
  */
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,6 +18,62 @@ export interface ShopifyAdminConfig {
   apiVersion: string;
 }
 
+let _cachedConfig: ShopifyAdminConfig | null = null;
+let _cacheTime = 0;
+const CACHE_TTL = 60_000; // 1 minute
+
+/**
+ * Get Shopify config: first try DB, then fallback to env vars.
+ */
+export async function getShopifyConfigAsync(): Promise<ShopifyAdminConfig> {
+  if (_cachedConfig && Date.now() - _cacheTime < CACHE_TTL) {
+    return _cachedConfig;
+  }
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+  if (supabaseUrl && serviceKey) {
+    try {
+      const supabase = createClient(supabaseUrl, serviceKey, {
+        auth: { persistSession: false },
+      });
+      const { data } = await supabase
+        .from("shopify_connections")
+        .select("shop_domain, access_token")
+        .eq("is_active", true)
+        .limit(1)
+        .maybeSingle();
+
+      if (data?.shop_domain && data?.access_token) {
+        const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-01";
+        _cachedConfig = {
+          shop: data.shop_domain,
+          accessToken: data.access_token,
+          apiVersion,
+        };
+        _cacheTime = Date.now();
+        return _cachedConfig;
+      }
+    } catch (e) {
+      console.warn("[shopify-admin-client] DB lookup failed, falling back to env:", (e as Error).message);
+    }
+  }
+
+  // Fallback to env vars
+  const shop = Deno.env.get("SHOPIFY_ADMIN_SHOP") || Deno.env.get("SHOPIFY_STORE") || "";
+  const accessToken = Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") || Deno.env.get("SHOPIFY_ACCESS_TOKEN") || "";
+  const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || Deno.env.get("SHOPIFY_API_VERSION") || "2025-01";
+
+  if (!shop) throw new Error("Nessuna connessione Shopify attiva e SHOPIFY_ADMIN_SHOP non configurato");
+  if (!accessToken) throw new Error("Nessuna connessione Shopify attiva e SHOPIFY_ADMIN_ACCESS_TOKEN non configurato");
+
+  _cachedConfig = { shop, accessToken, apiVersion };
+  _cacheTime = Date.now();
+  return _cachedConfig;
+}
+
+/** Synchronous fallback for backward compat — tries env vars only */
 export function getShopifyConfig(): ShopifyAdminConfig {
   const shop = Deno.env.get("SHOPIFY_ADMIN_SHOP") || Deno.env.get("SHOPIFY_STORE") || "";
   const accessToken = Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") || Deno.env.get("SHOPIFY_ACCESS_TOKEN") || "";
@@ -27,6 +83,12 @@ export function getShopifyConfig(): ShopifyAdminConfig {
   if (!accessToken) throw new Error("SHOPIFY_ADMIN_ACCESS_TOKEN non configurato");
 
   return { shop, accessToken, apiVersion };
+}
+
+/** Clear cached config (useful after connect/disconnect) */
+export function clearConfigCache() {
+  _cachedConfig = null;
+  _cacheTime = 0;
 }
 
 function adminUrl(config: ShopifyAdminConfig, path: string): string {
@@ -46,7 +108,7 @@ export async function shopifyAdminFetch(
   body?: unknown,
   config?: ShopifyAdminConfig,
 ): Promise<any> {
-  const cfg = config || getShopifyConfig();
+  const cfg = config || await getShopifyConfigAsync();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "X-Shopify-Access-Token": cfg.accessToken,
@@ -76,7 +138,7 @@ export async function shopifyAdminGraphQL<T = any>(
   variables: Record<string, unknown> = {},
   config?: ShopifyAdminConfig,
 ): Promise<T> {
-  const cfg = config || getShopifyConfig();
+  const cfg = config || await getShopifyConfigAsync();
   const url = graphqlUrl(cfg);
   let attempts = 0;
 
