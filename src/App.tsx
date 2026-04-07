@@ -38,6 +38,7 @@ const App = () => (
             <Route path="/reset-password" element={<SuspenseLoader><ResetPassword /></SuspenseLoader>} />
             <Route path="/account/callback" element={<SuspenseLoader><AccountCallback /></SuspenseLoader>} />
             <Route path="/account" element={<SuspenseLoader><Account /></SuspenseLoader>} />
+            <Route path="/api/shopify/callback" element={<SuspenseLoader><ShopifyCallback /></SuspenseLoader>} />
             <Route path="/admin/import" element={<SuspenseLoader><AdminGuard /></SuspenseLoader>} />
             <Route path="/admin/settings" element={<SuspenseLoader><AdminGuard page="settings" /></SuspenseLoader>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
