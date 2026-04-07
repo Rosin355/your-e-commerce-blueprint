@@ -1,7 +1,9 @@
 import React, { useState, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut, Shield, Wifi, WifiOff, Loader2 } from 'lucide-react';
+import { LogOut, Shield, Wifi, WifiOff, Loader2, Settings } from 'lucide-react';
 import { logoutAdmin, getAdminSession } from '../lib/adminAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AdminLayoutProps {
@@ -17,8 +19,9 @@ export default function AdminLayout({ children, onLogout }: AdminLayoutProps) {
   const [shopName, setShopName] = useState<string | null>(null);
   const [connError, setConnError] = useState<string | null>(null);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     logoutAdmin();
+    await signOut();
     onLogout();
   };
 
