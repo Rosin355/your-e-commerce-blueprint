@@ -1,28 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wifi, WifiOff, Loader2, Unplug, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Wifi, WifiOff, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ConnectionStatus {
   connected: boolean;
   shop_domain?: string;
-  scopes?: string;
-  installed_at?: string;
+  api_version?: string;
+}
+
+interface TestResult {
+  success: boolean;
+  shop?: { name: string; domain: string };
+  products_found?: number;
+  error?: string;
 }
 
 export default function AdminSettings() {
-  const [searchParams] = useSearchParams();
-  const [shopDomain, setShopDomain] = useState('');
   const [status, setStatus] = useState<ConnectionStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const [connecting, setConnecting] = useState(false);
   const [testing, setTesting] = useState(false);
-  const [disconnecting, setDisconnecting] = useState(false);
+  const [testResult, setTestResult] = useState<TestResult | null>(null);
 
   const loadStatus = useCallback(async () => {
     try {
@@ -36,38 +36,15 @@ export default function AdminSettings() {
     }
   }, []);
 
-  useEffect(() => {
-    loadStatus();
-    if (searchParams.get('shopify') === 'connected') {
-      toast.success('Shopify connesso con successo!');
-    }
-  }, [loadStatus, searchParams]);
-
-  const handleConnect = async () => {
-    if (!shopDomain.trim()) { toast.error('Inserisci il dominio dello store'); return; }
-    setConnecting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('shopify-oauth-start', {
-        body: { shop: shopDomain.trim() },
-      });
-      if (error) throw error;
-      if (data?.authorize_url) {
-        window.location.href = data.authorize_url;
-      } else {
-        toast.error(data?.error || 'Errore nell\'avvio OAuth');
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Errore di connessione');
-    } finally {
-      setConnecting(false);
-    }
-  };
+  useEffect(() => { loadStatus(); }, [loadStatus]);
 
   const handleTest = async () => {
     setTesting(true);
+    setTestResult(null);
     try {
       const { data, error } = await supabase.functions.invoke('shopify-test-connection');
       if (error) throw error;
+      setTestResult(data);
       if (data?.success) {
         toast.success(`Connessione OK! ${data.products_found} prodotti trovati.`);
       } else {
@@ -75,30 +52,9 @@ export default function AdminSettings() {
       }
     } catch (err: any) {
       toast.error(err.message || 'Errore nel test');
+      setTestResult({ success: false, error: err.message });
     } finally {
       setTesting(false);
-    }
-  };
-
-  const handleDisconnect = async () => {
-    if (!status?.shop_domain) return;
-    if (!confirm(`Disconnettere ${status.shop_domain}?`)) return;
-    setDisconnecting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('shopify-disconnect', {
-        body: { shop_domain: status.shop_domain },
-      });
-      if (error) throw error;
-      if (data?.success) {
-        toast.success('Shopify disconnesso');
-        setStatus({ connected: false });
-      } else {
-        toast.error(data?.error || 'Disconnessione fallita');
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Errore');
-    } finally {
-      setDisconnecting(false);
     }
   };
 
@@ -114,73 +70,56 @@ export default function AdminSettings() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Impostazioni Shopify</h2>
-        <p className="text-sm text-muted-foreground">Gestisci la connessione OAuth con il tuo store Shopify</p>
+        <p className="text-sm text-muted-foreground">Connessione Admin API statica — configurata via variabili d'ambiente</p>
       </div>
 
-      {status?.connected ? (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-base">Connesso</CardTitle>
-                <CardDescription>{status.shop_domain}</CardDescription>
-              </div>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${status?.connected ? 'bg-primary/10' : 'bg-destructive/10'}`}>
+              {status?.connected ? <CheckCircle2 className="h-5 w-5 text-primary" /> : <WifiOff className="h-5 w-5 text-destructive" />}
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {status.scopes && (
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Scopi autorizzati</p>
-                <p className="text-sm font-mono">{status.scopes}</p>
-              </div>
-            )}
-            {status.installed_at && (
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Connesso il</p>
-                <p className="text-sm">{new Date(status.installed_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-              </div>
-            )}
-            <div className="flex gap-3 pt-2">
+            <div>
+              <CardTitle className="text-base">{status?.connected ? 'Configurato' : 'Non Configurato'}</CardTitle>
+              <CardDescription>
+                {status?.connected
+                  ? `Store: ${status.shop_domain} — API ${status.api_version}`
+                  : 'Le variabili SHOPIFY_ADMIN_SHOP e SHOPIFY_ADMIN_ACCESS_TOKEN non sono configurate'}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {status?.connected && (
+            <>
               <Button variant="outline" size="sm" onClick={handleTest} disabled={testing} className="gap-2">
                 {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wifi className="h-4 w-4" />}
                 Testa Connessione
               </Button>
-              <Button variant="destructive" size="sm" onClick={handleDisconnect} disabled={disconnecting} className="gap-2">
-                {disconnecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Unplug className="h-4 w-4" />}
-                Disconnetti
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
-                <WifiOff className="h-5 w-5 text-destructive" />
-              </div>
-              <div>
-                <CardTitle className="text-base">Non Connesso</CardTitle>
-                <CardDescription>Inserisci il dominio del tuo store per avviare la connessione OAuth</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="shopDomain">Dominio Store</Label>
-              <Input id="shopDomain" placeholder="your-store.myshopify.com o your-store"
-                value={shopDomain} onChange={(e) => setShopDomain(e.target.value)} />
-            </div>
-            <Button onClick={handleConnect} disabled={connecting} className="gap-2">
-              {connecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
-              Connetti a Shopify
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+
+              {testResult && (
+                <div className={`p-3 rounded-md text-sm ${testResult.success ? 'bg-primary/5 text-primary' : 'bg-destructive/5 text-destructive'}`}>
+                  {testResult.success ? (
+                    <div>
+                      <p className="font-medium">✓ {testResult.shop?.name}</p>
+                      <p className="text-xs mt-1">{testResult.shop?.domain} — {testResult.products_found} prodotti</p>
+                    </div>
+                  ) : (
+                    <p>{testResult.error}</p>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
+          <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
+            <p><strong>Variabili richieste:</strong></p>
+            <p><code>SHOPIFY_ADMIN_SHOP</code> — dominio .myshopify.com</p>
+            <p><code>SHOPIFY_ADMIN_ACCESS_TOKEN</code> — token Admin API (shpat_...)</p>
+            <p><code>SHOPIFY_ADMIN_API_VERSION</code> — versione API (default: 2025-01)</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

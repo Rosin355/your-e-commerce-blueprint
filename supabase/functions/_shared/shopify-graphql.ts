@@ -1,54 +1,12 @@
+/**
+ * Shared Shopify GraphQL helpers for product sync.
+ * Uses the centralized shopify-admin-client for authentication.
+ */
+import { shopifyAdminGraphQL, getShopifyConfig } from "./shopify-admin-client.ts";
 import type { ShopifyProductSnapshot } from "./product-sync-types.ts";
 
-const SHOPIFY_STORE = Deno.env.get("SHOPIFY_STORE") || "";
-const SHOPIFY_API_VERSION = Deno.env.get("SHOPIFY_API_VERSION") || "2025-01";
-const SHOPIFY_ACCESS_TOKEN = Deno.env.get("SHOPIFY_ACCESS_TOKEN") || "";
-
-function endpoint(): string {
-  if (!SHOPIFY_STORE) throw new Error("SHOPIFY_STORE mancante");
-  if (!SHOPIFY_ACCESS_TOKEN) throw new Error("SHOPIFY_ACCESS_TOKEN mancante");
-  return `https://${SHOPIFY_STORE}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`;
-}
-
-async function sleep(ms: number): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export async function shopifyGraphql<T>(query: string, variables: Record<string, unknown>): Promise<T> {
-  const url = endpoint();
-  let attempts = 0;
-
-  while (attempts < 3) {
-    attempts += 1;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN,
-      },
-      body: JSON.stringify({ query, variables }),
-    });
-
-    if (response.status === 429) {
-      const retryAfter = Number(response.headers.get("Retry-After") || "1");
-      await sleep(retryAfter * 1000);
-      continue;
-    }
-
-    const payload = await response.json();
-    if (!response.ok) {
-      throw new Error(`Shopify HTTP ${response.status}: ${JSON.stringify(payload).slice(0, 600)}`);
-    }
-
-    if (Array.isArray(payload?.errors) && payload.errors.length > 0) {
-      throw new Error(`Shopify GraphQL errors: ${payload.errors.map((e: { message: string }) => e.message).join(" | ")}`);
-    }
-
-    return payload.data as T;
-  }
-
-  throw new Error("Shopify rate limit persistente");
-}
+// Re-export for backward compatibility
+export { shopifyAdminGraphQL as shopifyGraphql, getShopifyConfig };
 
 const PRODUCT_PAGE_QUERY = `
 query ProductPage($first: Int!, $after: String) {
@@ -148,7 +106,7 @@ export async function fetchProductsPage(first: number, after: string | null): Pr
   hasNextPage: boolean;
   endCursor: string | null;
 }> {
-  const data = await shopifyGraphql<{
+  const data = await shopifyAdminGraphQL<{
     products: {
       pageInfo: { hasNextPage: boolean; endCursor: string | null };
       nodes: Array<Record<string, unknown>>;
@@ -201,7 +159,7 @@ export async function fetchProductsPage(first: number, after: string | null): Pr
 }
 
 export async function fetchProductsCount(): Promise<number> {
-  const data = await shopifyGraphql<{ productsCount: { count: number } }>(PRODUCTS_COUNT_QUERY, {});
+  const data = await shopifyAdminGraphQL<{ productsCount: { count: number } }>(PRODUCTS_COUNT_QUERY, {});
   return Number(data.productsCount?.count || 0);
 }
 
@@ -214,24 +172,21 @@ function assertNoUserErrors(
 }
 
 export async function updateProduct(productInput: Record<string, unknown>): Promise<void> {
-  const data = await shopifyGraphql<{
+  const data = await shopifyAdminGraphQL<{
     productUpdate: {
       userErrors: Array<{ message: string; field?: string[] }>;
     };
   }>(PRODUCT_UPDATE_MUTATION, { product: productInput });
-
   assertNoUserErrors(data.productUpdate?.userErrors, "productUpdate");
 }
 
 export async function updateVariants(productId: string, variants: Array<Record<string, unknown>>): Promise<void> {
   if (variants.length === 0) return;
-
-  const data = await shopifyGraphql<{
+  const data = await shopifyAdminGraphQL<{
     productVariantsBulkUpdate: {
       userErrors: Array<{ message: string; field?: string[] }>;
     };
   }>(VARIANTS_BULK_UPDATE_MUTATION, { productId, variants });
-
   assertNoUserErrors(data.productVariantsBulkUpdate?.userErrors, "productVariantsBulkUpdate");
 }
 
@@ -239,7 +194,7 @@ let cachedLocationId: string | null = null;
 
 async function getLocationId(): Promise<string> {
   if (cachedLocationId) return cachedLocationId;
-  const data = await shopifyGraphql<{ locations: { nodes: Array<{ id: string }> } }>(INVENTORY_LOCATION_QUERY, {});
+  const data = await shopifyAdminGraphQL<{ locations: { nodes: Array<{ id: string }> } }>(INVENTORY_LOCATION_QUERY, {});
   const locationId = data.locations?.nodes?.[0]?.id;
   if (!locationId) throw new Error("Nessuna location Shopify disponibile");
   cachedLocationId = locationId;
@@ -248,7 +203,7 @@ async function getLocationId(): Promise<string> {
 
 export async function setInventoryQuantity(inventoryItemId: string, quantity: number): Promise<void> {
   const locationId = await getLocationId();
-  const data = await shopifyGraphql<{
+  const data = await shopifyAdminGraphQL<{
     inventorySetQuantities: {
       userErrors: Array<{ message: string; field?: string[] }>;
     };
@@ -259,7 +214,6 @@ export async function setInventoryQuantity(inventoryItemId: string, quantity: nu
       quantities: [{ inventoryItemId, locationId, quantity }],
     },
   });
-
   assertNoUserErrors(data.inventorySetQuantities?.userErrors, "inventorySetQuantities");
 }
 
@@ -268,18 +222,15 @@ export async function createProductMedia(
   mediaItems: Array<{ originalSource: string; alt?: string }>,
 ): Promise<void> {
   if (mediaItems.length === 0) return;
-
   const media = mediaItems.map((item) => ({
     mediaContentType: "IMAGE",
     originalSource: item.originalSource,
     alt: item.alt || null,
   }));
-
-  const data = await shopifyGraphql<{
+  const data = await shopifyAdminGraphQL<{
     productCreateMedia: {
       mediaUserErrors: Array<{ message: string; field?: string[] }>;
     };
   }>(PRODUCT_CREATE_MEDIA_MUTATION, { productId, media });
-
   assertNoUserErrors(data.productCreateMedia?.mediaUserErrors, "productCreateMedia");
 }
