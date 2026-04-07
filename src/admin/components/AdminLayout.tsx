@@ -1,7 +1,9 @@
 import React, { useState, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut, Shield, Wifi, WifiOff, Loader2 } from 'lucide-react';
+import { LogOut, Shield, Wifi, WifiOff, Loader2, Settings } from 'lucide-react';
 import { logoutAdmin, getAdminSession } from '../lib/adminAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AdminLayoutProps {
@@ -13,12 +15,16 @@ type ConnStatus = 'idle' | 'loading' | 'ok' | 'error';
 
 export default function AdminLayout({ children, onLogout }: AdminLayoutProps) {
   const session = getAdminSession();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [connStatus, setConnStatus] = useState<ConnStatus>('idle');
   const [shopName, setShopName] = useState<string | null>(null);
   const [connError, setConnError] = useState<string | null>(null);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     logoutAdmin();
+    await signOut();
     onLogout();
   };
 
@@ -40,6 +46,8 @@ export default function AdminLayout({ children, onLogout }: AdminLayoutProps) {
       setConnError(e instanceof Error ? e.message : 'Errore');
     }
   }, []);
+
+  const isSettingsPage = location.pathname === '/admin/settings';
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -83,7 +91,18 @@ export default function AdminLayout({ children, onLogout }: AdminLayoutProps) {
               </Button>
             </div>
 
-            <span className="text-sm text-muted-foreground">{session?.email}</span>
+            {/* Navigation */}
+            <Button
+              variant={isSettingsPage ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => navigate(isSettingsPage ? '/admin/import' : '/admin/settings')}
+              className="gap-1.5 text-xs"
+            >
+              <Settings className="h-3.5 w-3.5" />
+              {isSettingsPage ? 'Import' : 'Settings'}
+            </Button>
+
+            <span className="text-sm text-muted-foreground">{user?.email || session?.email}</span>
             <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
               <LogOut className="h-4 w-4" />
               Esci
