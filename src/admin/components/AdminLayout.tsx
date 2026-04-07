@@ -56,7 +56,7 @@ export default function AdminLayout({ children, onLogout }: AdminLayoutProps) {
             {/* Shopify connection status */}
             <div className="flex items-center gap-2">
               {connStatus === 'ok' && (
-                <span className="flex items-center gap-1.5 text-xs text-green-600">
+                <span className="flex items-center gap-1.5 text-xs text-primary">
                   <Wifi className="h-3.5 w-3.5" />
                   {shopName}
                 </span>
