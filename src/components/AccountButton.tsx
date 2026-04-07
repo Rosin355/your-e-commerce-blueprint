@@ -1,31 +1,27 @@
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCustomerStore } from '@/stores/customerStore';
-import { startLogin } from '@/lib/shopify-customer-auth';
+import { useAuth } from '@/hooks/useAuth';
 
 export const AccountButton = () => {
   const navigate = useNavigate();
-  const { accessToken, profile, hydrate } = useCustomerStore();
-
-  useEffect(() => {
-    hydrate();
-  }, [hydrate]);
+  const { user, isLoading } = useAuth();
 
   const handleClick = () => {
-    if (accessToken) {
+    if (user) {
       navigate('/account');
     } else {
-      startLogin();
+      navigate('/auth');
     }
   };
+
+  if (isLoading) return null;
 
   return (
     <Button variant="ghost" size="sm" className="hidden md:flex gap-2" onClick={handleClick}>
       <User className="h-5 w-5" />
       <span className="uppercase text-xs font-semibold">
-        {accessToken && profile?.firstName ? profile.firstName : 'Accedi / Registrati'}
+        {user?.user_metadata?.first_name || (user ? 'Account' : 'Accedi / Registrati')}
       </span>
     </Button>
   );
