@@ -1,39 +1,50 @@
 
 
-## Piano: Hardening OAuth Shopify + logging diagnostico
+## Piano: Refactoring Shopify — da OAuth custom a sistema nativo Lovable
 
-### Problema
-Il flusso OAuth potrebbe non funzionare correttamente. Servono log diagnostici, hard fail su token mancante, status endpoint migliorato, e disabilitazione del fallback env quando esiste connessione DB.
+### Cosa cambia
+Rimuoviamo tutto il codice OAuth custom per Shopify e usiamo il connettore nativo di Lovable, che gestisce automaticamente autenticazione, token e accesso alla Admin API (inclusi `read_orders` e `write_orders`).
 
-### Modifiche
+### Step 1 — Attivare Shopify nativo
+- Chiamare `shopify--enable` con `store_type: "new"` per creare un development store
+- Offrire il claim dello store dopo la creazione
 
-#### 1. `shopify-oauth-start/index.ts` — Log diagnostici
-- Aggiungere log dopo la costruzione dell'URL: `console.log("[OAUTH START]", { shopDomain, redirectUri, authUrl })`
-- Verificare che `redirect_uri` punti correttamente a `SHOPIFY_APP_URL + /api/shopify/callback` (la route esiste gia' in App.tsx)
+### Step 2 — Rimuovere edge functions OAuth custom
+Eliminare queste edge functions che non servono più:
+- `shopify-oauth-start`
+- `shopify-oauth-callback`
+- `shopify-disconnect`
+- `shopify-status`
+- `shopify-test-connection`
+- `validate-shopify-connection`
 
-#### 2. `shopify-oauth-callback/index.ts` — Log + hard fail
-- Aggiungere dopo parsing input: `console.log("[OAUTH CALLBACK INPUT]", { code, shop, state })`
-- Aggiungere dopo token exchange: `console.log("[TOKEN RESPONSE]", { status: tokenResponse.status, has_token: !!tokenData.access_token, scope: tokenData.scope })`
-- Hard fail esplicito se `access_token` mancante: `throw new Error("Shopify OAuth non ha restituito access_token")`
-- Aggiungere dopo DB save: `console.log("[DB SAVE]", { shop: shopDomain, token_prefix: tokenData.access_token?.substring(0,6), scopes: tokenData.scope })`
+### Step 3 — Rimuovere codice client OAuth
+- Rimuovere `src/pages/ShopifyCallback.tsx` e la relativa route in `App.tsx`
+- Rimuovere `src/lib/shopify-customer-auth.ts` (se legato all'OAuth custom)
+- Semplificare `src/admin/pages/AdminSettings.tsx`: rimuovere tutta la logica di connessione/disconnessione OAuth manuale
 
-#### 3. `shopify-status/index.ts` — Endpoint migliorato
-- Quando connessione DB trovata, aggiungere `token_present: true` e `source: "db"` nella risposta
-- Quando connessione DB trovata, leggere anche `access_token` (per verificare presenza, non esporre il valore)
-- Rimuovere il blocco fallback env vars: se non c'e' connessione DB, restituire `connected: false`
+### Step 4 — Aggiornare il client Admin API
+- Riscrivere `supabase/functions/_shared/shopify-admin-client.ts` per usare i secrets forniti dal connettore nativo invece di leggere dalla tabella `shopify_connections`
+- Le edge functions esistenti (`get-products`, `get-customer-orders`, `shopify-admin-proxy`, ecc.) useranno il nuovo client
 
-#### 4. `_shared/shopify-admin-client.ts` — Disabilitare fallback env
-- In `getShopifyConfigAsync`: rimuovere il fallback a env vars (linee 72-82). Se non c'e' connessione DB attiva, lanciare errore diretto
-- Mantenere `getShopifyConfig()` sync come backward compat ma marcarlo deprecated
-- Mantenere `clearConfigCache()` invariato
+### Step 5 — Aggiornare `src/lib/shopify.ts`
+- Rimuovere le costanti hardcoded dello store vecchio (`SHOPIFY_STORE_PERMANENT_DOMAIN`, `SHOPIFY_STOREFRONT_TOKEN`)
+- Il domain e i token verranno dal sistema nativo
 
-#### 5. Deploy e test
-- Deploy delle 3 edge functions modificate
-- Curl `shopify-status` per verificare risposta
+### Step 6 — Pulizia secrets obsoleti
+- I secrets `SHOPIFY_CLIENT_ID`, `SHOPIFY_CLIENT_SECRET`, `SHOPIFY_APP_URL`, `SHOPIFY_ADMIN_SHOP` non saranno più necessari (il connettore nativo gestisce tutto)
+
+### Step 7 — Test
+- Verificare che i prodotti si carichino correttamente
+- Verificare che gli ordini siano leggibili dal portale
 
 ### File coinvolti
-- `supabase/functions/shopify-oauth-start/index.ts`
-- `supabase/functions/shopify-oauth-callback/index.ts`
-- `supabase/functions/shopify-status/index.ts`
-- `supabase/functions/_shared/shopify-admin-client.ts`
+- **Da eliminare**: 6 edge functions OAuth, `ShopifyCallback.tsx`
+- **Da modificare**: `App.tsx`, `AdminSettings.tsx`, `shopify-admin-client.ts`, `shopify.ts`
+- **Invariati**: `get-products`, `get-customer-orders`, `shopify-admin-proxy` (cambieranno solo il modo di ottenere il token)
+
+### Ordini
+Con il sistema nativo, gli scopes `read_orders` e `write_orders` sono disponibili. Potrai:
+- Leggere lo storico ordini dei clienti
+- Gestire ordini direttamente dal portale admin
 
