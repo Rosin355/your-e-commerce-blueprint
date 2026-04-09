@@ -14,7 +14,7 @@ const AccountCallback = lazy(() => import("./pages/AccountCallback"));
 const Account = lazy(() => import("./pages/Account"));
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const ShopifyCallback = lazy(() => import("./pages/ShopifyCallback"));
+
 
 const queryClient = new QueryClient();
 
