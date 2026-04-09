@@ -1,9 +1,9 @@
 import { toast } from "sonner";
 
 export const SHOPIFY_API_VERSION = '2025-07';
-export const SHOPIFY_STORE_PERMANENT_DOMAIN = 'lovable-project-6tknn.myshopify.com';
+export const SHOPIFY_STORE_PERMANENT_DOMAIN = 'ecom-blueprint-gen-6ud1s.myshopify.com';
 export const SHOPIFY_STOREFRONT_URL = `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
-export const SHOPIFY_STOREFRONT_TOKEN = '1d883bcf6107ac5e5389c7914625e55e';
+export const SHOPIFY_STOREFRONT_TOKEN = '713f230dc12508e20c6128d287808360';
 
 export interface ShopifyProduct {
   node: {
@@ -150,10 +150,7 @@ export async function storefrontApiRequest(query: string, variables: any = {}) {
       'Content-Type': 'application/json',
       'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_TOKEN
     },
-    body: JSON.stringify({
-      query,
-      variables,
-    }),
+    body: JSON.stringify({ query, variables }),
   });
 
   if (response.status === 402) {
@@ -168,7 +165,7 @@ export async function storefrontApiRequest(query: string, variables: any = {}) {
   }
 
   const data = await response.json();
-  
+
   if (data.errors) {
     throw new Error(`Errore chiamata Shopify: ${data.errors.map((e: any) => e.message).join(', ')}`);
   }
@@ -178,31 +175,10 @@ export async function storefrontApiRequest(query: string, variables: any = {}) {
 
 export async function fetchProducts(first: number = 20, _query?: string): Promise<ShopifyProduct[]> {
   try {
-    // Primary: Admin API via edge function
-    const { supabase } = await import("@/integrations/supabase/client");
-    const { data, error } = await supabase.functions.invoke("get-products", {
-      body: null,
-      headers: { "Content-Type": "application/json" },
-      method: "GET",
-    });
-
-    if (error) throw new Error(error.message || "Edge function error");
-    if (data?.error) throw new Error(data.error);
-    if (data?.products?.length > 0) return data.products as ShopifyProduct[];
-
-    // Fallback: Storefront API
-    console.warn("Admin API returned no products, falling back to Storefront API");
     const sfData = await storefrontApiRequest(STOREFRONT_PRODUCTS_QUERY, { first, query: _query });
     return sfData?.data?.products?.edges || [];
   } catch (error) {
     console.error('Errore nel recupero dei prodotti:', error);
-    // Fallback: Storefront API
-    try {
-      const sfData = await storefrontApiRequest(STOREFRONT_PRODUCTS_QUERY, { first, query: _query });
-      return sfData?.data?.products?.edges || [];
-    } catch (fallbackError) {
-      console.error('Fallback Storefront API failed:', fallbackError);
-      throw error; // Re-throw original error
-    }
+    throw error;
   }
 }
