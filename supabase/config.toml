@@ -3,25 +3,7 @@ project_id = "iekwvvihjwghosqdxrdi"
 [functions.create-product-ai]
 verify_jwt = false
 
-[functions.validate-shopify-connection]
-verify_jwt = false
-
-[functions.shopify-status]
-verify_jwt = false
-
-[functions.shopify-test-connection]
-verify_jwt = false
-
 [functions.get-customer-orders]
-verify_jwt = false
-
-[functions.shopify-oauth-start]
-verify_jwt = false
-
-[functions.shopify-oauth-callback]
-verify_jwt = false
-
-[functions.shopify-disconnect]
 verify_jwt = false
 
 [functions.shopify-admin-proxy]
