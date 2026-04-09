@@ -1,6 +1,7 @@
 /**
  * Centralized Shopify Admin API client.
  * Reads token from DB (shopify_connections) with fallback to env vars.
+ * Auto-retries on 401 by clearing cache and re-fetching config.
  */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -16,17 +17,24 @@ export interface ShopifyAdminConfig {
   shop: string;
   accessToken: string;
   apiVersion: string;
+  source: "db" | "env";
 }
 
 let _cachedConfig: ShopifyAdminConfig | null = null;
 let _cacheTime = 0;
 const CACHE_TTL = 60_000; // 1 minute
 
+/** Clear cached config (useful after connect/disconnect or 401) */
+export function clearConfigCache() {
+  _cachedConfig = null;
+  _cacheTime = 0;
+}
+
 /**
  * Get Shopify config: first try DB, then fallback to env vars.
  */
-export async function getShopifyConfigAsync(): Promise<ShopifyAdminConfig> {
-  if (_cachedConfig && Date.now() - _cacheTime < CACHE_TTL) {
+export async function getShopifyConfigAsync(skipCache = false): Promise<ShopifyAdminConfig> {
+  if (!skipCache && _cachedConfig && Date.now() - _cacheTime < CACHE_TTL) {
     return _cachedConfig;
   }
 
@@ -51,6 +59,7 @@ export async function getShopifyConfigAsync(): Promise<ShopifyAdminConfig> {
           shop: data.shop_domain,
           accessToken: data.access_token,
           apiVersion,
+          source: "db",
         };
         _cacheTime = Date.now();
         return _cachedConfig;
@@ -68,7 +77,7 @@ export async function getShopifyConfigAsync(): Promise<ShopifyAdminConfig> {
   if (!shop) throw new Error("Nessuna connessione Shopify attiva e SHOPIFY_ADMIN_SHOP non configurato");
   if (!accessToken) throw new Error("Nessuna connessione Shopify attiva e SHOPIFY_ADMIN_ACCESS_TOKEN non configurato");
 
-  _cachedConfig = { shop, accessToken, apiVersion };
+  _cachedConfig = { shop, accessToken, apiVersion, source: "env" };
   _cacheTime = Date.now();
   return _cachedConfig;
 }
@@ -82,13 +91,7 @@ export function getShopifyConfig(): ShopifyAdminConfig {
   if (!shop) throw new Error("SHOPIFY_ADMIN_SHOP non configurato");
   if (!accessToken) throw new Error("SHOPIFY_ADMIN_ACCESS_TOKEN non configurato");
 
-  return { shop, accessToken, apiVersion };
-}
-
-/** Clear cached config (useful after connect/disconnect) */
-export function clearConfigCache() {
-  _cachedConfig = null;
-  _cacheTime = 0;
+  return { shop, accessToken, apiVersion, source: "env" };
 }
 
 function adminUrl(config: ShopifyAdminConfig, path: string): string {
@@ -100,7 +103,8 @@ function graphqlUrl(config: ShopifyAdminConfig): string {
 }
 
 /**
- * REST Admin API fetch with retry on 429.
+ * REST Admin API fetch with retry on 429 and auto-retry on 401.
+ * On 401: clears config cache, re-fetches from DB, retries once.
  */
 export async function shopifyAdminFetch(
   path: string,
@@ -108,19 +112,32 @@ export async function shopifyAdminFetch(
   body?: unknown,
   config?: ShopifyAdminConfig,
 ): Promise<any> {
-  const cfg = config || await getShopifyConfigAsync();
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "X-Shopify-Access-Token": cfg.accessToken,
+  let cfg = config || await getShopifyConfigAsync();
+  const buildOpts = (c: ShopifyAdminConfig): RequestInit => {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "X-Shopify-Access-Token": c.accessToken,
+    };
+    const opts: RequestInit = { method, headers };
+    if (body) opts.body = JSON.stringify(body);
+    return opts;
   };
-  const opts: RequestInit = { method, headers };
-  if (body) opts.body = JSON.stringify(body);
 
-  let response = await fetch(adminUrl(cfg, path), opts);
+  let response = await fetch(adminUrl(cfg, path), buildOpts(cfg));
+
+  // Retry on 429
   if (response.status === 429) {
     const retryAfter = parseInt(response.headers.get("Retry-After") || "2", 10);
     await new Promise((r) => setTimeout(r, retryAfter * 1000));
-    response = await fetch(adminUrl(cfg, path), opts);
+    response = await fetch(adminUrl(cfg, path), buildOpts(cfg));
+  }
+
+  // Auto-retry on 401: clear cache, reload config, retry once
+  if (response.status === 401 && !config) {
+    console.warn("[shopify-admin-client] 401 on REST call, clearing cache and retrying...");
+    clearConfigCache();
+    cfg = await getShopifyConfigAsync(true);
+    response = await fetch(adminUrl(cfg, path), buildOpts(cfg));
   }
 
   const data = await response.json();
@@ -131,20 +148,20 @@ export async function shopifyAdminFetch(
 }
 
 /**
- * GraphQL Admin API request with retry on 429.
+ * GraphQL Admin API request with retry on 429 and auto-retry on 401.
  */
 export async function shopifyAdminGraphQL<T = any>(
   query: string,
   variables: Record<string, unknown> = {},
   config?: ShopifyAdminConfig,
 ): Promise<T> {
-  const cfg = config || await getShopifyConfigAsync();
-  const url = graphqlUrl(cfg);
+  let cfg = config || await getShopifyConfigAsync();
   let attempts = 0;
+  let retried401 = false;
 
   while (attempts < 3) {
     attempts += 1;
-    const response = await fetch(url, {
+    const response = await fetch(graphqlUrl(cfg), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -156,6 +173,15 @@ export async function shopifyAdminGraphQL<T = any>(
     if (response.status === 429) {
       const retryAfter = Number(response.headers.get("Retry-After") || "1");
       await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
+      continue;
+    }
+
+    // Auto-retry on 401: clear cache, reload config, retry once
+    if (response.status === 401 && !retried401 && !config) {
+      console.warn("[shopify-admin-client] 401 on GraphQL call, clearing cache and retrying...");
+      clearConfigCache();
+      cfg = await getShopifyConfigAsync(true);
+      retried401 = true;
       continue;
     }
 
