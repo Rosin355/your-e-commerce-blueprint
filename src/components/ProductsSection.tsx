@@ -80,13 +80,19 @@ export const ProductsSection = () => {
               <ProductCard key={product.node.id} product={product} />
             ))}
           </div>
+        ) : error ? (
+          <div className="text-center py-20">
+            <p className="text-xl text-destructive mb-4">
+              Errore nel caricamento
+            </p>
+            <p className="text-muted-foreground">
+              {error}
+            </p>
+          </div>
         ) : (
           <div className="text-center py-20">
             <p className="text-xl text-muted-foreground mb-4">
               Nessun prodotto trovato
-            </p>
-            <p className="text-muted-foreground">
-              Crea un prodotto dicendomi cosa vuoi vendere e il prezzo!
             </p>
           </div>
         )}
