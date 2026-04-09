@@ -176,12 +176,33 @@ export async function storefrontApiRequest(query: string, variables: any = {}) {
   return data;
 }
 
-export async function fetchProducts(first: number = 20, query?: string): Promise<ShopifyProduct[]> {
+export async function fetchProducts(first: number = 20, _query?: string): Promise<ShopifyProduct[]> {
   try {
-    const data = await storefrontApiRequest(STOREFRONT_PRODUCTS_QUERY, { first, query });
-    return data?.data?.products?.edges || [];
+    // Primary: Admin API via edge function
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data, error } = await supabase.functions.invoke("get-products", {
+      body: null,
+      headers: { "Content-Type": "application/json" },
+      method: "GET",
+    });
+
+    if (error) throw new Error(error.message || "Edge function error");
+    if (data?.error) throw new Error(data.error);
+    if (data?.products?.length > 0) return data.products as ShopifyProduct[];
+
+    // Fallback: Storefront API
+    console.warn("Admin API returned no products, falling back to Storefront API");
+    const sfData = await storefrontApiRequest(STOREFRONT_PRODUCTS_QUERY, { first, query: _query });
+    return sfData?.data?.products?.edges || [];
   } catch (error) {
     console.error('Errore nel recupero dei prodotti:', error);
-    return [];
+    // Fallback: Storefront API
+    try {
+      const sfData = await storefrontApiRequest(STOREFRONT_PRODUCTS_QUERY, { first, query: _query });
+      return sfData?.data?.products?.edges || [];
+    } catch (fallbackError) {
+      console.error('Fallback Storefront API failed:', fallbackError);
+      throw error; // Re-throw original error
+    }
   }
 }

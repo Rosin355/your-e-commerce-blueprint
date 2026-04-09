@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 export const ProductsSection = () => {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState("TUTTE");
 
   const filters = [
@@ -19,9 +20,15 @@ export const ProductsSection = () => {
   useEffect(() => {
     const loadProducts = async () => {
       setLoading(true);
-      const fetchedProducts = await fetchProducts(20);
-      setProducts(fetchedProducts);
-      setLoading(false);
+      setError(null);
+      try {
+        const fetchedProducts = await fetchProducts(20);
+        setProducts(fetchedProducts);
+      } catch (err) {
+        setError((err as Error).message || "Errore nel caricamento dei prodotti");
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadProducts();
@@ -73,13 +80,19 @@ export const ProductsSection = () => {
               <ProductCard key={product.node.id} product={product} />
             ))}
           </div>
+        ) : error ? (
+          <div className="text-center py-20">
+            <p className="text-xl text-destructive mb-4">
+              Errore nel caricamento
+            </p>
+            <p className="text-muted-foreground">
+              {error}
+            </p>
+          </div>
         ) : (
           <div className="text-center py-20">
             <p className="text-xl text-muted-foreground mb-4">
               Nessun prodotto trovato
-            </p>
-            <p className="text-muted-foreground">
-              Crea un prodotto dicendomi cosa vuoi vendere e il prezzo!
             </p>
           </div>
         )}
