@@ -13,6 +13,8 @@ serve(async (req) => {
   try {
     const { code, shop, state, hmac } = await req.json();
 
+    console.log("[OAUTH CALLBACK INPUT]", { code: code?.substring(0, 8), shop, state });
+
     if (!code || !shop || !state) {
       return new Response(JSON.stringify({ error: "Missing code, shop, or state" }), {
         status: 400,
@@ -41,7 +43,6 @@ serve(async (req) => {
       });
     }
 
-    // Check expiry
     if (new Date(oauthState.expires_at) < new Date()) {
       return new Response(JSON.stringify({ error: "State expired" }), {
         status: 400,
@@ -52,14 +53,14 @@ serve(async (req) => {
     // Mark state as used
     await supabase.from("shopify_oauth_states").update({ used_at: new Date().toISOString() }).eq("id", oauthState.id);
 
-    // HMAC validation
+    // HMAC validation (soft)
     if (hmac) {
-      const clientSecret = Deno.env.get("SHOPIFY_CLIENT_SECRET");
-      if (clientSecret) {
+      const clientSecretHmac = Deno.env.get("SHOPIFY_CLIENT_SECRET");
+      if (clientSecretHmac) {
         const message = `code=${code}&shop=${shop}&state=${state}&timestamp=${new URL(req.url).searchParams.get("timestamp") || ""}`;
         const key = await crypto.subtle.importKey(
           "raw",
-          new TextEncoder().encode(clientSecret),
+          new TextEncoder().encode(clientSecretHmac),
           { name: "HMAC", hash: "SHA-256" },
           false,
           ["sign"]
@@ -88,12 +89,16 @@ serve(async (req) => {
     });
 
     const tokenData = await tokenResponse.json();
+
+    console.log("[TOKEN RESPONSE]", {
+      status: tokenResponse.status,
+      has_token: !!tokenData.access_token,
+      scope: tokenData.scope,
+    });
+
     if (!tokenResponse.ok || !tokenData.access_token) {
       console.error("[oauth-callback] Token exchange failed:", tokenData);
-      return new Response(JSON.stringify({ error: "Token exchange failed", details: tokenData }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      throw new Error("Shopify OAuth non ha restituito access_token");
     }
 
     // Deactivate any existing connections (single-store)
@@ -117,6 +122,12 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    console.log("[DB SAVE]", {
+      shop: shopDomain,
+      token_prefix: tokenData.access_token?.substring(0, 6),
+      scopes: tokenData.scope,
+    });
 
     return new Response(JSON.stringify({
       success: true,

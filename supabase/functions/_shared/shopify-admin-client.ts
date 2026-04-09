@@ -69,17 +69,7 @@ export async function getShopifyConfigAsync(skipCache = false): Promise<ShopifyA
     }
   }
 
-  // Fallback to env vars
-  const shop = Deno.env.get("SHOPIFY_ADMIN_SHOP") || Deno.env.get("SHOPIFY_STORE") || "";
-  const accessToken = Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") || Deno.env.get("SHOPIFY_ACCESS_TOKEN") || "";
-  const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || Deno.env.get("SHOPIFY_API_VERSION") || "2025-01";
-
-  if (!shop) throw new Error("Nessuna connessione Shopify attiva e SHOPIFY_ADMIN_SHOP non configurato");
-  if (!accessToken) throw new Error("Nessuna connessione Shopify attiva e SHOPIFY_ADMIN_ACCESS_TOKEN non configurato");
-
-  _cachedConfig = { shop, accessToken, apiVersion, source: "env" };
-  _cacheTime = Date.now();
-  return _cachedConfig;
+  throw new Error("Nessuna connessione Shopify attiva nel database. Completa il flusso OAuth per collegare lo store.");
 }
 
 /** Synchronous fallback for backward compat — tries env vars only */

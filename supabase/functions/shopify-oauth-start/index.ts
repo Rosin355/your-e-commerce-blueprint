@@ -31,10 +31,8 @@ serve(async (req) => {
       });
     }
 
-    // Generate random state nonce
     const state = crypto.randomUUID();
 
-    // Save state to DB
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -46,7 +44,6 @@ serve(async (req) => {
       shop_domain: shopDomain,
     });
 
-    // Build authorization URL
     const scopes = "read_products,write_products,read_orders,read_customers,write_customers,read_product_listings,write_product_listings";
     const redirectUri = `${appUrl}/api/shopify/callback`;
 
@@ -55,6 +52,8 @@ serve(async (req) => {
       `&scope=${scopes}` +
       `&redirect_uri=${encodeURIComponent(redirectUri)}` +
       `&state=${state}`;
+
+    console.log("[OAUTH START]", { shopDomain, redirectUri, authUrl });
 
     return new Response(JSON.stringify({ authUrl, state }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
