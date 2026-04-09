@@ -1,28 +1,39 @@
 
 
-## Piano: Collegare lo store Shopify corretto
+## Piano: Hardening OAuth Shopify + logging diagnostico
 
 ### Problema
-Il connettore Shopify nativo di Lovable e' collegato a `lovable-project-6tknn.myshopify.com`, uno store di sviluppo a cui l'utente non ha accesso. Lo store reale e' `onlinegarden-new-2.myshopify.com`.
+Il flusso OAuth potrebbe non funzionare correttamente. Servono log diagnostici, hard fail su token mancante, status endpoint migliorato, e disabilitazione del fallback env quando esiste connessione DB.
 
-### Step 1 — Disconnettere lo store sbagliato
-Usare il tool `shopify--disconnect_store` per scollegare `lovable-project-6tknn`.
+### Modifiche
 
-### Step 2 — Aggiornare il codice frontend
-Dopo aver collegato il nuovo store, aggiornare `src/lib/shopify.ts` con il nuovo dominio permanente e il nuovo Storefront Access Token ottenuti dai tool Shopify.
+#### 1. `shopify-oauth-start/index.ts` — Log diagnostici
+- Aggiungere log dopo la costruzione dell'URL: `console.log("[OAUTH START]", { shopDomain, redirectUri, authUrl })`
+- Verificare che `redirect_uri` punti correttamente a `SHOPIFY_APP_URL + /api/shopify/callback` (la route esiste gia' in App.tsx)
 
-### Step 3 — Aggiornare il secret SHOPIFY_ADMIN_SHOP
-Impostare il secret `SHOPIFY_ADMIN_SHOP` a `onlinegarden-new-2.myshopify.com`.
+#### 2. `shopify-oauth-callback/index.ts` — Log + hard fail
+- Aggiungere dopo parsing input: `console.log("[OAUTH CALLBACK INPUT]", { code, shop, state })`
+- Aggiungere dopo token exchange: `console.log("[TOKEN RESPONSE]", { status: tokenResponse.status, has_token: !!tokenData.access_token, scope: tokenData.scope })`
+- Hard fail esplicito se `access_token` mancante: `throw new Error("Shopify OAuth non ha restituito access_token")`
+- Aggiungere dopo DB save: `console.log("[DB SAVE]", { shop: shopDomain, token_prefix: tokenData.access_token?.substring(0,6), scopes: tokenData.scope })`
 
-### Step 4 — Collegare lo store corretto via OAuth Admin
-Dalla pagina `/admin/settings`, l'utente dovra' inserire `onlinegarden-new-2.myshopify.com` e completare il flusso OAuth per ottenere un token Admin API (`shpat_`) valido salvato nel database.
+#### 3. `shopify-status/index.ts` — Endpoint migliorato
+- Quando connessione DB trovata, aggiungere `token_present: true` e `source: "db"` nella risposta
+- Quando connessione DB trovata, leggere anche `access_token` (per verificare presenza, non esporre il valore)
+- Rimuovere il blocco fallback env vars: se non c'e' connessione DB, restituire `connected: false`
 
-### Step 5 — Verificare
-Testare che `get-products` e `shopify-test-connection` funzionino correttamente.
+#### 4. `_shared/shopify-admin-client.ts` — Disabilitare fallback env
+- In `getShopifyConfigAsync`: rimuovere il fallback a env vars (linee 72-82). Se non c'e' connessione DB attiva, lanciare errore diretto
+- Mantenere `getShopifyConfig()` sync come backward compat ma marcarlo deprecated
+- Mantenere `clearConfigCache()` invariato
 
-### Note tecniche
-- Il connettore nativo Lovable gestisce la Storefront API (lettura prodotti frontend, checkout)
-- Il sistema OAuth custom gestisce la Admin API (gestione prodotti, sync, ordini)
-- Entrambi devono puntare allo stesso store `onlinegarden-new-2.myshopify.com`
-- L'utente dovra' ricollegare lo store dal pannello Shopify di Lovable (icona Shopify in alto a destra)
+#### 5. Deploy e test
+- Deploy delle 3 edge functions modificate
+- Curl `shopify-status` per verificare risposta
+
+### File coinvolti
+- `supabase/functions/shopify-oauth-start/index.ts`
+- `supabase/functions/shopify-oauth-callback/index.ts`
+- `supabase/functions/shopify-status/index.ts`
+- `supabase/functions/_shared/shopify-admin-client.ts`
 
