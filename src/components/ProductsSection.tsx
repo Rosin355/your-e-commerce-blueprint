@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 export const ProductsSection = () => {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState("TUTTE");
 
   const filters = [
@@ -19,9 +20,15 @@ export const ProductsSection = () => {
   useEffect(() => {
     const loadProducts = async () => {
       setLoading(true);
-      const fetchedProducts = await fetchProducts(20);
-      setProducts(fetchedProducts);
-      setLoading(false);
+      setError(null);
+      try {
+        const fetchedProducts = await fetchProducts(20);
+        setProducts(fetchedProducts);
+      } catch (err) {
+        setError((err as Error).message || "Errore nel caricamento dei prodotti");
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadProducts();
