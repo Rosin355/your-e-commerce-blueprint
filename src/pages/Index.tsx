@@ -1,50 +1,15 @@
 import { Header } from "@/components/Header";
-import { Hero } from "@/components/Hero";
-import { ProductsSection } from "@/components/ProductsSection";
-import { ContentSection } from "@/components/ContentSection";
-import { FeaturesSection } from "@/components/FeaturesSection";
 import { Footer } from "@/components/Footer";
-import { HomepageV2 } from "@/components/storefront/HomepageV2";
 import { HomepageV3 } from "@/components/storefront/HomepageV3";
-import { isHomepageRefreshV2Enabled, isHomepageVisualUpgradeV3Enabled } from "@/lib/storefront-flags";
 
-const Index = () => {
-  if (isHomepageVisualUpgradeV3Enabled) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <Header />
-        <main className="flex-1">
-          <HomepageV3 />
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (isHomepageRefreshV2Enabled) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <Header />
-        <main className="flex-1">
-          <HomepageV2 />
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <Hero />
-        <ProductsSection />
-        <ContentSection />
-        <FeaturesSection />
-      </main>
-      <Footer />
-    </div>
-  );
-};
+const Index = () => (
+  <div className="min-h-screen flex flex-col bg-background">
+    <Header />
+    <main className="flex-1">
+      <HomepageV3 />
+    </main>
+    <Footer />
+  </div>
+);
 
 export default Index;
