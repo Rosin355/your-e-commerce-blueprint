@@ -11,7 +11,7 @@ import { useCartStore } from "@/stores/cartStore";
 import { ArrowLeft, ArrowRight, CheckCircle2, HeadphonesIcon, ImageIcon, Info, Loader2, Minus, PackageCheck, Plus, Search, ShieldCheck, ShoppingCart, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
-interface PdpV3Props {
+interface PdpProps {
   product: ShopifyProduct;
 }
 
@@ -21,7 +21,7 @@ const trustRows = [
   "Checkout sicuro e flusso ordine invariato",
 ];
 
-export const PdpV3 = ({ product }: PdpV3Props) => {
+export const Pdp = ({ product }: PdpProps) => {
   const navigate = useNavigate();
   const addItem = useCartStore((state) => state.addItem);
   const isMobile = useIsMobile();

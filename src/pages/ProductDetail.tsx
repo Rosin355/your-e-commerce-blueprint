@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { useProduct } from "@/hooks/useProduct";
-import { PdpV3 } from "@/components/storefront/PdpV3";
+import { Pdp } from "@/components/storefront/Pdp";
 
 const ProductDetail = () => {
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ const ProductDetail = () => {
   return (
     <>
       <Header />
-      <PdpV3 product={product} />
+      <Pdp product={product} />
       <Footer />
     </>
   );
