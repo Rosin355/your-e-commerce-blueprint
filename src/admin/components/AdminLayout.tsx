@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogOut, Shield, Settings } from 'lucide-react';
-import { logoutAdmin, getAdminSession } from '../lib/adminAuth';
+import { logoutAdmin } from '../lib/adminAuth';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AdminLayoutProps {
@@ -11,7 +11,6 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children, onLogout }: AdminLayoutProps) {
-  const session = getAdminSession();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -46,7 +45,7 @@ export default function AdminLayout({ children, onLogout }: AdminLayoutProps) {
               {isSettingsPage ? 'Import' : 'Settings'}
             </Button>
 
-            <span className="text-sm text-muted-foreground">{user?.email || session?.email}</span>
+            <span className="text-sm text-muted-foreground"><span className="text-sm text-muted-foreground">{user?.email}</span></span>
             <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
               <LogOut className="h-4 w-4" />
               Esci

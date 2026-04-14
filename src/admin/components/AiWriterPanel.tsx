@@ -16,7 +16,7 @@ import {
   listShopifyProducts,
   publishDraft,
 } from "../lib/aiWriterEngine";
-import { getAdminSession } from "../lib/adminAuth";
+import { useAuth } from "@/hooks/useAuth";
 import type { AiWriterDraft, ShopifyAdminProduct } from "../types/aiWriter";
 import NewProductAIPanel from "./NewProductAIPanel";
 
@@ -40,7 +40,7 @@ function stringifyPretty(value: unknown) {
 }
 
 export default function AiWriterPanel() {
-  const session = getAdminSession();
+  const { user } = useAuth();
   const [statusFilter, setStatusFilter] = useState(DEFAULT_STATUS);
   const [tagFilter, setTagFilter] = useState(DEFAULT_TAG);
   const [query, setQuery] = useState("");
