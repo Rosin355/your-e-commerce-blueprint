@@ -17,7 +17,7 @@ import { readFileAsCsv } from '../lib/csvParser';
 import { validateCsv } from '../lib/csvValidator';
 import { runImport } from '../lib/importEngine';
 import { saveImportLog, createLogEntry } from '../lib/auditLog';
-import { getAdminSession } from '../lib/adminAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useImportStore } from '../stores/importStore';
 import type { ImportType } from '../types/import';
 
@@ -27,6 +27,7 @@ interface AdminImportProps {
 
 export default function AdminImport({ onLogout }: AdminImportProps) {
   const store = useImportStore();
+  const { user } = useAuth();
   const aiWriterEnabled = import.meta.env.VITE_ENABLE_AI_PRODUCT_WRITER !== 'false';
 
   const handleTabChange = (value: string) => {
@@ -75,9 +76,8 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
       store.setResult(result);
       store.setStatus('done');
 
-      const session = getAdminSession();
-      if (session) {
-        saveImportLog(createLogEntry(session.email, store.fileName, store.importType, result));
+      if (user?.email) {
+        saveImportLog(createLogEntry(user.email, store.fileName, store.importType, result));
       }
     } catch {
       store.setStatus('error');

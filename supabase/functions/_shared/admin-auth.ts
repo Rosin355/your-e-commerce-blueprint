@@ -1,37 +1,48 @@
-const DEFAULT_ADMIN_EMAILS = [
-  "admin@onlinegarden.it",
-  "info@onlinegarden.it",
-  "romesh.singhabahu@gmail.com",
-];
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 
-function normalizeEmail(value: string | null): string {
-  return String(value || "").trim().toLowerCase();
-}
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-function loadAllowedEmails(): Set<string> {
-  const configured = Deno.env.get("ADMIN_SYNC_EMAILS");
-  const source = configured
-    ? configured.split(",").map((entry) => normalizeEmail(entry))
-    : DEFAULT_ADMIN_EMAILS;
-  return new Set(source.filter(Boolean));
-}
-
-export function assertAdminRequest(request: Request): string {
-  const adminToken = Deno.env.get("ADMIN_SYNC_TOKEN");
-  const tokenHeader = request.headers.get("x-admin-token");
-
-  if (adminToken) {
-    if (!tokenHeader || tokenHeader !== adminToken) {
-      throw new Error("Unauthorized admin token");
-    }
+/**
+ * Validates the Authorization header JWT and checks for admin role.
+ * Returns the authenticated user's email.
+ * Throws on any auth failure.
+ */
+export async function assertAdminRequest(request: Request): Promise<string> {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    throw new Error("Missing or invalid Authorization header");
   }
 
-  const email = normalizeEmail(request.headers.get("x-admin-email"));
-  const allowedEmails = loadAllowedEmails();
+  const token = authHeader.replace("Bearer ", "");
 
-  if (!email || !allowedEmails.has(email)) {
-    throw new Error("Unauthorized admin email");
+  // Verify the JWT and get the user
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    throw new Error("Unauthorized: invalid or expired token");
   }
 
-  return email;
+  // Check admin role using service role client
+  const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data: roleData, error: roleError } = await adminClient
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("role", "admin")
+    .maybeSingle();
+
+  if (roleError || !roleData) {
+    throw new Error("Forbidden: admin role required");
+  }
+
+  return user.email || user.id;
 }

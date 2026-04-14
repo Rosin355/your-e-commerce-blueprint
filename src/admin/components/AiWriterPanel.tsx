@@ -16,7 +16,7 @@ import {
   listShopifyProducts,
   publishDraft,
 } from "../lib/aiWriterEngine";
-import { getAdminSession } from "../lib/adminAuth";
+import { useAuth } from "@/hooks/useAuth";
 import type { AiWriterDraft, ShopifyAdminProduct } from "../types/aiWriter";
 import NewProductAIPanel from "./NewProductAIPanel";
 
@@ -40,7 +40,7 @@ function stringifyPretty(value: unknown) {
 }
 
 export default function AiWriterPanel() {
-  const session = getAdminSession();
+  const { user } = useAuth();
   const [statusFilter, setStatusFilter] = useState(DEFAULT_STATUS);
   const [tagFilter, setTagFilter] = useState(DEFAULT_TAG);
   const [query, setQuery] = useState("");
@@ -102,7 +102,7 @@ export default function AiWriterPanel() {
         productId: selectedProduct.id,
         seedStyle,
         language: "it",
-        adminEmail: session?.email,
+        adminEmail: user?.email,
       });
       toast.success("Bozza AI generata");
       await loadProductData(response.product.id);
@@ -118,7 +118,7 @@ export default function AiWriterPanel() {
     if (!selectedDraft) return;
     setWorkingAction("publish");
     try {
-      const response = await publishDraft(selectedDraft.id, session?.email);
+      const response = await publishDraft(selectedDraft.id, user?.email);
       toast.success("Contenuti pubblicati su Shopify");
       await loadProductData(response.productId);
       await loadProducts();
