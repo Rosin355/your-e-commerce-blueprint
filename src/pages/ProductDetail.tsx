@@ -1,22 +1,43 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { useProduct } from "@/hooks/useProduct";
 import { Pdp } from "@/components/storefront/Pdp";
+import { ProductCareInfo } from "@/components/product/ProductCareInfo";
+
+const ProductLoadingState = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+  </div>
+);
+
+interface ProductNotFoundStateProps {
+  onBackHome: () => void;
+}
+
+const ProductNotFoundState = ({ onBackHome }: ProductNotFoundStateProps) => (
+  <div className="container mx-auto px-4 py-20 text-center">
+    <h1 className="text-2xl font-bold mb-4">Prodotto non trovato</h1>
+    <Button onClick={onBackHome}>
+      <ArrowLeft className="mr-2 h-4 w-4" />
+      Torna alla Home
+    </Button>
+  </div>
+);
 
 const ProductDetail = () => {
   const navigate = useNavigate();
-  const { product, loading } = useProduct();
+  const { handle } = useParams<{ handle: string }>();
+  const { product, loading, selectedVariant, setSelectedVariant } = useProduct(handle);
+  const goToHomepage = () => navigate("/");
 
   if (loading) {
     return (
       <>
         <Header />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        </div>
+        <ProductLoadingState />
         <Footer />
       </>
     );
@@ -26,13 +47,7 @@ const ProductDetail = () => {
     return (
       <>
         <Header />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold mb-4">Prodotto non trovato</h1>
-          <Button onClick={() => navigate("/")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Torna alla Home
-          </Button>
-        </div>
+        <ProductNotFoundState onBackHome={goToHomepage} />
         <Footer />
       </>
     );
@@ -41,7 +56,12 @@ const ProductDetail = () => {
   return (
     <>
       <Header />
-      <Pdp product={product} />
+      <Pdp
+        product={product}
+        selectedVariant={selectedVariant}
+        setSelectedVariant={setSelectedVariant}
+        careInfoContent={<ProductCareInfo />}
+      />
       <Footer />
     </>
   );

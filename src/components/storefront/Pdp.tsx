@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,9 @@ import { toast } from "sonner";
 
 interface PdpProps {
   product: ShopifyProduct;
+  selectedVariant: ShopifyProduct["node"]["variants"]["edges"][number]["node"] | null;
+  setSelectedVariant: (variant: ShopifyProduct["node"]["variants"]["edges"][number]["node"] | null) => void;
+  careInfoContent: ReactNode;
 }
 
 const trustRows = [
@@ -21,12 +25,11 @@ const trustRows = [
   "Checkout sicuro e flusso ordine invariato",
 ];
 
-export const Pdp = ({ product }: PdpProps) => {
+export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoContent }: PdpProps) => {
   const navigate = useNavigate();
   const addItem = useCartStore((state) => state.addItem);
   const isMobile = useIsMobile();
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<ShopifyProduct[]>([]);
@@ -34,12 +37,7 @@ export const Pdp = ({ product }: PdpProps) => {
   const { node } = product;
   const images = node.images.edges;
   const variants = node.variants.edges.map((edge) => edge.node);
-  const selectedVariant = variants.find((variant) => variant.id === selectedVariantId) ?? variants[0] ?? null;
   const price = selectedVariant?.price ?? node.priceRange.minVariantPrice;
-
-  useEffect(() => {
-    setSelectedVariantId(variants[0]?.id ?? null);
-  }, [node.id]);
 
   useEffect(() => {
     const loadRelated = async () => {
@@ -131,12 +129,7 @@ export const Pdp = ({ product }: PdpProps) => {
     {
       value: "cura",
       title: "Cura e utilizzo",
-      content: (
-        <div className="space-y-4 text-sm leading-7 text-muted-foreground md:text-base">
-          <p>Le informazioni disponibili in descrizione e varianti ti aiutano a scegliere il formato più adatto al tuo spazio.</p>
-          <p>Per dubbi su misure, disponibilità o opzioni specifiche puoi contattare l'assistenza prima di confermare l'acquisto.</p>
-        </div>
-      ),
+      content: careInfoContent,
     },
     {
       value: "spedizione",
@@ -240,7 +233,7 @@ export const Pdp = ({ product }: PdpProps) => {
                       <button
                         key={variant.id}
                         type="button"
-                        onClick={() => setSelectedVariantId(variant.id)}
+                        onClick={() => setSelectedVariant(variant)}
                         className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
                           selectedVariant?.id === variant.id
                             ? "border-primary bg-primary text-primary-foreground"
