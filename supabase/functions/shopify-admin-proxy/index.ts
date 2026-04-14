@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
-import { corsHeaders, shopifyAdminFetch, getShopifyConfig, jsonResponse } from "../_shared/shopify-admin-client.ts";
+import { assertAdminRequest } from "../_shared/admin-auth.ts";
+import { corsHeaders, shopifyAdminFetch, jsonResponse } from "../_shared/shopify-admin-client.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const OPENAI_VISION_MODEL = Deno.env.get("OPENAI_VISION_MODEL") || "gpt-4o-mini";
@@ -138,12 +139,11 @@ async function generateCopyFromFacts(product: any, facts: any, seedStyle: string
   ], OPENAI_COPY_MODEL);
 }
 
-async function generateProductCopyDraft(data: any) {
+async function generateProductCopyDraft(data: any, adminEmail: string) {
   const productId = Number(data?.productId);
   if (!productId) throw new Error("productId mancante");
   const seedStyle = (data?.seedStyle || "Pratico e tecnico").trim();
   const language = (data?.language || "it").trim();
-  const adminEmail = data?.adminEmail || null;
 
   const productResponse = await getProduct(productId);
   const product = productResponse.product;
@@ -202,6 +202,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // Authenticate: require valid JWT with admin role
+    const adminEmail = await assertAdminRequest(req);
+
     const { action, data } = await req.json();
     let result: any;
 
@@ -244,7 +247,7 @@ serve(async (req) => {
         result = await listDrafts(data);
         break;
       case "generate_product_copy_draft":
-        result = await generateProductCopyDraft(data);
+        result = await generateProductCopyDraft(data, adminEmail);
         break;
       case "publish_product_copy":
         result = await publishProductCopyDraft(data);
@@ -255,7 +258,9 @@ serve(async (req) => {
 
     return jsonResponse(result);
   } catch (error: any) {
+    const message = error?.message || "Errore durante l'operazione";
+    const status = message.includes("Unauthorized") || message.includes("Forbidden") ? 401 : 500;
     console.error("Shopify proxy error:", error);
-    return jsonResponse({ success: false, error: error?.message || "Errore durante l'operazione" }, 500);
+    return jsonResponse({ success: false, error: message }, status);
   }
 });
