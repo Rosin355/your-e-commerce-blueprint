@@ -11,10 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
-!.env.example
 
 # Environment variables - NEVER commit these
-!.env.example
 
 # Editor directories and files
 .vscode/*
