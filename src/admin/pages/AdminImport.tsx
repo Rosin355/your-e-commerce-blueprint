@@ -17,7 +17,7 @@ import { readFileAsCsv } from '../lib/csvParser';
 import { validateCsv } from '../lib/csvValidator';
 import { runImport } from '../lib/importEngine';
 import { saveImportLog, createLogEntry } from '../lib/auditLog';
-import { getAdminSession } from '../lib/adminAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useImportStore } from '../stores/importStore';
 import type { ImportType } from '../types/import';
 

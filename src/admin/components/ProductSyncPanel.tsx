@@ -20,7 +20,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getAdminSession } from "../lib/adminAuth";
+import { useAuth } from "@/hooks/useAuth";
 import {
   BATCH_SIZE,
   batchUpdatePrices,
@@ -66,7 +66,8 @@ function modeLabel(mode: SyncMode): string {
 }
 
 export default function ProductSyncPanel() {
-  const session = getAdminSession();
+  const { user } = useAuth();
+  const session = { email: user?.email || "" };
   const [job, setJob] = useState<ProductSyncJob | null>(null);
   const [running, setRunning] = useState(false);
   const [pendingMode, setPendingMode] = useState<SyncMode | null>(null);
