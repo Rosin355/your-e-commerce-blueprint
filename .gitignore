@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+bun.lock
+bun.lockb
+deno.lock
 
 # Environment variables - NEVER commit these
 
