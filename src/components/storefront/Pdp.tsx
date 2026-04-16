@@ -5,6 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { useIsMobile } from "@/hooks/useMobile";
 import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
+import pdpCalmaBg from "@/assets/pdp-calma-bg.png";
 import {
   ChevronLeft,
   ChevronRight,
@@ -733,12 +734,34 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
         </Accordion>
       </section>
 
-      <section className="bg-showcase text-primary-foreground">
-        <div className="container mx-auto max-w-[1200px] px-4 py-16 md:py-24">
-          <h2 className="max-w-3xl text-3xl font-heading font-semibold leading-[1.15] md:text-[2.5rem]">
+      <section
+        className="relative isolate overflow-hidden text-white"
+        style={{
+          backgroundImage: `url(${pdpCalmaBg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.42) 45%, rgba(0,0,0,0.18) 75%, rgba(0,0,0,0.08) 100%)",
+          }}
+        />
+        <div className="container mx-auto max-w-[1200px] px-4 py-20 md:py-28">
+          <h2
+            className="max-w-3xl text-3xl font-heading font-semibold leading-[1.15] md:text-[2.5rem]"
+            style={{ textShadow: "0 2px 16px rgba(0,0,0,0.45)" }}
+          >
             Un momento di calma, nel tuo spazio esterno.
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-primary-foreground/85">
+          <p
+            className="mt-4 max-w-2xl text-base leading-7 text-white/92"
+            style={{ textShadow: "0 1px 10px rgba(0,0,0,0.45)" }}
+          >
             Crea angoli verdi che raccontano una storia. Che sia una fioritura solitaria, una pianta ornamentale o un
             piccolo agrume, ogni superficie diventa il riflesso della tua quiete personale.
           </p>
