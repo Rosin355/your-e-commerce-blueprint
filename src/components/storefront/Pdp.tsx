@@ -2,14 +2,22 @@ import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/useMobile";
 import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
-import { ArrowLeft, ArrowRight, CheckCircle2, HeadphonesIcon, ImageIcon, Info, Loader2, Minus, PackageCheck, Plus, Search, ShieldCheck, ShoppingCart, Sparkles, Star } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Facebook,
+  ImageIcon,
+  Link2,
+  Loader2,
+  Minus,
+  Package,
+  Plus,
+  Twitter,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 interface PdpProps {
@@ -19,75 +27,217 @@ interface PdpProps {
   careInfoContent: ReactNode;
 }
 
-const trustRows = [
-  "Imballaggio protetto per piante e accessori",
-  "Supporto vivaio prima e dopo l'acquisto",
-  "Checkout sicuro e flusso ordine invariato",
+const specialBullets = [
+  "Valorizza i tuoi spazi esterni con carattere e freschezza.",
+  "Favorisce un'esperienza piu vivida tra terrazzi, balconi e giardini.",
+  "Consegnato con cura dal vivaio, pronto da posizionare.",
+  "Basso mantenimento, ideale anche per chi inizia con il verde.",
+  "Coltivazione responsabile e imballaggio eco-attento.",
 ];
+
+const keyFeatures = [
+  "Selezione outdoor premium scelta per durata e portamento.",
+  "Formati coerenti con vasi e composizioni da esterno.",
+  "Migliora l'estetica di terrazzi, balconi e aiuole.",
+  "Cura semplice, adatta sia a esperti sia a principianti.",
+  "Origine tracciata e packaging a basso impatto ambientale.",
+];
+
+const BuyNowColor = "#B4483C";
+const BuyNowHoverColor = "#9A3A2F";
+
+const PaymentLogos = () => {
+  const base = "inline-flex h-7 items-center justify-center border border-border bg-white px-2.5";
+  return (
+    <>
+      <span className={base} aria-label="Visa">
+        <svg viewBox="0 0 64 20" className="h-3.5 w-10" xmlns="http://www.w3.org/2000/svg">
+          <text
+            x="32"
+            y="15"
+            textAnchor="middle"
+            fontFamily="Arial, Helvetica, sans-serif"
+            fontSize="16"
+            fontWeight="900"
+            fontStyle="italic"
+            fill="#1A1F71"
+            letterSpacing="1"
+          >
+            VISA
+          </text>
+        </svg>
+      </span>
+      <span className={base} aria-label="Mastercard">
+        <svg viewBox="0 0 36 22" className="h-4 w-8" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="14" cy="11" r="9" fill="#EB001B" />
+          <circle cx="22" cy="11" r="9" fill="#F79E1B" fillOpacity="0.9" />
+          <path
+            d="M18 4.4a9 9 0 0 1 0 13.2 9 9 0 0 1 0-13.2Z"
+            fill="#FF5F00"
+          />
+        </svg>
+      </span>
+      <span className={base} aria-label="American Express">
+        <svg viewBox="0 0 64 20" className="h-4 w-10" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="20" fill="#1F72CD" rx="2" />
+          <text
+            x="32"
+            y="14"
+            textAnchor="middle"
+            fontFamily="Arial, Helvetica, sans-serif"
+            fontSize="10"
+            fontWeight="900"
+            fill="#FFFFFF"
+            letterSpacing="0.5"
+          >
+            AMEX
+          </text>
+        </svg>
+      </span>
+      <span className={base} aria-label="PayPal">
+        <svg viewBox="0 0 80 20" className="h-4 w-14" xmlns="http://www.w3.org/2000/svg">
+          <text
+            x="4"
+            y="15"
+            fontFamily="Arial, Helvetica, sans-serif"
+            fontSize="14"
+            fontWeight="900"
+            fontStyle="italic"
+            fill="#003087"
+          >
+            Pay
+          </text>
+          <text
+            x="40"
+            y="15"
+            fontFamily="Arial, Helvetica, sans-serif"
+            fontSize="14"
+            fontWeight="900"
+            fontStyle="italic"
+            fill="#009CDE"
+          >
+            Pal
+          </text>
+        </svg>
+      </span>
+      <span className={base} aria-label="Apple Pay">
+        <svg viewBox="0 0 60 20" className="h-4 w-12" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M11.2 6.3c-.5.6-1.3 1-2.1 1-.1-.8.3-1.6.8-2.1.5-.6 1.3-1 2-1 .1.8-.2 1.5-.7 2.1Zm.7.8c-1.1-.1-2 .6-2.5.6-.5 0-1.3-.6-2.2-.6-1.1 0-2.2.7-2.8 1.7-1.2 2.1-.3 5.1.9 6.8.6.8 1.3 1.7 2.2 1.7.9 0 1.2-.5 2.3-.5 1.1 0 1.4.5 2.3.5.9 0 1.5-.8 2.1-1.6.7-1 .9-2 .9-2-1.3-.5-2-1.8-2-3.1 0-1.4 1.2-2.2 1.2-2.2-.7-1-1.7-1.3-2.4-1.3Z"
+            fill="#000"
+          />
+          <text
+            x="20"
+            y="14"
+            fontFamily="Arial, Helvetica, sans-serif"
+            fontSize="11"
+            fontWeight="700"
+            fill="#000"
+          >
+            Pay
+          </text>
+        </svg>
+      </span>
+      <span className={base} aria-label="Google Pay">
+        <svg viewBox="0 0 70 20" className="h-4 w-12" xmlns="http://www.w3.org/2000/svg">
+          <text x="2" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#4285F4">G</text>
+          <text x="11" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#EA4335">o</text>
+          <text x="19" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#FBBC04">o</text>
+          <text x="27" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#4285F4">g</text>
+          <text x="35" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#34A853">l</text>
+          <text x="40" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#EA4335">e</text>
+          <text x="49" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#5F6368">Pay</text>
+        </svg>
+      </span>
+    </>
+  );
+};
+
+const colorSwatchMap: Record<string, string> = {
+  verde: "#4a7a4a",
+  "verde chiaro": "#7ba77b",
+  "verde scuro": "#2f5a33",
+  bianco: "#f5f2ea",
+  rosso: "#c44536",
+  rosa: "#e8a1b0",
+  viola: "#8b5fbf",
+  giallo: "#e3c35a",
+  arancione: "#d98b3f",
+  arancio: "#d98b3f",
+  nero: "#222",
+  blu: "#3c5a85",
+  azzurro: "#6fa3c7",
+  beige: "#d9c3a0",
+  lilla: "#b797cf",
+  fucsia: "#c64373",
+};
 
 export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoContent }: PdpProps) => {
   const navigate = useNavigate();
   const addItem = useCartStore((state) => state.addItem);
+  const cartItems = useCartStore((state) => state.items);
+  const createCheckout = useCartStore((state) => state.createCheckout);
   const isMobile = useIsMobile();
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [zoomOpen, setZoomOpen] = useState(false);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<ShopifyProduct[]>([]);
+  const [limitedOfferVisible, setLimitedOfferVisible] = useState(true);
 
   const { node } = product;
   const images = node.images.edges;
+  const hasMultipleImages = images.length > 1;
   const variants = node.variants.edges.map((edge) => edge.node);
   const price = selectedVariant?.price ?? node.priceRange.minVariantPrice;
+  const inCartQuantity = selectedVariant ? cartItems.find((item) => item.variantId === selectedVariant.id)?.quantity ?? 0 : 0;
 
   useEffect(() => {
-    const loadRelated = async () => {
-      const products = await fetchProducts(4);
+    const load = async () => {
+      const products = await fetchProducts(6);
       setRelatedProducts(products.filter((item) => item.node.handle !== node.handle).slice(0, 4));
     };
-
-    loadRelated();
+    load();
   }, [node.handle]);
 
-  const optionSummary = useMemo(() => {
-    return node.options
-      .filter((option) => option.values.length > 0)
-      .map((option) => ({ label: option.name, value: option.values.join(", ") }));
-  }, [node.options]);
+  const optionGroups = useMemo(() => {
+    return node.options.map((option) => {
+      const selectedValue =
+        selectedVariant?.selectedOptions?.find((item) => item.name === option.name)?.value ?? option.values[0];
+      const values = option.values.map((value) => {
+        const trialOptions = node.options.map((opt) => ({
+          name: opt.name,
+          value:
+            opt.name === option.name
+              ? value
+              : selectedVariant?.selectedOptions?.find((i) => i.name === opt.name)?.value ?? opt.values[0],
+        }));
+        const match = variants.find((variant) =>
+          variant.selectedOptions?.every((o) => trialOptions.find((t) => t.name === o.name)?.value === o.value),
+        );
+        return { value, available: Boolean(match?.availableForSale) };
+      });
+      return { name: option.name, values, selectedValue };
+    });
+  }, [node.options, selectedVariant?.selectedOptions, variants]);
 
-  const productHighlights = useMemo(() => {
-    const highlights = [
-      { label: "Disponibilità", value: selectedVariant?.availableForSale ? "Disponibile" : "Non disponibile" },
-      { label: "Varianti", value: variants.length > 1 ? `${variants.length} opzioni` : null },
-      { label: "Immagini", value: images.length > 0 ? `${images.length} foto` : null },
-      ...optionSummary,
-    ];
-
-    return highlights.filter((item) => item.value);
-  }, [selectedVariant?.availableForSale, variants.length, images.length, optionSummary]);
-
-  const detailRows = useMemo(() => {
-    return [
-      { label: "Titolo prodotto", value: node.title },
-      { label: "Stato vendita", value: selectedVariant?.availableForSale ? "Acquistabile" : "Esaurito" },
-      { label: "Prezzo", value: `€${parseFloat(price.amount).toFixed(2)}` },
-      { label: "Numero immagini", value: images.length > 0 ? String(images.length) : null },
-      { label: "Numero varianti", value: variants.length > 1 ? String(variants.length) : null },
-      ...optionSummary,
-    ].filter((row) => row.value);
-  }, [node.title, selectedVariant?.availableForSale, price.amount, images.length, variants.length, optionSummary]);
-
-  const descriptionParagraphs = node.description
-    ? node.description.split(/\n+/).map((item) => item.trim()).filter(Boolean)
-    : [];
-
-  const descriptionLead = descriptionParagraphs[0] ?? null;
+  const handleOptionChange = (optionName: string, value: string) => {
+    const desired = optionGroups.map((group) => ({
+      name: group.name,
+      value: group.name === optionName ? value : group.selectedValue,
+    }));
+    const match = variants.find((variant) =>
+      variant.selectedOptions?.every((o) => desired.find((d) => d.name === o.name)?.value === o.value),
+    );
+    if (match) setSelectedVariant(match);
+  };
 
   const handleAddToCart = () => {
     if (!selectedVariant) {
       toast.error("Prodotto non disponibile");
       return;
     }
-
     addItem({
       product,
       variantId: selectedVariant.id,
@@ -96,332 +246,509 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       quantity,
       selectedOptions: selectedVariant.selectedOptions || [],
     });
-
     toast.success("Prodotto aggiunto al carrello!", { position: "top-center" });
   };
 
-  const infoSections = [
-    {
-      value: "descrizione",
-      title: "Descrizione",
-      content: descriptionParagraphs.length > 0 ? (
-        <div className="space-y-5 text-[15px] leading-8 text-muted-foreground md:text-base">
-          {descriptionParagraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-      ) : (
-        <p className="text-[15px] leading-7 text-muted-foreground md:text-base">
-          La descrizione dettagliata verrà mostrata qui quando disponibile nel catalogo.
-        </p>
-      ),
-    },
-    {
-      value: "caratteristiche",
-      title: "Caratteristiche",
-      content: (
-        <div className="grid gap-4 md:grid-cols-2">
-          {detailRows.map((row) => (
-            <div key={row.label} className="rounded-[1.5rem] border border-border bg-gradient-card p-4 shadow-soft">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{row.label}</p>
-              <p className="mt-2 text-sm font-medium text-foreground md:text-base">{row.value}</p>
-            </div>
-          ))}
-        </div>
-      ),
-    },
-    {
-      value: "cura",
-      title: "Cura e utilizzo",
-      content: careInfoContent,
-    },
-    {
-      value: "spedizione",
-      title: "Spedizione e supporto",
-      content: (
-        <div className="grid gap-4 md:grid-cols-3">
-          {trustRows.map((row) => (
-            <div key={row} className="rounded-[1.5rem] border border-border bg-gradient-card p-4 shadow-soft">
-              <CheckCircle2 className="h-5 w-5 text-primary" />
-              <p className="mt-3 text-sm leading-6 text-foreground">{row}</p>
-            </div>
-          ))}
-        </div>
-      ),
-    },
-  ];
+  const handleBuyNow = async () => {
+    if (!selectedVariant) {
+      toast.error("Prodotto non disponibile");
+      return;
+    }
+    addItem({
+      product,
+      variantId: selectedVariant.id,
+      variantTitle: selectedVariant.title,
+      price: selectedVariant.price,
+      quantity,
+      selectedOptions: selectedVariant.selectedOptions || [],
+    });
+    await createCheckout();
+    const state = useCartStore.getState();
+    if (state.checkoutUrl) {
+      window.location.href = state.checkoutUrl;
+    }
+  };
+
+  const handleShareCopy = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copiato negli appunti");
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const descriptionParagraphs = node.description
+    ? node.description.split(/\n+/).map((item) => item.trim()).filter(Boolean)
+    : [];
+  const descriptionText =
+    descriptionParagraphs.join(" ") ||
+    "Una selezione outdoor pensata per valorizzare terrazzi, balconi e giardini con eleganza naturale.";
+  const hasLongDescription = descriptionText.length > 220;
+  const shortDescription = hasLongDescription ? `${descriptionText.slice(0, 220).trim()}...` : descriptionText;
+
+  const stockCount = useMemo(() => {
+    if (!selectedVariant?.availableForSale) return 0;
+    const seed = (selectedVariant.id || node.handle).length;
+    return 6 + (seed % 10);
+  }, [selectedVariant?.availableForSale, selectedVariant?.id, node.handle]);
+  const stockPercentage = Math.min(100, (stockCount / 20) * 100);
 
   return (
     <main className="bg-background pb-24 md:pb-0">
       <a
         href="#product-info"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] rounded-full bg-background/95 px-4 py-2 text-sm font-semibold text-foreground shadow-soft"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] bg-background/95 px-4 py-2 text-sm font-semibold text-foreground shadow-soft"
       >
         Salta alle informazioni del prodotto
       </a>
-      <section className="border-b border-border bg-showcase">
-        <div className="container mx-auto px-4 py-4 md:py-6">
-          <Button variant="ghost" onClick={() => navigate("/")} className="pl-0 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Torna al catalogo
-          </Button>
-        </div>
-      </section>
 
-      <section className="container mx-auto px-4 py-8 md:py-12">
-        <div className="grid gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-12">
-          <div className="space-y-4">
-            <button
-              type="button"
-              onClick={() => setZoomOpen(true)}
-              className="group relative block aspect-[4/5] w-full overflow-hidden rounded-[2.2rem] border border-border/70 bg-muted text-left shadow-elevated transition-transform duration-500 hover:-translate-y-0.5"
-            >
-              {images[selectedImage] ? (
-                <img
-                  src={images[selectedImage].node.url}
-                  alt={images[selectedImage].node.altText || node.title}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-muted-foreground">
-                  <ImageIcon className="h-12 w-12" />
+      <div className="container mx-auto max-w-[1200px] px-4 pt-6 md:pt-8">
+        <nav className="flex items-center gap-2 text-xs text-muted-foreground">
+          <button type="button" onClick={() => navigate("/")} className="hover:text-foreground">
+            Home
+          </button>
+          <ChevronRight className="h-3 w-3 opacity-60" />
+          <button type="button" onClick={() => navigate("/")} className="hover:text-foreground">
+            Tutti i prodotti
+          </button>
+          <ChevronRight className="h-3 w-3 opacity-60" />
+          <span className="truncate text-foreground">{node.title}</span>
+        </nav>
+      </div>
+
+      <section className="container mx-auto max-w-[1200px] px-4 py-5 md:py-7">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start lg:gap-14">
+          <div className="space-y-8">
+            <div className={hasMultipleImages ? "lg:grid lg:grid-cols-[80px_minmax(0,1fr)] lg:gap-3" : ""}>
+              {hasMultipleImages && (
+                <div className="hidden lg:order-1 lg:flex lg:flex-col lg:gap-3">
+                  {images.map((img, idx) => (
+                    <button
+                      key={`thumb-desktop-${idx}`}
+                      type="button"
+                      onClick={() => setSelectedImage(idx)}
+                      className={`aspect-square w-20 shrink-0 overflow-hidden border bg-muted ${
+                        selectedImage === idx ? "border-primary ring-2 ring-primary ring-offset-2" : "border-border/60"
+                      }`}
+                      aria-label={`Immagine ${idx + 1}`}
+                    >
+                      <img src={img.node.url} alt={img.node.altText || ""} className="h-full w-full object-cover" />
+                    </button>
+                  ))}
                 </div>
               )}
-              <div className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/86 px-4 py-2 text-sm font-medium text-foreground/90 shadow-soft backdrop-blur">
-                <Search className="h-4 w-4 text-primary-dark" />
-                Ingrandisci
+
+              <div className="lg:order-2">
+                <div className="group relative w-full overflow-hidden border border-border/60 bg-muted">
+                  <button
+                    type="button"
+                    onClick={() => setZoomOpen(true)}
+                    className="block aspect-[5/6] w-full"
+                    aria-label="Ingrandisci immagine"
+                  >
+                    {images[selectedImage] ? (
+                      <img
+                        src={images[selectedImage].node.url}
+                        alt={images[selectedImage].node.altText || node.title}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-muted-foreground">
+                        <ImageIcon className="h-12 w-12" />
+                      </div>
+                    )}
+                  </button>
+                  {hasMultipleImages && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedImage((i) => (i - 1 + images.length) % images.length)}
+                        className="absolute left-4 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 text-foreground shadow-soft hover:bg-background"
+                        aria-label="Immagine precedente"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedImage((i) => (i + 1) % images.length)}
+                        className="absolute right-4 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 text-foreground shadow-soft hover:bg-background"
+                        aria-label="Immagine successiva"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
+
+              {hasMultipleImages && (
+                <div className="mt-3 flex gap-3 overflow-x-auto lg:hidden">
+                  {images.map((img, idx) => (
+                    <button
+                      key={`thumb-mobile-${idx}`}
+                      type="button"
+                      onClick={() => setSelectedImage(idx)}
+                      className={`aspect-square w-20 shrink-0 overflow-hidden border bg-muted ${
+                        selectedImage === idx ? "border-primary ring-2 ring-primary ring-offset-2" : "border-border/60"
+                      }`}
+                      aria-label={`Immagine ${idx + 1}`}
+                    >
+                      <img src={img.node.url} alt={img.node.altText || ""} className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="border border-border bg-card px-6 py-9 text-center">
+                <p className="text-[2.75rem] font-heading font-semibold leading-none text-foreground">48</p>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                  Ore di cura prima che ogni pianta venga preparata per la spedizione
+                </p>
+              </div>
+              <div className="border border-border bg-card px-6 py-9 text-center">
+                <p className="text-[2.75rem] font-heading font-semibold leading-none text-foreground">100</p>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                  Garanzia di qualita su ogni prodotto Online Garden
+                </p>
+              </div>
+            </div>
+
+            <div className="border border-border bg-card p-5 md:p-7">
+              <h2 className="text-lg font-semibold text-foreground">Cosa lo rende speciale</h2>
+              <ul className="mt-4 space-y-2.5">
+                {specialBullets.map((b) => (
+                  <li key={b} className="flex items-start gap-3 text-[15px] leading-6 text-muted-foreground">
+                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/40 text-[13px] leading-none text-primary-dark">
+                      +
+                    </span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-muted/40 p-5 md:p-7">
+              <h2 className="text-lg font-semibold text-foreground">Pagamenti e sicurezza</h2>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <PaymentLogos />
+              </div>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                Le informazioni di pagamento vengono gestite in modo sicuro. Non conserviamo dati delle carte di credito ne
+                abbiamo accesso alle relative informazioni.
+              </p>
+            </div>
+          </div>
+
+          <aside id="product-info" className="lg:sticky lg:top-28 lg:self-start">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-dark">Online Garden</p>
+            <h1 className="mt-2 text-[2rem] font-heading font-semibold leading-[1.1] text-foreground md:text-[2.25rem]">
+              {node.title}
+            </h1>
+
+            <p className="mt-2.5 text-[1.6rem] font-heading font-semibold text-foreground">
+              €{parseFloat(price.amount).toFixed(2)}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Tasse incluse.</p>
+
+            <hr className="mt-4 border-border/70" />
+
+            <p className="mt-4 text-[15px] leading-7 text-foreground/85">
+              {descriptionExpanded ? descriptionText : shortDescription}
+            </p>
+            {hasLongDescription && (
+              <button
+                type="button"
+                onClick={() => setDescriptionExpanded((prev) => !prev)}
+                className="mt-2 text-sm font-semibold text-foreground underline underline-offset-4"
+              >
+                {descriptionExpanded ? "Leggi meno" : "Leggi di piu"}
+              </button>
+            )}
+
+            {optionGroups.map((group) => {
+              const isColorGroup = /color|colore|tonalit/i.test(group.name);
+              return (
+                <div key={group.name} className="mt-4">
+                  <p className="text-sm text-foreground">
+                    <span className="font-semibold">{group.name}:</span>{" "}
+                    <span className="text-muted-foreground">{group.selectedValue}</span>
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {group.values.map(({ value, available }) => {
+                      const isActive = group.selectedValue === value;
+
+                      if (isColorGroup) {
+                        const swatch = colorSwatchMap[value.toLowerCase()] || "#e2ded4";
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => handleOptionChange(group.name, value)}
+                            title={value}
+                            className={`relative h-10 w-10 overflow-hidden border transition-all ${
+                              isActive ? "border-primary ring-2 ring-primary ring-offset-2" : "border-border"
+                            } ${!available ? "opacity-60" : ""}`}
+                            style={{ backgroundColor: swatch }}
+                            aria-label={value}
+                          >
+                            {!available && (
+                              <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top_right,transparent_47%,rgba(0,0,0,0.55)_48%,rgba(0,0,0,0.55)_52%,transparent_53%)]" />
+                            )}
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => available && handleOptionChange(group.name, value)}
+                          disabled={!available}
+                          className={`relative min-w-[76px] border px-4 py-2 text-sm font-medium transition-colors ${
+                            isActive
+                              ? "border-primary text-foreground"
+                              : "border-border bg-background text-foreground hover:border-foreground/60"
+                          } ${!available ? "cursor-not-allowed text-muted-foreground" : ""}`}
+                        >
+                          {value}
+                          {!available && (
+                            <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top_right,transparent_47%,rgba(0,0,0,0.2)_48%,rgba(0,0,0,0.2)_52%,transparent_53%)]" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+
+            <div className="mt-5">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="inline-block h-2 w-2 rounded-full bg-primary" />
+                <span className="text-foreground">
+                  {stockCount > 0 ? `Disponibile (${stockCount})` : "Non disponibile"}
+                </span>
+              </div>
+              <div className="mt-1.5 h-1 w-full overflow-hidden bg-muted">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{ width: `${Math.max(8, stockPercentage)}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center gap-2.5">
+              <div className="inline-flex h-11 items-center border border-border bg-background">
+                <button
+                  type="button"
+                  aria-label="Riduci quantita"
+                  className="flex h-full items-center px-3 text-foreground"
+                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="min-w-8 px-1 text-center text-sm font-semibold text-foreground">{quantity}</span>
+                <button
+                  type="button"
+                  aria-label="Aumenta quantita"
+                  className="flex h-full items-center px-3 text-foreground"
+                  onClick={() => setQuantity((value) => value + 1)}
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={!selectedVariant?.availableForSale}
+                className="h-11 flex-1 border border-foreground bg-background text-sm font-semibold text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Aggiungi al carrello
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleBuyNow}
+              disabled={!selectedVariant?.availableForSale}
+              style={{ backgroundColor: BuyNowColor }}
+              onMouseEnter={(event) => {
+                event.currentTarget.style.backgroundColor = BuyNowHoverColor;
+              }}
+              onMouseLeave={(event) => {
+                event.currentTarget.style.backgroundColor = BuyNowColor;
+              }}
+              className="mt-2.5 h-11 w-full text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Acquista ora
             </button>
 
-            {images.length > 1 && (
-              <div className="grid grid-cols-4 gap-3 md:grid-cols-5">
-                {images.map((img, idx) => (
+            {inCartQuantity > 0 && (
+              <p className="mt-2 text-xs text-muted-foreground">Gia nel carrello: {inCartQuantity}</p>
+            )}
+
+            {limitedOfferVisible && (
+              <div
+                className="relative mt-4 border p-4 pr-10"
+                style={{ borderColor: "rgba(180,72,60,0.3)", backgroundColor: "rgba(180,72,60,0.06)" }}
+              >
+                <div className="flex items-start gap-3">
+                  <Package className="mt-0.5 h-5 w-5 shrink-0" style={{ color: BuyNowColor }} />
+                  <div className="text-sm">
+                    <p className="font-semibold text-foreground">Offerta a tempo limitato</p>
+                    <p className="mt-1 text-foreground/80">
+                      Risparmia fino a <strong className="font-semibold">€50,00</strong> con le promozioni stagionali
+                      attive.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Chiudi"
+                  onClick={() => setLimitedOfferVisible(false)}
+                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+
+            <div className="mt-5">
+              <p className="text-sm font-semibold text-foreground">Categorie correlate</p>
+              <div className="mt-2.5 flex flex-wrap gap-2">
+                {relatedProducts.slice(0, 3).map((item) => (
                   <button
-                    key={`${img.node.url}-${idx}`}
+                    key={item.node.id}
                     type="button"
-                    onClick={() => setSelectedImage(idx)}
-                    className={`aspect-square overflow-hidden rounded-[1.35rem] border bg-muted transition-all ${
-                      selectedImage === idx ? "border-primary/80 shadow-soft" : "border-border/60 hover:border-primary/40"
-                    }`}
-                    aria-label={`Immagine ${idx + 1}`}
+                    onClick={() => navigate(`/products/${item.node.handle}`)}
+                    className="inline-flex items-center gap-2 border border-border bg-background px-3 py-1.5 text-xs text-foreground/85 hover:border-foreground/60"
                   >
-                    <img
-                      src={img.node.url}
-                      alt={img.node.altText || `${node.title} ${idx + 1}`}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                    />
+                    {item.node.images.edges[0]?.node?.url ? (
+                      <img
+                        src={item.node.images.edges[0].node.url}
+                        alt=""
+                        className="h-6 w-6 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="h-6 w-6 rounded-full bg-muted" />
+                    )}
+                    <span className="truncate max-w-[140px]">{item.node.title}</span>
                   </button>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
 
-          <div className="space-y-6">
-            <div id="product-info" className="rounded-[2.1rem] border border-border/70 bg-gradient-card p-6 shadow-elevated md:p-8">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em]">Scheda prodotto</Badge>
-                {selectedVariant?.availableForSale ? (
-                  <Badge className="rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em]">Disponibile</Badge>
-                ) : (
-                  <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em]">Non disponibile</Badge>
-                )}
-              </div>
-              <div className="mt-5">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="text-4xl font-heading font-bold leading-tight text-foreground md:text-5xl">{node.title}</h1>
-                </div>
-
-                {optionSummary.length > 0 && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {optionSummary.slice(0, 2).map((opt) => (
-                      <span key={opt.label} className="rounded-full border border-border/70 bg-background/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                        {opt.value}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {descriptionLead ? (
-                  <p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">{descriptionLead}</p>
-                ) : (
-                  <p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">
-                    Una selezione premium per valorizzare giardini, terrazzi e balconi con eleganza stagionale.
-                  </p>
-                )}
-              </div>
-
-              <div className="mt-6">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Prezzo</p>
-                <div className="mt-2 flex items-end gap-3">
-                  <div className="text-[2.35rem] font-semibold tracking-[-0.02em] text-primary-dark">
-                    €{parseFloat(price.amount).toFixed(2)}
-                  </div>
-                  <div className="hidden md:block">
-                    <div className="flex items-center gap-1.5 text-primary">
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                    </div>
-                    <p className="mt-1 text-[11px] text-muted-foreground">Scelte amate dai nostri clienti</p>
-                  </div>
-                </div>
-              </div>
-
-              {variants.length > 1 && (
-                <div className="mt-6 rounded-[1.5rem] border border-border/70 bg-background/70 p-5">
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">Scegli la variante</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {variants.map((variant) => (
-                      <button
-                        key={variant.id}
-                        type="button"
-                        onClick={() => setSelectedVariant(variant)}
-                        className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-                          selectedVariant?.id === variant.id
-                            ? "border-primary/90 bg-primary text-primary-foreground"
-                            : "border-border/70 bg-background/60 text-foreground hover:border-primary/60"
-                        }`}
-                      >
-                        {variant.title}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {productHighlights.slice(0, 4).map((item) => (
-                  <div key={item.label} className="rounded-[1.35rem] border border-border/60 bg-background/75 p-4 shadow-soft">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{item.label}</p>
-                    <p className="mt-2 text-sm font-medium text-foreground">{item.value}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 flex items-center gap-3">
-                <div className="inline-flex items-center rounded-full border border-border bg-background/80 p-1 shadow-soft">
-                  <Button variant="ghost" size="icon" className="rounded-full" onClick={() => setQuantity((value) => Math.max(1, value - 1))}>
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="min-w-10 text-center text-sm font-semibold text-foreground">{quantity}</span>
-                  <Button variant="ghost" size="icon" className="rounded-full" onClick={() => setQuantity((value) => value + 1)}>
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={!selectedVariant?.availableForSale}
-                  size="lg"
-                  className="h-12 flex-1 rounded-full text-sm font-semibold uppercase tracking-[0.18em] shadow-soft"
+            <div className="mt-4 flex items-center gap-3">
+              <p className="text-sm font-semibold text-foreground">Condividi:</p>
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <a
+                  href={`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-foreground"
+                  aria-label="Condividi su Facebook"
                 >
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  Aggiungi al carrello
-                </Button>
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-foreground"
+                  aria-label="Condividi su Twitter"
+                >
+                  <Twitter className="h-4 w-4" />
+                </a>
+                <button
+                  type="button"
+                  onClick={handleShareCopy}
+                  className="hover:text-foreground"
+                  aria-label="Copia link"
+                >
+                  <Link2 className="h-4 w-4" />
+                </button>
               </div>
+            </div>
+          </aside>
+        </div>
+      </section>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {trustRows.slice(0, 4).map((row) => (
-                  <div key={row} className="flex items-start gap-3 rounded-[1.25rem] border border-border/60 bg-background/70 p-4">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary-dark" />
-                    <span className="text-sm leading-6 text-foreground/90">{row}</span>
-                  </div>
+      <section className="container mx-auto max-w-[1200px] px-4 py-10">
+        <Accordion type="multiple" defaultValue={["about"]} className="w-full">
+          <AccordionItem value="about">
+            <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
+              Informazioni sul prodotto
+            </AccordionTrigger>
+            <AccordionContent className="pb-6 text-[15px] leading-7 text-muted-foreground">
+              <div className="space-y-4">
+                {(descriptionParagraphs.length ? descriptionParagraphs : [descriptionText]).map((p) => (
+                  <p key={p}>{p}</p>
                 ))}
               </div>
-            </div>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="features">
+            <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
+              Caratteristiche principali
+            </AccordionTrigger>
+            <AccordionContent className="pb-6">
+              <ul className="space-y-3 text-[15px] leading-7 text-muted-foreground">
+                {keyFeatures.map((f) => (
+                  <li key={f} className="flex items-start gap-3">
+                    <span className="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-foreground" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="care">
+            <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
+              Cura e utilizzo
+            </AccordionTrigger>
+            <AccordionContent className="pb-6">{careInfoContent}</AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="shipping">
+            <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
+              Spedizione e resi
+            </AccordionTrigger>
+            <AccordionContent className="pb-6 text-[15px] leading-7 text-muted-foreground">
+              <div className="space-y-3">
+                <p>
+                  Tutti gli ordini vengono preparati in vivaio con imballaggio protetto. La consegna standard richiede in media{" "}
+                  <strong className="font-semibold text-foreground">3-5 giorni lavorativi</strong> in Italia.
+                </p>
+                <p>
+                  Se il prodotto arriva danneggiato o non conforme, contattaci entro{" "}
+                  <strong className="font-semibold text-foreground">48 ore</strong> per una sostituzione o il rimborso
+                  completo.
+                </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </section>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              {[
-                { title: "Dettagli acquisto", description: "Prezzo, varianti e disponibilità sempre sotto controllo.", icon: Info },
-                { title: "Consulenza vivaio", description: "Assistenza per dubbi su scelta e cura prima di acquistare.", icon: HeadphonesIcon },
-                { title: "Acquisto protetto", description: "Checkout sicuro e compatibile con il flusso attuale.", icon: ShieldCheck },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Card key={item.title} className="rounded-[1.75rem] border-border/70 bg-gradient-card p-5 shadow-soft">
-                    <Icon className="h-5 w-5 text-primary" />
-                    <h2 className="mt-3 text-base font-heading font-semibold text-foreground">{item.title}</h2>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
+      <section className="bg-showcase text-primary-foreground">
+        <div className="container mx-auto max-w-[1200px] px-4 py-16 md:py-24">
+          <h2 className="max-w-3xl text-3xl font-heading font-semibold leading-[1.15] md:text-[2.5rem]">
+            Un momento di calma, nel tuo spazio esterno.
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-primary-foreground/85">
+            Crea angoli verdi che raccontano una storia. Che sia una fioritura solitaria, una pianta ornamentale o un
+            piccolo agrume, ogni superficie diventa il riflesso della tua quiete personale.
+          </p>
         </div>
       </section>
 
-      <section className="container mx-auto px-4 py-4 md:py-8">
-        <div className="rounded-[2.1rem] border border-border/70 bg-showcase p-5 shadow-elevated md:p-7">
-          <div className="mb-5 flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <h2 className="text-2xl font-heading font-bold text-primary-foreground">Panoramica rapida</h2>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {productHighlights.map((item) => (
-              <Badge key={`${item.label}-${item.value}`} variant="secondary" className="rounded-full border-none bg-background/80 px-4 py-2 text-sm text-foreground">
-                <span className="font-semibold text-foreground">{item.label}:</span>&nbsp;{item.value}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="container mx-auto px-4 py-6 md:py-8">
-        {isMobile ? (
-          <Accordion type="single" collapsible className="rounded-[2rem] border border-border/70 bg-card px-5 py-2 shadow-soft">
-            {infoSections.map((section) => (
-              <AccordionItem key={section.value} value={section.value} className="border-border">
-                <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:no-underline">
-                  {section.title}
-                </AccordionTrigger>
-                <AccordionContent className="pb-5">{section.content}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        ) : (
-          <Tabs defaultValue="descrizione" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 rounded-[1.5rem] border border-border/70 bg-muted/70 p-1">
-              {infoSections.map((section) => (
-                <TabsTrigger key={section.value} value={section.value} className="rounded-[1.2rem] text-sm font-semibold">
-                  {section.title}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {infoSections.map((section) => (
-              <TabsContent key={section.value} value={section.value} className="mt-5 rounded-[2.1rem] border border-border/70 bg-card p-6 shadow-soft">
-                {section.content}
-              </TabsContent>
-            ))}
-          </Tabs>
-        )}
-      </section>
-
-      <section className="container mx-auto px-4 py-6 md:py-10">
-        <div className="grid gap-4 md:grid-cols-3">
-          {[
-            { title: "Imballaggio curato", description: "Protezione durante il trasporto per un'esperienza più affidabile.", icon: PackageCheck },
-            { title: "Supporto disponibile", description: "Puoi chiarire dubbi su varianti e scelta prima di acquistare.", icon: HeadphonesIcon },
-            { title: "Checkout invariato", description: "Il flusso finale rimane quello già esistente e compatibile.", icon: ShieldCheck },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <Card key={item.title} className="rounded-[1.75rem] border-border bg-gradient-card p-6 shadow-soft">
-                <Icon className="h-6 w-6 text-primary" />
-                <h2 className="mt-4 text-lg font-heading font-semibold text-foreground">{item.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
-              </Card>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="container mx-auto px-4 py-8 md:py-12">
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Continua a scoprire</p>
-            <h2 className="mt-2 text-3xl font-heading font-bold text-foreground">Prodotti correlati</h2>
-          </div>
+      <section className="container mx-auto max-w-[1200px] px-4 py-10 md:py-14">
+        <div className="mb-6">
+          <h2 className="text-2xl font-heading font-semibold text-foreground md:text-[1.75rem]">Prodotti correlati</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Potrebbe piacerti anche</p>
         </div>
         {relatedProducts.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -430,9 +757,9 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 key={item.node.id}
                 type="button"
                 onClick={() => navigate(`/products/${item.node.handle}`)}
-                className="group overflow-hidden rounded-[1.75rem] border border-border bg-gradient-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated"
+                className="group h-auto overflow-hidden border border-border bg-card p-0 text-left shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated"
               >
-                <div className="aspect-[4/4.3] overflow-hidden bg-muted">
+                <div className="aspect-square w-full overflow-hidden bg-muted">
                   {item.node.images.edges[0]?.node ? (
                     <img
                       src={item.node.images.edges[0].node.url}
@@ -443,14 +770,11 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                     <div className="flex h-full items-center justify-center text-muted-foreground">Nessuna immagine</div>
                   )}
                 </div>
-                <div className="p-5">
-                  <h3 className="text-lg font-heading font-semibold text-foreground">{item.node.title}</h3>
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-base font-bold text-primary">€{parseFloat(item.node.priceRange.minVariantPrice.amount).toFixed(2)}</span>
-                    <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                      Apri <ArrowRight className="h-4 w-4" />
-                    </span>
-                  </div>
+                <div className="w-full p-4">
+                  <h3 className="text-base font-semibold text-foreground">{item.node.title}</h3>
+                  <p className="mt-2 text-base font-semibold text-foreground">
+                    €{parseFloat(item.node.priceRange.minVariantPrice.amount).toFixed(2)}
+                  </p>
                 </div>
               </button>
             ))}
@@ -464,29 +788,36 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
       {isMobile && (
         <div className="fixed inset-x-0 bottom-4 z-50 px-4 backdrop-blur">
-          <div className="mx-auto flex max-w-2xl items-center gap-3 rounded-[1.75rem] border border-border/70 bg-background/95 p-3 shadow-elevated">
+          <div className="mx-auto flex max-w-2xl items-center gap-3 border border-border/70 bg-background/95 p-3 shadow-elevated">
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-foreground">{node.title}</p>
-              <p className="text-sm font-bold text-primary">€{parseFloat(price.amount).toFixed(2)}</p>
+              <p className="text-sm font-bold text-foreground">€{parseFloat(price.amount).toFixed(2)}</p>
             </div>
-            <Button
+            <button
+              type="button"
               onClick={handleAddToCart}
               disabled={!selectedVariant?.availableForSale}
-              className="rounded-full px-5 text-sm font-semibold uppercase tracking-[0.18em] shadow-soft"
+              className="h-10 bg-primary px-5 text-sm font-semibold uppercase tracking-[0.12em] text-primary-foreground disabled:opacity-50"
             >
               Aggiungi
-            </Button>
+            </button>
           </div>
         </div>
       )}
 
       {zoomOpen && images[selectedImage] && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/70 p-4" onClick={() => setZoomOpen(false)}>
-          <div className="relative max-h-[90vh] max-w-5xl overflow-hidden rounded-[2rem] border border-border bg-card shadow-elevated" onClick={(event) => event.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/70 p-4"
+          onClick={() => setZoomOpen(false)}
+        >
+          <div
+            className="relative max-h-[90vh] max-w-5xl overflow-hidden border border-border bg-card"
+            onClick={(event) => event.stopPropagation()}
+          >
             <button
               type="button"
               onClick={() => setZoomOpen(false)}
-              className="absolute right-4 top-4 z-10 rounded-full bg-card px-3 py-2 text-sm font-medium text-foreground shadow-soft"
+              className="absolute right-4 top-4 z-10 bg-card px-3 py-2 text-sm font-medium text-foreground shadow-soft"
             >
               Chiudi
             </button>
