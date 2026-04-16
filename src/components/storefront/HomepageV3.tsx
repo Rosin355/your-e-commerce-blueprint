@@ -218,7 +218,7 @@ export const HomepageV3 = () => {
               <p className="mt-4 text-base leading-8 text-muted-foreground">
                 Dalle prime fioriture di balcone ai giardini piu strutturati, selezioniamo piante e accessori per accompagnare ogni esterno con naturale eleganza.
               </p>
-              <Button asChild className="mt-6 h-11 rounded-sm bg-primary-dark px-6 text-xs uppercase tracking-[0.16em]">
+              <Button asChild className="mt-6 h-11 rounded-none bg-primary-dark px-6 text-xs uppercase tracking-[0.16em]">
                 <a href="/collections/all">Scopri il catalogo outdoor</a>
               </Button>
             </div>
