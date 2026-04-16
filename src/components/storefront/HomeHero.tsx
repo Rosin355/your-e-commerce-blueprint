@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import heroOutdoorCustom1 from "@/assets/hero-outdoor-custom-1.png";
 import heroOutdoorCustom2 from "@/assets/hero-outdoor-custom-2.png";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { HomeAnnouncementBar } from "./HomeAnnouncementBar";
-import { HomeHeaderOverlay } from "./HomeHeaderOverlay";
+import { SiteHeader } from "./SiteHeader";
 
 const slides = [
   {
@@ -47,8 +46,7 @@ export const HomeHero = () => {
 
   return (
     <section className="relative isolate min-h-[92svh] overflow-hidden text-white md:min-h-[96svh]">
-      <HomeAnnouncementBar />
-      <HomeHeaderOverlay />
+      <SiteHeader variant="hero" />
 
       {slides.map((slide, index) => (
         <img

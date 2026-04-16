@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/useMobile";
 import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
-import { ArrowLeft, ArrowRight, CheckCircle2, HeadphonesIcon, ImageIcon, Info, Loader2, Minus, PackageCheck, Plus, Search, ShieldCheck, ShoppingCart, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, HeadphonesIcon, ImageIcon, Info, Loader2, Minus, PackageCheck, Plus, Search, ShieldCheck, ShoppingCart, Sparkles, Star } from "lucide-react";
 import { toast } from "sonner";
 
 interface PdpProps {
@@ -20,8 +20,8 @@ interface PdpProps {
 }
 
 const trustRows = [
-  "Imballaggio protettivo studiato per il trasporto",
-  "Supporto disponibile prima e dopo l'acquisto",
+  "Imballaggio protetto per piante e accessori",
+  "Supporto vivaio prima e dopo l'acquisto",
   "Checkout sicuro e flusso ordine invariato",
 ];
 
@@ -80,6 +80,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
     ? node.description.split(/\n+/).map((item) => item.trim()).filter(Boolean)
     : [];
 
+  const descriptionLead = descriptionParagraphs[0] ?? null;
+
   const handleAddToCart = () => {
     if (!selectedVariant) {
       toast.error("Prodotto non disponibile");
@@ -103,13 +105,15 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       value: "descrizione",
       title: "Descrizione",
       content: descriptionParagraphs.length > 0 ? (
-        <div className="space-y-4 text-sm leading-7 text-muted-foreground md:text-base">
+        <div className="space-y-5 text-[15px] leading-8 text-muted-foreground md:text-base">
           {descriptionParagraphs.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
         </div>
       ) : (
-        <p className="text-sm leading-7 text-muted-foreground md:text-base">La descrizione dettagliata verrà mostrata qui quando disponibile nel catalogo.</p>
+        <p className="text-[15px] leading-7 text-muted-foreground md:text-base">
+          La descrizione dettagliata verrà mostrata qui quando disponibile nel catalogo.
+        </p>
       ),
     },
     {
@@ -149,11 +153,17 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
   return (
     <main className="bg-background pb-24 md:pb-0">
+      <a
+        href="#product-info"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] rounded-full bg-background/95 px-4 py-2 text-sm font-semibold text-foreground shadow-soft"
+      >
+        Salta alle informazioni del prodotto
+      </a>
       <section className="border-b border-border bg-showcase">
         <div className="container mx-auto px-4 py-4 md:py-6">
           <Button variant="ghost" onClick={() => navigate("/")} className="pl-0 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Torna ai prodotti
+            Torna al catalogo
           </Button>
         </div>
       </section>
@@ -164,22 +174,22 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             <button
               type="button"
               onClick={() => setZoomOpen(true)}
-              className="group relative block aspect-square w-full overflow-hidden rounded-[2.2rem] border border-border bg-muted text-left shadow-elevated"
+              className="group relative block aspect-[4/5] w-full overflow-hidden rounded-[2.2rem] border border-border/70 bg-muted text-left shadow-elevated transition-transform duration-500 hover:-translate-y-0.5"
             >
               {images[selectedImage] ? (
                 <img
                   src={images[selectedImage].node.url}
                   alt={images[selectedImage].node.altText || node.title}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-muted-foreground">
                   <ImageIcon className="h-12 w-12" />
                 </div>
               )}
-              <div className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/82 px-4 py-2 text-sm font-medium text-foreground shadow-soft backdrop-blur">
-                <Search className="h-4 w-4 text-primary" />
-                Zoom immagine
+              <div className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/86 px-4 py-2 text-sm font-medium text-foreground/90 shadow-soft backdrop-blur">
+                <Search className="h-4 w-4 text-primary-dark" />
+                Ingrandisci
               </div>
             </button>
 
@@ -190,14 +200,15 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                     key={`${img.node.url}-${idx}`}
                     type="button"
                     onClick={() => setSelectedImage(idx)}
-                    className={`aspect-square overflow-hidden rounded-[1.25rem] border bg-muted transition-all ${
-                      selectedImage === idx ? "border-primary shadow-soft" : "border-border hover:border-primary/40"
+                    className={`aspect-square overflow-hidden rounded-[1.35rem] border bg-muted transition-all ${
+                      selectedImage === idx ? "border-primary/80 shadow-soft" : "border-border/60 hover:border-primary/40"
                     }`}
+                    aria-label={`Immagine ${idx + 1}`}
                   >
                     <img
                       src={img.node.url}
                       alt={img.node.altText || `${node.title} ${idx + 1}`}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                     />
                   </button>
                 ))}
@@ -206,7 +217,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-[2rem] border border-border bg-gradient-card p-6 shadow-elevated md:p-8">
+            <div id="product-info" className="rounded-[2.1rem] border border-border/70 bg-gradient-card p-6 shadow-elevated md:p-8">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em]">Scheda prodotto</Badge>
                 {selectedVariant?.availableForSale ? (
@@ -216,13 +227,46 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 )}
               </div>
               <div className="mt-5">
-                <h1 className="text-4xl font-heading font-bold leading-tight text-foreground md:text-5xl">{node.title}</h1>
-                <p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">
-                  Presentazione più pulita del prodotto, con dettagli acquisto e informazioni essenziali organizzate per decidere più in fretta.
-                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="text-4xl font-heading font-bold leading-tight text-foreground md:text-5xl">{node.title}</h1>
+                </div>
+
+                {optionSummary.length > 0 && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {optionSummary.slice(0, 2).map((opt) => (
+                      <span key={opt.label} className="rounded-full border border-border/70 bg-background/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        {opt.value}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {descriptionLead ? (
+                  <p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">{descriptionLead}</p>
+                ) : (
+                  <p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">
+                    Una selezione premium per valorizzare giardini, terrazzi e balconi con eleganza stagionale.
+                  </p>
+                )}
               </div>
-              <div className="mt-6 flex items-end gap-3">
-                <div className="text-4xl font-bold text-primary">€{parseFloat(price.amount).toFixed(2)}</div>
+
+              <div className="mt-6">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Prezzo</p>
+                <div className="mt-2 flex items-end gap-3">
+                  <div className="text-[2.35rem] font-semibold tracking-[-0.02em] text-primary-dark">
+                    €{parseFloat(price.amount).toFixed(2)}
+                  </div>
+                  <div className="hidden md:block">
+                    <div className="flex items-center gap-1.5 text-primary">
+                      <Star className="h-4 w-4 fill-current" />
+                      <Star className="h-4 w-4 fill-current" />
+                      <Star className="h-4 w-4 fill-current" />
+                      <Star className="h-4 w-4 fill-current" />
+                      <Star className="h-4 w-4 fill-current" />
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">Scelte amate dai nostri clienti</p>
+                  </div>
+                </div>
               </div>
 
               {variants.length > 1 && (
@@ -236,8 +280,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                         onClick={() => setSelectedVariant(variant)}
                         className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
                           selectedVariant?.id === variant.id
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-background text-foreground hover:border-primary"
+                            ? "border-primary/90 bg-primary text-primary-foreground"
+                            : "border-border/70 bg-background/60 text-foreground hover:border-primary/60"
                         }`}
                       >
                         {variant.title}
@@ -249,7 +293,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {productHighlights.slice(0, 4).map((item) => (
-                  <div key={item.label} className="rounded-[1.25rem] border border-border/60 bg-background/75 p-4 shadow-soft">
+                  <div key={item.label} className="rounded-[1.35rem] border border-border/60 bg-background/75 p-4 shadow-soft">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{item.label}</p>
                     <p className="mt-2 text-sm font-medium text-foreground">{item.value}</p>
                   </div>
@@ -277,11 +321,11 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 </Button>
               </div>
 
-              <div className="mt-6 space-y-3 text-sm text-muted-foreground">
-                {trustRows.map((row) => (
-                  <div key={row} className="flex items-center gap-3">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>{row}</span>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {trustRows.slice(0, 4).map((row) => (
+                  <div key={row} className="flex items-start gap-3 rounded-[1.25rem] border border-border/60 bg-background/70 p-4">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary-dark" />
+                    <span className="text-sm leading-6 text-foreground/90">{row}</span>
                   </div>
                 ))}
               </div>
@@ -289,13 +333,13 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
             <div className="grid gap-3 sm:grid-cols-3">
               {[
-                { title: "Dettagli acquisto", description: "Prezzo, varianti e disponibilità più leggibili.", icon: Info },
-                { title: "Supporto clienti", description: "Assistenza per dubbi prima della conferma ordine.", icon: HeadphonesIcon },
-                { title: "Acquisto protetto", description: "Checkout invariato e compatibile con il flusso attuale.", icon: ShieldCheck },
+                { title: "Dettagli acquisto", description: "Prezzo, varianti e disponibilità sempre sotto controllo.", icon: Info },
+                { title: "Consulenza vivaio", description: "Assistenza per dubbi su scelta e cura prima di acquistare.", icon: HeadphonesIcon },
+                { title: "Acquisto protetto", description: "Checkout sicuro e compatibile con il flusso attuale.", icon: ShieldCheck },
               ].map((item) => {
                 const Icon = item.icon;
                 return (
-                  <Card key={item.title} className="rounded-[1.5rem] border-border bg-gradient-card p-4 shadow-soft">
+                  <Card key={item.title} className="rounded-[1.75rem] border-border/70 bg-gradient-card p-5 shadow-soft">
                     <Icon className="h-5 w-5 text-primary" />
                     <h2 className="mt-3 text-base font-heading font-semibold text-foreground">{item.title}</h2>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
@@ -308,7 +352,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       </section>
 
       <section className="container mx-auto px-4 py-4 md:py-8">
-        <div className="rounded-[2rem] border border-border bg-showcase p-5 shadow-elevated md:p-7">
+        <div className="rounded-[2.1rem] border border-border/70 bg-showcase p-5 shadow-elevated md:p-7">
           <div className="mb-5 flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             <h2 className="text-2xl font-heading font-bold text-primary-foreground">Panoramica rapida</h2>
@@ -325,7 +369,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
       <section className="container mx-auto px-4 py-6 md:py-8">
         {isMobile ? (
-          <Accordion type="single" collapsible className="rounded-[2rem] border border-border bg-card px-5 py-2 shadow-soft">
+          <Accordion type="single" collapsible className="rounded-[2rem] border border-border/70 bg-card px-5 py-2 shadow-soft">
             {infoSections.map((section) => (
               <AccordionItem key={section.value} value={section.value} className="border-border">
                 <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:no-underline">
@@ -337,15 +381,15 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
           </Accordion>
         ) : (
           <Tabs defaultValue="descrizione" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 rounded-[1.25rem] bg-muted p-1">
+            <TabsList className="grid w-full grid-cols-4 rounded-[1.5rem] border border-border/70 bg-muted/70 p-1">
               {infoSections.map((section) => (
-                <TabsTrigger key={section.value} value={section.value} className="rounded-[1rem] text-sm font-medium">
+                <TabsTrigger key={section.value} value={section.value} className="rounded-[1.2rem] text-sm font-semibold">
                   {section.title}
                 </TabsTrigger>
               ))}
             </TabsList>
             {infoSections.map((section) => (
-              <TabsContent key={section.value} value={section.value} className="mt-5 rounded-[2rem] border border-border bg-card p-6 shadow-soft">
+              <TabsContent key={section.value} value={section.value} className="mt-5 rounded-[2.1rem] border border-border/70 bg-card p-6 shadow-soft">
                 {section.content}
               </TabsContent>
             ))}
@@ -419,8 +463,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       </section>
 
       {isMobile && (
-        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 p-3 backdrop-blur">
-          <div className="mx-auto flex max-w-2xl items-center gap-3 rounded-[1.5rem] border border-border bg-card p-3 shadow-elevated">
+        <div className="fixed inset-x-0 bottom-4 z-50 px-4 backdrop-blur">
+          <div className="mx-auto flex max-w-2xl items-center gap-3 rounded-[1.75rem] border border-border/70 bg-background/95 p-3 shadow-elevated">
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-foreground">{node.title}</p>
               <p className="text-sm font-bold text-primary">€{parseFloat(price.amount).toFixed(2)}</p>
@@ -428,7 +472,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             <Button
               onClick={handleAddToCart}
               disabled={!selectedVariant?.availableForSale}
-              className="rounded-full px-5 text-sm font-semibold uppercase tracking-[0.18em]"
+              className="rounded-full px-5 text-sm font-semibold uppercase tracking-[0.18em] shadow-soft"
             >
               Aggiungi
             </Button>

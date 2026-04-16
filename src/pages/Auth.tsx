@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { SiteHeader } from '@/components/storefront/SiteHeader';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -84,7 +84,7 @@ const Auth = () => {
   if (isForgotPassword) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header />
+        <SiteHeader variant="page" />
         <main className="flex-1 flex items-center justify-center px-4 py-16">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
@@ -118,7 +118,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <SiteHeader variant="page" />
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">

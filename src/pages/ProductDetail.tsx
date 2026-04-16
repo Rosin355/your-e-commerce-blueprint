@@ -1,11 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { useProduct } from "@/hooks/useProduct";
 import { Pdp } from "@/components/storefront/Pdp";
 import { ProductCareInfo } from "@/components/product/ProductCareInfo";
+import { SiteHeader } from "@/components/storefront/SiteHeader";
 
 const ProductLoadingState = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -36,7 +36,7 @@ const ProductDetail = () => {
   if (loading) {
     return (
       <>
-        <Header />
+        <SiteHeader variant="page" />
         <ProductLoadingState />
         <Footer />
       </>
@@ -46,7 +46,7 @@ const ProductDetail = () => {
   if (!product) {
     return (
       <>
-        <Header />
+        <SiteHeader variant="page" />
         <ProductNotFoundState onBackHome={goToHomepage} />
         <Footer />
       </>
@@ -55,7 +55,7 @@ const ProductDetail = () => {
 
   return (
     <>
-      <Header />
+      <SiteHeader variant="page" />
       <Pdp
         product={product}
         selectedVariant={selectedVariant}

@@ -98,14 +98,21 @@ const BrandMark = ({ compact = false }: { compact?: boolean }) => (
   </span>
 );
 
-export const HomeHeaderOverlay = () => {
+export type HomeHeaderOverlayVariant = "hero" | "page";
+export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOverlayVariant }) => {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [activeItem, setActiveItem] = useState<(typeof navigationItems)[number] | null>(null);
 
   return (
-    <header className="absolute inset-x-0 top-7 z-30 text-white md:top-8">
+    <header
+      className={[
+        variant === "hero" ? "absolute inset-x-0 top-7 z-30" : "sticky inset-x-0 top-7 z-40",
+        "text-white md:top-8",
+        variant === "page" ? "bg-black/10 backdrop-blur-xl border-b border-white/12" : "",
+      ].join(" ")}
+    >
       <div className="mx-auto max-w-[1600px] px-4 md:px-6">
         <div
           className="hidden border-b border-white/16 py-3.5 lg:block"
@@ -128,7 +135,7 @@ export const HomeHeaderOverlay = () => {
               ))}
             </nav>
 
-            <a href="/" aria-label="Online Garden home" className="justify-self-center">
+            <a href="/" aria-label="Homepage di Online Garden" className="justify-self-center">
               <BrandMark />
             </a>
 
@@ -236,7 +243,7 @@ export const HomeHeaderOverlay = () => {
               </SheetContent>
             </Sheet>
 
-            <a href="/" aria-label="Online Garden home" className="justify-self-center">
+            <a href="/" aria-label="Homepage di Online Garden" className="justify-self-center">
               <BrandMark compact />
             </a>
 
