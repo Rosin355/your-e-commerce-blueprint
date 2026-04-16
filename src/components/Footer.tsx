@@ -27,7 +27,7 @@ export const Footer = () => {
             <ul className="mt-4 space-y-2.5">
               {categories.map((item) => (
                 <li key={item}>
-                  <a href="#catalogo" className="text-sm text-foreground/90 transition-colors hover:text-primary">
+                  <a href="/collections/all" className="text-sm text-foreground/90 transition-colors hover:text-primary">
                     {item}
                   </a>
                 </li>

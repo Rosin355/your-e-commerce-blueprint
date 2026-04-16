@@ -14,6 +14,7 @@ const AccountCallback = lazy(() => import("./pages/AccountCallback"));
 const Account = lazy(() => import("./pages/Account"));
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const AllProducts = lazy(() => import("./pages/AllProducts"));
 
 
 const queryClient = new QueryClient();
@@ -33,6 +34,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/collections/all" element={<SuspenseLoader><AllProducts /></SuspenseLoader>} />
+            <Route path="/products" element={<SuspenseLoader><AllProducts /></SuspenseLoader>} />
             <Route path="/products/:handle" element={<ProductDetail />} />
             <Route path="/auth" element={<SuspenseLoader><Auth /></SuspenseLoader>} />
             <Route path="/reset-password" element={<SuspenseLoader><ResetPassword /></SuspenseLoader>} />

@@ -31,7 +31,7 @@ const sectionHeading = (label: string, title: string, actionLabel = "Scopri tutt
       <p className="text-[11px] text-muted-foreground">{label}</p>
       <h2 className="mt-1 font-heading text-[2rem] font-medium leading-tight text-foreground md:text-[2.3rem]">{title}</h2>
     </div>
-    <a href="#catalogo" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+    <a href="/collections/all" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
       <ArrowRight className="h-4 w-4" />
       {actionLabel}
     </a>
@@ -219,7 +219,7 @@ export const HomepageV3 = () => {
                 Dalle prime fioriture di balcone ai giardini piu strutturati, selezioniamo piante e accessori per accompagnare ogni esterno con naturale eleganza.
               </p>
               <Button asChild className="mt-6 h-11 rounded-sm bg-primary-dark px-6 text-xs uppercase tracking-[0.16em]">
-                <a href="#catalogo">Scopri il catalogo outdoor</a>
+                <a href="/collections/all">Scopri il catalogo outdoor</a>
               </Button>
             </div>
           </div>

@@ -74,7 +74,7 @@ export const HomeHero = () => {
           <p className={`mt-4 max-w-xl text-sm leading-7 text-white/84 md:text-[1.02rem] ${isReducedMotion ? "" : "animate-fade-up-delayed"}`}>
             {activeSlide.subtitle}
           </p>
-          <a href="#catalogo" className="mt-5 inline-flex text-[10px] font-semibold uppercase tracking-[0.22em] text-white/82 transition-colors hover:text-white">
+          <a href="/collections/all" className="mt-5 inline-flex text-[10px] font-semibold uppercase tracking-[0.22em] text-white/82 transition-colors hover:text-white">
             Scopri il catalogo outdoor
           </a>
         </div>

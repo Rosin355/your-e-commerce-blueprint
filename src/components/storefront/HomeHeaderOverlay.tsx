@@ -168,7 +168,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                       {activeItem.links.map((link) => (
                         <a
                           key={link}
-                          href="#catalogo"
+                          href="/collections/all"
                           className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-white/86 transition-colors hover:text-white"
                         >
                           <span>{link}</span>
@@ -176,7 +176,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                         </a>
                       ))}
                     </div>
-                    <a href="#catalogo" className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/82 transition-colors hover:text-white">
+                    <a href="/collections/all" className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/82 transition-colors hover:text-white">
                       Vai al catalogo
                       <ChevronRight className="h-4 w-4" />
                     </a>
@@ -184,7 +184,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
 
                   <div className="grid gap-5 md:grid-cols-2">
                     {activeItem.previewCards.map((card) => (
-                      <a key={card.title} href="#catalogo" className="group block">
+                      <a key={card.title} href="/collections/all" className="group block">
                         <div className="overflow-hidden">
                           <div className={`h-52 w-full bg-gradient-to-br ${card.tone} transition-transform duration-700 group-hover:scale-[1.03]`} />
                         </div>
@@ -218,7 +218,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                   {navigationItems.map((item) => (
                     <div key={item.label} className="rounded-2xl border border-border/70 bg-card p-2">
                       <a
-                        href="#catalogo"
+                        href="/collections/all"
                         onClick={() => setIsMobileNavOpen(false)}
                         className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
                       >
@@ -229,7 +229,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                         {item.links.map((link) => (
                           <a
                             key={link}
-                            href="#catalogo"
+                            href="/collections/all"
                             onClick={() => setIsMobileNavOpen(false)}
                             className="rounded-xl px-3 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/75 transition-colors hover:bg-muted"
                           >

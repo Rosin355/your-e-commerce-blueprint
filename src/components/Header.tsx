@@ -128,7 +128,7 @@ export const Header = () => {
                     {categories.map((cat) => (
                       <a
                         key={cat.label}
-                        href="#catalogo"
+                        href="/collections/all"
                         className="flex items-center justify-between rounded-xl px-3 py-3 text-xs font-semibold tracking-[0.18em] text-foreground/90 transition-colors hover:bg-muted"
                       >
                         {cat.label}
@@ -231,7 +231,7 @@ export const Header = () => {
               ))}
             </nav>
             <div className="hidden items-center gap-4 lg:flex">
-              <a href="#catalogo" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-dark hover:text-primary">
+              <a href="/collections/all" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-dark hover:text-primary">
                 <MessageCircle className="h-4 w-4" />
                 Scrivici per scegliere meglio
               </a>
@@ -252,7 +252,7 @@ export const Header = () => {
                 {activeCategoryData.links.map((link) => (
                   <a
                     key={link}
-                    href="#catalogo"
+                    href="/collections/all"
                     className="flex items-center justify-between border-b border-border/60 py-2.5 text-sm text-foreground/88 transition-colors hover:text-primary-dark"
                   >
                     <span>{link}</span>
@@ -261,7 +261,7 @@ export const Header = () => {
                 ))}
               </div>
 
-              <a href="#catalogo" className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-dark hover:text-primary">
+              <a href="/collections/all" className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-dark hover:text-primary">
                 Scopri tutto
                 <ChevronRight className="h-4 w-4" />
               </a>
@@ -269,7 +269,7 @@ export const Header = () => {
 
             <div className="grid gap-5 lg:grid-cols-2">
               {activeCategoryData.previewCards.map((card) => (
-                <a key={card.title} href="#catalogo" className="group block overflow-hidden rounded-[1.35rem] border border-border/65 bg-card/55">
+                <a key={card.title} href="/collections/all" className="group block overflow-hidden rounded-[1.35rem] border border-border/65 bg-card/55">
                   <div className={`h-48 w-full bg-gradient-to-br ${card.tone} transition-transform duration-700 group-hover:scale-[1.03]`} />
                   <div className="px-5 py-4">
                     <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Selezione</p>
