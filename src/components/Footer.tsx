@@ -1,50 +1,34 @@
 import { Facebook, Instagram, MessageCircle } from "lucide-react";
 
 export const Footer = () => {
-  const categories = [
-    "Piante da Interno",
-    "Piante da Esterno",
-    "Rose",
-    "Bulbi",
-    "Piante da Frutto",
-    "Aromatiche"
-  ];
-
+  const categories = ["Flowerpots", "Essentials", "Plants"];
   const links = {
-    company: [
-      { label: "Chi Siamo", href: "#" },
-      { label: "Spedizioni", href: "#" },
-      { label: "Resi e Rimborsi", href: "#" },
-    ],
-    legal: [
-      { label: "Privacy Policy", href: "#" },
-      { label: "Termini e Condizioni", href: "#" },
-      { label: "Cookie Policy", href: "#" },
-    ]
+    explore: ["About", "Journal", "FAQ", "Customer Care"],
+    legal: ["Privacy Policy", "Refund Policy", "Terms of Service"],
   };
 
+  const paymentMethods = ["Visa", "Mastercard", "Amex", "PayPal", "Diners", "Discover"];
+
   return (
-    <footer className="bg-showcase text-primary-foreground">
-      <div className="container mx-auto px-4 py-14">
-        <div className="mb-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-4">
-            <h3 className="text-2xl font-heading font-bold">Online Garden</h3>
-            <p className="text-sm leading-6 text-primary-foreground/78">
-              Uno storefront verde più elegante, leggibile e rassicurante per accompagnare la scelta con più calma.
-            </p>
-            <div className="text-sm text-primary-foreground/72">
-              <p>Via delle Piante, 123</p>
-              <p>00100 Roma, Italia</p>
-            </div>
-          </div>
+    <footer className="border-t border-border/70 bg-background">
+      <div className="container mx-auto px-4 py-10 md:py-12">
+        <div>
+          <h2 className="w-full font-['Playfair_Display'] text-[clamp(3.2rem,12vw,10.4rem)] font-semibold leading-[0.88] tracking-[-0.045em] text-primary">
+            Online Garden
+          </h2>
+          <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground">
+            Greenery and accessories created to bring energy, tranquility, and natural charm to your home with ease.
+          </p>
+        </div>
 
+        <div className="mt-10 grid gap-8 border-t border-border/65 pt-8 md:grid-cols-2 lg:grid-cols-5">
           <div>
-            <h4 className="mb-4 font-heading text-lg font-semibold">Link Utili</h4>
-            <ul className="space-y-2 text-sm text-primary-foreground/78">
-              {links.company.map((link, idx) => (
-                <li key={idx}>
-                  <a href={link.href} className="transition-opacity hover:opacity-100 hover:underline">
-                    {link.label}
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Shop</h3>
+            <ul className="mt-4 space-y-2.5">
+              {categories.map((item) => (
+                <li key={item}>
+                  <a href="#catalogo" className="text-sm text-foreground/90 transition-colors hover:text-primary">
+                    {item}
                   </a>
                 </li>
               ))}
@@ -52,12 +36,12 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h4 className="mb-4 font-heading text-lg font-semibold">Categorie</h4>
-            <ul className="space-y-2 text-sm text-primary-foreground/78">
-              {categories.map((cat, idx) => (
-                <li key={idx}>
-                  <a href="#" className="transition-opacity hover:opacity-100 hover:underline">
-                    {cat}
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Explore</h3>
+            <ul className="mt-4 space-y-2.5">
+              {links.explore.map((item) => (
+                <li key={item}>
+                  <a href="#" className="text-sm text-foreground/90 transition-colors hover:text-primary">
+                    {item}
                   </a>
                 </li>
               ))}
@@ -65,32 +49,59 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h4 className="mb-4 font-heading text-lg font-semibold">Seguici</h4>
-            <div className="mb-6 flex gap-4">
-              <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-primary-foreground/15 bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20">
-                <Facebook className="h-5 w-5" />
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Legal</h3>
+            <ul className="mt-4 space-y-2.5">
+              {links.legal.map((item) => (
+                <li key={item}>
+                  <a href="#" className="text-sm text-foreground/90 transition-colors hover:text-primary">
+                    {item}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Follow us</h3>
+            <div className="mt-4 flex items-center gap-3">
+              <a href="#" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/80 text-foreground/85 hover:border-primary hover:text-primary">
+                <Instagram className="h-4 w-4" />
               </a>
-              <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-primary-foreground/15 bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20">
-                <Instagram className="h-5 w-5" />
+              <a href="#" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/80 text-foreground/85 hover:border-primary hover:text-primary">
+                <Facebook className="h-4 w-4" />
               </a>
-              <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-primary-foreground/15 bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20">
-                <MessageCircle className="h-5 w-5" />
+              <a href="#" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/80 text-foreground/85 hover:border-primary hover:text-primary">
+                <MessageCircle className="h-4 w-4" />
               </a>
             </div>
-            <p className="text-sm text-primary-foreground/78">
-              Iscriviti alla newsletter per offerte esclusive e novità di stagione.
+          </div>
+
+          <div>
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Subscribe to our newsletter</h3>
+            <div className="mt-4 border-b border-border/80 pb-2">
+              <div className="flex items-center justify-between gap-3">
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                />
+                <span className="text-lg text-primary">→</span>
+              </div>
+            </div>
+            <p className="mt-3 text-xs leading-5 text-muted-foreground">
+              By clicking on the "Subscribe" button, I confirm my agreement with the Privacy Policy and Terms of Use.
             </p>
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/12 pt-8">
-          <div className="flex flex-col items-center justify-between gap-4 text-sm text-primary-foreground/72 md:flex-row">
-            <p>© 2025 Online Garden. Tutti i diritti riservati.</p>
-            <div className="flex gap-4">
-              {links.legal.map((link, idx) => (
-                <a key={idx} href={link.href} className="hover:underline">
-                  {link.label}
-                </a>
+        <div className="mt-8 border-t border-border/65 pt-5">
+          <div className="flex flex-col items-start justify-between gap-4 text-xs text-muted-foreground md:flex-row md:items-center">
+            <p>© 2026 OnlineGarden. Powered by Shopify mood.</p>
+            <div className="flex flex-wrap items-center gap-2">
+              {paymentMethods.map((method) => (
+                <span key={method} className="rounded border border-border/70 px-2 py-1 text-[10px] uppercase tracking-[0.08em] text-foreground/70">
+                  {method}
+                </span>
               ))}
             </div>
           </div>

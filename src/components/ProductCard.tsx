@@ -23,14 +23,14 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
   const shortDescription = node.description?.trim();
 
   const surfaceClass = dark
-    ? "border-primary-foreground/10 bg-card/90 shadow-elevated"
-    : "border-border bg-gradient-card shadow-soft";
+    ? "border-primary-foreground/14 bg-card/88"
+    : "border-border/70 bg-card/70";
   const badgeClass = dark
-    ? "border-primary-foreground/10 bg-background/80 text-foreground"
-    : "border-border bg-card/90 text-foreground";
+    ? "border-primary-foreground/14 bg-background/70 text-foreground"
+    : "border-border/70 bg-background/78 text-foreground";
   const metaChipClass = dark
     ? "bg-background/75 text-foreground"
-    : "bg-muted text-foreground";
+    : "bg-muted/75 text-foreground";
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -61,15 +61,15 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
 
   return (
     <Card
-      className={`group cursor-pointer overflow-hidden rounded-[1.75rem] transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated ${surfaceClass}`}
+      className={`group cursor-pointer overflow-hidden rounded-[1.35rem] border transition-all duration-500 hover:-translate-y-1 hover:shadow-soft ${surfaceClass}`}
       onClick={handleCardClick}
     >
-      <div className="relative aspect-[4/4.8] overflow-hidden bg-muted">
+      <div className="relative aspect-[4/4.7] overflow-hidden bg-muted">
         {image ? (
           <img
             src={image.url}
             alt={image.altText || node.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
             loading="lazy"
           />
         ) : (
@@ -78,50 +78,51 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
           </div>
         )}
         <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
-          <Badge variant="secondary" className={`rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
+          <Badge variant="secondary" className={`rounded-full border px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
             Selezione verde
           </Badge>
           {!firstVariant?.availableForSale && (
-            <Badge variant="secondary" className={`rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
+            <Badge variant="secondary" className={`rounded-full border px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
               Esaurito
             </Badge>
           )}
         </div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background/74 to-transparent opacity-65 transition-opacity duration-500 group-hover:opacity-95" />
       </div>
 
-      <div className="space-y-4 p-5 md:p-6">
+      <div className="space-y-3.5 p-4 md:p-5">
         <div className="space-y-2">
-          <h3 className="line-clamp-2 font-heading text-xl font-semibold text-foreground transition-colors group-hover:text-primary">
+          <h3 className="line-clamp-2 font-heading text-[1.2rem] font-semibold leading-[1.2] text-foreground transition-colors group-hover:text-primary-dark">
             {node.title}
           </h3>
           {shortDescription && (
-            <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">
+            <p className="line-clamp-2 text-[13px] leading-6 text-muted-foreground/90">
               {shortDescription}
             </p>
           )}
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] ${metaChipClass}`}>
+          <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.17em] ${metaChipClass}`}>
             {firstVariant?.availableForSale ? "Disponibile" : "Da verificare"}
           </span>
           {firstVariant?.selectedOptions?.[0]?.value && (
-            <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground ${dark ? "bg-background/75" : "bg-muted"}`}>
+            <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.17em] text-muted-foreground ${dark ? "bg-background/75" : "bg-muted/75"}`}>
               {firstVariant.selectedOptions[0].value}
             </span>
           )}
         </div>
 
-        <div className="flex items-end justify-between gap-3 border-t border-border/70 pt-4">
+        <div className="flex items-end justify-between gap-3 border-t border-border/65 pt-3.5">
           <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Prezzo da</p>
-            <span className="text-2xl font-bold text-primary">€{parseFloat(price.amount).toFixed(2)}</span>
+            <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground">Prezzo da</p>
+            <span className="text-[1.45rem] font-semibold leading-none text-primary-dark">€{parseFloat(price.amount).toFixed(2)}</span>
           </div>
           <Button
             onClick={handleAddToCart}
             disabled={!firstVariant?.availableForSale}
             size="sm"
-            className="rounded-full px-4 uppercase font-semibold text-xs tracking-[0.16em]"
+            className="h-9 rounded-full px-3.5 text-[10px] uppercase font-semibold tracking-[0.16em]"
           >
             <CheckCircle2 className="h-4 w-4" />
             Aggiungi
@@ -131,9 +132,9 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
         <button
           type="button"
           onClick={handleCardClick}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-primary"
+          className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-primary-dark transition-colors hover:text-primary"
         >
-          Scopri il prodotto <ArrowRight className="h-4 w-4" />
+          Scopri il prodotto <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
         </button>
       </div>
     </Card>

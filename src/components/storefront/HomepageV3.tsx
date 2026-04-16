@@ -1,40 +1,42 @@
-import heroBotanical from "@/assets/hero-botanical-spring.jpg";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, CheckCircle2, HeadphonesIcon, Leaf, Loader2, PackageCheck, ShieldCheck } from "lucide-react";
+import heroBotanicalSpring from "@/assets/hero-botanical-spring.jpg";
+import heroBotanicalV3 from "@/assets/hero-botanical-v3.jpg";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
-import { ArrowRight, CheckCircle2, HeadphonesIcon, HeartHandshake, Leaf, Loader2, PackageCheck, ShieldCheck } from "lucide-react";
-import { useEffect, useState } from "react";
-
+import { HomeHero } from "./HomeHero";
 
 const trustItems = [
-{
-  title: "Consegna sicura e protetta",
-  description: "Ogni pianta viene confezionata con cura per arrivare fresca e intatta, anche in primavera.",
-  icon: PackageCheck
-},
-{
-  title: "Selezione stagionale",
-  description: "Varietà scelte per la stagione: fioriture, profumi e colori pensati per questo momento dell'anno.",
-  icon: CheckCircle2
-},
-{
-  title: "Assistenza dedicata",
-  description: "Ti aiutiamo a scegliere, piantare e curare. Prima, durante e dopo l'acquisto.",
-  icon: HeadphonesIcon
-},
-{
-  title: "Acquisto senza pensieri",
-  description: "Checkout veloce, pagamento sicuro e un'esperienza fluida anche da smartphone.",
-  icon: ShieldCheck
-}];
-
-
-const trustStatements = [
-  "Consegna protetta",
-  "Checkout semplice",
-  "Assistenza reale"
+  { title: "Free Shipping", subtitle: "Consegna protetta oltre €50", icon: PackageCheck },
+  { title: "Easy Returns", subtitle: "30 giorni per il reso", icon: CheckCircle2 },
+  { title: "Secure Payment", subtitle: "Checkout sicuro", icon: ShieldCheck },
+  { title: "Quality Guarantee", subtitle: "Supporto post-vendita", icon: HeadphonesIcon },
 ];
+
+type ProductGroup = {
+  label: string;
+  title: string;
+  subtitle: string;
+  items: ShopifyProduct[];
+  isLoading: boolean;
+};
+
+const withImages = (products: ShopifyProduct[]) => products.filter((p) => p.node.images.edges.length > 0);
+
+const sectionHeading = (label: string, title: string, actionLabel = "Shop all") => (
+  <div className="mb-7 flex items-end justify-between gap-5 border-b border-border/70 pb-4">
+    <div>
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <h2 className="mt-1 font-heading text-[2rem] font-medium leading-tight text-foreground md:text-[2.3rem]">{title}</h2>
+    </div>
+    <a href="#catalogo" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+      <ArrowRight className="h-4 w-4" />
+      {actionLabel}
+    </a>
+  </div>
+);
 
 export const HomepageV3 = () => {
   const [bestSellers, setBestSellers] = useState<ShopifyProduct[]>([]);
@@ -43,9 +45,9 @@ export const HomepageV3 = () => {
   const [loadingBest, setLoadingBest] = useState(true);
   const [loadingEasy, setLoadingEasy] = useState(true);
   const [loadingSeasonal, setLoadingSeasonal] = useState(true);
-
-  const withImages = (products: ShopifyProduct[]) =>
-    products.filter((p) => p.node.images.edges.length > 0);
+  const [newsletterParallax, setNewsletterParallax] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const newsletterSectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     fetchProducts(20).then((p) => {
@@ -53,127 +55,188 @@ export const HomepageV3 = () => {
       setBestSellers(valid.slice(0, 4));
       setLoadingBest(false);
     });
-    fetchProducts(8).then((p) => { setEasyCare(withImages(p).slice(0, 4)); setLoadingEasy(false); });
-    fetchProducts(8, 'product_type:variable').then((p) => { setSeasonal(withImages(p).slice(0, 4)); setLoadingSeasonal(false); });
+    fetchProducts(8).then((p) => {
+      setEasyCare(withImages(p).slice(0, 4));
+      setLoadingEasy(false);
+    });
+    fetchProducts(8, "product_type:variable").then((p) => {
+      setSeasonal(withImages(p).slice(0, 4));
+      setLoadingSeasonal(false);
+    });
   }, []);
 
-  const editorialCollections = [
-  {
-    title: "Fioriture di primavera",
-    description: "Le piante più belle per portare colore e profumo in casa con l'arrivo della bella stagione."
-  },
-  {
-    title: "Balconi e terrazze",
-    description: "Idee e soluzioni per creare angoli verdi all'aperto, resistenti e pieni di vita."
-  },
-  {
-    title: "Regala una pianta",
-    description: "Idee regalo originali e facili da ordinare, perfette per ogni occasione primaverile."
-  },
-  {
-    title: "Guida alla cura",
-    description: "Consigli pratici per far crescere e mantenere le tue piante al meglio, stagione dopo stagione."
-  }];
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncMotion = () => setReduceMotion(media.matches);
+    syncMotion();
+    media.addEventListener("change", syncMotion);
+    return () => media.removeEventListener("change", syncMotion);
+  }, []);
 
+  useEffect(() => {
+    if (reduceMotion) {
+      setNewsletterParallax(0);
+      return;
+    }
+
+    let rafId = 0;
+    const updateParallax = () => {
+      const section = newsletterSectionRef.current;
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+      const clamped = Math.max(0, Math.min(1, progress));
+      setNewsletterParallax((clamped - 0.5) * 66);
+    };
+
+    const onScroll = () => {
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(() => {
+        updateParallax();
+        rafId = 0;
+      });
+    };
+
+    updateParallax();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (rafId) window.cancelAnimationFrame(rafId);
+    };
+  }, [reduceMotion]);
+
+  const productGroups: ProductGroup[] = [
+    {
+      label: "Products",
+      title: "New arrivals",
+      subtitle: "Le piante più scelte dai nostri clienti questa primavera.",
+      items: bestSellers,
+      isLoading: loadingBest,
+    },
+    {
+      label: "Top picks",
+      title: "Handpicked for you",
+      subtitle: "Resistenti, belle e facili da curare: ideali per chi è alle prime armi.",
+      items: easyCare,
+      isLoading: loadingEasy,
+    },
+    {
+      label: "Seasonal",
+      title: "Fresh botanical edit",
+      subtitle: "Fioriture fresche e varietà primaverili appena arrivate.",
+      items: seasonal,
+      isLoading: loadingSeasonal,
+    },
+  ];
+
+  const imagePool = useMemo(() => {
+    const fromProducts = [...bestSellers, ...easyCare, ...seasonal]
+      .flatMap((p) => p.node.images.edges[0]?.node?.url ? [p.node.images.edges[0].node.url] : []);
+    return fromProducts.length > 0 ? fromProducts : [heroBotanicalSpring, heroBotanicalV3];
+  }, [bestSellers, easyCare, seasonal]);
+
+  const getImage = (index: number) => imagePool[index % imagePool.length] ?? heroBotanicalSpring;
+
+  const journalCards = [
+    { date: "22.03.26", title: "How to Group Planters by Color, Size, and Plant Type", category: "Care", author: "Sam Smith" },
+    { date: "19.03.26", title: "Indoor Plant Styling Tips from Interior Designers", category: "Growth", author: "Sam Smith" },
+    { date: "10.03.26", title: "Seasonal Potted Plants to Brighten Your Home", category: "Interior", author: "Sam Smith" },
+    { date: "08.03.26", title: "Decorating Tips Using Unique Potted Plant Shapes", category: "Plants", author: "Sam Smith" },
+  ];
 
   return (
     <>
-      <section className="relative isolate overflow-hidden border-b border-border/40 bg-hero">
-        <div className="absolute inset-0">
-          <img
-            src={heroBotanical}
-            alt="Piante primaverili in fiore con luce naturale calda"
-            className="h-full min-h-[520px] w-full object-cover object-center"
-            loading="eager" />
-          
-        </div>
-        <div className="absolute inset-0 bg-hero-overlay" />
-        <div className="absolute inset-0 bg-hero-accent opacity-90" />
-        <div className="pointer-events-none absolute -left-12 top-20 hidden h-32 w-32 rounded-full bg-accent-bright/22 blur-3xl lg:block" />
-        <div className="pointer-events-none absolute right-[8%] top-[16%] hidden h-24 w-24 rounded-full bg-accent-bright/18 blur-3xl lg:block" />
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,transparent_0%,hsl(var(--background))/0.72_100%)]" />
+      <HomeHero />
 
-        <div className="container relative mx-auto flex min-h-[440px] items-end px-4 py-4 md:min-h-[520px] md:py-6 lg:items-center lg:py-8">
-          <div className="grid w-full gap-4 lg:grid-cols-[minmax(0,640px)_1fr] lg:gap-8">
-            <div className="glass-hero-panel animate-fade-up rounded-[1.5rem] p-4 text-primary-foreground shadow-hero md:rounded-[1.85rem] md:p-6 lg:p-8">
-              <div className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-glass-hero bg-background/10 px-3 py-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-primary-foreground/88 md:px-4 md:py-2 md:text-[0.68rem] md:tracking-[0.26em]">
-                <Leaf className="h-3.5 w-3.5 text-accent-bright md:h-4 md:w-4" />
-                Botanical living
-              </div>
-              <h1 className="mt-4 max-w-3xl text-balance font-heading text-[2rem] font-bold leading-[0.94] text-primary-foreground md:mt-5 md:max-w-2xl md:text-[3.1rem] lg:max-w-3xl lg:text-[4.2rem] xl:text-[4.7rem]">
-                È primavera: fai fiorire i tuoi spazi.
-              </h1>
-              <p className="animate-fade-up-delayed mt-3 max-w-xl text-[0.88rem] leading-5 text-primary-foreground/78 md:mt-4 md:text-[0.98rem] md:leading-6 lg:max-w-xl lg:text-[1.02rem] lg:leading-7">
-                Scopri la nuova selezione primaverile: piante fiorite, aromatiche e da balcone pronte per te.
-              </p>
-              <div className="animate-fade-up-delayed mt-5 flex flex-col gap-2.5 sm:flex-row md:mt-6 md:gap-3">
-                <Button asChild size="lg" className="h-10 rounded-full bg-accent-bright px-5 text-xs font-semibold uppercase tracking-[0.16em] text-accent-bright-foreground shadow-hero hover:bg-accent-bright/90 md:h-11 md:px-7 md:text-sm md:tracking-[0.18em]">
-                  <a href="#catalogo">Scopri la collezione</a>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="h-10 rounded-full border-glass-hero bg-background/10 px-5 text-xs font-semibold uppercase tracking-[0.16em] text-primary-foreground backdrop-blur hover:bg-background/16 hover:text-primary-foreground md:h-11 md:px-7 md:text-sm md:tracking-[0.18em]">
-                  <a href="#collezioni">Collezioni</a>
-                </Button>
-              </div>
-              <div className="animate-fade-up-delayed-2 mt-5 grid gap-2 sm:grid-cols-3 md:mt-6 md:gap-3">
-                {trustStatements.map((item) =>
-                <div key={item} className="rounded-2xl border border-glass-hero bg-background/10 px-3 py-2.5 text-xs text-primary-foreground/88 backdrop-blur-md transition-transform duration-500 hover:-translate-y-1 md:px-4 md:py-3 md:text-sm">
-                    {item}
+      <section className="border-y border-border/65 bg-background py-10 md:py-12">
+        <div className="container mx-auto px-4">
+          <div className="mb-8 text-center">
+            <h3 className="font-heading text-[2rem] font-medium text-foreground md:text-[2.3rem]">Why Choose Us</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Quality and care you can always trust</p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-4">
+            {trustItems.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.title} className="relative text-center">
+                  {index !== 3 ? <span className="absolute right-0 top-1/2 hidden h-10 w-px -translate-y-1/2 bg-border md:block" /> : null}
+                  <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-border/70 bg-card">
+                    <Icon className="h-6 w-6 text-primary-dark" />
                   </div>
-                )}
-              </div>
-            </div>
-
-            
-
-
-
-
-
-
-
-
-
-            
+                  <p className="mt-3 text-base font-medium text-foreground">{item.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.subtitle}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <section id="catalogo" className="relative overflow-hidden bg-background py-12 md:py-16">
-        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,hsl(var(--primary-light)/0.08),transparent_24%)]" />
-        <div className="container relative mx-auto px-4 space-y-12">
-          {[
-            { title: "I più amati", subtitle: "Le piante più scelte dai nostri clienti questa primavera", items: bestSellers, isLoading: loadingBest },
-            { title: "Perfette per iniziare", subtitle: "Resistenti, belle e facili da curare: ideali per chi è alle prime armi", items: easyCare, isLoading: loadingEasy },
-            { title: "Novità di stagione", subtitle: "Fioriture fresche e varietà primaverili appena arrivate", items: seasonal, isLoading: loadingSeasonal },
-          ].map((group) => (
-            <div key={group.title} className="space-y-5">
-              <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
-                    Selezione curata
-                  </p>
-                  <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">
-                    {group.title}
-                  </h2>
-                  <p className="mt-2 max-w-2xl text-muted-foreground">{group.subtitle}</p>
-                </div>
-                <Button asChild variant="outline" className="rounded-full px-5 uppercase tracking-[0.18em]">
-                  <a href="#collezioni">Esplora</a>
-                </Button>
-              </div>
+      <section className="bg-background py-12 md:py-16">
+        <div className="container mx-auto px-4">
+          {productGroups.slice(0, 2).map((group) => (
+            <div key={group.title} className="mb-16">
+              {sectionHeading(group.label, group.title)}
+              <p className="mb-6 max-w-3xl text-sm leading-7 text-muted-foreground">{group.subtitle}</p>
               {group.isLoading ? (
                 <div className="flex items-center justify-center py-16">
                   <Loader2 className="h-10 w-10 animate-spin text-primary" />
                 </div>
-              ) : group.items.length > 0 ? (
-                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 xl:gap-5">
+              ) : (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {group.items.map((product) => (
                     <ProductCard key={`${group.title}-${product.node.id}`} product={product} />
                   ))}
                 </div>
+              )}
+            </div>
+          ))}
+
+          <div className="mb-16 grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="relative h-[300px] md:h-[360px]">
+              <img
+                src={getImage(4)}
+                alt="Editorial plant story"
+                className="absolute left-0 top-8 h-[200px] w-[45%] rotate-[-9deg] rounded-sm border-[10px] border-white object-cover shadow-soft md:h-[250px]"
+              />
+              <img
+                src={getImage(5)}
+                alt="Editorial plant story"
+                className="absolute left-[30%] top-0 h-[220px] w-[45%] rotate-[6deg] rounded-sm border-[10px] border-white object-cover shadow-soft md:h-[280px]"
+              />
+              <img
+                src={getImage(6)}
+                alt="Editorial plant story"
+                className="absolute left-[22%] top-[52%] h-[160px] w-[40%] rotate-[-2deg] rounded-sm border-[10px] border-white object-cover shadow-soft md:h-[200px]"
+              />
+            </div>
+            <div className="max-w-xl">
+              <Leaf className="h-5 w-5 text-primary" />
+              <h3 className="mt-2 font-heading text-[2.1rem] font-medium leading-tight text-foreground md:text-[2.7rem]">Bring Green Into Your Life</h3>
+              <p className="mt-4 text-base leading-8 text-muted-foreground">
+                From cozy corners at home to joyful moments in the garden, our plants make every space feel alive and full of warmth.
+              </p>
+              <Button asChild className="mt-6 h-11 rounded-sm bg-primary-dark px-6 text-xs uppercase tracking-[0.16em]">
+                <a href="#catalogo">Shop now</a>
+              </Button>
+            </div>
+          </div>
+
+          {productGroups.slice(2).map((group) => (
+            <div key={group.title} className="mb-16 last:mb-0">
+              {sectionHeading(group.label, group.title)}
+              <p className="mb-6 max-w-3xl text-sm leading-7 text-muted-foreground">{group.subtitle}</p>
+              {group.isLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                </div>
               ) : (
-                <div className="rounded-[1.75rem] border border-border bg-card px-6 py-12 text-center text-muted-foreground">
-                  Nessun prodotto trovato.
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {group.items.map((product) => (
+                    <ProductCard key={`${group.title}-${product.node.id}`} product={product} />
+                  ))}
                 </div>
               )}
             </div>
@@ -181,76 +244,60 @@ export const HomepageV3 = () => {
         </div>
       </section>
 
-      <section className="relative bg-background py-14 md:py-20">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--accent-bright))/0.08,transparent_22%)]" />
-        <div className="container relative mx-auto px-4">
-          <div className="mb-8 max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Perché sceglierci</p>
-            <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Un'esperienza d'acquisto pensata per chi ama il verde</h2>
-          </div>
-          <div className="grid gap-5 lg:grid-cols-4">
-            {trustItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Card key={item.title} className="group rounded-[1.75rem] border border-glass-hero bg-background/82 p-6 shadow-soft backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-hero">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-glass-hero bg-accent-bright/12 text-accent-bright transition-transform duration-500 group-hover:scale-105">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="mt-5 text-xl font-heading font-semibold text-foreground">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{item.description}</p>
-                </Card>);
-
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-background py-6 md:py-10">
+      <section className="bg-background pb-16 md:pb-20">
         <div className="container mx-auto px-4">
-          <div className="rounded-[2rem] border border-border bg-gradient-card p-7 shadow-soft md:p-10">
-            <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">La nostra missione</p>
-                <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Portare il verde in ogni casa, con semplicità e stile.</h2>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <Card className="rounded-[1.5rem] border-border bg-background/80 p-6 shadow-soft">
-                  <Leaf className="h-6 w-6 text-primary" />
-                  <h3 className="mt-4 text-lg font-heading font-semibold text-foreground">Scelta chiara e veloce</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Ogni pianta è presentata con foto reali, informazioni essenziali e consigli di cura integrati.</p>
-                </Card>
-                <Card className="rounded-[1.5rem] border-border bg-background/80 p-6 shadow-soft">
-                  <HeartHandshake className="h-6 w-6 text-primary" />
-                  <h3 className="mt-4 text-lg font-heading font-semibold text-foreground">Vicini a te, sempre</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Un team pronto ad aiutarti nella scelta, nella cura e in ogni fase dell'ordine.</p>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="collezioni" className="bg-background py-14 md:py-20">
-        <div className="container mx-auto px-4">
-          <div className="mb-8 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">Collezioni</p>
-              <h2 className="mt-2 text-3xl font-heading font-bold text-foreground md:text-4xl">Esplora le nostre raccolte primaverili</h2>
-            </div>
-          </div>
+          {sectionHeading("Journal", "Keep up with our latest stories", "Read all")}
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {editorialCollections.map((item) =>
-            <Card key={item.title} className="group rounded-[1.75rem] border-border bg-gradient-card p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated">
-                <h3 className="text-xl font-heading font-semibold text-foreground">{item.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">{item.description}</p>
-                <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                  Scopri <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            {journalCards.map((item, index) => (
+              <article key={item.title} className="group border border-border/60 bg-card/55">
+                <div className="relative">
+                  <img src={getImage(index + 1)} alt={item.title} className="h-44 w-full object-cover" />
+                  <span className="absolute left-2 top-2 text-[10px] font-medium tracking-[0.12em] text-foreground/70">{item.date}</span>
                 </div>
-              </Card>
-            )}
+                <div className="space-y-3 p-4">
+                  <h4 className="line-clamp-2 font-heading text-[1.04rem] font-medium text-foreground">{item.title}</h4>
+                  <div className="border-t border-border/60 pt-2">
+                    <p className="text-xs text-muted-foreground">{item.category}</p>
+                    <div className="mt-1 flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground/90">{item.author}</p>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
-    </>);
 
+      <section ref={newsletterSectionRef} className="bg-background pb-16 md:pb-24">
+        <div className="relative isolate min-h-[460px] overflow-hidden md:min-h-[560px]">
+          <img
+            src={heroBotanicalV3}
+            alt="Newsletter botanical background"
+            className="absolute inset-0 h-[120%] w-full object-cover will-change-transform"
+            style={reduceMotion ? { transform: "translateY(-8%) scale(1.02)" } : { transform: `translateY(calc(-8% + ${newsletterParallax}px)) scale(1.02)` }}
+          />
+          <div className="absolute inset-0 bg-black/16" />
+
+          <div className="relative z-10 mx-auto flex min-h-[460px] max-w-[1600px] items-center justify-center px-4 md:min-h-[560px] md:px-6">
+            <div className="w-full max-w-[520px] bg-primary px-7 py-8 text-primary-foreground md:px-10 md:py-10">
+              <h3 className="font-heading text-[2.8rem] font-medium leading-[0.98] md:text-[3.4rem]">Join our Newsletter</h3>
+              <div className="mt-8 flex items-center border-b border-primary-foreground/55 pb-2">
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  className="w-full bg-transparent text-sm text-primary-foreground placeholder:text-primary-foreground/72 focus:outline-none"
+                />
+                <ArrowRight className="h-4 w-4" />
+              </div>
+              <p className="mt-3 text-xs leading-5 text-primary-foreground/80">
+                By clicking on the "Subscribe" button, I confirm my agreement with the Privacy Policy and Terms of Use.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
 };

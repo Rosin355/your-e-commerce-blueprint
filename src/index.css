@@ -90,12 +90,12 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-family: 'Figtree', 'Inter', Arial, Helvetica, sans-serif;
     background-image: radial-gradient(circle at top, hsl(var(--sage) / 0.12), transparent 22%);
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'League Spartan', 'Inter', Arial, Helvetica, sans-serif;
+    font-family: 'Inter', 'Figtree', Arial, Helvetica, sans-serif;
     letter-spacing: -0.02em;
   }
 }
