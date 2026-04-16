@@ -1,10 +1,8 @@
-import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { HomepageV3 } from "@/components/storefront/HomepageV3";
 
 const Index = () => (
   <div className="min-h-screen flex flex-col bg-background">
-    <Header />
     <main className="flex-1">
       <HomepageV3 />
     </main>

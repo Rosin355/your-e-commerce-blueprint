@@ -17,10 +17,10 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 140 18% 13%;
 
-    --primary: 154 45% 34%;
+    --primary: 122 26% 38%;
     --primary-foreground: 48 33% 97%;
-    --primary-dark: 149 41% 20%;
-    --primary-light: 129 24% 65%;
+    --primary-dark: 122 26% 30%;
+    --primary-light: 122 21% 57%;
 
     --secondary: 42 30% 93%;
     --secondary-foreground: 140 16% 22%;
@@ -36,17 +36,17 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    --success: 154 45% 34%;
+    --success: 122 26% 38%;
     --warning: 28 80% 52%;
     --info: 207 90% 54%;
 
     --border: 42 20% 86%;
     --input: 42 20% 86%;
-    --ring: 154 45% 34%;
+    --ring: 122 26% 38%;
 
     --radius: 0.9rem;
 
-    --top-bar: 149 41% 20%;
+    --top-bar: 122 26% 38%;
     --top-bar-foreground: 48 33% 97%;
 
     --text-primary: 140 18% 13%;
@@ -55,8 +55,8 @@ All colors MUST be HSL.
 
     --rating-star: 45 100% 50%;
 
-    --forest: 149 41% 20%;
-    --forest-soft: 145 24% 30%;
+    --forest: 122 26% 38%;
+    --forest-soft: 122 20% 34%;
     --sage: 98 18% 71%;
     --cream: 42 38% 97%;
     --sand: 38 25% 90%;
@@ -67,7 +67,7 @@ All colors MUST be HSL.
     --shadow-hero: 0 38px 90px -42px hsl(var(--forest) / 0.7);
 
     --gradient-card: linear-gradient(180deg, hsl(var(--card) / 0.98), hsl(var(--secondary) / 0.72));
-    --gradient-showcase: linear-gradient(135deg, hsl(var(--forest)), hsl(var(--forest-soft)) 58%, hsl(var(--primary-dark)));
+    --gradient-showcase: linear-gradient(rgb(72, 122, 74), rgb(72, 122, 74));
     --gradient-hero: linear-gradient(180deg, hsl(var(--cream)), hsl(var(--sand)));
     --gradient-hero-overlay: linear-gradient(90deg, hsl(var(--forest) / 0.92) 0%, hsl(var(--forest-soft) / 0.72) 32%, hsl(var(--forest) / 0.28) 56%, hsl(var(--forest) / 0.14) 74%, hsl(var(--forest) / 0.56) 100%);
     --gradient-hero-accent: radial-gradient(circle at 18% 24%, hsl(var(--accent-bright) / 0.32), transparent 28%), radial-gradient(circle at 84% 18%, hsl(var(--accent-bright) / 0.18), transparent 18%), radial-gradient(circle at 82% 82%, hsl(var(--primary-light) / 0.22), transparent 22%);
@@ -90,12 +90,12 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-family: 'Figtree', 'Inter', Arial, Helvetica, sans-serif;
     background-image: radial-gradient(circle at top, hsl(var(--sage) / 0.12), transparent 22%);
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'League Spartan', 'Inter', Arial, Helvetica, sans-serif;
+    font-family: 'Inter', 'Figtree', Arial, Helvetica, sans-serif;
     letter-spacing: -0.02em;
   }
 }

@@ -66,8 +66,8 @@ export default {
           "rating-star": "hsl(var(--rating-star))",
         },
         fontFamily: {
-          sans: ['Inter', 'Arial', 'Helvetica', 'sans-serif'],
-          heading: ['League Spartan', 'Inter', 'Arial', 'Helvetica', 'sans-serif'],
+          sans: ['Figtree', 'Inter', 'Arial', 'Helvetica', 'sans-serif'],
+          heading: ['Inter', 'Figtree', 'Arial', 'Helvetica', 'sans-serif'],
         },
         fontSize: {
           'hero': ['3rem', { lineHeight: '1.02', fontWeight: '700' }],
