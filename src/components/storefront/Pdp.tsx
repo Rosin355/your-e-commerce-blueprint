@@ -756,7 +756,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             className="max-w-3xl text-3xl font-heading font-semibold leading-[1.15] md:text-[2.5rem]"
             style={{ textShadow: "0 2px 16px rgba(0,0,0,0.45)" }}
           >
-            Un momento di calma, nel tuo spazio esterno.
+            Un momento di calma, nel tuo spazio.
           </h2>
           <p
             className="mt-4 max-w-2xl text-base leading-7 text-white/92"
