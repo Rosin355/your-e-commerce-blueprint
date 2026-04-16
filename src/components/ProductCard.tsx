@@ -24,7 +24,7 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
 
   const surfaceClass = dark
     ? "border-primary-foreground/14 bg-card/88"
-    : "border-border/70 bg-card/70";
+    : "border-border/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.94)_0%,rgba(247,244,237,0.88)_100%)]";
   const badgeClass = dark
     ? "border-primary-foreground/14 bg-background/70 text-foreground"
     : "border-border/70 bg-background/78 text-foreground";
@@ -79,7 +79,7 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
         )}
         <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
           <Badge variant="secondary" className={`rounded-full border px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
-            Selezione verde
+            Selezione outdoor
           </Badge>
           {!firstVariant?.availableForSale && (
             <Badge variant="secondary" className={`rounded-full border px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
@@ -87,7 +87,7 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
             </Badge>
           )}
         </div>
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background/74 to-transparent opacity-65 transition-opacity duration-500 group-hover:opacity-95" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#f4efe6]/88 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
       </div>
 
       <div className="space-y-3.5 p-4 md:p-5">
@@ -104,7 +104,7 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
 
         <div className="flex flex-wrap gap-2">
           <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.17em] ${metaChipClass}`}>
-            {firstVariant?.availableForSale ? "Disponibile" : "Da verificare"}
+            {firstVariant?.availableForSale ? "Disponibile ora" : "Da verificare"}
           </span>
           {firstVariant?.selectedOptions?.[0]?.value && (
             <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.17em] text-muted-foreground ${dark ? "bg-background/75" : "bg-muted/75"}`}>
@@ -115,7 +115,7 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
 
         <div className="flex items-end justify-between gap-3 border-t border-border/65 pt-3.5">
           <div>
-            <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground">Prezzo da</p>
+            <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground">A partire da</p>
             <span className="text-[1.45rem] font-semibold leading-none text-primary-dark">€{parseFloat(price.amount).toFixed(2)}</span>
           </div>
           <Button
@@ -134,7 +134,7 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
           onClick={handleCardClick}
           className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-primary-dark transition-colors hover:text-primary"
         >
-          Scopri il prodotto <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          Vedi dettagli <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
         </button>
       </div>
     </Card>

@@ -6,7 +6,7 @@ export const HomeAnnouncementBar = () => {
       <div className="mx-auto flex h-7 max-w-[1600px] items-center justify-center px-4 text-[9px] font-medium uppercase tracking-[0.22em] md:h-8 md:text-[10px]">
         <span className="inline-flex items-center gap-2 whitespace-nowrap">
           <Sparkles className="h-3 w-3" />
-          Spedizione protetta e offerte automatiche al checkout
+          Rose, bulbi e piante da esterno selezionate per la stagione
         </span>
       </div>
     </div>

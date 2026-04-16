@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import heroBotanicalSpring from "@/assets/hero-botanical-spring.jpg";
-import heroBotanicalV3 from "@/assets/hero-botanical-v3.jpg";
+import heroOutdoorCustom1 from "@/assets/hero-outdoor-custom-1.png";
+import heroOutdoorCustom2 from "@/assets/hero-outdoor-custom-2.png";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { HomeAnnouncementBar } from "./HomeAnnouncementBar";
 import { HomeHeaderOverlay } from "./HomeHeaderOverlay";
@@ -8,15 +8,15 @@ import { HomeHeaderOverlay } from "./HomeHeaderOverlay";
 const slides = [
   {
     id: "spring",
-    image: heroBotanicalSpring,
-    title: "Plants that brighten\nevery space",
-    subtitle: "Composizioni botaniche curate per portare calma, luce e carattere in ogni ambiente.",
+    image: heroOutdoorCustom1,
+    title: "Porta colore e vita\nnei tuoi spazi esterni",
+    subtitle: "Rose, bulbi e piante da giardino selezionate per balconi, terrazze e angoli verdi da vivere in stagione.",
   },
   {
     id: "editorial",
-    image: heroBotanicalV3,
-    title: "Refreshing green touch\nfor every room",
-    subtitle: "Una selezione premium pensata per interni eleganti, terrazze luminose e regali di stagione.",
+    image: heroOutdoorCustom2,
+    title: "Idee verdi per terrazzi,\nbalconi e giardini",
+    subtitle: "Una selezione premium pensata per esterni luminosi, fioriture stagionali e composizioni dal gusto vivaistico.",
   },
 ];
 
@@ -77,7 +77,7 @@ export const HomeHero = () => {
             {activeSlide.subtitle}
           </p>
           <a href="#catalogo" className="mt-5 inline-flex text-[10px] font-semibold uppercase tracking-[0.22em] text-white/82 transition-colors hover:text-white">
-            Shop now
+            Scopri il catalogo outdoor
           </a>
         </div>
 
