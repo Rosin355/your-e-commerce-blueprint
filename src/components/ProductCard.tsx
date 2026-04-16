@@ -61,7 +61,7 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
 
   return (
     <Card
-      className={`group cursor-pointer overflow-hidden rounded-[1.35rem] border transition-all duration-500 hover:-translate-y-1 hover:shadow-soft ${surfaceClass}`}
+      className={`group cursor-pointer overflow-hidden rounded-none border transition-all duration-500 hover:-translate-y-1 hover:shadow-soft ${surfaceClass}`}
       onClick={handleCardClick}
     >
       <div className="relative aspect-[4/4.7] overflow-hidden bg-muted">
@@ -78,11 +78,11 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
           </div>
         )}
         <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
-          <Badge variant="secondary" className={`rounded-full border px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
+          <Badge variant="secondary" className={`rounded-none border px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
             Selezione outdoor
           </Badge>
           {!firstVariant?.availableForSale && (
-            <Badge variant="secondary" className={`rounded-full border px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
+            <Badge variant="secondary" className={`rounded-none border px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
               Esaurito
             </Badge>
           )}
@@ -103,11 +103,11 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.17em] ${metaChipClass}`}>
+          <span className={`inline-flex items-center rounded-none px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.17em] ${metaChipClass}`}>
             {firstVariant?.availableForSale ? "Disponibile ora" : "Da verificare"}
           </span>
           {firstVariant?.selectedOptions?.[0]?.value && (
-            <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.17em] text-muted-foreground ${dark ? "bg-background/75" : "bg-muted/75"}`}>
+            <span className={`inline-flex items-center rounded-none px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.17em] text-muted-foreground ${dark ? "bg-background/75" : "bg-muted/75"}`}>
               {firstVariant.selectedOptions[0].value}
             </span>
           )}
@@ -122,7 +122,7 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
             onClick={handleAddToCart}
             disabled={!firstVariant?.availableForSale}
             size="sm"
-            className="h-9 rounded-full px-3.5 text-[10px] uppercase font-semibold tracking-[0.16em]"
+            className="h-9 rounded-none px-3.5 text-[10px] uppercase font-semibold tracking-[0.16em]"
           >
             <CheckCircle2 className="h-4 w-4" />
             Aggiungi
