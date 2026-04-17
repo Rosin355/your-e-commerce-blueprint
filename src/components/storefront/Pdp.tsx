@@ -59,17 +59,6 @@ const keyFeaturesDefault = [
   "Origine tracciata e packaging a basso impatto ambientale.",
 ];
 
-function parseMultilineMetafield(
-  metafield: { value?: string | null } | null | undefined,
-  fallback: string[],
-): string[] {
-  if (!metafield?.value) return fallback;
-  const items = metafield.value
-    .split("\n")
-    .map((item) => item.trim())
-    .filter(Boolean);
-  return items.length > 0 ? items : fallback;
-}
 
 const BuyNowColor = "#B4483C";
 const BuyNowHoverColor = "#9A3A2F";
@@ -845,19 +834,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       </section>
 
       <section className="container mx-auto max-w-[1200px] px-4 py-10">
-        <Accordion type="multiple" defaultValue={["about"]} className="w-full">
-          <AccordionItem value="about">
-            <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
-              Informazioni sul prodotto
-            </AccordionTrigger>
-            <AccordionContent className="pb-6 text-[15px] leading-7 text-muted-foreground">
-              <div className="space-y-4">
-                {(descriptionParagraphs.length ? descriptionParagraphs : [descriptionText]).map((p) => (
-                  <p key={p}>{p}</p>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
+        <Accordion type="multiple" defaultValue={["features"]} className="w-full">
           <AccordionItem value="features">
             <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
               Caratteristiche principali
