@@ -46,6 +46,24 @@ export interface ShopifyProduct {
       name: string;
       values: string[];
     }>;
+    shortIntro?: { value: string; type?: string } | null;
+    specialBullets?: { value: string; type?: string } | null;
+    keyFeatures?: { value: string; type?: string } | null;
+    careInfo?: { value: string; type?: string } | null;
+    promoText?: { value: string; type?: string } | null;
+    cultivationDifficulty?: { value: string; type?: string } | null;
+    originsHabitat?: { value: string; type?: string } | null;
+    botanicalName?: { value: string; type?: string } | null;
+    commonName?: { value: string; type?: string } | null;
+    productAttributes?: { value: string; type?: string } | null;
+    floweringPeriod?: { value: string; type?: string } | null;
+    pruningPeriod?: { value: string; type?: string } | null;
+    plantingPeriod?: { value: string; type?: string } | null;
+    harvestPeriod?: { value: string; type?: string } | null;
+    plantKnowledge?: { value: string; type?: string } | null;
+    careGuide?: { value: string; type?: string } | null;
+    faqTitle?: { value: string; type?: string } | null;
+    faqItems?: { value: string; type?: string } | null;
   };
 }
 

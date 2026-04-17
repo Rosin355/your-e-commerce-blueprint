@@ -7,19 +7,34 @@ import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
 import pdpCalmaBg from "@/assets/pdp-calma-bg.png";
 import {
+  Apple,
   ChevronLeft,
   ChevronRight,
   Facebook,
+  Flower2,
   ImageIcon,
+  Leaf,
   Link2,
   Loader2,
   Minus,
   Package,
   Plus,
+  Scissors,
+  Shovel,
+  Sprout,
   Twitter,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  getDifficultyLevel,
+  parseBotanicalInfo,
+  parseFaqItems,
+  parseMultilineMetafield,
+  parseProductAttributes,
+  parseSeasonalCalendar,
+  parseSingleLineMetafield,
+} from "@/components/storefront/pdpMetafields";
 
 interface PdpProps {
   product: ShopifyProduct;
@@ -28,7 +43,7 @@ interface PdpProps {
   careInfoContent: ReactNode;
 }
 
-const specialBullets = [
+const specialBulletsDefault = [
   "Valorizza i tuoi spazi esterni con carattere e freschezza.",
   "Favorisce un'esperienza piu vivida tra terrazzi, balconi e giardini.",
   "Consegnato con cura dal vivaio, pronto da posizionare.",
@@ -36,13 +51,25 @@ const specialBullets = [
   "Coltivazione responsabile e imballaggio eco-attento.",
 ];
 
-const keyFeatures = [
+const keyFeaturesDefault = [
   "Selezione outdoor premium scelta per durata e portamento.",
   "Formati coerenti con vasi e composizioni da esterno.",
   "Migliora l'estetica di terrazzi, balconi e aiuole.",
   "Cura semplice, adatta sia a esperti sia a principianti.",
   "Origine tracciata e packaging a basso impatto ambientale.",
 ];
+
+function parseMultilineMetafield(
+  metafield: { value?: string | null } | null | undefined,
+  fallback: string[],
+): string[] {
+  if (!metafield?.value) return fallback;
+  const items = metafield.value
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return items.length > 0 ? items : fallback;
+}
 
 const BuyNowColor = "#B4483C";
 const BuyNowHoverColor = "#9A3A2F";
@@ -193,6 +220,29 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const variants = node.variants.edges.map((edge) => edge.node);
   const price = selectedVariant?.price ?? node.priceRange.minVariantPrice;
   const inCartQuantity = selectedVariant ? cartItems.find((item) => item.variantId === selectedVariant.id)?.quantity ?? 0 : 0;
+
+  const resolvedSpecialBullets = parseMultilineMetafield(node.specialBullets, specialBulletsDefault);
+  const resolvedKeyFeatures = parseMultilineMetafield(node.keyFeatures, keyFeaturesDefault);
+  const resolvedPromoText = node.promoText?.value?.trim() || null;
+  const resolvedShortIntro = parseMultilineMetafield(node.shortIntro);
+  const resolvedOriginsHabitat = parseMultilineMetafield(node.originsHabitat);
+  const resolvedPlantKnowledge = parseMultilineMetafield(node.plantKnowledge);
+  const resolvedCareGuide = parseMultilineMetafield(node.careGuide);
+  const botanical = parseBotanicalInfo(node);
+  const resolvedProductAttributes = parseProductAttributes(node.productAttributes);
+  const seasonalCalendar = parseSeasonalCalendar(node);
+  const faqItems = parseFaqItems(node.faqItems);
+  const faqTitle = parseSingleLineMetafield(node.faqTitle) || "Domande frequenti";
+  const difficultyLevel = getDifficultyLevel(botanical.cultivationDifficulty);
+  const difficultyStyle: Record<typeof difficultyLevel, { bg: string; text: string; dot: string }> = {
+    easy:    { bg: "rgba(74,122,74,0.12)",  text: "#3d6a3d", dot: "#4a7a4a" },
+    medium:  { bg: "rgba(217,139,63,0.14)", text: "#a06424", dot: "#d98b3f" },
+    hard:    { bg: "rgba(180,72,60,0.14)",  text: "#8a3a30", dot: "#B4483C" },
+    unknown: { bg: "rgba(100,100,100,0.08)", text: "#5a5a5a", dot: "#8a8a8a" },
+  };
+  const hasBotanicalCard = Boolean(
+    botanical.commonName || botanical.botanicalName || botanical.cultivationDifficulty,
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -403,10 +453,68 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               )}
             </div>
 
+            {resolvedShortIntro.length > 0 && (
+              <div className="space-y-3 text-[15px] leading-7 text-foreground/85 md:text-[16px] md:leading-8">
+                {resolvedShortIntro.map((paragraph, idx) => (
+                  <p key={`short-intro-${idx}`}>{paragraph}</p>
+                ))}
+              </div>
+            )}
+
+            {hasBotanicalCard && (
+              <div className="border border-border bg-card p-5 md:p-7">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-dark">
+                  Scheda botanica
+                </p>
+                <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  {botanical.commonName && (
+                    <h2 className="text-xl font-heading font-semibold text-foreground md:text-[1.4rem]">
+                      {botanical.commonName}
+                    </h2>
+                  )}
+                  {botanical.botanicalName && (
+                    <p className="text-[15px] italic text-muted-foreground">{botanical.botanicalName}</p>
+                  )}
+                </div>
+                {botanical.cultivationDifficulty && (
+                  <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 text-[13px] font-semibold"
+                    style={{
+                      backgroundColor: difficultyStyle[difficultyLevel].bg,
+                      color: difficultyStyle[difficultyLevel].text,
+                    }}
+                  >
+                    <Sprout className="h-3.5 w-3.5" />
+                    Difficolta di coltivazione: {botanical.cultivationDifficulty}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {resolvedProductAttributes.length > 0 && (
+              <div className="border border-border bg-card p-5 md:p-7">
+                <h2 className="text-lg font-semibold text-foreground">Specifiche rapide</h2>
+                <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
+                  {resolvedProductAttributes.map((attr) => (
+                    <div
+                      key={`${attr.key}-${attr.value}`}
+                      className="border border-border/70 bg-background px-3 py-2.5"
+                    >
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                        {attr.key}
+                      </p>
+                      <p className="mt-1 text-[14px] font-medium leading-tight text-foreground">
+                        {attr.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="border border-border bg-card p-5 md:p-7">
               <h2 className="text-lg font-semibold text-foreground">Cosa lo rende speciale</h2>
               <ul className="mt-4 space-y-2.5">
-                {specialBullets.map((b) => (
+                {resolvedSpecialBullets.map((b) => (
                   <li key={b} className="flex items-start gap-3 text-[15px] leading-6 text-muted-foreground">
                     <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/40 text-[13px] leading-none text-primary-dark">
                       +
@@ -416,6 +524,79 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 ))}
               </ul>
             </div>
+
+            {resolvedOriginsHabitat.length > 0 && (
+              <div className="border border-border bg-card p-5 md:p-7">
+                <h2 className="text-lg font-semibold text-foreground">Origini e habitat</h2>
+                <div className="mt-3 space-y-3 text-[15px] leading-7 text-muted-foreground">
+                  {resolvedOriginsHabitat.map((paragraph, idx) => (
+                    <p key={`origins-${idx}`}>{paragraph}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {seasonalCalendar.length > 0 && (
+              <div className="border border-border bg-card p-5 md:p-7">
+                <h2 className="text-lg font-semibold text-foreground">Calendario stagionale</h2>
+                <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+                  {seasonalCalendar.map((slot) => {
+                    const Icon =
+                      slot.id === "flowering"
+                        ? Flower2
+                        : slot.id === "pruning"
+                        ? Scissors
+                        : slot.id === "planting"
+                        ? Shovel
+                        : Apple;
+                    return (
+                      <div
+                        key={slot.id}
+                        className="flex flex-col gap-2 border border-border/70 bg-background px-3 py-3.5"
+                      >
+                        <Icon className="h-5 w-5 text-primary-dark" strokeWidth={1.6} />
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                          {slot.label}
+                        </p>
+                        <p className="text-[14px] font-medium leading-tight text-foreground">
+                          {slot.value}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {resolvedPlantKnowledge.length > 0 && (
+              <div className="bg-muted/40 p-5 md:p-7">
+                <div className="flex items-center gap-2 text-primary-dark">
+                  <Leaf className="h-4 w-4" strokeWidth={1.8} />
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em]">Approfondimento</p>
+                </div>
+                <h2 className="mt-2 text-[1.35rem] font-heading font-semibold text-foreground md:text-[1.5rem]">
+                  Conosci meglio la tua pianta
+                </h2>
+                <div className="mt-3 space-y-3 text-[15px] leading-7 text-foreground/85">
+                  {resolvedPlantKnowledge.map((paragraph, idx) => (
+                    <p key={`knowledge-${idx}`}>{paragraph}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {resolvedCareGuide.length > 0 && (
+              <div className="border border-border bg-card p-5 md:p-7">
+                <h2 className="text-[1.35rem] font-heading font-semibold text-foreground md:text-[1.5rem]">
+                  Come prendersene cura
+                </h2>
+                <div className="mt-3 space-y-3 text-[15px] leading-7 text-muted-foreground">
+                  {resolvedCareGuide.map((paragraph, idx) => (
+                    <p key={`care-guide-${idx}`}>{paragraph}</p>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="bg-muted/40 p-5 md:p-7">
               <h2 className="text-lg font-semibold text-foreground">Pagamenti e sicurezza</h2>
@@ -434,6 +615,9 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             <h1 className="mt-2 text-[2rem] font-heading font-semibold leading-[1.1] text-foreground md:text-[2.25rem]">
               {node.title}
             </h1>
+            {botanical.botanicalName && (
+              <p className="mt-1.5 text-sm italic text-muted-foreground">{botanical.botanicalName}</p>
+            )}
 
             <p className="mt-2.5 text-[1.6rem] font-heading font-semibold text-foreground">
               €{parseFloat(price.amount).toFixed(2)}
@@ -577,7 +761,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               <p className="mt-2 text-xs text-muted-foreground">Gia nel carrello: {inCartQuantity}</p>
             )}
 
-            {limitedOfferVisible && (
+            {resolvedPromoText && limitedOfferVisible && (
               <div
                 className="relative mt-4 border p-4 pr-10"
                 style={{ borderColor: "rgba(180,72,60,0.3)", backgroundColor: "rgba(180,72,60,0.06)" }}
@@ -586,10 +770,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                   <Package className="mt-0.5 h-5 w-5 shrink-0" style={{ color: BuyNowColor }} />
                   <div className="text-sm">
                     <p className="font-semibold text-foreground">Offerta a tempo limitato</p>
-                    <p className="mt-1 text-foreground/80">
-                      Risparmia fino a <strong className="font-semibold">€50,00</strong> con le promozioni stagionali
-                      attive.
-                    </p>
+                    <p className="mt-1 text-foreground/80">{resolvedPromoText}</p>
                   </div>
                 </div>
                 <button
@@ -683,7 +864,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             </AccordionTrigger>
             <AccordionContent className="pb-6">
               <ul className="space-y-3 text-[15px] leading-7 text-muted-foreground">
-                {keyFeatures.map((f) => (
+                {resolvedKeyFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-3">
                     <span className="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-foreground" />
                     <span>{f}</span>
@@ -718,6 +899,28 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
           </AccordionItem>
         </Accordion>
       </section>
+
+      {faqItems.length > 0 && (
+        <section className="container mx-auto max-w-[1200px] px-4 pb-10">
+          <div className="mb-4">
+            <h2 className="text-2xl font-heading font-semibold text-foreground md:text-[1.75rem]">
+              {faqTitle}
+            </h2>
+          </div>
+          <Accordion type="multiple" className="w-full">
+            {faqItems.map((item, idx) => (
+              <AccordionItem key={`faq-${idx}`} value={`faq-${idx}`}>
+                <AccordionTrigger className="py-5 text-left text-[15px] font-semibold text-foreground hover:no-underline md:text-base">
+                  {item.question}
+                </AccordionTrigger>
+                <AccordionContent className="pb-6 text-[15px] leading-7 text-muted-foreground">
+                  {item.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </section>
+      )}
 
       <section
         className="relative isolate overflow-hidden text-white"

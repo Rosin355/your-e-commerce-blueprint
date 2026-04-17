@@ -60,7 +60,20 @@ const ProductDetail = () => {
         product={product}
         selectedVariant={selectedVariant}
         setSelectedVariant={setSelectedVariant}
-        careInfoContent={<ProductCareInfo />}
+        careInfoContent={
+          <ProductCareInfo
+            config={
+              product.node.careInfo?.value
+                ? {
+                    paragraphs: product.node.careInfo.value
+                      .split("\n")
+                      .map((item) => item.trim())
+                      .filter(Boolean),
+                  }
+                : undefined
+            }
+          />
+        }
       />
       <Footer />
     </>
