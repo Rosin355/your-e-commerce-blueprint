@@ -403,21 +403,6 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               )}
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="border border-border bg-card px-6 py-9 text-center">
-                <p className="text-[2.75rem] font-heading font-semibold leading-none text-foreground">48</p>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  Ore di cura prima che ogni pianta venga preparata per la spedizione
-                </p>
-              </div>
-              <div className="border border-border bg-card px-6 py-9 text-center">
-                <p className="text-[2.75rem] font-heading font-semibold leading-none text-foreground">100</p>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  Garanzia di qualita su ogni prodotto Online Garden
-                </p>
-              </div>
-            </div>
-
             <div className="border border-border bg-card p-5 md:p-7">
               <h2 className="text-lg font-semibold text-foreground">Cosa lo rende speciale</h2>
               <ul className="mt-4 space-y-2.5">
