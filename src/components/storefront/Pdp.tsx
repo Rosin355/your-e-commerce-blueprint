@@ -511,31 +511,6 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               </div>
             )}
 
-            <div className="border border-border bg-card p-5 md:p-7">
-              <h2 className="text-lg font-semibold text-foreground">Cosa lo rende speciale</h2>
-              <ul className="mt-4 space-y-2.5">
-                {resolvedSpecialBullets.map((b) => (
-                  <li key={b} className="flex items-start gap-3 text-[15px] leading-6 text-muted-foreground">
-                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/40 text-[13px] leading-none text-primary-dark">
-                      +
-                    </span>
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {resolvedOriginsHabitat.length > 0 && (
-              <div className="border border-border bg-card p-5 md:p-7">
-                <h2 className="text-lg font-semibold text-foreground">Origini e habitat</h2>
-                <div className="mt-3 space-y-3 text-[15px] leading-7 text-muted-foreground">
-                  {resolvedOriginsHabitat.map((paragraph, idx) => (
-                    <p key={`origins-${idx}`}>{paragraph}</p>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {seasonalCalendar.length > 0 && (
               <div className="border border-border bg-card p-5 md:p-7">
                 <h2 className="text-lg font-semibold text-foreground">Calendario stagionale</h2>
@@ -600,6 +575,31 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                       })}
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            <div className="border border-border bg-card p-5 md:p-7">
+              <h2 className="text-lg font-semibold text-foreground">Cosa lo rende speciale</h2>
+              <ul className="mt-4 space-y-2.5">
+                {resolvedSpecialBullets.map((b) => (
+                  <li key={b} className="flex items-start gap-3 text-[15px] leading-6 text-muted-foreground">
+                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/40 text-[13px] leading-none text-primary-dark">
+                      +
+                    </span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {resolvedOriginsHabitat.length > 0 && (
+              <div className="border border-border bg-card p-5 md:p-7">
+                <h2 className="text-lg font-semibold text-foreground">Origini e habitat</h2>
+                <div className="mt-3 space-y-3 text-[15px] leading-7 text-muted-foreground">
+                  {resolvedOriginsHabitat.map((paragraph, idx) => (
+                    <p key={`origins-${idx}`}>{paragraph}</p>
+                  ))}
                 </div>
               </div>
             )}
