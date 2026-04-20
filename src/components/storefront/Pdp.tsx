@@ -7,11 +7,9 @@ import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
 import pdpCalmaBg from "@/assets/pdp-calma-bg.png";
 import {
-  Apple,
   ChevronLeft,
   ChevronRight,
   Facebook,
-  Flower2,
   ImageIcon,
   Leaf,
   Link2,
@@ -19,8 +17,6 @@ import {
   Minus,
   Package,
   Plus,
-  Scissors,
-  Shovel,
   Sprout,
   Twitter,
   X,
@@ -34,6 +30,7 @@ import {
   parseProductAttributes,
   parseSeasonalCalendar,
   parseSingleLineMetafield,
+  type SeasonalCalendarSlot,
 } from "@/components/storefront/pdpMetafields";
 
 interface PdpProps {
@@ -59,6 +56,29 @@ const keyFeaturesDefault = [
   "Origine tracciata e packaging a basso impatto ambientale.",
 ];
 
+
+const MONTH_LABELS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+
+const MONTH_MAP: Record<string, number> = {
+  gennaio: 0, febbraio: 1, marzo: 2, aprile: 3, maggio: 4, giugno: 5,
+  luglio: 6, agosto: 7, settembre: 8, ottobre: 9, novembre: 10, dicembre: 11,
+  gen: 0, feb: 1, mar: 2, apr: 3, mag: 4, giu: 5,
+  lug: 6, ago: 7, set: 8, ott: 9, nov: 10, dic: 11,
+};
+
+function parseMonthsFromValue(value: string): number[] {
+  return value
+    .split(/[,\n]/)
+    .map((m) => MONTH_MAP[m.trim().toLowerCase()])
+    .filter((m): m is number => typeof m === "number");
+}
+
+const SLOT_STYLES: Record<SeasonalCalendarSlot["id"], { bar: string; legend: string }> = {
+  flowering: { bar: "bg-[#f4c2c2]", legend: "bg-[#f4c2c2]" },
+  pruning:   { bar: "bg-[#b5c9a8]", legend: "bg-[#b5c9a8]" },
+  planting:  { bar: "bg-[#c4956a]", legend: "bg-[#c4956a]" },
+  harvest:   { bar: "bg-[#e8c87a]", legend: "bg-[#e8c87a]" },
+};
 
 const BuyNowColor = "#B4483C";
 const BuyNowHoverColor = "#9A3A2F";
@@ -519,31 +539,67 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             {seasonalCalendar.length > 0 && (
               <div className="border border-border bg-card p-5 md:p-7">
                 <h2 className="text-lg font-semibold text-foreground">Calendario stagionale</h2>
-                <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-                  {seasonalCalendar.map((slot) => {
-                    const Icon =
-                      slot.id === "flowering"
-                        ? Flower2
-                        : slot.id === "pruning"
-                        ? Scissors
-                        : slot.id === "planting"
-                        ? Shovel
-                        : Apple;
-                    return (
-                      <div
-                        key={slot.id}
-                        className="flex flex-col gap-2 border border-border/70 bg-background px-3 py-3.5"
-                      >
-                        <Icon className="h-5 w-5 text-primary-dark" strokeWidth={1.6} />
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                          {slot.label}
-                        </p>
-                        <p className="text-[14px] font-medium leading-tight text-foreground">
-                          {slot.value}
-                        </p>
-                      </div>
-                    );
-                  })}
+
+                <div className="mt-5 overflow-x-auto">
+                  <div style={{ minWidth: 520 }}>
+                    <div className="grid grid-cols-12 gap-[2px] pl-[108px] mb-2">
+                      {MONTH_LABELS.map((m) => (
+                        <div
+                          key={m}
+                          className="text-center text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
+                        >
+                          {m}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      {seasonalCalendar.map((slot) => {
+                        const activeMonths = parseMonthsFromValue(slot.value);
+                        const style = SLOT_STYLES[slot.id];
+                        return (
+                          <div key={slot.id} className="flex items-center gap-3">
+                            <span className="text-xs font-medium text-foreground w-[100px] shrink-0 text-right">
+                              {slot.label}
+                            </span>
+                            <div className="grid grid-cols-12 flex-1 gap-[2px]">
+                              {Array.from({ length: 12 }, (_, i) => {
+                                const isActive = activeMonths.includes(i);
+                                const prevActive = activeMonths.includes(i - 1);
+                                const nextActive = activeMonths.includes(i + 1);
+                                const rounded = [
+                                  isActive && !prevActive ? "rounded-l-full" : "",
+                                  isActive && !nextActive ? "rounded-r-full" : "",
+                                ]
+                                  .filter(Boolean)
+                                  .join(" ");
+                                return (
+                                  <div
+                                    key={i}
+                                    className={`h-5 ${
+                                      isActive ? `${style.bar} ${rounded}` : "bg-muted/30"
+                                    }`}
+                                  />
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="mt-5 flex flex-wrap gap-4 pl-[108px]">
+                      {seasonalCalendar.map((slot) => {
+                        const style = SLOT_STYLES[slot.id];
+                        return (
+                          <div key={`legend-${slot.id}`} className="flex items-center gap-1.5">
+                            <span className={`h-3 w-3 rounded-full ${style.legend}`} />
+                            <span className="text-xs text-muted-foreground">{slot.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
