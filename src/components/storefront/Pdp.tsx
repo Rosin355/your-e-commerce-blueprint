@@ -213,7 +213,6 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const resolvedSpecialBullets = parseMultilineMetafield(node.specialBullets, specialBulletsDefault);
   const resolvedKeyFeatures = parseMultilineMetafield(node.keyFeatures, keyFeaturesDefault);
   const resolvedPromoText = node.promoText?.value?.trim() || null;
-  const resolvedShortIntro = parseMultilineMetafield(node.shortIntro);
   const resolvedOriginsHabitat = parseMultilineMetafield(node.originsHabitat);
   const resolvedPlantKnowledge = parseMultilineMetafield(node.plantKnowledge);
   const resolvedCareGuide = parseMultilineMetafield(node.careGuide);
@@ -441,14 +440,6 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 </div>
               )}
             </div>
-
-            {resolvedShortIntro.length > 0 && (
-              <div className="space-y-3 text-[15px] leading-7 text-foreground/85 md:text-[16px] md:leading-8">
-                {resolvedShortIntro.map((paragraph, idx) => (
-                  <p key={`short-intro-${idx}`}>{paragraph}</p>
-                ))}
-              </div>
-            )}
 
             {hasBotanicalCard && (
               <div className="border border-border bg-card p-5 md:p-7">
