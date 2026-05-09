@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ChevronRight, Mail, Menu, Search, SunMedium, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,22 +7,55 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { AccountButton } from "@/components/AccountButton";
 import { CartDrawer } from "@/components/CartDrawer";
 import logoOnlineGarden from "@/assets/logo-online-garden.png";
-const navigationItems = [
+
+interface NavLink {
+  label: string;
+  href: string;
+}
+
+interface PreviewCard {
+  title: string;
+  description: string;
+  tone: string;
+  href: string;
+  image?: string;
+}
+
+interface NavItem {
+  label: string;
+  title: string;
+  description: string;
+  catalogHref: string;
+  links: NavLink[];
+  previewCards: PreviewCard[];
+}
+
+const navigationItems: NavItem[] = [
   {
     label: "Piante da esterno",
     title: "Piante da esterno",
     description: "Soluzioni pensate per terrazzi, balconi, aiuole e giardini ricchi di stagione.",
-    links: ["Fioriture stagionali", "Rampicanti", "Balconi e terrazze", "Sempreverdi"],
+    catalogHref: "/collections/piante-da-esterno",
+    links: [
+      { label: "Fioriture stagionali", href: "/collections/fioriture-stagionali" },
+      { label: "Rampicanti", href: "/collections/rampicanti" },
+      { label: "Balconi e terrazze", href: "/collections/balconi-e-terrazze" },
+      { label: "Sempreverdi", href: "/collections/sempreverdi" },
+    ],
     previewCards: [
       {
         title: "Idee per terrazzo",
         description: "Accenti verdi e fioriti per spazi esterni luminosi e curati.",
         tone: "from-[#e8dfcf] via-[#d7c9b3] to-[#c7b08a]",
+        href: "/collections/piante-da-esterno",
+        image: undefined,
       },
       {
         title: "Verde da giardino",
         description: "Varieta ornamentali selezionate per dare struttura e colore all'esterno.",
         tone: "from-[#6b7f51] via-[#495a39] to-[#2e3a27]",
+        href: "/collections/piante-da-esterno",
+        image: undefined,
       },
     ],
   },
@@ -29,17 +63,27 @@ const navigationItems = [
     label: "Rose",
     title: "Rose",
     description: "Varieta iconiche dal carattere romantico e raffinato.",
-    links: ["Rose cespuglio", "Rose rampicanti", "Rose profumate", "Idee regalo"],
+    catalogHref: "/collections/rose",
+    links: [
+      { label: "Rose cespuglio", href: "/collections/rose-cespuglio" },
+      { label: "Rose rampicanti", href: "/collections/rose-rampicanti" },
+      { label: "Rose profumate", href: "/collections/rose-profumate" },
+      { label: "Idee regalo", href: "/collections/idee-regalo" },
+    ],
     previewCards: [
       {
         title: "Rose profumate",
         description: "Una selezione curata per giardini, ingressi e angoli esterni dal tono poetico.",
         tone: "from-[#e5d0cf] via-[#d8bab6] to-[#c79b96]",
+        href: "/collections/rose",
+        image: undefined,
       },
       {
         title: "Regala una rosa",
         description: "Un gesto elegante da ordinare con semplicita in ogni periodo della stagione.",
         tone: "from-[#efe5d8] via-[#dcc7ad] to-[#bea07f]",
+        href: "/collections/idee-regalo",
+        image: undefined,
       },
     ],
   },
@@ -47,17 +91,27 @@ const navigationItems = [
     label: "Piante da frutto",
     title: "Piante da frutto",
     description: "Essenze scelte per unire bellezza, profumo e raccolto.",
-    links: ["Agrumi", "Piccoli frutti", "Alberi da frutto", "Varieta da terrazzo"],
+    catalogHref: "/collections/piante-da-frutto",
+    links: [
+      { label: "Agrumi", href: "/collections/agrumi" },
+      { label: "Piccoli frutti", href: "/collections/piccoli-frutti" },
+      { label: "Alberi da frutto", href: "/collections/alberi-da-frutto" },
+      { label: "Varieta da terrazzo", href: "/collections/varieta-da-terrazzo" },
+    ],
     previewCards: [
       {
         title: "Agrumi e profumi",
         description: "Accenti mediterranei per terrazzi e giardini pieni di luce.",
         tone: "from-[#d9c96b] via-[#b8a649] to-[#8d7a2b]",
+        href: "/collections/agrumi",
+        image: undefined,
       },
       {
         title: "Piccoli frutti",
         description: "Varieta decorative e piacevoli da coltivare all'aperto.",
         tone: "from-[#cfd7c1] via-[#98ab7c] to-[#63754e]",
+        href: "/collections/piccoli-frutti",
+        image: undefined,
       },
     ],
   },
@@ -65,21 +119,32 @@ const navigationItems = [
     label: "Altre categorie",
     title: "Altre categorie",
     description: "Dettagli complementari per completare terrazzi, balconi e spazi outdoor con gusto.",
-    links: ["Vasi da esterno", "Accessori", "Aromatiche da esterno", "Bulbi - disponibile a breve", "Idee regalo"],
+    catalogHref: "/collections/altre-categorie",
+    links: [
+      { label: "Vasi da esterno", href: "/collections/vasi-da-esterno" },
+      { label: "Accessori", href: "/collections/accessori" },
+      { label: "Aromatiche da esterno", href: "/collections/aromatiche" },
+      { label: "Bulbi - disponibile a breve", href: "/collections/bulbi" },
+      { label: "Idee regalo", href: "/collections/idee-regalo" },
+    ],
     previewCards: [
       {
         title: "Vasi e accessori",
         description: "Dettagli essenziali per un allestimento outdoor curato e resistente.",
         tone: "from-[#d8cfbf] via-[#c6b59b] to-[#a88c68]",
+        href: "/collections/vasi-da-esterno",
+        image: undefined,
       },
       {
         title: "Bulbi e novita",
         description: "Una categoria in arrivo per accompagnare le prossime fioriture.",
         tone: "from-[#b7c691] via-[#91a26d] to-[#5c6c42]",
+        href: "/collections/bulbi",
+        image: undefined,
       },
     ],
   },
-] as const;
+];
 
 const BrandMark = ({ compact = false }: { compact?: boolean }) => (
   <span className="inline-flex items-center gap-2.5">
@@ -103,7 +168,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [activeItem, setActiveItem] = useState<(typeof navigationItems)[number] | null>(null);
+  const [activeItem, setActiveItem] = useState<NavItem | null>(null);
 
   return (
     <header
@@ -135,12 +200,12 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               ))}
             </nav>
 
-            <a href="/" aria-label="Homepage di Online Garden" className="justify-self-center">
+            <Link to="/" aria-label="Homepage di Online Garden" className="justify-self-center">
               <BrandMark />
-            </a>
+            </Link>
 
             <div className="justify-self-end [&_button>span]:hidden [&_button_svg]:h-[15px] [&_button_svg]:w-[15px] flex items-center gap-1.5 [&_button]:h-8 [&_button]:w-8 [&_button]:rounded-full [&_button]:border [&_button]:border-white/18 [&_button]:bg-transparent [&_button]:text-white/92 [&_button]:hover:bg-white/16">
-              <a href="#" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/18 bg-transparent text-white/92 transition-colors hover:bg-white/16" aria-label="Contatti">
+              <a href="mailto:info@onlinegarden.it" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/18 bg-transparent text-white/92 transition-colors hover:bg-white/16" aria-label="Contatti">
                 <Mail className="h-4 w-4" />
               </a>
               <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/18 bg-transparent text-white/92 transition-colors hover:bg-white/16" aria-label="Tema">
@@ -166,34 +231,43 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                     </div>
                     <div className="grid gap-2">
                       {activeItem.links.map((link) => (
-                        <a
-                          key={link}
-                          href="/collections/all"
+                        <Link
+                          key={link.label}
+                          to={link.href}
                           className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-white/86 transition-colors hover:text-white"
                         >
-                          <span>{link}</span>
+                          <span>{link.label}</span>
                           <ChevronRight className="h-4 w-4 text-white/52" />
-                        </a>
+                        </Link>
                       ))}
                     </div>
-                    <a href="/collections/all" className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/82 transition-colors hover:text-white">
+                    <Link to={activeItem.catalogHref} className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/82 transition-colors hover:text-white">
                       Vai al catalogo
                       <ChevronRight className="h-4 w-4" />
-                    </a>
+                    </Link>
                   </div>
 
                   <div className="grid gap-5 md:grid-cols-2">
                     {activeItem.previewCards.map((card) => (
-                      <a key={card.title} href="/collections/all" className="group block">
+                      <Link key={card.title} to={card.href} className="group block">
                         <div className="overflow-hidden">
-                          <div className={`h-52 w-full bg-gradient-to-br ${card.tone} transition-transform duration-700 group-hover:scale-[1.03]`} />
+                          {card.image ? (
+                            <img
+                              src={card.image}
+                              alt={card.title}
+                              className="h-52 w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className={`h-52 w-full bg-gradient-to-br ${card.tone} transition-transform duration-700 group-hover:scale-[1.03]`} />
+                          )}
                         </div>
                         <div className="border-x border-b border-white/10 bg-black/12 px-5 py-4">
                           <p className="text-[10px] uppercase tracking-[0.22em] text-white/48">Selezione</p>
                           <h4 className="mt-2 font-heading text-[1.35rem] font-medium text-white">{card.title}</h4>
                           <p className="mt-2 text-sm leading-6 text-white/68">{card.description}</p>
                         </div>
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -217,24 +291,24 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                 <div className="mt-6 space-y-4">
                   {navigationItems.map((item) => (
                     <div key={item.label} className="rounded-2xl border border-border/70 bg-card p-2">
-                      <a
-                        href="/collections/all"
+                      <Link
+                        to={item.catalogHref}
                         onClick={() => setIsMobileNavOpen(false)}
                         className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
                       >
                         <span>{item.label}</span>
                         <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Categoria</span>
-                      </a>
+                      </Link>
                       <div className="mt-1 grid gap-1 px-1 pb-1">
                         {item.links.map((link) => (
-                          <a
-                            key={link}
-                            href="/collections/all"
+                          <Link
+                            key={link.label}
+                            to={link.href}
                             onClick={() => setIsMobileNavOpen(false)}
                             className="rounded-xl px-3 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/75 transition-colors hover:bg-muted"
                           >
-                            {link}
-                          </a>
+                            {link.label}
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -243,9 +317,9 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               </SheetContent>
             </Sheet>
 
-            <a href="/" aria-label="Homepage di Online Garden" className="justify-self-center">
+            <Link to="/" aria-label="Homepage di Online Garden" className="justify-self-center">
               <BrandMark compact />
-            </a>
+            </Link>
 
             <div className="flex items-center gap-1">
               <Button
@@ -256,9 +330,9 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               >
                 {isMobileSearchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
               </Button>
-              <a href="/auth" className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white transition-colors hover:bg-white/20" aria-label="Account">
+              <Link to="/auth" className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white transition-colors hover:bg-white/20" aria-label="Account">
                 <User className="h-4 w-4" />
-              </a>
+              </Link>
               <div className="[&_button>span]:hidden [&_button_svg]:h-4 [&_button_svg]:w-4 [&_button]:h-10 [&_button]:w-10 [&_button]:rounded-full [&_button]:border [&_button]:border-white/20 [&_button]:bg-black/20 [&_button]:text-white [&_button]:hover:bg-white/20">
                 <CartDrawer />
               </div>
