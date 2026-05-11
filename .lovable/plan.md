@@ -1,50 +1,31 @@
+## Obiettivo
+Risolvere i 404 del mega menu creando le collezioni **manuali** su Shopify (popolate da me con prodotti coerenti) e collegando la storefront con una nuova pagina `/collections/:handle`. Sistemo anche tutti gli `href` "/n…" rotti.
 
+## 1. Collezioni Shopify (manuali)
+Per ogni handle del mega menu creo una collezione manuale e ci aggiungo i prodotti pertinenti già presenti nel catalogo (faccio prima un censimento via `shopify--search_products` per categoria/tag/titolo, poi popolo). Le collezioni:
 
-## Piano: Refactoring Shopify — da OAuth custom a sistema nativo Lovable
+- `fioriture-stagionali`, `rampicanti`, `balconi-e-terrazze`, `sempreverdi`, `piante-da-esterno`
+- `rose-cespuglio`, `rose-rampicanti`, `rose-profumate`, `rose`
+- `agrumi`, `piccoli-frutti`, `alberi-da-frutto`, `varieta-da-terrazzo`, `piante-da-frutto`
+- `vasi-da-esterno`, `accessori`, `aromatiche`, `bulbi`, `idee-regalo`, `altre-categorie`
 
-### Cosa cambia
-Rimuoviamo tutto il codice OAuth custom per Shopify e usiamo il connettore nativo di Lovable, che gestisce automaticamente autenticazione, token e accesso alla Admin API (inclusi `read_orders` e `write_orders`).
+Se per una collezione non trovo prodotti coerenti la creo comunque vuota (così il cliente la potrà popolare in autonomia da admin) e la pagina mostrerà lo stato "nessun prodotto".
 
-### Step 1 — Attivare Shopify nativo
-- Chiamare `shopify--enable` con `store_type: "new"` per creare un development store
-- Offrire il claim dello store dopo la creazione
+## 2. Frontend – pagina collezione
+- Aggiungo `fetchCollectionByHandle(handle, first)` in `src/lib/shopify.ts` (Storefront API `collectionByHandle`, versione `2025-07`).
+- Nuova pagina `src/pages/CollectionPage.tsx` che riusa il layout di `AllProducts` filtrato per collection (titolo + descrizione collezione, stato vuoto, loading skeleton).
+- Registro route `/collections/:handle` in `src/App.tsx`. Mantengo `/nall` per retrocompatibilità.
 
-### Step 2 — Rimuovere edge functions OAuth custom
-Eliminare queste edge functions che non servono più:
-- `shopify-oauth-start`
-- `shopify-oauth-callback`
-- `shopify-disconnect`
-- `shopify-status`
-- `shopify-test-connection`
-- `validate-shopify-connection`
+## 3. Fix degli href rotti
+Sostituzione mirata in:
+- `src/components/storefront/HomeHeaderOverlay.tsx` (mega menu: `nxxx` → `/collections/xxx`)
+- `src/components/Header.tsx`, `src/components/Footer.tsx`, `src/components/storefront/HomeHero.tsx`, `src/components/storefront/HomepageV3.tsx` (`nall` → `/collections/all` o rotta esistente di "tutti i prodotti")
 
-### Step 3 — Rimuovere codice client OAuth
-- Rimuovere `src/pages/ShopifyCallback.tsx` e la relativa route in `App.tsx`
-- Rimuovere `src/lib/shopify-customer-auth.ts` (se legato all'OAuth custom)
-- Semplificare `src/admin/pages/AdminSettings.tsx`: rimuovere tutta la logica di connessione/disconnessione OAuth manuale
+## 4. QA
+- Apro 4-5 voci diverse del mega menu in preview, verifico che la pagina carichi i prodotti della collezione corrispondente.
+- Verifico stato vuoto sulle collezioni senza prodotti.
+- Controllo che "Tutti i prodotti" continui a funzionare.
 
-### Step 4 — Aggiornare il client Admin API
-- Riscrivere `supabase/functions/_shared/shopify-admin-client.ts` per usare i secrets forniti dal connettore nativo invece di leggere dalla tabella `shopify_connections`
-- Le edge functions esistenti (`get-products`, `get-customer-orders`, `shopify-admin-proxy`, ecc.) useranno il nuovo client
-
-### Step 5 — Aggiornare `src/lib/shopify.ts`
-- Rimuovere le costanti hardcoded dello store vecchio (`SHOPIFY_STORE_PERMANENT_DOMAIN`, `SHOPIFY_STOREFRONT_TOKEN`)
-- Il domain e i token verranno dal sistema nativo
-
-### Step 6 — Pulizia secrets obsoleti
-- I secrets `SHOPIFY_CLIENT_ID`, `SHOPIFY_CLIENT_SECRET`, `SHOPIFY_APP_URL`, `SHOPIFY_ADMIN_SHOP` non saranno più necessari (il connettore nativo gestisce tutto)
-
-### Step 7 — Test
-- Verificare che i prodotti si carichino correttamente
-- Verificare che gli ordini siano leggibili dal portale
-
-### File coinvolti
-- **Da eliminare**: 6 edge functions OAuth, `ShopifyCallback.tsx`
-- **Da modificare**: `App.tsx`, `AdminSettings.tsx`, `shopify-admin-client.ts`, `shopify.ts`
-- **Invariati**: `get-products`, `get-customer-orders`, `shopify-admin-proxy` (cambieranno solo il modo di ottenere il token)
-
-### Ordini
-Con il sistema nativo, gli scopes `read_orders` e `write_orders` sono disponibili. Potrai:
-- Leggere lo storico ordini dei clienti
-- Gestire ordini direttamente dal portale admin
-
+## Note tecniche
+- Le collezioni sono **manuali** (non smart): il tuo cliente potrà aggiungere/togliere prodotti uno a uno dall'admin Shopify.
+- Per popolare ora, scelgo prodotti per affinità di titolo/tag/tipo (es. agrumi → limoni/arance, rampicanti → glicine/gelsomino, ecc.). Tutto reversibile dall'admin.
