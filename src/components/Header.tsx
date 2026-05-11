@@ -273,7 +273,7 @@ export const Header = () => {
                 ))}
               </div>
 
-              <a href="/collections/all" className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-dark hover:text-primary">
+              <a href={activeCategoryData.href} className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-dark hover:text-primary">
                 Scopri tutto
                 <ChevronRight className="h-4 w-4" />
               </a>
@@ -281,8 +281,17 @@ export const Header = () => {
 
             <div className="grid gap-5 lg:grid-cols-2">
               {activeCategoryData.previewCards.map((card) => (
-                <a key={card.title} href="/collections/all" className="group block overflow-hidden rounded-[1.35rem] border border-border/65 bg-card/55">
-                  <div className={`h-48 w-full bg-gradient-to-br ${card.tone} transition-transform duration-700 group-hover:scale-[1.03]`} />
+                <a key={card.title} href={card.href} className="group block overflow-hidden rounded-[1.35rem] border border-border/65 bg-card/55">
+                  <div className="h-48 w-full overflow-hidden">
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      width={800}
+                      height={512}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                    />
+                  </div>
                   <div className="px-5 py-4">
                     <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Selezione</p>
                     <h4 className="mt-2 font-heading text-[1.3rem] font-medium text-foreground">{card.title}</h4>
