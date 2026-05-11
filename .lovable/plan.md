@@ -1,31 +1,46 @@
 ## Obiettivo
-Risolvere i 404 del mega menu creando le collezioni **manuali** su Shopify (popolate da me con prodotti coerenti) e collegando la storefront con una nuova pagina `/collections/:handle`. Sistemo anche tutti gli `href` "/n…" rotti.
+Negozio Shopify riconnesso. Procedo a creare le 20 collezioni manuali del mega menu, pre-popolandole con prodotti coerenti già presenti nel catalogo. Il cliente potrà poi aggiungere/togliere prodotti uno a uno dall'admin Shopify.
 
-## 1. Collezioni Shopify (manuali)
-Per ogni handle del mega menu creo una collezione manuale e ci aggiungo i prodotti pertinenti già presenti nel catalogo (faccio prima un censimento via `shopify--search_products` per categoria/tag/titolo, poi popolo). Le collezioni:
+## Cosa farò
 
-- `fioriture-stagionali`, `rampicanti`, `balconi-e-terrazze`, `sempreverdi`, `piante-da-esterno`
-- `rose-cespuglio`, `rose-rampicanti`, `rose-profumate`, `rose`
-- `agrumi`, `piccoli-frutti`, `alberi-da-frutto`, `varieta-da-terrazzo`, `piante-da-frutto`
-- `vasi-da-esterno`, `accessori`, `aromatiche`, `bulbi`, `idee-regalo`, `altre-categorie`
+### 1. Censimento prodotti per categoria
+Per ogni handle del mega menu uso `shopify--search_products` con query mirate (titolo, tag, type, vendor) per identificare i prodotti coerenti già presenti nello store.
 
-Se per una collezione non trovo prodotti coerenti la creo comunque vuota (così il cliente la potrà popolare in autonomia da admin) e la pagina mostrerà lo stato "nessun prodotto".
+Esempi di query:
+- `agrumi` → `title:limon* OR title:arancio* OR title:mandarin* OR product_type:Agrumi`
+- `rampicanti` → `title:glicin* OR title:gelsomin* OR title:bouganv* OR tag:rampicante`
+- `rose-rampicanti` → `title:rosa AND tag:rampicante`
+- `rose-profumate` → `title:rosa AND tag:profumata`
+- `aromatiche` → `title:rosmarin* OR title:salvia OR title:lavand* OR title:menta`
+- `piccoli-frutti` → `title:lampon* OR title:mirtill* OR title:ribes OR title:more`
+- `alberi-da-frutto` → `title:melo OR title:pero OR title:susin* OR title:cilieg*`
+- ...e così via per tutti i 20 handle
 
-## 2. Frontend – pagina collezione
-- Aggiungo `fetchCollectionByHandle(handle, first)` in `src/lib/shopify.ts` (Storefront API `collectionByHandle`, versione `2025-07`).
-- Nuova pagina `src/pages/CollectionPage.tsx` che riusa il layout di `AllProducts` filtrato per collection (titolo + descrizione collezione, stato vuoto, loading skeleton).
-- Registro route `/collections/:handle` in `src/App.tsx`. Mantengo `/nall` per retrocompatibilità.
+### 2. Creazione collezioni manuali su Shopify
+Per ogni handle creo una `Collection` di tipo **manual (custom collection)** via Admin GraphQL `collectionCreate`, impostando:
+- `title` leggibile (es. "Rose profumate")
+- `handle` identico a quello usato dal mega menu
+- `descriptionHtml` breve coerente con il tono del brand
+- `published: true` sul canale Online Store
 
-## 3. Fix degli href rotti
-Sostituzione mirata in:
-- `src/components/storefront/HomeHeaderOverlay.tsx` (mega menu: `nxxx` → `/collections/xxx`)
-- `src/components/Header.tsx`, `src/components/Footer.tsx`, `src/components/storefront/HomeHero.tsx`, `src/components/storefront/HomepageV3.tsx` (`nall` → `/collections/all` o rotta esistente di "tutti i prodotti")
+Poi associo i prodotti trovati al passo 1 con `collectionAddProducts`.
 
-## 4. QA
-- Apro 4-5 voci diverse del mega menu in preview, verifico che la pagina carichi i prodotti della collezione corrispondente.
-- Verifico stato vuoto sulle collezioni senza prodotti.
-- Controllo che "Tutti i prodotti" continui a funzionare.
+Se per una collezione non trovo prodotti coerenti (es. `bulbi`), la creo comunque vuota — sarà popolata dal cliente.
 
-## Note tecniche
-- Le collezioni sono **manuali** (non smart): il tuo cliente potrà aggiungere/togliere prodotti uno a uno dall'admin Shopify.
-- Per popolare ora, scelgo prodotti per affinità di titolo/tag/tipo (es. agrumi → limoni/arance, rampicanti → glicine/gelsomino, ecc.). Tutto reversibile dall'admin.
+### 3. Esecuzione
+Faccio tutto in un'unica edge function `setup-collections` (già scaffoldata) che:
+1. Per ogni handle, esegue search → crea collezione → aggiunge prodotti
+2. Restituisce un report con: collezioni create, prodotti aggiunti per ognuna, eventuali errori
+3. È idempotente: se una collezione con quell'handle esiste già, la aggiorna invece di duplicarla
+
+Lancio la function via curl e ti mostro il report.
+
+### 4. QA
+- Apro 4-5 voci del mega menu in preview e verifico che `/collections/:handle` mostri i prodotti
+- Verifico stato vuoto su collezioni come `bulbi`
+- Confermo che il cliente possa modificare i prodotti dall'admin Shopify (Collezioni → seleziona → Prodotti)
+
+## Note
+- Le collezioni sono **manuali**, non smart: il tuo cliente avrà pieno controllo
+- La pagina `/collections/:handle` è già pronta lato frontend (creata nello step precedente)
+- Tutto reversibile dall'admin Shopify

@@ -18,7 +18,10 @@ export interface ShopifyAdminConfig {
 }
 
 function getConfig(): ShopifyAdminConfig {
-  const shop = Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") || Deno.env.get("SHOPIFY_ADMIN_SHOP") || "";
+  const shop =
+    Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") ||
+    Deno.env.get("SHOPIFY_ADMIN_SHOP") ||
+    "ecom-blueprint-gen-6ud1s.myshopify.com";
   const accessToken = Deno.env.get("SHOPIFY_ACCESS_TOKEN") || Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") || "";
   const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-07";
 
