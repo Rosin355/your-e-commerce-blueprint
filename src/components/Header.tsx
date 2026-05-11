@@ -140,7 +140,7 @@ export const Header = () => {
                     {categories.map((cat) => (
                       <a
                         key={cat.label}
-                        href="/collections/all"
+                        href={cat.href}
                         className="flex items-center justify-between rounded-xl px-3 py-3 text-xs font-semibold tracking-[0.18em] text-foreground/90 transition-colors hover:bg-muted"
                       >
                         {cat.label}
