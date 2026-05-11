@@ -6,6 +6,14 @@ import { CartDrawer } from "./CartDrawer";
 import { AccountButton } from "./AccountButton";
 import { useState } from "react";
 import logoOnlineGarden from "@/assets/logo-online-garden.png";
+import outdoorLivingImg from "@/assets/megamenu/outdoor-living.jpg";
+import evergreenGardenImg from "@/assets/megamenu/evergreen-garden.jpg";
+import roseSelectionImg from "@/assets/megamenu/rose-selection.jpg";
+import roseGiftImg from "@/assets/megamenu/rose-gift.jpg";
+import citrusImg from "@/assets/megamenu/citrus.jpg";
+import berriesImg from "@/assets/megamenu/berries.jpg";
+import potsAccessoriesImg from "@/assets/megamenu/pots-accessories.jpg";
+import bulbsSeasonalImg from "@/assets/megamenu/bulbs-seasonal.jpg";
 
 export const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
