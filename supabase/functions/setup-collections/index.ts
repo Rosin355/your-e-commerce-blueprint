@@ -2,7 +2,37 @@
 // Creates each collection if missing and populates with matching products.
 // Safe to re-run: skips existing collections (matched by handle).
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, jsonResponse, shopifyAdminFetch } from "../_shared/shopify-admin-client.ts";
+import { corsHeaders, jsonResponse } from "../_shared/shopify-admin-client.ts";
+
+const SHOP = "ecom-blueprint-gen-6ud1s.myshopify.com";
+const API_VERSION = "2025-07";
+
+function getToken(): string {
+  return (
+    Deno.env.get("SHOPIFY_ONLINE_ACCESS_TOKEN") ||
+    Deno.env.get("SHOPIFY_ACCESS_TOKEN") ||
+    Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") ||
+    ""
+  );
+}
+
+async function shopifyAdminFetch(path: string, method: string, body?: unknown): Promise<any> {
+  const url = `https://${SHOP}/admin/api/${API_VERSION}/${path}`;
+  const opts: RequestInit = {
+    method,
+    headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": getToken() },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  let res = await fetch(url, opts);
+  if (res.status === 429) {
+    const retry = parseInt(res.headers.get("Retry-After") || "2", 10);
+    await new Promise((r) => setTimeout(r, retry * 1000));
+    res = await fetch(url, opts);
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${JSON.stringify(data).slice(0, 400)}`);
+  return data;
+}
 interface CollectionDef {
   handle: string;
   title: string;
