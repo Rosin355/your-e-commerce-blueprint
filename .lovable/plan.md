@@ -1,46 +1,39 @@
 ## Obiettivo
-Negozio Shopify riconnesso. Procedo a creare le 20 collezioni manuali del mega menu, pre-popolandole con prodotti coerenti già presenti nel catalogo. Il cliente potrà poi aggiungere/togliere prodotti uno a uno dall'admin Shopify.
 
-## Cosa farò
+Sostituire i 2 placeholder a gradiente in ogni categoria del mega menu con foto realistiche generate con AI, far puntare ogni card alla collezione specifica, e collegare il bottone "Scopri tutto" alla collezione macro corretta (ora va a `/collections/all` ma è inerte sulla riga in cui si trova).
 
-### 1. Censimento prodotti per categoria
-Per ogni handle del mega menu uso `shopify--search_products` con query mirate (titolo, tag, type, vendor) per identificare i prodotti coerenti già presenti nello store.
+## Mappatura categorie → collezioni → immagini
 
-Esempi di query:
-- `agrumi` → `title:limon* OR title:arancio* OR title:mandarin* OR product_type:Agrumi`
-- `rampicanti` → `title:glicin* OR title:gelsomin* OR title:bouganv* OR tag:rampicante`
-- `rose-rampicanti` → `title:rosa AND tag:rampicante`
-- `rose-profumate` → `title:rosa AND tag:profumata`
-- `aromatiche` → `title:rosmarin* OR title:salvia OR title:lavand* OR title:menta`
-- `piccoli-frutti` → `title:lampon* OR title:mirtill* OR title:ribes OR title:more`
-- `alberi-da-frutto` → `title:melo OR title:pero OR title:susin* OR title:cilieg*`
-- ...e così via per tutti i 20 handle
+Per ognuna delle 4 categorie del mega menu (`src/components/Header.tsx`), 2 card preview con foto dedicata e link a collezione esistente (collezioni create dal precedente setup):
 
-### 2. Creazione collezioni manuali su Shopify
-Per ogni handle creo una `Collection` di tipo **manual (custom collection)** via Admin GraphQL `collectionCreate`, impostando:
-- `title` leggibile (es. "Rose profumate")
-- `handle` identico a quello usato dal mega menu
-- `descriptionHtml` breve coerente con il tono del brand
-- `published: true` sul canale Online Store
+| Categoria | Card 1 → handle | Card 2 → handle |
+|---|---|---|
+| Piante da esterno | "Vivere l'esterno" → `piante-da-esterno` | "Giardino essenziale" → `sempreverdi` |
+| Rose | "Rose selezionate" → `rose` | "Regali floreali" → `rose-profumate` |
+| Piante da frutto | "Agrumi" → `agrumi` | "Piccoli frutti" → `piccoli-frutti` |
+| Altre categorie | "Vasi e accessori" → `vasi-da-esterno` | "Bulbi e stagionalità" → `bulbi` |
 
-Poi associo i prodotti trovati al passo 1 con `collectionAddProducts`.
+Bottone "Scopri tutto" → punta alla collezione macro della categoria attiva (es. `piante-da-frutto`, `rose`, `piante-da-esterno`, `vasi-da-esterno`), non più a `/collections/all`.
 
-Se per una collezione non trovo prodotti coerenti (es. `bulbi`), la creo comunque vuota — sarà popolata dal cliente.
+## Step di implementazione
 
-### 3. Esecuzione
-Faccio tutto in un'unica edge function `setup-collections` (già scaffoldata) che:
-1. Per ogni handle, esegue search → crea collezione → aggiunge prodotti
-2. Restituisce un report con: collezioni create, prodotti aggiunti per ognuna, eventuali errori
-3. È idempotente: se una collezione con quell'handle esiste già, la aggiorna invece di duplicarla
+1. **Generare 8 immagini** in `src/assets/megamenu/` con `imagegen` (modello `standard`, formato landscape, sfondo editoriale luminoso, stile coerente con brand premium):
+   - `outdoor-living.jpg`, `evergreen-garden.jpg`
+   - `rose-selection.jpg`, `rose-gift.jpg`
+   - `citrus.jpg`, `berries.jpg`
+   - `pots-accessories.jpg`, `bulbs-seasonal.jpg`
 
-Lancio la function via curl e ti mostro il report.
+2. **Refactor `categories` in `src/components/Header.tsx`**:
+   - Aggiungere campo `href` a ogni categoria (collezione macro) e a ogni `previewCards[i]` (collezione specifica + import immagine).
+   - Sostituire il `div` con `bg-gradient-to-br ${card.tone}` con `<img src={card.image} ... className="h-48 w-full object-cover ...">`.
+   - Aggiornare `<a href="/collections/all">` delle card con `card.href`.
+   - Aggiornare il link "Scopri tutto" da `/collections/all` ad `activeCategoryData.href`.
 
-### 4. QA
-- Apro 4-5 voci del mega menu in preview e verifico che `/collections/:handle` mostri i prodotti
-- Verifico stato vuoto su collezioni come `bulbi`
-- Confermo che il cliente possa modificare i prodotti dall'admin Shopify (Collezioni → seleziona → Prodotti)
+3. **QA visivo**: aprire `/` in preview, hoverare ogni voce del mega menu, verificare che le 8 immagini si carichino correttamente e che i click portino alle collezioni giuste (incluso `bulbi` vuoto, comportamento atteso).
 
-## Note
-- Le collezioni sono **manuali**, non smart: il tuo cliente avrà pieno controllo
-- La pagina `/collections/:handle` è già pronta lato frontend (creata nello step precedente)
-- Tutto reversibile dall'admin Shopify
+## Note tecniche
+
+- Le immagini sono importate come asset ES6 (no `lovable-assets`), così Vite le ottimizza.
+- Nessuna modifica al backend: tutte le collezioni target esistono già su Shopify dal precedente `setup-collections`.
+- Il campo `tone` nelle card viene rimosso (non più usato).
+- Mobile sheet: i link delle categorie continuano a usare la collezione macro (`category.href`) invece di `/collections/all` per coerenza.
