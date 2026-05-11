@@ -200,3 +200,63 @@ export async function fetchProducts(first: number = 20, _query?: string): Promis
     throw error;
   }
 }
+
+export interface ShopifyCollectionMeta {
+  title: string;
+  description: string;
+  handle: string;
+}
+
+export interface CollectionResult {
+  collection: ShopifyCollectionMeta | null;
+  products: ShopifyProduct[];
+}
+
+const COLLECTION_QUERY = `
+  query GetCollection($handle: String!, $first: Int!) {
+    collection(handle: $handle) {
+      title
+      description
+      handle
+      products(first: $first) {
+        edges {
+          node {
+            id
+            title
+            description
+            handle
+            priceRange { minVariantPrice { amount currencyCode } }
+            images(first: 5) { edges { node { url altText } } }
+            variants(first: 10) {
+              edges {
+                node {
+                  id
+                  title
+                  price { amount currencyCode }
+                  availableForSale
+                  selectedOptions { name value }
+                }
+              }
+            }
+            options { name values }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export async function fetchCollectionByHandle(handle: string, first: number = 60): Promise<CollectionResult> {
+  try {
+    const data = await storefrontApiRequest(COLLECTION_QUERY, { handle, first });
+    const col = data?.data?.collection;
+    if (!col) return { collection: null, products: [] };
+    return {
+      collection: { title: col.title, description: col.description || '', handle: col.handle },
+      products: col.products?.edges || [],
+    };
+  } catch (error) {
+    console.error('Errore nel recupero della collezione:', error);
+    throw error;
+  }
+}
