@@ -22,38 +22,42 @@ export const Header = () => {
   const categories = [
     {
       label: "Piante da esterno",
+      href: "/collections/piante-da-esterno",
       description: "Per giardini, balconi, terrazzi e aiuole dal tono naturale e raffinato.",
       links: ["Fioriture stagionali", "Rampicanti", "Sempreverdi", "Balconi e terrazze"],
       previewCards: [
-        { title: "Vivere l'esterno", description: "Una selezione luminosa per spazi aperti pieni di carattere.", tone: "from-[#e8dfcf] via-[#d7c9b3] to-[#c7b08a]" },
-        { title: "Giardino essenziale", description: "Varieta scelte per composizioni curate e leggere.", tone: "from-[#6b7f51] via-[#495a39] to-[#2e3a27]" },
+        { title: "Vivere l'esterno", description: "Una selezione luminosa per spazi aperti pieni di carattere.", image: outdoorLivingImg, href: "/collections/piante-da-esterno" },
+        { title: "Giardino essenziale", description: "Varieta scelte per composizioni curate e leggere.", image: evergreenGardenImg, href: "/collections/sempreverdi" },
       ],
     },
     {
       label: "Rose",
+      href: "/collections/rose",
       description: "Collezioni romantiche e profumate per chi cerca eleganza senza tempo.",
       links: ["Rose cespuglio", "Rose rampicanti", "Rose profumate", "Idee regalo"],
       previewCards: [
-        { title: "Rose selezionate", description: "Una proposta pensata per roseti, ingressi e spazi esterni dal tono poetico.", tone: "from-[#e5d0cf] via-[#d8bab6] to-[#c79b96]" },
-        { title: "Regali floreali", description: "Composizioni eleganti da scegliere con facilita durante la stagione.", tone: "from-[#efe5d8] via-[#dcc7ad] to-[#bea07f]" },
+        { title: "Rose selezionate", description: "Una proposta pensata per roseti, ingressi e spazi esterni dal tono poetico.", image: roseSelectionImg, href: "/collections/rose" },
+        { title: "Regali floreali", description: "Composizioni eleganti da scegliere con facilita durante la stagione.", image: roseGiftImg, href: "/collections/rose-profumate" },
       ],
     },
     {
       label: "Piante da frutto",
+      href: "/collections/piante-da-frutto",
       description: "Varieta decorative e produttive, perfette per esterni e terrazze.",
       links: ["Agrumi", "Piccoli frutti", "Alberi da frutto", "Varieta da terrazzo"],
       previewCards: [
-        { title: "Agrumi", description: "Profumi mediterranei e presenza scenica per terrazzi e giardini.", tone: "from-[#d9c96b] via-[#b8a649] to-[#8d7a2b]" },
-        { title: "Piccoli frutti", description: "Una proposta piacevole da coltivare e vivere all'aperto.", tone: "from-[#cfd7c1] via-[#98ab7c] to-[#63754e]" },
+        { title: "Agrumi", description: "Profumi mediterranei e presenza scenica per terrazzi e giardini.", image: citrusImg, href: "/collections/agrumi" },
+        { title: "Piccoli frutti", description: "Una proposta piacevole da coltivare e vivere all'aperto.", image: berriesImg, href: "/collections/piccoli-frutti" },
       ],
     },
     {
       label: "Altre categorie",
+      href: "/collections/all",
       description: "Dettagli complementari per completare con gusto il tuo spazio verde.",
       links: ["Vasi da esterno", "Accessori", "Aromatiche da esterno", "Bulbi - disponibile a breve", "Idee regalo"],
       previewCards: [
-        { title: "Vasi e accessori", description: "Forme, materie e dettagli pensati per terrazzi e balconi curati.", tone: "from-[#d8cfbf] via-[#c6b59b] to-[#a88c68]" },
-        { title: "Bulbi e stagionalita", description: "Una categoria in arrivo, pensata per le prossime fioriture outdoor.", tone: "from-[#b7c691] via-[#91a26d] to-[#5c6c42]" },
+        { title: "Vasi e accessori", description: "Forme, materie e dettagli pensati per terrazzi e balconi curati.", image: potsAccessoriesImg, href: "/collections/vasi-da-esterno" },
+        { title: "Bulbi e stagionalita", description: "Una categoria in arrivo, pensata per le prossime fioriture outdoor.", image: bulbsSeasonalImg, href: "/collections/bulbi" },
       ],
     },
   ] as const;
