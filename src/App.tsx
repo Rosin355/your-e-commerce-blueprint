@@ -15,6 +15,7 @@ const Account = lazy(() => import("./pages/Account"));
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AllProducts = lazy(() => import("./pages/AllProducts"));
+const CollectionPage = lazy(() => import("./pages/CollectionPage"));
 
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/collections/all" element={<SuspenseLoader><AllProducts /></SuspenseLoader>} />
+            <Route path="/collections/:handle" element={<SuspenseLoader><CollectionPage /></SuspenseLoader>} />
             <Route path="/products" element={<SuspenseLoader><AllProducts /></SuspenseLoader>} />
             <Route path="/products/:handle" element={<ProductDetail />} />
             <Route path="/auth" element={<SuspenseLoader><Auth /></SuspenseLoader>} />
