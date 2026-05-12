@@ -31,6 +31,7 @@ interface PreviewCard {
 
 interface NavItem {
   label: string;
+  isComingSoon?: boolean;
   title: string;
   description: string;
   catalogHref: string;
@@ -125,6 +126,7 @@ const navigationItems: NavItem[] = [
   },
   {
     label: "Altre categorie",
+    isComingSoon: true,
     title: "Altre categorie",
     description: "Dettagli complementari per completare terrazzi, balconi e spazi outdoor con gusto.",
     catalogHref: "/collections/altre-categorie",
@@ -197,13 +199,22 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                 <button
                   key={item.label}
                   type="button"
-                  onMouseEnter={() => setActiveItem(item)}
-                  onFocus={() => setActiveItem(item)}
-                  className={`text-[13px] font-medium tracking-[0.015em] transition-colors ${
-                    activeItem?.label === item.label ? "text-white" : "text-white/90 hover:text-white"
+                  onMouseEnter={() => !item.isComingSoon && setActiveItem(item)}
+                  onFocus={() => !item.isComingSoon && setActiveItem(item)}
+                  className={`relative inline-flex items-center gap-2 text-[13px] font-medium tracking-[0.015em] transition-colors ${
+                    item.isComingSoon
+                      ? "cursor-default text-white/40"
+                      : activeItem?.label === item.label
+                      ? "text-white"
+                      : "text-white/90 hover:text-white"
                   }`}
                 >
                   {item.label}
+                  {item.isComingSoon && (
+                    <span className="rounded-full border border-white/20 bg-white/8 px-1.5 py-0.5 text-[9px] uppercase tracking-[0.18em] text-white/40">
+                      presto
+                    </span>
+                  )}
                 </button>
               ))}
             </nav>
@@ -299,24 +310,42 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                 <div className="mt-6 space-y-4">
                   {navigationItems.map((item) => (
                     <div key={item.label} className="rounded-2xl border border-border/70 bg-card p-2">
-                      <Link
-                        to={item.catalogHref}
-                        onClick={() => setIsMobileNavOpen(false)}
-                        className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
-                      >
-                        <span>{item.label}</span>
-                        <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Categoria</span>
-                      </Link>
+                      {item.isComingSoon ? (
+                        <div className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-muted-foreground/50 cursor-default">
+                          <span>{item.label}</span>
+                          <span className="text-[9px] uppercase tracking-[0.16em] text-muted-foreground/40 border border-border/40 rounded-full px-1.5 py-0.5">
+                            Presto
+                          </span>
+                        </div>
+                      ) : (
+                        <Link
+                          to={item.catalogHref}
+                          onClick={() => setIsMobileNavOpen(false)}
+                          className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+                        >
+                          <span>{item.label}</span>
+                          <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Categoria</span>
+                        </Link>
+                      )}
                       <div className="mt-1 grid gap-1 px-1 pb-1">
                         {item.links.map((link) => (
-                          <Link
-                            key={link.label}
-                            to={link.href}
-                            onClick={() => setIsMobileNavOpen(false)}
-                            className="rounded-xl px-3 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/75 transition-colors hover:bg-muted"
-                          >
-                            {link.label}
-                          </Link>
+                          item.isComingSoon ? (
+                            <span
+                              key={link.label}
+                              className="rounded-xl px-3 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground/35 cursor-default block"
+                            >
+                              {link.label}
+                            </span>
+                          ) : (
+                            <Link
+                              key={link.label}
+                              to={link.href}
+                              onClick={() => setIsMobileNavOpen(false)}
+                              className="rounded-xl px-3 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/75 transition-colors hover:bg-muted"
+                            >
+                              {link.label}
+                            </Link>
+                          )
                         ))}
                       </div>
                     </div>
