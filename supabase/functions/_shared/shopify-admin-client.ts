@@ -22,7 +22,20 @@ function getConfig(): ShopifyAdminConfig {
     Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") ||
     Deno.env.get("SHOPIFY_ADMIN_SHOP") ||
     "ecom-blueprint-gen-6ud1s.myshopify.com";
-  const accessToken = Deno.env.get("SHOPIFY_ACCESS_TOKEN") || Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") || "";
+  // Prefer the long-lived custom-app token; fall back to the online token stored by the
+  // native Shopify connector (key contains user id, so we scan env for any matching prefix).
+  let accessToken =
+    Deno.env.get("SHOPIFY_ACCESS_TOKEN") ||
+    Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") ||
+    "";
+  if (!accessToken) {
+    for (const [key, value] of Object.entries(Deno.env.toObject())) {
+      if (key.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") && value) {
+        accessToken = value;
+        break;
+      }
+    }
+  }
   const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-07";
 
   if (!shop) throw new Error("SHOPIFY_STORE_PERMANENT_DOMAIN non configurato");
