@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { listShopifyProducts } from "../lib/aiWriterEngine";
+import { listShopifyProducts, listDbProducts } from "../lib/aiWriterEngine";
 import { downloadBatchCsvSnippet, downloadCsvSnippet } from "../lib/productEnrichmentEngine";
 import { useProductEnrichment, type BatchProductResult } from "../hooks/useProductEnrichment";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
@@ -207,15 +206,9 @@ function ModeAPanel() {
     setLoadingProducts(true);
     setLoadingCount(0);
     try {
-      const { data, error } = await supabase
-        .from("product_sync_csv_products")
-        .select("sku, title, handle, description, tags, seo_title, seo_description, updated_at, image_urls")
-        .is("parent_sku", null)
-        .order("imported_at", { ascending: false });
+      const { products } = await listDbProducts({ limit: 2000 });
 
-      if (error) throw new Error(error.message);
-
-      const mapped: ShopifyAdminProduct[] = (data || []).map((row: any, i: number) => ({
+      const mapped: ShopifyAdminProduct[] = (products || []).map((row: any, i: number) => ({
         id: i + 1,
         handle: row.handle || row.sku || "",
         title: row.title || "",

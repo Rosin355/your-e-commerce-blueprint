@@ -5,6 +5,7 @@ type ProxyAction =
   | "list_products"
   | "get_product"
   | "list_drafts"
+  | "list_db_products"
   | "generate_product_copy_draft"
   | "publish_product_copy";
 
@@ -16,6 +17,10 @@ async function callProxy<T>(action: ProxyAction, data: Record<string, unknown>) 
     throw new Error(error.message || "Errore chiamata proxy");
   }
   return response as T;
+}
+
+export async function listDbProducts(params?: { limit?: number }) {
+  return callProxy<{ products: any[] }>("list_db_products", params ?? {});
 }
 
 export async function listShopifyProducts(params: {

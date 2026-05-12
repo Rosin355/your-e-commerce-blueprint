@@ -104,6 +104,24 @@ async function getProduct(productId: number) {
   return { product: normalizeProduct(res.product) };
 }
 
+async function listDbProducts(data: any) {
+  const db = getSupabaseAdminClient();
+  const limit = Math.min(Number(data?.limit || 1000), 2000);
+  const parentSkuOnly = data?.parentOnly !== false;
+
+  let query = db
+    .from("product_sync_csv_products")
+    .select("sku, title, handle, description, tags, seo_title, seo_description, updated_at, image_urls")
+    .order("imported_at", { ascending: false })
+    .limit(limit);
+
+  if (parentSkuOnly) query = query.is("parent_sku", null);
+
+  const { data: rows, error } = await query;
+  if (error) throw new Error(error.message);
+  return { products: rows || [] };
+}
+
 async function listDrafts(data: any) {
   const productId = String(data?.productId || "");
   if (!productId) throw new Error("productId mancante");
@@ -263,6 +281,9 @@ serve(async (req) => {
         break;
       case "list_drafts":
         result = await listDrafts(data);
+        break;
+      case "list_db_products":
+        result = await listDbProducts(data);
         break;
       case "generate_product_copy_draft":
         result = await generateProductCopyDraft(data, adminEmail);
