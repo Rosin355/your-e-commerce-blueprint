@@ -64,7 +64,7 @@ export default function AiWriterPanel() {
         status: statusFilter,
         tag: tagFilter,
         query,
-        page: 1,
+        
         limit: 50,
       });
       setProducts(response.products);
