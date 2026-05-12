@@ -234,7 +234,8 @@ function ModeAPanel() {
       setProducts(mapped);
       setLoadingCount(mapped.length);
       resetBatch();
-    } catch {
+    } catch (e) {
+      console.error("loadFromDb error:", e);
       toast.error("Errore caricamento prodotti dal database");
     } finally {
       setLoadingProducts(false);
