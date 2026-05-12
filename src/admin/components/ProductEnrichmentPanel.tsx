@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -164,6 +165,7 @@ function ModeAPanel() {
   const [products, setProducts] = useState<ShopifyAdminProduct[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [loadingCount, setLoadingCount] = useState(0);
+  const [source, setSource] = useState<"shopify" | "db">("shopify");
   const [seedStyle, setSeedStyle] = useState(SEED_STYLES[0]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
@@ -201,6 +203,49 @@ function ModeAPanel() {
     }
   }
 
+  async function loadFromDb() {
+    setLoadingProducts(true);
+    setLoadingCount(0);
+    try {
+      const { data, error } = await supabase
+        .from("product_sync_csv_products")
+        .select("sku, title, handle, description, tags, seo_title, seo_description, updated_at, image_urls")
+        .is("parent_sku", null)
+        .order("imported_at", { ascending: false });
+
+      if (error) throw new Error(error.message);
+
+      const mapped: ShopifyAdminProduct[] = (data || []).map((row: any, i: number) => ({
+        id: i + 1,
+        handle: row.handle || row.sku || "",
+        title: row.title || "",
+        status: "active",
+        tags: Array.isArray(row.tags) ? row.tags.join(", ") : (row.tags ?? ""),
+        body_html: row.description || "",
+        metafields_global_title_tag: row.seo_title || "",
+        metafields_global_description_tag: row.seo_description || "",
+        updated_at: row.updated_at || "",
+        images:
+          Array.isArray(row.image_urls) && row.image_urls.length > 0
+            ? [{ id: 0, src: row.image_urls[0], alt: row.title || "" }]
+            : [],
+      }));
+
+      setProducts(mapped);
+      setLoadingCount(mapped.length);
+      resetBatch();
+    } catch {
+      toast.error("Errore caricamento prodotti dal database");
+    } finally {
+      setLoadingProducts(false);
+    }
+  }
+
+  function handleLoad() {
+    if (source === "db") loadFromDb();
+    else loadProducts();
+  }
+
   return (
     <div className="space-y-4">
       {/* Step 1 — load */}
@@ -209,25 +254,45 @@ function ModeAPanel() {
           <CardTitle className="text-base">1 — Carica prodotti</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          {/* Source toggle */}
+          <div className="flex gap-1 rounded-md border p-1 w-fit">
+            <button
+              onClick={() => { setSource("shopify"); setProducts([]); resetBatch(); }}
+              className={`rounded px-3 py-1 text-xs font-medium transition-colors ${source === "shopify" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Shopify
+            </button>
+            <button
+              onClick={() => { setSource("db"); setProducts([]); resetBatch(); }}
+              className={`rounded px-3 py-1 text-xs font-medium transition-colors ${source === "db" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Database CSV
+            </button>
+          </div>
+
           <div className="flex flex-wrap gap-2">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="active">Attivi</SelectItem>
-                <SelectItem value="draft">Bozze</SelectItem>
-                <SelectItem value="archived">Archiviati</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input
-              className="w-56"
-              placeholder="Cerca titolo / handle"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && loadProducts()}
-            />
-            <Button onClick={loadProducts} disabled={loadingProducts || isRunning} variant="outline" className="gap-2">
+            {source === "shopify" && (
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Attivi</SelectItem>
+                  <SelectItem value="draft">Bozze</SelectItem>
+                  <SelectItem value="archived">Archiviati</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+            {source === "shopify" && (
+              <Input
+                className="w-56"
+                placeholder="Cerca titolo / handle"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleLoad()}
+              />
+            )}
+            <Button onClick={handleLoad} disabled={loadingProducts || isRunning} variant="outline" className="gap-2">
               {loadingProducts ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCcw className="h-4 w-4" />}
               {loadingProducts && loadingCount > 0 ? `Caricamento… (${loadingCount})` : "Carica"}
             </Button>
@@ -245,7 +310,8 @@ function ModeAPanel() {
           </div>
           {products.length > 0 && !batchResults.length && (
             <p className="text-xs text-muted-foreground">
-              {products.length} prodotti caricati. Clicca <strong>Analizza tutti</strong> per vedere la completezza di ciascuno.
+              {products.length} prodotti caricati{source === "db" ? " dal Database CSV" : ""}.{" "}
+              Clicca <strong>Analizza tutti</strong> per vedere la completezza di ciascuno.
             </p>
           )}
         </CardContent>
@@ -288,9 +354,10 @@ function ModeAPanel() {
 
               <Button
                 onClick={() => publishAll(products, seedStyle, user?.email)}
-                disabled={isRunning}
+                disabled={isRunning || source === "db"}
                 variant="outline"
                 className="gap-2"
+                title={source === "db" ? "Richiede prodotti Shopify. Sincronizza prima tramite il tab Catalogo DB." : undefined}
               >
                 {isRunning && batchProgress?.phase === "publish" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -299,6 +366,11 @@ function ModeAPanel() {
                 )}
                 Pubblica su Shopify (tutti)
               </Button>
+              {source === "db" && (
+                <p className="w-full text-[10px] text-muted-foreground">
+                  La pubblicazione diretta richiede ID Shopify. Usa <strong>Scarica CSV</strong> e importalo in Shopify, oppure sincronizza il catalogo DB prima.
+                </p>
+              )}
 
               {hasDrafts && (
                 <Button
