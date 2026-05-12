@@ -163,6 +163,7 @@ function ModeAPanel() {
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<ShopifyAdminProduct[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [loadingCount, setLoadingCount] = useState(0);
   const [seedStyle, setSeedStyle] = useState(SEED_STYLES[0]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
@@ -181,9 +182,17 @@ function ModeAPanel() {
 
   async function loadProducts() {
     setLoadingProducts(true);
+    setLoadingCount(0);
     try {
-      const res = await listShopifyProducts({ status: statusFilter, query, limit: 60, page: 1 });
-      setProducts(res.products);
+      const all: ShopifyAdminProduct[] = [];
+      let pageInfo: string | undefined;
+      do {
+        const res = await listShopifyProducts({ status: statusFilter, query, limit: 250, pageInfo });
+        all.push(...res.products);
+        setLoadingCount(all.length);
+        pageInfo = res.nextPageInfo || undefined;
+      } while (pageInfo);
+      setProducts(all);
       resetBatch();
     } catch {
       toast.error("Errore caricamento prodotti Shopify");
@@ -220,7 +229,7 @@ function ModeAPanel() {
             />
             <Button onClick={loadProducts} disabled={loadingProducts || isRunning} variant="outline" className="gap-2">
               {loadingProducts ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCcw className="h-4 w-4" />}
-              Carica
+              {loadingProducts && loadingCount > 0 ? `Caricamento… (${loadingCount})` : "Carica"}
             </Button>
             {products.length > 0 && (
               <Button

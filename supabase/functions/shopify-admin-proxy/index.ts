@@ -63,7 +63,25 @@ async function listProducts(data: any) {
   });
   if (pageInfo) search.set("page_info", pageInfo);
 
-  const res = await shopifyAdminFetch(`products.json?${search.toString()}`, "GET");
+  // Direct fetch (not shopifyAdminFetch) so we can read the Link header for cursor-based pagination
+  const shop = Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") || "ecom-blueprint-gen-6ud1s.myshopify.com";
+  const accessToken = Deno.env.get("SHOPIFY_ACCESS_TOKEN") || Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") || "";
+  const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-07";
+  const fetchHeaders = { "Content-Type": "application/json", "X-Shopify-Access-Token": accessToken };
+  const url = `https://${shop}/admin/api/${apiVersion}/products.json?${search.toString()}`;
+
+  let rawResponse = await fetch(url, { method: "GET", headers: fetchHeaders });
+  if (rawResponse.status === 429) {
+    const retryAfter = parseInt(rawResponse.headers.get("Retry-After") || "2", 10);
+    await new Promise((r) => setTimeout(r, retryAfter * 1000));
+    rawResponse = await fetch(url, { method: "GET", headers: fetchHeaders });
+  }
+  const res = await rawResponse.json();
+
+  const linkHeader = rawResponse.headers.get("Link") || "";
+  const nextMatch = linkHeader.match(/<[^>]*[?&]page_info=([^>&]+)[^>]*>;\s*rel="next"/);
+  const nextPageInfo = nextMatch ? nextMatch[1] : "";
+
   let products = Array.isArray(res.products) ? res.products : [];
   if (query) {
     products = products.filter((p: any) =>
@@ -75,7 +93,7 @@ async function listProducts(data: any) {
       String(p.tags || "").toLowerCase().split(",").map((t: string) => t.trim()).includes(tagFilter),
     );
   }
-  return { products: products.map(normalizeProduct), hasNextPage: products.length === limit };
+  return { products: products.map(normalizeProduct), hasNextPage: !!nextPageInfo, nextPageInfo };
 }
 
 async function getProduct(productId: number) {

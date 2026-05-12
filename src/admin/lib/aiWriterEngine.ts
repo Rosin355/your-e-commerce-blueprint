@@ -23,9 +23,9 @@ export async function listShopifyProducts(params: {
   tag?: string;
   query?: string;
   limit?: number;
-  page?: number;
+  pageInfo?: string;
 }) {
-  return callProxy<{ products: ShopifyAdminProduct[]; hasNextPage: boolean; page: number }>("list_products", params);
+  return callProxy<{ products: ShopifyAdminProduct[]; hasNextPage: boolean; nextPageInfo?: string }>("list_products", params);
 }
 
 export async function getShopifyProduct(productId: number) {
