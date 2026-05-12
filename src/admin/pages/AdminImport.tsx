@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Package, CheckCircle, Play, Zap, ArrowRightLeft, Database } from 'lucide-react';
+import { Users, Package, CheckCircle, Play, Zap, ArrowRightLeft, Database, Layers } from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
 import CsvUploader from '../components/CsvUploader';
 import CsvPreview from '../components/CsvPreview';
@@ -13,6 +13,7 @@ import ImportHistory from '../components/ImportHistory';
 import AiWriterPanel from '../components/AiWriterPanel';
 import WooPipelinePanel from '../components/WooPipelinePanel';
 import ProductSyncPanel from '../components/ProductSyncPanel';
+import ProductEnrichmentPanel from '../components/ProductEnrichmentPanel';
 import { readFileAsCsv } from '../lib/csvParser';
 import { validateCsv } from '../lib/csvValidator';
 import { runImport } from '../lib/importEngine';
@@ -31,7 +32,7 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
   const aiWriterEnabled = import.meta.env.VITE_ENABLE_AI_PRODUCT_WRITER !== 'false';
 
   const handleTabChange = (value: string) => {
-    if (value === 'ai-writer' || value === 'woo-pipeline' || value === 'smart-sync') return;
+    if (value === 'ai-writer' || value === 'woo-pipeline' || value === 'smart-sync' || value === 'enrichment') return;
     store.reset();
     store.setImportType(value as ImportType);
   };
@@ -107,6 +108,9 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
           <TabsTrigger value="smart-sync" className="gap-2">
             <Database className="h-4 w-4" /> Catalogo DB
           </TabsTrigger>
+          <TabsTrigger value="enrichment" className="gap-2">
+            <Layers className="h-4 w-4" /> Arricchimento
+          </TabsTrigger>
         </TabsList>
 
         {['customers', 'products'].map((tab) => (
@@ -152,6 +156,9 @@ export default function AdminImport({ onLogout }: AdminImportProps) {
         </TabsContent>
         <TabsContent value="smart-sync">
           <ProductSyncPanel />
+        </TabsContent>
+        <TabsContent value="enrichment">
+          <ProductEnrichmentPanel />
         </TabsContent>
       </Tabs>
 
