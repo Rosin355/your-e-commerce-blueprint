@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -206,9 +207,16 @@ function ModeAPanel() {
     setLoadingProducts(true);
     setLoadingCount(0);
     try {
-      const { products } = await listDbProducts({ limit: 2000 });
+      const { data, error } = await supabase
+        .from("product_sync_csv_products")
+        .select("sku, title, handle, description, tags, seo_title, seo_description, updated_at, image_urls")
+        .is("parent_sku", null)
+        .order("imported_at", { ascending: false })
+        .limit(2000);
 
-      const mapped: ShopifyAdminProduct[] = (products || []).map((row: any, i: number) => ({
+      if (error) throw new Error(error.message);
+
+      const mapped: ShopifyAdminProduct[] = (data || []).map((row: any, i: number) => ({
         id: i + 1,
         handle: row.handle || row.sku || "",
         title: row.title || "",
@@ -226,10 +234,11 @@ function ModeAPanel() {
 
       setProducts(mapped);
       setLoadingCount(mapped.length);
+      if (mapped.length === 0) toast.info("Nessun prodotto trovato nel database");
       resetBatch();
     } catch (e) {
       console.error("loadFromDb error:", e);
-      toast.error("Errore caricamento prodotti dal database");
+      toast.error(e instanceof Error ? e.message : "Errore caricamento prodotti dal database");
     } finally {
       setLoadingProducts(false);
     }
