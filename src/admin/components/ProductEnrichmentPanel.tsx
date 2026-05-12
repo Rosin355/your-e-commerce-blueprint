@@ -209,7 +209,7 @@ function ModeAPanel() {
     try {
       const { data, error } = await supabase
         .from("product_sync_csv_products")
-        .select("sku, title, handle, description, tags, seo_title, seo_description, updated_at, image_urls")
+        .select("sku, title, handle, description, tags, seo_title, seo_description, image_urls")
         .is("parent_sku", null)
         .order("imported_at", { ascending: false })
         .limit(2000);
@@ -225,7 +225,7 @@ function ModeAPanel() {
         body_html: row.description || "",
         metafields_global_title_tag: row.seo_title || "",
         metafields_global_description_tag: row.seo_description || "",
-        updated_at: row.updated_at || "",
+        updated_at: "",
         images:
           Array.isArray(row.image_urls) && row.image_urls.length > 0
             ? [{ id: 0, src: row.image_urls[0], alt: row.title || "" }]
