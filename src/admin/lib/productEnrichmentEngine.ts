@@ -234,11 +234,40 @@ export function buildCsvSnippet(draft: EnrichedProductDraft): string {
 
 export function downloadCsvSnippet(draft: EnrichedProductDraft): void {
   const csv = buildCsvSnippet(draft);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  triggerDownload(csv, `arricchimento-${draft.input_handle || "prodotto"}.csv`);
+}
+
+/** Builds a multi-row Shopify-compatible CSV for a batch of drafts */
+export function buildBatchCsvSnippet(drafts: EnrichedProductDraft[]): string {
+  const metafieldCols = ALL_METAFIELD_KEYS.map((k) => `product.metafields.custom.${k}`);
+  const headers = ["Handle", "Title", "Body (HTML)", "SEO Title", "SEO Description", ...metafieldCols];
+
+  const rows = drafts.map((draft) =>
+    [
+      draft.input_handle,
+      draft.input_title,
+      draft.body_html,
+      draft.seo_title,
+      draft.seo_description,
+      ...ALL_METAFIELD_KEYS.map((k) => draft.metafields[k] ?? ""),
+    ].map(escapeCsvCell).join(","),
+  );
+
+  return [headers.map(escapeCsvCell).join(","), ...rows].join("\n");
+}
+
+export function downloadBatchCsvSnippet(drafts: EnrichedProductDraft[]): void {
+  const csv = buildBatchCsvSnippet(drafts);
+  const ts = new Date().toISOString().slice(0, 10);
+  triggerDownload(csv, `arricchimento-catalogo-${ts}.csv`);
+}
+
+function triggerDownload(content: string, filename: string): void {
+  const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `arricchimento-${draft.input_handle || "prodotto"}.csv`;
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
 }
