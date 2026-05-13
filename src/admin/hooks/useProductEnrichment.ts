@@ -333,6 +333,7 @@ export function useProductEnrichment() {
     analyzeAll,
     generateAll,
     publishAll,
+    cancelBatch,
     resetBatch,
     reset,
   };
