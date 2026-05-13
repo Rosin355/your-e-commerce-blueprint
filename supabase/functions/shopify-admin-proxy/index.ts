@@ -111,7 +111,7 @@ async function listDbProducts(data: any) {
 
   let query = db
     .from("product_sync_csv_products")
-    .select("sku, title, handle, description, tags, seo_title, seo_description, updated_at, image_urls")
+    .select("sku, title, handle, description, tags, seo_title, seo_description, imported_at, image_urls")
     .order("imported_at", { ascending: false })
     .limit(limit);
 
