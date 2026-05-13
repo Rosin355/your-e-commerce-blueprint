@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
 import type {
@@ -7,10 +7,11 @@ import type {
   ProductFieldCompleteness,
 } from "../types/productEnrichment";
 import {
+  evaluateCompletenessWithDraft,
   evaluateProductCompleteness,
   generateEnrichedDraft,
 } from "../lib/productEnrichmentEngine";
-import { generateProductDraft, getShopifyProduct, publishDraft } from "../lib/aiWriterEngine";
+import { generateProductDraft, getShopifyProduct, publishDraft, saveEnrichedDraftToDb } from "../lib/aiWriterEngine";
 
 // ── Batch result record ─────────────────────────────────────────────────────
 
@@ -18,11 +19,13 @@ export type BatchItemStatus = "pending" | "analyzing" | "generating" | "publishi
 
 export interface BatchProductResult {
   productId: number;
+  sku?: string;
   handle: string;
   title: string;
   completeness: ProductFieldCompleteness | null;
   draft: EnrichedProductDraft | null;
   publishedAt: string | null;
+  savedAt: string | null;
   status: BatchItemStatus;
   error: string | null;
 }
