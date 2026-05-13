@@ -24,6 +24,14 @@ export async function listDbProducts(params?: { limit?: number }) {
   return callProxy<{ products: any[] }>("list_db_products", params ?? {});
 }
 
+export async function saveEnrichedDraftToDb(params: {
+  sku: string;
+  draft: unknown;
+  seedStyle?: string;
+}) {
+  return callProxy<{ success: boolean; sku: string }>("save_enriched_draft", params);
+}
+
 export async function listShopifyProducts(params: {
   status?: string;
   tag?: string;
