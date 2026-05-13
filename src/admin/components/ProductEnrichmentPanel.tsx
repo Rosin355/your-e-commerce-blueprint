@@ -175,6 +175,7 @@ function ModeAPanel() {
     analyzeAll,
     generateAll,
     publishAll,
+    cancelBatch,
     resetBatch,
   } = useProductEnrichment();
 
@@ -350,7 +351,7 @@ function ModeAPanel() {
               )}
             </div>
 
-            {/* Progress bar */}
+            {/* Progress bar + stop */}
             {batchProgress && (
               <div className="space-y-1.5 rounded-md border bg-muted/30 p-3">
                 <div className="flex items-center justify-between text-xs">
@@ -366,6 +367,17 @@ function ModeAPanel() {
                   value={Math.round((batchProgress.current / batchProgress.total) * 100)}
                   className="h-1.5"
                 />
+                <div className="flex justify-end pt-1">
+                  <Button
+                    onClick={cancelBatch}
+                    size="sm"
+                    variant="destructive"
+                    className="h-7 gap-1 text-xs"
+                  >
+                    <AlertCircle className="h-3 w-3" />
+                    Interrompi
+                  </Button>
+                </div>
               </div>
             )}
 
