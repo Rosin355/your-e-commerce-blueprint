@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
 import type {
@@ -7,10 +7,11 @@ import type {
   ProductFieldCompleteness,
 } from "../types/productEnrichment";
 import {
+  evaluateCompletenessWithDraft,
   evaluateProductCompleteness,
   generateEnrichedDraft,
 } from "../lib/productEnrichmentEngine";
-import { generateProductDraft, getShopifyProduct, publishDraft } from "../lib/aiWriterEngine";
+import { generateProductDraft, getShopifyProduct, publishDraft, saveEnrichedDraftToDb } from "../lib/aiWriterEngine";
 
 // ── Batch result record ─────────────────────────────────────────────────────
 
@@ -18,11 +19,13 @@ export type BatchItemStatus = "pending" | "analyzing" | "generating" | "publishi
 
 export interface BatchProductResult {
   productId: number;
+  sku?: string;
   handle: string;
   title: string;
   completeness: ProductFieldCompleteness | null;
   draft: EnrichedProductDraft | null;
   publishedAt: string | null;
+  savedAt?: string | null;
   status: BatchItemStatus;
   error: string | null;
 }
@@ -49,6 +52,11 @@ export function useProductEnrichment() {
   // ── Batch state (Mode A batch) ────────────────────────────────────────
   const [batchResults, setBatchResults] = useState<BatchProductResult[]>([]);
   const [batchProgress, setBatchProgress] = useState<BatchProgress | null>(null);
+  const cancelRef = useRef(false);
+
+  function cancelBatch() {
+    cancelRef.current = true;
+  }
 
   // Helper: mutate one item inside batchResults by productId
   function updateBatchItem(
@@ -130,11 +138,13 @@ export function useProductEnrichment() {
   function analyzeAll(products: ShopifyAdminProduct[]) {
     const initial: BatchProductResult[] = products.map((p) => ({
       productId: p.id,
+      sku: p.sku,
       handle: p.handle,
       title: p.title,
       completeness: evaluateProductCompleteness(p),
       draft: null,
       publishedAt: null,
+      savedAt: null,
       status: "pending" as BatchItemStatus,
       error: null,
     }));
@@ -144,15 +154,18 @@ export function useProductEnrichment() {
 
   /** Generates enriched metafield drafts for all products — one AI call each */
   async function generateAll(products: ShopifyAdminProduct[], seedStyle: string) {
-    let current = batchResults.length
+    cancelRef.current = false;
+    let current: BatchProductResult[] = batchResults.length
       ? [...batchResults]
       : products.map((p) => ({
           productId: p.id,
+          sku: p.sku,
           handle: p.handle,
           title: p.title,
           completeness: evaluateProductCompleteness(p),
           draft: null,
           publishedAt: null,
+          savedAt: null,
           status: "pending" as BatchItemStatus,
           error: null,
         }));
@@ -162,8 +175,13 @@ export function useProductEnrichment() {
     setBatchResults(current);
 
     let successCount = 0;
+    let processed = 0;
 
     for (let i = 0; i < products.length; i++) {
+      if (cancelRef.current) {
+        toast.warning(`Generazione interrotta — ${successCount}/${products.length} salvati nel DB`);
+        break;
+      }
       const p = products[i];
       setBatchProgress({ current: i + 1, total: products.length, phase: "generate", currentTitle: p.title });
       current = updateBatchItem(p.id, { status: "generating" }, current);
@@ -179,7 +197,24 @@ export function useProductEnrichment() {
           seed_style: seedStyle,
         };
         const d = await generateEnrichedDraft(input);
-        current = updateBatchItem(p.id, { draft: d, status: "done", error: null }, current);
+        const newCompleteness = evaluateCompletenessWithDraft(p, d);
+
+        // Persist immediately to DB so we don't lose it on refresh / cancel
+        let savedAt: string | null = null;
+        if (p.sku) {
+          try {
+            await saveEnrichedDraftToDb({ sku: p.sku, draft: d, seedStyle });
+            savedAt = new Date().toISOString();
+          } catch (saveErr) {
+            console.error("[enrichment] save to DB failed for sku", p.sku, saveErr);
+          }
+        }
+
+        current = updateBatchItem(
+          p.id,
+          { draft: d, completeness: newCompleteness, savedAt, status: "done", error: null },
+          current,
+        );
         successCount++;
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Errore generazione";
@@ -187,11 +222,15 @@ export function useProductEnrichment() {
       }
 
       setBatchResults([...current]);
-      if (i < products.length - 1) await delay(500);
+      processed = i + 1;
+      if (i < products.length - 1 && !cancelRef.current) await delay(500);
     }
 
     setBatchProgress(null);
-    toast.success(`Generazione completata: ${successCount}/${products.length} riusciti`);
+    cancelRef.current = false;
+    if (processed === products.length) {
+      toast.success(`Generazione completata: ${successCount}/${products.length} riusciti`);
+    }
   }
 
   /**
@@ -204,15 +243,18 @@ export function useProductEnrichment() {
     seedStyle: string,
     adminEmail?: string,
   ) {
-    let current = batchResults.length
+    cancelRef.current = false;
+    let current: BatchProductResult[] = batchResults.length
       ? [...batchResults]
       : products.map((p) => ({
           productId: p.id,
+          sku: p.sku,
           handle: p.handle,
           title: p.title,
           completeness: evaluateProductCompleteness(p),
           draft: null,
           publishedAt: null,
+          savedAt: null,
           status: "pending" as BatchItemStatus,
           error: null,
         }));
@@ -220,8 +262,13 @@ export function useProductEnrichment() {
     current = current.map((r) => ({ ...r, error: null }));
     setBatchResults(current);
     let successCount = 0;
+    let processed = 0;
 
     for (let i = 0; i < products.length; i++) {
+      if (cancelRef.current) {
+        toast.warning(`Pubblicazione interrotta — ${successCount}/${products.length} pubblicati`);
+        break;
+      }
       const p = products[i];
       setBatchProgress({ current: i + 1, total: products.length, phase: "publish", currentTitle: p.title });
       current = updateBatchItem(p.id, { status: "publishing" }, current);
@@ -247,11 +294,15 @@ export function useProductEnrichment() {
       }
 
       setBatchResults([...current]);
-      if (i < products.length - 1) await delay(800);
+      processed = i + 1;
+      if (i < products.length - 1 && !cancelRef.current) await delay(800);
     }
 
     setBatchProgress(null);
-    toast.success(`Pubblicati su Shopify: ${successCount}/${products.length}`);
+    cancelRef.current = false;
+    if (processed === products.length) {
+      toast.success(`Pubblicati su Shopify: ${successCount}/${products.length}`);
+    }
   }
 
   function resetBatch() {
@@ -282,6 +333,7 @@ export function useProductEnrichment() {
     analyzeAll,
     generateAll,
     publishAll,
+    cancelBatch,
     resetBatch,
     reset,
   };

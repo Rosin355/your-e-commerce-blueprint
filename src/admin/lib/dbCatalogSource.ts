@@ -19,20 +19,27 @@ interface DbProductRow {
   image_urls: unknown;
   seo_title: string | null;
   seo_description: string | null;
+  optimized_description: string | null;
+  metafields: unknown;
 }
 
 function mapRow(r: DbProductRow): ShopifyAdminProduct {
   const tagsArr = Array.isArray(r.tags) ? r.tags.map(String) : [];
   const imgs = Array.isArray(r.image_urls) ? r.image_urls.map(String) : [];
+  const mf = r.metafields && typeof r.metafields === "object" && !Array.isArray(r.metafields)
+    ? (r.metafields as Record<string, string>)
+    : {};
   return {
     id: hashSku(r.sku),
+    sku: r.sku,
     title: r.title ?? r.sku,
     handle: r.handle ?? r.sku.toLowerCase(),
     status: "active",
     tags: tagsArr.join(", "),
-    body_html: r.description ?? "",
+    body_html: r.optimized_description ?? r.description ?? "",
     metafields_global_title_tag: r.seo_title ?? "",
     metafields_global_description_tag: r.seo_description ?? "",
+    metafields: mf,
     images: imgs.map((src, i) => ({ id: i, src })),
   };
 }
@@ -50,7 +57,7 @@ export async function loadDbCatalogProducts(opts?: {
   const term = opts?.query?.trim().toLowerCase();
   if (term) {
     mapped = mapped.filter((p) => {
-      const hay = `${p.title} ${p.handle} ${rows.find((r) => hashSku(r.sku) === p.id)?.sku ?? ""}`.toLowerCase();
+      const hay = `${p.title} ${p.handle} ${p.sku ?? ""}`.toLowerCase();
       return hay.includes(term);
     });
   }
