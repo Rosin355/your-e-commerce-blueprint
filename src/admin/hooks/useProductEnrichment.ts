@@ -52,6 +52,11 @@ export function useProductEnrichment() {
   // ── Batch state (Mode A batch) ────────────────────────────────────────
   const [batchResults, setBatchResults] = useState<BatchProductResult[]>([]);
   const [batchProgress, setBatchProgress] = useState<BatchProgress | null>(null);
+  const cancelRef = useRef(false);
+
+  function cancelBatch() {
+    cancelRef.current = true;
+  }
 
   // Helper: mutate one item inside batchResults by productId
   function updateBatchItem(
