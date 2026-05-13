@@ -210,7 +210,6 @@ function ModeAPanel() {
       const { data, error } = await supabase
         .from("product_sync_csv_products")
         .select("sku, title, handle, description, tags, seo_title, seo_description, image_urls")
-        .is("parent_sku", null)
         .order("imported_at", { ascending: false })
         .limit(2000);
 
