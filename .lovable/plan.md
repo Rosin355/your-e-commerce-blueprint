@@ -1,41 +1,26 @@
 
-# Fix tab Arricchimento — leggere dal Catalogo DB
+# Fix sorgente Catalogo DB — usare l'edge function invece di query diretta
 
-## Causa del problema
+## Causa
 
-Nella pagina `/admin/import`:
+La tabella `product_sync_csv_products` ha RLS con sola policy `service_role`. Il client autenticato vede 0 righe (RLS le filtra silenziosamente, senza errore). Per questo `loadDbCatalogProducts` restituisce lista vuota anche con 1518 prodotti effettivi nel DB.
 
-- Tab **Catalogo DB** → importa nella tabella Supabase `product_sync_csv_products` (i tuoi 460 prodotti vivono qui).
-- Tab **Arricchimento** → il bottone "Carica" chiama `listShopifyProducts()` che interroga **Shopify Admin API** via edge function `shopify-admin-proxy`.
+L'edge function `shopify-admin-proxy` espone già l'azione `list_db_products` che gira con service role e fa esattamente quello che serve.
 
-Le due tab leggono da fonti diverse. I 460 prodotti del CSV non sono ancora su Shopify, quindi la lista resta vuota. In più, eventuali errori del proxy vengono inghiottiti da un `toast.error` generico, dando l'impressione che "non succeda nulla".
+## Modifica
 
-## Cosa fare
+In `src/admin/lib/dbCatalogSource.ts`:
 
-1. **Aggiungere una sorgente "Catalogo DB" al pannello Arricchimento**
-   - In `ProductEnrichmentPanel.tsx` (ModeAPanel) aggiungere un selettore "Sorgente" con due opzioni: `Catalogo DB (locale)` e `Shopify Admin`.
-   - Default: **Catalogo DB**, dato che il flusso naturale è importa → arricchisci → esporta/sincronizza.
+- Sostituire la query Supabase diretta con una chiamata a `listDbProducts({ limit: 5000 })` da `aiWriterEngine.ts`.
+- Mappare i record restituiti (`sku, title, handle, description, tags, seo_title, seo_description, image_urls`) nella shape `ShopifyAdminProduct`.
+- Applicare il filtro `query` lato client (filter su title/handle/sku) dato che il proxy non lo supporta.
+- Aggiornare `onProgress` per riflettere il count finale (singola chiamata).
 
-2. **Caricare i prodotti dalla DB**
-   - Riusare la query già usata altrove: `supabase.from('product_sync_csv_products').select(...)` filtrando `parent_sku is null` (solo prodotti padre) e con paginazione `range()` per superare il limite 1000 di PostgREST.
-   - Mappare ogni record DB nella shape `ShopifyAdminProduct` minima richiesta dal pannello: `id` (hash da sku), `handle`, `title`, `tags`, `body_html` da `description`, `image.src` dal primo `image_urls`, `variants` con `sku/price`. Così il resto della UI (analyzeAll, generateAll, draft preview) continua a funzionare senza modifiche.
+Edge function — alzare il `limit` cap di `list_db_products` da 2000 a 10000 in `supabase/functions/shopify-admin-proxy/index.ts` (riga ~109) per supportare cataloghi grandi senza paginazione complessa lato client.
 
-3. **Adattare le azioni di pubblicazione**
-   - "Genera tutti" continua a funzionare (è solo Lovable AI, non tocca Shopify).
-   - "Pubblica su Shopify" deve restare disabilitato in modalità DB (i prodotti DB non hanno `productId` Shopify). Mostrare invece il bottone "Scarica CSV arricchito" che già esiste in `productEnrichmentEngine.downloadBatchCsvSnippet`, così l'utente può importarlo in Shopify.
+Nessuna modifica RLS richiesta: la tabella resta esposta solo a service_role, accesso mediato dall'edge function autenticata via `assertAdminRequest`.
 
-4. **Migliorare la diagnostica del bottone "Carica"**
-   - Sostituire il `catch` mute con `toast.error(e.message)` e log in console per evitare future regressioni "non succede nulla".
-   - Mostrare un messaggio esplicito quando la sorgente non restituisce prodotti (es. "Nessun prodotto trovato nel Catalogo DB. Vai prima nella tab Catalogo DB.").
+## File toccati
 
-## File coinvolti
-
-- `src/admin/components/ProductEnrichmentPanel.tsx` — selettore sorgente, branch caricamento, gating bottone Pubblica.
-- `src/admin/hooks/useProductEnrichment.ts` — nessuna modifica strutturale; eventualmente estendere `publishAll` con una guard `if (!productId) skip`.
-- Nuovo helper `src/admin/lib/dbCatalogSource.ts` — `loadDbCatalogProducts()` che restituisce `ShopifyAdminProduct[]` mappati dalla tabella locale.
-
-## Note tecniche
-
-- La paginazione DB va fatta in batch di 1000 con `range(from, to)` finché `data.length < 1000`.
-- Il mapping `id` può essere un numero deterministico da `sku` (es. hash) solo come chiave React; non viene usato per chiamate Shopify in modalità DB.
-- Nessuna modifica alle edge function richiesta.
+- `src/admin/lib/dbCatalogSource.ts` — riscrittura: usa `listDbProducts` invece di `supabase.from(...)`.
+- `supabase/functions/shopify-admin-proxy/index.ts` — alzare cap limit a 10000.
