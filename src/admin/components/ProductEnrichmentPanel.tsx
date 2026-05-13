@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { listShopifyProducts } from "../lib/aiWriterEngine";
+import { loadDbCatalogProducts } from "../lib/dbCatalogSource";
 import { downloadBatchCsvSnippet, downloadCsvSnippet } from "../lib/productEnrichmentEngine";
 import { useProductEnrichment, type BatchProductResult } from "../hooks/useProductEnrichment";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
