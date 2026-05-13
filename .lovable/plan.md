@@ -1,26 +1,53 @@
 
-# Fix sorgente Catalogo DB — usare l'edge function invece di query diretta
+# Persistenza bozze AI, completezza dinamica e pulsante Interrompi
 
-## Causa
+## Obiettivi
 
-La tabella `product_sync_csv_products` ha RLS con sola policy `service_role`. Il client autenticato vede 0 righe (RLS le filtra silenziosamente, senza errore). Per questo `loadDbCatalogProducts` restituisce lista vuota anche con 1518 prodotti effettivi nel DB.
+1. Salvare automaticamente nel DB ogni bozza AI **subito dopo** la generazione, così sopravvive a refresh/chiusura tab.
+2. Ricalcolare la **completezza** (la barra %) usando i campi presenti nella bozza AI generata, non solo nel prodotto sorgente.
+3. Aggiungere un pulsante **Interrompi** che ferma il loop in modo pulito (la bozza in corso si conclude, le successive non partono) — ciò che è già stato salvato resta nel DB.
 
-L'edge function `shopify-admin-proxy` espone già l'azione `list_db_products` che gira con service role e fa esattamente quello che serve.
+## Scelte architetturali
 
-## Modifica
+- **Niente nuova tabella**: `product_sync_csv_products` ha già le colonne giuste (`seo_title`, `seo_description`, `optimized_description`, `metafields`, `ai_enrichment_json`, `ai_enriched_at`, `ai_seed_style`). Upsert per `sku`.
+- Salvataggio via **edge function** (`shopify-admin-proxy` con nuova action `save_enriched_draft`) per usare il service role e bypassare l'RLS della tabella.
+- Lo `sku` è la chiave: lo propaghiamo dall'edge function `list_db_products` fino a `BatchProductResult` (campo nuovo `sku`).
+- La completezza diventa una funzione di `(product + draft)`: se la bozza esiste, i suoi campi contano come "presenti".
+- **Cancellazione**: `useRef<boolean>` letto a inizio iterazione del loop in `generateAll` / `publishAll`; nessun `AbortController` server-side perché la singola chiamata AI è breve e va completata per non sprecare il risultato.
 
-In `src/admin/lib/dbCatalogSource.ts`:
+## Modifiche
 
-- Sostituire la query Supabase diretta con una chiamata a `listDbProducts({ limit: 5000 })` da `aiWriterEngine.ts`.
-- Mappare i record restituiti (`sku, title, handle, description, tags, seo_title, seo_description, image_urls`) nella shape `ShopifyAdminProduct`.
-- Applicare il filtro `query` lato client (filter su title/handle/sku) dato che il proxy non lo supporta.
-- Aggiornare `onProgress` per riflettere il count finale (singola chiamata).
+### Backend
+- `supabase/functions/shopify-admin-proxy/index.ts`
+  - In `listDbProducts`: aggiungere `sku` alla SELECT e includerlo nella risposta (era già selezionato, va solo esposto a valle).
+  - Nuova action `save_enriched_draft`: input `{ sku, draft: EnrichedProductDraft, seedStyle }`. Esegue upsert su `product_sync_csv_products` per `sku` con i campi `seo_title`, `seo_description`, `optimized_description = draft.body_html`, `metafields`, `ai_seed_style`, `ai_enriched_at = now()`, `ai_enrichment_json = draft`.
 
-Edge function — alzare il `limit` cap di `list_db_products` da 2000 a 10000 in `supabase/functions/shopify-admin-proxy/index.ts` (riga ~109) per supportare cataloghi grandi senza paginazione complessa lato client.
+### Client
+- `src/admin/types/aiWriter.ts` — aggiungere campo opzionale `sku?: string` a `ShopifyAdminProduct` (usato solo in modalità DB).
+- `src/admin/lib/dbCatalogSource.ts` — popolare `sku` nel mapping.
+- `src/admin/lib/aiWriterEngine.ts` — nuova `saveEnrichedDraftToDb({ sku, draft, seedStyle })` che invoca l'edge function.
+- `src/admin/lib/productEnrichmentEngine.ts` — nuova `evaluateCompletenessWithDraft(product, draft)`: costruisce un prodotto sintetico (merge di `seo_title`, `seo_description`, `body_html`, `metafields` dalla bozza dove il sorgente è vuoto) e riusa la funzione esistente.
+- `src/admin/hooks/useProductEnrichment.ts`
+  - Aggiungere `sku` a `BatchProductResult`.
+  - `cancelRef = useRef(false)`; nuova funzione `cancelBatch()`; `isRunning` esposto.
+  - `generateAll`: a inizio loop check `cancelRef.current` → break con toast "Interrotto: X/Y completati". Dopo ogni `generateEnrichedDraft` riuscita: chiama `saveEnrichedDraftToDb` (best-effort, errore solo loggato per non bloccare il batch) e ricalcola `completeness` con `evaluateCompletenessWithDraft`.
+  - `publishAll`: stesso check di cancellazione.
+- `src/admin/components/ProductEnrichmentPanel.tsx`
+  - Quando `batchProgress` non è null mostrare bottone **Interrompi** (rosso, secondario) accanto alla progress bar che chiama `cancelBatch()`.
+  - La `ScoreBar` continua a leggere `result.completeness.completeness_score` → aggiornamento automatico.
 
-Nessuna modifica RLS richiesta: la tabella resta esposta solo a service_role, accesso mediato dall'edge function autenticata via `assertAdminRequest`.
+### Comportamento dopo interruzione / refresh
+
+- I prodotti già arricchiti hanno `ai_enriched_at` valorizzato nel DB.
+- Cliccando di nuovo "Carica" dalla tab Arricchimento, l'edge function restituisce anche le colonne arricchite e `evaluateProductCompleteness` mostra il nuovo punteggio (perché `seo_title`/`body_html`/`metafields` sono ora popolati dal DB).
+- Il bottone "Genera tutti" può essere riusato e processerà anche prodotti già arricchiti (al momento non c'è skip; eventuale "salta arricchiti" è fuori scope).
 
 ## File toccati
 
-- `src/admin/lib/dbCatalogSource.ts` — riscrittura: usa `listDbProducts` invece di `supabase.from(...)`.
-- `supabase/functions/shopify-admin-proxy/index.ts` — alzare cap limit a 10000.
+- `supabase/functions/shopify-admin-proxy/index.ts`
+- `src/admin/types/aiWriter.ts`
+- `src/admin/lib/dbCatalogSource.ts`
+- `src/admin/lib/aiWriterEngine.ts`
+- `src/admin/lib/productEnrichmentEngine.ts`
+- `src/admin/hooks/useProductEnrichment.ts`
+- `src/admin/components/ProductEnrichmentPanel.tsx`
