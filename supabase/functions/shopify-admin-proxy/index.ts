@@ -106,7 +106,7 @@ async function getProduct(productId: number) {
 
 async function listDbProducts(data: any) {
   const db = getSupabaseAdminClient();
-  const limit = Math.min(Number(data?.limit || 1000), 2000);
+  const limit = Math.min(Number(data?.limit || 1000), 10000);
   const parentSkuOnly = data?.parentOnly !== false;
 
   let query = db
