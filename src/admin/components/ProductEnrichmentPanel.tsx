@@ -325,9 +325,10 @@ function ModeAPanel() {
 
               <Button
                 onClick={() => publishAll(products, seedStyle, user?.email)}
-                disabled={isRunning}
+                disabled={isRunning || isDbSource}
                 variant="outline"
                 className="gap-2"
+                title={isDbSource ? "Disponibile solo con sorgente Shopify Admin" : undefined}
               >
                 {isRunning && batchProgress?.phase === "publish" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
