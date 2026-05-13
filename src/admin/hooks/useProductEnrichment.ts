@@ -138,11 +138,13 @@ export function useProductEnrichment() {
   function analyzeAll(products: ShopifyAdminProduct[]) {
     const initial: BatchProductResult[] = products.map((p) => ({
       productId: p.id,
+      sku: p.sku,
       handle: p.handle,
       title: p.title,
       completeness: evaluateProductCompleteness(p),
       draft: null,
       publishedAt: null,
+      savedAt: null,
       status: "pending" as BatchItemStatus,
       error: null,
     }));
@@ -152,15 +154,18 @@ export function useProductEnrichment() {
 
   /** Generates enriched metafield drafts for all products — one AI call each */
   async function generateAll(products: ShopifyAdminProduct[], seedStyle: string) {
-    let current = batchResults.length
+    cancelRef.current = false;
+    let current: BatchProductResult[] = batchResults.length
       ? [...batchResults]
       : products.map((p) => ({
           productId: p.id,
+          sku: p.sku,
           handle: p.handle,
           title: p.title,
           completeness: evaluateProductCompleteness(p),
           draft: null,
           publishedAt: null,
+          savedAt: null,
           status: "pending" as BatchItemStatus,
           error: null,
         }));
@@ -170,8 +175,13 @@ export function useProductEnrichment() {
     setBatchResults(current);
 
     let successCount = 0;
+    let processed = 0;
 
     for (let i = 0; i < products.length; i++) {
+      if (cancelRef.current) {
+        toast.warning(`Generazione interrotta — ${successCount}/${products.length} salvati nel DB`);
+        break;
+      }
       const p = products[i];
       setBatchProgress({ current: i + 1, total: products.length, phase: "generate", currentTitle: p.title });
       current = updateBatchItem(p.id, { status: "generating" }, current);
@@ -187,7 +197,24 @@ export function useProductEnrichment() {
           seed_style: seedStyle,
         };
         const d = await generateEnrichedDraft(input);
-        current = updateBatchItem(p.id, { draft: d, status: "done", error: null }, current);
+        const newCompleteness = evaluateCompletenessWithDraft(p, d);
+
+        // Persist immediately to DB so we don't lose it on refresh / cancel
+        let savedAt: string | null = null;
+        if (p.sku) {
+          try {
+            await saveEnrichedDraftToDb({ sku: p.sku, draft: d, seedStyle });
+            savedAt = new Date().toISOString();
+          } catch (saveErr) {
+            console.error("[enrichment] save to DB failed for sku", p.sku, saveErr);
+          }
+        }
+
+        current = updateBatchItem(
+          p.id,
+          { draft: d, completeness: newCompleteness, savedAt, status: "done", error: null },
+          current,
+        );
         successCount++;
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Errore generazione";
@@ -195,11 +222,15 @@ export function useProductEnrichment() {
       }
 
       setBatchResults([...current]);
-      if (i < products.length - 1) await delay(500);
+      processed = i + 1;
+      if (i < products.length - 1 && !cancelRef.current) await delay(500);
     }
 
     setBatchProgress(null);
-    toast.success(`Generazione completata: ${successCount}/${products.length} riusciti`);
+    cancelRef.current = false;
+    if (processed === products.length) {
+      toast.success(`Generazione completata: ${successCount}/${products.length} riusciti`);
+    }
   }
 
   /**
