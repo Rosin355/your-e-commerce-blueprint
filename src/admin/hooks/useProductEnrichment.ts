@@ -243,15 +243,18 @@ export function useProductEnrichment() {
     seedStyle: string,
     adminEmail?: string,
   ) {
-    let current = batchResults.length
+    cancelRef.current = false;
+    let current: BatchProductResult[] = batchResults.length
       ? [...batchResults]
       : products.map((p) => ({
           productId: p.id,
+          sku: p.sku,
           handle: p.handle,
           title: p.title,
           completeness: evaluateProductCompleteness(p),
           draft: null,
           publishedAt: null,
+          savedAt: null,
           status: "pending" as BatchItemStatus,
           error: null,
         }));
@@ -259,8 +262,13 @@ export function useProductEnrichment() {
     current = current.map((r) => ({ ...r, error: null }));
     setBatchResults(current);
     let successCount = 0;
+    let processed = 0;
 
     for (let i = 0; i < products.length; i++) {
+      if (cancelRef.current) {
+        toast.warning(`Pubblicazione interrotta — ${successCount}/${products.length} pubblicati`);
+        break;
+      }
       const p = products[i];
       setBatchProgress({ current: i + 1, total: products.length, phase: "publish", currentTitle: p.title });
       current = updateBatchItem(p.id, { status: "publishing" }, current);
@@ -286,11 +294,15 @@ export function useProductEnrichment() {
       }
 
       setBatchResults([...current]);
-      if (i < products.length - 1) await delay(800);
+      processed = i + 1;
+      if (i < products.length - 1 && !cancelRef.current) await delay(800);
     }
 
     setBatchProgress(null);
-    toast.success(`Pubblicati su Shopify: ${successCount}/${products.length}`);
+    cancelRef.current = false;
+    if (processed === products.length) {
+      toast.success(`Pubblicati su Shopify: ${successCount}/${products.length}`);
+    }
   }
 
   function resetBatch() {
