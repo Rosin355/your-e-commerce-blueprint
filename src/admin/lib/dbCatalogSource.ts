@@ -1,7 +1,5 @@
-import { supabase } from "@/integrations/supabase/client";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
-
-const PAGE = 1000;
+import { listDbProducts } from "./aiWriterEngine";
 
 // Stable numeric id from sku for React keys (not used for Shopify API calls in DB mode)
 function hashSku(sku: string): number {
@@ -43,28 +41,20 @@ export async function loadDbCatalogProducts(opts?: {
   query?: string;
   onProgress?: (count: number) => void;
 }): Promise<ShopifyAdminProduct[]> {
-  const out: ShopifyAdminProduct[] = [];
-  let from = 0;
-  while (true) {
-    let q = supabase
-      .from("product_sync_csv_products")
-      .select("sku,handle,title,description,tags,image_urls,seo_title,seo_description")
-      .is("parent_sku", null)
-      .order("imported_at", { ascending: false })
-      .range(from, from + PAGE - 1);
+  // Tabella protetta da RLS (solo service_role): passiamo via edge function
+  // shopify-admin-proxy / list_db_products che gira con service role.
+  const res = await listDbProducts({ limit: 10000 });
+  const rows = (res?.products ?? []) as DbProductRow[];
+  let mapped = rows.map(mapRow);
 
-    if (opts?.query?.trim()) {
-      const term = `%${opts.query.trim()}%`;
-      q = q.or(`title.ilike.${term},handle.ilike.${term},sku.ilike.${term}`);
-    }
-
-    const { data, error } = await q;
-    if (error) throw new Error(error.message);
-    const rows = (data ?? []) as DbProductRow[];
-    out.push(...rows.map(mapRow));
-    opts?.onProgress?.(out.length);
-    if (rows.length < PAGE) break;
-    from += PAGE;
+  const term = opts?.query?.trim().toLowerCase();
+  if (term) {
+    mapped = mapped.filter((p) => {
+      const hay = `${p.title} ${p.handle} ${rows.find((r) => hashSku(r.sku) === p.id)?.sku ?? ""}`.toLowerCase();
+      return hay.includes(term);
+    });
   }
-  return out;
+
+  opts?.onProgress?.(mapped.length);
+  return mapped;
 }
