@@ -6,6 +6,7 @@ type ProxyAction =
   | "get_product"
   | "list_drafts"
   | "list_db_products"
+  | "save_enriched_draft"
   | "generate_product_copy_draft"
   | "publish_product_copy";
 
