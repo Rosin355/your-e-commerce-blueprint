@@ -173,7 +173,7 @@ export const HomeHero = () => {
       {/* ── Permanent gradient scrim ─────────────────────────────── */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,24,20,0.08)_0%,rgba(18,24,20,0.2)_44%,rgba(18,24,20,0.52)_100%)]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(18,24,20,0.08)_0%,rgba(18,24,20,0.2)_44%,rgba(18,24,20,0.52)_100%)]"
         style={{ zIndex: 30 }}
       />
 

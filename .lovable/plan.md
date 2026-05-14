@@ -1,53 +1,30 @@
+# Riattivare il megamenu
 
-# Persistenza bozze AI, completezza dinamica e pulsante Interrompi
+## Causa
+Nella `<section>` dell'hero homepage ci sono due overlay sopra all'header che intercettano gli eventi del mouse:
 
-## Obiettivi
+- lo "scrim" gradiente (`HomeHero.tsx` ~r.174) ha `z-index: 30` ma **manca** `pointer-events-none`
+- il wrapper del contenuto hero (`HomeHero.tsx` ~r.181) ha `z-index: 35` e copre l'intera area (`inset-0`)
 
-1. Salvare automaticamente nel DB ogni bozza AI **subito dopo** la generazione, così sopravvive a refresh/chiusura tab.
-2. Ricalcolare la **completezza** (la barra %) usando i campi presenti nella bozza AI generata, non solo nel prodotto sorgente.
-3. Aggiungere un pulsante **Interrompi** che ferma il loop in modo pulito (la bozza in corso si conclude, le successive non partono) — ciò che è già stato salvato resta nel DB.
-
-## Scelte architetturali
-
-- **Niente nuova tabella**: `product_sync_csv_products` ha già le colonne giuste (`seo_title`, `seo_description`, `optimized_description`, `metafields`, `ai_enrichment_json`, `ai_enriched_at`, `ai_seed_style`). Upsert per `sku`.
-- Salvataggio via **edge function** (`shopify-admin-proxy` con nuova action `save_enriched_draft`) per usare il service role e bypassare l'RLS della tabella.
-- Lo `sku` è la chiave: lo propaghiamo dall'edge function `list_db_products` fino a `BatchProductResult` (campo nuovo `sku`).
-- La completezza diventa una funzione di `(product + draft)`: se la bozza esiste, i suoi campi contano come "presenti".
-- **Cancellazione**: `useRef<boolean>` letto a inizio iterazione del loop in `generateAll` / `publishAll`; nessun `AbortController` server-side perché la singola chiamata AI è breve e va completata per non sprecare il risultato.
+L'header (`HomeHeaderOverlay.tsx` r.186) è a `z-30` per `variant="hero"`. Risultato: il bottone "Piante da esterno" è visibile ma l'`onMouseEnter` non scatta perché l'evento viene catturato dal div contenuto a `z-35`. Quindi `activeItem` resta `null` e il pannello non appare.
 
 ## Modifiche
 
-### Backend
-- `supabase/functions/shopify-admin-proxy/index.ts`
-  - In `listDbProducts`: aggiungere `sku` alla SELECT e includerlo nella risposta (era già selezionato, va solo esposto a valle).
-  - Nuova action `save_enriched_draft`: input `{ sku, draft: EnrichedProductDraft, seedStyle }`. Esegue upsert su `product_sync_csv_products` per `sku` con i campi `seo_title`, `seo_description`, `optimized_description = draft.body_html`, `metafields`, `ai_seed_style`, `ai_enriched_at = now()`, `ai_enrichment_json = draft`.
+1. **`src/components/storefront/HomeHero.tsx`**
+   - Aggiungere `pointer-events-none` al gradient scrim (è già `aria-hidden`, puramente decorativo).
+   - Aggiungere `pointer-events-none` al wrapper di contenuto hero, e `pointer-events-auto` agli elementi realmente interattivi al suo interno (link "Scopri il catalogo outdoor" e i due bottoni di navigazione slide).
 
-### Client
-- `src/admin/types/aiWriter.ts` — aggiungere campo opzionale `sku?: string` a `ShopifyAdminProduct` (usato solo in modalità DB).
-- `src/admin/lib/dbCatalogSource.ts` — popolare `sku` nel mapping.
-- `src/admin/lib/aiWriterEngine.ts` — nuova `saveEnrichedDraftToDb({ sku, draft, seedStyle })` che invoca l'edge function.
-- `src/admin/lib/productEnrichmentEngine.ts` — nuova `evaluateCompletenessWithDraft(product, draft)`: costruisce un prodotto sintetico (merge di `seo_title`, `seo_description`, `body_html`, `metafields` dalla bozza dove il sorgente è vuoto) e riusa la funzione esistente.
-- `src/admin/hooks/useProductEnrichment.ts`
-  - Aggiungere `sku` a `BatchProductResult`.
-  - `cancelRef = useRef(false)`; nuova funzione `cancelBatch()`; `isRunning` esposto.
-  - `generateAll`: a inizio loop check `cancelRef.current` → break con toast "Interrotto: X/Y completati". Dopo ogni `generateEnrichedDraft` riuscita: chiama `saveEnrichedDraftToDb` (best-effort, errore solo loggato per non bloccare il batch) e ricalcola `completeness` con `evaluateCompletenessWithDraft`.
-  - `publishAll`: stesso check di cancellazione.
-- `src/admin/components/ProductEnrichmentPanel.tsx`
-  - Quando `batchProgress` non è null mostrare bottone **Interrompi** (rosso, secondario) accanto alla progress bar che chiama `cancelBatch()`.
-  - La `ScoreBar` continua a leggere `result.completeness.completeness_score` → aggiornamento automatico.
+2. **`src/components/storefront/HomeHeaderOverlay.tsx`**
+   - Portare l'header sopra a tutti gli overlay dell'hero: alzare lo z-index del wrapper `<header>` da `z-30` → `z-40` per `variant="hero"` (la versione `page` è già `z-40`).
+   - Allineare anche `HomeAnnouncementBar` (`top-0 z-30` → `z-40`) per restare coerente sopra.
 
-### Comportamento dopo interruzione / refresh
+3. **Verifica pagine interne**
+   - Aprire `/products` e una `/collections/...` per controllare che il menu si apra. Se in qualche pagina ci fosse un altro overlay con z-index superiore (es. wrapper `Pdp` o sezione hero di lista), valutare un eventuale `z-40` → `z-50` mirato sull'header senza creare conflitti con drawer/dialog (che usano `z-50` di Radix).
 
-- I prodotti già arricchiti hanno `ai_enriched_at` valorizzato nel DB.
-- Cliccando di nuovo "Carica" dalla tab Arricchimento, l'edge function restituisce anche le colonne arricchite e `evaluateProductCompleteness` mostra il nuovo punteggio (perché `seo_title`/`body_html`/`metafields` sono ora popolati dal DB).
-- Il bottone "Genera tutti" può essere riusato e processerà anche prodotti già arricchiti (al momento non c'è skip; eventuale "salta arricchiti" è fuori scope).
+4. **Smoke test in preview**
+   - Hover su ciascuna voce del nav nella homepage → il pannello compare e resta aperto mentre il mouse è sopra.
+   - Uscendo dal nav il pannello si chiude.
+   - Verificare che gli overlay decorativi non blocchino più il pulsante "Scopri il catalogo outdoor" e i bottoni slide.
 
-## File toccati
-
-- `supabase/functions/shopify-admin-proxy/index.ts`
-- `src/admin/types/aiWriter.ts`
-- `src/admin/lib/dbCatalogSource.ts`
-- `src/admin/lib/aiWriterEngine.ts`
-- `src/admin/lib/productEnrichmentEngine.ts`
-- `src/admin/hooks/useProductEnrichment.ts`
-- `src/admin/components/ProductEnrichmentPanel.tsx`
+## Note
+Le ultime modifiche all'AI Writer (auto-save bozze + "Interrompi") non toccano questi file: la regressione era già latente, è probabilmente emersa con l'introduzione del wrapper contenuto a `z-35` nell'hero.
