@@ -73,6 +73,33 @@ export function evaluateProductCompleteness(product: ProductWithMeta): ProductFi
   };
 }
 
+/**
+ * Like evaluateProductCompleteness, but merges the AI-generated draft into the
+ * source product before evaluating, so the score reflects how much the draft
+ * has filled in. Source values win when present (we don't overwrite real data).
+ */
+export function evaluateCompletenessWithDraft(
+  product: ShopifyAdminProduct,
+  draft: EnrichedProductDraft | null,
+): ProductFieldCompleteness {
+  if (!draft) return evaluateProductCompleteness(product);
+  const merged: ProductWithMeta = {
+    ...product,
+    body_html: product.body_html?.trim() ? product.body_html : draft.body_html,
+    metafields_global_title_tag: product.metafields_global_title_tag?.trim()
+      ? product.metafields_global_title_tag
+      : draft.seo_title,
+    metafields_global_description_tag: product.metafields_global_description_tag?.trim()
+      ? product.metafields_global_description_tag
+      : draft.seo_description,
+    metafields: {
+      ...(draft.metafields as Partial<Record<ShopifyMetafieldKey, string>>),
+      ...((product as ProductWithMeta).metafields ?? {}),
+    },
+  };
+  return evaluateProductCompleteness(merged);
+}
+
 // ── Parses a Shopify CSV row (Record<string,string>) into metafield map ─────
 
 export function parseMetafieldsFromCsvRow(

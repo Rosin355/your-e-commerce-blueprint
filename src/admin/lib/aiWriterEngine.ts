@@ -6,6 +6,7 @@ type ProxyAction =
   | "get_product"
   | "list_drafts"
   | "list_db_products"
+  | "save_enriched_draft"
   | "generate_product_copy_draft"
   | "publish_product_copy";
 
@@ -21,6 +22,14 @@ async function callProxy<T>(action: ProxyAction, data: Record<string, unknown>) 
 
 export async function listDbProducts(params?: { limit?: number }) {
   return callProxy<{ products: any[] }>("list_db_products", params ?? {});
+}
+
+export async function saveEnrichedDraftToDb(params: {
+  sku: string;
+  draft: unknown;
+  seedStyle?: string;
+}) {
+  return callProxy<{ success: boolean; sku: string }>("save_enriched_draft", params);
 }
 
 export async function listShopifyProducts(params: {

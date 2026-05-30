@@ -1,39 +1,30 @@
-## Obiettivo
+# Riattivare il megamenu
 
-Sostituire i 2 placeholder a gradiente in ogni categoria del mega menu con foto realistiche generate con AI, far puntare ogni card alla collezione specifica, e collegare il bottone "Scopri tutto" alla collezione macro corretta (ora va a `/collections/all` ma è inerte sulla riga in cui si trova).
+## Causa
+Nella `<section>` dell'hero homepage ci sono due overlay sopra all'header che intercettano gli eventi del mouse:
 
-## Mappatura categorie → collezioni → immagini
+- lo "scrim" gradiente (`HomeHero.tsx` ~r.174) ha `z-index: 30` ma **manca** `pointer-events-none`
+- il wrapper del contenuto hero (`HomeHero.tsx` ~r.181) ha `z-index: 35` e copre l'intera area (`inset-0`)
 
-Per ognuna delle 4 categorie del mega menu (`src/components/Header.tsx`), 2 card preview con foto dedicata e link a collezione esistente (collezioni create dal precedente setup):
+L'header (`HomeHeaderOverlay.tsx` r.186) è a `z-30` per `variant="hero"`. Risultato: il bottone "Piante da esterno" è visibile ma l'`onMouseEnter` non scatta perché l'evento viene catturato dal div contenuto a `z-35`. Quindi `activeItem` resta `null` e il pannello non appare.
 
-| Categoria | Card 1 → handle | Card 2 → handle |
-|---|---|---|
-| Piante da esterno | "Vivere l'esterno" → `piante-da-esterno` | "Giardino essenziale" → `sempreverdi` |
-| Rose | "Rose selezionate" → `rose` | "Regali floreali" → `rose-profumate` |
-| Piante da frutto | "Agrumi" → `agrumi` | "Piccoli frutti" → `piccoli-frutti` |
-| Altre categorie | "Vasi e accessori" → `vasi-da-esterno` | "Bulbi e stagionalità" → `bulbi` |
+## Modifiche
 
-Bottone "Scopri tutto" → punta alla collezione macro della categoria attiva (es. `piante-da-frutto`, `rose`, `piante-da-esterno`, `vasi-da-esterno`), non più a `/collections/all`.
+1. **`src/components/storefront/HomeHero.tsx`**
+   - Aggiungere `pointer-events-none` al gradient scrim (è già `aria-hidden`, puramente decorativo).
+   - Aggiungere `pointer-events-none` al wrapper di contenuto hero, e `pointer-events-auto` agli elementi realmente interattivi al suo interno (link "Scopri il catalogo outdoor" e i due bottoni di navigazione slide).
 
-## Step di implementazione
+2. **`src/components/storefront/HomeHeaderOverlay.tsx`**
+   - Portare l'header sopra a tutti gli overlay dell'hero: alzare lo z-index del wrapper `<header>` da `z-30` → `z-40` per `variant="hero"` (la versione `page` è già `z-40`).
+   - Allineare anche `HomeAnnouncementBar` (`top-0 z-30` → `z-40`) per restare coerente sopra.
 
-1. **Generare 8 immagini** in `src/assets/megamenu/` con `imagegen` (modello `standard`, formato landscape, sfondo editoriale luminoso, stile coerente con brand premium):
-   - `outdoor-living.jpg`, `evergreen-garden.jpg`
-   - `rose-selection.jpg`, `rose-gift.jpg`
-   - `citrus.jpg`, `berries.jpg`
-   - `pots-accessories.jpg`, `bulbs-seasonal.jpg`
+3. **Verifica pagine interne**
+   - Aprire `/products` e una `/collections/...` per controllare che il menu si apra. Se in qualche pagina ci fosse un altro overlay con z-index superiore (es. wrapper `Pdp` o sezione hero di lista), valutare un eventuale `z-40` → `z-50` mirato sull'header senza creare conflitti con drawer/dialog (che usano `z-50` di Radix).
 
-2. **Refactor `categories` in `src/components/Header.tsx`**:
-   - Aggiungere campo `href` a ogni categoria (collezione macro) e a ogni `previewCards[i]` (collezione specifica + import immagine).
-   - Sostituire il `div` con `bg-gradient-to-br ${card.tone}` con `<img src={card.image} ... className="h-48 w-full object-cover ...">`.
-   - Aggiornare `<a href="/collections/all">` delle card con `card.href`.
-   - Aggiornare il link "Scopri tutto" da `/collections/all` ad `activeCategoryData.href`.
+4. **Smoke test in preview**
+   - Hover su ciascuna voce del nav nella homepage → il pannello compare e resta aperto mentre il mouse è sopra.
+   - Uscendo dal nav il pannello si chiude.
+   - Verificare che gli overlay decorativi non blocchino più il pulsante "Scopri il catalogo outdoor" e i bottoni slide.
 
-3. **QA visivo**: aprire `/` in preview, hoverare ogni voce del mega menu, verificare che le 8 immagini si carichino correttamente e che i click portino alle collezioni giuste (incluso `bulbi` vuoto, comportamento atteso).
-
-## Note tecniche
-
-- Le immagini sono importate come asset ES6 (no `lovable-assets`), così Vite le ottimizza.
-- Nessuna modifica al backend: tutte le collezioni target esistono già su Shopify dal precedente `setup-collections`.
-- Il campo `tone` nelle card viene rimosso (non più usato).
-- Mobile sheet: i link delle categorie continuano a usare la collezione macro (`category.href`) invece di `/collections/all` per coerenza.
+## Note
+Le ultime modifiche all'AI Writer (auto-save bozze + "Interrompi") non toccano questi file: la regressione era già latente, è probabilmente emersa con l'introduzione del wrapper contenuto a `z-35` nell'hero.

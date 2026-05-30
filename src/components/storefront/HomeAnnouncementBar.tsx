@@ -5,7 +5,7 @@ type AnnouncementVariant = "hero" | "page";
 export const HomeAnnouncementBar = ({ variant = "hero" }: { variant?: AnnouncementVariant }) => {
   const wrapperClassName =
     variant === "hero"
-      ? "absolute inset-x-0 top-0 z-30 border-b border-white/18 bg-black/12 text-white"
+      ? "absolute inset-x-0 top-0 z-40 border-b border-white/18 bg-black/12 text-white"
       : "sticky top-0 z-50 w-full border-b border-border/60 bg-black/12 text-white";
 
   return (

@@ -173,13 +173,13 @@ export const HomeHero = () => {
       {/* ── Permanent gradient scrim ─────────────────────────────── */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,24,20,0.08)_0%,rgba(18,24,20,0.2)_44%,rgba(18,24,20,0.52)_100%)]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(18,24,20,0.08)_0%,rgba(18,24,20,0.2)_44%,rgba(18,24,20,0.52)_100%)]"
         style={{ zIndex: 30 }}
       />
 
       {/* ── Content ──────────────────────────────────────────────── */}
       <div
-        className="relative mx-auto flex min-h-[92svh] max-w-[1600px] flex-col justify-end px-4 pb-9 pt-28 md:min-h-[96svh] md:px-6 md:pb-12 md:pt-36"
+        className="pointer-events-none relative mx-auto flex min-h-[92svh] max-w-[1600px] flex-col justify-end px-4 pb-9 pt-28 md:min-h-[96svh] md:px-6 md:pb-12 md:pt-36 [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
         style={{ zIndex: 35 }}
       >
         {/* Text area — `relative` so the exiting overlay positions against it */}

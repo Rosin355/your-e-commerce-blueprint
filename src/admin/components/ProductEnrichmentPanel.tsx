@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { listShopifyProducts } from "../lib/aiWriterEngine";
+import { loadDbCatalogProducts } from "../lib/dbCatalogSource";
 import { downloadBatchCsvSnippet, downloadCsvSnippet } from "../lib/productEnrichmentEngine";
 import { useProductEnrichment, type BatchProductResult } from "../hooks/useProductEnrichment";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
@@ -159,6 +160,7 @@ function DraftPreview({
 
 function ModeAPanel() {
   const { user } = useAuth();
+  const [source, setSource] = useState<"db" | "shopify">("db");
   const [statusFilter, setStatusFilter] = useState("active");
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<ShopifyAdminProduct[]>([]);
@@ -173,29 +175,52 @@ function ModeAPanel() {
     analyzeAll,
     generateAll,
     publishAll,
+    cancelBatch,
     resetBatch,
   } = useProductEnrichment();
 
   const isRunning = batchProgress !== null;
   const hasDrafts = batchResults.some((r) => r.draft);
   const draftsForDownload = batchResults.filter((r) => r.draft).map((r) => r.draft!);
+  const isDbSource = source === "db";
 
   async function loadProducts() {
     setLoadingProducts(true);
     setLoadingCount(0);
     try {
-      const all: ShopifyAdminProduct[] = [];
-      let pageInfo: string | undefined;
-      do {
-        const res = await listShopifyProducts({ status: statusFilter, query, limit: 250, pageInfo });
-        all.push(...res.products);
-        setLoadingCount(all.length);
-        pageInfo = res.nextPageInfo || undefined;
-      } while (pageInfo);
-      setProducts(all);
-      resetBatch();
-    } catch {
-      toast.error("Errore caricamento prodotti Shopify");
+      if (source === "db") {
+        const list = await loadDbCatalogProducts({
+          query,
+          onProgress: (n) => setLoadingCount(n),
+        });
+        setProducts(list);
+        resetBatch();
+        if (list.length === 0) {
+          toast.warning(
+            "Nessun prodotto nel Catalogo DB. Importa prima un CSV nella tab Catalogo DB.",
+          );
+        } else {
+          toast.success(`${list.length} prodotti caricati dal Catalogo DB`);
+        }
+      } else {
+        const all: ShopifyAdminProduct[] = [];
+        let pageInfo: string | undefined;
+        do {
+          const res = await listShopifyProducts({ status: statusFilter, query, limit: 250, pageInfo });
+          all.push(...res.products);
+          setLoadingCount(all.length);
+          pageInfo = res.nextPageInfo || undefined;
+        } while (pageInfo);
+        setProducts(all);
+        resetBatch();
+        if (all.length === 0) {
+          toast.warning("Nessun prodotto trovato su Shopify con questi filtri.");
+        }
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("[Arricchimento] loadProducts error:", e);
+      toast.error(`Errore caricamento prodotti: ${msg}`);
     } finally {
       setLoadingProducts(false);
     }
@@ -210,16 +235,27 @@ function ModeAPanel() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap gap-2">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-32">
+            <Select value={source} onValueChange={(v) => setSource(v as "db" | "shopify")}>
+              <SelectTrigger className="w-44">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="active">Attivi</SelectItem>
-                <SelectItem value="draft">Bozze</SelectItem>
-                <SelectItem value="archived">Archiviati</SelectItem>
+                <SelectItem value="db">Catalogo DB (locale)</SelectItem>
+                <SelectItem value="shopify">Shopify Admin</SelectItem>
               </SelectContent>
             </Select>
+            {!isDbSource && (
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Attivi</SelectItem>
+                  <SelectItem value="draft">Bozze</SelectItem>
+                  <SelectItem value="archived">Archiviati</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
             <Input
               className="w-56"
               placeholder="Cerca titolo / handle"
@@ -245,7 +281,8 @@ function ModeAPanel() {
           </div>
           {products.length > 0 && !batchResults.length && (
             <p className="text-xs text-muted-foreground">
-              {products.length} prodotti caricati.{" "}
+              {products.length} prodotti caricati da{" "}
+              <strong>{isDbSource ? "Catalogo DB" : "Shopify"}</strong>.{" "}
               Clicca <strong>Analizza tutti</strong> per vedere la completezza di ciascuno.
             </p>
           )}
@@ -289,9 +326,10 @@ function ModeAPanel() {
 
               <Button
                 onClick={() => publishAll(products, seedStyle, user?.email)}
-                disabled={isRunning}
+                disabled={isRunning || isDbSource}
                 variant="outline"
                 className="gap-2"
+                title={isDbSource ? "Disponibile solo con sorgente Shopify Admin" : undefined}
               >
                 {isRunning && batchProgress?.phase === "publish" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -313,7 +351,7 @@ function ModeAPanel() {
               )}
             </div>
 
-            {/* Progress bar */}
+            {/* Progress bar + stop */}
             {batchProgress && (
               <div className="space-y-1.5 rounded-md border bg-muted/30 p-3">
                 <div className="flex items-center justify-between text-xs">
@@ -329,6 +367,17 @@ function ModeAPanel() {
                   value={Math.round((batchProgress.current / batchProgress.total) * 100)}
                   className="h-1.5"
                 />
+                <div className="flex justify-end pt-1">
+                  <Button
+                    onClick={cancelBatch}
+                    size="sm"
+                    variant="destructive"
+                    className="h-7 gap-1 text-xs"
+                  >
+                    <AlertCircle className="h-3 w-3" />
+                    Interrompi
+                  </Button>
+                </div>
               </div>
             )}
 

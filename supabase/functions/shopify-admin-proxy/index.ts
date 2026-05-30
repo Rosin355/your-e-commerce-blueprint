@@ -106,12 +106,12 @@ async function getProduct(productId: number) {
 
 async function listDbProducts(data: any) {
   const db = getSupabaseAdminClient();
-  const limit = Math.min(Number(data?.limit || 1000), 2000);
+  const limit = Math.min(Number(data?.limit || 1000), 10000);
   const parentSkuOnly = data?.parentOnly !== false;
 
   let query = db
     .from("product_sync_csv_products")
-    .select("sku, title, handle, description, tags, seo_title, seo_description, updated_at, image_urls")
+    .select("sku, title, handle, description, tags, seo_title, seo_description, optimized_description, metafields, ai_enriched_at, ai_enrichment_json, imported_at, image_urls")
     .order("imported_at", { ascending: false })
     .limit(limit);
 
@@ -120,6 +120,28 @@ async function listDbProducts(data: any) {
   const { data: rows, error } = await query;
   if (error) throw new Error(error.message);
   return { products: rows || [] };
+}
+
+async function saveEnrichedDraft(data: any) {
+  const sku = String(data?.sku || "").trim();
+  if (!sku) throw new Error("sku mancante");
+  const draft = data?.draft;
+  if (!draft || typeof draft !== "object") throw new Error("draft mancante");
+  const seedStyle = data?.seedStyle ? String(data.seedStyle) : null;
+
+  const db = getSupabaseAdminClient();
+  const patch: Record<string, unknown> = {
+    seo_title: draft.seo_title ?? null,
+    seo_description: draft.seo_description ?? null,
+    optimized_description: draft.body_html ?? null,
+    metafields: draft.metafields ?? {},
+    ai_enrichment_json: draft,
+    ai_enriched_at: new Date().toISOString(),
+    ai_seed_style: seedStyle,
+  };
+  const { error } = await db.from("product_sync_csv_products").update(patch).eq("sku", sku);
+  if (error) throw new Error(error.message);
+  return { success: true, sku };
 }
 
 async function listDrafts(data: any) {
@@ -335,6 +357,9 @@ serve(async (req) => {
         break;
       case "list_db_products":
         result = await listDbProducts(data);
+        break;
+      case "save_enriched_draft":
+        result = await saveEnrichedDraft(data);
         break;
       case "generate_product_copy_draft":
         result = await generateProductCopyDraft(data, adminEmail);

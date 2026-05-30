@@ -183,7 +183,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
   return (
     <header
       className={[
-        variant === "hero" ? "absolute inset-x-0 top-7 z-30" : "sticky inset-x-0 top-7 z-40",
+        variant === "hero" ? "absolute inset-x-0 top-7 z-40" : "sticky inset-x-0 top-7 z-40",
         "text-white md:top-8",
         variant === "page" ? "bg-black/10 backdrop-blur-xl border-b border-white/12" : "",
       ].join(" ")}

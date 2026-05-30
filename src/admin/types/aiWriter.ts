@@ -15,6 +15,10 @@ export interface ShopifyAdminProduct {
     src: string;
     alt?: string;
   }>;
+  /** Optional: only present when product comes from local DB (Catalogo DB source) */
+  sku?: string;
+  /** Optional: custom metafields already saved in DB (used by completeness) */
+  metafields?: Record<string, string>;
 }
 
 export interface AiWriterDraft {
