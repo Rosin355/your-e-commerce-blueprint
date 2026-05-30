@@ -7,6 +7,7 @@ type ProxyAction =
   | "list_drafts"
   | "list_db_products"
   | "save_enriched_draft"
+  | "update_product"
   | "generate_product_copy_draft"
   | "publish_product_copy";
 
@@ -63,5 +64,26 @@ export async function publishDraft(draftId: string, adminEmail?: string) {
   return callProxy<{ success: boolean; draft: AiWriterDraft; productId: number }>("publish_product_copy", {
     draftId,
     adminEmail,
+  });
+}
+
+/**
+ * Publishes the EXACT enriched draft the admin reviewed in the panel.
+ * Pushes only body HTML + SEO title/description to Shopify via the existing
+ * `update_product` proxy action — no AI regeneration happens here, so the
+ * published content always matches what was shown on screen.
+ * NOTE: custom metafields are intentionally NOT sent here (CSV export only).
+ */
+export async function publishReviewedDraft(params: {
+  productId: number;
+  bodyHtml: string;
+  seoTitle?: string;
+  seoDescription?: string;
+}) {
+  return callProxy<{ success: boolean; id: number }>("update_product", {
+    id: params.productId,
+    body_html: params.bodyHtml,
+    metafields_global_title_tag: params.seoTitle ?? "",
+    metafields_global_description_tag: params.seoDescription ?? "",
   });
 }

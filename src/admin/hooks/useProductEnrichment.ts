@@ -11,7 +11,7 @@ import {
   evaluateProductCompleteness,
   generateEnrichedDraft,
 } from "../lib/productEnrichmentEngine";
-import { generateProductDraft, getShopifyProduct, publishDraft, saveEnrichedDraftToDb } from "../lib/aiWriterEngine";
+import { getShopifyProduct, publishReviewedDraft, saveEnrichedDraftToDb } from "../lib/aiWriterEngine";
 
 // ── Batch result record ─────────────────────────────────────────────────────
 
@@ -234,15 +234,17 @@ export function useProductEnrichment() {
   }
 
   /**
-   * Pushes body HTML + SEO to Shopify for each product using the existing
-   * backend draft system (generate_product_copy_draft → publish_product_copy).
-   * Custom metafields are not updated here — use the CSV export + import flow.
+   * Publishes the EXACT enriched drafts the admin already generated and reviewed
+   * in the panel (body HTML + SEO), via update_product. It does NOT regenerate
+   * any AI content here, so what gets published always matches what was shown.
+   * Products without a reviewed draft are skipped — we never auto-publish unseen
+   * content. Custom metafields are not updated here — use the CSV export flow.
    */
   async function publishAll(
     products: ShopifyAdminProduct[],
-    seedStyle: string,
     adminEmail?: string,
   ) {
+    void adminEmail; // publish path no longer needs it; kept for call-site stability
     cancelRef.current = false;
     let current: BatchProductResult[] = batchResults.length
       ? [...batchResults]
@@ -262,6 +264,7 @@ export function useProductEnrichment() {
     current = current.map((r) => ({ ...r, error: null }));
     setBatchResults(current);
     let successCount = 0;
+    let skippedNoDraft = 0;
     let processed = 0;
 
     for (let i = 0; i < products.length; i++) {
@@ -270,18 +273,32 @@ export function useProductEnrichment() {
         break;
       }
       const p = products[i];
+
+      // Only publish drafts the admin has actually generated/reviewed.
+      const reviewedDraft = current.find((r) => r.productId === p.id)?.draft ?? null;
+      if (!reviewedDraft) {
+        current = updateBatchItem(
+          p.id,
+          { error: "Genera e rivedi una bozza prima di pubblicare" },
+          current,
+        );
+        setBatchResults([...current]);
+        skippedNoDraft++;
+        processed = i + 1;
+        continue;
+      }
+
       setBatchProgress({ current: i + 1, total: products.length, phase: "publish", currentTitle: p.title });
       current = updateBatchItem(p.id, { status: "publishing" }, current);
       setBatchResults([...current]);
 
       try {
-        const { draft: backendDraft } = await generateProductDraft({
+        await publishReviewedDraft({
           productId: p.id,
-          seedStyle,
-          language: "it",
-          adminEmail,
+          bodyHtml: reviewedDraft.body_html,
+          seoTitle: reviewedDraft.seo_title,
+          seoDescription: reviewedDraft.seo_description,
         });
-        await publishDraft(backendDraft.id, adminEmail);
         current = updateBatchItem(
           p.id,
           { publishedAt: new Date().toISOString(), status: "done", error: null },
@@ -301,7 +318,8 @@ export function useProductEnrichment() {
     setBatchProgress(null);
     cancelRef.current = false;
     if (processed === products.length) {
-      toast.success(`Pubblicati su Shopify: ${successCount}/${products.length}`);
+      const suffix = skippedNoDraft > 0 ? ` (${skippedNoDraft} senza bozza, saltati)` : "";
+      toast.success(`Pubblicati su Shopify: ${successCount}/${products.length}${suffix}`);
     }
   }
 

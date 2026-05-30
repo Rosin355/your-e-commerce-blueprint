@@ -22,6 +22,7 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { toast } from "sonner";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { useAuth } from "@/hooks/useAuth";
 import { listShopifyProducts } from "../lib/aiWriterEngine";
 import { loadDbCatalogProducts } from "../lib/dbCatalogSource";
@@ -105,9 +106,11 @@ function DraftPreview({
       {/* Body HTML */}
       <div className="space-y-1">
         <Label className="text-xs text-muted-foreground">Descrizione prodotto (Body HTML)</Label>
+        {/* AI-generated HTML is sanitized before preview; the publish flow still
+            sends the intended body HTML to Shopify. */}
         <div
           className="prose prose-sm max-h-48 overflow-auto rounded-md border bg-muted/20 p-3 text-sm"
-          dangerouslySetInnerHTML={{ __html: draft.body_html || "<em>Nessun contenuto</em>" }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(draft.body_html) || "<em>Nessun contenuto</em>" }}
         />
       </div>
       <Separator />
@@ -325,11 +328,17 @@ function ModeAPanel() {
               </Button>
 
               <Button
-                onClick={() => publishAll(products, seedStyle, user?.email)}
-                disabled={isRunning || isDbSource}
+                onClick={() => publishAll(products, user?.email)}
+                disabled={isRunning || isDbSource || !hasDrafts}
                 variant="outline"
                 className="gap-2"
-                title={isDbSource ? "Disponibile solo con sorgente Shopify Admin" : undefined}
+                title={
+                  isDbSource
+                    ? "Disponibile solo con sorgente Shopify Admin"
+                    : !hasDrafts
+                      ? "Genera prima le bozze: pubblica solo contenuti già rivisti"
+                      : undefined
+                }
               >
                 {isRunning && batchProgress?.phase === "publish" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -383,8 +392,10 @@ function ModeAPanel() {
 
             {/* Info about publish scope */}
             <p className="text-[10px] text-muted-foreground">
-              <strong>Pubblica su Shopify</strong> aggiorna body HTML e SEO via API (titolo, descrizione, meta tag).
-              I 16 metafield personalizzati vanno importati tramite il CSV scaricabile sopra.
+              <strong>Pubblica su Shopify</strong> invia a Shopify solo la bozza già generata e mostrata qui
+              sotto: aggiorna <strong>esclusivamente</strong> body HTML e SEO (titolo, descrizione, meta tag) via API.
+              I {ALL_METAFIELD_KEYS.length} metafield personalizzati <strong>non</strong> vengono salvati da questo
+              pulsante — vanno esportati e importati tramite il CSV scaricabile sopra.
             </p>
           </CardContent>
         </Card>
