@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { assertAdminRequest } from "../_shared/admin-auth.ts";
 import { corsHeaders, shopifyAdminFetch, jsonResponse } from "../_shared/shopify-admin-client.ts";
 
 const LOVABLE_API_KEY = () => Deno.env.get("LOVABLE_API_KEY");
@@ -93,6 +94,16 @@ async function generateSeoForNewProduct(input: NewProductInput): Promise<Record<
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // Security: only authenticated admins may generate AI content or create Shopify products.
+  // verify_jwt is kept false in config.toml for CORS/tooling compatibility, so this check is mandatory.
+  try {
+    await assertAdminRequest(req);
+  } catch (authErr) {
+    const message = authErr instanceof Error ? authErr.message : "Unauthorized";
+    const status = message.includes("Forbidden") ? 403 : 401;
+    return jsonResponse({ error: message }, status);
+  }
 
   try {
     const body: { action: string; data: any } = await req.json();

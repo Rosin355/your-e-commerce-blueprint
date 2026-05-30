@@ -221,6 +221,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const [zoomOpen, setZoomOpen] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<ShopifyProduct[]>([]);
+  const [relatedLoading, setRelatedLoading] = useState(true);
   const [limitedOfferVisible, setLimitedOfferVisible] = useState(true);
 
   const { node } = product;
@@ -253,11 +254,26 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   );
 
   useEffect(() => {
+    // Related products are non-critical: a Shopify failure here must never break the PDP.
+    let cancelled = false;
     const load = async () => {
-      const products = await fetchProducts(6);
-      setRelatedProducts(products.filter((item) => item.node.handle !== node.handle).slice(0, 4));
+      setRelatedLoading(true);
+      try {
+        const products = await fetchProducts(6);
+        if (!cancelled) {
+          setRelatedProducts(products.filter((item) => item.node.handle !== node.handle).slice(0, 4));
+        }
+      } catch (error) {
+        console.error("Errore caricamento prodotti correlati:", error);
+        if (!cancelled) setRelatedProducts([]);
+      } finally {
+        if (!cancelled) setRelatedLoading(false);
+      }
     };
     load();
+    return () => {
+      cancelled = true;
+    };
   }, [node.handle]);
 
   const optionGroups = useMemo(() => {
@@ -309,7 +325,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   };
 
   const handleBuyNow = async () => {
-    if (!selectedVariant) {
+    if (!selectedVariant || !selectedVariant.availableForSale) {
       toast.error("Prodotto non disponibile");
       return;
     }
@@ -321,10 +337,17 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       quantity,
       selectedOptions: selectedVariant.selectedOptions || [],
     });
-    await createCheckout();
-    const state = useCartStore.getState();
-    if (state.checkoutUrl) {
-      window.location.href = state.checkoutUrl;
+    try {
+      // Use the URL returned directly from createCheckout to avoid opening a stale URL.
+      const checkoutUrl = await createCheckout();
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      } else {
+        toast.error("Errore durante il checkout");
+      }
+    } catch (error) {
+      console.error("Checkout fallito:", error);
+      toast.error("Errore durante il checkout. Riprova.");
     }
   };
 
@@ -985,7 +1008,11 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
           <h2 className="text-2xl font-heading font-semibold text-foreground md:text-[1.75rem]">Prodotti correlati</h2>
           <p className="mt-2 text-sm text-muted-foreground">Potrebbe piacerti anche</p>
         </div>
-        {relatedProducts.length > 0 ? (
+        {relatedLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : relatedProducts.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {relatedProducts.map((item) => (
               <button
@@ -1015,8 +1042,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+            Nessun prodotto correlato disponibile al momento.
           </div>
         )}
       </section>

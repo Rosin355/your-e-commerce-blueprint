@@ -50,19 +50,45 @@ export const HomepageV3 = () => {
   const newsletterSectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    fetchProducts(20).then((p) => {
-      const valid = withImages(p).filter((pr) => parseFloat(pr.node.priceRange.minVariantPrice.amount) > 0);
-      setBestSellers(valid.slice(0, 4));
-      setLoadingBest(false);
-    });
-    fetchProducts(8).then((p) => {
-      setEasyCare(withImages(p).slice(0, 4));
-      setLoadingEasy(false);
-    });
-    fetchProducts(8, "product_type:variable").then((p) => {
-      setSeasonal(withImages(p).slice(0, 4));
-      setLoadingSeasonal(false);
-    });
+    // Each section loads independently. A Shopify failure must never leave a section
+    // spinning forever or crash the homepage — loading flags always reset in finally.
+    const loadBest = async () => {
+      try {
+        const p = await fetchProducts(20);
+        const valid = withImages(p).filter((pr) => parseFloat(pr.node.priceRange.minVariantPrice.amount) > 0);
+        setBestSellers(valid.slice(0, 4));
+      } catch (error) {
+        console.error("Errore caricamento prodotti (best sellers):", error);
+        setBestSellers([]);
+      } finally {
+        setLoadingBest(false);
+      }
+    };
+    const loadEasy = async () => {
+      try {
+        const p = await fetchProducts(8);
+        setEasyCare(withImages(p).slice(0, 4));
+      } catch (error) {
+        console.error("Errore caricamento prodotti (easy care):", error);
+        setEasyCare([]);
+      } finally {
+        setLoadingEasy(false);
+      }
+    };
+    const loadSeasonal = async () => {
+      try {
+        const p = await fetchProducts(8, "product_type:variable");
+        setSeasonal(withImages(p).slice(0, 4));
+      } catch (error) {
+        console.error("Errore caricamento prodotti (stagionali):", error);
+        setSeasonal([]);
+      } finally {
+        setLoadingSeasonal(false);
+      }
+    };
+    loadBest();
+    loadEasy();
+    loadSeasonal();
   }, []);
 
   useEffect(() => {
@@ -184,11 +210,15 @@ export const HomepageV3 = () => {
                 <div className="flex items-center justify-center py-16">
                   <Loader2 className="h-10 w-10 animate-spin text-primary" />
                 </div>
-              ) : (
+              ) : group.items.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {group.items.map((product) => (
                     <ProductCard key={`${group.title}-${product.node.id}`} product={product} />
                   ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+                  Nessun prodotto disponibile al momento. Riprova più tardi.
                 </div>
               )}
             </div>
@@ -232,11 +262,15 @@ export const HomepageV3 = () => {
                 <div className="flex items-center justify-center py-16">
                   <Loader2 className="h-10 w-10 animate-spin text-primary" />
                 </div>
-              ) : (
+              ) : group.items.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {group.items.map((product) => (
                     <ProductCard key={`${group.title}-${product.node.id}`} product={product} />
                   ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+                  Nessun prodotto disponibile al momento. Riprova più tardi.
                 </div>
               )}
             </div>

@@ -18,6 +18,23 @@ async function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Resolve an existing record before deciding create vs update.
+// Products are matched by SKU first, then handle, then title (handled server-side by
+// the `search_product_by_sku_or_handle` proxy action) so similar titles can't collide.
+async function searchExisting(type: ImportType, row: CsvRow) {
+  if (type === 'customers') {
+    return callProxy({ action: 'search_customer', data: { query: row.email } });
+  }
+  return callProxy({
+    action: 'search_product_by_sku_or_handle',
+    data: {
+      sku: row.sku || '',
+      handle: row.handle || row.post_name || row.slug || '',
+      title: row.title || row.name || row.post_title || '',
+    },
+  });
+}
+
 export async function runImport(
   rows: CsvRow[],
   type: ImportType,
@@ -43,23 +60,20 @@ export async function runImport(
 
       try {
         if (dryRun) {
-          // Simulate: search for existing record
-          const searchAction = type === 'customers' ? 'search_customer' : 'search_product';
-          const searchKey = type === 'customers' ? row.email : (row.title || row.name || row.post_title);
-          const searchResult = await callProxy({ action: searchAction, data: { query: searchKey } });
+          // Simulate: search for existing record (SKU/handle/title for products)
+          const searchResult = await searchExisting(type, row);
 
           const exists = searchResult?.found;
           const status = exists ? 'updated' : 'created';
           if (exists) updated++; else created++;
 
-          const result: ImportRecordResult = { row: rowIndex + 2, status, identifier, message: dryRun ? `(simulato) Verrebbe ${status === 'created' ? 'creato' : 'aggiornato'}` : undefined };
+          const matchNote = exists && searchResult?.matchedBy ? ` (match: ${searchResult.matchedBy})` : '';
+          const result: ImportRecordResult = { row: rowIndex + 2, status, identifier, message: `(simulato) Verrebbe ${status === 'created' ? 'creato' : 'aggiornato'}${matchNote}` };
           records.push(result);
           store.addRecordResult(result);
         } else {
           // Real sync: search then create/update
-          const searchAction = type === 'customers' ? 'search_customer' : 'search_product';
-          const searchKey = type === 'customers' ? row.email : (row.title || row.name || row.post_title);
-          const searchResult = await callProxy({ action: searchAction, data: { query: searchKey } });
+          const searchResult = await searchExisting(type, row);
 
           const exists = searchResult?.found;
           const mapped = type === 'customers'

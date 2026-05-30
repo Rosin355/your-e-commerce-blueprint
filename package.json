@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
+    "typecheck": "tsc -b --noEmit",
     "preview": "vite preview",
     "sync:products:dry-run": "node sync/product-sync.mjs --dry-run",
     "sync:products": "node sync/product-sync.mjs",

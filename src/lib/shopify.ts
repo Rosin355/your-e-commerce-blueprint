@@ -1,9 +1,17 @@
 import { toast } from "sonner";
 
-export const SHOPIFY_API_VERSION = '2025-07';
-export const SHOPIFY_STORE_PERMANENT_DOMAIN = 'ecom-blueprint-gen-6ud1s.myshopify.com';
+// Storefront config is env-driven via Vite (VITE_*). These are PUBLIC values by design:
+// the Storefront API token is a public access token meant to ship in the browser bundle.
+// Fallbacks keep the Lovable preview working when env vars are not yet configured.
+// NOTE: Shopify deprecates Storefront API versions ~12 months after release. Keep
+// VITE_SHOPIFY_STOREFRONT_API_VERSION current; verify GraphQL fields before bumping to 2026-04.
+export const SHOPIFY_API_VERSION =
+  import.meta.env.VITE_SHOPIFY_STOREFRONT_API_VERSION || '2025-07';
+export const SHOPIFY_STORE_PERMANENT_DOMAIN =
+  import.meta.env.VITE_SHOPIFY_STORE_PERMANENT_DOMAIN || 'ecom-blueprint-gen-6ud1s.myshopify.com';
 export const SHOPIFY_STOREFRONT_URL = `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
-export const SHOPIFY_STOREFRONT_TOKEN = '713f230dc12508e20c6128d287808360';
+export const SHOPIFY_STOREFRONT_TOKEN =
+  import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN || '713f230dc12508e20c6128d287808360';
 
 export interface ShopifyProduct {
   node: {

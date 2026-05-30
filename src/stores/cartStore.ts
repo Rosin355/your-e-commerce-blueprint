@@ -29,9 +29,9 @@ interface CartStore {
   removeItem: (variantId: string) => void;
   clearCart: () => void;
   setCartId: (cartId: string) => void;
-  setCheckoutUrl: (url: string) => void;
+  setCheckoutUrl: (url: string | null) => void;
   setLoading: (loading: boolean) => void;
-  createCheckout: () => Promise<void>;
+  createCheckout: () => Promise<string | null>;
 }
 
 export const useCartStore = create<CartStore>()(
@@ -86,16 +86,28 @@ export const useCartStore = create<CartStore>()(
       setCheckoutUrl: (checkoutUrl) => set({ checkoutUrl }),
       setLoading: (isLoading) => set({ isLoading }),
 
+      // Returns a fresh checkout URL on success, or null on failure.
+      // Always clears any previous (possibly stale) checkout URL before starting,
+      // and rethrows so callers can surface a user-facing error.
       createCheckout: async () => {
         const { items, setLoading, setCheckoutUrl } = get();
-        if (items.length === 0) return;
+        // Guard: never start a checkout for an empty cart.
+        if (items.length === 0) return null;
 
+        // Clear any stale checkout URL from a previous attempt so it can never be reopened.
+        setCheckoutUrl(null);
         setLoading(true);
         try {
           const checkoutUrl = await createStorefrontCheckout(items);
+          if (!checkoutUrl) {
+            throw new Error('Nessun URL di checkout restituito');
+          }
           setCheckoutUrl(checkoutUrl);
+          return checkoutUrl;
         } catch (error) {
           console.error('Checkout fallito:', error);
+          setCheckoutUrl(null);
+          throw error;
         } finally {
           setLoading(false);
         }

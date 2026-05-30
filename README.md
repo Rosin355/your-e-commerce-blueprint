@@ -50,6 +50,7 @@ npm run dev
 - `npm run build:dev` build in modalità development
 - `npm run preview` preview locale della build
 - `npm run lint` lint del codice
+- `npm run typecheck` controllo tipi TypeScript (`tsc -b --noEmit`)
 
 ## Architettura del Progetto (FE / BE)
 
@@ -126,10 +127,64 @@ Responsabilità Shopify in questo progetto:
 └── package.json            # script e dipendenze
 ```
 
+## Variabili d'Ambiente e Sicurezza
+
+### Variabili PUBBLICHE (frontend, prefisso `VITE_`)
+
+Queste finiscono nel bundle del browser e sono **pubbliche per design** (vedi `.env.example`):
+
+| Variabile | Descrizione |
+| --- | --- |
+| `VITE_SUPABASE_URL` | URL del progetto Supabase |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Chiave publishable/anon Supabase (pubblica) |
+| `VITE_SUPABASE_PROJECT_ID` | ID progetto Supabase |
+| `VITE_SHOPIFY_STORE_PERMANENT_DOMAIN` | Dominio `*.myshopify.com` |
+| `VITE_SHOPIFY_STOREFRONT_TOKEN` | Token Storefront API (pubblico per design) |
+| `VITE_SHOPIFY_STOREFRONT_API_VERSION` | Versione Storefront API (default `2025-07`) |
+
+`src/lib/shopify.ts` legge queste variabili con fallback sicuri, così la preview Lovable
+funziona anche senza configurazione esplicita.
+
+### Variabili SERVER-SIDE (solo Supabase Edge Function secrets)
+
+**Mai** nel frontend e **mai** con prefisso `VITE_` (lo esporrebbe al browser):
+
+- `SHOPIFY_STORE_PERMANENT_DOMAIN`
+- `SHOPIFY_ACCESS_TOKEN` (token Shopify **Admin** API)
+- `SHOPIFY_ADMIN_API_VERSION` (es. `2025-07`)
+- `OPENAI_API_KEY`, `OPENAI_VISION_MODEL`, `OPENAI_COPY_MODEL`
+- `LOVABLE_API_KEY`
+- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+
+### Nota versione API Shopify
+
+Shopify supporta ogni versione API per ~12 mesi. Default attuale: **`2025-07`**, env-driven sia
+lato storefront (`VITE_SHOPIFY_STOREFRONT_API_VERSION`) sia lato admin (`SHOPIFY_ADMIN_API_VERSION`).
+Verificare i campi GraphQL/REST usati prima di passare a `2026-04`.
+
+### Nota sicurezza admin
+
+- Tutte le operazioni admin passano da Supabase Edge Functions (`shopify-admin-proxy`,
+  `create-product-ai`) e richiedono un JWT con ruolo `admin` (`assertAdminRequest`).
+- I token Shopify Admin, le chiavi OpenAI e la service role key restano **solo server-side**.
+- L'area `/admin` è protetta da Supabase Auth + `user_roles`.
+
+### Checklist di prelancio
+
+Prima del go-live, seguire `docs/prelaunch-checklist.md`.
+
+### Test del checkout in sicurezza
+
+1. Usare la **modalità test** di Shopify (Bogus Gateway) o un development store.
+2. Aggiungere un prodotto e cliccare **Procedi al Checkout**: deve aprirsi un URL di checkout fresco.
+3. Forzare un errore (token storefront non valido) per verificare che compaia un toast di errore
+   e che **non** venga mai aperto un URL stale. Ripristinare poi il token.
+4. Completare un ordine di test end-to-end prima di attivare i pagamenti reali.
+
 ## Note Importanti
 
-- Attualmente la configurazione Shopify (dominio e token storefront) è gestita nel frontend (`src/lib/shopify.ts`).
-- Per ambienti production, è consigliato spostare le configurazioni sensibili in variabili d'ambiente e/o introdurre un backend/proxy per maggiore controllo.
+- La configurazione Shopify (dominio e token storefront) è ora **env-driven** (`src/lib/shopify.ts`)
+  con fallback sicuri; i token Admin restano server-side nelle Edge Functions.
 - Alcune UI (es. filtri e ricerca in header) sono presenti ma non ancora collegate a logica di filtro/search reale.
 
 ## Possibili Evoluzioni Architetturali

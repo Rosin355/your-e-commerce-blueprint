@@ -14,6 +14,11 @@ export async function createStorefrontCheckout(items: CartItem[]): Promise<strin
       },
     });
 
+    // storefrontApiRequest returns undefined on a 402 (billing) response.
+    if (!cartData?.data?.cartCreate) {
+      throw new Error('Impossibile creare il checkout su Shopify');
+    }
+
     if (cartData.data.cartCreate.userErrors.length > 0) {
       throw new Error(`Creazione carrello fallita: ${cartData.data.cartCreate.userErrors.map((e: any) => e.message).join(', ')}`);
     }

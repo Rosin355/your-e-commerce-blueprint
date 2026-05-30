@@ -27,16 +27,20 @@ export const CartDrawer = () => {
   const totalPrice = items.reduce((sum, item) => sum + (parseFloat(item.price.amount) * item.quantity), 0);
 
   const handleCheckout = async () => {
+    if (items.length === 0) return;
     try {
-      await createCheckout();
-      const checkoutUrl = useCartStore.getState().checkoutUrl;
+      // Use the URL returned directly from createCheckout — never read a possibly stale
+      // value from the store after the call.
+      const checkoutUrl = await createCheckout();
       if (checkoutUrl) {
         window.open(checkoutUrl, '_blank');
         setIsOpen(false);
+      } else {
+        toast.error("Errore durante il checkout");
       }
     } catch (error) {
       console.error('Checkout fallito:', error);
-      toast.error("Errore durante il checkout");
+      toast.error("Errore durante il checkout. Riprova.");
     }
   };
 

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { ImagePlus, Loader2, Package, Sparkles } from "lucide-react";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { useNewProductAI, type NewProductFormData } from "../hooks/useNewProductAI";
 
 const SEED_STYLES = [
@@ -138,7 +139,9 @@ export default function NewProductAIPanel() {
 
             <div className="space-y-1">
               <Label className="text-xs text-muted-foreground">Descrizione HTML completa</Label>
-              <div className="prose prose-sm max-h-[300px] overflow-auto rounded-md border p-3" dangerouslySetInnerHTML={{ __html: generatedContent.optimized_description }} />
+              {/* AI-generated HTML is sanitized before preview render. The unsanitized
+                  optimized_description is still what the publish flow sends to Shopify. */}
+              <div className="prose prose-sm max-h-[300px] overflow-auto rounded-md border p-3" dangerouslySetInnerHTML={{ __html: sanitizeHtml(generatedContent.optimized_description) }} />
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">

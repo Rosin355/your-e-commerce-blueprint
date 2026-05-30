@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 import { assertAdminRequest } from "../_shared/admin-auth.ts";
-import { corsHeaders, shopifyAdminFetch, jsonResponse } from "../_shared/shopify-admin-client.ts";
+import { corsHeaders, shopifyAdminFetch, shopifyAdminGraphQL, jsonResponse } from "../_shared/shopify-admin-client.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const OPENAI_VISION_MODEL = Deno.env.get("OPENAI_VISION_MODEL") || "gpt-4o-mini";
@@ -234,6 +234,54 @@ async function publishProductCopyDraft(data: any) {
   return { success: true, draft: updatedDraft, productId };
 }
 
+/**
+ * Resolve an existing product using the most precise identifier available, in order:
+ *   1. SKU    (exact variant SKU match — most reliable, avoids "similar title" collisions)
+ *   2. handle (unique product slug)
+ *   3. title  (last-resort fallback; not unique)
+ * Returns { found, id, matchedBy }.
+ */
+async function searchProductBySkuOrHandle(data: any) {
+  const sku = String(data?.sku || "").trim();
+  const handle = String(data?.handle || "").trim();
+  const title = String(data?.title || data?.query || "").trim();
+
+  // 1. SKU — use GraphQL productVariants which supports exact sku: querying.
+  if (sku) {
+    const escaped = sku.replace(/(["\\])/g, "\\$1");
+    const gql = `
+      query FindVariantBySku($q: String!) {
+        productVariants(first: 1, query: $q) {
+          edges { node { id sku product { legacyResourceId } } }
+        }
+      }`;
+    try {
+      const res = await shopifyAdminGraphQL<any>(gql, { q: `sku:${escaped}` });
+      const node = res?.productVariants?.edges?.[0]?.node;
+      const productId = node?.product?.legacyResourceId;
+      if (productId) return { found: true, id: productId, matchedBy: "sku" };
+    } catch (err) {
+      console.error("SKU lookup failed, falling back to handle/title:", err);
+    }
+  }
+
+  // 2. handle — REST products.json supports an exact handle filter.
+  if (handle) {
+    const res = await shopifyAdminFetch(`products.json?handle=${encodeURIComponent(handle)}&limit=1`, "GET");
+    const product = res.products?.[0];
+    if (product?.id) return { found: true, id: product.id, matchedBy: "handle" };
+  }
+
+  // 3. title — last-resort, non-unique fallback.
+  if (title) {
+    const res = await shopifyAdminFetch(`products.json?title=${encodeURIComponent(title)}&limit=1`, "GET");
+    const product = res.products?.[0];
+    if (product?.id) return { found: true, id: product.id, matchedBy: "title" };
+  }
+
+  return { found: false, id: undefined, matchedBy: null };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -265,6 +313,9 @@ serve(async (req) => {
         result = { found: !!product, id: product?.id };
         break;
       }
+      case "search_product_by_sku_or_handle":
+        result = await searchProductBySkuOrHandle(data);
+        break;
       case "create_product":
         result = { success: true, id: (await shopifyAdminFetch("products.json", "POST", { product: data })).product?.id };
         break;

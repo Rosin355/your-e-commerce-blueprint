@@ -1,5 +1,7 @@
 project_id = "iekwvvihjwghosqdxrdi"
 
+# verify_jwt kept false for CORS/Lovable invocation compatibility.
+# Admin auth is enforced in-function via assertAdminRequest(req) — that check is MANDATORY.
 [functions.create-product-ai]
 verify_jwt = false
 

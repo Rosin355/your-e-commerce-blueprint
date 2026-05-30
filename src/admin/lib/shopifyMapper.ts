@@ -1,6 +1,19 @@
 import type { CsvRow, ShopifyCustomerInput, ShopifyProductInput } from '../types/import';
 import { sanitizeRow } from './csvValidator';
 
+// Columns that may carry an explicit marketing opt-in from the source CSV.
+const MARKETING_OPT_IN_FIELDS = ['accepts_marketing', 'marketing_opt_in', 'newsletter'] as const;
+const OPT_IN_TRUE_VALUES = new Set(['yes', 'y', 'true', '1', 'subscribed', 'on', 'si', 'sì']);
+
+// Only treat a customer as subscribed when the CSV explicitly says so.
+// Absence of any opt-in column/value => no consent is sent (safer default, GDPR-friendly).
+function hasExplicitMarketingOptIn(clean: CsvRow): boolean {
+  return MARKETING_OPT_IN_FIELDS.some((field) => {
+    const value = clean[field];
+    return typeof value === 'string' && OPT_IN_TRUE_VALUES.has(value.trim().toLowerCase());
+  });
+}
+
 export function mapToShopifyCustomerInput(row: CsvRow): ShopifyCustomerInput {
   const clean = sanitizeRow(row);
   const customer: ShopifyCustomerInput = {
@@ -18,11 +31,14 @@ export function mapToShopifyCustomerInput(row: CsvRow): ShopifyCustomerInput {
   if (address1 || city || zip || country) {
     customer.addresses = [{ address1, city, zip, country }];
   }
-  customer.email_marketing_consent = {
-    state: "subscribed",
-    opt_in_level: "single_opt_in",
-    consent_updated_at: new Date().toISOString(),
-  };
+  // Do NOT auto-subscribe. Only set consent when the CSV has an explicit opt-in value.
+  if (hasExplicitMarketingOptIn(clean)) {
+    customer.email_marketing_consent = {
+      state: "subscribed",
+      opt_in_level: "single_opt_in",
+      consent_updated_at: new Date().toISOString(),
+    };
+  }
   return customer;
 }
 

@@ -92,6 +92,7 @@ export interface ProxyRequest {
     | 'create_product'
     | 'update_product'
     | 'search_product'
+    | 'search_product_by_sku_or_handle'
     | 'list_products'
     | 'get_product'
     | 'list_drafts'

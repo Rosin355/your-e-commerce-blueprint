@@ -36,6 +36,9 @@ function getConfig(): ShopifyAdminConfig {
       }
     }
   }
+  // Admin API version is env-driven (server-side secret only — never exposed to the browser).
+  // Keep current: Shopify supports each version ~12 months. Verify GraphQL/REST fields before
+  // bumping to 2026-04. Default 2025-07 stays the safe fallback.
   const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-07";
 
   if (!shop) throw new Error("SHOPIFY_STORE_PERMANENT_DOMAIN non configurato");
