@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import heroOutdoorCustom1 from "@/assets/hero-outdoor-custom-1.png";
 import heroOutdoorCustom2 from "@/assets/hero-outdoor-custom-2.png";
+import heroOutdoorCustom3 from "@/assets/hero-outdoor-custom-3.png";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { SiteHeader } from "./SiteHeader";
 
