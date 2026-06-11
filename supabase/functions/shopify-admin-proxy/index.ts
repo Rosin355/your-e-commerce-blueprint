@@ -367,12 +367,54 @@ const METAFIELD_TYPES: Record<string, string> = {
 };
 
 const DEFAULT_MAX_RETRIES = Number(Deno.env.get("SHOPIFY_METAFIELDS_MAX_RETRIES") ?? "3");
+const METAFIELD_DEFINITIONS_CACHE_TTL_MS = 60_000;
 
-function normalizeMetafieldValue(key: string, raw: string): string | null {
+interface LiveMetafieldDefinition {
+  id: string;
+  name: string;
+  namespace: string;
+  key: string;
+  type: string;
+  description?: string;
+  fullKey: string;
+}
+
+let liveMetafieldDefinitionsCache: { expiresAt: number; definitions: LiveMetafieldDefinition[] } | null = null;
+
+async function fetchLiveMetafieldDefinitions(force = false): Promise<LiveMetafieldDefinition[]> {
+  if (!force && liveMetafieldDefinitionsCache && liveMetafieldDefinitionsCache.expiresAt > Date.now()) {
+    return liveMetafieldDefinitionsCache.definitions;
+  }
+
+  const query = `
+    query ProductMetafieldDefs {
+      metafieldDefinitions(first: 100, ownerType: PRODUCT) {
+        edges { node { id name namespace key type { name } description } }
+      }
+    }`;
+  const res = await shopifyAdminGraphQL<any>(query, {});
+  const definitions = (res?.metafieldDefinitions?.edges || []).map((e: any) => ({
+    id: e.node.id,
+    name: e.node.name,
+    namespace: e.node.namespace,
+    key: e.node.key,
+    type: e.node.type?.name,
+    description: e.node.description,
+    fullKey: `${e.node.namespace}.${e.node.key}`,
+  })) as LiveMetafieldDefinition[];
+
+  liveMetafieldDefinitionsCache = {
+    definitions,
+    expiresAt: Date.now() + METAFIELD_DEFINITIONS_CACHE_TTL_MS,
+  };
+  return definitions;
+}
+
+function normalizeMetafieldValue(key: string, raw: unknown, typeOverride?: string): string | null {
   const trimmed = String(raw ?? "").trim();
   if (!trimmed) return null;
-  const type = METAFIELD_TYPES[key];
-  if (type === "list.single_line_text_field") {
+  const type = typeOverride || METAFIELD_TYPES[key];
+  if (type?.startsWith("list.")) {
     try {
       const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) return JSON.stringify(parsed.map((v) => String(v)));
@@ -397,6 +439,18 @@ function isTransientMetafieldError(msg: string): boolean {
     m.includes("500") ||
     m.includes("429")
   );
+}
+
+function isTypeMismatchMetafieldError(msg: string): boolean {
+  const m = msg.toLowerCase();
+  return (
+    m.includes("type") && (m.includes("definition") || m.includes("match") || m.includes("invalid"))
+  ) || m.includes("invalid_type");
+}
+
+function getMetafieldErrorIndex(field?: string[]): number | null {
+  const raw = (field || []).find((part) => /^\d+$/.test(String(part)));
+  return raw ? Number(raw) : null;
 }
 
 async function sleep(ms: number) { await new Promise((r) => setTimeout(r, ms)); }
