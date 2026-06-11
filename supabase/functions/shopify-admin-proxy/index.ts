@@ -342,6 +342,87 @@ async function searchProductBySkuOrHandle(data: any) {
   return { found: false, id: undefined, matchedBy: null };
 }
 
+// ── Custom metafields (namespace "custom") — Shopify GraphQL metafieldsSet ──
+//
+// Maps each of the 16 enrichment keys to the appropriate Shopify metafield type.
+// Empty values are SKIPPED so we never overwrite a populated metafield with "".
+const METAFIELD_TYPES: Record<string, string> = {
+  nome_botanico: "single_line_text_field",
+  nome_comune: "single_line_text_field",
+  short_intro: "multi_line_text_field",
+  promo_text: "multi_line_text_field",
+  key_features: "list.single_line_text_field",
+  special_bullets: "list.single_line_text_field",
+  care_info: "multi_line_text_field",
+  come_prendersene_cura: "multi_line_text_field",
+  conosci_meglio_la_tua_pianta: "multi_line_text_field",
+  difficolta_di_coltivazione: "single_line_text_field",
+  origini_e_habitat: "multi_line_text_field",
+  periodo_di_fioritura: "single_line_text_field",
+  periodo_di_messa_a_dimora: "single_line_text_field",
+  periodo_di_raccolta: "single_line_text_field",
+  periodo_ottimale_di_potatura: "single_line_text_field",
+  titolo_sezione_faq: "single_line_text_field",
+};
+
+function normalizeMetafieldValue(key: string, raw: string): string | null {
+  const trimmed = String(raw ?? "").trim();
+  if (!trimmed) return null;
+  const type = METAFIELD_TYPES[key];
+  if (type === "list.single_line_text_field") {
+    // Already JSON-stringified array? validate; else wrap as single-item list.
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return JSON.stringify(parsed.map((v) => String(v)));
+    } catch { /* fall through */ }
+    return JSON.stringify([trimmed]);
+  }
+  return trimmed;
+}
+
+async function setProductCustomMetafields(
+  productId: number,
+  metafields: Record<string, string>,
+): Promise<{ written: number; skipped: number; errors: string[] }> {
+  const ownerId = `gid://shopify/Product/${productId}`;
+  const entries: Array<{ key: string; type: string; value: string }> = [];
+  let skipped = 0;
+  for (const key of Object.keys(METAFIELD_TYPES)) {
+    const value = normalizeMetafieldValue(key, metafields[key] ?? "");
+    if (value === null) { skipped++; continue; }
+    entries.push({ key, type: METAFIELD_TYPES[key], value });
+  }
+
+  const errors: string[] = [];
+  let written = 0;
+  // metafieldsSet accepts up to 25 metafields per call
+  for (let i = 0; i < entries.length; i += 25) {
+    const chunk = entries.slice(i, i + 25).map((e) => ({
+      ownerId, namespace: "custom", key: e.key, type: e.type, value: e.value,
+    }));
+    const mutation = `
+      mutation SetMetafields($metafields: [MetafieldsSetInput!]!) {
+        metafieldsSet(metafields: $metafields) {
+          metafields { id key namespace }
+          userErrors { field message code }
+        }
+      }`;
+    try {
+      const res = await shopifyAdminGraphQL<any>(mutation, { metafields: chunk });
+      const userErrors = res?.metafieldsSet?.userErrors || [];
+      if (userErrors.length) {
+        for (const ue of userErrors) errors.push(`${ue.field?.join(".") || "?"}: ${ue.message}`);
+      }
+      written += (res?.metafieldsSet?.metafields || []).length;
+    } catch (err) {
+      errors.push(err instanceof Error ? err.message : String(err));
+    }
+  }
+  return { written, skipped, errors };
+}
+
+
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
