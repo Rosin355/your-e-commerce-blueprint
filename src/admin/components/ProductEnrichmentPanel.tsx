@@ -18,13 +18,12 @@ import {
   Loader2,
   RefreshCcw,
   Sparkles,
-  TriangleAlert,
   UploadCloud,
 } from "lucide-react";
 import { toast } from "sonner";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { useAuth } from "@/hooks/useAuth";
-import { listShopifyProducts } from "../lib/aiWriterEngine";
+import { listShopifyProducts, downloadShopifyNativeCsv } from "../lib/aiWriterEngine";
 import { loadDbCatalogProducts } from "../lib/dbCatalogSource";
 import {
   downloadBatchCsvSnippet,
@@ -392,32 +391,37 @@ function ModeAPanel() {
                 Pubblica su Shopify (tutti)
               </Button>
 
-              {hasDrafts && (
-                <Button
-                  onClick={() => downloadBatchCsvSnippet(draftsForDownload)}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  Scarica CSV arricchimento
-                </Button>
-              )}
-
-              {hasDrafts && (
-                <ShopifyMergeExport drafts={draftsForDownload} />
-              )}
+              <ShopifyNativeCsvButton />
             </div>
 
+            {/* Advanced merge section (collapsed) */}
             {hasDrafts && (
-              <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-900 flex gap-2">
-                <TriangleAlert className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                <span>
-                  Questo CSV contiene solo testi/metafields arricchiti. Non è un CSV Shopify completo da
-                  importare direttamente se i prodotti hanno varianti. Per import Shopify nativo, fai
-                  merge con un export completo Shopify usando il pulsante <strong>Export Shopify-compatible update CSV</strong>.
-                </span>
-              </div>
+              <details className="rounded-md border bg-muted/20 px-3 py-2 text-xs">
+                <summary className="cursor-pointer select-none font-medium">
+                  Avanzato: CSV solo arricchimento / merge con export Shopify esistente
+                </summary>
+                <div className="mt-3 space-y-3">
+                  <p className="text-muted-foreground">
+                    Usa questi strumenti solo se vuoi unire le bozze AI con un export Shopify già scaricato
+                    dal tuo store. Per un import diretto in Shopify usa invece il pulsante
+                    <strong> "Scarica CSV Shopify (importabile)"</strong> sopra.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      onClick={() => downloadBatchCsvSnippet(draftsForDownload)}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      Scarica CSV solo arricchimento (merge)
+                    </Button>
+                    <ShopifyMergeExport drafts={draftsForDownload} />
+                  </div>
+                </div>
+              </details>
             )}
+
 
             {metafieldFailedItems.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
@@ -817,6 +821,75 @@ function ModeBPanel() {
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
+
+// ── Shopify native CSV download ──────────────────────────────────────────────
+
+function ShopifyNativeCsvButton() {
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<"draft" | "active">("draft");
+  const [onlyComplete, setOnlyComplete] = useState(true);
+  const [lastResult, setLastResult] = useState<{ products: number | null; variants: number | null } | null>(null);
+
+  async function handleDownload() {
+    setLoading(true);
+    try {
+      const r = await downloadShopifyNativeCsv({ onlyComplete, status });
+      setLastResult({ products: r.totalProducts, variants: r.totalVariants });
+      toast.success(
+        `CSV scaricato: ${r.totalProducts ?? "?"} prodotti, ${r.totalVariants ?? "?"} varianti.`,
+      );
+    } catch (err) {
+      toast.error(`Errore export: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          onClick={handleDownload}
+          disabled={loading}
+          variant="default"
+          className="gap-2 bg-emerald-700 text-white hover:bg-emerald-800"
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+          Scarica CSV Shopify (importabile)
+        </Button>
+        <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={onlyComplete}
+            onChange={(e) => setOnlyComplete(e.target.checked)}
+          />
+          Solo prodotti completi
+        </label>
+        <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
+          <span>Stato:</span>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value === "active" ? "active" : "draft")}
+            className="h-6 rounded border bg-background px-1.5 text-xs"
+          >
+            <option value="draft">draft</option>
+            <option value="active">active</option>
+          </select>
+        </label>
+      </div>
+      <p className="text-[10px] text-muted-foreground">
+        File pronto per <strong>Shopify Admin → Products → Import</strong>. Include varianti raggruppate per
+        Handle, immagini multiple, SEO e i 16 metafield <code>custom.*</code>. Backup stabile alternativo
+        alla pubblicazione via API.
+      </p>
+      {lastResult && (
+        <p className="text-[10px] text-emerald-700">
+          Ultimo export: {lastResult.products ?? "?"} prodotti · {lastResult.variants ?? "?"} righe variante.
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function ProductEnrichmentPanel() {
   return (
