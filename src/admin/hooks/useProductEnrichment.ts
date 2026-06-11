@@ -271,6 +271,20 @@ export function useProductEnrichment() {
     current = current.map((r) => ({ ...r, error: null }));
     setBatchResults(current);
 
+    // Persistent run — survives refresh
+    let runId: string | null = null;
+    try {
+      const startRes = await startEnrichmentRun({
+        mode: "generate",
+        items: products.map((p) => ({ sku: p.sku || `pid:${p.id}`, handle: p.handle, title: p.title })),
+        notes: { seedStyle, source: "batch", debug: debugMetafields, retries: metafieldsRetries },
+      });
+      runId = startRes.runId;
+      activeRunIdRef.current = runId;
+    } catch (e) {
+      console.error("[enrichment] startEnrichmentRun failed:", e);
+    }
+
     let successCount = 0;
     let processed = 0;
 
@@ -313,9 +327,11 @@ export function useProductEnrichment() {
           current,
         );
         successCount++;
+        persistItem(p.sku, { status: "done" });
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Errore generazione";
         current = updateBatchItem(p.id, { status: "error", error: msg }, current);
+        persistItem(p.sku, { status: "error", error: msg });
       }
 
       setBatchResults([...current]);
@@ -324,7 +340,20 @@ export function useProductEnrichment() {
     }
 
     setBatchProgress(null);
+    const wasCancelled = cancelRef.current;
     cancelRef.current = false;
+
+    // Finalize run
+    if (runId) {
+      const finalStatus = wasCancelled ? "paused" : "completed";
+      finishEnrichmentRun({ runId, status: finalStatus }).catch((e) =>
+        console.error("[enrichment] finishEnrichmentRun failed:", e),
+      );
+      activeRunIdRef.current = null;
+      // Refresh banner state
+      refreshOpenRun().catch(() => {});
+    }
+
     if (processed === products.length) {
       toast.success(`Generazione completata: ${successCount}/${products.length} riusciti`);
     }
