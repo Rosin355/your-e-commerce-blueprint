@@ -213,6 +213,7 @@ function ModeAPanel() {
     generateAll,
     generateOne,
     publishAll,
+    publishMetafieldsOnly,
     publishOne,
     cancelBatch,
     resetBatch,
@@ -389,6 +390,24 @@ function ModeAPanel() {
             <CardTitle className="text-base">2 — Genera e pubblica</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Info banner: clarify the two publish paths */}
+            <div className="rounded-md border border-blue-200 bg-blue-50/60 p-3 text-xs text-blue-900 space-y-1">
+              <p>
+                <strong>Come arrivano i metafield in Shopify:</strong>
+              </p>
+              <p>
+                ✅ <strong>"Pubblica su Shopify"</strong> e <strong>"Pubblica solo metafield"</strong> —
+                usano l'Admin API (<code>metafieldsSet</code>): canale affidabile, scrive i 16 metafield
+                <code> custom.*</code> sui prodotti esistenti, indipendentemente dalle definizioni manuali.
+              </p>
+              <p>
+                ⚠️ Il <strong>CSV "prodotti base"</strong> qui sotto importa SOLO titolo, descrizione,
+                varianti, prezzi, immagini e SEO. <strong>NON include i metafield</strong> perché
+                l'importer nativo di Shopify li scarta silenziosamente quando le definizioni non
+                combaciano alla perfezione. Per i metafield usa sempre la via API.
+              </p>
+            </div>
+
             <div className="flex flex-wrap items-end gap-3">
               <div className="space-y-1">
                 <Label className="text-xs">Stile di scrittura</Label>
@@ -427,7 +446,7 @@ function ModeAPanel() {
                     ? "Disponibile solo con sorgente Shopify Admin"
                     : !hasDrafts
                       ? "Genera prima le bozze: pubblica solo contenuti già rivisti"
-                      : undefined
+                      : "Pubblica testi + SEO + metafield via Admin API"
                 }
               >
                 {isRunning && batchProgress?.phase === "publish" ? (
@@ -438,8 +457,30 @@ function ModeAPanel() {
                 Pubblica su Shopify (tutti)
               </Button>
 
+              <Button
+                onClick={() => publishMetafieldsOnly(products)}
+                disabled={isRunning || isDbSource || !hasDrafts}
+                variant="secondary"
+                className="gap-2"
+                title={
+                  isDbSource
+                    ? "Disponibile solo con sorgente Shopify Admin"
+                    : !hasDrafts
+                      ? "Genera prima le bozze AI"
+                      : "Pubblica SOLO i 16 metafield custom.* (non tocca titolo/descrizione/SEO). Ideale per prodotti già importati via CSV."
+                }
+              >
+                {isRunning && batchProgress?.phase === "publish" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <UploadCloud className="h-4 w-4" />
+                )}
+                Pubblica solo metafield
+              </Button>
+
               <ShopifyNativeCsvButton />
             </div>
+
 
             {/* Advanced merge section (collapsed) */}
             {hasDrafts && (
@@ -451,7 +492,7 @@ function ModeAPanel() {
                   <p className="text-muted-foreground">
                     Usa questi strumenti solo se vuoi unire le bozze AI con un export Shopify già scaricato
                     dal tuo store. Per un import diretto in Shopify usa invece il pulsante
-                    <strong> "Scarica CSV Shopify (importabile)"</strong> sopra.
+                    <strong> "Scarica CSV prodotti base"</strong> sopra e poi pubblica i metafield via API.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <Button
@@ -900,9 +941,10 @@ function ShopifyNativeCsvButton() {
           disabled={loading}
           variant="default"
           className="gap-2 bg-emerald-700 text-white hover:bg-emerald-800"
+          title="Importa i prodotti base in Shopify. I metafield NON sono inclusi: vanno pubblicati via API col bottone 'Pubblica solo metafield'."
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-          Scarica CSV Shopify (importabile)
+          Scarica CSV prodotti base (senza metafield)
         </Button>
         <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
           <input
@@ -925,9 +967,10 @@ function ShopifyNativeCsvButton() {
         </label>
       </div>
       <p className="text-[10px] text-muted-foreground">
-        File pronto per <strong>Shopify Admin → Products → Import</strong>. Include varianti raggruppate per
-        Handle, immagini multiple, SEO e i 16 metafield <code>custom.*</code>. Backup stabile alternativo
-        alla pubblicazione via API.
+        File pronto per <strong>Shopify Admin → Products → Import</strong>: titolo, descrizione,
+        varianti raggruppate per Handle, immagini multiple e SEO. <strong>I 16 metafield
+        <code> custom.*</code> NON sono inclusi</strong> (vai via API col bottone "Pubblica solo
+        metafield" qui sopra — è l'unico modo affidabile).
       </p>
       {lastResult && (
         <p className="text-[10px] text-emerald-700">

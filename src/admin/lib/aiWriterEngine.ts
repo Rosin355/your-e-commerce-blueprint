@@ -169,16 +169,23 @@ export async function publishReviewedDraft(params: {
   metafields?: Record<string, string>;
   debug?: boolean;
   retries?: number;
+  /** When true, skip productUpdate (body HTML / SEO) and ONLY push metafieldsSet. */
+  metafieldsOnly?: boolean;
 }) {
   return callProxy<{ success: boolean; id: number; metafields?: MetafieldsReport }>(
     "update_product",
     {
       id: params.productId,
-      body_html: params.bodyHtml,
-      metafields_global_title_tag: params.seoTitle ?? "",
-      metafields_global_description_tag: params.seoDescription ?? "",
+      ...(params.metafieldsOnly
+        ? {}
+        : {
+            body_html: params.bodyHtml,
+            metafields_global_title_tag: params.seoTitle ?? "",
+            metafields_global_description_tag: params.seoDescription ?? "",
+          }),
       metafields: params.metafields ?? {},
       debug: !!params.debug,
+      ...(params.metafieldsOnly ? { metafields_only: true } : {}),
       ...(typeof params.retries === "number" ? { retries: params.retries } : {}),
     },
   );
@@ -213,7 +220,7 @@ export async function downloadShopifyNativeCsv(opts?: {
   const totalVariants = res.headers.get("X-Total-Variants");
   const blob = await res.blob();
   const today = new Date().toISOString().slice(0, 10);
-  const filename = `shopify-products-native-${today}.csv`;
+  const filename = `shopify-prodotti-base-${today}.csv`;
   const dlUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = dlUrl;

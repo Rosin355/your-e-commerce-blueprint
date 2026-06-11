@@ -16,54 +16,14 @@ function escapeCsv(value: unknown): string {
   return str;
 }
 
-// 16 metafield custom.* — must match METAFIELD_TYPES in shopify-admin-proxy
-const METAFIELD_TYPES: Record<string, string> = {
-  nome_botanico: "single_line_text_field",
-  nome_comune: "single_line_text_field",
-  short_intro: "multi_line_text_field",
-  promo_text: "multi_line_text_field",
-  key_features: "list.single_line_text_field",
-  special_bullets: "list.single_line_text_field",
-  care_info: "multi_line_text_field",
-  come_prendersene_cura: "multi_line_text_field",
-  conosci_meglio_la_tua_pianta: "multi_line_text_field",
-  difficolta_di_coltivazione: "single_line_text_field",
-  origini_e_habitat: "multi_line_text_field",
-  periodo_di_fioritura: "single_line_text_field",
-  periodo_di_messa_a_dimora: "single_line_text_field",
-  periodo_di_raccolta: "single_line_text_field",
-  periodo_ottimale_di_potatura: "single_line_text_field",
-  titolo_sezione_faq: "single_line_text_field",
-};
-
-const METAFIELD_KEYS = Object.keys(METAFIELD_TYPES);
-
-function metafieldHeader(key: string): string {
-  // Shopify documented import format: "Product Metafield: <namespace>.<key> [<type>]"
-  return `Product Metafield: custom.${key} [${METAFIELD_TYPES[key]}]`;
-}
-
-function normalizeMetafieldValue(key: string, raw: unknown): string {
-  const trimmed = String(raw ?? "").trim();
-  if (!trimmed) return "";
-  const type = METAFIELD_TYPES[key];
-  if (type?.startsWith("list.")) {
-    // Shopify CSV expects list.* metafields as JSON array string
-    try {
-      const parsed = JSON.parse(trimmed);
-      if (Array.isArray(parsed)) return JSON.stringify(parsed.map((v) => String(v)));
-    } catch {
-      // fall through
-    }
-    // Split on common bullet separators
-    const parts = trimmed
-      .split(/\r?\n|\s*\|\s*|\s*•\s*|\s*\u2022\s*/)
-      .map((p) => p.trim())
-      .filter(Boolean);
-    return JSON.stringify(parts);
-  }
-  return trimmed;
-}
+// NOTE: as of 2026-06, this CSV exports ONLY product base data (titolo,
+// descrizione, varianti, prezzi, immagini, SEO). The 16 custom.* metafields
+// have been intentionally REMOVED because Shopify's native CSV importer
+// silently drops metafield columns when namespace/key/type don't exactly
+// match an existing definition — which led to confusing "metafield missing
+// after import" behavior. Metafield publication is now exclusively handled
+// via the `metafieldsSet` Admin API mutation, exposed through the
+// "Pubblica su Shopify" and "Pubblica solo metafield" buttons.
 
 interface DbRow {
   sku: string;
@@ -108,18 +68,6 @@ function deriveHandle(row: DbRow): string {
     .replace(/^-+|-+$/g, "");
 }
 
-function buildMetafieldValues(row: DbRow): Record<string, string> {
-  const ai = row.ai_enrichment_json || {};
-  const stored = (row.metafields || {}) as Record<string, unknown>;
-  const out: Record<string, string> = {};
-  for (const key of METAFIELD_KEYS) {
-    // Priority: explicit stored metafields → ai_enrichment_json.metafields → ai_enrichment_json[key]
-    const aiMf = (ai.metafields as Record<string, unknown>) || {};
-    const raw = stored[key] ?? aiMf[key] ?? (ai as Record<string, unknown>)[key] ?? "";
-    out[key] = normalizeMetafieldValue(key, raw);
-  }
-  return out;
-}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -211,8 +159,7 @@ serve(async (req) => {
       "Variant Weight Unit",
       "Status",
     ];
-    const mfHeaders = METAFIELD_KEYS.map(metafieldHeader);
-    const csvHeaders = [...baseHeaders, ...mfHeaders];
+    const csvHeaders = baseHeaders;
     const COL = Object.fromEntries(csvHeaders.map((h, i) => [h, i])) as Record<string, number>;
     const WIDTH = csvHeaders.length;
 
@@ -236,7 +183,7 @@ serve(async (req) => {
       const seoDesc = String(head.seo_description || (ai as any).seo_description || "");
       const headImages = Array.isArray(head.image_urls) ? head.image_urls : [];
       const altTexts = Array.isArray((ai as any).image_alt_texts) ? (ai as any).image_alt_texts as string[] : [];
-      const headMfValues = buildMetafieldValues(head);
+      
 
       const hasMultipleVariants = variants.length > 1;
       const optionName = hasMultipleVariants ? "Title" : "Title";
@@ -270,10 +217,9 @@ serve(async (req) => {
             row[COL["Image Position"]] = "1";
             row[COL["Image Alt Text"]] = altTexts[0] || title;
           }
-          // Metafields only on the first row of the handle
-          for (const key of METAFIELD_KEYS) {
-            row[COL[metafieldHeader(key)]] = headMfValues[key];
-          }
+          // NOTE: metafield columns intentionally NOT emitted — Shopify's
+          // native CSV importer silently drops them when definitions don't
+          // match. Use the API publish flow instead.
         }
 
         // Variant fields on every row
@@ -314,7 +260,7 @@ serve(async (req) => {
       headers: {
         ...corsHeaders,
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="shopify-products-native-${today}.csv"`,
+        "Content-Disposition": `attachment; filename="shopify-prodotti-base-${today}.csv"`,
         "X-Total-Products": String(totalProducts),
         "X-Total-Variants": String(totalVariants),
         "X-Total-Image-Rows": String(totalImageRows),
