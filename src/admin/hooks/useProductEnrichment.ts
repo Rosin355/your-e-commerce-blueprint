@@ -136,8 +136,8 @@ export function useProductEnrichment() {
 
   // ── Mode A — batch operations ────────────────────────────────────────
 
-  /** Instant: evaluates completeness for all loaded products — no API calls */
-  function analyzeAll(products: ShopifyAdminProduct[]) {
+  /** Instant: evaluates completeness for all loaded products, then rehydrates existing drafts from DB. */
+  async function analyzeAll(products: ShopifyAdminProduct[]) {
     const initial: BatchProductResult[] = products.map((p) => ({
       productId: p.id,
       sku: p.sku,
@@ -147,11 +147,47 @@ export function useProductEnrichment() {
       draft: null,
       publishedAt: null,
       savedAt: null,
+      restored: false,
       status: "pending" as BatchItemStatus,
       error: null,
     }));
     setBatchResults(initial);
     toast.success(`${initial.length} prodotti analizzati`);
+
+    // Rehydrate previously generated drafts from DB
+    const skus = products.map((p) => p.sku).filter((s): s is string => !!s);
+    if (skus.length === 0) return;
+    try {
+      const { drafts } = await getEnrichedDraftsBySkus(skus);
+      if (!drafts || drafts.length === 0) return;
+      const bySku = new Map(drafts.map((d) => [d.sku, d]));
+      const merged = initial.map((r) => {
+        if (!r.sku) return r;
+        const row = bySku.get(r.sku);
+        if (!row) return r;
+        const product = products.find((p) => p.id === r.productId);
+        const draft = rebuildDraftFromDbRow(row);
+        if (!draft) return r;
+        const completeness = product
+          ? evaluateCompletenessWithDraft(product, draft)
+          : r.completeness;
+        return {
+          ...r,
+          draft,
+          completeness,
+          savedAt: row.ai_enriched_at,
+          restored: true,
+          status: "done" as BatchItemStatus,
+        };
+      });
+      setBatchResults(merged);
+      const restored = merged.filter((r) => r.restored).length;
+      if (restored > 0) {
+        toast.success(`${restored} bozze pre-esistenti ripristinate dal DB`);
+      }
+    } catch (e) {
+      console.error("[enrichment] rehydrate from DB failed:", e);
+    }
   }
 
   /** Generates enriched metafield drafts for all products — one AI call each */
