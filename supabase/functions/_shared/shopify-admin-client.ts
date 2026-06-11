@@ -1,6 +1,13 @@
 /**
  * Centralized Shopify Admin API client.
- * Uses Shopify secrets managed by the native Lovable integration.
+ *
+ * Token resolution priority:
+ *   1. SHOPIFY_ADMIN_API_TOKEN          — long-lived Custom App token (shpat_...), manually set.
+ *   2. SHOPIFY_CLIENT_ID + SHOPIFY_CLIENT_SECRET
+ *                                       — auto-refreshed via OAuth client_credentials flow.
+ *                                         Produces a shpat_... valid ~24h, cached in-memory.
+ *   3. SHOPIFY_ONLINE_ACCESS_TOKEN_*    — short-lived token from native Lovable Shopify connector.
+ *   4. SHOPIFY_ACCESS_TOKEN / SHOPIFY_ADMIN_ACCESS_TOKEN — legacy fallback.
  */
 
 const corsHeaders = {
@@ -17,40 +24,104 @@ export interface ShopifyAdminConfig {
   apiVersion: string;
 }
 
-function getConfig(): ShopifyAdminConfig {
-  const shop =
+// ---- In-memory token cache for client_credentials flow ----
+interface CachedToken {
+  token: string;
+  expiresAt: number; // epoch ms
+}
+let cachedClientCredentialsToken: CachedToken | null = null;
+const REFRESH_MARGIN_MS = 5 * 60 * 1000; // refresh 5 min before expiry
+
+function getShopDomain(): string {
+  return (
     Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") ||
     Deno.env.get("SHOPIFY_ADMIN_SHOP") ||
-    "ecom-blueprint-gen-6ud1s.myshopify.com";
-  // Token priority:
-  //   1. SHOPIFY_ADMIN_API_TOKEN  — long-lived Custom App token (shpat_...), set manually by admin
-  //   2. SHOPIFY_ONLINE_ACCESS_TOKEN_* — short-lived (~24h) token from native Shopify connector,
-  //      refreshed by shopify--connect_shopify_account. Preferred over the legacy SHOPIFY_ACCESS_TOKEN
-  //      because the connector keeps it fresh while the legacy one can go stale silently.
-  //   3. SHOPIFY_ACCESS_TOKEN / SHOPIFY_ADMIN_ACCESS_TOKEN — legacy fallback.
-  let accessToken = Deno.env.get("SHOPIFY_ADMIN_API_TOKEN") || "";
-  if (!accessToken) {
-    for (const [key, value] of Object.entries(Deno.env.toObject())) {
-      if (key.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") && value) {
-        accessToken = value;
-        break;
-      }
+    "ecom-blueprint-gen-6ud1s.myshopify.com"
+  );
+}
+
+async function requestClientCredentialsToken(shop: string): Promise<string | null> {
+  const clientId = Deno.env.get("SHOPIFY_CLIENT_ID");
+  const clientSecret = Deno.env.get("SHOPIFY_CLIENT_SECRET");
+  if (!clientId || !clientSecret) return null;
+
+  if (
+    cachedClientCredentialsToken &&
+    cachedClientCredentialsToken.expiresAt - Date.now() > REFRESH_MARGIN_MS
+  ) {
+    return cachedClientCredentialsToken.token;
+  }
+
+  try {
+    const res = await fetch(`https://${shop}/admin/oauth/access_token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: clientId,
+        client_secret: clientSecret,
+      }),
+    });
+    if (!res.ok) {
+      const txt = await res.text();
+      console.warn(`[shopify-admin-client] client_credentials failed (${res.status}): ${txt.slice(0, 300)}`);
+      return null;
+    }
+    const body = await res.json();
+    const token = body.access_token as string | undefined;
+    const expiresIn = Number(body.expires_in || 86400);
+    if (!token) return null;
+    cachedClientCredentialsToken = {
+      token,
+      expiresAt: Date.now() + expiresIn * 1000,
+    };
+    console.log(`[shopify-admin-client] Got new client_credentials token, expires in ${expiresIn}s`);
+    return token;
+  } catch (err) {
+    console.warn("[shopify-admin-client] client_credentials request error:", err);
+    return null;
+  }
+}
+
+/**
+ * Resolves the Shopify Admin access token using the priority chain above.
+ * Async because the client_credentials flow may need a network call.
+ */
+export async function resolveAdminAccessToken(): Promise<string> {
+  // 1. Long-lived Custom App token
+  const customAppToken = Deno.env.get("SHOPIFY_ADMIN_API_TOKEN");
+  if (customAppToken) return customAppToken;
+
+  // 2. client_credentials auto-refresh
+  const shop = getShopDomain();
+  const ccToken = await requestClientCredentialsToken(shop);
+  if (ccToken) return ccToken;
+
+  // 3. Native Lovable connector online token
+  for (const [key, value] of Object.entries(Deno.env.toObject())) {
+    if (key.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") && value) {
+      return value;
     }
   }
-  if (!accessToken) {
-    accessToken =
-      Deno.env.get("SHOPIFY_ACCESS_TOKEN") ||
-      Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") ||
-      "";
-  }
-  // Admin API version is env-driven (server-side secret only — never exposed to the browser).
-  // Keep current: Shopify supports each version ~12 months. Verify GraphQL/REST fields before
-  // bumping to 2026-04. Default 2025-07 stays the safe fallback.
+
+  // 4. Legacy fallback
+  const legacy =
+    Deno.env.get("SHOPIFY_ACCESS_TOKEN") ||
+    Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") ||
+    "";
+  if (legacy) return legacy;
+
+  throw new Error("Nessun token Shopify Admin disponibile (configurare SHOPIFY_CLIENT_ID/SECRET o SHOPIFY_ADMIN_API_TOKEN)");
+}
+
+async function getConfig(): Promise<ShopifyAdminConfig> {
+  const shop = getShopDomain();
+  const accessToken = await resolveAdminAccessToken();
   const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-07";
-
   if (!shop) throw new Error("SHOPIFY_STORE_PERMANENT_DOMAIN non configurato");
-  if (!accessToken) throw new Error("SHOPIFY_ACCESS_TOKEN non configurato");
-
   return { shop, accessToken, apiVersion };
 }
 
@@ -62,17 +133,22 @@ function graphqlUrl(config: ShopifyAdminConfig): string {
   return `https://${config.shop}/admin/api/${config.apiVersion}/graphql.json`;
 }
 
+/** Invalidate the cached client_credentials token (e.g. after a 401). */
+function invalidateClientCredentialsCache() {
+  cachedClientCredentialsToken = null;
+}
+
 export async function shopifyAdminFetch(
   path: string,
   method: string,
   body?: unknown,
 ): Promise<any> {
-  const cfg = getConfig();
-  const headers: Record<string, string> = {
+  let cfg = await getConfig();
+  const buildHeaders = (token: string): Record<string, string> => ({
     "Content-Type": "application/json",
-    "X-Shopify-Access-Token": cfg.accessToken,
-  };
-  const opts: RequestInit = { method, headers };
+    "X-Shopify-Access-Token": token,
+  });
+  const opts: RequestInit = { method, headers: buildHeaders(cfg.accessToken) };
   if (body) opts.body = JSON.stringify(body);
 
   let response = await fetch(adminUrl(cfg, path), opts);
@@ -81,6 +157,15 @@ export async function shopifyAdminFetch(
     const retryAfter = parseInt(response.headers.get("Retry-After") || "2", 10);
     await new Promise((r) => setTimeout(r, retryAfter * 1000));
     response = await fetch(adminUrl(cfg, path), opts);
+  }
+
+  // If unauthorized and we used a client_credentials token, refresh once.
+  if (response.status === 401) {
+    invalidateClientCredentialsCache();
+    cfg = await getConfig();
+    const retryOpts: RequestInit = { method, headers: buildHeaders(cfg.accessToken) };
+    if (body) retryOpts.body = JSON.stringify(body);
+    response = await fetch(adminUrl(cfg, path), retryOpts);
   }
 
   const data = await response.json();
@@ -94,8 +179,9 @@ export async function shopifyAdminGraphQL<T = any>(
   query: string,
   variables: Record<string, unknown> = {},
 ): Promise<T> {
-  const cfg = getConfig();
+  let cfg = await getConfig();
   let attempts = 0;
+  let unauthorizedRetried = false;
 
   while (attempts < 3) {
     attempts += 1;
@@ -111,6 +197,13 @@ export async function shopifyAdminGraphQL<T = any>(
     if (response.status === 429) {
       const retryAfter = Number(response.headers.get("Retry-After") || "1");
       await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
+      continue;
+    }
+
+    if (response.status === 401 && !unauthorizedRetried) {
+      unauthorizedRetried = true;
+      invalidateClientCredentialsCache();
+      cfg = await getConfig();
       continue;
     }
 
