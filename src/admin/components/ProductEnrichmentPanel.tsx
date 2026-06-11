@@ -24,7 +24,7 @@ import {
 import { toast } from "sonner";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { useAuth } from "@/hooks/useAuth";
-import { listShopifyProducts } from "../lib/aiWriterEngine";
+import { listShopifyProducts, downloadShopifyNativeCsv } from "../lib/aiWriterEngine";
 import { loadDbCatalogProducts } from "../lib/dbCatalogSource";
 import {
   downloadBatchCsvSnippet,
