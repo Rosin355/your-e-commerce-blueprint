@@ -77,7 +77,6 @@ async function listProducts(data: any) {
     rawResponse = await fetch(url, { method: "GET", headers: fetchHeaders });
   }
   const res = await rawResponse.json();
-  console.log("[list_products] shop=", shop, "url=", url, "status=", rawResponse.status, "tokenLen=", accessToken.length, "bodyKeys=", Object.keys(res || {}));
   if (!rawResponse.ok) {
     throw new Error(`Shopify ${rawResponse.status}: ${JSON.stringify(res).slice(0, 500)}`);
   }
