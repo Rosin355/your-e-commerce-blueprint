@@ -380,8 +380,13 @@ serve(async (req) => {
         result = { success: true, id: (await shopifyAdminFetch("products.json", "POST", { product: data })).product?.id };
         break;
       case "update_product": {
-        const { id, ...productData } = data;
-        result = { success: true, id: (await shopifyAdminFetch(`products/${id}.json`, "PUT", { product: productData })).product?.id };
+        const { id, metafields, ...productData } = data;
+        const updateRes = await shopifyAdminFetch(`products/${id}.json`, "PUT", { product: productData });
+        let metafieldsResult: { written: number; skipped: number; errors: string[] } | undefined;
+        if (metafields && typeof metafields === "object") {
+          metafieldsResult = await setProductCustomMetafields(Number(id), metafields as Record<string, string>);
+        }
+        result = { success: true, id: updateRes.product?.id, metafields: metafieldsResult };
         break;
       }
       case "list_products":
