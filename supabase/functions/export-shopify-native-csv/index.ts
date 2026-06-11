@@ -260,7 +260,7 @@ serve(async (req) => {
       headers: {
         ...corsHeaders,
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="shopify-products-native-${today}.csv"`,
+        "Content-Disposition": `attachment; filename="shopify-prodotti-base-${today}.csv"`,
         "X-Total-Products": String(totalProducts),
         "X-Total-Variants": String(totalVariants),
         "X-Total-Image-Rows": String(totalImageRows),
