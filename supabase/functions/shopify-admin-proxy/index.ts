@@ -461,6 +461,8 @@ export interface MetafieldDetail {
   status: "sent" | "skipped" | "failed";
   error?: string;
   attempts?: number;
+  type?: string;
+  liveTypeUsed?: string;
 }
 
 export interface MetafieldDebugEntry {
@@ -469,6 +471,7 @@ export interface MetafieldDebugEntry {
   request: unknown;
   response: unknown;
   errorMessage?: string;
+  liveDefinitions?: LiveMetafieldDefinition[];
 }
 
 async function setProductCustomMetafields(
@@ -486,18 +489,33 @@ async function setProductCustomMetafields(
   const debugMode = !!options?.debug;
   const ownerId = `gid://shopify/Product/${productId}`;
 
-  const entries: Array<{ key: string; type: string; value: string }> = [];
+  let liveDefinitions: LiveMetafieldDefinition[] = [];
+  try {
+    liveDefinitions = await fetchLiveMetafieldDefinitions();
+  } catch (err) {
+    console.warn("[metafieldsSet] impossibile leggere le definitions live, uso i tipi locali:", err);
+  }
+  const liveTypeByKey = new Map(
+    liveDefinitions
+      .filter((d) => d.namespace === METAFIELD_NAMESPACE && d.type)
+      .map((d) => [d.key, d.type]),
+  );
+
+  const entries: Array<{ key: string; type: string; value: string; localType: string; liveTypeUsed?: string }> = [];
   const details: MetafieldDetail[] = [];
   let skipped = 0;
 
   for (const key of Object.keys(METAFIELD_TYPES)) {
-    const value = normalizeMetafieldValue(key, metafields[key] ?? "");
+    const localType = METAFIELD_TYPES[key];
+    const liveTypeUsed = liveTypeByKey.get(key);
+    const type = liveTypeUsed || localType;
+    const value = normalizeMetafieldValue(key, metafields[key] ?? "", type);
     if (value === null) {
       skipped++;
-      details.push({ key, namespace: METAFIELD_NAMESPACE, status: "skipped" });
+      details.push({ key, namespace: METAFIELD_NAMESPACE, status: "skipped", type, liveTypeUsed });
       continue;
     }
-    entries.push({ key, type: METAFIELD_TYPES[key], value });
+    entries.push({ key, type, value, localType, liveTypeUsed });
   }
 
   const errors: string[] = [];
