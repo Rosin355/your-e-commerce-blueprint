@@ -731,6 +731,7 @@ export function useProductEnrichment() {
     generateAll,
     generateOne,
     publishAll,
+    publishMetafieldsOnly,
     publishOne,
     cancelBatch,
     resetBatch,
