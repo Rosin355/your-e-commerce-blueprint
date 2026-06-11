@@ -108,12 +108,21 @@ export async function resolveAdminAccessToken(): Promise<string> {
   const ccToken = await requestClientCredentialsToken(shop);
   if (ccToken) { debug("client_credentials", ccToken); return ccToken; }
 
-  // 3. Native Lovable connector online token (key may include ":" like
-  // SHOPIFY_ONLINE_ACCESS_TOKEN:user:<uid>). Take it as-is, fresh after reconnect.
+  // 3. Native Lovable connector online token. The secret value may be either a
+  // raw shpat_/shpca_ token OR a JSON blob like {"access_token":"...","scope":"...","expires_in":...}.
   for (const [key, value] of Object.entries(Deno.env.toObject())) {
-    if (key.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") && value) {
-      debug(key, value); return value;
+    if (!key.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") || !value) continue;
+    let token = value.trim();
+    if (token.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(token);
+        token = parsed.access_token || parsed.accessToken || parsed.token || "";
+      } catch (e) {
+        console.warn(`[shopify-admin-client] ${key} is not valid JSON:`, e);
+        continue;
+      }
     }
+    if (token) { debug(key, token); return token; }
   }
 
   // 4. Legacy fallback — only if it looks like a Shopify token (shpat_/shpca_/shpss_)
