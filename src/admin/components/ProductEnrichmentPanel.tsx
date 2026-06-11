@@ -392,32 +392,37 @@ function ModeAPanel() {
                 Pubblica su Shopify (tutti)
               </Button>
 
-              {hasDrafts && (
-                <Button
-                  onClick={() => downloadBatchCsvSnippet(draftsForDownload)}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  Scarica CSV arricchimento
-                </Button>
-              )}
-
-              {hasDrafts && (
-                <ShopifyMergeExport drafts={draftsForDownload} />
-              )}
+              <ShopifyNativeCsvButton />
             </div>
 
+            {/* Advanced merge section (collapsed) */}
             {hasDrafts && (
-              <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-900 flex gap-2">
-                <TriangleAlert className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                <span>
-                  Questo CSV contiene solo testi/metafields arricchiti. Non è un CSV Shopify completo da
-                  importare direttamente se i prodotti hanno varianti. Per import Shopify nativo, fai
-                  merge con un export completo Shopify usando il pulsante <strong>Export Shopify-compatible update CSV</strong>.
-                </span>
-              </div>
+              <details className="rounded-md border bg-muted/20 px-3 py-2 text-xs">
+                <summary className="cursor-pointer select-none font-medium">
+                  Avanzato: CSV solo arricchimento / merge con export Shopify esistente
+                </summary>
+                <div className="mt-3 space-y-3">
+                  <p className="text-muted-foreground">
+                    Usa questi strumenti solo se vuoi unire le bozze AI con un export Shopify già scaricato
+                    dal tuo store. Per un import diretto in Shopify usa invece il pulsante
+                    <strong> "Scarica CSV Shopify (importabile)"</strong> sopra.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      onClick={() => downloadBatchCsvSnippet(draftsForDownload)}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      Scarica CSV solo arricchimento (merge)
+                    </Button>
+                    <ShopifyMergeExport drafts={draftsForDownload} />
+                  </div>
+                </div>
+              </details>
             )}
+
 
             {metafieldFailedItems.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
