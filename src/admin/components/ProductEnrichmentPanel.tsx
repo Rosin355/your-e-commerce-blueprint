@@ -188,7 +188,12 @@ function ModeAPanel() {
     publishOne,
     cancelBatch,
     resetBatch,
+    debugMetafields,
+    setDebugMetafields,
+    metafieldsRetries,
+    setMetafieldsRetries,
   } = useProductEnrichment();
+  const [openReportFor, setOpenReportFor] = useState<number | null>(null);
 
   const isRunning = batchProgress !== null;
   const hasDrafts = batchResults.some((r) => r.draft);
