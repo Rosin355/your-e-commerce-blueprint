@@ -6,6 +6,7 @@ import { Loader2, RefreshCcw, CheckCircle2, AlertCircle, XCircle } from "lucide-
 import { toast } from "sonner";
 import {
   getMetafieldConfig,
+  getMetafieldConfigLive,
   listShopifyMetafieldDefinitions,
   type MetafieldConfig,
   type MetafieldDefinitionDiff,
@@ -16,6 +17,7 @@ export default function MetafieldsConfigPanel() {
   const [diff, setDiff] = useState<MetafieldDefinitionDiff[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [aligning, setAligning] = useState(false);
 
   useEffect(() => {
     let abort = false;
@@ -56,6 +58,26 @@ export default function MetafieldsConfigPanel() {
     }
   }
 
+  async function loadEffectiveConfig() {
+    setAligning(true);
+    try {
+      const cfg = await getMetafieldConfigLive();
+      setConfig(cfg);
+      setDiff(
+        cfg.fields.map((f) => ({
+          ...f,
+          status: !f.liveType ? "missing" : f.liveType === f.type ? "ok" : "type_mismatch",
+          liveType: f.liveType,
+        })),
+      );
+      toast.success("Tipi effettivi Shopify caricati: verranno usati alla prossima pubblicazione");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Errore caricamento tipi effettivi Shopify");
+    } finally {
+      setAligning(false);
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -72,10 +94,18 @@ export default function MetafieldsConfigPanel() {
             Confronta la mappatura locale con le definizioni metafield presenti nel tuo store Shopify per
             verificare che namespace, key e tipo coincidano.
           </p>
-          <Button onClick={verifyAgainstShopify} disabled={verifying} size="sm" className="gap-2">
-            {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCcw className="h-4 w-4" />}
-            Verifica su Shopify
-          </Button>
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button onClick={verifyAgainstShopify} disabled={verifying || aligning} size="sm" className="gap-2">
+              {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCcw className="h-4 w-4" />}
+              Verifica su Shopify
+            </Button>
+            {diff?.some((d) => d.status === "type_mismatch") && (
+              <Button onClick={loadEffectiveConfig} disabled={aligning || verifying} size="sm" variant="outline" className="gap-2">
+                {aligning ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                Allinea automaticamente la mappa locale ai tipi Shopify
+              </Button>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -90,6 +120,7 @@ export default function MetafieldsConfigPanel() {
                   <th className="py-2 pr-3 font-medium">Full key</th>
                   <th className="py-2 pr-3 font-medium">Tipo atteso</th>
                   <th className="py-2 pr-3 font-medium">Tipo su Shopify</th>
+                  <th className="py-2 pr-3 font-medium">Tipo effettivo usato</th>
                   <th className="py-2 pr-3 font-medium">Stato</th>
                 </tr>
               </thead>
@@ -103,6 +134,9 @@ export default function MetafieldsConfigPanel() {
                       <td className="py-2 pr-3 font-mono text-muted-foreground">{f.type}</td>
                       <td className="py-2 pr-3 font-mono text-muted-foreground">
                         {d?.liveType ?? (diff ? "—" : "(non verificato)")}
+                      </td>
+                      <td className="py-2 pr-3 font-mono text-muted-foreground">
+                        {f.effectiveType ?? d?.liveType ?? f.type}
                       </td>
                       <td className="py-2 pr-3">
                         {!diff ? (
