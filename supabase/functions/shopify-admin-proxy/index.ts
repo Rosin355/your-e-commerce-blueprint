@@ -599,15 +599,24 @@ serve(async (req) => {
         result = { success: true, id: (await shopifyAdminFetch("products.json", "POST", { product: data })).product?.id };
         break;
       case "update_product": {
-        const { id, metafields, ...productData } = data;
+        const { id, metafields, debug, retries, ...productData } = data;
         const updateRes = await shopifyAdminFetch(`products/${id}.json`, "PUT", { product: productData });
-        let metafieldsResult: { written: number; skipped: number; errors: string[] } | undefined;
+        let metafieldsResult: any;
         if (metafields && typeof metafields === "object") {
-          metafieldsResult = await setProductCustomMetafields(Number(id), metafields as Record<string, string>);
+          metafieldsResult = await setProductCustomMetafields(Number(id), metafields as Record<string, string>, {
+            debug: !!debug,
+            maxRetries: typeof retries === "number" ? retries : undefined,
+          });
         }
         result = { success: true, id: updateRes.product?.id, metafields: metafieldsResult };
         break;
       }
+      case "get_metafield_config":
+        result = getMetafieldConfig();
+        break;
+      case "list_shopify_metafield_definitions":
+        result = await listShopifyMetafieldDefinitions();
+        break;
       case "list_products":
         result = await listProducts(data);
         break;
