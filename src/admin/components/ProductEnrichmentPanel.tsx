@@ -224,6 +224,10 @@ function ModeAPanel() {
   const hasDrafts = batchResults.some((r) => r.draft);
   const draftsForDownload = batchResults.filter((r) => r.draft).map((r) => r.draft!);
   const isDbSource = source === "db";
+  const metafieldFailedItems = batchResults.filter((r) =>
+    r.metafieldsReport?.details.some((d) => d.status === "failed"),
+  );
+  const firstMetafieldFailed = metafieldFailedItems[0];
 
   async function loadProducts() {
     setLoadingProducts(true);
@@ -410,6 +414,25 @@ function ModeAPanel() {
                   importare direttamente se i prodotti hanno varianti. Per import Shopify nativo, fai
                   merge con un export completo Shopify usando il pulsante <strong>Export Shopify-compatible update CSV</strong>.
                 </span>
+              </div>
+            )}
+
+            {metafieldFailedItems.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <span className="flex-1">
+                  Metafield Shopify falliti su {metafieldFailedItems.length} prodotto/i. Apri il dettaglio MF per vedere l'errore GraphQL esatto.
+                </span>
+                {firstMetafieldFailed && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 border-destructive/40 text-[11px] text-destructive hover:bg-destructive/10"
+                    onClick={() => setOpenReportFor(firstMetafieldFailed.productId)}
+                  >
+                    Vai al primo prodotto fallito
+                  </Button>
+                )}
               </div>
             )}
 
