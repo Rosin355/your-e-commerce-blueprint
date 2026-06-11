@@ -1,72 +1,36 @@
-## Diagnosi
+## Perché i metafield sono vuoti
 
-- L’errore del sito non è generico: nei log dell’Edge Function `shopify-admin-proxy` Shopify risponde:
-  - `Invalid API key or access token (unrecognized login or wrong password)`
-- Quindi il problema attuale è il token Admin usato dal backend per pubblicare/aggiornare prodotti.
-- Nel progetto attuale esistono già questi secret:
-  - `SHOPIFY_ACCESS_TOKEN`
-  - `SHOPIFY_ONLINE_ACCESS_TOKEN:...`
-  - `SHOPIFY_STOREFRONT_ACCESS_TOKEN`
-  - manca `SHOPIFY_ADMIN_API_TOKEN`
+Non è un bug: oggi il pulsante **Pubblica su Shopify** è progettato per inviare via API **solo** `body_html`, `seo_title`, `seo_description` e gli `alt` delle immagini. Lo dice anche il banner giallo nell'admin: «I 16 metafield personalizzati non vengono salvati da questo pulsante — vanno esportati e importati tramite il CSV».
 
-## Chiarimento sulla schermata Shopify che hai allegato
+Quindi i 16 metafield generati dall'AI (visibili nella tabella "Metafield CSV Shopify — 16 campi") restano nel database Lovable e nel CSV scaricabile, ma non vengono scritti su Shopify finché non importi il CSV.
 
-Quella schermata non è la vecchia procedura “Custom App → Admin API integration → Install app”.
+## Cosa propongo di cambiare
 
-È il nuovo sistema Shopify con:
+Estendere la pubblicazione perché scriva **anche i 16 metafield** direttamente su Shopify via Admin API, in un'unica operazione. Niente più CSV manuale.
 
-- `ID client`
-- `Segreto`
-- endpoint OAuth:
+### Comportamento finale
+1. Clic su "Pubblica su Shopify" (sia singolo che "tutti") aggiorna:
+   - body HTML, SEO title, SEO meta description, alt immagini (come ora)
+   - **+ i 16 metafield `custom.*`** con i valori della bozza già rivista
+2. I metafield con valore vuoto/"Da compilare" vengono **saltati** (non sovrascrivono eventuali valori già presenti su Shopify).
+3. Il banner giallo viene aggiornato: «I 16 metafield personalizzati vengono ora scritti direttamente su Shopify». Il pulsante CSV resta per usi manuali/backup.
 
-```text
-POST https://{shop}.myshopify.com/admin/oauth/access_token
+### Dettagli tecnici (per il backend)
 
-grant_type=client_credentials
-client_id=...
-client_secret=...
-```
+- **Edge function**: estendere `publishProductCopyDraft` in `supabase/functions/shopify-admin-proxy/index.ts` aggiungendo una chiamata GraphQL `metafieldsSet` (batch fino a 25 per call) con namespace fisso `custom` e le 16 chiavi già definite in `src/admin/types/productEnrichment.ts → ALL_METAFIELD_KEYS`.
+- Tipo Shopify per metafield: `single_line_text_field` per testi brevi (nome botanico, nome comune, periodi, difficoltà, titolo sezione FAQ, short_intro, promo_text), `multi_line_text_field` per i lunghi (come_prendersene_cura, conosci_meglio_la_tua_pianta, origini_e_habitat, care_info), `list.single_line_text_field` (JSON array) per `key_features` e `special_bullets`.
+- Mapping dalla bozza: leggere `draft.metafields` (già salvato in `product_ai_drafts`) e ignorare i campi vuoti.
+- In caso di errore su un singolo metafield: registrare il messaggio nel log della draft ma non bloccare gli altri (parziale OK).
+- Stesso fix per il flusso "Pubblica tutti" (`publishAll` lato client) e per il pulsante singolo riga, perché passano dalla stessa edge function.
 
-Questo genera un token `shpat_...`, ma non è permanente: Shopify indica `expires_in: 86399`, quindi dura circa 24 ore. La differenza è che il backend può rigenerarlo automaticamente usando `client_id` + `client_secret`, senza che il cliente torni ogni giorno in Lovable.
+### Cosa NON cambia
+- Lo stile di scrittura, il prompt AI e i contenuti generati restano identici.
+- Il CSV resta scaricabile per backup/import bulk.
+- Nessuna modifica allo storefront, nessun rischio sul checkout.
 
-## Piano di correzione
+### Verifica dopo l'implementazione
+1. Genera la bozza di un prodotto di test, clicca "Pubblica".
+2. Apri il prodotto su Shopify Admin → tab Metafield: i 16 campi devono essere popolati.
+3. Ripeti su un secondo prodotto con uno o due campi vuoti → quelli vuoti devono restare invariati su Shopify.
 
-1. **Aggiungere supporto al nuovo flusso Shopify client-credentials**
-   - Aggiornare il client Shopify backend centralizzato.
-   - Se sono presenti `SHOPIFY_CLIENT_ID` e `SHOPIFY_CLIENT_SECRET`, il backend chiederà automaticamente un nuovo `shpat_...` a Shopify.
-   - Il token verrà usato con header corretto:
-
-```text
-X-Shopify-Access-Token: shpat_...
-```
-
-2. **Non dipendere più dal token OAuth Lovable giornaliero**
-   - L’ordine di priorità diventerà:
-     1. `SHOPIFY_ADMIN_API_TOKEN`, se presente, per token Custom App manuale/permanente.
-     2. `SHOPIFY_CLIENT_ID` + `SHOPIFY_CLIENT_SECRET`, per generare automaticamente uno `shpat_...`.
-     3. `SHOPIFY_ONLINE_ACCESS_TOKEN:*`, solo come fallback.
-     4. `SHOPIFY_ACCESS_TOKEN`, solo come ultimo fallback.
-
-3. **Applicare la stessa logica anche alla lista prodotti admin**
-   - C’è un punto nel proxy che legge il token direttamente invece di usare il client centralizzato.
-   - Lo allineerò alla nuova logica, così non resta un percorso che usa token vecchi/scaduti.
-
-4. **Aggiungere secret necessari**
-   - Serviranno questi due secret runtime:
-
-```text
-SHOPIFY_CLIENT_ID
-SHOPIFY_CLIENT_SECRET
-```
-
-   - Li inserirai dal form sicuro di Lovable, non in chat.
-   - Il `client_id` è quello visibile nella schermata.
-   - Il `client_secret` è il “Segreto” della schermata Shopify.
-
-5. **Validare dopo l’implementazione**
-   - Testare la chiamata all’Edge Function.
-   - Controllare i log per confermare che non compaia più `Invalid API key or access token`.
-
-## Risultato atteso
-
-Il cliente non dovrà più rigenerare manualmente un token ogni giorno. Il backend userà le credenziali dell’app Shopify per ottenere automaticamente un token valido quando serve, come nel progetto precedente.
+Confermi che procedo così?
