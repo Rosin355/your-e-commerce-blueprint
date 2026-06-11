@@ -280,7 +280,7 @@ export function useProductEnrichment() {
    * in the panel (body HTML + SEO), via update_product. It does NOT regenerate
    * any AI content here, so what gets published always matches what was shown.
    * Products without a reviewed draft are skipped — we never auto-publish unseen
-   * content. Custom metafields are not updated here — use the CSV export flow.
+   * content. Custom metafields are updated through the same Shopify publish call.
    */
   async function publishAll(
     products: ShopifyAdminProduct[],
@@ -363,8 +363,13 @@ export function useProductEnrichment() {
     setBatchProgress(null);
     cancelRef.current = false;
     if (processed === products.length) {
+      const mfFailed = current.filter((r) => r.metafieldsReport?.details.some((d) => d.status === "failed")).length;
       const suffix = skippedNoDraft > 0 ? ` (${skippedNoDraft} senza bozza, saltati)` : "";
-      toast.success(`Pubblicati su Shopify: ${successCount}/${products.length}${suffix}`);
+      if (mfFailed > 0) {
+        toast.warning(`Pubblicati su Shopify: ${successCount}/${products.length}${suffix}. Metafield falliti su ${mfFailed} prodotto/i`);
+      } else {
+        toast.success(`Pubblicati su Shopify: ${successCount}/${products.length}${suffix}`);
+      }
     }
   }
 
