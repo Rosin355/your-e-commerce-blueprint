@@ -217,10 +217,9 @@ serve(async (req) => {
             row[COL["Image Position"]] = "1";
             row[COL["Image Alt Text"]] = altTexts[0] || title;
           }
-          // Metafields only on the first row of the handle
-          for (const key of METAFIELD_KEYS) {
-            row[COL[metafieldHeader(key)]] = headMfValues[key];
-          }
+          // NOTE: metafield columns intentionally NOT emitted — Shopify's
+          // native CSV importer silently drops them when definitions don't
+          // match. Use the API publish flow instead.
         }
 
         // Variant fields on every row
