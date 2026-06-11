@@ -410,6 +410,9 @@ serve(async (req) => {
       case "generate_product_copy_draft":
         result = await generateProductCopyDraft(data, adminEmail);
         break;
+      case "get_enriched_drafts":
+        result = await getEnrichedDrafts(data);
+        break;
       case "publish_product_copy":
         result = await publishProductCopyDraft(data);
         break;
