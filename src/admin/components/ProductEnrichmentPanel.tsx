@@ -415,10 +415,10 @@ function ModeAPanel() {
 
             {/* Info about publish scope */}
             <p className="text-[10px] text-muted-foreground">
-              <strong>Pubblica su Shopify</strong> invia a Shopify solo la bozza già generata e mostrata qui
-              sotto: aggiorna <strong>esclusivamente</strong> body HTML e SEO (titolo, descrizione, meta tag) via API.
-              I {ALL_METAFIELD_KEYS.length} metafield personalizzati <strong>non</strong> vengono salvati da questo
-              pulsante — vanno esportati e importati tramite il CSV scaricabile sopra.
+              <strong>Pubblica su Shopify</strong> invia a Shopify la bozza generata: aggiorna body HTML,
+              SEO (titolo + meta description) e i <strong>{ALL_METAFIELD_KEYS.length} metafield personalizzati</strong>
+              {" "}(namespace <code>custom</code>) direttamente via API. I campi vuoti vengono saltati e non
+              sovrascrivono eventuali valori già presenti su Shopify. Il CSV resta disponibile per import bulk/backup.
             </p>
           </CardContent>
         </Card>
