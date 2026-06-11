@@ -87,21 +87,27 @@ export async function publishDraft(draftId: string, adminEmail?: string) {
 
 /**
  * Publishes the EXACT enriched draft the admin reviewed in the panel.
- * Pushes only body HTML + SEO title/description to Shopify via the existing
- * `update_product` proxy action — no AI regeneration happens here, so the
- * published content always matches what was shown on screen.
- * NOTE: custom metafields are intentionally NOT sent here (CSV export only).
+ * Pushes body HTML + SEO title/description AND the 16 custom metafields
+ * (namespace `custom`) directly to Shopify via the `update_product` proxy
+ * action. Empty metafield values are skipped server-side so they never
+ * overwrite existing data.
  */
 export async function publishReviewedDraft(params: {
   productId: number;
   bodyHtml: string;
   seoTitle?: string;
   seoDescription?: string;
+  metafields?: Record<string, string>;
 }) {
-  return callProxy<{ success: boolean; id: number }>("update_product", {
-    id: params.productId,
-    body_html: params.bodyHtml,
-    metafields_global_title_tag: params.seoTitle ?? "",
-    metafields_global_description_tag: params.seoDescription ?? "",
-  });
+  return callProxy<{ success: boolean; id: number; metafields?: { written: number; skipped: number; errors: string[] } }>(
+    "update_product",
+    {
+      id: params.productId,
+      body_html: params.bodyHtml,
+      metafields_global_title_tag: params.seoTitle ?? "",
+      metafields_global_description_tag: params.seoDescription ?? "",
+      metafields: params.metafields ?? {},
+    },
+  );
 }
+

@@ -336,6 +336,7 @@ export function useProductEnrichment() {
           bodyHtml: reviewedDraft.body_html,
           seoTitle: reviewedDraft.seo_title,
           seoDescription: reviewedDraft.seo_description,
+          metafields: reviewedDraft.metafields,
         });
         current = updateBatchItem(
           p.id,
@@ -440,6 +441,7 @@ export function useProductEnrichment() {
         bodyHtml: reviewedDraft.body_html,
         seoTitle: reviewedDraft.seo_title,
         seoDescription: reviewedDraft.seo_description,
+        metafields: reviewedDraft.metafields,
       });
       current = updateBatchItem(
         product.id,
