@@ -213,6 +213,7 @@ function ModeAPanel() {
     generateAll,
     generateOne,
     publishAll,
+    publishMetafieldsOnly,
     publishOne,
     cancelBatch,
     resetBatch,
