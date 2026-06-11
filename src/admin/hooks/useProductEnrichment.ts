@@ -335,16 +335,18 @@ export function useProductEnrichment() {
       setBatchResults([...current]);
 
       try {
-        await publishReviewedDraft({
+        const res = await publishReviewedDraft({
           productId: p.id,
           bodyHtml: reviewedDraft.body_html,
           seoTitle: reviewedDraft.seo_title,
           seoDescription: reviewedDraft.seo_description,
           metafields: reviewedDraft.metafields,
+          debug: debugMetafields,
+          retries: metafieldsRetries,
         });
         current = updateBatchItem(
           p.id,
-          { publishedAt: new Date().toISOString(), status: "done", error: null },
+          { publishedAt: new Date().toISOString(), status: "done", error: null, metafieldsReport: res?.metafields },
           current,
         );
         successCount++;
