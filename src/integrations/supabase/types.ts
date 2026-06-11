@@ -92,6 +92,89 @@ export type Database = {
         }
         Relationships: []
       }
+      product_enrichment_run_items: {
+        Row: {
+          error_message: string | null
+          handle: string | null
+          id: string
+          metafields_report: Json | null
+          run_id: string
+          sku: string
+          status: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          error_message?: string | null
+          handle?: string | null
+          id?: string
+          metafields_report?: Json | null
+          run_id: string
+          sku: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          error_message?: string | null
+          handle?: string | null
+          id?: string
+          metafields_report?: Json | null
+          run_id?: string
+          sku?: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_enrichment_run_items_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "product_enrichment_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_enrichment_runs: {
+        Row: {
+          created_at: string
+          done: number
+          failed: number
+          id: string
+          initiated_by: string
+          mode: string
+          notes: Json
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          done?: number
+          failed?: number
+          id?: string
+          initiated_by: string
+          mode?: string
+          notes?: Json
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          done?: number
+          failed?: number
+          id?: string
+          initiated_by?: string
+          mode?: string
+          notes?: Json
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_sync_csv_products: {
         Row: {
           ai_enriched_at: string | null

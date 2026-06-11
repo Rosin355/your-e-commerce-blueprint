@@ -229,4 +229,86 @@ export async function downloadShopifyNativeCsv(opts?: {
   };
 }
 
+// ── Enrichment Run persistence ──────────────────────────────────────────────
+
+export interface EnrichmentRunRow {
+  id: string;
+  initiated_by: string;
+  status: "running" | "paused" | "completed" | "aborted";
+  mode: string;
+  total: number;
+  done: number;
+  failed: number;
+  notes: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+export interface EnrichmentRunItemRow {
+  id: string;
+  run_id: string;
+  sku: string;
+  handle: string | null;
+  title: string | null;
+  status: "pending" | "done" | "error";
+  error_message: string | null;
+  metafields_report: MetafieldsReport | null;
+  updated_at: string;
+}
+
+async function callRun<T>(action: string, data: Record<string, unknown> = {}) {
+  const { data: response, error } = await supabase.functions.invoke("enrichment-run", {
+    body: { action, data },
+  });
+  if (error) throw new Error(error.message || "Errore enrichment-run");
+  return response as T;
+}
+
+export async function startEnrichmentRun(params: {
+  items: Array<{ sku: string; handle?: string; title?: string }>;
+  mode: "generate" | "generate_and_publish";
+  notes?: Record<string, unknown>;
+}) {
+  return callRun<{ runId: string; total: number }>("start", params);
+}
+
+export async function updateEnrichmentItem(params: {
+  runId: string;
+  sku: string;
+  status: "pending" | "done" | "error";
+  error?: string | null;
+  metafieldsReport?: MetafieldsReport | null;
+}) {
+  return callRun<{ ok: boolean; done: number; failed: number }>("update_item", params);
+}
+
+export async function finishEnrichmentRun(params: {
+  runId: string;
+  status: "completed" | "aborted" | "paused";
+}) {
+  return callRun<{ ok: boolean }>("finish", params);
+}
+
+export async function getOpenEnrichmentRun() {
+  return callRun<{ run: EnrichmentRunRow | null; items: EnrichmentRunItemRow[] }>(
+    "get_open_run",
+    {},
+  );
+}
+
+export interface CatalogStatusTotals {
+  total: number;
+  withImage: number;
+  withPriceAndImage: number;
+  aiEnriched: number;
+  seoComplete: number;
+  metafieldsComplete: number;
+}
+export async function getEnrichmentCatalogStatus() {
+  return callRun<{ totals: CatalogStatusTotals; minMetafieldsFilled: number }>(
+    "get_catalog_status",
+    {},
+  );
+}
+
+
 

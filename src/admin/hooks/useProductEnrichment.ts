@@ -12,7 +12,19 @@ import {
   generateEnrichedDraft,
   rebuildDraftFromDbRow,
 } from "../lib/productEnrichmentEngine";
-import { getEnrichedDraftsBySkus, getShopifyProduct, publishReviewedDraft, saveEnrichedDraftToDb, type MetafieldsReport } from "../lib/aiWriterEngine";
+import {
+  finishEnrichmentRun,
+  getEnrichedDraftsBySkus,
+  getOpenEnrichmentRun,
+  getShopifyProduct,
+  publishReviewedDraft,
+  saveEnrichedDraftToDb,
+  startEnrichmentRun,
+  updateEnrichmentItem,
+  type EnrichmentRunItemRow,
+  type EnrichmentRunRow,
+  type MetafieldsReport,
+} from "../lib/aiWriterEngine";
 
 // ── Batch result record ─────────────────────────────────────────────────────
 
@@ -59,6 +71,36 @@ export function useProductEnrichment() {
   const [debugMetafields, setDebugMetafields] = useState(false);
   const [metafieldsRetries, setMetafieldsRetries] = useState<number>(3);
   const cancelRef = useRef(false);
+  const activeRunIdRef = useRef<string | null>(null);
+
+  // ── Persisted run (survives refresh) ──────────────────────────────────
+  const [openRun, setOpenRun] = useState<EnrichmentRunRow | null>(null);
+  const [openRunItems, setOpenRunItems] = useState<EnrichmentRunItemRow[]>([]);
+  const [loadingOpenRun, setLoadingOpenRun] = useState(false);
+
+  async function refreshOpenRun() {
+    setLoadingOpenRun(true);
+    try {
+      const { run, items } = await getOpenEnrichmentRun();
+      setOpenRun(run);
+      setOpenRunItems(items);
+    } catch (e) {
+      console.error("[enrichment] refreshOpenRun failed:", e);
+    } finally {
+      setLoadingOpenRun(false);
+    }
+  }
+
+  async function closeOpenRun() {
+    if (!openRun) return;
+    try {
+      await finishEnrichmentRun({ runId: openRun.id, status: "aborted" });
+    } catch (e) {
+      console.error("[enrichment] closeOpenRun failed:", e);
+    }
+    setOpenRun(null);
+    setOpenRunItems([]);
+  }
 
   function cancelBatch() {
     cancelRef.current = true;
@@ -71,6 +113,19 @@ export function useProductEnrichment() {
     currentBatch: BatchProductResult[],
   ): BatchProductResult[] {
     return currentBatch.map((r) => (r.productId === productId ? { ...r, ...patch } : r));
+  }
+
+  /** Fire-and-forget persist of an item update; never blocks the UI loop. */
+  function persistItem(sku: string | undefined, patch: {
+    status: "pending" | "done" | "error";
+    error?: string | null;
+    metafieldsReport?: MetafieldsReport | null;
+  }) {
+    const runId = activeRunIdRef.current;
+    if (!runId || !sku) return;
+    updateEnrichmentItem({ runId, sku, ...patch }).catch((e) =>
+      console.error("[enrichment] persistItem failed:", e),
+    );
   }
 
   // ── Mode A — single product ──────────────────────────────────────────
@@ -216,6 +271,20 @@ export function useProductEnrichment() {
     current = current.map((r) => ({ ...r, error: null }));
     setBatchResults(current);
 
+    // Persistent run — survives refresh
+    let runId: string | null = null;
+    try {
+      const startRes = await startEnrichmentRun({
+        mode: "generate",
+        items: products.map((p) => ({ sku: p.sku || `pid:${p.id}`, handle: p.handle, title: p.title })),
+        notes: { seedStyle, source: "batch", debug: debugMetafields, retries: metafieldsRetries },
+      });
+      runId = startRes.runId;
+      activeRunIdRef.current = runId;
+    } catch (e) {
+      console.error("[enrichment] startEnrichmentRun failed:", e);
+    }
+
     let successCount = 0;
     let processed = 0;
 
@@ -258,9 +327,11 @@ export function useProductEnrichment() {
           current,
         );
         successCount++;
+        persistItem(p.sku, { status: "done" });
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Errore generazione";
         current = updateBatchItem(p.id, { status: "error", error: msg }, current);
+        persistItem(p.sku, { status: "error", error: msg });
       }
 
       setBatchResults([...current]);
@@ -269,7 +340,20 @@ export function useProductEnrichment() {
     }
 
     setBatchProgress(null);
+    const wasCancelled = cancelRef.current;
     cancelRef.current = false;
+
+    // Finalize run
+    if (runId) {
+      const finalStatus = wasCancelled ? "paused" : "completed";
+      finishEnrichmentRun({ runId, status: finalStatus }).catch((e) =>
+        console.error("[enrichment] finishEnrichmentRun failed:", e),
+      );
+      activeRunIdRef.current = null;
+      // Refresh banner state
+      refreshOpenRun().catch(() => {});
+    }
+
     if (processed === products.length) {
       toast.success(`Generazione completata: ${successCount}/${products.length} riusciti`);
     }
@@ -305,6 +389,21 @@ export function useProductEnrichment() {
 
     current = current.map((r) => ({ ...r, error: null }));
     setBatchResults(current);
+
+    // Persistent run for publish phase
+    let runId: string | null = null;
+    try {
+      const startRes = await startEnrichmentRun({
+        mode: "generate_and_publish",
+        items: products.map((p) => ({ sku: p.sku || `pid:${p.id}`, handle: p.handle, title: p.title })),
+        notes: { phase: "publish", debug: debugMetafields, retries: metafieldsRetries },
+      });
+      runId = startRes.runId;
+      activeRunIdRef.current = runId;
+    } catch (e) {
+      console.error("[enrichment] startEnrichmentRun (publish) failed:", e);
+    }
+
     let successCount = 0;
     let skippedNoDraft = 0;
     let processed = 0;
@@ -327,6 +426,7 @@ export function useProductEnrichment() {
         setBatchResults([...current]);
         skippedNoDraft++;
         processed = i + 1;
+        persistItem(p.sku, { status: "error", error: "no draft" });
         continue;
       }
 
@@ -350,9 +450,11 @@ export function useProductEnrichment() {
           current,
         );
         successCount++;
+        persistItem(p.sku, { status: "done", metafieldsReport: res?.metafields ?? null });
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Errore pubblicazione";
         current = updateBatchItem(p.id, { status: "error", error: msg }, current);
+        persistItem(p.sku, { status: "error", error: msg });
       }
 
       setBatchResults([...current]);
@@ -361,7 +463,18 @@ export function useProductEnrichment() {
     }
 
     setBatchProgress(null);
+    const wasCancelled = cancelRef.current;
     cancelRef.current = false;
+
+    if (runId) {
+      finishEnrichmentRun({
+        runId,
+        status: wasCancelled ? "paused" : "completed",
+      }).catch((e) => console.error("[enrichment] finishEnrichmentRun failed:", e));
+      activeRunIdRef.current = null;
+      refreshOpenRun().catch(() => {});
+    }
+
     if (processed === products.length) {
       const mfFailed = current.filter((r) => r.metafieldsReport?.details.some((d) => d.status === "failed")).length;
       const suffix = skippedNoDraft > 0 ? ` (${skippedNoDraft} senza bozza, saltati)` : "";
@@ -513,5 +626,11 @@ export function useProductEnrichment() {
     setDebugMetafields,
     metafieldsRetries,
     setMetafieldsRetries,
+    // Persistent runs
+    openRun,
+    openRunItems,
+    loadingOpenRun,
+    refreshOpenRun,
+    closeOpenRun,
   };
 }
