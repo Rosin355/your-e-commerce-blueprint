@@ -71,6 +71,36 @@ export function useProductEnrichment() {
   const [debugMetafields, setDebugMetafields] = useState(false);
   const [metafieldsRetries, setMetafieldsRetries] = useState<number>(3);
   const cancelRef = useRef(false);
+  const activeRunIdRef = useRef<string | null>(null);
+
+  // ── Persisted run (survives refresh) ──────────────────────────────────
+  const [openRun, setOpenRun] = useState<EnrichmentRunRow | null>(null);
+  const [openRunItems, setOpenRunItems] = useState<EnrichmentRunItemRow[]>([]);
+  const [loadingOpenRun, setLoadingOpenRun] = useState(false);
+
+  async function refreshOpenRun() {
+    setLoadingOpenRun(true);
+    try {
+      const { run, items } = await getOpenEnrichmentRun();
+      setOpenRun(run);
+      setOpenRunItems(items);
+    } catch (e) {
+      console.error("[enrichment] refreshOpenRun failed:", e);
+    } finally {
+      setLoadingOpenRun(false);
+    }
+  }
+
+  async function closeOpenRun() {
+    if (!openRun) return;
+    try {
+      await finishEnrichmentRun({ runId: openRun.id, status: "aborted" });
+    } catch (e) {
+      console.error("[enrichment] closeOpenRun failed:", e);
+    }
+    setOpenRun(null);
+    setOpenRunItems([]);
+  }
 
   function cancelBatch() {
     cancelRef.current = true;
@@ -83,6 +113,19 @@ export function useProductEnrichment() {
     currentBatch: BatchProductResult[],
   ): BatchProductResult[] {
     return currentBatch.map((r) => (r.productId === productId ? { ...r, ...patch } : r));
+  }
+
+  /** Fire-and-forget persist of an item update; never blocks the UI loop. */
+  function persistItem(sku: string | undefined, patch: {
+    status: "pending" | "done" | "error";
+    error?: string | null;
+    metafieldsReport?: MetafieldsReport | null;
+  }) {
+    const runId = activeRunIdRef.current;
+    if (!runId || !sku) return;
+    updateEnrichmentItem({ runId, sku, ...patch }).catch((e) =>
+      console.error("[enrichment] persistItem failed:", e),
+    );
   }
 
   // ── Mode A — single product ──────────────────────────────────────────
