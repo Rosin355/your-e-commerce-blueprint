@@ -65,25 +65,49 @@ async function generateSeoForNewProduct(input: NewProductInput): Promise<Record<
   const styleKey = (input.seedStyle || "pratico").toLowerCase().replace(/\s+e\s+/g, " ").split(" ")[0];
   const styleNote = STYLE_MAP[styleKey] || STYLE_MAP["pratico"];
 
-  const aiResponse = await fetch(AI_GATEWAY, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [
-        { role: "system", content: `Sei un botanico e copywriter SEO italiano per e-commerce di piante.\n${styleNote}\nBrand voice: "Online Garden – più che semplici piante. Cura, affidabilità, consegna protetta."\nNON inventare dati non forniti. NON fare promesse mediche o miracolose.\nSe un dato manca, scrivi in modo generico e corretto.` },
-        { role: "user", content: `Dati nuovo prodotto da creare:\n- Nome: ${input.title}\n- Categoria: ${input.category || "N/D"}\n- Descrizione fornita: ${input.description || "N/D"}\n- Tags: ${JSON.stringify(input.tags || [])}\n- Vendor: Online Garden\n${input.imageDescription ? `- Descrizione immagine: ${input.imageDescription}` : ""}\n\nGenera i contenuti SEO completi per questo nuovo prodotto.` },
-      ],
-      tools: [SEO_TOOL],
-      tool_choice: { type: "function", function: { name: "generate_seo_content" } },
-    }),
+  const requestBody = JSON.stringify({
+    model: MODEL,
+    messages: [
+      { role: "system", content: `Sei un botanico e copywriter SEO italiano per e-commerce di piante.\n${styleNote}\nBrand voice: "Online Garden – più che semplici piante. Cura, affidabilità, consegna protetta."\nNON inventare dati non forniti. NON fare promesse mediche o miracolose.\nSe un dato manca, scrivi in modo generico e corretto.` },
+      { role: "user", content: `Dati nuovo prodotto da creare:\n- Nome: ${input.title}\n- Categoria: ${input.category || "N/D"}\n- Descrizione fornita: ${input.description || "N/D"}\n- Tags: ${JSON.stringify(input.tags || [])}\n- Vendor: Online Garden\n${input.imageDescription ? `- Descrizione immagine: ${input.imageDescription}` : ""}\n\nGenera i contenuti SEO completi per questo nuovo prodotto.` },
+    ],
+    tools: [SEO_TOOL],
+    tool_choice: { type: "function", function: { name: "generate_seo_content" } },
   });
 
-  if (!aiResponse.ok) {
-    const errText = await aiResponse.text();
-    if (aiResponse.status === 429) throw new Error("Rate limit raggiunto, riprova tra poco");
-    if (aiResponse.status === 402) throw new Error("Crediti AI esauriti");
-    throw new Error(`AI error ${aiResponse.status}: ${errText.slice(0, 300)}`);
+  // Retry with exponential backoff for transient upstream errors (502/503/504)
+  let aiResponse: Response | null = null;
+  let lastErrText = "";
+  const maxAttempts = 4;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    aiResponse = await fetch(AI_GATEWAY, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: requestBody,
+    });
+
+    if (aiResponse.ok) break;
+
+    lastErrText = await aiResponse.text();
+    const status = aiResponse.status;
+    const transient = status === 502 || status === 503 || status === 504 || status === 408 || status === 429;
+    console.warn(`AI gateway attempt ${attempt}/${maxAttempts} failed: ${status} ${lastErrText.slice(0, 200)}`);
+
+    if (!transient || attempt === maxAttempts) {
+      if (status === 429) throw new Error("Rate limit AI raggiunto, riprova tra 30 secondi");
+      if (status === 402) throw new Error("Crediti AI esauriti, ricarica il workspace");
+      if (status === 503 || status === 502 || status === 504) {
+        throw new Error("Servizio AI temporaneamente non disponibile. Riprova tra 1-2 minuti.");
+      }
+      throw new Error(`AI error ${status}: ${lastErrText.slice(0, 300)}`);
+    }
+
+    // Exponential backoff: 1s, 2s, 4s
+    await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt - 1)));
+  }
+
+  if (!aiResponse || !aiResponse.ok) {
+    throw new Error("Servizio AI temporaneamente non disponibile. Riprova tra 1-2 minuti.");
   }
 
   const aiJson = await aiResponse.json();
