@@ -581,6 +581,21 @@ function ModeAPanel() {
                           CSV
                         </Button>
                       )}
+                      {result.metafieldsReport && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 gap-1 px-2 text-[11px]"
+                          onClick={() =>
+                            setOpenReportFor(
+                              openReportFor === result.productId ? null : result.productId,
+                            )
+                          }
+                          title="Mostra dettaglio metafield"
+                        >
+                          MF {result.metafieldsReport.written}/{result.metafieldsReport.written + result.metafieldsReport.errors.length}
+                        </Button>
+                      )}
                     </div>
 
                     {/* Error tooltip */}
@@ -590,6 +605,13 @@ function ModeAPanel() {
                       </span>
                     )}
                   </div>
+
+                  {/* Expanded metafields report */}
+                  {openReportFor === result.productId && result.metafieldsReport && (
+                    <div className="border-t bg-muted/30 px-6 py-4">
+                      <MetafieldsReport report={result.metafieldsReport} />
+                    </div>
+                  )}
 
                   {/* Expanded draft preview */}
                   {expandedId === result.productId && result.draft && (
