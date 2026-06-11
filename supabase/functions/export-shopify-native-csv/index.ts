@@ -159,8 +159,7 @@ serve(async (req) => {
       "Variant Weight Unit",
       "Status",
     ];
-    const mfHeaders = METAFIELD_KEYS.map(metafieldHeader);
-    const csvHeaders = [...baseHeaders, ...mfHeaders];
+    const csvHeaders = baseHeaders;
     const COL = Object.fromEntries(csvHeaders.map((h, i) => [h, i])) as Record<string, number>;
     const WIDTH = csvHeaders.length;
 
