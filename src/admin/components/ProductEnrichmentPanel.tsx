@@ -484,12 +484,61 @@ function ModeAPanel() {
                     </div>
 
                     {/* Status */}
-                    <div className="shrink-0">
+                    <div className="shrink-0 flex items-center gap-1">
                       <StatusBadge result={result} />
+                      {result.restored && (
+                        <Badge variant="outline" className="h-5 px-1.5 text-[9px]" title="Bozza ripristinata dal DB">
+                          DB
+                        </Badge>
+                      )}
                     </div>
 
                     {/* Per-item actions */}
                     <div className="flex shrink-0 gap-1.5">
+                      {(() => {
+                        const product = products.find((p) => p.id === result.productId);
+                        const busy = result.status === "generating" || result.status === "publishing";
+                        return (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 gap-1 px-2 text-[11px]"
+                              disabled={!product || isRunning || busy}
+                              onClick={() => product && generateOne(product, seedStyle)}
+                              title={result.draft ? "Rigenera bozza AI" : "Genera bozza AI"}
+                            >
+                              {result.status === "generating" ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Sparkles className="h-3 w-3" />
+                              )}
+                              {result.draft ? "Rigenera" : "Genera"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 gap-1 px-2 text-[11px]"
+                              disabled={!product || isRunning || busy || isDbSource || !result.draft}
+                              onClick={() => product && publishOne(product)}
+                              title={
+                                isDbSource
+                                  ? "Disponibile solo con sorgente Shopify Admin"
+                                  : !result.draft
+                                    ? "Genera prima una bozza"
+                                    : "Pubblica su Shopify"
+                              }
+                            >
+                              {result.status === "publishing" ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <UploadCloud className="h-3 w-3" />
+                              )}
+                              Pubblica
+                            </Button>
+                          </>
+                        );
+                      })()}
                       {result.draft && (
                         <Button
                           size="sm"
