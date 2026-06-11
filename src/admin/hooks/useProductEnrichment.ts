@@ -56,6 +56,8 @@ export function useProductEnrichment() {
   // ── Batch state (Mode A batch) ────────────────────────────────────────
   const [batchResults, setBatchResults] = useState<BatchProductResult[]>([]);
   const [batchProgress, setBatchProgress] = useState<BatchProgress | null>(null);
+  const [debugMetafields, setDebugMetafields] = useState(false);
+  const [metafieldsRetries, setMetafieldsRetries] = useState<number>(3);
   const cancelRef = useRef(false);
 
   function cancelBatch() {
