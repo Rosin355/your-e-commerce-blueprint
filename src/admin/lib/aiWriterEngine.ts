@@ -48,6 +48,8 @@ export interface EnrichedDraftDbRow {
 export async function getEnrichedDraftsBySkus(skus: string[]) {
   if (!skus.length) return { drafts: [] as EnrichedDraftDbRow[] };
   return callProxy<{ drafts: EnrichedDraftDbRow[] }>("get_enriched_drafts", { skus });
+}
+
 
 export async function listShopifyProducts(params: {
   status?: string;
