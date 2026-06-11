@@ -626,5 +626,11 @@ export function useProductEnrichment() {
     setDebugMetafields,
     metafieldsRetries,
     setMetafieldsRetries,
+    // Persistent runs
+    openRun,
+    openRunItems,
+    loadingOpenRun,
+    refreshOpenRun,
+    closeOpenRun,
   };
 }
