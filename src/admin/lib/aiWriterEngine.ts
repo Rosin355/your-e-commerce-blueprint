@@ -157,8 +157,10 @@ export async function publishReviewedDraft(params: {
   seoTitle?: string;
   seoDescription?: string;
   metafields?: Record<string, string>;
+  debug?: boolean;
+  retries?: number;
 }) {
-  return callProxy<{ success: boolean; id: number; metafields?: { written: number; skipped: number; errors: string[] } }>(
+  return callProxy<{ success: boolean; id: number; metafields?: MetafieldsReport }>(
     "update_product",
     {
       id: params.productId,
@@ -166,6 +168,8 @@ export async function publishReviewedDraft(params: {
       metafields_global_title_tag: params.seoTitle ?? "",
       metafields_global_description_tag: params.seoDescription ?? "",
       metafields: params.metafields ?? {},
+      debug: !!params.debug,
+      ...(typeof params.retries === "number" ? { retries: params.retries } : {}),
     },
   );
 }
