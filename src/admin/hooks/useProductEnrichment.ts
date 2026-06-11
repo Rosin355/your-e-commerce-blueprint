@@ -504,5 +504,9 @@ export function useProductEnrichment() {
     cancelBatch,
     resetBatch,
     reset,
+    debugMetafields,
+    setDebugMetafields,
+    metafieldsRetries,
+    setMetafieldsRetries,
   };
 }
