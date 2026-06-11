@@ -2,6 +2,11 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 import { assertAdminRequest } from "../_shared/admin-auth.ts";
 import { corsHeaders, shopifyAdminFetch, shopifyAdminGraphQL, jsonResponse } from "../_shared/shopify-admin-client.ts";
+import {
+  isHeadlessStorefrontConfigured,
+  storefrontListProducts,
+  storefrontGetProductByHandle,
+} from "../_shared/shopify-storefront-server.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const OPENAI_VISION_MODEL = Deno.env.get("OPENAI_VISION_MODEL") || "gpt-4o-mini";
