@@ -486,6 +486,119 @@ export function useProductEnrichment() {
     }
   }
 
+  /**
+   * Pushes ONLY the 16 custom.* metafields to Shopify for products that already
+   * exist (e.g. imported via base CSV). Skips body HTML / SEO update. Uses the
+   * same persistent run tracking as publishAll.
+   */
+  async function publishMetafieldsOnly(products: ShopifyAdminProduct[]) {
+    cancelRef.current = false;
+    let current: BatchProductResult[] = batchResults.length
+      ? [...batchResults]
+      : products.map((p) => ({
+          productId: p.id,
+          sku: p.sku,
+          handle: p.handle,
+          title: p.title,
+          completeness: evaluateProductCompleteness(p),
+          draft: null,
+          publishedAt: null,
+          savedAt: null,
+          status: "pending" as BatchItemStatus,
+          error: null,
+        }));
+
+    current = current.map((r) => ({ ...r, error: null }));
+    setBatchResults(current);
+
+    let runId: string | null = null;
+    try {
+      const startRes = await startEnrichmentRun({
+        mode: "generate_and_publish",
+        items: products.map((p) => ({ sku: p.sku || `pid:${p.id}`, handle: p.handle, title: p.title })),
+        notes: { phase: "publish_metafields_only", debug: debugMetafields, retries: metafieldsRetries },
+      });
+      runId = startRes.runId;
+      activeRunIdRef.current = runId;
+    } catch (e) {
+      console.error("[enrichment] startEnrichmentRun (metafields_only) failed:", e);
+    }
+
+    let successCount = 0;
+    let skippedNoDraft = 0;
+    let processed = 0;
+
+    for (let i = 0; i < products.length; i++) {
+      if (cancelRef.current) {
+        toast.warning(`Pubblicazione interrotta — ${successCount}/${products.length} aggiornati`);
+        break;
+      }
+      const p = products[i];
+      const reviewedDraft = current.find((r) => r.productId === p.id)?.draft ?? null;
+      if (!reviewedDraft || !reviewedDraft.metafields) {
+        current = updateBatchItem(
+          p.id,
+          { error: "Genera prima i metafield AI" },
+          current,
+        );
+        setBatchResults([...current]);
+        skippedNoDraft++;
+        processed = i + 1;
+        persistItem(p.sku, { status: "error", error: "no metafields" });
+        continue;
+      }
+
+      setBatchProgress({ current: i + 1, total: products.length, phase: "publish", currentTitle: p.title });
+      current = updateBatchItem(p.id, { status: "publishing" }, current);
+      setBatchResults([...current]);
+
+      try {
+        const res = await publishReviewedDraft({
+          productId: p.id,
+          bodyHtml: "", // ignored when metafieldsOnly
+          metafields: reviewedDraft.metafields,
+          debug: debugMetafields,
+          retries: metafieldsRetries,
+          metafieldsOnly: true,
+        });
+        current = updateBatchItem(
+          p.id,
+          { publishedAt: new Date().toISOString(), status: "done", error: null, metafieldsReport: res?.metafields },
+          current,
+        );
+        successCount++;
+        persistItem(p.sku, { status: "done", metafieldsReport: res?.metafields ?? null });
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Errore pubblicazione";
+        current = updateBatchItem(p.id, { status: "error", error: msg }, current);
+        persistItem(p.sku, { status: "error", error: msg });
+      }
+
+      setBatchResults([...current]);
+      processed = i + 1;
+      if (i < products.length - 1 && !cancelRef.current) await delay(500);
+    }
+
+    setBatchProgress(null);
+    const wasCancelled = cancelRef.current;
+    cancelRef.current = false;
+
+    if (runId) {
+      finishEnrichmentRun({
+        runId,
+        status: wasCancelled ? "paused" : "completed",
+      }).catch((e) => console.error("[enrichment] finishEnrichmentRun failed:", e));
+      activeRunIdRef.current = null;
+      refreshOpenRun().catch(() => {});
+    }
+
+    if (processed === products.length) {
+      const suffix = skippedNoDraft > 0 ? ` (${skippedNoDraft} senza metafield, saltati)` : "";
+      toast.success(`Metafield aggiornati: ${successCount}/${products.length}${suffix}`);
+    }
+  }
+
+
   /** Generates an enriched draft for a single product and persists it to DB. */
   async function generateOne(product: ShopifyAdminProduct, seedStyle: string) {
     let current = batchResults.length
