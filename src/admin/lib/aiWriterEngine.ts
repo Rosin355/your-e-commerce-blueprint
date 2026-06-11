@@ -184,3 +184,49 @@ export async function publishReviewedDraft(params: {
   );
 }
 
+/**
+ * Downloads a Shopify-native importable CSV including variants, multi-images
+ * and the 16 custom.* metafields. Works as a stable fallback when direct
+ * Shopify API publish is not desirable.
+ */
+export async function downloadShopifyNativeCsv(opts?: {
+  onlyComplete?: boolean;
+  status?: "draft" | "active";
+}) {
+  const onlyComplete = opts?.onlyComplete !== false;
+  const status = opts?.status === "active" ? "active" : "draft";
+  const projectId = (import.meta as any).env?.VITE_SUPABASE_PROJECT_ID as string | undefined;
+  if (!projectId) throw new Error("VITE_SUPABASE_PROJECT_ID non configurato");
+  const url = `https://${projectId}.supabase.co/functions/v1/export-shopify-native-csv?only_complete=${onlyComplete ? 1 : 0}&status=${status}`;
+  const anonKey = (import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+  const res = await fetch(url, {
+    method: "GET",
+    headers: anonKey
+      ? { Authorization: `Bearer ${anonKey}`, apikey: anonKey }
+      : {},
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Export CSV fallito (${res.status}): ${text.slice(0, 200)}`);
+  }
+  const totalProducts = res.headers.get("X-Total-Products");
+  const totalVariants = res.headers.get("X-Total-Variants");
+  const blob = await res.blob();
+  const today = new Date().toISOString().slice(0, 10);
+  const filename = `shopify-products-native-${today}.csv`;
+  const dlUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = dlUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(dlUrl);
+  return {
+    filename,
+    totalProducts: totalProducts ? Number(totalProducts) : null,
+    totalVariants: totalVariants ? Number(totalVariants) : null,
+  };
+}
+
+
