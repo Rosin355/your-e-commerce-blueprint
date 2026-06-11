@@ -97,30 +97,39 @@ async function requestClientCredentialsToken(shop: string): Promise<string | nul
  * Async because the client_credentials flow may need a network call.
  */
 export async function resolveAdminAccessToken(): Promise<string> {
+  const debug = (_src: string, _tok: string) => {}; // no-op (was diagnostic)
   // 1. Long-lived Custom App token
   const customAppToken = Deno.env.get("SHOPIFY_ADMIN_API_TOKEN");
-  if (customAppToken) return customAppToken;
+  if (customAppToken) { debug("SHOPIFY_ADMIN_API_TOKEN", customAppToken); return customAppToken; }
 
   // 2. client_credentials auto-refresh
   const shop = getShopDomain();
   const ccToken = await requestClientCredentialsToken(shop);
-  if (ccToken) return ccToken;
+  if (ccToken) { debug("client_credentials", ccToken); return ccToken; }
 
-  // 3. Native Lovable connector online token. These are per-user/online tokens and may
-  // not work inside project Edge Functions for Admin REST writes; use only if they look
-  // like a real Shopify token, otherwise skip to a clear configuration error.
+  // 3. Native Lovable connector online token. The secret value may be either a
+  // raw shpat_/shpca_ token OR a JSON blob like {"access_token":"...","scope":"...","expires_in":...}.
   for (const [key, value] of Object.entries(Deno.env.toObject())) {
-    if (key.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") && value && !isLikelyConnectorOnlineToken(value)) {
-      return value;
+    if (!key.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") || !value) continue;
+    let token = value.trim();
+    if (token.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(token);
+        token = parsed.access_token || parsed.accessToken || parsed.token || "";
+      } catch (e) {
+        console.warn(`[shopify-admin-client] ${key} is not valid JSON:`, e);
+        continue;
+      }
     }
+    if (token) { debug(key, token); return token; }
   }
 
-  // 4. Legacy fallback
+  // 4. Legacy fallback — only if it looks like a Shopify token (shpat_/shpca_/shpss_)
   const legacy =
     Deno.env.get("SHOPIFY_ACCESS_TOKEN") ||
     Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") ||
     "";
-  if (legacy && !isLikelyConnectorOnlineToken(legacy)) return legacy;
+  if (legacy && /^shp(at|ca|ss)_/.test(legacy)) { debug("SHOPIFY_ACCESS_TOKEN", legacy); return legacy; }
 
   throw new Error(SHOPIFY_AUTH_ERROR_HINT);
 }
