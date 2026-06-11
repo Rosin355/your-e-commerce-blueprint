@@ -27,6 +27,7 @@ export interface BatchProductResult {
   draft: EnrichedProductDraft | null;
   publishedAt: string | null;
   savedAt?: string | null;
+  restored?: boolean;
   status: BatchItemStatus;
   error: string | null;
 }
