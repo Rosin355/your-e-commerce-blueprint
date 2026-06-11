@@ -823,6 +823,75 @@ function ModeBPanel() {
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
+// ── Shopify native CSV download ──────────────────────────────────────────────
+
+function ShopifyNativeCsvButton() {
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<"draft" | "active">("draft");
+  const [onlyComplete, setOnlyComplete] = useState(true);
+  const [lastResult, setLastResult] = useState<{ products: number | null; variants: number | null } | null>(null);
+
+  async function handleDownload() {
+    setLoading(true);
+    try {
+      const r = await downloadShopifyNativeCsv({ onlyComplete, status });
+      setLastResult({ products: r.totalProducts, variants: r.totalVariants });
+      toast.success(
+        `CSV scaricato: ${r.totalProducts ?? "?"} prodotti, ${r.totalVariants ?? "?"} varianti.`,
+      );
+    } catch (err) {
+      toast.error(`Errore export: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          onClick={handleDownload}
+          disabled={loading}
+          variant="default"
+          className="gap-2 bg-emerald-700 text-white hover:bg-emerald-800"
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+          Scarica CSV Shopify (importabile)
+        </Button>
+        <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={onlyComplete}
+            onChange={(e) => setOnlyComplete(e.target.checked)}
+          />
+          Solo prodotti completi
+        </label>
+        <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
+          <span>Stato:</span>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value === "active" ? "active" : "draft")}
+            className="h-6 rounded border bg-background px-1.5 text-xs"
+          >
+            <option value="draft">draft</option>
+            <option value="active">active</option>
+          </select>
+        </label>
+      </div>
+      <p className="text-[10px] text-muted-foreground">
+        File pronto per <strong>Shopify Admin → Products → Import</strong>. Include varianti raggruppate per
+        Handle, immagini multiple, SEO e i 16 metafield <code>custom.*</code>. Backup stabile alternativo
+        alla pubblicazione via API.
+      </p>
+      {lastResult && (
+        <p className="text-[10px] text-emerald-700">
+          Ultimo export: {lastResult.products ?? "?"} prodotti · {lastResult.variants ?? "?"} righe variante.
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function ProductEnrichmentPanel() {
   return (
     <div className="space-y-4">
