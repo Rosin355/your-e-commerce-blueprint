@@ -12,7 +12,7 @@ import {
   generateEnrichedDraft,
   rebuildDraftFromDbRow,
 } from "../lib/productEnrichmentEngine";
-import { getEnrichedDraftsBySkus, getShopifyProduct, publishReviewedDraft, saveEnrichedDraftToDb } from "../lib/aiWriterEngine";
+import { getEnrichedDraftsBySkus, getShopifyProduct, publishReviewedDraft, saveEnrichedDraftToDb, type MetafieldsReport } from "../lib/aiWriterEngine";
 
 // ── Batch result record ─────────────────────────────────────────────────────
 
