@@ -10,8 +10,9 @@ import {
   evaluateCompletenessWithDraft,
   evaluateProductCompleteness,
   generateEnrichedDraft,
+  rebuildDraftFromDbRow,
 } from "../lib/productEnrichmentEngine";
-import { getShopifyProduct, publishReviewedDraft, saveEnrichedDraftToDb } from "../lib/aiWriterEngine";
+import { getEnrichedDraftsBySkus, getShopifyProduct, publishReviewedDraft, saveEnrichedDraftToDb } from "../lib/aiWriterEngine";
 
 // ── Batch result record ─────────────────────────────────────────────────────
 
