@@ -77,6 +77,9 @@ async function listProducts(data: any) {
     rawResponse = await fetch(url, { method: "GET", headers: fetchHeaders });
   }
   const res = await rawResponse.json();
+  if (!rawResponse.ok) {
+    throw new Error(`Shopify ${rawResponse.status}: ${JSON.stringify(res).slice(0, 500)}`);
+  }
 
   const linkHeader = rawResponse.headers.get("Link") || "";
   const nextMatch = linkHeader.match(/<[^>]*[?&]page_info=([^>&]+)[^>]*>;\s*rel="next"/);
