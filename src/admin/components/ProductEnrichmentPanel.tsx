@@ -26,7 +26,13 @@ import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { useAuth } from "@/hooks/useAuth";
 import { listShopifyProducts } from "../lib/aiWriterEngine";
 import { loadDbCatalogProducts } from "../lib/dbCatalogSource";
-import { downloadBatchCsvSnippet, downloadCsvSnippet } from "../lib/productEnrichmentEngine";
+import {
+  downloadBatchCsvSnippet,
+  downloadCsvSnippet,
+  downloadMergedShopifyCsv,
+  mergeDraftsIntoShopifyCsv,
+  type MergeReport,
+} from "../lib/productEnrichmentEngine";
 import { useProductEnrichment, type BatchProductResult } from "../hooks/useProductEnrichment";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
 import type { EssentialProductInput } from "../types/productEnrichment";
@@ -355,10 +361,25 @@ function ModeAPanel() {
                   className="gap-2"
                 >
                   <Download className="h-4 w-4" />
-                  Scarica CSV catalogo
+                  Scarica CSV arricchimento
                 </Button>
               )}
+
+              {hasDrafts && (
+                <ShopifyMergeExport drafts={draftsForDownload} />
+              )}
             </div>
+
+            {hasDrafts && (
+              <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-900 flex gap-2">
+                <TriangleAlert className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                <span>
+                  Questo CSV contiene solo testi/metafields arricchiti. Non è un CSV Shopify completo da
+                  importare direttamente se i prodotti hanno varianti. Per import Shopify nativo, fai
+                  merge con un export completo Shopify usando il pulsante <strong>Export Shopify-compatible update CSV</strong>.
+                </span>
+              </div>
+            )}
 
             {/* Progress bar + stop */}
             {batchProgress && (
@@ -674,6 +695,80 @@ export default function ProductEnrichmentPanel() {
           <ModeBPanel />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+// ── Shopify merge export sub-component ───────────────────────────────────────
+
+import type { EnrichedProductDraft } from "../types/productEnrichment";
+
+function ShopifyMergeExport({ drafts }: { drafts: EnrichedProductDraft[] }) {
+  const [report, setReport] = useState<MergeReport | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [fileName, setFileName] = useState<string>("");
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setLoading(true);
+    setFileName(file.name);
+    try {
+      const text = await file.text();
+      const r = mergeDraftsIntoShopifyCsv(text, drafts);
+      setReport(r);
+      if (r.matchedHandles === 0) {
+        toast.warning("Nessun handle del CSV corrisponde alle bozze generate.");
+      } else {
+        toast.success(`Merge completato: ${r.matchedHandles}/${drafts.length} prodotti aggiornati.`);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(`Errore merge CSV: ${msg}`);
+      setReport(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <label>
+        <input
+          type="file"
+          accept=".csv,text/csv"
+          className="hidden"
+          onChange={handleFile}
+          disabled={loading}
+        />
+        <Button asChild variant="outline" className="gap-2" disabled={loading}>
+          <span>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
+            Export Shopify-compatible update CSV
+          </span>
+        </Button>
+      </label>
+      {fileName && (
+        <span className="text-[10px] text-muted-foreground">Sorgente: {fileName}</span>
+      )}
+      {report && (
+        <div className="mt-1 flex items-center gap-2">
+          <span className="text-[10px] text-muted-foreground">
+            {report.productRows} prodotti · {report.matchedHandles} match
+            {report.unmatchedDrafts.length > 0 && ` · ${report.unmatchedDrafts.length} non trovati`}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 gap-1 text-xs"
+            onClick={() => downloadMergedShopifyCsv(report)}
+          >
+            <Download className="h-3 w-3" />
+            Scarica CSV merged
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

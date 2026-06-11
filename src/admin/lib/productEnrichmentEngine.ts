@@ -298,3 +298,127 @@ function triggerDownload(content: string, filename: string): void {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+// ── Shopify CSV merge ───────────────────────────────────────────────────────
+
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { cell += '"'; i++; } else { inQuotes = false; }
+      } else { cell += ch; }
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ",") { row.push(cell); cell = ""; }
+      else if (ch === "\n") { row.push(cell); rows.push(row); row = []; cell = ""; }
+      else if (ch === "\r") { /* skip */ }
+      else cell += ch;
+    }
+  }
+  if (cell.length > 0 || row.length > 0) { row.push(cell); rows.push(row); }
+  return rows.filter((r) => r.some((c) => c.length > 0));
+}
+
+export interface MergeReport {
+  totalRows: number;
+  productRows: number;
+  matchedHandles: number;
+  unmatchedDrafts: string[];
+  csv: string;
+}
+
+/**
+ * Merges enrichment drafts into a full Shopify product export CSV.
+ * Preserves all original columns/rows (variants, images, options) and only
+ * overwrites enrichment-related columns on the FIRST row of each Handle group.
+ * Adds metafield columns if missing from the source export.
+ */
+export function mergeDraftsIntoShopifyCsv(
+  shopifyCsvText: string,
+  drafts: EnrichedProductDraft[],
+): MergeReport {
+  const rows = parseCsv(shopifyCsvText);
+  if (rows.length === 0) throw new Error("CSV Shopify vuoto o non valido");
+
+  const headers = rows[0].slice();
+  const dataRows = rows.slice(1);
+
+  const handleIdx = headers.findIndex((h) => h.trim().toLowerCase() === "handle");
+  if (handleIdx === -1) throw new Error('Il CSV Shopify deve contenere una colonna "Handle"');
+
+  const ensureCol = (name: string): number => {
+    let idx = headers.findIndex((h) => h.trim().toLowerCase() === name.toLowerCase());
+    if (idx === -1) { headers.push(name); idx = headers.length - 1; }
+    return idx;
+  };
+
+  const bodyIdx = ensureCol("Body (HTML)");
+  const seoTitleIdx = ensureCol("SEO Title");
+  const seoDescIdx = ensureCol("SEO Description");
+  const titleIdx = headers.findIndex((h) => h.trim().toLowerCase() === "title");
+  const metafieldIdx: Record<string, number> = {};
+  for (const key of ALL_METAFIELD_KEYS) {
+    metafieldIdx[key] = ensureCol(`product.metafields.custom.${key}`);
+  }
+
+  const colCount = headers.length;
+  const normRows = dataRows.map((r) => {
+    const out = r.slice();
+    while (out.length < colCount) out.push("");
+    return out;
+  });
+
+  const draftMap = new Map<string, EnrichedProductDraft>();
+  for (const d of drafts) {
+    if (d.input_handle) draftMap.set(d.input_handle.trim().toLowerCase(), d);
+  }
+
+  const matchedHandles = new Set<string>();
+  const seenHandles = new Set<string>();
+
+  for (const r of normRows) {
+    const handle = (r[handleIdx] || "").trim().toLowerCase();
+    if (!handle) continue;
+    const isFirstRow = !seenHandles.has(handle);
+    seenHandles.add(handle);
+    if (!isFirstRow) continue;
+
+    const draft = draftMap.get(handle);
+    if (!draft) continue;
+    matchedHandles.add(handle);
+
+    if (draft.body_html) r[bodyIdx] = draft.body_html;
+    if (draft.seo_title) r[seoTitleIdx] = draft.seo_title;
+    if (draft.seo_description) r[seoDescIdx] = draft.seo_description;
+    if (titleIdx !== -1 && draft.input_title && !r[titleIdx]) r[titleIdx] = draft.input_title;
+    for (const key of ALL_METAFIELD_KEYS) {
+      const v = draft.metafields[key];
+      if (v) r[metafieldIdx[key]] = v;
+    }
+  }
+
+  const unmatched: string[] = [];
+  for (const h of draftMap.keys()) if (!matchedHandles.has(h)) unmatched.push(h);
+
+  const csv = [headers, ...normRows]
+    .map((r) => r.map((c) => escapeCsvCell(c ?? "")).join(","))
+    .join("\n");
+
+  return {
+    totalRows: normRows.length,
+    productRows: seenHandles.size,
+    matchedHandles: matchedHandles.size,
+    unmatchedDrafts: unmatched,
+    csv,
+  };
+}
+
+export function downloadMergedShopifyCsv(report: MergeReport): void {
+  const ts = new Date().toISOString().slice(0, 10);
+  triggerDownload(report.csv, `shopify-merged-enrichment-${ts}.csv`);
+}
