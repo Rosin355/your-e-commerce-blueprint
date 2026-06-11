@@ -66,7 +66,7 @@ export default function MetafieldsConfigPanel() {
       setDiff(
         cfg.fields.map((f) => ({
           ...f,
-          status: !f.liveType ? "missing" : f.liveType === f.type ? "ok" : "type_mismatch",
+          status: !f.liveType ? "missing" as const : f.liveType === f.type ? "ok" as const : "type_mismatch" as const,
           liveType: f.liveType,
         })),
       );
