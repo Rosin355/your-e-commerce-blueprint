@@ -287,6 +287,39 @@ function ModeAPanel() {
 
   return (
     <div className="space-y-4">
+      {/* Stato catalogo — sopravvive al refresh */}
+      <EnrichmentCatalogStatus autoRefresh={isRunning} />
+
+      {/* Banner ripresa run aperto */}
+      {openRun && (
+        <ResumeRunBanner
+          run={openRun}
+          items={openRunItems}
+          loadedProductSkus={new Set(products.map((p) => p.sku).filter((s): s is string => !!s))}
+          closing={closingRun}
+          onClose={async () => {
+            setClosingRun(true);
+            await closeOpenRun();
+            setClosingRun(false);
+          }}
+          onResume={(pendingSkus) => {
+            if (products.length === 0) {
+              toast.info("Carica prima i prodotti dal Catalogo DB o da Shopify, poi torna qui.");
+              return;
+            }
+            const set = new Set(pendingSkus);
+            const filtered = products.filter((p) => p.sku && set.has(p.sku));
+            if (filtered.length === 0) {
+              toast.warning("Nessuno degli SKU pending è presente nella lista caricata.");
+              return;
+            }
+            setProducts(filtered);
+            analyzeAll(filtered);
+            toast.success(`${filtered.length} SKU pending pronti per la rigenerazione.`);
+          }}
+        />
+      )}
+
       {/* Step 1 — load */}
       <Card>
         <CardHeader className="pb-3">
@@ -294,6 +327,7 @@ function ModeAPanel() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap gap-2">
+
             <Select value={source} onValueChange={(v) => setSource(v as "db" | "shopify")}>
               <SelectTrigger className="w-44">
                 <SelectValue />
