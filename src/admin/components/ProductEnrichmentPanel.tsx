@@ -37,6 +37,8 @@ import type { ShopifyAdminProduct } from "../types/aiWriter";
 import type { EssentialProductInput } from "../types/productEnrichment";
 import { AI_GENERATED_KEYS, ALL_METAFIELD_KEYS, MANUAL_KEYS, METAFIELD_LABELS } from "../types/productEnrichment";
 import { MetafieldsReport } from "./MetafieldsReport";
+import EnrichmentCatalogStatus from "./EnrichmentCatalogStatus";
+import ResumeRunBanner from "./ResumeRunBanner";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
