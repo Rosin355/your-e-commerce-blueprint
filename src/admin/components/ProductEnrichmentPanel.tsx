@@ -418,12 +418,38 @@ function ModeAPanel() {
               </div>
             )}
 
+            {/* Debug + retries toolbar */}
+            <div className="flex flex-wrap items-center gap-3 rounded-md border border-dashed bg-muted/30 px-3 py-2 text-[11px]">
+              <label className="flex items-center gap-1.5">
+                <input
+                  type="checkbox"
+                  checked={debugMetafields}
+                  onChange={(e) => setDebugMetafields(e.target.checked)}
+                />
+                <span>Debug metafield (cattura request/response)</span>
+              </label>
+              <div className="flex items-center gap-1.5">
+                <span>Retry max:</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={10}
+                  value={metafieldsRetries}
+                  onChange={(e) => setMetafieldsRetries(Number(e.target.value) || 0)}
+                  className="h-6 w-14 rounded border bg-background px-1.5 text-xs"
+                />
+              </div>
+              <span className="ml-auto text-muted-foreground">
+                Configurazione namespace/key: vedi Settings → Metafields Shopify
+              </span>
+            </div>
+
             {/* Info about publish scope */}
             <p className="text-[10px] text-muted-foreground">
               <strong>Pubblica su Shopify</strong> invia a Shopify la bozza generata: aggiorna body HTML,
               SEO (titolo + meta description) e i <strong>{ALL_METAFIELD_KEYS.length} metafield personalizzati</strong>
-              {" "}(namespace <code>custom</code>) direttamente via API. I campi vuoti vengono saltati e non
-              sovrascrivono eventuali valori già presenti su Shopify. Il CSV resta disponibile per import bulk/backup.
+              {" "}(namespace <code>custom</code>) direttamente via API con retry automatico sugli errori
+              transitori (throttled/timeout/5xx). I campi vuoti vengono saltati. Il CSV resta disponibile per import bulk/backup.
             </p>
           </CardContent>
         </Card>
