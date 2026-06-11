@@ -361,6 +361,101 @@ export function useProductEnrichment() {
     }
   }
 
+  /** Generates an enriched draft for a single product and persists it to DB. */
+  async function generateOne(product: ShopifyAdminProduct, seedStyle: string) {
+    let current = batchResults.length
+      ? [...batchResults]
+      : [
+          {
+            productId: product.id,
+            sku: product.sku,
+            handle: product.handle,
+            title: product.title,
+            completeness: evaluateProductCompleteness(product),
+            draft: null,
+            publishedAt: null,
+            savedAt: null,
+            restored: false,
+            status: "pending" as BatchItemStatus,
+            error: null,
+          },
+        ];
+
+    current = updateBatchItem(product.id, { status: "generating", error: null }, current);
+    setBatchResults([...current]);
+
+    try {
+      const input: EssentialProductInput = {
+        handle: product.handle,
+        title: product.title,
+        product_category: "",
+        type: "",
+        tags: product.tags ?? "",
+        seed_style: seedStyle,
+      };
+      const d = await generateEnrichedDraft(input);
+      const newCompleteness = evaluateCompletenessWithDraft(product, d);
+
+      let savedAt: string | null = null;
+      if (product.sku) {
+        try {
+          await saveEnrichedDraftToDb({ sku: product.sku, draft: d, seedStyle });
+          savedAt = new Date().toISOString();
+        } catch (saveErr) {
+          console.error("[enrichment] save to DB failed for sku", product.sku, saveErr);
+        }
+      }
+
+      current = updateBatchItem(
+        product.id,
+        { draft: d, completeness: newCompleteness, savedAt, restored: false, status: "done", error: null },
+        current,
+      );
+      setBatchResults([...current]);
+      toast.success(`Bozza generata: ${product.title}`);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Errore generazione";
+      current = updateBatchItem(product.id, { status: "error", error: msg }, current);
+      setBatchResults([...current]);
+      toast.error(`Errore generazione: ${msg}`);
+    }
+  }
+
+  /** Publishes the already-generated draft for a single product to Shopify. */
+  async function publishOne(product: ShopifyAdminProduct) {
+    const item = batchResults.find((r) => r.productId === product.id);
+    const reviewedDraft = item?.draft;
+    if (!reviewedDraft) {
+      toast.error("Genera prima una bozza per questo prodotto");
+      return;
+    }
+
+    let current = [...batchResults];
+    current = updateBatchItem(product.id, { status: "publishing", error: null }, current);
+    setBatchResults([...current]);
+
+    try {
+      await publishReviewedDraft({
+        productId: product.id,
+        bodyHtml: reviewedDraft.body_html,
+        seoTitle: reviewedDraft.seo_title,
+        seoDescription: reviewedDraft.seo_description,
+      });
+      current = updateBatchItem(
+        product.id,
+        { publishedAt: new Date().toISOString(), status: "done", error: null },
+        current,
+      );
+      setBatchResults([...current]);
+      toast.success(`Pubblicato: ${product.title}`);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Errore pubblicazione";
+      current = updateBatchItem(product.id, { status: "error", error: msg }, current);
+      setBatchResults([...current]);
+      toast.error(`Errore pubblicazione: ${msg}`);
+    }
+  }
+
   function resetBatch() {
     setBatchResults([]);
     setBatchProgress(null);
