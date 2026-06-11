@@ -61,6 +61,22 @@ async function listProducts(data: any) {
   const query = (data?.query || "").toLowerCase().trim();
   const pageInfo = data?.pageInfo || "";
 
+  // Prefer Storefront (Headless private token) for active-only listings: faster, higher rate
+  // limit, no admin-token expiry. Falls back to Admin REST on error or when status != active.
+  if (status === "active" && isHeadlessStorefrontConfigured()) {
+    try {
+      return await storefrontListProducts({
+        limit,
+        status,
+        query,
+        tag: tagFilter,
+        cursor: pageInfo,
+      });
+    } catch (err) {
+      console.warn("[shopify-admin-proxy] Storefront listProducts failed, falling back to Admin:", err);
+    }
+  }
+
   const search = new URLSearchParams({
     limit: String(limit),
     fields: "id,title,handle,status,tags,updated_at",
@@ -70,7 +86,17 @@ async function listProducts(data: any) {
 
   // Direct fetch (not shopifyAdminFetch) so we can read the Link header for cursor-based pagination
   const shop = Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") || "ecom-blueprint-gen-6ud1s.myshopify.com";
-  const accessToken = Deno.env.get("SHOPIFY_ACCESS_TOKEN") || Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") || "";
+  const accessToken =
+    Deno.env.get("SHOPIFY_ADMIN_API_TOKEN") ||
+    (() => {
+      for (const [k, v] of Object.entries(Deno.env.toObject())) {
+        if (k.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") && v) return v;
+      }
+      return "";
+    })() ||
+    Deno.env.get("SHOPIFY_ACCESS_TOKEN") ||
+    Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") ||
+    "";
   const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-07";
   const fetchHeaders = { "Content-Type": "application/json", "X-Shopify-Access-Token": accessToken };
   const url = `https://${shop}/admin/api/${apiVersion}/products.json?${search.toString()}`;
