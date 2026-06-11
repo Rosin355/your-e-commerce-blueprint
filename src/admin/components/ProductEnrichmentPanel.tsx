@@ -92,6 +92,30 @@ function StatusBadge({ result }: { result: BatchProductResult }) {
   return <Badge variant="outline" className="text-muted-foreground">In attesa</Badge>;
 }
 
+function MetafieldsChip({
+  report,
+  open,
+  onClick,
+}: {
+  report: NonNullable<BatchProductResult["metafieldsReport"]>;
+  open: boolean;
+  onClick: () => void;
+}) {
+  const failed = report.details.filter((d) => d.status === "failed").length;
+  const totalAttempted = report.details.filter((d) => d.status !== "skipped").length;
+  const className = failed > 0
+    ? "h-7 border-destructive/50 bg-destructive/10 px-2 text-[11px] text-destructive hover:bg-destructive/15"
+    : report.written > 0
+      ? "h-7 border-green-300 bg-green-50 px-2 text-[11px] text-green-700 hover:bg-green-100"
+      : "h-7 px-2 text-[11px]";
+
+  return (
+    <Button size="sm" variant="outline" className={className} onClick={onClick} title="Mostra dettaglio metafield">
+      MF {report.written}/{totalAttempted}{failed > 0 ? ` · ${failed} errori` : open ? " · aperto" : ""}
+    </Button>
+  );
+}
+
 function DraftPreview({
   draft,
 }: {
