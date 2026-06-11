@@ -220,8 +220,19 @@ function ModeAPanel() {
     setDebugMetafields,
     metafieldsRetries,
     setMetafieldsRetries,
+    openRun,
+    openRunItems,
+    refreshOpenRun,
+    closeOpenRun,
   } = useProductEnrichment();
   const [openReportFor, setOpenReportFor] = useState<number | null>(null);
+  const [closingRun, setClosingRun] = useState(false);
+
+  // Carica eventuale run aperto al mount
+  useEffect(() => {
+    refreshOpenRun().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const isRunning = batchProgress !== null;
   const hasDrafts = batchResults.some((r) => r.draft);
