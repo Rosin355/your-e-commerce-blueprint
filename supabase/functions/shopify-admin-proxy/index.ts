@@ -346,6 +346,7 @@ async function searchProductBySkuOrHandle(data: any) {
 //
 // Maps each of the 16 enrichment keys to the appropriate Shopify metafield type.
 // Empty values are SKIPPED so we never overwrite a populated metafield with "".
+const METAFIELD_NAMESPACE = "custom";
 const METAFIELD_TYPES: Record<string, string> = {
   nome_botanico: "single_line_text_field",
   nome_comune: "single_line_text_field",
@@ -365,12 +366,13 @@ const METAFIELD_TYPES: Record<string, string> = {
   titolo_sezione_faq: "single_line_text_field",
 };
 
+const DEFAULT_MAX_RETRIES = Number(Deno.env.get("SHOPIFY_METAFIELDS_MAX_RETRIES") ?? "3");
+
 function normalizeMetafieldValue(key: string, raw: string): string | null {
   const trimmed = String(raw ?? "").trim();
   if (!trimmed) return null;
   const type = METAFIELD_TYPES[key];
   if (type === "list.single_line_text_field") {
-    // Already JSON-stringified array? validate; else wrap as single-item list.
     try {
       const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) return JSON.stringify(parsed.map((v) => String(v)));
@@ -380,45 +382,181 @@ function normalizeMetafieldValue(key: string, raw: string): string | null {
   return trimmed;
 }
 
+function isTransientMetafieldError(msg: string): boolean {
+  const m = msg.toLowerCase();
+  return (
+    m.includes("throttled") ||
+    m.includes("timeout") ||
+    m.includes("timed out") ||
+    m.includes("econn") ||
+    m.includes("network") ||
+    m.includes("rate") ||
+    m.includes("internal") ||
+    m.includes("503") ||
+    m.includes("502") ||
+    m.includes("500") ||
+    m.includes("429")
+  );
+}
+
+async function sleep(ms: number) { await new Promise((r) => setTimeout(r, ms)); }
+
+export interface MetafieldDetail {
+  key: string;
+  namespace: string;
+  status: "sent" | "skipped" | "failed";
+  error?: string;
+  attempts?: number;
+}
+
+export interface MetafieldDebugEntry {
+  chunkIndex: number;
+  attempt: number;
+  request: unknown;
+  response: unknown;
+  errorMessage?: string;
+}
+
 async function setProductCustomMetafields(
   productId: number,
   metafields: Record<string, string>,
-): Promise<{ written: number; skipped: number; errors: string[] }> {
+  options?: { maxRetries?: number; debug?: boolean },
+): Promise<{
+  written: number;
+  skipped: number;
+  errors: string[];
+  details: MetafieldDetail[];
+  debug?: MetafieldDebugEntry[];
+}> {
+  const maxRetries = Math.max(0, options?.maxRetries ?? DEFAULT_MAX_RETRIES);
+  const debugMode = !!options?.debug;
   const ownerId = `gid://shopify/Product/${productId}`;
+
   const entries: Array<{ key: string; type: string; value: string }> = [];
+  const details: MetafieldDetail[] = [];
   let skipped = 0;
+
   for (const key of Object.keys(METAFIELD_TYPES)) {
     const value = normalizeMetafieldValue(key, metafields[key] ?? "");
-    if (value === null) { skipped++; continue; }
+    if (value === null) {
+      skipped++;
+      details.push({ key, namespace: METAFIELD_NAMESPACE, status: "skipped" });
+      continue;
+    }
     entries.push({ key, type: METAFIELD_TYPES[key], value });
   }
 
   const errors: string[] = [];
+  const debug: MetafieldDebugEntry[] = [];
   let written = 0;
+
+  const mutation = `
+    mutation SetMetafields($metafields: [MetafieldsSetInput!]!) {
+      metafieldsSet(metafields: $metafields) {
+        metafields { id key namespace }
+        userErrors { field message code }
+      }
+    }`;
+
   // metafieldsSet accepts up to 25 metafields per call
   for (let i = 0; i < entries.length; i += 25) {
-    const chunk = entries.slice(i, i + 25).map((e) => ({
-      ownerId, namespace: "custom", key: e.key, type: e.type, value: e.value,
-    }));
-    const mutation = `
-      mutation SetMetafields($metafields: [MetafieldsSetInput!]!) {
-        metafieldsSet(metafields: $metafields) {
-          metafields { id key namespace }
-          userErrors { field message code }
+    const chunk = entries.slice(i, i + 25);
+    const variables = {
+      metafields: chunk.map((e) => ({
+        ownerId, namespace: METAFIELD_NAMESPACE, key: e.key, type: e.type, value: e.value,
+      })),
+    };
+
+    let attempt = 0;
+    let success = false;
+    let lastErr: string | undefined;
+    let lastRes: any;
+
+    while (attempt <= maxRetries && !success) {
+      attempt++;
+      try {
+        const res = await shopifyAdminGraphQL<any>(mutation, variables);
+        lastRes = res;
+        if (debugMode) debug.push({ chunkIndex: i / 25, attempt, request: variables, response: res });
+
+        const userErrors: Array<{ field?: string[]; message: string; code?: string }> = res?.metafieldsSet?.userErrors || [];
+        const writtenList: Array<{ key: string; namespace: string }> = res?.metafieldsSet?.metafields || [];
+        const writtenSet = new Set(writtenList.map((m) => `${m.namespace}.${m.key}`));
+
+        for (const e of chunk) {
+          const id = `${METAFIELD_NAMESPACE}.${e.key}`;
+          const ueForKey = userErrors.find((ue) => (ue.field || []).join(".").includes(e.key));
+          if (writtenSet.has(id) && !ueForKey) {
+            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "sent", attempts: attempt });
+            written++;
+          } else {
+            const errMsg = ueForKey?.message || "non scritto da metafieldsSet";
+            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "failed", error: errMsg, attempts: attempt });
+            errors.push(`${e.key}: ${errMsg}`);
+          }
         }
-      }`;
-    try {
-      const res = await shopifyAdminGraphQL<any>(mutation, { metafields: chunk });
-      const userErrors = res?.metafieldsSet?.userErrors || [];
-      if (userErrors.length) {
-        for (const ue of userErrors) errors.push(`${ue.field?.join(".") || "?"}: ${ue.message}`);
+        success = true;
+      } catch (err) {
+        lastErr = err instanceof Error ? err.message : String(err);
+        if (debugMode) debug.push({ chunkIndex: i / 25, attempt, request: variables, response: lastRes, errorMessage: lastErr });
+        if (attempt <= maxRetries && isTransientMetafieldError(lastErr)) {
+          const backoff = Math.min(8000, 500 * 2 ** (attempt - 1));
+          console.warn(`[metafieldsSet] transient error (attempt ${attempt}/${maxRetries + 1}), retry in ${backoff}ms: ${lastErr}`);
+          await sleep(backoff);
+        } else {
+          for (const e of chunk) {
+            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "failed", error: lastErr, attempts: attempt });
+            errors.push(`${e.key}: ${lastErr}`);
+          }
+          break;
+        }
       }
-      written += (res?.metafieldsSet?.metafields || []).length;
-    } catch (err) {
-      errors.push(err instanceof Error ? err.message : String(err));
     }
   }
-  return { written, skipped, errors };
+
+  return { written, skipped, errors, details, ...(debugMode ? { debug } : {}) };
+}
+
+function getMetafieldConfig() {
+  return {
+    namespace: METAFIELD_NAMESPACE,
+    maxRetries: DEFAULT_MAX_RETRIES,
+    fields: Object.entries(METAFIELD_TYPES).map(([key, type]) => ({
+      key,
+      namespace: METAFIELD_NAMESPACE,
+      type,
+      fullKey: `${METAFIELD_NAMESPACE}.${key}`,
+    })),
+  };
+}
+
+async function listShopifyMetafieldDefinitions() {
+  const query = `
+    query ProductMetafieldDefs {
+      metafieldDefinitions(first: 100, ownerType: PRODUCT) {
+        edges { node { id name namespace key type { name } description } }
+      }
+    }`;
+  const res = await shopifyAdminGraphQL<any>(query, {});
+  const defs = (res?.metafieldDefinitions?.edges || []).map((e: any) => ({
+    id: e.node.id,
+    name: e.node.name,
+    namespace: e.node.namespace,
+    key: e.node.key,
+    type: e.node.type?.name,
+    description: e.node.description,
+    fullKey: `${e.node.namespace}.${e.node.key}`,
+  }));
+
+  const expected = getMetafieldConfig().fields;
+  const byFull = new Map(defs.map((d: any) => [d.fullKey, d]));
+  const diff = expected.map((f) => {
+    const live = byFull.get(f.fullKey);
+    if (!live) return { ...f, status: "missing" as const };
+    if (live.type !== f.type) return { ...f, status: "type_mismatch" as const, liveType: live.type };
+    return { ...f, status: "ok" as const, liveType: live.type };
+  });
+  return { definitions: defs, diff };
 }
 
 
