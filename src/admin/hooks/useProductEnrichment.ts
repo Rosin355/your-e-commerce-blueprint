@@ -12,7 +12,7 @@ import {
   generateEnrichedDraft,
   rebuildDraftFromDbRow,
 } from "../lib/productEnrichmentEngine";
-import { getEnrichedDraftsBySkus, getShopifyProduct, publishReviewedDraft, saveEnrichedDraftToDb } from "../lib/aiWriterEngine";
+import { getEnrichedDraftsBySkus, getShopifyProduct, publishReviewedDraft, saveEnrichedDraftToDb, type MetafieldsReport } from "../lib/aiWriterEngine";
 
 // ── Batch result record ─────────────────────────────────────────────────────
 
@@ -30,6 +30,8 @@ export interface BatchProductResult {
   restored?: boolean;
   status: BatchItemStatus;
   error: string | null;
+  metafieldsReport?: MetafieldsReport;
+
 }
 
 export interface BatchProgress {
@@ -54,6 +56,8 @@ export function useProductEnrichment() {
   // ── Batch state (Mode A batch) ────────────────────────────────────────
   const [batchResults, setBatchResults] = useState<BatchProductResult[]>([]);
   const [batchProgress, setBatchProgress] = useState<BatchProgress | null>(null);
+  const [debugMetafields, setDebugMetafields] = useState(false);
+  const [metafieldsRetries, setMetafieldsRetries] = useState<number>(3);
   const cancelRef = useRef(false);
 
   function cancelBatch() {
@@ -331,16 +335,18 @@ export function useProductEnrichment() {
       setBatchResults([...current]);
 
       try {
-        await publishReviewedDraft({
+        const res = await publishReviewedDraft({
           productId: p.id,
           bodyHtml: reviewedDraft.body_html,
           seoTitle: reviewedDraft.seo_title,
           seoDescription: reviewedDraft.seo_description,
           metafields: reviewedDraft.metafields,
+          debug: debugMetafields,
+          retries: metafieldsRetries,
         });
         current = updateBatchItem(
           p.id,
-          { publishedAt: new Date().toISOString(), status: "done", error: null },
+          { publishedAt: new Date().toISOString(), status: "done", error: null, metafieldsReport: res?.metafields },
           current,
         );
         successCount++;
@@ -436,20 +442,27 @@ export function useProductEnrichment() {
     setBatchResults([...current]);
 
     try {
-      await publishReviewedDraft({
+      const res = await publishReviewedDraft({
         productId: product.id,
         bodyHtml: reviewedDraft.body_html,
         seoTitle: reviewedDraft.seo_title,
         seoDescription: reviewedDraft.seo_description,
         metafields: reviewedDraft.metafields,
+        debug: debugMetafields,
+        retries: metafieldsRetries,
       });
       current = updateBatchItem(
         product.id,
-        { publishedAt: new Date().toISOString(), status: "done", error: null },
+        { publishedAt: new Date().toISOString(), status: "done", error: null, metafieldsReport: res?.metafields },
         current,
       );
       setBatchResults([...current]);
-      toast.success(`Pubblicato: ${product.title}`);
+      const mf = res?.metafields;
+      if (mf && mf.errors.length) {
+        toast.warning(`Pubblicato: ${product.title} — ${mf.written} metafield ok, ${mf.errors.length} con errori`);
+      } else {
+        toast.success(`Pubblicato: ${product.title}${mf ? ` (${mf.written} metafield)` : ""}`);
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Errore pubblicazione";
       current = updateBatchItem(product.id, { status: "error", error: msg }, current);
@@ -491,5 +504,9 @@ export function useProductEnrichment() {
     cancelBatch,
     resetBatch,
     reset,
+    debugMetafields,
+    setDebugMetafields,
+    metafieldsRetries,
+    setMetafieldsRetries,
   };
 }

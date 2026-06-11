@@ -10,7 +10,9 @@ type ProxyAction =
   | "get_enriched_drafts"
   | "update_product"
   | "generate_product_copy_draft"
-  | "publish_product_copy";
+  | "publish_product_copy"
+  | "get_metafield_config"
+  | "list_shopify_metafield_definitions";
 
 async function callProxy<T>(action: ProxyAction, data: Record<string, unknown>) {
   const { data: response, error } = await supabase.functions.invoke("shopify-admin-proxy", {
@@ -20,6 +22,63 @@ async function callProxy<T>(action: ProxyAction, data: Record<string, unknown>) 
     throw new Error(error.message || "Errore chiamata proxy");
   }
   return response as T;
+}
+
+export interface MetafieldDetail {
+  key: string;
+  namespace: string;
+  status: "sent" | "skipped" | "failed";
+  error?: string;
+  attempts?: number;
+}
+export interface MetafieldDebugEntry {
+  chunkIndex: number;
+  attempt: number;
+  request: unknown;
+  response: unknown;
+  errorMessage?: string;
+}
+export interface MetafieldsReport {
+  written: number;
+  skipped: number;
+  errors: string[];
+  details: MetafieldDetail[];
+  debug?: MetafieldDebugEntry[];
+}
+export interface MetafieldConfigField {
+  key: string;
+  namespace: string;
+  type: string;
+  fullKey: string;
+}
+export interface MetafieldConfig {
+  namespace: string;
+  maxRetries: number;
+  fields: MetafieldConfigField[];
+}
+export interface MetafieldDefinitionLive {
+  id: string;
+  name: string;
+  namespace: string;
+  key: string;
+  type: string;
+  description?: string;
+  fullKey: string;
+}
+export interface MetafieldDefinitionDiff extends MetafieldConfigField {
+  status: "ok" | "missing" | "type_mismatch";
+  liveType?: string;
+}
+
+export async function getMetafieldConfig() {
+  return callProxy<MetafieldConfig>("get_metafield_config", {});
+}
+
+export async function listShopifyMetafieldDefinitions() {
+  return callProxy<{ definitions: MetafieldDefinitionLive[]; diff: MetafieldDefinitionDiff[] }>(
+    "list_shopify_metafield_definitions",
+    {},
+  );
 }
 
 export async function listDbProducts(params?: { limit?: number }) {
@@ -98,8 +157,10 @@ export async function publishReviewedDraft(params: {
   seoTitle?: string;
   seoDescription?: string;
   metafields?: Record<string, string>;
+  debug?: boolean;
+  retries?: number;
 }) {
-  return callProxy<{ success: boolean; id: number; metafields?: { written: number; skipped: number; errors: string[] } }>(
+  return callProxy<{ success: boolean; id: number; metafields?: MetafieldsReport }>(
     "update_product",
     {
       id: params.productId,
@@ -107,6 +168,8 @@ export async function publishReviewedDraft(params: {
       metafields_global_title_tag: params.seoTitle ?? "",
       metafields_global_description_tag: params.seoDescription ?? "",
       metafields: params.metafields ?? {},
+      debug: !!params.debug,
+      ...(typeof params.retries === "number" ? { retries: params.retries } : {}),
     },
   );
 }

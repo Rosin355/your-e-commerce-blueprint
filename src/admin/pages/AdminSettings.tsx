@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { CheckCircle2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SHOPIFY_STORE_PERMANENT_DOMAIN } from '@/lib/shopify';
+import MetafieldsConfigPanel from '../components/MetafieldsConfigPanel';
 
 export default function AdminSettings() {
   const adminUrl = `https://admin.shopify.com/store/${SHOPIFY_STORE_PERMANENT_DOMAIN.replace('.myshopify.com', '')}`;
@@ -34,6 +35,9 @@ export default function AdminSettings() {
           </Button>
         </CardContent>
       </Card>
+
+      <MetafieldsConfigPanel />
     </div>
   );
 }
+
