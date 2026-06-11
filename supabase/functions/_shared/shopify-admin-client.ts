@@ -31,6 +31,8 @@ interface CachedToken {
 }
 let cachedClientCredentialsToken: CachedToken | null = null;
 const REFRESH_MARGIN_MS = 5 * 60 * 1000; // refresh 5 min before expiry
+const SHOPIFY_AUTH_ERROR_HINT =
+  "Connessione Shopify Admin non valida: l'app collegata non risulta installata su questo store oppure il token salvato è scaduto. Ricollega Shopify da chat/Lovable prima di pubblicare.";
 
 function getShopDomain(): string {
   return (
@@ -38,6 +40,10 @@ function getShopDomain(): string {
     Deno.env.get("SHOPIFY_ADMIN_SHOP") ||
     "ecom-blueprint-gen-6ud1s.myshopify.com"
   );
+}
+
+function isLikelyConnectorOnlineToken(token: string): boolean {
+  return token.includes(":") || token.length < 32;
 }
 
 async function requestClientCredentialsToken(shop: string): Promise<string | null> {
@@ -100,9 +106,11 @@ export async function resolveAdminAccessToken(): Promise<string> {
   const ccToken = await requestClientCredentialsToken(shop);
   if (ccToken) return ccToken;
 
-  // 3. Native Lovable connector online token
+  // 3. Native Lovable connector online token. These are per-user/online tokens and may
+  // not work inside project Edge Functions for Admin REST writes; use only if they look
+  // like a real Shopify token, otherwise skip to a clear configuration error.
   for (const [key, value] of Object.entries(Deno.env.toObject())) {
-    if (key.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") && value) {
+    if (key.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") && value && !isLikelyConnectorOnlineToken(value)) {
       return value;
     }
   }
@@ -112,9 +120,9 @@ export async function resolveAdminAccessToken(): Promise<string> {
     Deno.env.get("SHOPIFY_ACCESS_TOKEN") ||
     Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") ||
     "";
-  if (legacy) return legacy;
+  if (legacy && !isLikelyConnectorOnlineToken(legacy)) return legacy;
 
-  throw new Error("Nessun token Shopify Admin disponibile (configurare SHOPIFY_CLIENT_ID/SECRET o SHOPIFY_ADMIN_API_TOKEN)");
+  throw new Error(SHOPIFY_AUTH_ERROR_HINT);
 }
 
 async function getConfig(): Promise<ShopifyAdminConfig> {
@@ -170,6 +178,7 @@ export async function shopifyAdminFetch(
 
   const data = await response.json();
   if (!response.ok) {
+    if (response.status === 401) throw new Error(SHOPIFY_AUTH_ERROR_HINT);
     throw new Error(JSON.stringify(data.errors || data));
   }
   return data;
