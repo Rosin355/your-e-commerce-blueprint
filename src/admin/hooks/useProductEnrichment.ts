@@ -12,7 +12,19 @@ import {
   generateEnrichedDraft,
   rebuildDraftFromDbRow,
 } from "../lib/productEnrichmentEngine";
-import { getEnrichedDraftsBySkus, getShopifyProduct, publishReviewedDraft, saveEnrichedDraftToDb, type MetafieldsReport } from "../lib/aiWriterEngine";
+import {
+  finishEnrichmentRun,
+  getEnrichedDraftsBySkus,
+  getOpenEnrichmentRun,
+  getShopifyProduct,
+  publishReviewedDraft,
+  saveEnrichedDraftToDb,
+  startEnrichmentRun,
+  updateEnrichmentItem,
+  type EnrichmentRunItemRow,
+  type EnrichmentRunRow,
+  type MetafieldsReport,
+} from "../lib/aiWriterEngine";
 
 // ── Batch result record ─────────────────────────────────────────────────────
 
