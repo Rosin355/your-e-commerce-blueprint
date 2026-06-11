@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 import { assertAdminRequest } from "../_shared/admin-auth.ts";
-import { corsHeaders, shopifyAdminFetch, shopifyAdminGraphQL, jsonResponse } from "../_shared/shopify-admin-client.ts";
+import { corsHeaders, shopifyAdminFetch, shopifyAdminGraphQL, jsonResponse, resolveAdminAccessToken } from "../_shared/shopify-admin-client.ts";
 import {
   isHeadlessStorefrontConfigured,
   storefrontListProducts,
