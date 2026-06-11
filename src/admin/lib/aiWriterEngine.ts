@@ -7,6 +7,7 @@ type ProxyAction =
   | "list_drafts"
   | "list_db_products"
   | "save_enriched_draft"
+  | "get_enriched_drafts"
   | "update_product"
   | "generate_product_copy_draft"
   | "publish_product_copy";
@@ -32,6 +33,23 @@ export async function saveEnrichedDraftToDb(params: {
 }) {
   return callProxy<{ success: boolean; sku: string }>("save_enriched_draft", params);
 }
+
+export interface EnrichedDraftDbRow {
+  sku: string;
+  handle: string | null;
+  ai_enrichment_json: Record<string, unknown> | null;
+  ai_enriched_at: string | null;
+  ai_seed_style: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  optimized_description: string | null;
+}
+
+export async function getEnrichedDraftsBySkus(skus: string[]) {
+  if (!skus.length) return { drafts: [] as EnrichedDraftDbRow[] };
+  return callProxy<{ drafts: EnrichedDraftDbRow[] }>("get_enriched_drafts", { skus });
+}
+
 
 export async function listShopifyProducts(params: {
   status?: string;

@@ -1,90 +1,53 @@
+# Persistenza arricchimento + azioni singole
 
-# Piano: Integrazione completa app Headless di Shopify
+## Obiettivi
+1. **Non perdere i dati al refresh**: le bozze già generate (e salvate nel DB) devono essere ricaricate automaticamente nel pannello quando si analizzano gli stessi prodotti.
+2. **Aggiornare uno alla volta**: oltre ai bottoni batch ("Genera AI tutti" / "Pubblica tutti"), aggiungere bottoni per-riga per generare/pubblicare un singolo prodotto.
 
-Obiettivo: risolvere il problema del token Admin scaduto, ridurre la dipendenza dall'Admin API per le letture e centralizzare la Customer Account API sotto l'app Headless ufficiale.
+## Cosa esiste già
+- Durante `generateAll`, ogni bozza viene **già salvata immediatamente nel DB** (`product_sync_csv_products.ai_enrichment_json` + `ai_enriched_at`) — vedi `useProductEnrichment.ts` riga ~204. Quindi i dati persistono lato server.
+- Manca solo la **rehydration**: dopo refresh, quando si ricaricano i prodotti, lo stato `batchResults` resta vuoto finché non si rifà tutto da zero.
 
----
+## Modifiche
 
-## Parte 1 — Rigenerare Admin API token (sblocca enrichment AI, sync, proxy)
+### 1. Edge Function — nuova action `get_enriched_drafts`
+File: `supabase/functions/shopify-admin-proxy/index.ts`
+- Aggiungere action `get_enriched_drafts` che riceve `{ skus: string[] }` e ritorna le righe di `product_sync_csv_products` filtrate per SKU con `ai_enrichment_json IS NOT NULL`.
+- Risposta: `{ drafts: Array<{ sku, handle, ai_enrichment_json, seo_title, seo_description, optimized_description, ai_enriched_at, seed_style }> }`.
+- Service role bypassa RLS, quindi nessuna policy nuova da scrivere.
 
-L'app Headless non genera Admin token, quindi serve una **Custom App** dedicata. Procedura che ti guiderò passo passo:
+### 2. Helper di rehydration
+File: `src/admin/lib/aiWriterEngine.ts`
+- Aggiungere `getEnrichedDraftsBySkus(skus: string[])` che chiama la nuova action.
 
-1. Shopify Admin → Settings → Apps and sales channels → **Develop apps** → Create an app → nome es. "Lovable Admin"
-2. Configure Admin API scopes: `read_products`, `write_products`, `read_customers`, `write_customers`, `read_orders`, `read_inventory`, `write_inventory`, `read_files`, `write_files`
-3. Install app → copia l'**Admin API access token** (`shpat_...`)
-4. Aggiorno il secret `SHOPIFY_ACCESS_TOKEN` tramite il tool secrets (form sicuro, tu incolli il valore)
-5. Test immediato del proxy con `list_products` per confermare che enrichment + sync tornino attivi
+File: `src/admin/lib/productEnrichmentEngine.ts`
+- Aggiungere `rebuildDraftFromDbRow(row)` che ricostruisce un `EnrichedProductDraft` dai campi salvati (legge `ai_enrichment_json` + colonne SEO).
 
-Nessuna modifica al codice in questa fase — solo rotazione del secret.
+### 3. Hook `useProductEnrichment`
+File: `src/admin/hooks/useProductEnrichment.ts`
+- In `analyzeAll`, dopo aver creato `initial`, chiamare in background `getEnrichedDraftsBySkus(skus)` e fondere le bozze trovate nei rispettivi `BatchProductResult` (status `done`, `savedAt` da `ai_enriched_at`, `completeness` ricalcolata con `evaluateCompletenessWithDraft`).
+- Mostrare toast tipo "X bozze pre-esistenti ripristinate dal DB".
+- Aggiungere `generateOne(product, seedStyle)`: stessa logica di una iterazione di `generateAll`, ma senza loop. Aggiorna lo stato del singolo `BatchProductResult` con `status: "generating" → "done"|"error"`.
+- Aggiungere `publishOne(product)`: stessa logica di una iterazione di `publishAll`, richiede `draft` già presente.
+- Esporli nel return del hook.
 
----
+### 4. UI — bottoni per-riga
+File: `src/admin/components/ProductEnrichmentPanel.tsx`
+- Nella riga `batchResults.map(...)` (intorno a riga 489 "Per-item actions") aggiungere:
+  - Bottone **Genera** (icona `Sparkles`) → `generateOne(product, seedStyle)`. Disabilitato se l'item è già in `generating`/`publishing` o se è in corso un batch globale.
+  - Bottone **Pubblica** (icona `UploadCloud`) → `publishOne(product)`. Disabilitato se non c'è `draft`, se sorgente è "db", o se l'item è già in corso.
+  - Il bottone "CSV" esistente resta.
+- Mostrare spinner sul singolo bottone quando lo status dell'item è `generating`/`publishing`.
+- I bottoni batch esistenti ("Genera AI tutti", "Pubblica tutti") restano invariati.
 
-## Parte 2 — Migrare letture su Storefront API privata dell'app Headless
+### 5. Indicatore "ripristinato da DB"
+- Aggiungere mini-badge "DB" accanto allo StatusBadge quando `savedAt` è valorizzato ma la sessione corrente non l'ha generato (semplice flag `restored: boolean` su `BatchProductResult`).
 
-Nelle edge functions, oggi tutte le letture passano da Admin API. Le sposto su **Storefront API token privato** dello Storefront che hai creato nell'app Headless (più resiliente, scope dedicati read-only, rate limit migliori, non scade come gli Admin token).
+## Non incluso
+- Nessuna modifica alle rotte storefront pubbliche.
+- Nessuna modifica al CSV di export né al merge Shopify (già fatti nel turno precedente).
+- Nessuna nuova tabella DB: la persistenza usa la tabella `product_sync_csv_products` esistente.
 
-### Cosa migra
-- `shopify-admin-proxy::list_products` (listing per pannello enrichment)
-- `shopify-admin-proxy::get_product` (lettura singolo prodotto prima dell'enrichment AI)
-- `get-products` edge function (homepage V3, già su Admin REST)
-- Eventuali letture in `process-product-sync` per il diff (verifico durante l'implementazione)
-
-### Cosa NON migra (resta su Admin API)
-- `update_product`, `create_product`, `publish_product_copy` (scritture)
-- `search_customer`, `create_customer`, `update_customer`
-- `get-customer-orders` (richiede Admin scope)
-- Gestione immagini/media (`productCreateMedia`)
-- Metafields write
-
-### Tecnico
-- Nuovo secret `SHOPIFY_HEADLESS_PRIVATE_TOKEN` (Storefront private access token dall'app Headless)
-- Nuovo helper `supabase/functions/_shared/shopify-storefront-server.ts` con client GraphQL Storefront server-side (API version 2025-07)
-- Refactor delle funzioni di lettura per usare il nuovo helper, mantenendo lo stesso shape di risposta verso i chiamanti frontend (`normalizeProduct`) per evitare regressioni nel pannello admin
-- Fallback automatico su Admin API se Storefront fallisce (resilienza)
-
----
-
-## Parte 3 — Consolidare Customer Account API sotto Headless
-
-Oggi il login cliente usa Client ID OAuth PKCE configurato manualmente (vedi `src/lib/shopify-customer-auth.ts`). L'app Headless ti dà un pannello unico per:
-
-- Client ID Customer Account API
-- Redirect URIs allowlist (importante: aggiungere `https://romeshbigbird.com/account/callback`, preview Lovable e localhost)
-- Scope (`customer-account-api:full`)
-
-### Cosa faccio
-1. Ti guido a verificare nello Storefront Headless → Customer Account API → copia Client ID e Authorization endpoint
-2. Confronto con i valori hardcoded in `src/lib/shopify-customer-auth.ts`; se diversi, li allineo
-3. Aggiungo i redirect URI mancanti (te li indico, li incolli tu nell'app Headless)
-4. Test del flusso login end-to-end dalla preview
-
-Nessun cambio di logica di auth — solo allineamento delle credenziali e verifica del flusso esistente.
-
----
-
-## Ordine di esecuzione (passi in build mode)
-
-1. **Step 1 (immediato, sblocca tutto):** richiesta `update_secret` per `SHOPIFY_ACCESS_TOKEN` → tu incolli il nuovo Admin token → test `list_products` via curl edge function
-2. **Step 2:** richiesta `add_secret` per `SHOPIFY_HEADLESS_PRIVATE_TOKEN` → tu incolli lo Storefront private token
-3. **Step 3:** creo helper Storefront server-side + refactor `list_products` / `get_product` / `get-products` con fallback
-4. **Step 4:** verifica Customer Account API credentials (lettura file + confronto con quanto vedi in Headless)
-5. **Step 5:** smoke test: enrichment AI su un prodotto, homepage che carica, login cliente
-
----
-
-## Note tecniche
-
-- Tutti gli helper rispettano i constraint Deno (ESM da `esm.sh`, no `npm:`)
-- Mantengo invariati i contratti API verso il frontend (pannello admin e storefront) → zero breaking change
-- Cache 60s già attiva nel client Admin viene replicata nel client Storefront server-side
-- Il fallback Admin→Storefront e viceversa è loggato per diagnostica
-
----
-
-## Cosa serve da te prima di partire (build mode)
-
-- **Admin API access token** della Custom App che creerai (Parte 1)
-- **Storefront private access token** dello Storefront Headless già installato (Parte 2)
-- Conferma che i redirect URI Customer Account siano allineati (Parte 3) — te li indicherò io
-
-Confermi e passiamo in build mode?
+## Verifica finale
+- `npx tsc --noEmit`
+- Test manuale: generare 2-3 prodotti → refresh pagina → cliccare "Carica" + "Analizza tutti" → le bozze devono ricomparire con badge "DB" e score aggiornato.

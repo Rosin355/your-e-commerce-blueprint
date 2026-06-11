@@ -222,7 +222,31 @@ export async function generateEnrichedDraft(
   };
 }
 
-// ── CSV export helper ───────────────────────────────────────────────────────
+/** Rebuilds an EnrichedProductDraft from a DB row that stored the full draft in ai_enrichment_json. */
+export function rebuildDraftFromDbRow(row: {
+  sku: string;
+  handle: string | null;
+  ai_enrichment_json: Record<string, unknown> | null;
+  ai_enriched_at: string | null;
+  ai_seed_style: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  optimized_description: string | null;
+}): EnrichedProductDraft | null {
+  const j = row.ai_enrichment_json as Partial<EnrichedProductDraft> | null;
+  if (!j || typeof j !== "object") return null;
+  return {
+    input_handle: (j.input_handle as string) || row.handle || "",
+    input_title: (j.input_title as string) || "",
+    body_html: (j.body_html as string) || row.optimized_description || "",
+    seo_title: (j.seo_title as string) || row.seo_title || "",
+    seo_description: (j.seo_description as string) || row.seo_description || "",
+    metafields: (j.metafields as EnrichedProductDraft["metafields"]) || ({} as EnrichedProductDraft["metafields"]),
+    seed_style: (j.seed_style as string) || row.ai_seed_style || "",
+    generated_at: (j.generated_at as string) || row.ai_enriched_at || new Date().toISOString(),
+  };
+}
+
 
 function escapeCsvCell(value: string): string {
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {

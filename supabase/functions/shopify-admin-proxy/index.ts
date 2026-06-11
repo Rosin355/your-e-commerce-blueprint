@@ -178,6 +178,18 @@ async function saveEnrichedDraft(data: any) {
   return { success: true, sku };
 }
 
+async function getEnrichedDrafts(data: any) {
+  const skus = Array.isArray(data?.skus) ? data.skus.filter((s: unknown) => typeof s === "string" && s.length > 0) : [];
+  if (skus.length === 0) return { drafts: [] };
+  const db = getSupabaseAdminClient();
+  const { data: rows, error } = await db
+    .from("product_sync_csv_products")
+    .select("sku, handle, ai_enrichment_json, ai_enriched_at, ai_seed_style, seo_title, seo_description, optimized_description")
+    .in("sku", skus)
+    .not("ai_enrichment_json", "is", null);
+  if (error) throw new Error(error.message);
+  return { drafts: rows || [] };
+
 async function listDrafts(data: any) {
   const productId = String(data?.productId || "");
   if (!productId) throw new Error("productId mancante");
@@ -397,6 +409,9 @@ serve(async (req) => {
         break;
       case "generate_product_copy_draft":
         result = await generateProductCopyDraft(data, adminEmail);
+        break;
+      case "get_enriched_drafts":
+        result = await getEnrichedDrafts(data);
         break;
       case "publish_product_copy":
         result = await publishProductCopyDraft(data);
