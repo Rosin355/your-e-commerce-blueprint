@@ -101,19 +101,17 @@ export async function resolveAdminAccessToken(): Promise<string> {
     console.log(`[shopify-admin-client] using token from ${src} (len=${tok.length}, prefix=${tok.slice(0, 6)})`);
   // 1. Long-lived Custom App token
   const customAppToken = Deno.env.get("SHOPIFY_ADMIN_API_TOKEN");
-  if (customAppToken) return customAppToken;
+  if (customAppToken) { debug("SHOPIFY_ADMIN_API_TOKEN", customAppToken); return customAppToken; }
 
   // 2. client_credentials auto-refresh
   const shop = getShopDomain();
   const ccToken = await requestClientCredentialsToken(shop);
-  if (ccToken) return ccToken;
+  if (ccToken) { debug("client_credentials", ccToken); return ccToken; }
 
-  // 3. Native Lovable connector online token. These are per-user/online tokens and may
-  // not work inside project Edge Functions for Admin REST writes; use only if they look
-  // like a real Shopify token, otherwise skip to a clear configuration error.
+  // 3. Native Lovable connector online token.
   for (const [key, value] of Object.entries(Deno.env.toObject())) {
     if (key.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") && value && !isLikelyConnectorOnlineToken(value)) {
-      return value;
+      debug(key, value); return value;
     }
   }
 
@@ -122,7 +120,7 @@ export async function resolveAdminAccessToken(): Promise<string> {
     Deno.env.get("SHOPIFY_ACCESS_TOKEN") ||
     Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") ||
     "";
-  if (legacy && !isLikelyConnectorOnlineToken(legacy)) return legacy;
+  if (legacy && !isLikelyConnectorOnlineToken(legacy)) { debug("SHOPIFY_ACCESS_TOKEN", legacy); return legacy; }
 
   throw new Error(SHOPIFY_AUTH_ERROR_HINT);
 }
