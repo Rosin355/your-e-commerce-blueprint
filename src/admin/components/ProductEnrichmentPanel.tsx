@@ -85,11 +85,37 @@ function StatusBadge({ result }: { result: BatchProductResult }) {
     return <Badge variant="secondary" className="gap-1"><Loader2 className="h-3 w-3 animate-spin" />Pubblicando...</Badge>;
   if (result.status === "error")
     return <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" />Errore</Badge>;
+  if (result.publishedAt && result.metafieldsReport?.details.some((d) => d.status === "failed"))
+    return <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" />Shopify ✓ · MF errori</Badge>;
   if (result.publishedAt)
     return <Badge className="gap-1 bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3 w-3" />Shopify ✓</Badge>;
   if (result.draft)
     return <Badge variant="outline" className="gap-1 text-green-700 border-green-300"><CheckCircle2 className="h-3 w-3" />Bozza AI</Badge>;
   return <Badge variant="outline" className="text-muted-foreground">In attesa</Badge>;
+}
+
+function MetafieldsChip({
+  report,
+  open,
+  onClick,
+}: {
+  report: NonNullable<BatchProductResult["metafieldsReport"]>;
+  open: boolean;
+  onClick: () => void;
+}) {
+  const failed = report.details.filter((d) => d.status === "failed").length;
+  const totalAttempted = report.details.filter((d) => d.status !== "skipped").length;
+  const className = failed > 0
+    ? "h-7 border-destructive/50 bg-destructive/10 px-2 text-[11px] text-destructive hover:bg-destructive/15"
+    : report.written > 0
+      ? "h-7 border-primary/40 bg-primary/10 px-2 text-[11px] text-primary hover:bg-primary/15"
+      : "h-7 px-2 text-[11px]";
+
+  return (
+    <Button size="sm" variant="outline" className={className} onClick={onClick} title="Mostra dettaglio metafield">
+      MF {report.written}/{totalAttempted}{failed > 0 ? ` · ${failed} errori` : open ? " · aperto" : ""}
+    </Button>
+  );
 }
 
 function DraftPreview({
@@ -200,6 +226,10 @@ function ModeAPanel() {
   const hasDrafts = batchResults.some((r) => r.draft);
   const draftsForDownload = batchResults.filter((r) => r.draft).map((r) => r.draft!);
   const isDbSource = source === "db";
+  const metafieldFailedItems = batchResults.filter((r) =>
+    r.metafieldsReport?.details.some((d) => d.status === "failed"),
+  );
+  const firstMetafieldFailed = metafieldFailedItems[0];
 
   async function loadProducts() {
     setLoadingProducts(true);
@@ -386,6 +416,25 @@ function ModeAPanel() {
                   importare direttamente se i prodotti hanno varianti. Per import Shopify nativo, fai
                   merge con un export completo Shopify usando il pulsante <strong>Export Shopify-compatible update CSV</strong>.
                 </span>
+              </div>
+            )}
+
+            {metafieldFailedItems.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <span className="flex-1">
+                  Metafield Shopify falliti su {metafieldFailedItems.length} prodotto/i. Apri il dettaglio MF per vedere l'errore GraphQL esatto.
+                </span>
+                {firstMetafieldFailed && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 border-destructive/40 text-[11px] text-destructive hover:bg-destructive/10"
+                    onClick={() => setOpenReportFor(firstMetafieldFailed.productId)}
+                  >
+                    Vai al primo prodotto fallito
+                  </Button>
+                )}
               </div>
             )}
 
@@ -583,19 +632,15 @@ function ModeAPanel() {
                         </Button>
                       )}
                       {result.metafieldsReport && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 gap-1 px-2 text-[11px]"
+                        <MetafieldsChip
+                          report={result.metafieldsReport}
+                          open={openReportFor === result.productId}
                           onClick={() =>
                             setOpenReportFor(
                               openReportFor === result.productId ? null : result.productId,
                             )
                           }
-                          title="Mostra dettaglio metafield"
-                        >
-                          MF {result.metafieldsReport.written}/{result.metafieldsReport.written + result.metafieldsReport.errors.length}
-                        </Button>
+                        />
                       )}
                     </div>
 

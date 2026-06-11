@@ -1,36 +1,66 @@
-## Perché i metafield sono vuoti
+## Problema
 
-Non è un bug: oggi il pulsante **Pubblica su Shopify** è progettato per inviare via API **solo** `body_html`, `seo_title`, `seo_description` e gli `alt` delle immagini. Lo dice anche il banner giallo nell'admin: «I 16 metafield personalizzati non vengono salvati da questo pulsante — vanno esportati e importati tramite il CSV».
+Pubblicando un prodotto il banner mostra "Shopify ✓" ma il chip **MF 0/10** indica che zero metafield sono stati scritti. Su Shopify infatti i campi `custom.*` restano vuoti. Gli errori `userErrors` di `metafieldsSet` non sono visibili in maniera immediata, e la causa più frequente è un disallineamento tra il `type` che inviamo e quello realmente definito su Shopify (es. inviamo `single_line_text_field` ma la definizione esistente è `multi_line_text_field`, o viceversa per liste).
 
-Quindi i 16 metafield generati dall'AI (visibili nella tabella "Metafield CSV Shopify — 16 campi") restano nel database Lovable e nel CSV scaricabile, ma non vengono scritti su Shopify finché non importi il CSV.
+## Obiettivo
 
-## Cosa propongo di cambiare
+1. Capire subito quali metafield falliscono e perché.
+2. Far sì che la pubblicazione si auto-adatti ai tipi realmente presenti su Shopify, in modo che i 16 campi vengano scritti senza dover editare manualmente la mappa.
 
-Estendere la pubblicazione perché scriva **anche i 16 metafield** direttamente su Shopify via Admin API, in un'unica operazione. Niente più CSV manuale.
+## Cosa farò
 
-### Comportamento finale
-1. Clic su "Pubblica su Shopify" (sia singolo che "tutti") aggiorna:
-   - body HTML, SEO title, SEO meta description, alt immagini (come ora)
-   - **+ i 16 metafield `custom.*`** con i valori della bozza già rivista
-2. I metafield con valore vuoto/"Da compilare" vengono **saltati** (non sovrascrivono eventuali valori già presenti su Shopify).
-3. Il banner giallo viene aggiornato: «I 16 metafield personalizzati vengono ora scritti direttamente su Shopify». Il pulsante CSV resta per usi manuali/backup.
+### 1. Self-healing dei tipi (server)
+- Nuova funzione `fetchLiveMetafieldDefinitions()` nel `shopify-admin-proxy` che interroga `metafieldDefinitions(ownerType: PRODUCT)` filtrando `namespace: "custom"` e costruisce una mappa `key -> liveType`.
+- `setProductCustomMetafields` userà come tipo, in ordine di priorità:
+  1. il `liveType` di Shopify se esiste,
+  2. il tipo locale `METAFIELD_TYPES` (fallback).
+- `normalizeMetafieldValue` esteso per gestire anche `list.multi_line_text_field` e per accettare correttamente sia stringhe sia JSON array.
+- Cache in memoria della funzione (TTL 60s) per non rifare la query a ogni pubblicazione.
 
-### Dettagli tecnici (per il backend)
+### 2. Retry intelligente su type mismatch
+- Se `metafieldsSet` restituisce per una key un errore tipo `Type must match the definition` o `INVALID_TYPE`, ricarico le definitions live, rimappo il tipo per quella key e rilancio SOLO le key fallite (max 1 retry "tipologico", oltre ai retry transienti già esistenti).
 
-- **Edge function**: estendere `publishProductCopyDraft` in `supabase/functions/shopify-admin-proxy/index.ts` aggiungendo una chiamata GraphQL `metafieldsSet` (batch fino a 25 per call) con namespace fisso `custom` e le 16 chiavi già definite in `src/admin/types/productEnrichment.ts → ALL_METAFIELD_KEYS`.
-- Tipo Shopify per metafield: `single_line_text_field` per testi brevi (nome botanico, nome comune, periodi, difficoltà, titolo sezione FAQ, short_intro, promo_text), `multi_line_text_field` per i lunghi (come_prendersene_cura, conosci_meglio_la_tua_pianta, origini_e_habitat, care_info), `list.single_line_text_field` (JSON array) per `key_features` e `special_bullets`.
-- Mapping dalla bozza: leggere `draft.metafields` (già salvato in `product_ai_drafts`) e ignorare i campi vuoti.
-- In caso di errore su un singolo metafield: registrare il messaggio nel log della draft ma non bloccare gli altri (parziale OK).
-- Stesso fix per il flusso "Pubblica tutti" (`publishAll` lato client) e per il pulsante singolo riga, perché passano dalla stessa edge function.
+### 3. Visibilità errori (UI)
+- Nel `ProductEnrichmentPanel` il chip `MF x/y` diventa cliccabile e colorato:
+  - verde se `failed == 0 && written > 0`
+  - giallo se `skipped > 0 && failed == 0`
+  - rosso se `failed > 0`
+- Click sul chip apre direttamente il pannello `MetafieldsReport` (oggi è dietro un altro pulsante meno evidente).
+- Aggiungo, sotto al banner giallo del CSV, un secondo banner rosso che compare solo dopo "Pubblica tutti" se ci sono prodotti con `failed > 0`, con link "Vai al primo prodotto fallito".
 
-### Cosa NON cambia
-- Lo stile di scrittura, il prompt AI e i contenuti generati restano identici.
-- Il CSV resta scaricabile per backup/import bulk.
-- Nessuna modifica allo storefront, nessun rischio sul checkout.
+### 4. Verifica preventiva in Settings
+- In `MetafieldsConfigPanel`, dopo "Verifica su Shopify" se ci sono `type_mismatch` mostro un bottone "Allinea automaticamente la mappa locale ai tipi Shopify" che chiama una nuova action `get_metafield_config_live` e mostra in tabella il `type` effettivo che verrà usato in pubblicazione (così sai cosa sta succedendo senza dover editare codice).
 
-### Verifica dopo l'implementazione
-1. Genera la bozza di un prodotto di test, clicca "Pubblica".
-2. Apri il prodotto su Shopify Admin → tab Metafield: i 16 campi devono essere popolati.
-3. Ripeti su un secondo prodotto con uno o due campi vuoti → quelli vuoti devono restare invariati su Shopify.
+### 5. Debug più utile
+- Quando "Debug metafield" è attivo, includo nel log anche la lista delle definitions live trovate per namespace `custom`, così vedi subito se manca proprio la definition o se è solo un tipo diverso.
 
-Confermi che procedo così?
+## Dettagli tecnici
+
+File modificati:
+- `supabase/functions/shopify-admin-proxy/index.ts`
+  - aggiunta query GraphQL `metafieldDefinitions`,
+  - cache in modulo,
+  - logica di rimappatura tipo + retry mirato,
+  - nuova action `get_metafield_config_live`.
+- `src/admin/lib/aiWriterEngine.ts`
+  - tipi e wrapper per `get_metafield_config_live`,
+  - nuovo campo `liveTypeUsed?: string` in `MetafieldDetail`.
+- `src/admin/components/MetafieldsReport.tsx`
+  - mostra `liveTypeUsed` accanto allo status quando differisce dal tipo locale.
+- `src/admin/components/ProductEnrichmentPanel.tsx`
+  - chip MF colorato e cliccabile, secondo banner per errori batch.
+- `src/admin/components/MetafieldsConfigPanel.tsx`
+  - colonna "Tipo effettivo usato" + bottone "Allinea mappa".
+
+## Cosa NON tocco
+
+- Il prompt AI, gli stili di scrittura, lo storefront, il checkout, l'export CSV.
+- La logica di publish di body HTML / SEO (che già funziona, badge verde).
+- La tabella `product_ai_drafts` e tutto ciò che riguarda il salvataggio bozze.
+
+## Verifica
+
+1. Apro Settings → "Verifica su Shopify": confermo (o correggo) eventuali type_mismatch.
+2. Su un prodotto già pubblicato (Wigginsia) clicco "Pubblica" con Debug ON: il chip MF deve passare da 0/10 a 10/10 (o segnalare in rosso quali campi mancano come definition).
+3. Su Shopify Admin, sezione "Metafield del prodotto", verifico che i 10 campi non vuoti siano ora popolati.
+4. Lancio "Pubblica tutti" su un sottoinsieme: se ci sono fallimenti compare il banner rosso con link al prodotto.

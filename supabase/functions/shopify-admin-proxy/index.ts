@@ -367,12 +367,54 @@ const METAFIELD_TYPES: Record<string, string> = {
 };
 
 const DEFAULT_MAX_RETRIES = Number(Deno.env.get("SHOPIFY_METAFIELDS_MAX_RETRIES") ?? "3");
+const METAFIELD_DEFINITIONS_CACHE_TTL_MS = 60_000;
 
-function normalizeMetafieldValue(key: string, raw: string): string | null {
+interface LiveMetafieldDefinition {
+  id: string;
+  name: string;
+  namespace: string;
+  key: string;
+  type: string;
+  description?: string;
+  fullKey: string;
+}
+
+let liveMetafieldDefinitionsCache: { expiresAt: number; definitions: LiveMetafieldDefinition[] } | null = null;
+
+async function fetchLiveMetafieldDefinitions(force = false): Promise<LiveMetafieldDefinition[]> {
+  if (!force && liveMetafieldDefinitionsCache && liveMetafieldDefinitionsCache.expiresAt > Date.now()) {
+    return liveMetafieldDefinitionsCache.definitions;
+  }
+
+  const query = `
+    query ProductMetafieldDefs {
+      metafieldDefinitions(first: 100, ownerType: PRODUCT) {
+        edges { node { id name namespace key type { name } description } }
+      }
+    }`;
+  const res = await shopifyAdminGraphQL<any>(query, {});
+  const definitions = (res?.metafieldDefinitions?.edges || []).map((e: any) => ({
+    id: e.node.id,
+    name: e.node.name,
+    namespace: e.node.namespace,
+    key: e.node.key,
+    type: e.node.type?.name,
+    description: e.node.description,
+    fullKey: `${e.node.namespace}.${e.node.key}`,
+  })) as LiveMetafieldDefinition[];
+
+  liveMetafieldDefinitionsCache = {
+    definitions,
+    expiresAt: Date.now() + METAFIELD_DEFINITIONS_CACHE_TTL_MS,
+  };
+  return definitions;
+}
+
+function normalizeMetafieldValue(key: string, raw: unknown, typeOverride?: string): string | null {
   const trimmed = String(raw ?? "").trim();
   if (!trimmed) return null;
-  const type = METAFIELD_TYPES[key];
-  if (type === "list.single_line_text_field") {
+  const type = typeOverride || METAFIELD_TYPES[key];
+  if (type?.startsWith("list.")) {
     try {
       const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) return JSON.stringify(parsed.map((v) => String(v)));
@@ -399,6 +441,18 @@ function isTransientMetafieldError(msg: string): boolean {
   );
 }
 
+function isTypeMismatchMetafieldError(msg: string): boolean {
+  const m = msg.toLowerCase();
+  return (
+    m.includes("type") && (m.includes("definition") || m.includes("match") || m.includes("invalid"))
+  ) || m.includes("invalid_type");
+}
+
+function getMetafieldErrorIndex(field?: string[]): number | null {
+  const raw = (field || []).find((part) => /^\d+$/.test(String(part)));
+  return raw ? Number(raw) : null;
+}
+
 async function sleep(ms: number) { await new Promise((r) => setTimeout(r, ms)); }
 
 export interface MetafieldDetail {
@@ -407,6 +461,8 @@ export interface MetafieldDetail {
   status: "sent" | "skipped" | "failed";
   error?: string;
   attempts?: number;
+  type?: string;
+  liveTypeUsed?: string;
 }
 
 export interface MetafieldDebugEntry {
@@ -415,6 +471,7 @@ export interface MetafieldDebugEntry {
   request: unknown;
   response: unknown;
   errorMessage?: string;
+  liveDefinitions?: LiveMetafieldDefinition[];
 }
 
 async function setProductCustomMetafields(
@@ -432,18 +489,33 @@ async function setProductCustomMetafields(
   const debugMode = !!options?.debug;
   const ownerId = `gid://shopify/Product/${productId}`;
 
-  const entries: Array<{ key: string; type: string; value: string }> = [];
+  let liveDefinitions: LiveMetafieldDefinition[] = [];
+  try {
+    liveDefinitions = await fetchLiveMetafieldDefinitions();
+  } catch (err) {
+    console.warn("[metafieldsSet] impossibile leggere le definitions live, uso i tipi locali:", err);
+  }
+  const liveTypeByKey = new Map(
+    liveDefinitions
+      .filter((d) => d.namespace === METAFIELD_NAMESPACE && d.type)
+      .map((d) => [d.key, d.type]),
+  );
+
+  const entries: Array<{ key: string; type: string; value: string; raw: unknown; localType: string; liveTypeUsed?: string }> = [];
   const details: MetafieldDetail[] = [];
   let skipped = 0;
 
   for (const key of Object.keys(METAFIELD_TYPES)) {
-    const value = normalizeMetafieldValue(key, metafields[key] ?? "");
+    const localType = METAFIELD_TYPES[key];
+    const liveTypeUsed = liveTypeByKey.get(key);
+    const type = liveTypeUsed || localType;
+    const value = normalizeMetafieldValue(key, metafields[key] ?? "", type);
     if (value === null) {
       skipped++;
-      details.push({ key, namespace: METAFIELD_NAMESPACE, status: "skipped" });
+      details.push({ key, namespace: METAFIELD_NAMESPACE, status: "skipped", type, liveTypeUsed });
       continue;
     }
-    entries.push({ key, type: METAFIELD_TYPES[key], value });
+    entries.push({ key, type, value, raw: metafields[key] ?? "", localType, liveTypeUsed });
   }
 
   const errors: string[] = [];
@@ -460,12 +532,9 @@ async function setProductCustomMetafields(
 
   // metafieldsSet accepts up to 25 metafields per call
   for (let i = 0; i < entries.length; i += 25) {
-    const chunk = entries.slice(i, i + 25);
-    const variables = {
-      metafields: chunk.map((e) => ({
-        ownerId, namespace: METAFIELD_NAMESPACE, key: e.key, type: e.type, value: e.value,
-      })),
-    };
+    let chunk = entries.slice(i, i + 25);
+    const chunkIndex = i / 25;
+    let typeRetryUsed = false;
 
     let attempt = 0;
     let success = false;
@@ -474,38 +543,72 @@ async function setProductCustomMetafields(
 
     while (attempt <= maxRetries && !success) {
       attempt++;
+      const variables = {
+        metafields: chunk.map((e) => ({
+          ownerId, namespace: METAFIELD_NAMESPACE, key: e.key, type: e.type, value: e.value,
+        })),
+      };
       try {
         const res = await shopifyAdminGraphQL<any>(mutation, variables);
         lastRes = res;
-        if (debugMode) debug.push({ chunkIndex: i / 25, attempt, request: variables, response: res });
+        if (debugMode) debug.push({ chunkIndex, attempt, request: variables, response: res, liveDefinitions });
 
         const userErrors: Array<{ field?: string[]; message: string; code?: string }> = res?.metafieldsSet?.userErrors || [];
         const writtenList: Array<{ key: string; namespace: string }> = res?.metafieldsSet?.metafields || [];
         const writtenSet = new Set(writtenList.map((m) => `${m.namespace}.${m.key}`));
+        const failedEntries: Array<typeof chunk[number] & { error: string }> = [];
 
         for (const e of chunk) {
           const id = `${METAFIELD_NAMESPACE}.${e.key}`;
-          const ueForKey = userErrors.find((ue) => (ue.field || []).join(".").includes(e.key));
+          const ueForKey = userErrors.find((ue) => {
+            const idx = getMetafieldErrorIndex(ue.field);
+            return idx !== null ? chunk[idx]?.key === e.key : (ue.field || []).join(".").includes(e.key);
+          });
           if (writtenSet.has(id) && !ueForKey) {
-            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "sent", attempts: attempt });
+            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "sent", attempts: attempt, type: e.localType, liveTypeUsed: e.liveTypeUsed || e.type });
             written++;
           } else {
             const errMsg = ueForKey?.message || "non scritto da metafieldsSet";
-            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "failed", error: errMsg, attempts: attempt });
-            errors.push(`${e.key}: ${errMsg}`);
+            failedEntries.push({ ...e, error: errMsg });
           }
+        }
+
+        const typeFailures = failedEntries.filter((e) => isTypeMismatchMetafieldError(e.error));
+        if (typeFailures.length > 0 && !typeRetryUsed) {
+          typeRetryUsed = true;
+          liveDefinitions = await fetchLiveMetafieldDefinitions(true);
+          const refreshedTypeByKey = new Map(
+            liveDefinitions.filter((d) => d.namespace === METAFIELD_NAMESPACE && d.type).map((d) => [d.key, d.type]),
+          );
+          const remapped = failedEntries.map((e) => {
+            const refreshedType = refreshedTypeByKey.get(e.key) || e.type;
+            const refreshedValue = normalizeMetafieldValue(e.key, e.raw, refreshedType) || e.value;
+            return { ...e, type: refreshedType, value: refreshedValue, liveTypeUsed: refreshedType };
+          });
+          const changed = remapped.some((e, idx) => e.type !== failedEntries[idx].type || e.value !== failedEntries[idx].value);
+          if (changed) {
+            chunk = remapped;
+            attempt = 0;
+            if (debugMode) debug.push({ chunkIndex, attempt: 0, request: { remap: typeFailures.map((e) => e.key) }, response: { liveDefinitions } });
+            continue;
+          }
+        }
+
+        for (const e of failedEntries) {
+          details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "failed", error: e.error, attempts: attempt, type: e.localType, liveTypeUsed: e.liveTypeUsed || e.type });
+          errors.push(`${e.key}: ${e.error}`);
         }
         success = true;
       } catch (err) {
         lastErr = err instanceof Error ? err.message : String(err);
-        if (debugMode) debug.push({ chunkIndex: i / 25, attempt, request: variables, response: lastRes, errorMessage: lastErr });
+        if (debugMode) debug.push({ chunkIndex, attempt, request: variables, response: lastRes, errorMessage: lastErr, liveDefinitions });
         if (attempt <= maxRetries && isTransientMetafieldError(lastErr)) {
           const backoff = Math.min(8000, 500 * 2 ** (attempt - 1));
           console.warn(`[metafieldsSet] transient error (attempt ${attempt}/${maxRetries + 1}), retry in ${backoff}ms: ${lastErr}`);
           await sleep(backoff);
         } else {
           for (const e of chunk) {
-            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "failed", error: lastErr, attempts: attempt });
+            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "failed", error: lastErr, attempts: attempt, type: e.localType, liveTypeUsed: e.liveTypeUsed || e.type });
             errors.push(`${e.key}: ${lastErr}`);
           }
           break;
@@ -530,23 +633,25 @@ function getMetafieldConfig() {
   };
 }
 
+async function getMetafieldConfigLive() {
+  const definitions = await fetchLiveMetafieldDefinitions(true);
+  const liveTypeByKey = new Map(
+    definitions.filter((d) => d.namespace === METAFIELD_NAMESPACE && d.type).map((d) => [d.key, d.type]),
+  );
+  const base = getMetafieldConfig();
+  return {
+    ...base,
+    fields: base.fields.map((field) => ({
+      ...field,
+      liveType: liveTypeByKey.get(field.key),
+      effectiveType: liveTypeByKey.get(field.key) || field.type,
+    })),
+    definitions,
+  };
+}
+
 async function listShopifyMetafieldDefinitions() {
-  const query = `
-    query ProductMetafieldDefs {
-      metafieldDefinitions(first: 100, ownerType: PRODUCT) {
-        edges { node { id name namespace key type { name } description } }
-      }
-    }`;
-  const res = await shopifyAdminGraphQL<any>(query, {});
-  const defs = (res?.metafieldDefinitions?.edges || []).map((e: any) => ({
-    id: e.node.id,
-    name: e.node.name,
-    namespace: e.node.namespace,
-    key: e.node.key,
-    type: e.node.type?.name,
-    description: e.node.description,
-    fullKey: `${e.node.namespace}.${e.node.key}`,
-  }));
+  const defs = await fetchLiveMetafieldDefinitions(true);
 
   const expected = getMetafieldConfig().fields;
   const byFull = new Map(defs.map((d: any) => [d.fullKey, d]));
@@ -613,6 +718,9 @@ serve(async (req) => {
       }
       case "get_metafield_config":
         result = getMetafieldConfig();
+        break;
+      case "get_metafield_config_live":
+        result = await getMetafieldConfigLive();
         break;
       case "list_shopify_metafield_definitions":
         result = await listShopifyMetafieldDefinitions();

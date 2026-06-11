@@ -12,6 +12,7 @@ type ProxyAction =
   | "generate_product_copy_draft"
   | "publish_product_copy"
   | "get_metafield_config"
+  | "get_metafield_config_live"
   | "list_shopify_metafield_definitions";
 
 async function callProxy<T>(action: ProxyAction, data: Record<string, unknown>) {
@@ -30,6 +31,8 @@ export interface MetafieldDetail {
   status: "sent" | "skipped" | "failed";
   error?: string;
   attempts?: number;
+  type?: string;
+  liveTypeUsed?: string;
 }
 export interface MetafieldDebugEntry {
   chunkIndex: number;
@@ -37,6 +40,7 @@ export interface MetafieldDebugEntry {
   request: unknown;
   response: unknown;
   errorMessage?: string;
+  liveDefinitions?: MetafieldDefinitionLive[];
 }
 export interface MetafieldsReport {
   written: number;
@@ -50,6 +54,8 @@ export interface MetafieldConfigField {
   namespace: string;
   type: string;
   fullKey: string;
+  liveType?: string;
+  effectiveType?: string;
 }
 export interface MetafieldConfig {
   namespace: string;
@@ -72,6 +78,10 @@ export interface MetafieldDefinitionDiff extends MetafieldConfigField {
 
 export async function getMetafieldConfig() {
   return callProxy<MetafieldConfig>("get_metafield_config", {});
+}
+
+export async function getMetafieldConfigLive() {
+  return callProxy<MetafieldConfig & { definitions: MetafieldDefinitionLive[] }>("get_metafield_config_live", {});
 }
 
 export async function listShopifyMetafieldDefinitions() {
