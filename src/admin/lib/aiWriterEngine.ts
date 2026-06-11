@@ -7,6 +7,7 @@ type ProxyAction =
   | "list_drafts"
   | "list_db_products"
   | "save_enriched_draft"
+  | "get_enriched_drafts"
   | "update_product"
   | "generate_product_copy_draft"
   | "publish_product_copy";
