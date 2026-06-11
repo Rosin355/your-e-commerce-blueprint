@@ -5,8 +5,8 @@
  * No client secret is required for public clients.
  */
 
-const CLIENT_ID = 'c8bde26b-256c-4534-87d1-26a2a3c72bef';
-const SHOP_DOMAIN = 'lovable-project-6tknn.myshopify.com';
+const CLIENT_ID = '556c02bd-e644-4e6e-8983-6c3c01dd81df';
+const SHOP_DOMAIN = 'ecom-blueprint-gen-6ud1s.myshopify.com';
 const REDIRECT_URI = `${window.location.origin}/account/callback`;
 const LOGOUT_URI = window.location.origin;
 

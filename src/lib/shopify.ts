@@ -11,7 +11,7 @@ export const SHOPIFY_STORE_PERMANENT_DOMAIN =
   import.meta.env.VITE_SHOPIFY_STORE_PERMANENT_DOMAIN || 'ecom-blueprint-gen-6ud1s.myshopify.com';
 export const SHOPIFY_STOREFRONT_URL = `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
 export const SHOPIFY_STOREFRONT_TOKEN =
-  import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN || '713f230dc12508e20c6128d287808360';
+  import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN || 'cb09ae53041b30962a9358fd3dac7a5d';
 
 export interface ShopifyProduct {
   node: {
