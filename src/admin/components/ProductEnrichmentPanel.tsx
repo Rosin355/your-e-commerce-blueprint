@@ -26,7 +26,13 @@ import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { useAuth } from "@/hooks/useAuth";
 import { listShopifyProducts } from "../lib/aiWriterEngine";
 import { loadDbCatalogProducts } from "../lib/dbCatalogSource";
-import { downloadBatchCsvSnippet, downloadCsvSnippet } from "../lib/productEnrichmentEngine";
+import {
+  downloadBatchCsvSnippet,
+  downloadCsvSnippet,
+  downloadMergedShopifyCsv,
+  mergeDraftsIntoShopifyCsv,
+  type MergeReport,
+} from "../lib/productEnrichmentEngine";
 import { useProductEnrichment, type BatchProductResult } from "../hooks/useProductEnrichment";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
 import type { EssentialProductInput } from "../types/productEnrichment";
