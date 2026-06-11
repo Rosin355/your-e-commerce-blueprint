@@ -18,7 +18,6 @@ import {
   Loader2,
   RefreshCcw,
   Sparkles,
-  TriangleAlert,
   UploadCloud,
 } from "lucide-react";
 import { toast } from "sonner";
