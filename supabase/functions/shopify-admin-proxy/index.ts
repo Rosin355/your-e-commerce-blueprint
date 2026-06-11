@@ -180,6 +180,7 @@ async function getEnrichedDrafts(data: any) {
     .not("ai_enrichment_json", "is", null);
   if (error) throw new Error(error.message);
   return { drafts: rows || [] };
+}
 
 async function listDrafts(data: any) {
   const productId = String(data?.productId || "");
