@@ -220,7 +220,7 @@ export async function downloadShopifyNativeCsv(opts?: {
   const totalVariants = res.headers.get("X-Total-Variants");
   const blob = await res.blob();
   const today = new Date().toISOString().slice(0, 10);
-  const filename = `shopify-products-native-${today}.csv`;
+  const filename = `shopify-prodotti-base-${today}.csv`;
   const dlUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = dlUrl;
