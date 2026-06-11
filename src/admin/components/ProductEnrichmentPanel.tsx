@@ -85,6 +85,8 @@ function StatusBadge({ result }: { result: BatchProductResult }) {
     return <Badge variant="secondary" className="gap-1"><Loader2 className="h-3 w-3 animate-spin" />Pubblicando...</Badge>;
   if (result.status === "error")
     return <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" />Errore</Badge>;
+  if (result.publishedAt && result.metafieldsReport?.details.some((d) => d.status === "failed"))
+    return <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" />Shopify ✓ · MF errori</Badge>;
   if (result.publishedAt)
     return <Badge className="gap-1 bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3 w-3" />Shopify ✓</Badge>;
   if (result.draft)
