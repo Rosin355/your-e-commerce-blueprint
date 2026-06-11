@@ -501,7 +501,7 @@ async function setProductCustomMetafields(
       .map((d) => [d.key, d.type]),
   );
 
-  const entries: Array<{ key: string; type: string; value: string; localType: string; liveTypeUsed?: string }> = [];
+  const entries: Array<{ key: string; type: string; value: string; raw: unknown; localType: string; liveTypeUsed?: string }> = [];
   const details: MetafieldDetail[] = [];
   let skipped = 0;
 
@@ -515,7 +515,7 @@ async function setProductCustomMetafields(
       details.push({ key, namespace: METAFIELD_NAMESPACE, status: "skipped", type, liveTypeUsed });
       continue;
     }
-    entries.push({ key, type, value, localType, liveTypeUsed });
+    entries.push({ key, type, value, raw: metafields[key] ?? "", localType, liveTypeUsed });
   }
 
   const errors: string[] = [];
@@ -532,12 +532,9 @@ async function setProductCustomMetafields(
 
   // metafieldsSet accepts up to 25 metafields per call
   for (let i = 0; i < entries.length; i += 25) {
-    const chunk = entries.slice(i, i + 25);
-    const variables = {
-      metafields: chunk.map((e) => ({
-        ownerId, namespace: METAFIELD_NAMESPACE, key: e.key, type: e.type, value: e.value,
-      })),
-    };
+    let chunk = entries.slice(i, i + 25);
+    const chunkIndex = i / 25;
+    let typeRetryUsed = false;
 
     let attempt = 0;
     let success = false;
@@ -546,38 +543,72 @@ async function setProductCustomMetafields(
 
     while (attempt <= maxRetries && !success) {
       attempt++;
+      const variables = {
+        metafields: chunk.map((e) => ({
+          ownerId, namespace: METAFIELD_NAMESPACE, key: e.key, type: e.type, value: e.value,
+        })),
+      };
       try {
         const res = await shopifyAdminGraphQL<any>(mutation, variables);
         lastRes = res;
-        if (debugMode) debug.push({ chunkIndex: i / 25, attempt, request: variables, response: res });
+        if (debugMode) debug.push({ chunkIndex, attempt, request: variables, response: res, liveDefinitions });
 
         const userErrors: Array<{ field?: string[]; message: string; code?: string }> = res?.metafieldsSet?.userErrors || [];
         const writtenList: Array<{ key: string; namespace: string }> = res?.metafieldsSet?.metafields || [];
         const writtenSet = new Set(writtenList.map((m) => `${m.namespace}.${m.key}`));
+        const failedEntries: Array<typeof chunk[number] & { error: string }> = [];
 
         for (const e of chunk) {
           const id = `${METAFIELD_NAMESPACE}.${e.key}`;
-          const ueForKey = userErrors.find((ue) => (ue.field || []).join(".").includes(e.key));
+          const ueForKey = userErrors.find((ue) => {
+            const idx = getMetafieldErrorIndex(ue.field);
+            return idx !== null ? chunk[idx]?.key === e.key : (ue.field || []).join(".").includes(e.key);
+          });
           if (writtenSet.has(id) && !ueForKey) {
-            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "sent", attempts: attempt });
+            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "sent", attempts: attempt, type: e.localType, liveTypeUsed: e.liveTypeUsed || e.type });
             written++;
           } else {
             const errMsg = ueForKey?.message || "non scritto da metafieldsSet";
-            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "failed", error: errMsg, attempts: attempt });
-            errors.push(`${e.key}: ${errMsg}`);
+            failedEntries.push({ ...e, error: errMsg });
           }
+        }
+
+        const typeFailures = failedEntries.filter((e) => isTypeMismatchMetafieldError(e.error));
+        if (typeFailures.length > 0 && !typeRetryUsed) {
+          typeRetryUsed = true;
+          liveDefinitions = await fetchLiveMetafieldDefinitions(true);
+          const refreshedTypeByKey = new Map(
+            liveDefinitions.filter((d) => d.namespace === METAFIELD_NAMESPACE && d.type).map((d) => [d.key, d.type]),
+          );
+          const remapped = typeFailures.map((e) => {
+            const refreshedType = refreshedTypeByKey.get(e.key) || e.type;
+            const refreshedValue = normalizeMetafieldValue(e.key, e.raw, refreshedType) || e.value;
+            return { ...e, type: refreshedType, value: refreshedValue, liveTypeUsed: refreshedType };
+          });
+          const changed = remapped.some((e, idx) => e.type !== typeFailures[idx].type || e.value !== typeFailures[idx].value);
+          if (changed) {
+            chunk = remapped;
+            attempt = 0;
+            if (debugMode) debug.push({ chunkIndex, attempt: 0, request: { remap: typeFailures.map((e) => e.key) }, response: { liveDefinitions } });
+            continue;
+          }
+        }
+
+        for (const e of failedEntries) {
+          details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "failed", error: e.error, attempts: attempt, type: e.localType, liveTypeUsed: e.liveTypeUsed || e.type });
+          errors.push(`${e.key}: ${e.error}`);
         }
         success = true;
       } catch (err) {
         lastErr = err instanceof Error ? err.message : String(err);
-        if (debugMode) debug.push({ chunkIndex: i / 25, attempt, request: variables, response: lastRes, errorMessage: lastErr });
+        if (debugMode) debug.push({ chunkIndex, attempt, request: variables, response: lastRes, errorMessage: lastErr, liveDefinitions });
         if (attempt <= maxRetries && isTransientMetafieldError(lastErr)) {
           const backoff = Math.min(8000, 500 * 2 ** (attempt - 1));
           console.warn(`[metafieldsSet] transient error (attempt ${attempt}/${maxRetries + 1}), retry in ${backoff}ms: ${lastErr}`);
           await sleep(backoff);
         } else {
           for (const e of chunk) {
-            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "failed", error: lastErr, attempts: attempt });
+            details.push({ key: e.key, namespace: METAFIELD_NAMESPACE, status: "failed", error: lastErr, attempts: attempt, type: e.localType, liveTypeUsed: e.liveTypeUsed || e.type });
             errors.push(`${e.key}: ${lastErr}`);
           }
           break;
