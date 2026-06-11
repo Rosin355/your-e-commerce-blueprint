@@ -719,6 +719,9 @@ serve(async (req) => {
       case "get_metafield_config":
         result = getMetafieldConfig();
         break;
+      case "get_metafield_config_live":
+        result = await getMetafieldConfigLive();
+        break;
       case "list_shopify_metafield_definitions":
         result = await listShopifyMetafieldDefinitions();
         break;
