@@ -183,7 +183,9 @@ function ModeAPanel() {
     batchProgress,
     analyzeAll,
     generateAll,
+    generateOne,
     publishAll,
+    publishOne,
     cancelBatch,
     resetBatch,
   } = useProductEnrichment();
