@@ -97,8 +97,7 @@ async function requestClientCredentialsToken(shop: string): Promise<string | nul
  * Async because the client_credentials flow may need a network call.
  */
 export async function resolveAdminAccessToken(): Promise<string> {
-  const debug = (src: string, tok: string) =>
-    console.log(`[shopify-admin-client] using token from ${src} (len=${tok.length}, prefix=${tok.slice(0, 6)})`);
+  const debug = (_src: string, _tok: string) => {}; // no-op (was diagnostic)
   // 1. Long-lived Custom App token
   const customAppToken = Deno.env.get("SHOPIFY_ADMIN_API_TOKEN");
   if (customAppToken) { debug("SHOPIFY_ADMIN_API_TOKEN", customAppToken); return customAppToken; }
