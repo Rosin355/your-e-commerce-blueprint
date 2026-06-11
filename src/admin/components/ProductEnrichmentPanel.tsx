@@ -361,10 +361,25 @@ function ModeAPanel() {
                   className="gap-2"
                 >
                   <Download className="h-4 w-4" />
-                  Scarica CSV catalogo
+                  Scarica CSV arricchimento
                 </Button>
               )}
+
+              {hasDrafts && (
+                <ShopifyMergeExport drafts={draftsForDownload} />
+              )}
             </div>
+
+            {hasDrafts && (
+              <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-900 flex gap-2">
+                <TriangleAlert className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                <span>
+                  Questo CSV contiene solo testi/metafields arricchiti. Non è un CSV Shopify completo da
+                  importare direttamente se i prodotti hanno varianti. Per import Shopify nativo, fai
+                  merge con un export completo Shopify usando il pulsante <strong>Export Shopify-compatible update CSV</strong>.
+                </span>
+              </div>
+            )}
 
             {/* Progress bar + stop */}
             {batchProgress && (
