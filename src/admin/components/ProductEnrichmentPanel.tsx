@@ -492,7 +492,7 @@ function ModeAPanel() {
                   <p className="text-muted-foreground">
                     Usa questi strumenti solo se vuoi unire le bozze AI con un export Shopify già scaricato
                     dal tuo store. Per un import diretto in Shopify usa invece il pulsante
-                    <strong> "Scarica CSV Shopify (importabile)"</strong> sopra.
+                    <strong> "Scarica CSV prodotti base"</strong> sopra e poi pubblica i metafield via API.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <Button
