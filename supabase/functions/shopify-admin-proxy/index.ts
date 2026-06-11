@@ -580,12 +580,12 @@ async function setProductCustomMetafields(
           const refreshedTypeByKey = new Map(
             liveDefinitions.filter((d) => d.namespace === METAFIELD_NAMESPACE && d.type).map((d) => [d.key, d.type]),
           );
-          const remapped = typeFailures.map((e) => {
+          const remapped = failedEntries.map((e) => {
             const refreshedType = refreshedTypeByKey.get(e.key) || e.type;
             const refreshedValue = normalizeMetafieldValue(e.key, e.raw, refreshedType) || e.value;
             return { ...e, type: refreshedType, value: refreshedValue, liveTypeUsed: refreshedType };
           });
-          const changed = remapped.some((e, idx) => e.type !== typeFailures[idx].type || e.value !== typeFailures[idx].value);
+          const changed = remapped.some((e, idx) => e.type !== failedEntries[idx].type || e.value !== failedEntries[idx].value);
           if (changed) {
             chunk = remapped;
             attempt = 0;
