@@ -183,7 +183,7 @@ serve(async (req) => {
       const seoDesc = String(head.seo_description || (ai as any).seo_description || "");
       const headImages = Array.isArray(head.image_urls) ? head.image_urls : [];
       const altTexts = Array.isArray((ai as any).image_alt_texts) ? (ai as any).image_alt_texts as string[] : [];
-      const headMfValues = buildMetafieldValues(head);
+      
 
       const hasMultipleVariants = variants.length > 1;
       const optionName = hasMultipleVariants ? "Title" : "Title";
