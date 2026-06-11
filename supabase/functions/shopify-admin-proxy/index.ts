@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 import { assertAdminRequest } from "../_shared/admin-auth.ts";
-import { corsHeaders, shopifyAdminFetch, shopifyAdminGraphQL, jsonResponse } from "../_shared/shopify-admin-client.ts";
+import { corsHeaders, shopifyAdminFetch, shopifyAdminGraphQL, jsonResponse, resolveAdminAccessToken } from "../_shared/shopify-admin-client.ts";
 import {
   isHeadlessStorefrontConfigured,
   storefrontListProducts,
@@ -86,17 +86,8 @@ async function listProducts(data: any) {
 
   // Direct fetch (not shopifyAdminFetch) so we can read the Link header for cursor-based pagination
   const shop = Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") || "ecom-blueprint-gen-6ud1s.myshopify.com";
-  const accessToken =
-    Deno.env.get("SHOPIFY_ADMIN_API_TOKEN") ||
-    (() => {
-      for (const [k, v] of Object.entries(Deno.env.toObject())) {
-        if (k.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") && v) return v;
-      }
-      return "";
-    })() ||
-    Deno.env.get("SHOPIFY_ACCESS_TOKEN") ||
-    Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") ||
-    "";
+  // Use the centralized token resolver so client_credentials / refresh logic is honored.
+  const accessToken = await resolveAdminAccessToken();
   const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-07";
   const fetchHeaders = { "Content-Type": "application/json", "X-Shopify-Access-Token": accessToken };
   const url = `https://${shop}/admin/api/${apiVersion}/products.json?${search.toString()}`;
