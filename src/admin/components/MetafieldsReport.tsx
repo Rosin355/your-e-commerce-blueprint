@@ -45,6 +45,12 @@ export function MetafieldsReport({ report }: { report: Report }) {
               <div className="font-mono text-[11px] font-medium">
                 {d.namespace}.{d.key}
               </div>
+              {(d.liveTypeUsed || d.type) && (
+                <div className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+                  type: {d.liveTypeUsed || d.type}
+                  {d.type && d.liveTypeUsed && d.type !== d.liveTypeUsed ? ` (locale: ${d.type})` : ""}
+                </div>
+              )}
               {d.error && (
                 <div className="mt-0.5 text-[10px] text-destructive break-words" title={d.error}>
                   {d.error}
