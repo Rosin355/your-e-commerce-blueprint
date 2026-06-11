@@ -698,3 +698,77 @@ export default function ProductEnrichmentPanel() {
     </div>
   );
 }
+
+// ── Shopify merge export sub-component ───────────────────────────────────────
+
+import type { EnrichedProductDraft } from "../types/productEnrichment";
+
+function ShopifyMergeExport({ drafts }: { drafts: EnrichedProductDraft[] }) {
+  const [report, setReport] = useState<MergeReport | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [fileName, setFileName] = useState<string>("");
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setLoading(true);
+    setFileName(file.name);
+    try {
+      const text = await file.text();
+      const r = mergeDraftsIntoShopifyCsv(text, drafts);
+      setReport(r);
+      if (r.matchedHandles === 0) {
+        toast.warning("Nessun handle del CSV corrisponde alle bozze generate.");
+      } else {
+        toast.success(`Merge completato: ${r.matchedHandles}/${drafts.length} prodotti aggiornati.`);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(`Errore merge CSV: ${msg}`);
+      setReport(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <label>
+        <input
+          type="file"
+          accept=".csv,text/csv"
+          className="hidden"
+          onChange={handleFile}
+          disabled={loading}
+        />
+        <Button asChild variant="outline" className="gap-2" disabled={loading}>
+          <span>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
+            Export Shopify-compatible update CSV
+          </span>
+        </Button>
+      </label>
+      {fileName && (
+        <span className="text-[10px] text-muted-foreground">Sorgente: {fileName}</span>
+      )}
+      {report && (
+        <div className="mt-1 flex items-center gap-2">
+          <span className="text-[10px] text-muted-foreground">
+            {report.productRows} prodotti · {report.matchedHandles} match
+            {report.unmatchedDrafts.length > 0 && ` · ${report.unmatchedDrafts.length} non trovati`}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 gap-1 text-xs"
+            onClick={() => downloadMergedShopifyCsv(report)}
+          >
+            <Download className="h-3 w-3" />
+            Scarica CSV merged
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
