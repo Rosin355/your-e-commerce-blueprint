@@ -633,23 +633,25 @@ function getMetafieldConfig() {
   };
 }
 
+async function getMetafieldConfigLive() {
+  const definitions = await fetchLiveMetafieldDefinitions(true);
+  const liveTypeByKey = new Map(
+    definitions.filter((d) => d.namespace === METAFIELD_NAMESPACE && d.type).map((d) => [d.key, d.type]),
+  );
+  const base = getMetafieldConfig();
+  return {
+    ...base,
+    fields: base.fields.map((field) => ({
+      ...field,
+      liveType: liveTypeByKey.get(field.key),
+      effectiveType: liveTypeByKey.get(field.key) || field.type,
+    })),
+    definitions,
+  };
+}
+
 async function listShopifyMetafieldDefinitions() {
-  const query = `
-    query ProductMetafieldDefs {
-      metafieldDefinitions(first: 100, ownerType: PRODUCT) {
-        edges { node { id name namespace key type { name } description } }
-      }
-    }`;
-  const res = await shopifyAdminGraphQL<any>(query, {});
-  const defs = (res?.metafieldDefinitions?.edges || []).map((e: any) => ({
-    id: e.node.id,
-    name: e.node.name,
-    namespace: e.node.namespace,
-    key: e.node.key,
-    type: e.node.type?.name,
-    description: e.node.description,
-    fullKey: `${e.node.namespace}.${e.node.key}`,
-  }));
+  const defs = await fetchLiveMetafieldDefinitions(true);
 
   const expected = getMetafieldConfig().fields;
   const byFull = new Map(defs.map((d: any) => [d.fullKey, d]));
