@@ -68,18 +68,6 @@ function deriveHandle(row: DbRow): string {
     .replace(/^-+|-+$/g, "");
 }
 
-function buildMetafieldValues(row: DbRow): Record<string, string> {
-  const ai = row.ai_enrichment_json || {};
-  const stored = (row.metafields || {}) as Record<string, unknown>;
-  const out: Record<string, string> = {};
-  for (const key of METAFIELD_KEYS) {
-    // Priority: explicit stored metafields → ai_enrichment_json.metafields → ai_enrichment_json[key]
-    const aiMf = (ai.metafields as Record<string, unknown>) || {};
-    const raw = stored[key] ?? aiMf[key] ?? (ai as Record<string, unknown>)[key] ?? "";
-    out[key] = normalizeMetafieldValue(key, raw);
-  }
-  return out;
-}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
