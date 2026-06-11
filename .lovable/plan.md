@@ -1,24 +1,32 @@
-# Aggiornamento slider hero homepage
+## Check dominio Shopify
 
-## Obiettivo
-Migliorare la coerenza testo/immagine dello slider hero e aggiungere una terza slide dedicata a terrazze e balconi.
+Verificato — il dominio hardcoded nel codice **coincide** con lo store Shopify reale collegato:
 
-## Modifiche
+- Store reale: `ecom-blueprint-gen-6ud1s.myshopify.com`
+- `src/lib/shopify.ts` → `ecom-blueprint-gen-6ud1s.myshopify.com` ✅
+- `supabase/functions/_shared/shopify-admin-client.ts` (fallback) → `ecom-blueprint-gen-6ud1s.myshopify.com` ✅
 
-### 1. Nuova immagine — `src/assets/hero-outdoor-custom-3.png`
-Generata con `imagegen` (modello `standard`, 1920×1280).
+Nessuna modifica al dominio necessaria.
 
-Prompt: terrazza residenziale elegante in stile mediterraneo, grandi vasi in terracotta e ceramica con ortensie in fiore, ulivo decorativo, agrumi in vaso, lavanda, pavimento in pietra naturale, ringhiera moderna con vista aperta sul verde, luce naturale del primo mattino, mood premium, editoriale, nessuna persona, nessun testo.
+## Redeploy edge functions
 
-### 2. `src/components/storefront/HomeHero.tsx`
-- Import nuova immagine `heroOutdoorCustom3`.
-- Slide 1 (`spring`):
-  - title → `"Piante da giardino,\nscelte con cura"`
-  - subtitle → `"Aceri, arbusti ornamentali e fioriture pensate per dare carattere al tuo giardino, stagione dopo stagione."`
-- Slide 2 (`editorial`): invariata.
-- Nuova slide 3 (`terrace`):
-  - image: `heroOutdoorCustom3`
-  - title: `"Trasforma il tuo balcone\nin un giardino"`
-  - subtitle: `"Vasi di carattere, ortensie, agrumi e fioriture stagionali per vestire terrazzi e balconi con stile mediterraneo."`
+Eseguire un redeploy forzato di:
+- `shopify-admin-proxy`
+- `create-product-ai`
 
-Nessuna modifica alla logica di rotazione, agli indicatori, alle animazioni o al resto della homepage — il contatore e il loop si adattano automaticamente a `slides.length`.
+Tramite il tool `supabase--deploy_edge_functions` (nessuna modifica al codice — solo redeploy per assicurare che l'ultima versione sia attiva in produzione).
+
+## Nota sul messaggio "Nessun prodotto trovato"
+
+Il pannello "Arricchisci catalogo esistente" usa di default i filtri `source=Shopify Admin` + `status=Attivi`. Il proxy chiama `products.json?status=active&limit=50`. Se vedi "Nessun prodotto trovato" dopo il redeploy, le cause più probabili sono:
+
+1. I prodotti su Shopify sono in stato **draft**, non `active` → prova a cambiare il filtro su "Bozze" o "Tutti".
+2. Il secret `SHOPIFY_ACCESS_TOKEN` / `SHOPIFY_ADMIN_ACCESS_TOKEN` nelle edge functions è scaduto o non ha lo scope `read_products`.
+
+Dopo il redeploy posso fare un check rapido chiamando direttamente `shopify-admin-proxy` con `action: list_products` per confermare se Shopify restituisce prodotti o se serve agire sui secrets/stato prodotti.
+
+## Tecnico
+
+In build mode eseguirò:
+1. `supabase--deploy_edge_functions({ function_names: ["shopify-admin-proxy", "create-product-ai"] })`
+2. `supabase--curl_edge_functions` su `/shopify-admin-proxy` con `{ action: "list_products", data: { status: "any", limit: 5 } }` per validare la risposta reale dello store.
