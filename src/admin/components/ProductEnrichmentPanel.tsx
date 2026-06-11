@@ -390,6 +390,24 @@ function ModeAPanel() {
             <CardTitle className="text-base">2 — Genera e pubblica</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Info banner: clarify the two publish paths */}
+            <div className="rounded-md border border-blue-200 bg-blue-50/60 p-3 text-xs text-blue-900 space-y-1">
+              <p>
+                <strong>Come arrivano i metafield in Shopify:</strong>
+              </p>
+              <p>
+                ✅ <strong>"Pubblica su Shopify"</strong> e <strong>"Pubblica solo metafield"</strong> —
+                usano l'Admin API (<code>metafieldsSet</code>): canale affidabile, scrive i 16 metafield
+                <code> custom.*</code> sui prodotti esistenti, indipendentemente dalle definizioni manuali.
+              </p>
+              <p>
+                ⚠️ Il <strong>CSV "prodotti base"</strong> qui sotto importa SOLO titolo, descrizione,
+                varianti, prezzi, immagini e SEO. <strong>NON include i metafield</strong> perché
+                l'importer nativo di Shopify li scarta silenziosamente quando le definizioni non
+                combaciano alla perfezione. Per i metafield usa sempre la via API.
+              </p>
+            </div>
+
             <div className="flex flex-wrap items-end gap-3">
               <div className="space-y-1">
                 <Label className="text-xs">Stile di scrittura</Label>
@@ -428,7 +446,7 @@ function ModeAPanel() {
                     ? "Disponibile solo con sorgente Shopify Admin"
                     : !hasDrafts
                       ? "Genera prima le bozze: pubblica solo contenuti già rivisti"
-                      : undefined
+                      : "Pubblica testi + SEO + metafield via Admin API"
                 }
               >
                 {isRunning && batchProgress?.phase === "publish" ? (
@@ -439,8 +457,30 @@ function ModeAPanel() {
                 Pubblica su Shopify (tutti)
               </Button>
 
+              <Button
+                onClick={() => publishMetafieldsOnly(products)}
+                disabled={isRunning || isDbSource || !hasDrafts}
+                variant="secondary"
+                className="gap-2"
+                title={
+                  isDbSource
+                    ? "Disponibile solo con sorgente Shopify Admin"
+                    : !hasDrafts
+                      ? "Genera prima le bozze AI"
+                      : "Pubblica SOLO i 16 metafield custom.* (non tocca titolo/descrizione/SEO). Ideale per prodotti già importati via CSV."
+                }
+              >
+                {isRunning && batchProgress?.phase === "publish" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <UploadCloud className="h-4 w-4" />
+                )}
+                Pubblica solo metafield
+              </Button>
+
               <ShopifyNativeCsvButton />
             </div>
+
 
             {/* Advanced merge section (collapsed) */}
             {hasDrafts && (
