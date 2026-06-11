@@ -22,12 +22,13 @@ function getConfig(): ShopifyAdminConfig {
     Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") ||
     Deno.env.get("SHOPIFY_ADMIN_SHOP") ||
     "ecom-blueprint-gen-6ud1s.myshopify.com";
-  // Prefer the long-lived custom-app token; fall back to the online token stored by the
-  // native Shopify connector (key contains user id, so we scan env for any matching prefix).
-  let accessToken =
-    Deno.env.get("SHOPIFY_ACCESS_TOKEN") ||
-    Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") ||
-    "";
+  // Token priority:
+  //   1. SHOPIFY_ADMIN_API_TOKEN  — long-lived Custom App token (shpat_...), set manually by admin
+  //   2. SHOPIFY_ONLINE_ACCESS_TOKEN_* — short-lived (~24h) token from native Shopify connector,
+  //      refreshed by shopify--connect_shopify_account. Preferred over the legacy SHOPIFY_ACCESS_TOKEN
+  //      because the connector keeps it fresh while the legacy one can go stale silently.
+  //   3. SHOPIFY_ACCESS_TOKEN / SHOPIFY_ADMIN_ACCESS_TOKEN — legacy fallback.
+  let accessToken = Deno.env.get("SHOPIFY_ADMIN_API_TOKEN") || "";
   if (!accessToken) {
     for (const [key, value] of Object.entries(Deno.env.toObject())) {
       if (key.startsWith("SHOPIFY_ONLINE_ACCESS_TOKEN") && value) {
@@ -35,6 +36,12 @@ function getConfig(): ShopifyAdminConfig {
         break;
       }
     }
+  }
+  if (!accessToken) {
+    accessToken =
+      Deno.env.get("SHOPIFY_ACCESS_TOKEN") ||
+      Deno.env.get("SHOPIFY_ADMIN_ACCESS_TOKEN") ||
+      "";
   }
   // Admin API version is env-driven (server-side secret only — never exposed to the browser).
   // Keep current: Shopify supports each version ~12 months. Verify GraphQL/REST fields before
