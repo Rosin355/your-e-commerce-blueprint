@@ -30,6 +30,8 @@ export interface BatchProductResult {
   restored?: boolean;
   status: BatchItemStatus;
   error: string | null;
+  metafieldsReport?: MetafieldsReport;
+
 }
 
 export interface BatchProgress {
