@@ -941,9 +941,10 @@ function ShopifyNativeCsvButton() {
           disabled={loading}
           variant="default"
           className="gap-2 bg-emerald-700 text-white hover:bg-emerald-800"
+          title="Importa i prodotti base in Shopify. I metafield NON sono inclusi: vanno pubblicati via API col bottone 'Pubblica solo metafield'."
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-          Scarica CSV Shopify (importabile)
+          Scarica CSV prodotti base (senza metafield)
         </Button>
         <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
           <input
@@ -966,9 +967,10 @@ function ShopifyNativeCsvButton() {
         </label>
       </div>
       <p className="text-[10px] text-muted-foreground">
-        File pronto per <strong>Shopify Admin → Products → Import</strong>. Include varianti raggruppate per
-        Handle, immagini multiple, SEO e i 16 metafield <code>custom.*</code>. Backup stabile alternativo
-        alla pubblicazione via API.
+        File pronto per <strong>Shopify Admin → Products → Import</strong>: titolo, descrizione,
+        varianti raggruppate per Handle, immagini multiple e SEO. <strong>I 16 metafield
+        <code> custom.*</code> NON sono inclusi</strong> (vai via API col bottone "Pubblica solo
+        metafield" qui sopra — è l'unico modo affidabile).
       </p>
       {lastResult && (
         <p className="text-[10px] text-emerald-700">
