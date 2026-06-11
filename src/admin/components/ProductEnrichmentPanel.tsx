@@ -630,19 +630,15 @@ function ModeAPanel() {
                         </Button>
                       )}
                       {result.metafieldsReport && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 gap-1 px-2 text-[11px]"
+                        <MetafieldsChip
+                          report={result.metafieldsReport}
+                          open={openReportFor === result.productId}
                           onClick={() =>
                             setOpenReportFor(
                               openReportFor === result.productId ? null : result.productId,
                             )
                           }
-                          title="Mostra dettaglio metafield"
-                        >
-                          MF {result.metafieldsReport.written}/{result.metafieldsReport.written + result.metafieldsReport.errors.length}
-                        </Button>
+                        />
                       )}
                     </div>
 
