@@ -733,24 +733,57 @@ serve(async (req) => {
         result = { success: true, id: (await shopifyAdminFetch("products.json", "POST", { product: data })).product?.id };
         break;
       case "update_product": {
-        const { id, metafields, debug, retries, metafields_only, ...productData } = data;
-        let updatedId: any = Number(id);
+        const { id, handle, sku, metafields, debug, retries, metafields_only, ...productData } = data;
+        // Resolve real Shopify ID. Trust `id` only if it looks like a Shopify
+        // numeric ID (>= 10 digits). DB-source ids are short hash codes which
+        // would write to the wrong product or fail; in that case we resolve
+        // by handle (preferito) or sku to guarantee idempotent UPDATE (no
+        // duplicates, sovrascrive il prodotto esistente).
+        const looksLikeShopifyId = (v: any) => {
+          const n = Number(v);
+          return Number.isFinite(n) && n > 0 && String(n).length >= 10;
+        };
+        let resolvedId: number | null = looksLikeShopifyId(id) ? Number(id) : null;
+        let resolvedBy = resolvedId ? "id" : null;
+        if (!resolvedId && (handle || sku)) {
+          const lookup = await searchProductBySkuOrHandle({ handle, sku });
+          if (lookup.found && lookup.id) {
+            resolvedId = Number(lookup.id);
+            resolvedBy = lookup.matchedBy || "lookup";
+          }
+        }
+        if (!resolvedId) {
+          throw new Error(
+            `Prodotto non trovato su Shopify (id=${id}, handle=${handle || "n/a"}, sku=${sku || "n/a"}). Importa prima il CSV base o crea il prodotto.`,
+          );
+        }
+        console.log(`[update_product] resolved id=${resolvedId} via ${resolvedBy} (input id=${id}, handle=${handle || "—"})`);
+
+        let updatedId: any = resolvedId;
         // When metafields_only=true we skip productUpdate (body HTML / SEO) and
         // only push the 16 custom.* metafields. Used by the "Pubblica solo
         // metafield" action for products that already exist in Shopify (e.g.
         // imported via the base CSV) but lack metafield data.
         if (!metafields_only) {
-          const updateRes = await shopifyAdminFetch(`products/${id}.json`, "PUT", { product: productData });
+          const updateRes = await shopifyAdminFetch(`products/${resolvedId}.json`, "PUT", {
+            product: { ...productData, id: resolvedId },
+          });
           updatedId = updateRes.product?.id;
         }
         let metafieldsResult: any;
         if (metafields && typeof metafields === "object") {
-          metafieldsResult = await setProductCustomMetafields(Number(id), metafields as Record<string, string>, {
+          metafieldsResult = await setProductCustomMetafields(Number(resolvedId), metafields as Record<string, string>, {
             debug: !!debug,
             maxRetries: typeof retries === "number" ? retries : undefined,
           });
         }
-        result = { success: true, id: updatedId, metafields: metafieldsResult, metafields_only: !!metafields_only };
+        result = {
+          success: true,
+          id: updatedId,
+          resolved_by: resolvedBy,
+          metafields: metafieldsResult,
+          metafields_only: !!metafields_only,
+        };
         break;
       }
       case "get_metafield_config":
