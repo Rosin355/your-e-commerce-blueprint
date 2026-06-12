@@ -439,18 +439,80 @@ async function fetchLiveMetafieldDefinitions(force = false): Promise<LiveMetafie
   return definitions;
 }
 
-function normalizeMetafieldValue(key: string, raw: unknown, typeOverride?: string): string | null {
-  const trimmed = String(raw ?? "").trim();
-  if (!trimmed) return null;
-  const type = typeOverride || METAFIELD_TYPES[key];
-  if (type?.startsWith("list.")) {
-    try {
-      const parsed = JSON.parse(trimmed);
-      if (Array.isArray(parsed)) return JSON.stringify(parsed.map((v) => String(v)));
-    } catch { /* fall through */ }
-    return JSON.stringify([trimmed]);
+export type NormalizeResult =
+  | { kind: "value"; value: string }
+  | { kind: "skip"; reason: string }
+  | { kind: "empty" };
+
+function tryParseJson(s: string): unknown | undefined {
+  try { return JSON.parse(s); } catch { return undefined; }
+}
+
+function legacyFaqToJson(raw: string): string | null {
+  // Parses legacy "Q: ...\nA: ...\n\nQ: ..." text blocks
+  const blocks = raw.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
+  const items: Array<{ question: string; answer: string }> = [];
+  for (const b of blocks) {
+    const qm = b.match(/Q\s*[:.\-]\s*([\s\S]*?)\n\s*A\s*[:.\-]\s*([\s\S]+)$/i);
+    if (qm) {
+      const q = qm[1].trim();
+      const a = qm[2].trim();
+      if (q && a) items.push({ question: q, answer: a });
+    }
   }
-  return trimmed;
+  return items.length > 0 ? JSON.stringify(items) : null;
+}
+
+function normalizeMetafieldValueDetailed(key: string, raw: unknown, typeOverride?: string): NormalizeResult {
+  const trimmed = String(raw ?? "").trim();
+  if (!trimmed) return { kind: "empty" };
+  const type = typeOverride || METAFIELD_TYPES[key];
+
+  // list.* — Shopify expects a JSON-encoded array of strings
+  if (type?.startsWith("list.")) {
+    const parsed = tryParseJson(trimmed);
+    if (Array.isArray(parsed)) return { kind: "value", value: JSON.stringify(parsed.map((v) => String(v))) };
+    // Fallback: split multilinea o stringa singola
+    const lines = trimmed.split("\n").map((l) => l.trim()).filter(Boolean);
+    return { kind: "value", value: JSON.stringify(lines.length > 1 ? lines : [trimmed]) };
+  }
+
+  // json — must be valid JSON. Handle per-key legacy formats.
+  if (type === "json") {
+    const parsed = tryParseJson(trimmed);
+    if (parsed !== undefined) return { kind: "value", value: JSON.stringify(parsed) };
+
+    if (key === "faq_prodotto") {
+      const converted = legacyFaqToJson(trimmed);
+      if (converted) return { kind: "value", value: converted };
+      return { kind: "skip", reason: "faq_prodotto: contenuto legacy non convertibile in JSON [{question,answer}]" };
+    }
+    if (key === "attributi_prodotto") {
+      return { kind: "skip", reason: "attributi_prodotto: atteso JSON array di {key,value}, ricevuto testo non valido" };
+    }
+    return { kind: "skip", reason: `Tipo Shopify "json" richiede contenuto JSON valido per "${key}"` };
+  }
+
+  // rich_text_field — Shopify expects a rich-text JSON document, NOT raw HTML.
+  // Per evitare di mandare <h2>...</h2> e rompere il sync, saltiamo in modo sicuro.
+  if (type === "rich_text_field") {
+    return {
+      kind: "skip",
+      reason:
+        key === "long_description"
+          ? "HTML già pubblicato come body_html del prodotto; conversione automatica HTML→rich_text disabilitata"
+          : `Tipo Shopify "rich_text_field" non supportato dal sync (conversione HTML→rich_text disabilitata)`,
+    };
+  }
+
+  // Text types (single_line / multi_line)
+  return { kind: "value", value: trimmed };
+}
+
+// Retro-compat per il resto del codice che si aspetta string | null
+function normalizeMetafieldValue(key: string, raw: unknown, typeOverride?: string): string | null {
+  const r = normalizeMetafieldValueDetailed(key, raw, typeOverride);
+  return r.kind === "value" ? r.value : null;
 }
 
 function isTransientMetafieldError(msg: string): boolean {
