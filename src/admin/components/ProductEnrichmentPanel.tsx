@@ -405,6 +405,16 @@ function ModeAPanel() {
                 quindi <strong>sovrascrive sempre senza creare doppioni</strong>.
               </p>
               <p>
+                🔒 <strong>Lo stato del prodotto (ACTIVE / DRAFT) non viene mai modificato</strong>:
+                un draft resta draft, un attivo resta attivo. Per pubblicare un draft basta cambiarne
+                lo stato direttamente da Shopify Admin.
+              </p>
+              <p>
+                🧠 L'AI ora compila <strong>tutti i {ALL_METAFIELD_KEYS.length} campi</strong> incluso
+                nome botanico, origini e periodi stagionali (best-effort): rivedi a mano i campi
+                botanici e correggi se necessario.
+              </p>
+              <p>
                 ⚠️ Il <strong>CSV "prodotti base"</strong> qui sotto importa SOLO titolo, descrizione,
                 varianti, prezzi, immagini e SEO. <strong>NON include i metafield</strong> perché
                 l'importer nativo di Shopify li scarta silenziosamente quando le definizioni non
