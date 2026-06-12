@@ -627,10 +627,12 @@ async function setProductCustomMetafields(
       }
     }`;
 
-  // metafieldsSet accepts up to 25 metafields per call
-  for (let i = 0; i < entries.length; i += 25) {
-    let chunk = entries.slice(i, i + 25);
-    const chunkIndex = i / 25;
+  // metafieldsSet accetta fino a 25 campi per call, ma usiamo chunk piccoli (1)
+  // così un singolo metafield invalido NON fa marcare tutti gli altri come "non scritto".
+  const CHUNK_SIZE = Number(Deno.env.get("SHOPIFY_METAFIELDS_CHUNK_SIZE") ?? "1") || 1;
+  for (let i = 0; i < entries.length; i += CHUNK_SIZE) {
+    let chunk = entries.slice(i, i + CHUNK_SIZE);
+    const chunkIndex = Math.floor(i / CHUNK_SIZE);
     let typeRetryUsed = false;
 
     let attempt = 0;
