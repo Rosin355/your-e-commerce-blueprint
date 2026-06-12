@@ -130,14 +130,26 @@ export function mapAiOutputToMetafields(
   const fullCare = careLines.join("\n");
   const briefCare = careLines.slice(0, 2).join(" • ");
 
-  const keyFeaturesJson = JSON.stringify(content.key_benefits ?? []);
-  const specialBulletsJson = JSON.stringify(content.characteristics ?? []);
-  const attributesJson = JSON.stringify(content.characteristics ?? []);
+  const keyFeatures = (content.key_benefits ?? []).filter(Boolean);
+  const characteristics = (content.characteristics ?? []).filter(Boolean);
+
+  // attributi_prodotto: oggetti {key,value} per essere parsato dalla PDP.
+  // Se l'AI non fornisce `attributes`, deriviamo dalle characteristics tipo "Chiave: valore".
+  const aiAttrs = Array.isArray((content as any).attributes) ? (content as any).attributes : [];
+  const derivedAttrs = aiAttrs.length > 0
+    ? aiAttrs
+        .filter((a: any) => a && typeof a === "object" && a.key && a.value)
+        .map((a: any) => ({ key: String(a.key).trim(), value: String(a.value).trim() }))
+    : characteristics
+        .map((c) => {
+          const m = c.match(/^([^:]{2,40}):\s*(.+)$/);
+          return m ? { key: m[1].trim(), value: m[2].trim() } : null;
+        })
+        .filter((x): x is { key: string; value: string } => !!x);
+  const attributesJson = JSON.stringify(derivedAttrs);
+
   const faqArr = Array.isArray(content.faq) ? content.faq : [];
   const faqTitle = faqArr.length > 0 ? "Domande frequenti" : "";
-  // Serialize FAQ in plain text format (Q: ... \n A: ...) so it lands in any
-  // multi_line_text_field. The live-type detector in the proxy auto-adapts if
-  // the store's metafield is actually rich_text or list.
   const faqText = faqArr
     .map((f: any) => `Q: ${f?.q ?? ""}\nA: ${f?.a ?? ""}`)
     .filter((s) => s.trim() !== "Q: \nA:")
@@ -145,30 +157,33 @@ export function mapAiOutputToMetafields(
   const longDescription = (content.optimized_description ?? "").trim();
   const difficulty = deriveGrownDifficulty(content);
 
+  const ai = content as any;
+
   return {
-    // Directly filled from AI output
+    // Liste salvate come testo multilinea (compatibile con parseMultilineMetafield della PDP)
     care_info: briefCare,
     come_prendersene_cura: fullCare,
-    conosci_meglio_la_tua_pianta: (content.characteristics ?? []).join("\n"),
-    key_features: keyFeaturesJson,
-    special_bullets: specialBulletsJson,
+    conosci_meglio_la_tua_pianta: characteristics.join("\n"),
+    key_features: keyFeatures.join("\n"),
+    special_bullets: characteristics.join("\n"),
     attributi_prodotto: attributesJson,
     short_intro: content.short_description ?? "",
     promo_text: content.short_description ?? "",
     titolo_sezione_faq: faqTitle,
     faq_prodotto: faqText,
     long_description: longDescription,
-    // Derived / inferred
     difficolta_di_coltivazione: difficulty,
-    origini_e_habitat: "",
-    // From user input (factual — AI cannot reliably invent these)
-    nome_botanico: input.nome_botanico ?? "",
+    origini_e_habitat: typeof ai.origins_habitat === "string" ? ai.origins_habitat.trim() : "",
+    // Nome botanico: input dell'utente vince, altrimenti suggerimento AI
+    nome_botanico: (input.nome_botanico && input.nome_botanico.trim())
+      ? input.nome_botanico.trim()
+      : (typeof ai.botanical_name === "string" ? ai.botanical_name.trim() : ""),
     nome_comune: input.nome_comune ?? input.title,
-    // Cultivation periods are factual; left empty for manual completion
-    periodo_di_fioritura: "",
-    periodo_di_messa_a_dimora: "",
-    periodo_di_raccolta: "",
-    periodo_ottimale_di_potatura: "",
+    // Periodi: compilati da AI (best-effort, il cliente revisiona a mano se sbagliati)
+    periodo_di_fioritura: typeof ai.flowering_period === "string" ? ai.flowering_period.trim() : "",
+    periodo_di_messa_a_dimora: typeof ai.planting_period === "string" ? ai.planting_period.trim() : "",
+    periodo_di_raccolta: typeof ai.harvest_period === "string" ? ai.harvest_period.trim() : "",
+    periodo_ottimale_di_potatura: typeof ai.pruning_period === "string" ? ai.pruning_period.trim() : "",
   };
 }
 
