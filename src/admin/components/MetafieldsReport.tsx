@@ -56,6 +56,11 @@ export function MetafieldsReport({ report }: { report: Report }) {
                   {d.error}
                 </div>
               )}
+              {!d.error && d.reason && (
+                <div className="mt-0.5 text-[10px] text-muted-foreground break-words" title={d.reason}>
+                  {d.reason}
+                </div>
+              )}
             </div>
             <div className="shrink-0 text-[10px] text-muted-foreground">
               {d.status === "sent" && d.attempts && d.attempts > 1 ? `OK (${d.attempts} tent.)` : d.status}
