@@ -645,7 +645,26 @@ function ModeAPanel() {
 
                     {/* Title + handle */}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{result.title}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="truncate text-sm font-medium">{result.title}</p>
+                        {(() => {
+                          const src = products.find((p) => p.id === result.productId);
+                          if (!src?.status) return null;
+                          const isDraft = src.status.toLowerCase() === "draft";
+                          return (
+                            <Badge
+                              variant="outline"
+                              className={`h-4 px-1 text-[9px] uppercase ${
+                                isDraft
+                                  ? "border-amber-300 bg-amber-50 text-amber-700"
+                                  : "border-green-300 bg-green-50 text-green-700"
+                              }`}
+                            >
+                              {src.status}
+                            </Badge>
+                          );
+                        })()}
+                      </div>
                       <p className="text-[11px] text-muted-foreground">{result.handle}</p>
                     </div>
 
