@@ -198,7 +198,7 @@ function DraftPreview({
 function ModeAPanel() {
   const { user } = useAuth();
   const [source, setSource] = useState<"db" | "shopify">("db");
-  const [statusFilter, setStatusFilter] = useState("active");
+  const [statusFilter, setStatusFilter] = useState("active,draft");
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<ShopifyAdminProduct[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
