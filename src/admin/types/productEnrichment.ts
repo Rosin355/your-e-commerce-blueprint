@@ -65,7 +65,8 @@ export const METAFIELD_LABELS: Record<ShopifyMetafieldKey, string> = {
   long_description: "Descrizione lunga",
 };
 
-// Which fields the AI generates vs which require manual input (factual dates/periods)
+// Tutti i 19 metafield possono essere compilati dall'AI (best-effort).
+// I campi botanici/stagionali sono suggerimenti — il cliente li revisiona a mano se necessario.
 export const AI_GENERATED_KEYS = new Set<ShopifyMetafieldKey>([
   "care_info",
   "come_prendersene_cura",
@@ -80,15 +81,16 @@ export const AI_GENERATED_KEYS = new Set<ShopifyMetafieldKey>([
   "faq_prodotto",
   "attributi_prodotto",
   "long_description",
-]);
-
-export const MANUAL_KEYS = new Set<ShopifyMetafieldKey>([
   "nome_botanico",
-  "nome_comune",
   "periodo_di_fioritura",
   "periodo_di_messa_a_dimora",
   "periodo_di_raccolta",
   "periodo_ottimale_di_potatura",
+]);
+
+// Campi che usano comunque il valore inserito manualmente dall'utente quando presente
+export const MANUAL_KEYS = new Set<ShopifyMetafieldKey>([
+  "nome_comune",
 ]);
 
 // Maps Shopify CSV column header → internal metafield key
