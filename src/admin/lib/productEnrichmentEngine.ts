@@ -150,10 +150,16 @@ export function mapAiOutputToMetafields(
 
   const faqArr = Array.isArray(content.faq) ? content.faq : [];
   const faqTitle = faqArr.length > 0 ? "Domande frequenti" : "";
-  const faqText = faqArr
-    .map((f: any) => `Q: ${f?.q ?? ""}\nA: ${f?.a ?? ""}`)
-    .filter((s) => s.trim() !== "Q: \nA:")
-    .join("\n\n");
+  // faq_prodotto: serializzato come JSON array di {question, answer} (atteso da Shopify type=json
+  // e dal parser della PDP `parseFaqItems`). Tolleriamo sia {q,a} che {question,answer} dall'AI.
+  const faqObjects = faqArr
+    .map((f: any) => {
+      const q = String(f?.question ?? f?.q ?? "").trim();
+      const a = String(f?.answer ?? f?.a ?? "").trim();
+      return q && a ? { question: q, answer: a } : null;
+    })
+    .filter((x): x is { question: string; answer: string } => !!x);
+  const faqJson = faqObjects.length > 0 ? JSON.stringify(faqObjects) : "";
   const longDescription = (content.optimized_description ?? "").trim();
   const difficulty = deriveGrownDifficulty(content);
 
