@@ -805,6 +805,38 @@ function ModeAPanel() {
 function ModeBPanel() {
   const [form, setForm] = useState<EssentialProductInput>({ ...EMPTY_ESSENTIAL });
   const { draft, generating, generateFromEssentials, reset } = useProductEnrichment();
+  const [publishing, setPublishing] = useState(false);
+
+  async function handlePublish() {
+    if (!draft) return;
+    setPublishing(true);
+    try {
+      const res = await publishReviewedDraft({
+        productId: 0,
+        handle: draft.input_handle || form.handle,
+        sku: form.variant_sku,
+        bodyHtml: draft.body_html,
+        seoTitle: draft.seo_title,
+        seoDescription: draft.seo_description,
+        metafields: draft.metafields as Record<string, string>,
+      });
+      const mf = res.metafields;
+      toast.success(
+        `Pubblicato su Shopify (id ${res.id}, via ${res.resolved_by || "id"})${mf ? ` — ${mf.written} metafield ok` : ""}`,
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (/non trovato/i.test(msg)) {
+        toast.error(
+          "Prodotto non esistente su Shopify. Crea prima il prodotto base (tab 'Nuovo Prodotto AI' o importazione CSV) usando lo stesso handle/SKU.",
+        );
+      } else {
+        toast.error(`Errore pubblicazione: ${msg}`);
+      }
+    } finally {
+      setPublishing(false);
+    }
+  }
 
   const set = <K extends keyof EssentialProductInput>(key: K, value: EssentialProductInput[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
