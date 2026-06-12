@@ -105,16 +105,21 @@ function MetafieldsChip({
   onClick: () => void;
 }) {
   const failed = report.details.filter((d) => d.status === "failed").length;
-  const totalAttempted = report.details.filter((d) => d.status !== "skipped").length;
+  const skipped = report.details.filter((d) => d.status === "skipped").length;
+  const sent = report.written;
   const className = failed > 0
     ? "h-7 border-destructive/50 bg-destructive/10 px-2 text-[11px] text-destructive hover:bg-destructive/15"
-    : report.written > 0
+    : sent > 0
       ? "h-7 border-primary/40 bg-primary/10 px-2 text-[11px] text-primary hover:bg-primary/15"
       : "h-7 px-2 text-[11px]";
 
+  const parts = [`${sent} inviati`];
+  if (skipped > 0) parts.push(`${skipped} saltati`);
+  if (failed > 0) parts.push(`${failed} errori`);
+
   return (
     <Button size="sm" variant="outline" className={className} onClick={onClick} title="Mostra dettaglio metafield">
-      MF {report.written}/{totalAttempted}{failed > 0 ? ` · ${failed} errori` : open ? " · aperto" : ""}
+      MF {parts.join(" · ")}{open ? " · aperto" : ""}
     </Button>
   );
 }
