@@ -176,7 +176,7 @@ export function mapAiOutputToMetafields(
     short_intro: content.short_description ?? "",
     promo_text: content.short_description ?? "",
     titolo_sezione_faq: faqTitle,
-    faq_prodotto: faqText,
+    faq_prodotto: faqJson,
     long_description: longDescription,
     difficolta_di_coltivazione: difficulty,
     origini_e_habitat: typeof ai.origins_habitat === "string" ? ai.origins_habitat.trim() : "",
