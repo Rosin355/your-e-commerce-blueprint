@@ -387,7 +387,7 @@ const METAFIELD_TYPES: Record<string, string> = {
   difficolta_di_coltivazione: "single_line_text_field",
   origini_e_habitat: "multi_line_text_field",
   long_description: "multi_line_text_field",
-  faq_prodotto: "multi_line_text_field",
+  faq_prodotto: "json",
   periodo_di_fioritura: "single_line_text_field",
   periodo_di_messa_a_dimora: "single_line_text_field",
   periodo_di_raccolta: "single_line_text_field",
