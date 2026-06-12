@@ -557,6 +557,8 @@ export function useProductEnrichment() {
       try {
         const res = await publishReviewedDraft({
           productId: p.id,
+          handle: p.handle,
+          sku: p.sku,
           bodyHtml: "", // ignored when metafieldsOnly
           metafields: reviewedDraft.metafields,
           debug: debugMetafields,
