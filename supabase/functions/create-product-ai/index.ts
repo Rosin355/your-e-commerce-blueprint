@@ -83,7 +83,7 @@ async function generateSeoForNewProduct(input: NewProductInput): Promise<Record<
   const requestBody = JSON.stringify({
     model: MODEL,
     messages: [
-      { role: "system", content: `Sei un botanico e copywriter SEO italiano per e-commerce di piante.\n${styleNote}\nBrand voice: "Online Garden – più che semplici piante. Cura, affidabilità, consegna protetta."\nNON inventare dati non forniti. NON fare promesse mediche o miracolose.\nSe un dato manca, scrivi in modo generico e corretto.` },
+      { role: "system", content: `Sei un botanico e copywriter SEO italiano per e-commerce di piante.\n${styleNote}\nBrand voice: "Online Garden – più che semplici piante. Cura, affidabilità, consegna protetta."\n\nREGOLE DI SCRITTURA OBBLIGATORIE:\n- Scrivi in italiano naturale, umano e scorrevole. Niente robotic-speak.\n- MAI inserire parentesi quadre [], graffe {}, virgolette JSON o caratteri tecnici nel testo libero.\n- Le liste (key_benefits, characteristics) devono essere frasi complete leggibili, non token.\n- NON inventare dati non forniti. NON fare promesse mediche o miracolose.\n- Per i campi botanici incerti (nome botanico, periodi stagionali) fornisci il valore più probabile per la specie/categoria indicata: sarà revisionato a mano dal cliente.` },
       { role: "user", content: `Dati nuovo prodotto da creare:\n- Nome: ${input.title}\n- Categoria: ${input.category || "N/D"}\n- Descrizione fornita: ${input.description || "N/D"}\n- Tags: ${JSON.stringify(input.tags || [])}\n- Vendor: Online Garden\n${input.imageDescription ? `- Descrizione immagine: ${input.imageDescription}` : ""}\n\nGenera i contenuti SEO completi per questo nuovo prodotto.` },
     ],
     tools: [SEO_TOOL],
