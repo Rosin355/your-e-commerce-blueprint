@@ -601,13 +601,18 @@ async function setProductCustomMetafields(
     const localType = METAFIELD_TYPES[key];
     const liveTypeUsed = liveTypeByKey.get(key);
     const type = liveTypeUsed || localType;
-    const value = normalizeMetafieldValue(key, metafields[key] ?? "", type);
-    if (value === null) {
+    const normalized = normalizeMetafieldValueDetailed(key, metafields[key] ?? "", type);
+    if (normalized.kind === "empty") {
       skipped++;
-      details.push({ key, namespace: METAFIELD_NAMESPACE, status: "skipped", type, liveTypeUsed });
+      details.push({ key, namespace: METAFIELD_NAMESPACE, status: "skipped", type, liveTypeUsed, reason: "valore vuoto" });
       continue;
     }
-    entries.push({ key, type, value, raw: metafields[key] ?? "", localType, liveTypeUsed });
+    if (normalized.kind === "skip") {
+      skipped++;
+      details.push({ key, namespace: METAFIELD_NAMESPACE, status: "skipped", type, liveTypeUsed, reason: normalized.reason });
+      continue;
+    }
+    entries.push({ key, type, value: normalized.value, raw: metafields[key] ?? "", localType, liveTypeUsed });
   }
 
   const errors: string[] = [];
