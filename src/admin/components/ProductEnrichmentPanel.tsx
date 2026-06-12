@@ -340,12 +340,14 @@ function ModeAPanel() {
             </Select>
             {!isDbSource && (
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-44">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Attivi</SelectItem>
-                  <SelectItem value="draft">Bozze</SelectItem>
+                  <SelectItem value="active,draft">Attivi + Bozze</SelectItem>
+                  <SelectItem value="active">Solo Attivi</SelectItem>
+                  <SelectItem value="draft">Solo Bozze</SelectItem>
+                  <SelectItem value="any">Tutti</SelectItem>
                   <SelectItem value="archived">Archiviati</SelectItem>
                 </SelectContent>
               </Select>
