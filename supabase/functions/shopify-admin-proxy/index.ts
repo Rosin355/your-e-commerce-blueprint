@@ -551,6 +551,7 @@ export interface MetafieldDetail {
   namespace: string;
   status: "sent" | "skipped" | "failed";
   error?: string;
+  reason?: string;
   attempts?: number;
   type?: string;
   liveTypeUsed?: string;
