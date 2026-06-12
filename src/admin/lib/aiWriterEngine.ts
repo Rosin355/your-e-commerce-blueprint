@@ -163,6 +163,10 @@ export async function publishDraft(draftId: string, adminEmail?: string) {
  */
 export async function publishReviewedDraft(params: {
   productId: number;
+  /** Handle prodotto Shopify — usato per risolvere l'ID quando productId non è un ID Shopify valido (es. catalogo DB). Garantisce UPDATE idempotente, no doppioni. */
+  handle?: string;
+  /** SKU prodotto — fallback aggiuntivo per la risoluzione. */
+  sku?: string;
   bodyHtml: string;
   seoTitle?: string;
   seoDescription?: string;
@@ -172,10 +176,12 @@ export async function publishReviewedDraft(params: {
   /** When true, skip productUpdate (body HTML / SEO) and ONLY push metafieldsSet. */
   metafieldsOnly?: boolean;
 }) {
-  return callProxy<{ success: boolean; id: number; metafields?: MetafieldsReport }>(
+  return callProxy<{ success: boolean; id: number; resolved_by?: string; metafields?: MetafieldsReport }>(
     "update_product",
     {
       id: params.productId,
+      handle: params.handle,
+      sku: params.sku,
       ...(params.metafieldsOnly
         ? {}
         : {
