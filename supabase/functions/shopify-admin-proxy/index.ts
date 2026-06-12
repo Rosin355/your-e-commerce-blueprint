@@ -56,10 +56,32 @@ function normalizeProduct(product: any) {
 
 async function listProducts(data: any) {
   const limit = Math.max(1, Math.min(Number(data?.limit || 50), 250));
-  const status = (data?.status || "active").toLowerCase();
+  const rawStatus = (data?.status || "active").toLowerCase().trim();
   const tagFilter = (data?.tag || "").toLowerCase().trim();
   const query = (data?.query || "").toLowerCase().trim();
   const pageInfo = data?.pageInfo || "";
+
+  // Multi-status (es. "active,draft"): Shopify REST non accetta lista,
+  // facciamo fetch sequenziali e uniamo deduplicando per id. La paginazione
+  // multi-status non è supportata: ritorniamo hasNextPage=false e tutti i
+  // risultati combinati (il caller carica già fino a 250 per chiamata).
+  if (rawStatus.includes(",")) {
+    const statuses = rawStatus.split(",").map((s) => s.trim()).filter(Boolean);
+    const seen = new Set<number>();
+    const merged: any[] = [];
+    for (const s of statuses) {
+      const r = await listProductsSingleStatus({ status: s, limit, pageInfo: "", tagFilter, query });
+      for (const p of r.products) {
+        if (!seen.has(p.id)) {
+          seen.add(p.id);
+          merged.push(p);
+        }
+      }
+    }
+    return { products: merged, hasNextPage: false, nextPageInfo: "" };
+  }
+
+  const status = rawStatus;
 
   // Prefer Storefront (Headless private token) for active-only listings: faster, higher rate
   // limit, no admin-token expiry. Falls back to Admin REST on error or when status != active.
@@ -77,6 +99,12 @@ async function listProducts(data: any) {
     }
   }
 
+  return await listProductsSingleStatus({ status, limit, pageInfo, tagFilter, query });
+}
+
+async function listProductsSingleStatus({
+  status, limit, pageInfo, tagFilter, query,
+}: { status: string; limit: number; pageInfo: string; tagFilter: string; query: string }) {
   const search = new URLSearchParams({
     limit: String(limit),
     fields: "id,title,handle,status,tags,updated_at",
@@ -84,9 +112,7 @@ async function listProducts(data: any) {
   });
   if (pageInfo) search.set("page_info", pageInfo);
 
-  // Direct fetch (not shopifyAdminFetch) so we can read the Link header for cursor-based pagination
   const shop = Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") || "ecom-blueprint-gen-6ud1s.myshopify.com";
-  // Use the centralized token resolver so client_credentials / refresh logic is honored.
   const accessToken = await resolveAdminAccessToken();
   const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-07";
   const fetchHeaders = { "Content-Type": "application/json", "X-Shopify-Access-Token": accessToken };
