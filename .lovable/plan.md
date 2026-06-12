@@ -1,83 +1,96 @@
+# Risposte rapide alle 4 domande
 
-# Piano implementazione
+### 1. I prodotti in DRAFT restano DRAFT dopo la pubblicazione?
+**Sì, restano DRAFT.** Verificato nel codice: `publishReviewedDraft` non invia mai il campo `status` a Shopify. Il proxy `update_product` chiama Shopify `PUT products/{id}.json` solo con `body_html`, SEO e metafield — Shopify quindi mantiene lo stato esistente del prodotto (draft → draft, active → active). I metafield vengono aggiornati in upsert per `namespace+key` senza creare duplicati. Nessun cambio di stato automatico.
 
-## 1. Filtro prodotti: Draft + Active (no archived)
+### 2. Crea da dati essenziali — funziona?
+Il pulsante esiste (`ProductEnrichmentPanel.tsx` → tab "Crea da dati essenziali" → `ModeBPanel`) e chiama `generateFromEssentials(form)` che invoca `create-product-ai` per generare i contenuti AI e produrre un `EnrichedProductDraft` locale. **Manca però l'azione finale di pubblicazione su Shopify**: la bozza viene mostrata in preview e si può scaricare il CSV, ma non c'è un pulsante "Pubblica su Shopify" come nel Mode A. Il pannello "Nuovo Prodotto AI" (`NewProductAIPanel.tsx`) ha invece `createOnShopify` ma è un flusso separato. Sistemo aggiungendo il bottone di pubblicazione in Mode B.
 
-**`src/admin/components/ProductEnrichmentPanel.tsx`**
-- Default `statusFilter`: da `"active"` a `"active,draft"`.
-- Nel `Select` aggiungo l'opzione "Active + Draft" come prima scelta (default), mantengo "Solo active", "Solo draft", "Tutti".
-- Mostro accanto al titolo di ogni prodotto in lista un piccolo badge `ACTIVE` (verde) o `DRAFT` (grigio), per chiarezza visiva.
+### 3. Bug parentesi quadre `["...","..."]` mostrate nella PDP
+Causa identificata: nel salvataggio metafield (`productEnrichmentEngine.ts → mapAiOutputToMetafields`):
+- `key_features`, `special_bullets`, `attributi_prodotto` vengono salvati come **stringhe JSON** (`JSON.stringify([...])`)
+- Ma lo storefront (`Pdp.tsx`) li legge con `parseMultilineMetafield` che si aspetta righe separate da `\n` → la stringa JSON viene mostrata letterale con tutte le `[]` e `""`
+- `attributi_prodotto` inoltre dovrebbe essere un array di oggetti `{key,value}` secondo `parseProductAttributes` — oggi è solo un array di stringhe → non viene mai renderizzato
 
-**`supabase/functions/shopify-admin-proxy/index.ts` — funzione `listProducts`**
-- Quando `status` contiene una virgola (es. `"active,draft"`), faccio 2 fetch sequenziali a Shopify REST (`status=active` poi `status=draft`) e unisco i risultati, perché l'endpoint REST non accetta lista. Mantengo il limite totale richiesto.
-- Quando `status="any"`: passo `status=any` direttamente (Shopify lo supporta).
-- Il fallback Storefront viene saltato per qualunque status diverso da `active` (già così).
-
-## 2. Pubblicazione idempotente (no doppioni, sovrascrive)
-
-Il flusso attuale **già** usa `productUpdate` (Admin GraphQL) con l'ID prodotto esistente: tecnicamente non crea duplicati. Il rischio di "doppione" può però apparire se:
-- il prodotto è stato caricato via CSV e poi rigenerato in Lovable senza riallineare l'ID Shopify nel DB locale.
-
-**`src/admin/hooks/useProductEnrichment.ts` + `src/admin/lib/aiWriterEngine.ts`**
-- Prima di `publishReviewedDraft`/`publishMetafieldsOnly`, se l'oggetto `ShopifyAdminProduct` ha `sku` ma `id` mancante o sospetto (es. id locale non Shopify), risolvo l'ID reale via lookup per `handle` (preferito, unico in Shopify) usando una nuova action `resolve_product_by_handle` nel proxy.
-- Logica:
-  1. Se `id` numerico Shopify presente → usa quello (UPDATE).
-  2. Altrimenti lookup per `handle` → trovato? UPDATE su quell'ID.
-  3. Non trovato? Mostra errore esplicito "prodotto non esistente su Shopify, importa prima il CSV base" (NON creiamo automaticamente per evitare di rompere il flusso CSV).
-
-**`supabase/functions/shopify-admin-proxy/index.ts`**
-- Nuova action `resolve_product_by_handle`: GET `products.json?handle=<handle>&fields=id,handle,status` (REST), restituisce `{ id, status }` o `null`.
-- Per `metafieldsSet` il comportamento è già upsert (sovrascrive il valore esistente per la stessa coppia namespace+key) — nessuna modifica necessaria, ma aggiungo un log esplicito per ogni metafield: `[written|overwritten|skipped]`.
-
-## 3. Estensione AI ai 3 metafield mancanti
-
-I 3 nuovi campi: `faq_prodotto`, `attributi_prodotto`, `long_description`.
-
-**`src/admin/types/productEnrichment.ts`**
-- Aggiungo a `ShopifyMetafieldKey`, `ALL_METAFIELD_KEYS`, `METAFIELD_LABELS`, `CSV_COLUMN_TO_KEY`, `AI_GENERATED_KEYS`.
-- I tre nuovi entrano tutti in `AI_GENERATED_KEYS` (non sono dati fattuali come date).
-
-**`supabase/functions/shopify-admin-proxy/index.ts` — mappa `METAFIELD_TYPES`**
-- `faq_prodotto` → tipo `list.single_line_text_field` (formato classico Shopify per FAQ accordion). Verifico col bottone "Verifica su Shopify" che il tipo coincida; se nel tuo store è `rich_text_field`, useremo il tipo live (la logica `effectiveType` già esiste).
-- `attributi_prodotto` → `list.single_line_text_field` (es. `["Resistente al freddo", "Sempreverde", "Fioritura primaverile"]`).
-- `long_description` → `multi_line_text_field` (HTML/markdown semplice).
-
-**Prompt AI — `supabase/functions/shopify-admin-proxy/index.ts` (o file dove vive il prompt copy)**
-- Estendo lo schema JSON richiesto al modello aggiungendo i 3 campi:
-  - `faq_prodotto`: array di 4-6 oggetti `{ "domanda": "...", "risposta": "..." }` serializzati come JSON string nell'array
-  - `attributi_prodotto`: array di 5-8 stringhe brevi (max 40 char ciascuna), attributi distintivi
-  - `long_description`: testo lungo 400-700 parole, struttura: introduzione → caratteristiche → cura → consigli d'uso
-- Aggiungo regole di qualità: min length per ogni campo per evitare output vuoti (problema osservato su `origini_e_habitat`).
-
-**`src/admin/components/ProductEnrichmentPanel.tsx` — sezione review draft**
-- Mostro i 3 nuovi campi nell'editor di anteprima così il cliente può rivederli/modificarli prima della pubblicazione.
-
-## 4. Aggiornamento UI informativa
-
-**`ProductEnrichmentPanel.tsx`** — banner blu già esistente:
-- Aggiorno il conteggio: "16 metafield" → "19 metafield".
-- Tolgo dal disclaimer la nota sui "campi ignorati" perché ora sono tutti gestiti.
+### 4. Compilare TUTTI i campi con AI (anche periodo fioritura, potatura, ecc.)
+Oggi `periodo_di_fioritura`, `periodo_di_messa_a_dimora`, `periodo_di_raccolta`, `periodo_ottimale_di_potatura`, `nome_botanico` e `origini_e_habitat` restano vuoti perché considerati "factual". Il cliente preferisce avere comunque un valore AI (anche da correggere a mano). Si estende il prompt e il mapping per coprirli.
 
 ---
 
-## File toccati
+# Piano implementativo
 
-- `src/admin/types/productEnrichment.ts` — 3 nuovi metafield key
-- `src/admin/components/ProductEnrichmentPanel.tsx` — filtro default, badge status, editor per nuovi campi, conteggi
-- `src/admin/hooks/useProductEnrichment.ts` — resolve-by-handle prima di publish
-- `src/admin/lib/aiWriterEngine.ts` — opzione resolve, gestione nuovi campi
-- `supabase/functions/shopify-admin-proxy/index.ts` — `listProducts` multi-status, action `resolve_product_by_handle`, mappa `METAFIELD_TYPES` estesa, prompt AI esteso, log overwrite
-- `src/components/storefront/pdpMetafields.ts` (opzionale) — esporre `long_description` nella PDP se non già visibile
+## A. Fix formattazione liste (parentesi quadre)
 
-## Cosa NON tocco
+**File: `src/admin/lib/productEnrichmentEngine.ts → mapAiOutputToMetafields`**
+
+- `key_features` → salva come testo multilinea (`(content.key_benefits ?? []).join("\n")`) invece di JSON
+- `special_bullets` → idem (`characteristics.join("\n")`)
+- `attributi_prodotto` → serializza come JSON array di oggetti `[{ "key": "...", "value": "..." }]` per essere compatibile con `parseProductAttributes`. Il prompt AI verrà aggiornato per restituire `characteristics` come oggetti `{key,value}` (es. `{key:"Fioritura", value:"primavera"}`) oppure si fa un parsing euristico se la frase è del tipo `"Foglie: verdi lucide"`.
+
+**File: `supabase/functions/shopify-admin-proxy/index.ts → METAFIELD_TYPES`**
+
+- `key_features`: `list.single_line_text_field` → `multi_line_text_field`
+- `special_bullets`: `list.single_line_text_field` → `multi_line_text_field`
+- `attributi_prodotto`: resta `list.single_line_text_field` se ridefinito su Shopify come list di JSON, oppure si imposta come `json` (più sicuro per oggetti). Sceglieremo `json` per allinearsi al parser PDP.
+
+> Nota: il `normalizeMetafieldValue` già adatta il tipo "live" letto dalla definizione Shopify, quindi se il cliente ha già creato la definition come list, viene rispettata. Aggiungeremo log esplicito.
+
+## B. Stato DRAFT preservato + opzione esplicita
+
+**File: `src/admin/lib/aiWriterEngine.ts → publishReviewedDraft`**
+
+- Aggiungere parametro opzionale `keepStatus?: boolean` (default `true`) per documentare il comportamento attuale: NON si invia `status` → Shopify mantiene draft/active.
+- Aggiungere parametro `publishStatus?: 'draft' | 'active'` (opzionale, NON usato di default) per attivazioni manuali future.
+
+**File: `ProductEnrichmentPanel.tsx`**
+
+- Aggiungere chip informativo accanto ai pulsanti di pubblicazione:
+  > "Lo stato attuale del prodotto (ACTIVE / DRAFT) non viene modificato"
+
+## C. AI compila TUTTI i 19 metafield (umanizzato)
+
+**File: `supabase/functions/create-product-ai/index.ts`** — estendere il prompt:
+
+- Aggiungere allo schema JSON di output:
+  - `botanical_name` (stringa)
+  - `origins_habitat` (paragrafo 1-2 frasi)
+  - `flowering_period`, `pruning_period`, `planting_period`, `harvest_period` (stringhe es. "Aprile-Giugno", oppure "—" se non applicabile)
+  - `characteristics` come array di oggetti `{key, value}` (es. `{key:"Portamento", value:"Arbustivo eretto"}`) — necessario per `attributi_prodotto`
+- Istruzione al modello: **tono umanizzato, conversazionale, senza claim medici, niente parentesi quadre, niente liste JSON nel testo libero, scrivi in italiano naturale**. Se un campo botanico è incerto, fornisci il valore più probabile e segnala con un breve disclaimer interno (es. "valore stimato — verificare").
+
+**File: `productEnrichmentEngine.ts → mapAiOutputToMetafields`**
+
+- Popolare `nome_botanico` (se `input.nome_botanico` vuoto, usa `content.botanical_name`)
+- Popolare `origini_e_habitat` da `content.origins_habitat`
+- Popolare i 4 periodi da `content.flowering_period` ecc.
+- Aggiornare `attributi_prodotto` per usare i nuovi oggetti `{key,value}`
+
+**File: `src/admin/types/productEnrichment.ts`**
+
+- Spostare i campi periodo + nome_botanico + origini_e_habitat da `MANUAL_KEYS` → `AI_GENERATED_KEYS`
+- Aggiornare la UI: rimuovere il banner "campi factual lasciati vuoti per compilazione manuale" e mostrare invece "tutti i 19 metafield compilati da AI — rivedi i campi botanici e correggi se necessario"
+
+## D. Pulsante "Pubblica su Shopify" in Mode B (Crea da dati essenziali)
+
+**File: `ProductEnrichmentPanel.tsx → ModeBPanel`**
+
+Dopo la card di preview della bozza, aggiungere:
+- Pulsante **"Pubblica su Shopify"** che invoca `publishReviewedDraft({ handle: draft.input_handle, sku: form.variant_sku, bodyHtml: draft.body_html, seoTitle, seoDescription, metafields: draft.metafields })`
+- Se il prodotto non esiste su Shopify (errore "Prodotto non trovato"), mostrare toast con istruzione: "Crea prima il prodotto base via Mode A o tab Nuovo Prodotto AI"
+- In alternativa, opzione "Crea nuovo" che invoca `create_product` proxy action con i dati essenziali + AI
+
+## Riepilogo file toccati
+
+1. `src/admin/lib/productEnrichmentEngine.ts` — mapping liste + nuovi campi
+2. `src/admin/types/productEnrichment.ts` — riclassificazione AI/MANUAL keys
+3. `src/admin/lib/aiWriterEngine.ts` — parametri documentati su status
+4. `src/admin/components/ProductEnrichmentPanel.tsx` — UI banner, ModeB pulsante pubblica, badge stato preservato
+5. `supabase/functions/create-product-ai/index.ts` — prompt esteso con 6 nuovi campi e tono umano
+6. `supabase/functions/shopify-admin-proxy/index.ts` — METAFIELD_TYPES aggiornati
+
+## Cosa NON viene toccato
 
 - Schema DB
-- Auth / admin whitelist
-- Storefront salvo per leggere i nuovi metafield se utile
-- Logica CSV export (rimane senza metafield, come deciso prima)
-
-## Risultato atteso
-
-- Selezionando "Active + Draft" vedi e pubblichi metafield su entrambi gli stati.
-- Ripubblicare lo stesso prodotto **sovrascrive** i valori (nessun doppione perché Shopify usa namespace+key come chiave univoca, e il prodotto è risolto per handle).
-- Dopo la generazione AI, tutti e 19 i metafield gestiti hanno un valore (anche `faq_prodotto`, `attributi_prodotto`, `long_description`). Quelli "manuali" (date fioritura/raccolta/potatura, nome botanico) restano vuoti per design, il cliente li compila a mano in Shopify.
+- Auth / whitelist admin
+- Logica di lookup idempotente (handle/sku) — già corretta
+- Stato Shopify del prodotto — non modificato dal flusso (confermato)
