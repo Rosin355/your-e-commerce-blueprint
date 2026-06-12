@@ -399,8 +399,10 @@ function ModeAPanel() {
               </p>
               <p>
                 ✅ <strong>"Pubblica su Shopify"</strong> e <strong>"Pubblica solo metafield"</strong> —
-                usano l'Admin API (<code>metafieldsSet</code>): canale affidabile, scrive i 16 metafield
-                <code> custom.*</code> sui prodotti esistenti, indipendentemente dalle definizioni manuali.
+                usano l'Admin API (<code>metafieldsSet</code>): canale affidabile, scrive i{" "}
+                <strong>{ALL_METAFIELD_KEYS.length} metafield <code>custom.*</code></strong>{" "}
+                sui prodotti esistenti (sia <em>active</em> che <em>draft</em>), risolvendo l'ID per handle
+                quindi <strong>sovrascrive sempre senza creare doppioni</strong>.
               </p>
               <p>
                 ⚠️ Il <strong>CSV "prodotti base"</strong> qui sotto importa SOLO titolo, descrizione,
