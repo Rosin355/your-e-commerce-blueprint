@@ -958,11 +958,26 @@ function ModeBPanel() {
                 <Sparkles className="h-4 w-4 text-primary" />
                 Bozza — {draft.input_title}
               </CardTitle>
-              <Button size="sm" variant="outline" className="gap-2" onClick={() => downloadCsvSnippet(draft)}>
-                <Download className="h-3.5 w-3.5" />
-                Esporta CSV
-              </Button>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="gap-2" onClick={() => downloadCsvSnippet(draft)}>
+                  <Download className="h-3.5 w-3.5" />
+                  Esporta CSV
+                </Button>
+                <Button
+                  size="sm"
+                  className="gap-2"
+                  onClick={handlePublish}
+                  disabled={publishing || (!draft.input_handle && !form.variant_sku)}
+                  title="Pubblica testi + SEO + metafield su Shopify. Lo stato (active/draft) del prodotto NON viene modificato."
+                >
+                  {publishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UploadCloud className="h-3.5 w-3.5" />}
+                  Pubblica su Shopify
+                </Button>
+              </div>
             </div>
+            <p className="text-[11px] text-muted-foreground mt-2">
+              🔒 Lo stato del prodotto non viene modificato. Serve un prodotto esistente su Shopify con handle <code>{draft.input_handle || "—"}</code> o SKU <code>{form.variant_sku || "—"}</code>.
+            </p>
           </CardHeader>
           <CardContent>
             <DraftPreview draft={draft} />
