@@ -28,6 +28,13 @@ export interface GeneratedContent {
     notes: string;
   };
   characteristics: string[];
+  attributes?: Array<{ key: string; value: string }>;
+  botanical_name?: string;
+  origins_habitat?: string;
+  flowering_period?: string;
+  pruning_period?: string;
+  planting_period?: string;
+  harvest_period?: string;
   faq: Array<{ q: string; a: string }>;
   image_alt_texts: string[];
 }
