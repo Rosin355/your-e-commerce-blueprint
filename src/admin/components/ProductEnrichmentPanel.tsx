@@ -23,7 +23,7 @@ import {
 import { toast } from "sonner";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { useAuth } from "@/hooks/useAuth";
-import { listShopifyProducts, downloadShopifyNativeCsv } from "../lib/aiWriterEngine";
+import { listShopifyProducts, downloadShopifyNativeCsv, publishReviewedDraft } from "../lib/aiWriterEngine";
 import { loadDbCatalogProducts } from "../lib/dbCatalogSource";
 import {
   downloadBatchCsvSnippet,
@@ -403,6 +403,16 @@ function ModeAPanel() {
                 <strong>{ALL_METAFIELD_KEYS.length} metafield <code>custom.*</code></strong>{" "}
                 sui prodotti esistenti (sia <em>active</em> che <em>draft</em>), risolvendo l'ID per handle
                 quindi <strong>sovrascrive sempre senza creare doppioni</strong>.
+              </p>
+              <p>
+                🔒 <strong>Lo stato del prodotto (ACTIVE / DRAFT) non viene mai modificato</strong>:
+                un draft resta draft, un attivo resta attivo. Per pubblicare un draft basta cambiarne
+                lo stato direttamente da Shopify Admin.
+              </p>
+              <p>
+                🧠 L'AI ora compila <strong>tutti i {ALL_METAFIELD_KEYS.length} campi</strong> incluso
+                nome botanico, origini e periodi stagionali (best-effort): rivedi a mano i campi
+                botanici e correggi se necessario.
               </p>
               <p>
                 ⚠️ Il <strong>CSV "prodotti base"</strong> qui sotto importa SOLO titolo, descrizione,
@@ -795,6 +805,38 @@ function ModeAPanel() {
 function ModeBPanel() {
   const [form, setForm] = useState<EssentialProductInput>({ ...EMPTY_ESSENTIAL });
   const { draft, generating, generateFromEssentials, reset } = useProductEnrichment();
+  const [publishing, setPublishing] = useState(false);
+
+  async function handlePublish() {
+    if (!draft) return;
+    setPublishing(true);
+    try {
+      const res = await publishReviewedDraft({
+        productId: 0,
+        handle: draft.input_handle || form.handle,
+        sku: form.variant_sku,
+        bodyHtml: draft.body_html,
+        seoTitle: draft.seo_title,
+        seoDescription: draft.seo_description,
+        metafields: draft.metafields as Record<string, string>,
+      });
+      const mf = res.metafields;
+      toast.success(
+        `Pubblicato su Shopify (id ${res.id}, via ${res.resolved_by || "id"})${mf ? ` — ${mf.written} metafield ok` : ""}`,
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (/non trovato/i.test(msg)) {
+        toast.error(
+          "Prodotto non esistente su Shopify. Crea prima il prodotto base (tab 'Nuovo Prodotto AI' o importazione CSV) usando lo stesso handle/SKU.",
+        );
+      } else {
+        toast.error(`Errore pubblicazione: ${msg}`);
+      }
+    } finally {
+      setPublishing(false);
+    }
+  }
 
   const set = <K extends keyof EssentialProductInput>(key: K, value: EssentialProductInput[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -916,11 +958,26 @@ function ModeBPanel() {
                 <Sparkles className="h-4 w-4 text-primary" />
                 Bozza — {draft.input_title}
               </CardTitle>
-              <Button size="sm" variant="outline" className="gap-2" onClick={() => downloadCsvSnippet(draft)}>
-                <Download className="h-3.5 w-3.5" />
-                Esporta CSV
-              </Button>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="gap-2" onClick={() => downloadCsvSnippet(draft)}>
+                  <Download className="h-3.5 w-3.5" />
+                  Esporta CSV
+                </Button>
+                <Button
+                  size="sm"
+                  className="gap-2"
+                  onClick={handlePublish}
+                  disabled={publishing || (!draft.input_handle && !form.variant_sku)}
+                  title="Pubblica testi + SEO + metafield su Shopify. Lo stato (active/draft) del prodotto NON viene modificato."
+                >
+                  {publishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UploadCloud className="h-3.5 w-3.5" />}
+                  Pubblica su Shopify
+                </Button>
+              </div>
             </div>
+            <p className="text-[11px] text-muted-foreground mt-2">
+              🔒 Lo stato del prodotto non viene modificato. Serve un prodotto esistente su Shopify con handle <code>{draft.input_handle || "—"}</code> o SKU <code>{form.variant_sku || "—"}</code>.
+            </p>
           </CardHeader>
           <CardContent>
             <DraftPreview draft={draft} />

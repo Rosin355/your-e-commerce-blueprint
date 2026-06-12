@@ -23,16 +23,31 @@ const SEO_TOOL = {
       properties: {
         seo_title: { type: "string", description: "Titolo SEO, max 60 caratteri" },
         seo_description: { type: "string", description: "Meta description SEO, max 155 caratteri" },
-        optimized_description: { type: "string", description: "Descrizione HTML ottimizzata 400-800 parole con tag H2" },
+        optimized_description: { type: "string", description: "Descrizione HTML ottimizzata 400-800 parole con tag H2. Italiano naturale, conversazionale, NESSUNA parentesi quadra o JSON nel testo." },
         h1_title: { type: "string", description: "Titolo H1 della pagina prodotto" },
-        short_description: { type: "string", description: "Breve descrizione, max 260 caratteri" },
-        key_benefits: { type: "array", items: { type: "string" }, description: "5 bullet point con i benefici chiave" },
+        short_description: { type: "string", description: "Breve descrizione 1-2 frasi, max 260 caratteri, tono umano" },
+        key_benefits: { type: "array", items: { type: "string" }, description: "5 frasi benefit chiare, ognuna una frase completa in italiano (NO parentesi quadre nel testo)" },
         care_guide: {
           type: "object",
           properties: { light: { type: "string" }, watering: { type: "string" }, soil: { type: "string" }, temperature: { type: "string" }, notes: { type: "string" } },
           required: ["light", "watering", "soil", "temperature", "notes"],
         },
-        characteristics: { type: "array", items: { type: "string" }, description: "5-8 caratteristiche principali della pianta" },
+        characteristics: { type: "array", items: { type: "string" }, description: "5-8 caratteristiche principali, ognuna frase intera in italiano (es. 'Fioritura autunnale da ottobre a gennaio'). NO parentesi quadre nel testo." },
+        attributes: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: { key: { type: "string" }, value: { type: "string" } },
+            required: ["key", "value"],
+          },
+          description: "5-8 attributi strutturati chiave-valore (es. {key:'Portamento', value:'Arbustivo eretto'}, {key:'Fogliame', value:'Verde scuro lucido'}).",
+        },
+        botanical_name: { type: "string", description: "Nome botanico latino (es. 'Camellia sasanqua'). Se non certo, indica il più probabile." },
+        origins_habitat: { type: "string", description: "Paragrafo 1-2 frasi su origine geografica e habitat naturale." },
+        flowering_period: { type: "string", description: "Periodo di fioritura (es. 'Ottobre - Gennaio'). Usa '—' se non applicabile." },
+        pruning_period: { type: "string", description: "Periodo ottimale di potatura. Usa '—' se non applicabile." },
+        planting_period: { type: "string", description: "Periodo di messa a dimora. Usa '—' se non applicabile." },
+        harvest_period: { type: "string", description: "Periodo di raccolta. Usa '—' se non applicabile." },
         faq: {
           type: "array",
           items: { type: "object", properties: { q: { type: "string" }, a: { type: "string" } }, required: ["q", "a"] },
@@ -40,7 +55,7 @@ const SEO_TOOL = {
         },
         image_alt_texts: { type: "array", items: { type: "string" }, description: "3-6 alt text descrittivi" },
       },
-      required: ["seo_title", "seo_description", "optimized_description", "h1_title", "short_description", "key_benefits", "care_guide", "characteristics", "faq", "image_alt_texts"],
+      required: ["seo_title", "seo_description", "optimized_description", "h1_title", "short_description", "key_benefits", "care_guide", "characteristics", "attributes", "botanical_name", "origins_habitat", "flowering_period", "pruning_period", "planting_period", "harvest_period", "faq", "image_alt_texts"],
       additionalProperties: false,
     },
   },
@@ -68,7 +83,7 @@ async function generateSeoForNewProduct(input: NewProductInput): Promise<Record<
   const requestBody = JSON.stringify({
     model: MODEL,
     messages: [
-      { role: "system", content: `Sei un botanico e copywriter SEO italiano per e-commerce di piante.\n${styleNote}\nBrand voice: "Online Garden – più che semplici piante. Cura, affidabilità, consegna protetta."\nNON inventare dati non forniti. NON fare promesse mediche o miracolose.\nSe un dato manca, scrivi in modo generico e corretto.` },
+      { role: "system", content: `Sei un botanico e copywriter SEO italiano per e-commerce di piante.\n${styleNote}\nBrand voice: "Online Garden – più che semplici piante. Cura, affidabilità, consegna protetta."\n\nREGOLE DI SCRITTURA OBBLIGATORIE:\n- Scrivi in italiano naturale, umano e scorrevole. Niente robotic-speak.\n- MAI inserire parentesi quadre [], graffe {}, virgolette JSON o caratteri tecnici nel testo libero.\n- Le liste (key_benefits, characteristics) devono essere frasi complete leggibili, non token.\n- NON inventare dati non forniti. NON fare promesse mediche o miracolose.\n- Per i campi botanici incerti (nome botanico, periodi stagionali) fornisci il valore più probabile per la specie/categoria indicata: sarà revisionato a mano dal cliente.` },
       { role: "user", content: `Dati nuovo prodotto da creare:\n- Nome: ${input.title}\n- Categoria: ${input.category || "N/D"}\n- Descrizione fornita: ${input.description || "N/D"}\n- Tags: ${JSON.stringify(input.tags || [])}\n- Vendor: Online Garden\n${input.imageDescription ? `- Descrizione immagine: ${input.imageDescription}` : ""}\n\nGenera i contenuti SEO completi per questo nuovo prodotto.` },
     ],
     tools: [SEO_TOOL],
