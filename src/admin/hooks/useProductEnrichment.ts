@@ -679,6 +679,8 @@ export function useProductEnrichment() {
     try {
       const res = await publishReviewedDraft({
         productId: product.id,
+        handle: product.handle,
+        sku: product.sku,
         bodyHtml: reviewedDraft.body_html,
         seoTitle: reviewedDraft.seo_title,
         seoDescription: reviewedDraft.seo_description,
