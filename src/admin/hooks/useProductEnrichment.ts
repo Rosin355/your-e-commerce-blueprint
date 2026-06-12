@@ -437,6 +437,8 @@ export function useProductEnrichment() {
       try {
         const res = await publishReviewedDraft({
           productId: p.id,
+          handle: p.handle,
+          sku: p.sku,
           bodyHtml: reviewedDraft.body_html,
           seoTitle: reviewedDraft.seo_title,
           seoDescription: reviewedDraft.seo_description,
@@ -555,6 +557,8 @@ export function useProductEnrichment() {
       try {
         const res = await publishReviewedDraft({
           productId: p.id,
+          handle: p.handle,
+          sku: p.sku,
           bodyHtml: "", // ignored when metafieldsOnly
           metafields: reviewedDraft.metafields,
           debug: debugMetafields,
@@ -675,6 +679,8 @@ export function useProductEnrichment() {
     try {
       const res = await publishReviewedDraft({
         productId: product.id,
+        handle: product.handle,
+        sku: product.sku,
         bodyHtml: reviewedDraft.body_html,
         seoTitle: reviewedDraft.seo_title,
         seoDescription: reviewedDraft.seo_description,

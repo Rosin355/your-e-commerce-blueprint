@@ -132,7 +132,17 @@ export function mapAiOutputToMetafields(
 
   const keyFeaturesJson = JSON.stringify(content.key_benefits ?? []);
   const specialBulletsJson = JSON.stringify(content.characteristics ?? []);
-  const faqTitle = (content.faq?.length ?? 0) > 0 ? "Domande frequenti" : "";
+  const attributesJson = JSON.stringify(content.characteristics ?? []);
+  const faqArr = Array.isArray(content.faq) ? content.faq : [];
+  const faqTitle = faqArr.length > 0 ? "Domande frequenti" : "";
+  // Serialize FAQ in plain text format (Q: ... \n A: ...) so it lands in any
+  // multi_line_text_field. The live-type detector in the proxy auto-adapts if
+  // the store's metafield is actually rich_text or list.
+  const faqText = faqArr
+    .map((f: any) => `Q: ${f?.q ?? ""}\nA: ${f?.a ?? ""}`)
+    .filter((s) => s.trim() !== "Q: \nA:")
+    .join("\n\n");
+  const longDescription = (content.optimized_description ?? "").trim();
   const difficulty = deriveGrownDifficulty(content);
 
   return {
@@ -142,9 +152,12 @@ export function mapAiOutputToMetafields(
     conosci_meglio_la_tua_pianta: (content.characteristics ?? []).join("\n"),
     key_features: keyFeaturesJson,
     special_bullets: specialBulletsJson,
+    attributi_prodotto: attributesJson,
     short_intro: content.short_description ?? "",
     promo_text: content.short_description ?? "",
     titolo_sezione_faq: faqTitle,
+    faq_prodotto: faqText,
+    long_description: longDescription,
     // Derived / inferred
     difficolta_di_coltivazione: difficulty,
     origini_e_habitat: "",

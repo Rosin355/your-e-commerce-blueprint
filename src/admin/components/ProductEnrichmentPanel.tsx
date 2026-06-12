@@ -198,7 +198,7 @@ function DraftPreview({
 function ModeAPanel() {
   const { user } = useAuth();
   const [source, setSource] = useState<"db" | "shopify">("db");
-  const [statusFilter, setStatusFilter] = useState("active");
+  const [statusFilter, setStatusFilter] = useState("active,draft");
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<ShopifyAdminProduct[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
@@ -340,12 +340,14 @@ function ModeAPanel() {
             </Select>
             {!isDbSource && (
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-44">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Attivi</SelectItem>
-                  <SelectItem value="draft">Bozze</SelectItem>
+                  <SelectItem value="active,draft">Attivi + Bozze</SelectItem>
+                  <SelectItem value="active">Solo Attivi</SelectItem>
+                  <SelectItem value="draft">Solo Bozze</SelectItem>
+                  <SelectItem value="any">Tutti</SelectItem>
                   <SelectItem value="archived">Archiviati</SelectItem>
                 </SelectContent>
               </Select>
@@ -397,8 +399,10 @@ function ModeAPanel() {
               </p>
               <p>
                 ✅ <strong>"Pubblica su Shopify"</strong> e <strong>"Pubblica solo metafield"</strong> —
-                usano l'Admin API (<code>metafieldsSet</code>): canale affidabile, scrive i 16 metafield
-                <code> custom.*</code> sui prodotti esistenti, indipendentemente dalle definizioni manuali.
+                usano l'Admin API (<code>metafieldsSet</code>): canale affidabile, scrive i{" "}
+                <strong>{ALL_METAFIELD_KEYS.length} metafield <code>custom.*</code></strong>{" "}
+                sui prodotti esistenti (sia <em>active</em> che <em>draft</em>), risolvendo l'ID per handle
+                quindi <strong>sovrascrive sempre senza creare doppioni</strong>.
               </p>
               <p>
                 ⚠️ Il <strong>CSV "prodotti base"</strong> qui sotto importa SOLO titolo, descrizione,
@@ -643,7 +647,26 @@ function ModeAPanel() {
 
                     {/* Title + handle */}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{result.title}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="truncate text-sm font-medium">{result.title}</p>
+                        {(() => {
+                          const src = products.find((p) => p.id === result.productId);
+                          if (!src?.status) return null;
+                          const isDraft = src.status.toLowerCase() === "draft";
+                          return (
+                            <Badge
+                              variant="outline"
+                              className={`h-4 px-1 text-[9px] uppercase ${
+                                isDraft
+                                  ? "border-amber-300 bg-amber-50 text-amber-700"
+                                  : "border-green-300 bg-green-50 text-green-700"
+                              }`}
+                            >
+                              {src.status}
+                            </Badge>
+                          );
+                        })()}
+                      </div>
                       <p className="text-[11px] text-muted-foreground">{result.handle}</p>
                     </div>
 

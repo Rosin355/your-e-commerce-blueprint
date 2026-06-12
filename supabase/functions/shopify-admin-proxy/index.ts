@@ -56,10 +56,32 @@ function normalizeProduct(product: any) {
 
 async function listProducts(data: any) {
   const limit = Math.max(1, Math.min(Number(data?.limit || 50), 250));
-  const status = (data?.status || "active").toLowerCase();
+  const rawStatus = (data?.status || "active").toLowerCase().trim();
   const tagFilter = (data?.tag || "").toLowerCase().trim();
   const query = (data?.query || "").toLowerCase().trim();
   const pageInfo = data?.pageInfo || "";
+
+  // Multi-status (es. "active,draft"): Shopify REST non accetta lista,
+  // facciamo fetch sequenziali e uniamo deduplicando per id. La paginazione
+  // multi-status non è supportata: ritorniamo hasNextPage=false e tutti i
+  // risultati combinati (il caller carica già fino a 250 per chiamata).
+  if (rawStatus.includes(",")) {
+    const statuses = rawStatus.split(",").map((s) => s.trim()).filter(Boolean);
+    const seen = new Set<number>();
+    const merged: any[] = [];
+    for (const s of statuses) {
+      const r = await listProductsSingleStatus({ status: s, limit, pageInfo: "", tagFilter, query });
+      for (const p of r.products) {
+        if (!seen.has(p.id)) {
+          seen.add(p.id);
+          merged.push(p);
+        }
+      }
+    }
+    return { products: merged, hasNextPage: false, nextPageInfo: "" };
+  }
+
+  const status = rawStatus;
 
   // Prefer Storefront (Headless private token) for active-only listings: faster, higher rate
   // limit, no admin-token expiry. Falls back to Admin REST on error or when status != active.
@@ -77,6 +99,12 @@ async function listProducts(data: any) {
     }
   }
 
+  return await listProductsSingleStatus({ status, limit, pageInfo, tagFilter, query });
+}
+
+async function listProductsSingleStatus({
+  status, limit, pageInfo, tagFilter, query,
+}: { status: string; limit: number; pageInfo: string; tagFilter: string; query: string }) {
   const search = new URLSearchParams({
     limit: String(limit),
     fields: "id,title,handle,status,tags,updated_at",
@@ -84,9 +112,7 @@ async function listProducts(data: any) {
   });
   if (pageInfo) search.set("page_info", pageInfo);
 
-  // Direct fetch (not shopifyAdminFetch) so we can read the Link header for cursor-based pagination
   const shop = Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") || "ecom-blueprint-gen-6ud1s.myshopify.com";
-  // Use the centralized token resolver so client_credentials / refresh logic is honored.
   const accessToken = await resolveAdminAccessToken();
   const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-07";
   const fetchHeaders = { "Content-Type": "application/json", "X-Shopify-Access-Token": accessToken };
@@ -354,11 +380,14 @@ const METAFIELD_TYPES: Record<string, string> = {
   promo_text: "multi_line_text_field",
   key_features: "list.single_line_text_field",
   special_bullets: "list.single_line_text_field",
+  attributi_prodotto: "list.single_line_text_field",
   care_info: "multi_line_text_field",
   come_prendersene_cura: "multi_line_text_field",
   conosci_meglio_la_tua_pianta: "multi_line_text_field",
   difficolta_di_coltivazione: "single_line_text_field",
   origini_e_habitat: "multi_line_text_field",
+  long_description: "multi_line_text_field",
+  faq_prodotto: "multi_line_text_field",
   periodo_di_fioritura: "single_line_text_field",
   periodo_di_messa_a_dimora: "single_line_text_field",
   periodo_di_raccolta: "single_line_text_field",
@@ -704,24 +733,57 @@ serve(async (req) => {
         result = { success: true, id: (await shopifyAdminFetch("products.json", "POST", { product: data })).product?.id };
         break;
       case "update_product": {
-        const { id, metafields, debug, retries, metafields_only, ...productData } = data;
-        let updatedId: any = Number(id);
+        const { id, handle, sku, metafields, debug, retries, metafields_only, ...productData } = data;
+        // Resolve real Shopify ID. Trust `id` only if it looks like a Shopify
+        // numeric ID (>= 10 digits). DB-source ids are short hash codes which
+        // would write to the wrong product or fail; in that case we resolve
+        // by handle (preferito) or sku to guarantee idempotent UPDATE (no
+        // duplicates, sovrascrive il prodotto esistente).
+        const looksLikeShopifyId = (v: any) => {
+          const n = Number(v);
+          return Number.isFinite(n) && n > 0 && String(n).length >= 10;
+        };
+        let resolvedId: number | null = looksLikeShopifyId(id) ? Number(id) : null;
+        let resolvedBy = resolvedId ? "id" : null;
+        if (!resolvedId && (handle || sku)) {
+          const lookup = await searchProductBySkuOrHandle({ handle, sku });
+          if (lookup.found && lookup.id) {
+            resolvedId = Number(lookup.id);
+            resolvedBy = lookup.matchedBy || "lookup";
+          }
+        }
+        if (!resolvedId) {
+          throw new Error(
+            `Prodotto non trovato su Shopify (id=${id}, handle=${handle || "n/a"}, sku=${sku || "n/a"}). Importa prima il CSV base o crea il prodotto.`,
+          );
+        }
+        console.log(`[update_product] resolved id=${resolvedId} via ${resolvedBy} (input id=${id}, handle=${handle || "—"})`);
+
+        let updatedId: any = resolvedId;
         // When metafields_only=true we skip productUpdate (body HTML / SEO) and
         // only push the 16 custom.* metafields. Used by the "Pubblica solo
         // metafield" action for products that already exist in Shopify (e.g.
         // imported via the base CSV) but lack metafield data.
         if (!metafields_only) {
-          const updateRes = await shopifyAdminFetch(`products/${id}.json`, "PUT", { product: productData });
+          const updateRes = await shopifyAdminFetch(`products/${resolvedId}.json`, "PUT", {
+            product: { ...productData, id: resolvedId },
+          });
           updatedId = updateRes.product?.id;
         }
         let metafieldsResult: any;
         if (metafields && typeof metafields === "object") {
-          metafieldsResult = await setProductCustomMetafields(Number(id), metafields as Record<string, string>, {
+          metafieldsResult = await setProductCustomMetafields(Number(resolvedId), metafields as Record<string, string>, {
             debug: !!debug,
             maxRetries: typeof retries === "number" ? retries : undefined,
           });
         }
-        result = { success: true, id: updatedId, metafields: metafieldsResult, metafields_only: !!metafields_only };
+        result = {
+          success: true,
+          id: updatedId,
+          resolved_by: resolvedBy,
+          metafields: metafieldsResult,
+          metafields_only: !!metafields_only,
+        };
         break;
       }
       case "get_metafield_config":

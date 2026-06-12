@@ -16,7 +16,10 @@ export type ShopifyMetafieldKey =
   | "promo_text"
   | "short_intro"
   | "special_bullets"
-  | "titolo_sezione_faq";
+  | "titolo_sezione_faq"
+  | "faq_prodotto"
+  | "attributi_prodotto"
+  | "long_description";
 
 export const ALL_METAFIELD_KEYS: ShopifyMetafieldKey[] = [
   "nome_botanico",
@@ -25,11 +28,14 @@ export const ALL_METAFIELD_KEYS: ShopifyMetafieldKey[] = [
   "promo_text",
   "key_features",
   "special_bullets",
+  "attributi_prodotto",
   "care_info",
   "come_prendersene_cura",
   "conosci_meglio_la_tua_pianta",
   "difficolta_di_coltivazione",
   "origini_e_habitat",
+  "long_description",
+  "faq_prodotto",
   "periodo_di_fioritura",
   "periodo_di_messa_a_dimora",
   "periodo_di_raccolta",
@@ -54,6 +60,9 @@ export const METAFIELD_LABELS: Record<ShopifyMetafieldKey, string> = {
   short_intro: "Introduzione breve",
   special_bullets: "Bullet points speciali",
   titolo_sezione_faq: "Titolo sezione FAQ",
+  faq_prodotto: "FAQ prodotto",
+  attributi_prodotto: "Attributi prodotto",
+  long_description: "Descrizione lunga",
 };
 
 // Which fields the AI generates vs which require manual input (factual dates/periods)
@@ -68,6 +77,9 @@ export const AI_GENERATED_KEYS = new Set<ShopifyMetafieldKey>([
   "titolo_sezione_faq",
   "difficolta_di_coltivazione",
   "origini_e_habitat",
+  "faq_prodotto",
+  "attributi_prodotto",
+  "long_description",
 ]);
 
 export const MANUAL_KEYS = new Set<ShopifyMetafieldKey>([
@@ -97,6 +109,9 @@ export const CSV_COLUMN_TO_KEY: Record<string, ShopifyMetafieldKey> = {
   "product.metafields.custom.short_intro": "short_intro",
   "product.metafields.custom.special_bullets": "special_bullets",
   "product.metafields.custom.titolo_sezione_faq": "titolo_sezione_faq",
+  "product.metafields.custom.faq_prodotto": "faq_prodotto",
+  "product.metafields.custom.attributi_prodotto": "attributi_prodotto",
+  "product.metafields.custom.long_description": "long_description",
 };
 
 // ── Input / output types ────────────────────────────────────────────────────

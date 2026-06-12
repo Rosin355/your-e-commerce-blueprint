@@ -1,76 +1,83 @@
-## Diagnosi del problema "Cornus Florida Sunset"
 
-Ho aperto il CSV: per quel prodotto le colonne `Product Metafield: custom.*` **sono popolate correttamente** (es. `nome_comune`, `short_intro`, `key_features` come JSON array). Quindi il file generato è OK.
+# Piano implementazione
 
-Il problema è **l'importer CSV nativo di Shopify**: scarta silenziosamente le colonne metafield se anche una sola di queste condizioni non torna:
+## 1. Filtro prodotti: Draft + Active (no archived)
 
-1. La definizione metafield non esiste in Shopify con esattamente `namespace.key` = `custom.nome_botanico` (probabilmente le tue definizioni hanno key diverse, perché nello screenshot vedo label tipo "Nome botanico" ma le key reali non sono visibili)
-2. Il tipo tra parentesi non combacia esattamente (`single_line_text_field` vs `rich_text_field` ecc.)
-3. I `multi_line_text_field` con newline grezzi a volte vengono troncati
-4. I `list.*` richiedono JSON array (qui è OK)
+**`src/admin/components/ProductEnrichmentPanel.tsx`**
+- Default `statusFilter`: da `"active"` a `"active,draft"`.
+- Nel `Select` aggiungo l'opzione "Active + Draft" come prima scelta (default), mantengo "Solo active", "Solo draft", "Tutti".
+- Mostro accanto al titolo di ogni prodotto in lista un piccolo badge `ACTIVE` (verde) o `DRAFT` (grigio), per chiarezza visiva.
 
-Nessun errore in import, semplicemente i metafield non vengono scritti.
+**`supabase/functions/shopify-admin-proxy/index.ts` — funzione `listProducts`**
+- Quando `status` contiene una virgola (es. `"active,draft"`), faccio 2 fetch sequenziali a Shopify REST (`status=active` poi `status=draft`) e unisco i risultati, perché l'endpoint REST non accetta lista. Mantengo il limite totale richiesto.
+- Quando `status="any"`: passo `status=any` direttamente (Shopify lo supporta).
+- Il fallback Storefront viene saltato per qualunque status diverso da `active` (già così).
 
-## Soluzione scelta: Bypass CSV per i metafield
+## 2. Pubblicazione idempotente (no doppioni, sovrascrive)
 
-Già esiste nel codice la funzione `publishReviewedDraft` → edge function `shopify-admin-proxy` action `publish_product_copy` che usa la mutation **`metafieldsSet`** dell'Admin API. Questa via:
+Il flusso attuale **già** usa `productUpdate` (Admin GraphQL) con l'ID prodotto esistente: tecnicamente non crea duplicati. Il rischio di "doppione" può però apparire se:
+- il prodotto è stato caricato via CSV e poi rigenerato in Lovable senza riallineare l'ID Shopify nel DB locale.
 
-- È **affidabile al 100%**: Shopify crea le definizioni se mancano o le riusa se esistono, indipendentemente da label/key in italiano
-- Non dipende da come il cliente ha configurato le definizioni in Shopify
-- Restituisce un report dettagliato (`MetafieldsReport`) di cosa è stato scritto/saltato
+**`src/admin/hooks/useProductEnrichment.ts` + `src/admin/lib/aiWriterEngine.ts`**
+- Prima di `publishReviewedDraft`/`publishMetafieldsOnly`, se l'oggetto `ShopifyAdminProduct` ha `sku` ma `id` mancante o sospetto (es. id locale non Shopify), risolvo l'ID reale via lookup per `handle` (preferito, unico in Shopify) usando una nuova action `resolve_product_by_handle` nel proxy.
+- Logica:
+  1. Se `id` numerico Shopify presente → usa quello (UPDATE).
+  2. Altrimenti lookup per `handle` → trovato? UPDATE su quell'ID.
+  3. Non trovato? Mostra errore esplicito "prodotto non esistente su Shopify, importa prima il CSV base" (NON creiamo automaticamente per evitare di rompere il flusso CSV).
 
-Quello che manca è chiarire al cliente quale bottone usare e togliere ambiguità nell'UI.
+**`supabase/functions/shopify-admin-proxy/index.ts`**
+- Nuova action `resolve_product_by_handle`: GET `products.json?handle=<handle>&fields=id,handle,status` (REST), restituisce `{ id, status }` o `null`.
+- Per `metafieldsSet` il comportamento è già upsert (sovrascrive il valore esistente per la stessa coppia namespace+key) — nessuna modifica necessaria, ma aggiungo un log esplicito per ogni metafield: `[written|overwritten|skipped]`.
 
-## Cosa cambia
+## 3. Estensione AI ai 3 metafield mancanti
 
-### 1. CSV "Shopify-importabile" diventa CSV "solo prodotti"
-File: `supabase/functions/export-shopify-native-csv/index.ts`
+I 3 nuovi campi: `faq_prodotto`, `attributi_prodotto`, `long_description`.
 
-- Rimuovo tutte le colonne `Product Metafield: custom.*` dall'header e dalle righe
-- Aggiungo un commento in cima al file (riga di intestazione `#`) che spiega: "Questo CSV importa solo titolo, descrizione, varianti, prezzo, immagini. I metafield vanno pubblicati con il bottone 'Pubblica su Shopify' nel pannello."
-- Rinomino l'output da `shopify-products-native-*.csv` a `shopify-prodotti-base-*.csv` per ridurre la confusione
+**`src/admin/types/productEnrichment.ts`**
+- Aggiungo a `ShopifyMetafieldKey`, `ALL_METAFIELD_KEYS`, `METAFIELD_LABELS`, `CSV_COLUMN_TO_KEY`, `AI_GENERATED_KEYS`.
+- I tre nuovi entrano tutti in `AI_GENERATED_KEYS` (non sono dati fattuali come date).
 
-### 2. UI del pannello enrichment
-File: `src/admin/components/ProductEnrichmentPanel.tsx`
+**`supabase/functions/shopify-admin-proxy/index.ts` — mappa `METAFIELD_TYPES`**
+- `faq_prodotto` → tipo `list.single_line_text_field` (formato classico Shopify per FAQ accordion). Verifico col bottone "Verifica su Shopify" che il tipo coincida; se nel tuo store è `rich_text_field`, useremo il tipo live (la logica `effectiveType` già esiste).
+- `attributi_prodotto` → `list.single_line_text_field` (es. `["Resistente al freddo", "Sempreverde", "Fioritura primaverile"]`).
+- `long_description` → `multi_line_text_field` (HTML/markdown semplice).
 
-- Aggiungo un **banner informativo blu** sopra il blocco azioni che spiega le due strade in 2 righe:
-  - **"Pubblica su Shopify"** → testi + SEO + **metafield** (canale affidabile)
-  - **"Scarica CSV base"** → solo prodotti senza metafield (per import massivo iniziale)
-- Cambio la label del bottone CSV da "Scarica CSV Shopify importabile" a "Scarica CSV prodotti (senza metafield)"
-- Aggiungo un tooltip al bottone CSV: "I metafield vanno pubblicati separatamente via API per garantirne l'arrivo in Shopify"
+**Prompt AI — `supabase/functions/shopify-admin-proxy/index.ts` (o file dove vive il prompt copy)**
+- Estendo lo schema JSON richiesto al modello aggiungendo i 3 campi:
+  - `faq_prodotto`: array di 4-6 oggetti `{ "domanda": "...", "risposta": "..." }` serializzati come JSON string nell'array
+  - `attributi_prodotto`: array di 5-8 stringhe brevi (max 40 char ciascuna), attributi distintivi
+  - `long_description`: testo lungo 400-700 parole, struttura: introduzione → caratteristiche → cura → consigli d'uso
+- Aggiungo regole di qualità: min length per ogni campo per evitare output vuoti (problema osservato su `origini_e_habitat`).
 
-### 3. Nuovo bottone "Pubblica solo metafield"
-File: `src/admin/hooks/useProductEnrichment.ts` + `ProductEnrichmentPanel.tsx`
+**`src/admin/components/ProductEnrichmentPanel.tsx` — sezione review draft**
+- Mostro i 3 nuovi campi nell'editor di anteprima così il cliente può rivederli/modificarli prima della pubblicazione.
 
-Per i prodotti già esistenti su Shopify (importati prima via CSV) che non hanno i metafield, aggiungo un'azione:
+## 4. Aggiornamento UI informativa
 
-- Nuova funzione `publishMetafieldsOnly(products)` nel hook
-- Riusa `publishReviewedDraft` ma server-side modifico la action per supportare un flag `metafields_only: true` che salta `productUpdate` (body HTML / SEO) e fa SOLO `metafieldsSet`
-- Bottone "Pubblica solo metafield (xN)" accanto a "Pubblica su Shopify"
-- Stesso tracking persistente via `enrichment-run` con `mode: "publish_metafields_only"`
+**`ProductEnrichmentPanel.tsx`** — banner blu già esistente:
+- Aggiorno il conteggio: "16 metafield" → "19 metafield".
+- Tolgo dal disclaimer la nota sui "campi ignorati" perché ora sono tutti gestiti.
 
-File: `supabase/functions/shopify-admin-proxy/index.ts`
-- Estendo `publish_product_copy` per riconoscere `metafields_only` nel body e saltare la `productUpdate` mutation
+---
 
 ## File toccati
 
-- `supabase/functions/export-shopify-native-csv/index.ts` — rimuovo colonne metafield
-- `supabase/functions/shopify-admin-proxy/index.ts` — flag `metafields_only` in `publish_product_copy`
-- `src/admin/lib/aiWriterEngine.ts` — parametro opzionale `metafieldsOnly` in `publishReviewedDraft`
-- `src/admin/hooks/useProductEnrichment.ts` — funzione `publishMetafieldsOnly`
-- `src/admin/components/ProductEnrichmentPanel.tsx` — banner informativo, label bottoni, nuovo bottone
+- `src/admin/types/productEnrichment.ts` — 3 nuovi metafield key
+- `src/admin/components/ProductEnrichmentPanel.tsx` — filtro default, badge status, editor per nuovi campi, conteggi
+- `src/admin/hooks/useProductEnrichment.ts` — resolve-by-handle prima di publish
+- `src/admin/lib/aiWriterEngine.ts` — opzione resolve, gestione nuovi campi
+- `supabase/functions/shopify-admin-proxy/index.ts` — `listProducts` multi-status, action `resolve_product_by_handle`, mappa `METAFIELD_TYPES` estesa, prompt AI esteso, log overwrite
+- `src/components/storefront/pdpMetafields.ts` (opzionale) — esporre `long_description` nella PDP se non già visibile
 
 ## Cosa NON tocco
 
-- Logica AI di generazione (drafts, metafields, SEO)
-- Storefront, PDP, checkout
-- Schema DB (`product_enrichment_runs` resta com'è)
-- Auth e admin whitelist
+- Schema DB
+- Auth / admin whitelist
+- Storefront salvo per leggere i nuovi metafield se utile
+- Logica CSV export (rimane senza metafield, come deciso prima)
 
-## Messaggio finale al cliente
+## Risultato atteso
 
-Dopo l'implementazione il flusso consigliato sarà:
-
-1. Importa una sola volta il CSV "prodotti base" in Shopify (crea titoli, varianti, prezzi, immagini)
-2. Genera i metafield in Lovable col bottone "Genera tutto con AI"
-3. Premi **"Pubblica su Shopify"** (o "Pubblica solo metafield" se i prodotti esistono già) → i 16 metafield arrivano via API, garantito
+- Selezionando "Active + Draft" vedi e pubblichi metafield su entrambi gli stati.
+- Ripubblicare lo stesso prodotto **sovrascrive** i valori (nessun doppione perché Shopify usa namespace+key come chiave univoca, e il prodotto è risolto per handle).
+- Dopo la generazione AI, tutti e 19 i metafield gestiti hanno un valore (anche `faq_prodotto`, `attributi_prodotto`, `long_description`). Quelli "manuali" (date fioritura/raccolta/potatura, nome botanico) restano vuoti per design, il cliente li compila a mano in Shopify.
