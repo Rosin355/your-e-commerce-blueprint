@@ -84,7 +84,7 @@ export const Header = () => {
       <img
         src={logoOnlineGarden}
         alt="Online Garden logo"
-        className={`${compact ? "h-7 w-7" : "h-8 w-8"} object-contain`}
+        className={`${compact ? "h-10 w-10" : "h-12 w-12"} object-contain`}
         loading="eager"
       />
       <span className={`${compact ? "text-[1.2rem]" : "text-[1.6rem]"} font-['Playfair_Display'] font-semibold tracking-[0.11em] text-primary-dark`}>
