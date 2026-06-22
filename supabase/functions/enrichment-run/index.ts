@@ -18,7 +18,9 @@ function admin() {
   });
 }
 
-// 16 metafield keys we track for "metafields presenti"
+// 19 metafield keys we track for "metafields presenti" — must stay in sync with
+// ALL_METAFIELD_KEYS in src/admin/types/productEnrichment.ts and METAFIELD_TYPES in
+// supabase/functions/shopify-admin-proxy/index.ts.
 const METAFIELD_KEYS = [
   "nome_botanico",
   "nome_comune",
@@ -26,11 +28,14 @@ const METAFIELD_KEYS = [
   "promo_text",
   "key_features",
   "special_bullets",
+  "attributi_prodotto",
   "care_info",
   "come_prendersene_cura",
   "conosci_meglio_la_tua_pianta",
   "difficolta_di_coltivazione",
   "origini_e_habitat",
+  "long_description",
+  "faq_prodotto",
   "periodo_di_fioritura",
   "periodo_di_messa_a_dimora",
   "periodo_di_raccolta",
@@ -186,51 +191,63 @@ serve(async (req) => {
       }
 
       case "get_catalog_status": {
-        // Aggregato sul catalogo: legge product_sync_csv_products in pagine
+        // Tutte le metriche sono calcolate sulla STESSA popolazione: prodotti PARENT
+        // (parent_sku IS NULL), così non mischiamo varianti/figli. Le percentuali AI/SEO/
+        // metafield usano come denominatore gli "esportabili" e non superano mai il 100%.
+        // Il totale è contato dalle righe lette (niente head-count separato che può dare null).
         const totals = {
-          total: 0,
-          withImage: 0,
-          withPriceAndImage: 0,
-          aiEnriched: 0,
-          seoComplete: 0,
-          metafieldsComplete: 0,
+          totalParents: 0,
+          exportableParents: 0,
+          aiEnrichedExportable: 0,
+          seoCompleteExportable: 0,
+          metafieldsCompleteExportable: 0,
+          readyForImport: 0,
         };
         const PAGE = 1000;
         let offset = 0;
-        // Single count query for total
-        const { count } = await db
-          .from("product_sync_csv_products")
-          .select("id", { count: "exact", head: true });
-        totals.total = count ?? 0;
 
         while (true) {
           const { data: rows, error } = await db
             .from("product_sync_csv_products")
             .select("price,image_urls,seo_title,seo_description,ai_enriched_at,metafields")
+            .is("parent_sku", null)
             .range(offset, offset + PAGE - 1);
           if (error) throw new Error(error.message);
           if (!rows || rows.length === 0) break;
           for (const r of rows as any[]) {
+            totals.totalParents++;
+
             const hasImage = Array.isArray(r.image_urls) && r.image_urls.length > 0;
             const price = Number(r.price ?? 0);
-            if (hasImage) totals.withImage++;
-            if (hasImage && price > 0) totals.withPriceAndImage++;
-            if (r.ai_enriched_at) totals.aiEnriched++;
-            if ((r.seo_title || "").trim() && (r.seo_description || "").trim())
-              totals.seoComplete++;
+            const exportable = hasImage && price > 0;
+            if (!exportable) continue;
+            totals.exportableParents++;
+
+            const hasAi = !!r.ai_enriched_at;
+            const hasSeo = !!(r.seo_title || "").trim() && !!(r.seo_description || "").trim();
             const mf = (r.metafields || {}) as Record<string, unknown>;
             let filled = 0;
             for (const k of METAFIELD_KEYS) {
               const v = mf[k];
               if (v != null && String(v).trim() !== "") filled++;
             }
-            if (filled >= MIN_METAFIELDS_FILLED) totals.metafieldsComplete++;
+            const hasMetafields = filled >= MIN_METAFIELDS_FILLED;
+
+            if (hasAi) totals.aiEnrichedExportable++;
+            if (hasSeo) totals.seoCompleteExportable++;
+            if (hasMetafields) totals.metafieldsCompleteExportable++;
+            // "Pronti per import" = esportabile E con AI + SEO + metafield completi.
+            if (hasAi && hasSeo && hasMetafields) totals.readyForImport++;
           }
           if (rows.length < PAGE) break;
           offset += PAGE;
         }
 
-        return json({ totals, minMetafieldsFilled: MIN_METAFIELDS_FILLED });
+        return json({
+          totals,
+          minMetafieldsFilled: MIN_METAFIELDS_FILLED,
+          metafieldKeysCount: METAFIELD_KEYS.length,
+        });
       }
 
       default:

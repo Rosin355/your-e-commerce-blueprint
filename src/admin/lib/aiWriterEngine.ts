@@ -310,15 +310,21 @@ export async function getOpenEnrichmentRun() {
 }
 
 export interface CatalogStatusTotals {
-  total: number;
-  withImage: number;
-  withPriceAndImage: number;
-  aiEnriched: number;
-  seoComplete: number;
-  metafieldsComplete: number;
+  /** Parent products only (parent_sku IS NULL). */
+  totalParents: number;
+  /** Parent products with price > 0 AND at least one image. */
+  exportableParents: number;
+  /** Exportable parents that are AI-enriched. */
+  aiEnrichedExportable: number;
+  /** Exportable parents with SEO title + description. */
+  seoCompleteExportable: number;
+  /** Exportable parents with >= minMetafieldsFilled metafields. */
+  metafieldsCompleteExportable: number;
+  /** Exportable parents with AI + SEO + metafields all complete. */
+  readyForImport: number;
 }
 export async function getEnrichmentCatalogStatus() {
-  return callRun<{ totals: CatalogStatusTotals; minMetafieldsFilled: number }>(
+  return callRun<{ totals: CatalogStatusTotals; minMetafieldsFilled: number; metafieldKeysCount: number }>(
     "get_catalog_status",
     {},
   );

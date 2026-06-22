@@ -16,7 +16,7 @@ export function MetafieldsReport({ report }: { report: Report }) {
           {sent.length} inviati
         </Badge>
         <Badge variant="destructive">{failed.length} falliti</Badge>
-        <Badge variant="outline">{skipped.length} vuoti (saltati)</Badge>
+        <Badge variant="outline">{skipped.length} saltati</Badge>
         {report.debug && (
           <Button
             size="sm"

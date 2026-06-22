@@ -21,7 +21,8 @@ function Metric({
   total: number;
   tone?: "default" | "primary" | "success";
 }) {
-  const pct = total > 0 ? Math.round((value / total) * 100) : 0;
+  // Clamp to 100% — metrics share the exportable denominator so this is a safety net.
+  const pct = total > 0 ? Math.min(100, Math.round((value / total) * 100)) : 0;
   const color =
     tone === "success"
       ? "bg-green-600"
@@ -46,6 +47,7 @@ function Metric({
 export default function EnrichmentCatalogStatus({ autoRefresh = false }: Props) {
   const [totals, setTotals] = useState<CatalogStatusTotals | null>(null);
   const [minFilled, setMinFilled] = useState<number>(8);
+  const [keysCount, setKeysCount] = useState<number>(19);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
@@ -57,6 +59,7 @@ export default function EnrichmentCatalogStatus({ autoRefresh = false }: Props) 
       const r = await getEnrichmentCatalogStatus();
       setTotals(r.totals);
       setMinFilled(r.minMetafieldsFilled);
+      if (r.metafieldKeysCount) setKeysCount(r.metafieldKeysCount);
       setLastRefresh(new Date());
     } catch (e) {
       setError(e instanceof Error ? e.message : "Errore");
@@ -75,7 +78,8 @@ export default function EnrichmentCatalogStatus({ autoRefresh = false }: Props) 
     return () => clearInterval(id);
   }, [autoRefresh, load]);
 
-  const base = totals?.withPriceAndImage ?? 0;
+  // Shared denominator for every progress bar: exportable parent products.
+  const base = totals?.exportableParents ?? 0;
 
   return (
     <Card>
@@ -109,16 +113,16 @@ export default function EnrichmentCatalogStatus({ autoRefresh = false }: Props) 
           <>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-md border bg-muted/30 p-3 text-xs">
-                <div className="text-muted-foreground">Prodotti totali nel catalogo DB</div>
-                <div className="mt-1 text-2xl font-semibold tabular-nums">{totals.total}</div>
+                <div className="text-muted-foreground">Prodotti parent nel Catalogo DB</div>
+                <div className="mt-1 text-2xl font-semibold tabular-nums">{totals.totalParents}</div>
                 <div className="mt-1 text-[11px] text-muted-foreground">
-                  Esportabili (prezzo &gt; 0 + immagine): <strong>{totals.withPriceAndImage}</strong>
+                  Esportabili Shopify (prezzo &gt; 0 + immagine): <strong>{totals.exportableParents}</strong>
                 </div>
               </div>
               <div className="rounded-md border bg-muted/30 p-3 text-xs">
                 <div className="text-muted-foreground">Pronti per import Shopify</div>
                 <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-700">
-                  {Math.min(totals.aiEnriched, totals.seoComplete, totals.metafieldsComplete, totals.withPriceAndImage)}
+                  {totals.readyForImport}
                 </div>
                 <div className="mt-1 text-[11px] text-muted-foreground">
                   AI + SEO + ≥{minFilled} metafield + prezzo/immagine
@@ -126,12 +130,12 @@ export default function EnrichmentCatalogStatus({ autoRefresh = false }: Props) 
               </div>
             </div>
             <div className="space-y-2 rounded-md border p-3">
-              <Metric label="AI completata" value={totals.aiEnriched} total={base || totals.total} tone="primary" />
-              <Metric label="SEO (titolo + meta)" value={totals.seoComplete} total={base || totals.total} />
+              <Metric label="AI completata sugli esportabili" value={totals.aiEnrichedExportable} total={base} tone="primary" />
+              <Metric label="SEO completata sugli esportabili" value={totals.seoCompleteExportable} total={base} />
               <Metric
-                label={`Metafield ≥ ${minFilled}/16`}
-                value={totals.metafieldsComplete}
-                total={base || totals.total}
+                label={`Metafield ≥ ${minFilled}/${keysCount} sugli esportabili`}
+                value={totals.metafieldsCompleteExportable}
+                total={base}
                 tone="success"
               />
             </div>
