@@ -5,7 +5,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { CartDrawer } from "./CartDrawer";
 import { AccountButton } from "./AccountButton";
 import { useState } from "react";
-import logoOnlineGarden from "@/assets/logo-online-garden.png";
+import logoOnlineGardenAsset from "@/assets/logo-online-garden-v2.png.asset.json";
+const logoOnlineGarden = logoOnlineGardenAsset.url;
 import outdoorLivingImg from "@/assets/megamenu/outdoor-living.jpg";
 import evergreenGardenImg from "@/assets/megamenu/evergreen-garden.jpg";
 import roseSelectionImg from "@/assets/megamenu/rose-selection.jpg";
@@ -83,7 +84,7 @@ export const Header = () => {
       <img
         src={logoOnlineGarden}
         alt="Online Garden logo"
-        className={`${compact ? "h-7 w-7" : "h-8 w-8"} object-contain`}
+        className={`${compact ? "h-10 w-10" : "h-12 w-12"} object-contain`}
         loading="eager"
       />
       <span className={`${compact ? "text-[1.2rem]" : "text-[1.6rem]"} font-['Playfair_Display'] font-semibold tracking-[0.11em] text-primary-dark`}>

@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AccountButton } from "@/components/AccountButton";
 import { CartDrawer } from "@/components/CartDrawer";
-import logoOnlineGarden from "@/assets/logo-online-garden.png";
+import logoOnlineGardenAsset from "@/assets/logo-online-garden-v2.png.asset.json";
+const logoOnlineGarden = logoOnlineGardenAsset.url;
 import outdoorLivingImg from "@/assets/megamenu/outdoor-living.jpg";
 import evergreenGardenImg from "@/assets/megamenu/evergreen-garden.jpg";
 import roseSelectionImg from "@/assets/megamenu/rose-selection.jpg";
@@ -164,7 +165,7 @@ const BrandMark = ({ compact = false }: { compact?: boolean }) => (
     <img
       src={logoOnlineGarden}
       alt="Online Garden logo"
-      className={`${compact ? "h-8 w-8" : "h-9 w-9"} object-contain`}
+      className={`${compact ? "h-11 w-11" : "h-14 w-14"} object-contain`}
       loading="eager"
     />
     <span className={`${compact ? "text-[1.25rem]" : "text-[1.9rem]"} font-['Playfair_Display'] font-semibold tracking-[0.12em] text-white`}>
