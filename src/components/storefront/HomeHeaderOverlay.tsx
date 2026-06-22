@@ -165,7 +165,7 @@ const BrandMark = ({ compact = false }: { compact?: boolean }) => (
     <img
       src={logoOnlineGarden}
       alt="Online Garden logo"
-      className={`${compact ? "h-11 w-11" : "h-14 w-14"} object-contain`}
+      className={`${compact ? "h-16 w-16" : "h-24 w-24"} object-contain`}
       loading="eager"
     />
     <span className={`${compact ? "text-[1.25rem]" : "text-[1.9rem]"} font-['Playfair_Display'] font-semibold tracking-[0.12em] text-white`}>
