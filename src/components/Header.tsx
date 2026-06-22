@@ -5,7 +5,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { CartDrawer } from "./CartDrawer";
 import { AccountButton } from "./AccountButton";
 import { useState } from "react";
-import logoOnlineGarden from "@/assets/logo-online-garden.png";
+import logoOnlineGardenAsset from "@/assets/logo-online-garden-v2.png.asset.json";
+const logoOnlineGarden = logoOnlineGardenAsset.url;
 import outdoorLivingImg from "@/assets/megamenu/outdoor-living.jpg";
 import evergreenGardenImg from "@/assets/megamenu/evergreen-garden.jpg";
 import roseSelectionImg from "@/assets/megamenu/rose-selection.jpg";
