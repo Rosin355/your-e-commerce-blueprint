@@ -69,16 +69,41 @@ async function listProducts(data: any) {
     const statuses = rawStatus.split(",").map((s) => s.trim()).filter(Boolean);
     const seen = new Set<number>();
     const merged: any[] = [];
+    const warnings: string[] = [];
     for (const s of statuses) {
-      const r = await listProductsSingleStatus({ status: s, limit, pageInfo: "", tagFilter, query });
-      for (const p of r.products) {
-        if (!seen.has(p.id)) {
-          seen.add(p.id);
-          merged.push(p);
+      try {
+        let r;
+        // Per "active" preferiamo Storefront (Headless private token): non
+        // dipende dallo scope Admin read_products e quindi funziona anche se
+        // il token Admin non è approvato.
+        if (s === "active" && isHeadlessStorefrontConfigured()) {
+          try {
+            r = await storefrontListProducts({ limit, status: s, query, tag: tagFilter, cursor: "" });
+          } catch (err) {
+            console.warn(`[list_products] Storefront fallita per status=${s}, provo Admin:`, err);
+            r = await listProductsSingleStatus({ status: s, limit, pageInfo: "", tagFilter, query });
+          }
+        } else {
+          r = await listProductsSingleStatus({ status: s, limit, pageInfo: "", tagFilter, query });
         }
+        for (const p of r.products) {
+          if (!seen.has(p.id)) {
+            seen.add(p.id);
+            merged.push(p);
+          }
+        }
+      } catch (err: any) {
+        // Non bloccare: log + continua. Tipicamente Admin 403 per scope mancanti
+        // su draft/archived quando si usa solo il token Headless.
+        const msg = err?.message || String(err);
+        console.warn(`[list_products] status=${s} fallito:`, msg);
+        warnings.push(`status=${s}: ${msg.slice(0, 200)}`);
       }
     }
-    return { products: merged, hasNextPage: false, nextPageInfo: "" };
+    if (merged.length === 0 && warnings.length > 0) {
+      throw new Error(`Nessun prodotto recuperato. ${warnings.join(" | ")}`);
+    }
+    return { products: merged, hasNextPage: false, nextPageInfo: "", warnings: warnings.length ? warnings : undefined };
   }
 
   const status = rawStatus;
