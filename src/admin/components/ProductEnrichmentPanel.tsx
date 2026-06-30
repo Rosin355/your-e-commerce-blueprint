@@ -227,6 +227,8 @@ function ModeAPanel() {
     setDebugMetafields,
     metafieldsRetries,
     setMetafieldsRetries,
+    concurrency,
+    setConcurrency,
     openRun,
     openRunItems,
     refreshOpenRun,
