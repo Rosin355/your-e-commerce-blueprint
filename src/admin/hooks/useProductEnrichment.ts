@@ -197,19 +197,26 @@ export function useProductEnrichment() {
 
   /** Instant: evaluates completeness for all loaded products, then rehydrates existing drafts from DB. */
   async function analyzeAll(products: ShopifyAdminProduct[]) {
-    const initial: BatchProductResult[] = products.map((p) => ({
-      productId: p.id,
-      sku: p.sku,
-      handle: p.handle,
-      title: p.title,
-      completeness: evaluateProductCompleteness(p),
-      draft: null,
-      publishedAt: null,
-      savedAt: null,
-      restored: false,
-      status: "pending" as BatchItemStatus,
-      error: null,
-    }));
+    const initial: BatchProductResult[] = products.map((p) => {
+      const sync = p.shopifySync;
+      const isSynced = sync?.status === "synced" || sync?.status === "partial";
+      const isFailed = sync?.status === "failed";
+      const report = sync?.metafields?.report as MetafieldsReport | undefined;
+      return {
+        productId: p.id,
+        sku: p.sku,
+        handle: p.handle,
+        title: p.title,
+        completeness: evaluateProductCompleteness(p),
+        draft: null,
+        publishedAt: isSynced ? sync?.syncedAt ?? null : null,
+        savedAt: null,
+        restored: false,
+        status: (isFailed ? "error" : "pending") as BatchItemStatus,
+        error: isFailed ? sync?.error ?? null : null,
+        metafieldsReport: report && typeof report === "object" ? report : undefined,
+      };
+    });
     setBatchResults(initial);
     toast.success(`${initial.length} prodotti analizzati`);
 
@@ -230,13 +237,15 @@ export function useProductEnrichment() {
         const completeness = product
           ? evaluateCompletenessWithDraft(product, draft)
           : r.completeness;
+        // Status: if Shopify sync already OK keep "done"; else mark as restored draft
+        const wasSynced = !!r.publishedAt;
         return {
           ...r,
           draft,
           completeness,
           savedAt: row.ai_enriched_at,
           restored: true,
-          status: "done" as BatchItemStatus,
+          status: (wasSynced || r.status === "error" ? r.status : "done") as BatchItemStatus,
         };
       });
       setBatchResults(merged);
