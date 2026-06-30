@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "purpose": "Dry-run delle collezioni Shopify da creare a seguito delle modifiche categorie del 12 giugno. NESSUNA collezione viene creata automaticamente: questo file è la lista azioni da confermare prima di lanciare lo script di creazione via Admin API.",
+    "generated_for": "Online Garden",
+    "review_required": true,
+    "next_step": "Una volta approvato il contenuto, eseguiremo uno script (scripts/create-shopify-collections.ts, da scrivere dopo OK) che chiama collectionCreate via Admin API per ciascun item con \"action\": \"create\". Le collezioni vengono create VUOTE: il cliente assegna manualmente i prodotti dall'admin Shopify."
+  },
+  "collections_to_create": [
+    { "handle": "alberi-da-frutto", "title": "Alberi da frutto", "parent_label": "Piante da frutto", "action": "create" },
+    { "handle": "rose-paesaggistiche", "title": "Rose paesaggistiche", "parent_label": "Rose", "action": "create" },
+    { "handle": "rose-fiore-grande", "title": "Rose a fiore grande", "parent_label": "Rose", "action": "create" },
+    { "handle": "bulbi", "title": "Bulbi", "parent_label": "Altre categorie", "action": "create" },
+    { "handle": "arbusti", "title": "Arbusti", "parent_label": "Piante da esterno", "action": "create" },
+    { "handle": "alberi", "title": "Alberi", "parent_label": "Piante da esterno", "action": "create" },
+    { "handle": "erbacee-perenni-graminacee", "title": "Erbacee perenni e graminacee", "parent_label": "Piante da esterno", "action": "create" },
+    { "handle": "piante-da-siepe", "title": "Piante da siepe", "parent_label": "Piante da esterno", "action": "create" },
+    { "handle": "piante-grasse-succulente", "title": "Piante grasse e succulente", "parent_label": "Piante da esterno", "action": "create" },
+    { "handle": "aromatiche", "title": "Aromatiche", "parent_label": "Piante da esterno", "action": "create" },
+    { "handle": "rampicanti-arbusti-spalliera", "title": "Rampicanti / arbusti a spalliera", "parent_label": "Piante da esterno", "action": "create" },
+    { "handle": "conifere", "title": "Conifere", "parent_label": "(top-level)", "action": "create", "notes": "In attesa lista piante e foto da Marco prima di pubblicare." }
+  ],
+  "collections_removed_from_nav_only": [
+    { "handle": "agrumi", "reason": "Rimossa dalla nav 'Piante da frutto'. La collezione Shopify NON viene cancellata: solo non più mostrata in NavBar/Footer." },
+    { "handle": "varieta-da-terrazzo", "reason": "Rimossa dalla nav 'Piante da frutto'. Collezione Shopify intatta." },
+    { "handle": "rose-idee-regalo", "reason": "Rimossa dalla nav 'Rose'. Collezione Shopify intatta." },
+    { "handle": "balconi-terrazze", "reason": "Rimossa dalla nav 'Piante da esterno'. Collezione Shopify intatta." },
+    { "handle": "fioriture-stagionali", "reason": "Rimossa dalla nav 'Piante da esterno'. Collezione Shopify intatta." }
+  ],
+  "summary": {
+    "to_create": 12,
+    "removed_from_nav_only": 5,
+    "destructive_actions_on_shopify": 0
+  }
+}
