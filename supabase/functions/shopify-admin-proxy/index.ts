@@ -1101,12 +1101,12 @@ serve(async (req) => {
           }
           try {
             const r: any = await shopifyAdminGraphQL(checkQ, { handle: it.handle });
-            const c = r?.data?.collectionByHandle;
+            const c = r?.collectionByHandle;
             if (c) { already_exists.push({ handle: it.handle, id: c.id }); continue; }
             const cr: any = await shopifyAdminGraphQL(createM, { input: { title: it.title, handle: it.handle } });
-            const ue = cr?.data?.collectionCreate?.userErrors || [];
+            const ue = cr?.collectionCreate?.userErrors || [];
             if (ue.length) { failed.push({ handle: it.handle, error: JSON.stringify(ue) }); continue; }
-            const col = cr?.data?.collectionCreate?.collection;
+            const col = cr?.collectionCreate?.collection;
             if (col?.id) created.push({ handle: it.handle, id: col.id });
             else failed.push({ handle: it.handle, error: "no_collection_returned" });
           } catch (e: any) {
