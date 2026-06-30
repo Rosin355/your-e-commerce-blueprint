@@ -19,8 +19,12 @@
  *   deno run -A scripts/create-shopify-collections.ts --execute
  *
  * Env richieste:
- *   SHOPIFY_STORE_DOMAIN        es. ecom-blueprint-gen-6ud1s.myshopify.com
- *   SHOPIFY_ADMIN_API_TOKEN     token Admin API con scope write_products
+ *   SHOPIFY_STORE_DOMAIN  (oppure fallback SHOPIFY_STORE_PERMANENT_DOMAIN)
+ *                              es. ecom-blueprint-gen-6ud1s.myshopify.com
+ *   SHOPIFY_ADMIN_API_TOKEN    token Admin API con scope write_products
+ *
+ * SICUREZZA: il token NON viene MAI stampato/loggato. Lo script si limita
+ *            a verificarne la presenza (booleano) e a usarlo nelle chiamate HTTP.
  *
  * NOTA: questo file NON viene eseguito automaticamente da nessun build/CI.
  *       Deve essere lanciato manualmente quando l'utente da OK.
