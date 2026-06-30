@@ -246,11 +246,11 @@ export const Header = () => {
               <div className="grid gap-2">
                 {activeCategoryData.links.map((link) => (
                   <a
-                    key={link}
-                    href="/collections/all"
+                    key={link.handle}
+                    href={collectionHref(link.handle)}
                     className="flex items-center justify-between border-b border-border/60 py-2.5 text-sm text-foreground/88 transition-colors hover:text-primary-dark"
                   >
-                    <span>{link}</span>
+                    <span>{link.label}</span>
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </a>
                 ))}
