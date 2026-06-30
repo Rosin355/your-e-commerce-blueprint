@@ -43,7 +43,11 @@ export interface BatchProductResult {
   status: BatchItemStatus;
   error: string | null;
   metafieldsReport?: MetafieldsReport;
-
+  /** ISO timestamp set when the item enters status="publishing" or "generating". Used by the
+   *  client-side watchdog to reset orphan states stuck > 5 min (e.g. tab closed / network drop). */
+  startedAt?: string | null;
+  /** True when proxy responded `skipped: true` (already synced and unchanged). */
+  skippedAlreadySynced?: boolean;
 }
 
 export interface BatchProgress {
