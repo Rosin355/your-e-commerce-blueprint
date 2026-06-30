@@ -84,15 +84,16 @@ function StatusBadge({ result }: { result: BatchProductResult }) {
     return <Badge variant="secondary" className="gap-1"><Loader2 className="h-3 w-3 animate-spin" />Generando...</Badge>;
   if (result.status === "publishing")
     return <Badge variant="secondary" className="gap-1"><Loader2 className="h-3 w-3 animate-spin" />Pubblicando...</Badge>;
-  if (result.status === "error")
-    return <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" />Errore</Badge>;
-  if (result.publishedAt && result.metafieldsReport?.details.some((d) => d.status === "failed"))
-    return <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" />Shopify ✓ · MF errori</Badge>;
-  if (result.publishedAt)
-    return <Badge className="gap-1 bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3 w-3" />Shopify ✓</Badge>;
+  const sync = deriveShopifyStatus(result);
+  if (sync === "error")
+    return <Badge variant="destructive" className="gap-1" title={result.error ?? undefined}><AlertCircle className="h-3 w-3" />Errore sync</Badge>;
+  if (sync === "partial")
+    return <Badge className="gap-1 bg-amber-500 hover:bg-amber-600 text-white"><AlertCircle className="h-3 w-3" />Shopify parziale</Badge>;
+  if (sync === "ok")
+    return <Badge className="gap-1 bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3 w-3" />Shopify OK</Badge>;
   if (result.draft)
     return <Badge variant="outline" className="gap-1 text-green-700 border-green-300"><CheckCircle2 className="h-3 w-3" />Bozza AI</Badge>;
-  return <Badge variant="outline" className="text-muted-foreground">In attesa</Badge>;
+  return <Badge variant="outline" className="text-muted-foreground">Da generare</Badge>;
 }
 
 function MetafieldsChip({
