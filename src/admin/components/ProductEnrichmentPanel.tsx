@@ -622,24 +622,49 @@ function ModeAPanel() {
       {batchResults.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <CardTitle className="text-base">
                 Risultati — {batchResults.length} prodotti
               </CardTitle>
-              <div className="flex gap-2 text-xs text-muted-foreground">
-                <span className="text-green-600 font-medium">
-                  {batchResults.filter((r) => r.draft).length} bozze
-                </span>
-                <span>•</span>
-                <span className="text-blue-600 font-medium">
-                  {batchResults.filter((r) => r.publishedAt).length} pubblicati
-                </span>
-                <span>•</span>
-                <span className="text-red-600 font-medium">
-                  {batchResults.filter((r) => r.error).length} errori
-                </span>
-              </div>
+              {(() => {
+                const okCount = batchResults.filter((r) => deriveShopifyStatus(r) === "ok").length;
+                const partialCount = batchResults.filter((r) => deriveShopifyStatus(r) === "partial").length;
+                const errorCount = batchResults.filter((r) => deriveShopifyStatus(r) === "error").length;
+                const draftCount = batchResults.filter((r) => r.draft).length;
+                const todoCount = batchResults.filter(
+                  (r) => deriveShopifyStatus(r) === "none" && !r.draft,
+                ).length;
+                return (
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span className="text-green-700 font-medium" title="Sync API riuscita (skipped sui metafield non contano come errore)">
+                      ✓ {okCount} Shopify OK
+                    </span>
+                    <span>•</span>
+                    <span className="text-amber-700 font-medium" title="Prodotto aggiornato ma uno o più metafield falliti">
+                      ⚠ {partialCount} parziali
+                    </span>
+                    <span>•</span>
+                    <span className="text-red-700 font-medium">
+                      ✗ {errorCount} errori
+                    </span>
+                    <span>•</span>
+                    <span className="text-emerald-700 font-medium">
+                      {draftCount} bozze AI
+                    </span>
+                    <span>•</span>
+                    <span>{todoCount} da fare</span>
+                  </div>
+                );
+              })()}
             </div>
+            <Tabs value={syncFilter} onValueChange={(v) => setSyncFilter(v as typeof syncFilter)} className="mt-3">
+              <TabsList className="h-8">
+                <TabsTrigger value="all" className="h-7 text-xs">Tutti</TabsTrigger>
+                <TabsTrigger value="todo" className="h-7 text-xs">Da syncare</TabsTrigger>
+                <TabsTrigger value="ok" className="h-7 text-xs">Sync OK</TabsTrigger>
+                <TabsTrigger value="issues" className="h-7 text-xs">Parziali / errori</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y">
