@@ -32,7 +32,7 @@ import {
   mergeDraftsIntoShopifyCsv,
   type MergeReport,
 } from "../lib/productEnrichmentEngine";
-import { useProductEnrichment, type BatchProductResult } from "../hooks/useProductEnrichment";
+import { useProductEnrichment, deriveShopifyStatus, type BatchProductResult } from "../hooks/useProductEnrichment";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
 import type { EssentialProductInput } from "../types/productEnrichment";
 import { AI_GENERATED_KEYS, ALL_METAFIELD_KEYS, MANUAL_KEYS, METAFIELD_LABELS } from "../types/productEnrichment";
@@ -84,15 +84,16 @@ function StatusBadge({ result }: { result: BatchProductResult }) {
     return <Badge variant="secondary" className="gap-1"><Loader2 className="h-3 w-3 animate-spin" />Generando...</Badge>;
   if (result.status === "publishing")
     return <Badge variant="secondary" className="gap-1"><Loader2 className="h-3 w-3 animate-spin" />Pubblicando...</Badge>;
-  if (result.status === "error")
-    return <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" />Errore</Badge>;
-  if (result.publishedAt && result.metafieldsReport?.details.some((d) => d.status === "failed"))
-    return <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" />Shopify ✓ · MF errori</Badge>;
-  if (result.publishedAt)
-    return <Badge className="gap-1 bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3 w-3" />Shopify ✓</Badge>;
+  const sync = deriveShopifyStatus(result);
+  if (sync === "error")
+    return <Badge variant="destructive" className="gap-1" title={result.error ?? undefined}><AlertCircle className="h-3 w-3" />Errore sync</Badge>;
+  if (sync === "partial")
+    return <Badge className="gap-1 bg-amber-500 hover:bg-amber-600 text-white"><AlertCircle className="h-3 w-3" />Shopify parziale</Badge>;
+  if (sync === "ok")
+    return <Badge className="gap-1 bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3 w-3" />Shopify OK</Badge>;
   if (result.draft)
     return <Badge variant="outline" className="gap-1 text-green-700 border-green-300"><CheckCircle2 className="h-3 w-3" />Bozza AI</Badge>;
-  return <Badge variant="outline" className="text-muted-foreground">In attesa</Badge>;
+  return <Badge variant="outline" className="text-muted-foreground">Da generare</Badge>;
 }
 
 function MetafieldsChip({
@@ -232,6 +233,7 @@ function ModeAPanel() {
     closeOpenRun,
   } = useProductEnrichment();
   const [openReportFor, setOpenReportFor] = useState<number | null>(null);
+  const [syncFilter, setSyncFilter] = useState<"all" | "todo" | "ok" | "issues">("all");
   const [closingRun, setClosingRun] = useState(false);
 
   // Carica eventuale run aperto al mount
@@ -486,7 +488,7 @@ function ModeAPanel() {
                     ? "Disponibile solo con sorgente Shopify Admin"
                     : !hasDrafts
                       ? "Genera prima le bozze AI"
-                      : "Pubblica SOLO i 16 metafield custom.* (non tocca titolo/descrizione/SEO). Ideale per prodotti già importati via CSV."
+                      : "Pubblica SOLO i 19 metafield custom.* (non tocca titolo/descrizione/SEO). Ideale per prodotti già importati via CSV."
                 }
               >
                 {isRunning && batchProgress?.phase === "publish" ? (
@@ -620,28 +622,62 @@ function ModeAPanel() {
       {batchResults.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <CardTitle className="text-base">
                 Risultati — {batchResults.length} prodotti
               </CardTitle>
-              <div className="flex gap-2 text-xs text-muted-foreground">
-                <span className="text-green-600 font-medium">
-                  {batchResults.filter((r) => r.draft).length} bozze
-                </span>
-                <span>•</span>
-                <span className="text-blue-600 font-medium">
-                  {batchResults.filter((r) => r.publishedAt).length} pubblicati
-                </span>
-                <span>•</span>
-                <span className="text-red-600 font-medium">
-                  {batchResults.filter((r) => r.error).length} errori
-                </span>
-              </div>
+              {(() => {
+                const okCount = batchResults.filter((r) => deriveShopifyStatus(r) === "ok").length;
+                const partialCount = batchResults.filter((r) => deriveShopifyStatus(r) === "partial").length;
+                const errorCount = batchResults.filter((r) => deriveShopifyStatus(r) === "error").length;
+                const draftCount = batchResults.filter((r) => r.draft).length;
+                const todoCount = batchResults.filter(
+                  (r) => deriveShopifyStatus(r) === "none" && !r.draft,
+                ).length;
+                return (
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span className="text-green-700 font-medium" title="Sync API riuscita (skipped sui metafield non contano come errore)">
+                      ✓ {okCount} Shopify OK
+                    </span>
+                    <span>•</span>
+                    <span className="text-amber-700 font-medium" title="Prodotto aggiornato ma uno o più metafield falliti">
+                      ⚠ {partialCount} parziali
+                    </span>
+                    <span>•</span>
+                    <span className="text-red-700 font-medium">
+                      ✗ {errorCount} errori
+                    </span>
+                    <span>•</span>
+                    <span className="text-emerald-700 font-medium">
+                      {draftCount} bozze AI
+                    </span>
+                    <span>•</span>
+                    <span>{todoCount} da fare</span>
+                  </div>
+                );
+              })()}
             </div>
+            <Tabs value={syncFilter} onValueChange={(v) => setSyncFilter(v as typeof syncFilter)} className="mt-3">
+              <TabsList className="h-8">
+                <TabsTrigger value="all" className="h-7 text-xs">Tutti</TabsTrigger>
+                <TabsTrigger value="todo" className="h-7 text-xs">Da syncare</TabsTrigger>
+                <TabsTrigger value="ok" className="h-7 text-xs">Sync OK</TabsTrigger>
+                <TabsTrigger value="issues" className="h-7 text-xs">Parziali / errori</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y">
-              {batchResults.map((result) => (
+              {batchResults
+                .filter((result) => {
+                  if (syncFilter === "all") return true;
+                  const s = deriveShopifyStatus(result);
+                  if (syncFilter === "ok") return s === "ok";
+                  if (syncFilter === "issues") return s === "partial" || s === "error";
+                  if (syncFilter === "todo") return s === "none";
+                  return true;
+                })
+                .map((result) => (
                 <div key={result.productId}>
                   <div className="flex items-center gap-3 px-4 py-3">
                     {/* Expand toggle */}
@@ -1053,7 +1089,7 @@ function ShopifyNativeCsvButton() {
       </div>
       <p className="text-[10px] text-muted-foreground">
         File pronto per <strong>Shopify Admin → Products → Import</strong>: titolo, descrizione,
-        varianti raggruppate per Handle, immagini multiple e SEO. <strong>I 16 metafield
+        varianti raggruppate per Handle, immagini multiple e SEO. <strong>I 19 metafield
         <code> custom.*</code> NON sono inclusi</strong> (vai via API col bottone "Pubblica solo
         metafield" qui sopra — è l'unico modo affidabile).
       </p>

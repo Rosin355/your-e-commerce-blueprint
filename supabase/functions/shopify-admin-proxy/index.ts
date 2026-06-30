@@ -187,7 +187,11 @@ async function listDbProducts(data: any) {
 
   let query = db
     .from("product_sync_csv_products")
-    .select("sku, title, handle, description, tags, seo_title, seo_description, optimized_description, metafields, ai_enriched_at, ai_enrichment_json, imported_at, image_urls")
+    .select(
+      "sku, title, handle, description, tags, seo_title, seo_description, optimized_description, metafields, ai_enriched_at, ai_enrichment_json, imported_at, image_urls, " +
+      "shopify_product_id, shopify_synced_at, shopify_sync_status, shopify_sync_error, shopify_resolved_by, " +
+      "shopify_metafields_written, shopify_metafields_skipped, shopify_metafields_failed, shopify_metafields_report, shopify_last_sync_mode"
+    )
     .order("imported_at", { ascending: false })
     .limit(limit);
 
@@ -197,6 +201,70 @@ async function listDbProducts(data: any) {
   if (error) throw new Error(error.message);
   return { products: rows || [] };
 }
+
+/**
+ * Persist the Shopify sync state for a product into product_sync_csv_products.
+ * Matches by sku first, falls back to handle. Never throws (best-effort).
+ */
+async function persistShopifySyncState(opts: {
+  sku?: string | null;
+  handle?: string | null;
+  productId?: number | string | null;
+  resolvedBy?: string | null;
+  status: "synced" | "partial" | "failed";
+  error?: string | null;
+  mode?: string | null;
+  metafieldsReport?: any;
+}) {
+  try {
+    const sku = opts.sku ? String(opts.sku).trim() : "";
+    const handle = opts.handle ? String(opts.handle).trim() : "";
+    if (!sku && !handle) return;
+    const db = getSupabaseAdminClient();
+
+    let written = 0, skipped = 0, failed = 0;
+    if (opts.metafieldsReport && Array.isArray(opts.metafieldsReport.details)) {
+      written = Number(opts.metafieldsReport.written ?? 0) || 0;
+      for (const d of opts.metafieldsReport.details) {
+        if (d?.status === "skipped") skipped++;
+        else if (d?.status === "failed") failed++;
+      }
+    }
+
+    const patch: Record<string, unknown> = {
+      shopify_product_id: opts.productId != null ? String(opts.productId) : null,
+      shopify_synced_at: new Date().toISOString(),
+      shopify_sync_status: opts.status,
+      shopify_sync_error: opts.error ?? null,
+      shopify_resolved_by: opts.resolvedBy ?? null,
+      shopify_metafields_written: written,
+      shopify_metafields_skipped: skipped,
+      shopify_metafields_failed: failed,
+      shopify_metafields_report: opts.metafieldsReport ?? null,
+      shopify_last_sync_mode: opts.mode ?? null,
+    };
+
+    let q = db.from("product_sync_csv_products").update(patch);
+    if (sku) q = q.eq("sku", sku);
+    else q = q.eq("handle", handle);
+    const { error, count } = await q.select("sku", { count: "exact", head: true });
+    if (error) {
+      console.warn("[persistShopifySyncState] DB update error:", error.message);
+      return;
+    }
+    // Fallback by handle if sku didn't match
+    if ((!count || count === 0) && sku && handle) {
+      const { error: e2 } = await db
+        .from("product_sync_csv_products")
+        .update(patch)
+        .eq("handle", handle);
+      if (e2) console.warn("[persistShopifySyncState] handle-fallback error:", e2.message);
+    }
+  } catch (err) {
+    console.warn("[persistShopifySyncState] unexpected:", err);
+  }
+}
+
 
 async function saveEnrichedDraft(data: any) {
   const sku = String(data?.sku || "").trim();
@@ -829,56 +897,84 @@ serve(async (req) => {
         break;
       case "update_product": {
         const { id, handle, sku, metafields, debug, retries, metafields_only, ...productData } = data;
-        // Resolve real Shopify ID. Trust `id` only if it looks like a Shopify
-        // numeric ID (>= 10 digits). DB-source ids are short hash codes which
-        // would write to the wrong product or fail; in that case we resolve
-        // by handle (preferito) or sku to guarantee idempotent UPDATE (no
-        // duplicates, sovrascrive il prodotto esistente).
         const looksLikeShopifyId = (v: any) => {
           const n = Number(v);
           return Number.isFinite(n) && n > 0 && String(n).length >= 10;
         };
         let resolvedId: number | null = looksLikeShopifyId(id) ? Number(id) : null;
         let resolvedBy = resolvedId ? "id" : null;
-        if (!resolvedId && (handle || sku)) {
-          const lookup = await searchProductBySkuOrHandle({ handle, sku });
-          if (lookup.found && lookup.id) {
-            resolvedId = Number(lookup.id);
-            resolvedBy = lookup.matchedBy || "lookup";
+        try {
+          if (!resolvedId && (handle || sku)) {
+            const lookup = await searchProductBySkuOrHandle({ handle, sku });
+            if (lookup.found && lookup.id) {
+              resolvedId = Number(lookup.id);
+              resolvedBy = lookup.matchedBy || "lookup";
+            }
           }
-        }
-        if (!resolvedId) {
-          throw new Error(
-            `Prodotto non trovato su Shopify (id=${id}, handle=${handle || "n/a"}, sku=${sku || "n/a"}). Importa prima il CSV base o crea il prodotto.`,
-          );
-        }
-        console.log(`[update_product] resolved id=${resolvedId} via ${resolvedBy} (input id=${id}, handle=${handle || "—"})`);
+          if (!resolvedId) {
+            throw new Error(
+              `Prodotto non trovato su Shopify (id=${id}, handle=${handle || "n/a"}, sku=${sku || "n/a"}). Importa prima il CSV base o crea il prodotto.`,
+            );
+          }
+          console.log(`[update_product] resolved id=${resolvedId} via ${resolvedBy} (input id=${id}, handle=${handle || "—"})`);
 
-        let updatedId: any = resolvedId;
-        // When metafields_only=true we skip productUpdate (body HTML / SEO) and
-        // only push the 16 custom.* metafields. Used by the "Pubblica solo
-        // metafield" action for products that already exist in Shopify (e.g.
-        // imported via the base CSV) but lack metafield data.
-        if (!metafields_only) {
-          const updateRes = await shopifyAdminFetch(`products/${resolvedId}.json`, "PUT", {
-            product: { ...productData, id: resolvedId },
+          let updatedId: any = resolvedId;
+          // When metafields_only=true we skip productUpdate (body HTML / SEO) and
+          // only push the 19 custom.* metafields. Used by the "Pubblica solo
+          // metafield" action for products that already exist in Shopify (e.g.
+          // imported via the base CSV) but lack metafield data.
+          if (!metafields_only) {
+            const updateRes = await shopifyAdminFetch(`products/${resolvedId}.json`, "PUT", {
+              product: { ...productData, id: resolvedId },
+            });
+            updatedId = updateRes.product?.id;
+          }
+          let metafieldsResult: any;
+          if (metafields && typeof metafields === "object") {
+            metafieldsResult = await setProductCustomMetafields(Number(resolvedId), metafields as Record<string, string>, {
+              debug: !!debug,
+              maxRetries: typeof retries === "number" ? retries : undefined,
+            });
+          }
+
+          // Determina status: skipped non sono errori; failed > 0 => partial
+          const failedCount = metafieldsResult?.details
+            ? metafieldsResult.details.filter((d: any) => d?.status === "failed").length
+            : 0;
+          const persistStatus: "synced" | "partial" = failedCount > 0 ? "partial" : "synced";
+
+          // Best-effort persist
+          await persistShopifySyncState({
+            sku, handle,
+            productId: resolvedId,
+            resolvedBy,
+            status: persistStatus,
+            error: null,
+            mode: metafields_only ? "metafields_only" : "full_publish",
+            metafieldsReport: metafieldsResult ?? null,
           });
-          updatedId = updateRes.product?.id;
-        }
-        let metafieldsResult: any;
-        if (metafields && typeof metafields === "object") {
-          metafieldsResult = await setProductCustomMetafields(Number(resolvedId), metafields as Record<string, string>, {
-            debug: !!debug,
-            maxRetries: typeof retries === "number" ? retries : undefined,
+
+          result = {
+            success: true,
+            id: updatedId,
+            resolved_by: resolvedBy,
+            metafields: metafieldsResult,
+            metafields_only: !!metafields_only,
+            sync_status: persistStatus,
+          };
+        } catch (err: any) {
+          // Persist failure state, then rethrow so caller still sees error
+          await persistShopifySyncState({
+            sku, handle,
+            productId: resolvedId,
+            resolvedBy,
+            status: "failed",
+            error: err?.message || String(err),
+            mode: metafields_only ? "metafields_only" : "full_publish",
+            metafieldsReport: null,
           });
+          throw err;
         }
-        result = {
-          success: true,
-          id: updatedId,
-          resolved_by: resolvedBy,
-          metafields: metafieldsResult,
-          metafields_only: !!metafields_only,
-        };
         break;
       }
       case "get_metafield_config":

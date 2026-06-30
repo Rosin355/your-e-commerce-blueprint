@@ -1,53 +1,87 @@
+## Obiettivo
+Rendere persistente e visibile lo stato di sync Shopify per ogni prodotto in Admin > Arricchimento, in modo che dopo refresh / ricarica Catalogo DB i prodotti già sincronizzati continuino a mostrare "Shopify OK" con il relativo MF report.
 
-# Migrare le letture prodotti su Storefront API
+## Stato attuale (verificato)
+- `product_sync_csv_products` NON contiene campi per tracciare la sync Shopify (solo `ai_enrichment_json`, `ai_enriched_at`, `metafields`).
+- `shopify-admin-proxy > update_product` esegue Shopify PUT + `metafieldsSet` ma NON scrive nulla in DB sul risultato.
+- `listDbProducts` non seleziona alcun campo di sync Shopify.
+- `useProductEnrichment.analyzeAll` ricostruisce `BatchProductResult` solo da memoria locale → dopo refresh sparisce `publishedAt` e `metafieldsReport`.
+- `ShopifyAdminProduct` non ha campo `shopifySync`.
+- "MF inviati · saltati" senza failed dovrebbe essere considerato OK ma oggi la logica di status guarda solo `details.some(failed)` su uno stato volatile.
 
-## Contesto
+## Piano
 
-L'errore `Shopify 403: [API] This action requires merchant approval for read_products scope.` arriva dall'**Admin API** (non dal Storefront). Il token `shpat_` mostrato nell'allegato è il *Private Storefront Access Token* del canale Headless, valido solo per l'**API Storefront** (`/api/2025-07/graphql.json`), non per l'Admin API (`/admin/api/.../graphql.json`) usata oggi dalla edge function `shopify-admin-proxy`.
+### 1. Migration Supabase
+Aggiungere a `public.product_sync_csv_products`:
+- `shopify_product_id text`
+- `shopify_synced_at timestamptz`
+- `shopify_sync_status text` (valori: `pending|synced|partial|failed`)
+- `shopify_sync_error text`
+- `shopify_resolved_by text`
+- `shopify_metafields_written integer default 0`
+- `shopify_metafields_skipped integer default 0`
+- `shopify_metafields_failed integer default 0`
+- `shopify_metafields_report jsonb`
+- `shopify_last_sync_mode text` (`full_publish|metafields_only`)
+- Indice su `shopify_sync_status`.
 
-## Avviso importante (da leggere prima di approvare)
+Nessuna nuova RLS (la tabella è già accessibile via service role dalle edge function).
 
-Il proxy `shopify-admin-proxy` oggi gestisce **15+ azioni**, di cui solo 3 sono letture prodotti:
+### 2. `shopify-admin-proxy > update_product`
+Dopo l'esecuzione di Shopify PUT + `metafieldsSet`:
+- Calcolare counts dal report (`written`, `skipped`, `failed` — skipped NON conta come errore).
+- Determinare status: `synced` se `failed === 0`, `partial` se `failed > 0` ma update prodotto OK, `failed` se l'intera PUT/lookup fallisce (gestito nel catch).
+- `UPDATE product_sync_csv_products` per `sku` (con fallback `handle`) salvando: `shopify_product_id`, `shopify_synced_at = now()`, `shopify_sync_status`, `shopify_resolved_by`, counts, `shopify_metafields_report` (oggetto completo), `shopify_last_sync_mode` (`metafields_only` se flag, altrimenti `full_publish`), `shopify_sync_error = null`.
+- Nel catch top-level del case `update_product`, se abbiamo `sku`/`handle`, scrivere `shopify_sync_status='failed'` + `shopify_sync_error = message` (best-effort, non bloccante).
 
-- **Letture** (migrabili a Storefront API): `list_products`, `get_product`, `search_product`, `search_product_by_sku_or_handle`
-- **Scritture e operazioni admin-only** (NON migrabili — la Storefront API non le supporta): `create_product`, `update_product`, `save_enriched_draft`, `publish_product_copy`, `setProductCustomMetafields`, `list_shopify_metafield_definitions`, `search_customer`, `create_customer`, `update_customer`, `list_drafts`, ecc.
+### 3. `listDbProducts`
+Aggiungere alla SELECT i nuovi campi sync.
 
-Quindi questa migrazione fa funzionare **"Carica prodotti"** ma **non** sblocca: pubblicare arricchimenti, aggiornare SEO/metafields, gestire clienti, leggere le definizioni dei metafield. Per quelle operazioni resta obbligatorio sistemare il token Admin API (Custom App con scope corretti).
+### 4. Frontend types & mapping
+- `src/admin/types/aiWriter.ts`: aggiungere a `ShopifyAdminProduct` un campo opzionale `shopifySync?: { status: 'pending'|'synced'|'partial'|'failed'; productId?: string; syncedAt?: string; resolvedBy?: string; error?: string; lastMode?: string; metafields?: { written: number; skipped: number; failed: number; report?: MetafieldsReport } }`.
+- `src/admin/lib/dbCatalogSource.ts`: estendere `DbProductRow` e `mapRow` per popolare `shopifySync` dai nuovi campi.
 
-## Cosa cambia
+### 5. `useProductEnrichment`
+- Quando `analyzeAll` costruisce `BatchProductResult` iniziali, hydrate da `product.shopifySync`:
+  - se `synced` o `partial` → `publishedAt = shopifySync.syncedAt`, `metafieldsReport = shopifySync.metafields?.report`, `status = 'done'`.
+  - se `failed` → `status = 'error'`, `error = shopifySync.error`.
+  - se `pending` → invariato.
+- Centralizzare la logica di derivazione del badge sync in un helper `deriveShopifyStatus(result)` che restituisce `'ok'|'partial'|'error'|'none'`, considerando OK quando ci sono solo skipped.
 
-### 1. Aggiungere helper Storefront nel proxy
-In `supabase/functions/shopify-admin-proxy/index.ts`:
-- Nuova funzione `shopifyStorefrontFetch(query, variables)` che POSTA su `https://{domain}/api/2025-07/graphql.json` con header `X-Shopify-Storefront-Access-Token: SHOPIFY_HEADLESS_PRIVATE_TOKEN` (segreto già presente).
-- Nuova `listProductsStorefront({ status, limit, cursor })` che usa il GraphQL `products(first, after, query)`. Nota: la Storefront API restituisce solo prodotti **pubblicati sul canale Headless** e non espone `status=DRAFT/ARCHIVED` → il filtro per status diventa una no-op (documentato in risposta).
-- Nuova `getProductStorefront(id|handle)` con query `productByHandle` o `product(id)`.
+### 6. `ProductEnrichmentPanel`
+- Header counters: bozze AI, sync Shopify OK, sync parziali, sync errori, da fare (usare helper sopra).
+- `StatusBadge`: nuovi badge "Shopify OK" / "Shopify parziale" / "Errore sync" / "Bozza AI" / "Da generare".
+- MF chip: leggere da `metafieldsReport` già hydrato (resta visibile dopo reload).
+- Aggiungere tabs/filtri sopra la lista: Tutti · Da syncare · Sync OK · Parziali/errori.
+- Aggiornare copy "16 metafield" → "19 metafield" dove presente.
+- Aggiornare tooltip/copy come da spec.
 
-### 2. Switch nel `case` esistente
-- `list_products` → chiama `listProductsStorefront` (fallback ad Admin se `SHOPIFY_HEADLESS_PRIVATE_TOKEN` non c'è).
-- `get_product`, `search_product`, `search_product_by_sku_or_handle` → idem, con query Storefront equivalenti (`title:` / `handle:` filtri).
-- Le altre azioni restano invariate sull'Admin API.
+### 7. Idempotenza
+La risoluzione id-by-sku/handle esiste già in `update_product`; nessun cambiamento, solo verificare che il flusso "Pubblica solo metafield" passi sempre `sku` o `handle` (già fatto).
 
-### 3. Risposta uniforme
-Mantenere lo stesso shape JSON che il frontend (`ProductEnrichmentPanel.tsx`, `aiWriterEngine.ts`) già consuma: array di prodotti con `id`, `title`, `handle`, `images`, `variants`, `status` (forzato a `"ACTIVE"` per i risultati Storefront).
+### 8. Verifica
+- `bunx tsgo --noEmit` per typecheck.
+- Build automatica.
 
-### 4. Nessuna modifica al frontend
-Il client continua a chiamare `shopify-admin-proxy` con `action: "list_products"`. Tutto il cambio è server-side.
+### 9. Deploy richiesti (post-approvazione)
+- Applicare migration.
+- `supabase functions deploy shopify-admin-proxy`.
+- `enrichment-run` non viene toccato.
 
-## Dettagli tecnici
+## File toccati
+- `supabase/migrations/<new>_shopify_sync_tracking.sql` (nuovo)
+- `supabase/functions/shopify-admin-proxy/index.ts`
+- `src/admin/types/aiWriter.ts`
+- `src/admin/lib/dbCatalogSource.ts`
+- `src/admin/hooks/useProductEnrichment.ts`
+- `src/admin/components/ProductEnrichmentPanel.tsx`
 
-- Dominio: usa la costante già hardcoded `ecom-blueprint-gen-6ud1s.myshopify.com`.
-- Secret: `SHOPIFY_HEADLESS_PRIVATE_TOKEN` (già configurato, vedi `<secrets>`).
-- Versione API: `2025-07`.
-- Paginazione: la Storefront API usa cursori (`endCursor`, `hasNextPage`) invece di `page_info`; adatto la firma di `listProducts` per restituire `nextCursor` ma resto retrocompatibile col conteggio attuale.
-- Gestione errori: se la query restituisce `errors[]`, faccio throw con il messaggio di Shopify (resta visibile come oggi nei log della edge function).
+## Test di accettazione
+1. Sync di un prodotto → riga mostra "Shopify OK" + MF report.
+2. Refresh pagina + Ricarica Catalogo DB → stesso prodotto ancora "Shopify OK" + MF report visibile.
+3. Prodotto con 1 metafield failed → badge "Shopify parziale".
+4. Prodotto mai pubblicato → "Da syncare".
+5. Filtri tab funzionano.
 
-## Test consigliato dopo deploy
-
-1. Admin → Arricchimento → Shopify Admin → **Carica prodotti** → deve mostrare la lista.
-2. Verifica conteggio confrontandolo col canale Headless.
-3. Tentativo di pubblicare un arricchimento → fallirà con 403 finché non si sistema il token Admin (atteso — vedi avviso).
-
-## Fuori scope
-
-- Sistemazione del token Admin API / scope della Custom App (resta da fare separatamente quando si vorranno usare le funzioni di scrittura).
-- Rimozione dei secret stale (`SHOPIFY_ONLINE_ACCESS_TOKEN:user:...`).
+## Fuori scopo
+Storefront pubblico, checkout, pipeline Woo, CSV export.

@@ -21,6 +21,16 @@ interface DbProductRow {
   seo_description: string | null;
   optimized_description: string | null;
   metafields: unknown;
+  shopify_product_id?: string | null;
+  shopify_synced_at?: string | null;
+  shopify_sync_status?: string | null;
+  shopify_sync_error?: string | null;
+  shopify_resolved_by?: string | null;
+  shopify_metafields_written?: number | null;
+  shopify_metafields_skipped?: number | null;
+  shopify_metafields_failed?: number | null;
+  shopify_metafields_report?: unknown;
+  shopify_last_sync_mode?: string | null;
 }
 
 function mapRow(r: DbProductRow): ShopifyAdminProduct {
@@ -29,6 +39,24 @@ function mapRow(r: DbProductRow): ShopifyAdminProduct {
   const mf = r.metafields && typeof r.metafields === "object" && !Array.isArray(r.metafields)
     ? (r.metafields as Record<string, string>)
     : {};
+  const syncStatus = r.shopify_sync_status as
+    | "pending" | "synced" | "partial" | "failed" | null | undefined;
+  const shopifySync = syncStatus
+    ? {
+        status: syncStatus,
+        productId: r.shopify_product_id ?? null,
+        syncedAt: r.shopify_synced_at ?? null,
+        resolvedBy: r.shopify_resolved_by ?? null,
+        error: r.shopify_sync_error ?? null,
+        lastMode: r.shopify_last_sync_mode ?? null,
+        metafields: {
+          written: r.shopify_metafields_written ?? 0,
+          skipped: r.shopify_metafields_skipped ?? 0,
+          failed: r.shopify_metafields_failed ?? 0,
+          report: r.shopify_metafields_report ?? undefined,
+        },
+      }
+    : undefined;
   return {
     id: hashSku(r.sku),
     sku: r.sku,
@@ -41,6 +69,7 @@ function mapRow(r: DbProductRow): ShopifyAdminProduct {
     metafields_global_description_tag: r.seo_description ?? "",
     metafields: mf,
     images: imgs.map((src, i) => ({ id: i, src })),
+    shopifySync,
   };
 }
 

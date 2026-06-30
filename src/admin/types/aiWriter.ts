@@ -1,5 +1,23 @@
 export type DraftStatus = "draft" | "approved" | "published" | "error";
 
+export type ShopifySyncStatus = "pending" | "synced" | "partial" | "failed";
+
+export interface ShopifySyncState {
+  status: ShopifySyncStatus;
+  productId?: string | null;
+  syncedAt?: string | null;
+  resolvedBy?: string | null;
+  error?: string | null;
+  lastMode?: string | null;
+  metafields?: {
+    written: number;
+    skipped: number;
+    failed: number;
+    /** Persisted MetafieldsReport (typed as unknown here to avoid cross-module cycle) */
+    report?: unknown;
+  };
+}
+
 export interface ShopifyAdminProduct {
   id: number;
   title: string;
@@ -19,6 +37,8 @@ export interface ShopifyAdminProduct {
   sku?: string;
   /** Optional: custom metafields already saved in DB (used by completeness) */
   metafields?: Record<string, string>;
+  /** Optional: persistent Shopify sync state (set when product comes from DB) */
+  shopifySync?: ShopifySyncState;
 }
 
 export interface AiWriterDraft {
