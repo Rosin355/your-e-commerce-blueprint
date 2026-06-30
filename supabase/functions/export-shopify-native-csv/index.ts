@@ -17,7 +17,7 @@ function escapeCsv(value: unknown): string {
 }
 
 // NOTE: as of 2026-06, this CSV exports ONLY product base data (titolo,
-// descrizione, varianti, prezzi, immagini, SEO). The 16 custom.* metafields
+// descrizione, varianti, prezzi, immagini, SEO). The 19 custom.* metafields
 // have been intentionally REMOVED because Shopify's native CSV importer
 // silently drops metafield columns when namespace/key/type don't exactly
 // match an existing definition — which led to confusing "metafield missing

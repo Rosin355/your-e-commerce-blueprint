@@ -157,7 +157,7 @@ export async function publishDraft(draftId: string, adminEmail?: string) {
 
 /**
  * Publishes the EXACT enriched draft the admin reviewed in the panel.
- * Pushes body HTML + SEO title/description AND the 16 custom metafields
+ * Pushes body HTML + SEO title/description AND the 19 custom metafields
  * (namespace `custom`) directly to Shopify via the `update_product` proxy
  * action. Empty metafield values are skipped server-side so they never
  * overwrite existing data.
@@ -200,7 +200,7 @@ export async function publishReviewedDraft(params: {
 
 /**
  * Downloads a Shopify-native importable CSV including variants, multi-images
- * and the 16 custom.* metafields. Works as a stable fallback when direct
+ * and the 19 custom.* metafields. Works as a stable fallback when direct
  * Shopify API publish is not desirable.
  */
 export async function downloadShopifyNativeCsv(opts?: {

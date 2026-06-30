@@ -513,7 +513,7 @@ export function useProductEnrichment() {
   }
 
   /**
-   * Pushes ONLY the 16 custom.* metafields to Shopify for products that already
+   * Pushes ONLY the 19 custom.* metafields to Shopify for products that already
    * exist (e.g. imported via base CSV). Skips body HTML / SEO update. Uses the
    * same persistent run tracking as publishAll.
    */

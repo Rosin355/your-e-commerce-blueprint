@@ -488,7 +488,7 @@ function ModeAPanel() {
                     ? "Disponibile solo con sorgente Shopify Admin"
                     : !hasDrafts
                       ? "Genera prima le bozze AI"
-                      : "Pubblica SOLO i 16 metafield custom.* (non tocca titolo/descrizione/SEO). Ideale per prodotti già importati via CSV."
+                      : "Pubblica SOLO i 19 metafield custom.* (non tocca titolo/descrizione/SEO). Ideale per prodotti già importati via CSV."
                 }
               >
                 {isRunning && batchProgress?.phase === "publish" ? (
@@ -1089,7 +1089,7 @@ function ShopifyNativeCsvButton() {
       </div>
       <p className="text-[10px] text-muted-foreground">
         File pronto per <strong>Shopify Admin → Products → Import</strong>: titolo, descrizione,
-        varianti raggruppate per Handle, immagini multiple e SEO. <strong>I 16 metafield
+        varianti raggruppate per Handle, immagini multiple e SEO. <strong>I 19 metafield
         <code> custom.*</code> NON sono inclusi</strong> (vai via API col bottone "Pubblica solo
         metafield" qui sopra — è l'unico modo affidabile).
       </p>
