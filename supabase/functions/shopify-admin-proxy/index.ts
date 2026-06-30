@@ -1073,6 +1073,49 @@ serve(async (req) => {
         result = { results: out };
         break;
       }
+      case "create_collections": {
+        // WRITE LIMITATA: crea SOLO collezioni con handle nella allowlist e SOLO se mancanti.
+        // Niente delete/rename/assegnazione prodotti. Mai logga token.
+        const ALLOWED = new Set([
+          "alberi-da-frutto","rose-paesaggistiche","rose-fiore-grande","bulbi",
+          "arbusti","alberi","erbacee-perenni-graminacee","piante-da-siepe",
+          "piante-grasse-succulente","aromatiche","rampicanti-arbusti-spalliera","conifere",
+        ]);
+        const items: Array<{ handle: string; title: string }> = Array.isArray(data?.items) ? data.items : [];
+        const checkQ = `query($handle: String!) { collectionByHandle(handle: $handle) { id handle title } }`;
+        const createM = `mutation($input: CollectionInput!) {
+          collectionCreate(input: $input) {
+            collection { id handle title }
+            userErrors { field message }
+          }
+        }`;
+        const created: Array<{ handle: string; id: string }> = [];
+        const already_exists: Array<{ handle: string; id: string }> = [];
+        const failed: Array<{ handle: string; error: string }> = [];
+        const skipped: Array<{ handle: string; reason: string }> = [];
+        for (const it of items) {
+          if (!it?.handle || !ALLOWED.has(it.handle)) {
+            skipped.push({ handle: String(it?.handle || ""), reason: "not_in_allowlist" });
+            continue;
+          }
+          try {
+            const r: any = await shopifyAdminGraphQL(checkQ, { handle: it.handle });
+            const c = r?.data?.collectionByHandle;
+            if (c) { already_exists.push({ handle: it.handle, id: c.id }); continue; }
+            const cr: any = await shopifyAdminGraphQL(createM, { input: { title: it.title, handle: it.handle } });
+            const ue = cr?.data?.collectionCreate?.userErrors || [];
+            if (ue.length) { failed.push({ handle: it.handle, error: JSON.stringify(ue) }); continue; }
+            const col = cr?.data?.collectionCreate?.collection;
+            if (col?.id) created.push({ handle: it.handle, id: col.id });
+            else failed.push({ handle: it.handle, error: "no_collection_returned" });
+          } catch (e: any) {
+            failed.push({ handle: it.handle, error: String(e?.message || e) });
+          }
+        }
+        result = { created, already_exists, failed, skipped };
+        break;
+      }
+
       default:
         return jsonResponse({ success: false, error: "Azione non valida" }, 400);
     }
