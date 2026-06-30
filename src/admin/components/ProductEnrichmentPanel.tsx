@@ -668,7 +668,16 @@ function ModeAPanel() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y">
-              {batchResults.map((result) => (
+              {batchResults
+                .filter((result) => {
+                  if (syncFilter === "all") return true;
+                  const s = deriveShopifyStatus(result);
+                  if (syncFilter === "ok") return s === "ok";
+                  if (syncFilter === "issues") return s === "partial" || s === "error";
+                  if (syncFilter === "todo") return s === "none";
+                  return true;
+                })
+                .map((result) => (
                 <div key={result.productId}>
                   <div className="flex items-center gap-3 px-4 py-3">
                     {/* Expand toggle */}
