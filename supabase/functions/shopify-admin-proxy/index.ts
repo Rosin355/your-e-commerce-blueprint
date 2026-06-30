@@ -202,6 +202,70 @@ async function listDbProducts(data: any) {
   return { products: rows || [] };
 }
 
+/**
+ * Persist the Shopify sync state for a product into product_sync_csv_products.
+ * Matches by sku first, falls back to handle. Never throws (best-effort).
+ */
+async function persistShopifySyncState(opts: {
+  sku?: string | null;
+  handle?: string | null;
+  productId?: number | string | null;
+  resolvedBy?: string | null;
+  status: "synced" | "partial" | "failed";
+  error?: string | null;
+  mode?: string | null;
+  metafieldsReport?: any;
+}) {
+  try {
+    const sku = opts.sku ? String(opts.sku).trim() : "";
+    const handle = opts.handle ? String(opts.handle).trim() : "";
+    if (!sku && !handle) return;
+    const db = getSupabaseAdminClient();
+
+    let written = 0, skipped = 0, failed = 0;
+    if (opts.metafieldsReport && Array.isArray(opts.metafieldsReport.details)) {
+      written = Number(opts.metafieldsReport.written ?? 0) || 0;
+      for (const d of opts.metafieldsReport.details) {
+        if (d?.status === "skipped") skipped++;
+        else if (d?.status === "failed") failed++;
+      }
+    }
+
+    const patch: Record<string, unknown> = {
+      shopify_product_id: opts.productId != null ? String(opts.productId) : null,
+      shopify_synced_at: new Date().toISOString(),
+      shopify_sync_status: opts.status,
+      shopify_sync_error: opts.error ?? null,
+      shopify_resolved_by: opts.resolvedBy ?? null,
+      shopify_metafields_written: written,
+      shopify_metafields_skipped: skipped,
+      shopify_metafields_failed: failed,
+      shopify_metafields_report: opts.metafieldsReport ?? null,
+      shopify_last_sync_mode: opts.mode ?? null,
+    };
+
+    let q = db.from("product_sync_csv_products").update(patch);
+    if (sku) q = q.eq("sku", sku);
+    else q = q.eq("handle", handle);
+    const { error, count } = await q.select("sku", { count: "exact", head: true });
+    if (error) {
+      console.warn("[persistShopifySyncState] DB update error:", error.message);
+      return;
+    }
+    // Fallback by handle if sku didn't match
+    if ((!count || count === 0) && sku && handle) {
+      const { error: e2 } = await db
+        .from("product_sync_csv_products")
+        .update(patch)
+        .eq("handle", handle);
+      if (e2) console.warn("[persistShopifySyncState] handle-fallback error:", e2.message);
+    }
+  } catch (err) {
+    console.warn("[persistShopifySyncState] unexpected:", err);
+  }
+}
+
+
 async function saveEnrichedDraft(data: any) {
   const sku = String(data?.sku || "").trim();
   if (!sku) throw new Error("sku mancante");
