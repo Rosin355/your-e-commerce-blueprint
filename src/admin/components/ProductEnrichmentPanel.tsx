@@ -32,7 +32,7 @@ import {
   mergeDraftsIntoShopifyCsv,
   type MergeReport,
 } from "../lib/productEnrichmentEngine";
-import { useProductEnrichment, type BatchProductResult } from "../hooks/useProductEnrichment";
+import { useProductEnrichment, deriveShopifyStatus, type BatchProductResult } from "../hooks/useProductEnrichment";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
 import type { EssentialProductInput } from "../types/productEnrichment";
 import { AI_GENERATED_KEYS, ALL_METAFIELD_KEYS, MANUAL_KEYS, METAFIELD_LABELS } from "../types/productEnrichment";
