@@ -37,6 +37,7 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
+      <CollectionHandlesChecker />
       <MetafieldsConfigPanel />
     </div>
   );
