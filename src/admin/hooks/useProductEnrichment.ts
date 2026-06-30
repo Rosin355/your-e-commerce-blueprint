@@ -620,7 +620,8 @@ export function useProductEnrichment() {
    * exist (e.g. imported via base CSV). Skips body HTML / SEO update. Uses the
    * same persistent run tracking as publishAll.
    */
-  async function publishMetafieldsOnly(products: ShopifyAdminProduct[]) {
+  async function publishMetafieldsOnly(products: ShopifyAdminProduct[], opts?: { force?: boolean }) {
+    const force = !!opts?.force;
     cancelRef.current = false;
     let current: BatchProductResult[] = batchResults.length
       ? [...batchResults]
@@ -636,16 +637,34 @@ export function useProductEnrichment() {
           status: "pending" as BatchItemStatus,
           error: null,
         }));
-
     current = current.map((r) => ({ ...r, error: null }));
     setBatchResults(current);
+
+    // Filter already-OK unless force
+    const skippedAlready: BatchProductResult[] = [];
+    const targets = products.filter((p) => {
+      const row = current.find((r) => r.productId === p.id);
+      if (!row) return true;
+      if (!force && deriveShopifyStatus(row) === "ok") {
+        skippedAlready.push(row);
+        return false;
+      }
+      return true;
+    });
+    if (targets.length === 0) {
+      toast.info(force ? "Nessun prodotto da pubblicare." : `Tutti già sincronizzati. Usa "Forza re-sync" per ripubblicare.`);
+      return;
+    }
+    if (skippedAlready.length > 0) {
+      toast.info(`${skippedAlready.length} prodotti già sincronizzati saltati.`);
+    }
 
     let runId: string | null = null;
     try {
       const startRes = await startEnrichmentRun({
         mode: "generate_and_publish",
-        items: products.map((p) => ({ sku: p.sku || `pid:${p.id}`, handle: p.handle, title: p.title })),
-        notes: { phase: "publish_metafields_only", debug: debugMetafields, retries: metafieldsRetries },
+        items: targets.map((p) => ({ sku: p.sku || `pid:${p.id}`, handle: p.handle, title: p.title })),
+        notes: { phase: "publish_metafields_only", debug: debugMetafields, retries: metafieldsRetries, concurrency, force },
       });
       runId = startRes.runId;
       activeRunIdRef.current = runId;
@@ -655,79 +674,91 @@ export function useProductEnrichment() {
 
     let successCount = 0;
     let skippedNoDraft = 0;
+    let skippedServerSide = 0;
     let processed = 0;
+    const total = targets.length;
+    let nextIdx = 0;
 
-    for (let i = 0; i < products.length; i++) {
-      if (cancelRef.current) {
-        toast.warning(`Pubblicazione interrotta — ${successCount}/${products.length} aggiornati`);
-        break;
-      }
-      const p = products[i];
-      const reviewedDraft = current.find((r) => r.productId === p.id)?.draft ?? null;
+    const processOne = async (p: ShopifyAdminProduct, displayIdx: number) => {
+      if (cancelRef.current) return;
+      let reviewedDraft: EnrichedProductDraft | null = null;
+      setBatchResults((prev) => {
+        const row = prev.find((r) => r.productId === p.id);
+        reviewedDraft = row?.draft ?? null;
+        return prev;
+      });
       if (!reviewedDraft || !reviewedDraft.metafields) {
-        current = updateBatchItem(
-          p.id,
-          { error: "Genera prima i metafield AI" },
-          current,
-        );
-        setBatchResults([...current]);
-        skippedNoDraft++;
-        processed = i + 1;
+        setBatchResults((prev) => updateBatchItem(p.id, { error: "Genera prima i metafield AI", startedAt: null }, prev));
+        skippedNoDraft++; processed++;
         persistItem(p.sku, { status: "error", error: "no metafields" });
-        continue;
+        return;
       }
-
-      setBatchProgress({ current: i + 1, total: products.length, phase: "publish", currentTitle: p.title });
-      current = updateBatchItem(p.id, { status: "publishing" }, current);
-      setBatchResults([...current]);
+      setBatchProgress({ current: displayIdx, total, phase: "publish", currentTitle: p.title });
+      setBatchResults((prev) => updateBatchItem(p.id, { status: "publishing", startedAt: new Date().toISOString() }, prev));
 
       try {
         const res = await publishReviewedDraft({
           productId: p.id,
           handle: p.handle,
           sku: p.sku,
-          bodyHtml: "", // ignored when metafieldsOnly
+          bodyHtml: "",
           metafields: reviewedDraft.metafields,
           debug: debugMetafields,
           retries: metafieldsRetries,
           metafieldsOnly: true,
+          force,
         });
-        current = updateBatchItem(
-          p.id,
-          { publishedAt: new Date().toISOString(), status: "done", error: null, metafieldsReport: res?.metafields },
-          current,
+        const wasSkipped = !!(res as any)?.skipped;
+        if (wasSkipped) skippedServerSide++;
+        setBatchResults((prev) =>
+          updateBatchItem(
+            p.id,
+            { publishedAt: new Date().toISOString(), status: "done", error: null, startedAt: null, metafieldsReport: res?.metafields, skippedAlreadySynced: wasSkipped },
+            prev,
+          ),
         );
         successCount++;
         persistItem(p.sku, { status: "done", metafieldsReport: res?.metafields ?? null });
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Errore pubblicazione";
-        current = updateBatchItem(p.id, { status: "error", error: msg }, current);
+        setBatchResults((prev) => updateBatchItem(p.id, { status: "error", error: msg, startedAt: null }, prev));
         persistItem(p.sku, { status: "error", error: msg });
       }
+      processed++;
+    };
 
-      setBatchResults([...current]);
-      processed = i + 1;
-      if (i < products.length - 1 && !cancelRef.current) await delay(500);
-    }
+    const worker = async () => {
+      while (true) {
+        if (cancelRef.current) return;
+        const i = nextIdx++;
+        if (i >= total) return;
+        await processOne(targets[i], i + 1);
+        if (nextIdx < total && !cancelRef.current) await delay(concurrency === 1 ? 500 : 250);
+      }
+    };
+    const lanes = Math.max(1, Math.min(2, concurrency));
+    await Promise.all(Array.from({ length: lanes }, () => worker()));
 
     setBatchProgress(null);
     const wasCancelled = cancelRef.current;
     cancelRef.current = false;
 
     if (runId) {
-      finishEnrichmentRun({
-        runId,
-        status: wasCancelled ? "paused" : "completed",
-      }).catch((e) => console.error("[enrichment] finishEnrichmentRun failed:", e));
+      finishEnrichmentRun({ runId, status: wasCancelled ? "paused" : "completed" })
+        .catch((e) => console.error("[enrichment] finishEnrichmentRun failed:", e));
       activeRunIdRef.current = null;
       refreshOpenRun().catch(() => {});
     }
 
-    if (processed === products.length) {
-      const suffix = skippedNoDraft > 0 ? ` (${skippedNoDraft} senza metafield, saltati)` : "";
-      toast.success(`Metafield aggiornati: ${successCount}/${products.length}${suffix}`);
+    if (processed >= total) {
+      const parts: string[] = [`Metafield aggiornati: ${successCount}/${total}`];
+      if (skippedServerSide > 0) parts.push(`${skippedServerSide} skip lato server`);
+      if (skippedNoDraft > 0) parts.push(`${skippedNoDraft} senza metafield`);
+      if (skippedAlready.length > 0) parts.push(`${skippedAlready.length} skip lato client`);
+      toast.success(parts.join(" · "));
     }
   }
+
 
 
   /** Generates an enriched draft for a single product and persists it to DB. */
