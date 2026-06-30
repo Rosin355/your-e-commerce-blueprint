@@ -176,8 +176,10 @@ export async function publishReviewedDraft(params: {
   retries?: number;
   /** When true, skip productUpdate (body HTML / SEO) and ONLY push metafieldsSet. */
   metafieldsOnly?: boolean;
+  /** Bypass the server-side short-circuit and force a re-sync even if already synced. */
+  force?: boolean;
 }) {
-  return callProxy<{ success: boolean; id: number; resolved_by?: string; metafields?: MetafieldsReport }>(
+  return callProxy<{ success: boolean; id: number; resolved_by?: string; metafields?: MetafieldsReport; skipped?: boolean; reason?: string; sync_status?: string }>(
     "update_product",
     {
       id: params.productId,
@@ -194,6 +196,7 @@ export async function publishReviewedDraft(params: {
       debug: !!params.debug,
       ...(params.metafieldsOnly ? { metafields_only: true } : {}),
       ...(typeof params.retries === "number" ? { retries: params.retries } : {}),
+      ...(params.force ? { force: true } : {}),
     },
   );
 }
