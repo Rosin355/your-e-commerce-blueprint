@@ -16,6 +16,7 @@ import citrusImg from "@/assets/megamenu/citrus.jpg";
 import berriesImg from "@/assets/megamenu/berries.jpg";
 import potsAccessoriesImg from "@/assets/megamenu/pots-accessories.jpg";
 import bulbsSeasonalImg from "@/assets/megamenu/bulbs-seasonal.jpg";
+import { CATEGORIES, collectionHref } from "@/config/categories";
 
 interface NavLink {
   label: string;
@@ -40,122 +41,37 @@ interface NavItem {
   previewCards: PreviewCard[];
 }
 
-const navigationItems: NavItem[] = [
-  {
-    label: "Piante da esterno",
-    title: "Piante da esterno",
-    description: "Soluzioni pensate per terrazzi, balconi, aiuole e giardini ricchi di stagione.",
-    catalogHref: "/collections/piante-da-esterno",
-    links: [
-      { label: "Fioriture stagionali", href: "/collections/fioriture-stagionali" },
-      { label: "Rampicanti", href: "/collections/rampicanti" },
-      { label: "Balconi e terrazze", href: "/collections/balconi-e-terrazze" },
-      { label: "Sempreverdi", href: "/collections/sempreverdi" },
-    ],
-    previewCards: [
-      {
-        title: "Idee per terrazzo",
-        description: "Accenti verdi e fioriti per spazi esterni luminosi e curati.",
-        tone: "from-[#e8dfcf] via-[#d7c9b3] to-[#c7b08a]",
-        href: "/collections/piante-da-esterno",
-        image: outdoorLivingImg,
-      },
-      {
-        title: "Verde da giardino",
-        description: "Varieta ornamentali selezionate per dare struttura e colore all'esterno.",
-        tone: "from-[#6b7f51] via-[#495a39] to-[#2e3a27]",
-        href: "/collections/piante-da-esterno",
-        image: evergreenGardenImg,
-      },
-    ],
-  },
-  {
-    label: "Rose",
-    title: "Rose",
-    description: "Varieta iconiche dal carattere romantico e raffinato.",
-    catalogHref: "/collections/rose",
-    links: [
-      { label: "Rose cespuglio", href: "/collections/rose-cespuglio" },
-      { label: "Rose rampicanti", href: "/collections/rose-rampicanti" },
-      { label: "Rose profumate", href: "/collections/rose-profumate" },
-      { label: "Idee regalo", href: "/collections/idee-regalo" },
-    ],
-    previewCards: [
-      {
-        title: "Rose profumate",
-        description: "Una selezione curata per giardini, ingressi e angoli esterni dal tono poetico.",
-        tone: "from-[#e5d0cf] via-[#d8bab6] to-[#c79b96]",
-        href: "/collections/rose",
-        image: roseSelectionImg,
-      },
-      {
-        title: "Regala una rosa",
-        description: "Un gesto elegante da ordinare con semplicita in ogni periodo della stagione.",
-        tone: "from-[#efe5d8] via-[#dcc7ad] to-[#bea07f]",
-        href: "/collections/idee-regalo",
-        image: roseGiftImg,
-      },
-    ],
-  },
-  {
-    label: "Piante da frutto",
-    title: "Piante da frutto",
-    description: "Essenze scelte per unire bellezza, profumo e raccolto.",
-    catalogHref: "/collections/piante-da-frutto",
-    links: [
-      { label: "Agrumi", href: "/collections/agrumi" },
-      { label: "Piccoli frutti", href: "/collections/piccoli-frutti" },
-      { label: "Alberi da frutto", href: "/collections/alberi-da-frutto" },
-      { label: "Varieta da terrazzo", href: "/collections/varieta-da-terrazzo" },
-    ],
-    previewCards: [
-      {
-        title: "Agrumi e profumi",
-        description: "Accenti mediterranei per terrazzi e giardini pieni di luce.",
-        tone: "from-[#d9c96b] via-[#b8a649] to-[#8d7a2b]",
-        href: "/collections/agrumi",
-        image: citrusImg,
-      },
-      {
-        title: "Piccoli frutti",
-        description: "Varieta decorative e piacevoli da coltivare all'aperto.",
-        tone: "from-[#cfd7c1] via-[#98ab7c] to-[#63754e]",
-        href: "/collections/piccoli-frutti",
-        image: berriesImg,
-      },
-    ],
-  },
-  {
-    label: "Altre categorie",
-    isComingSoon: true,
-    title: "Altre categorie",
-    description: "Dettagli complementari per completare terrazzi, balconi e spazi outdoor con gusto.",
-    catalogHref: "/collections/altre-categorie",
-    links: [
-      { label: "Vasi da esterno", href: "/collections/vasi-da-esterno" },
-      { label: "Accessori", href: "/collections/accessori" },
-      { label: "Aromatiche da esterno", href: "/collections/aromatiche" },
-      { label: "Bulbi - disponibile a breve", href: "/collections/bulbi" },
-      { label: "Idee regalo", href: "/collections/idee-regalo" },
-    ],
-    previewCards: [
-      {
-        title: "Vasi e accessori",
-        description: "Dettagli essenziali per un allestimento outdoor curato e resistente.",
-        tone: "from-[#d8cfbf] via-[#c6b59b] to-[#a88c68]",
-        href: "/collections/vasi-da-esterno",
-        image: potsAccessoriesImg,
-      },
-      {
-        title: "Bulbi e novita",
-        description: "Una categoria in arrivo per accompagnare le prossime fioriture.",
-        tone: "from-[#b7c691] via-[#91a26d] to-[#5c6c42]",
-        href: "/collections/bulbi",
-        image: bulbsSeasonalImg,
-      },
-    ],
-  },
+const IMAGE_MAP = {
+  outdoorLiving: outdoorLivingImg,
+  evergreenGarden: evergreenGardenImg,
+  roseSelection: roseSelectionImg,
+  roseGift: roseGiftImg,
+  citrus: citrusImg,
+  berries: berriesImg,
+  potsAccessories: potsAccessoriesImg,
+  bulbsSeasonal: bulbsSeasonalImg,
+} as const;
+
+const DEFAULT_TONES = [
+  "from-[#e8dfcf] via-[#d7c9b3] to-[#c7b08a]",
+  "from-[#6b7f51] via-[#495a39] to-[#2e3a27]",
 ];
+
+const navigationItems: NavItem[] = CATEGORIES.map((cat) => ({
+  label: cat.label,
+  isComingSoon: cat.toCreate,
+  title: cat.label,
+  description: cat.description,
+  catalogHref: collectionHref(cat.handle),
+  links: cat.links.map((link) => ({ label: link.label, href: collectionHref(link.handle) })),
+  previewCards: (cat.previewCards ?? []).map((card, idx) => ({
+    title: card.title,
+    description: card.description,
+    tone: DEFAULT_TONES[idx % DEFAULT_TONES.length],
+    href: card.href,
+    image: IMAGE_MAP[card.imageKey],
+  })),
+}));
 
 const BrandMark = ({ compact = false }: { compact?: boolean }) => (
   <span className="inline-flex items-center gap-2.5">

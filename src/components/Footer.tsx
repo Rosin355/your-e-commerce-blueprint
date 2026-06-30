@@ -1,7 +1,8 @@
 import { Facebook, Instagram, MessageCircle } from "lucide-react";
+import { FOOTER_CATEGORIES, collectionHref } from "@/config/categories";
 
 export const Footer = () => {
-  const categories = ["Piante da esterno", "Rose", "Piante da frutto"];
+  const categories = FOOTER_CATEGORIES;
   const links = {
     explore: ["Chi siamo", "Ispirazioni", "FAQ", "Assistenza clienti"],
     legal: ["Privacy Policy", "Resi e rimborsi", "Termini di servizio"],
@@ -26,9 +27,9 @@ export const Footer = () => {
             <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Catalogo</h3>
             <ul className="mt-4 space-y-2.5">
               {categories.map((item) => (
-                <li key={item}>
-                  <a href="/collections/all" className="text-sm text-foreground/90 transition-colors hover:text-primary">
-                    {item}
+                <li key={item.handle}>
+                  <a href={collectionHref(item.handle)} className="text-sm text-foreground/90 transition-colors hover:text-primary">
+                    {item.label}
                   </a>
                 </li>
               ))}
