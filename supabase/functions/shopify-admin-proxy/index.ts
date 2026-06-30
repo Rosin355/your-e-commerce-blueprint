@@ -1052,6 +1052,27 @@ serve(async (req) => {
       case "publish_product_copy":
         result = await publishProductCopyDraft(data);
         break;
+      case "check_collection_handles": {
+        // READ-ONLY: per ciascun handle ritorna { handle, exists, id?, title? }.
+        // Usato dal dry-run categorie. NON crea, NON modifica nulla.
+        const handles: string[] = Array.isArray(data?.handles) ? data.handles : [];
+        const query = `query($handle: String!) {
+          collectionByHandle(handle: $handle) { id handle title }
+        }`;
+        const out: Array<{ handle: string; exists: boolean; id?: string; title?: string; error?: string }> = [];
+        for (const handle of handles) {
+          try {
+            const r: any = await shopifyAdminGraphQL(query, { handle });
+            const c = r?.data?.collectionByHandle;
+            if (c) out.push({ handle, exists: true, id: c.id, title: c.title });
+            else   out.push({ handle, exists: false });
+          } catch (e: any) {
+            out.push({ handle, exists: false, error: String(e?.message || e) });
+          }
+        }
+        result = { results: out };
+        break;
+      }
       default:
         return jsonResponse({ success: false, error: "Azione non valida" }, 400);
     }
