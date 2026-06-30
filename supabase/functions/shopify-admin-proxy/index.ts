@@ -1063,13 +1063,14 @@ serve(async (req) => {
         for (const handle of handles) {
           try {
             const r: any = await shopifyAdminGraphQL(query, { handle });
-            const c = r?.data?.collectionByHandle;
+            const c = r?.collectionByHandle;
             if (c) out.push({ handle, exists: true, id: c.id, title: c.title });
             else   out.push({ handle, exists: false });
           } catch (e: any) {
             out.push({ handle, exists: false, error: String(e?.message || e) });
           }
         }
+
         result = { results: out };
         break;
       }
