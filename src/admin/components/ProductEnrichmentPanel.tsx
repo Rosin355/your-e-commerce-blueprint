@@ -469,7 +469,7 @@ function ModeAPanel() {
                     ? "Disponibile solo con sorgente Shopify Admin"
                     : !hasDrafts
                       ? "Genera prima le bozze: pubblica solo contenuti già rivisti"
-                      : "Pubblica testi + SEO + metafield via Admin API"
+                      : "Pubblica testi + SEO + metafield via Admin API (salta i prodotti già sincronizzati)"
                 }
               >
                 {isRunning && batchProgress?.phase === "publish" ? (
@@ -477,7 +477,18 @@ function ModeAPanel() {
                 ) : (
                   <UploadCloud className="h-4 w-4" />
                 )}
-                Pubblica su Shopify (tutti)
+                Pubblica su Shopify (solo nuovi/modificati)
+              </Button>
+
+              <Button
+                onClick={() => publishAll(products, user?.email, { force: true })}
+                disabled={isRunning || isDbSource || !hasDrafts}
+                variant="outline"
+                className="gap-2 border-amber-300 text-amber-800 hover:bg-amber-50"
+                title="Ignora il check 'già sincronizzato' e ripubblica TUTTI i prodotti selezionati"
+              >
+                <RefreshCcw className="h-4 w-4" />
+                Forza re-sync (tutti)
               </Button>
 
               <Button
