@@ -896,13 +896,55 @@ serve(async (req) => {
         result = { success: true, id: (await shopifyAdminFetch("products.json", "POST", { product: data })).product?.id };
         break;
       case "update_product": {
-        const { id, handle, sku, metafields, debug, retries, metafields_only, ...productData } = data;
+        const { id, handle, sku, metafields, debug, retries, metafields_only, force, ...productData } = data;
         const looksLikeShopifyId = (v: any) => {
           const n = Number(v);
           return Number.isFinite(n) && n > 0 && String(n).length >= 10;
         };
         let resolvedId: number | null = looksLikeShopifyId(id) ? Number(id) : null;
         let resolvedBy = resolvedId ? "id" : null;
+
+        // ── A1: Short-circuit per prodotti già sincronizzati e non modificati ──
+        // Skip SOLO se: status=synced, nessun metafield fallito, esiste shopify_synced_at,
+        // e ai_enriched_at <= shopify_synced_at. force=true bypassa tutto.
+        if (!force && (sku || handle)) {
+          try {
+            const db = getSupabaseAdminClient();
+            const orParts: string[] = [];
+            if (sku)    orParts.push(`sku.eq.${sku}`);
+            if (handle) orParts.push(`handle.eq.${handle}`);
+            const { data: existing } = await db
+              .from("product_sync_csv_products")
+              .select("shopify_product_id, shopify_sync_status, shopify_synced_at, shopify_metafields_failed, ai_enriched_at")
+              .or(orParts.join(","))
+              .limit(1)
+              .maybeSingle();
+
+            if (
+              existing &&
+              existing.shopify_sync_status === "synced" &&
+              existing.shopify_synced_at &&
+              (!existing.shopify_metafields_failed || Number(existing.shopify_metafields_failed) === 0)
+            ) {
+              const enrichedAt = existing.ai_enriched_at ? new Date(existing.ai_enriched_at).getTime() : 0;
+              const syncedAt = new Date(existing.shopify_synced_at).getTime();
+              if (!enrichedAt || enrichedAt <= syncedAt) {
+                console.log(`[update_product] short-circuit: sku=${sku} handle=${handle} already synced at ${existing.shopify_synced_at}`);
+                result = {
+                  success: true,
+                  id: existing.shopify_product_id ?? null,
+                  skipped: true,
+                  reason: "already_synced",
+                  sync_status: "synced",
+                };
+                break;
+              }
+            }
+          } catch (e) {
+            console.warn("[update_product] short-circuit precheck failed (procedo comunque):", (e as any)?.message || e);
+          }
+        }
+
         try {
           if (!resolvedId && (handle || sku)) {
             const lookup = await searchProductBySkuOrHandle({ handle, sku });
@@ -916,7 +958,7 @@ serve(async (req) => {
               `Prodotto non trovato su Shopify (id=${id}, handle=${handle || "n/a"}, sku=${sku || "n/a"}). Importa prima il CSV base o crea il prodotto.`,
             );
           }
-          console.log(`[update_product] resolved id=${resolvedId} via ${resolvedBy} (input id=${id}, handle=${handle || "—"})`);
+          console.log(`[update_product] resolved id=${resolvedId} via ${resolvedBy} (input id=${id}, handle=${handle || "—"}${force ? ", force=true" : ""})`);
 
           let updatedId: any = resolvedId;
           // When metafields_only=true we skip productUpdate (body HTML / SEO) and
