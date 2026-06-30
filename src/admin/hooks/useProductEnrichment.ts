@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
 import type {
