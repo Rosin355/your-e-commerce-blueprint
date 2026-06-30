@@ -822,7 +822,8 @@ export function useProductEnrichment() {
   }
 
   /** Publishes the already-generated draft for a single product to Shopify. */
-  async function publishOne(product: ShopifyAdminProduct) {
+  async function publishOne(product: ShopifyAdminProduct, opts?: { force?: boolean }) {
+    const force = !!opts?.force;
     const item = batchResults.find((r) => r.productId === product.id);
     const reviewedDraft = item?.draft;
     if (!reviewedDraft) {
@@ -831,7 +832,7 @@ export function useProductEnrichment() {
     }
 
     let current = [...batchResults];
-    current = updateBatchItem(product.id, { status: "publishing", error: null }, current);
+    current = updateBatchItem(product.id, { status: "publishing", error: null, startedAt: new Date().toISOString() }, current);
     setBatchResults([...current]);
 
     try {
@@ -845,26 +846,31 @@ export function useProductEnrichment() {
         metafields: reviewedDraft.metafields,
         debug: debugMetafields,
         retries: metafieldsRetries,
+        force,
       });
+      const wasSkipped = !!(res as any)?.skipped;
       current = updateBatchItem(
         product.id,
-        { publishedAt: new Date().toISOString(), status: "done", error: null, metafieldsReport: res?.metafields },
+        { publishedAt: new Date().toISOString(), status: "done", error: null, startedAt: null, metafieldsReport: res?.metafields, skippedAlreadySynced: wasSkipped },
         current,
       );
       setBatchResults([...current]);
       const mf = res?.metafields;
-      if (mf && mf.errors.length) {
+      if (wasSkipped) {
+        toast.info(`Saltato: ${product.title} — già sincronizzato (usa "Forza re-sync" per ripubblicare)`);
+      } else if (mf && mf.errors.length) {
         toast.warning(`Pubblicato: ${product.title} — ${mf.written} metafield ok, ${mf.errors.length} con errori`);
       } else {
         toast.success(`Pubblicato: ${product.title}${mf ? ` (${mf.written} metafield)` : ""}`);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Errore pubblicazione";
-      current = updateBatchItem(product.id, { status: "error", error: msg }, current);
+      current = updateBatchItem(product.id, { status: "error", error: msg, startedAt: null }, current);
       setBatchResults([...current]);
       toast.error(`Errore pubblicazione: ${msg}`);
     }
   }
+
 
   function resetBatch() {
     setBatchResults([]);
