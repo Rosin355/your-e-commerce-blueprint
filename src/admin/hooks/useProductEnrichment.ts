@@ -89,8 +89,37 @@ export function useProductEnrichment() {
   const [batchProgress, setBatchProgress] = useState<BatchProgress | null>(null);
   const [debugMetafields, setDebugMetafields] = useState(false);
   const [metafieldsRetries, setMetafieldsRetries] = useState<number>(3);
+  /** Concurrency for batch publish/generate. Default 1 (safe). Max 2 to avoid Shopify throttling. */
+  const [concurrency, setConcurrencyState] = useState<number>(1);
+  const setConcurrency = (n: number) => setConcurrencyState(Math.max(1, Math.min(2, Math.floor(n) || 1)));
   const cancelRef = useRef(false);
   const activeRunIdRef = useRef<string | null>(null);
+
+  // ── Orphan-state watchdog ─────────────────────────────────────────────
+  // If a batch item gets stuck in "publishing"/"generating" for more than 5
+  // minutes (tab closed, network drop, edge function 504, …) reset it to
+  // "error" so the UI doesn't lie about ongoing work and the user can retry.
+  const STUCK_AFTER_MS = 5 * 60 * 1000;
+  useEffect(() => {
+    const t = setInterval(() => {
+      setBatchResults((prev) => {
+        const now = Date.now();
+        let mutated = false;
+        const next = prev.map((r) => {
+          if ((r.status === "publishing" || r.status === "generating") && r.startedAt) {
+            const started = new Date(r.startedAt).getTime();
+            if (Number.isFinite(started) && now - started > STUCK_AFTER_MS) {
+              mutated = true;
+              return { ...r, status: "error" as BatchItemStatus, error: r.error ?? "Timeout client (>5 min): nessuna risposta. Riprova." };
+            }
+          }
+          return r;
+        });
+        return mutated ? next : prev;
+      });
+    }, 30_000);
+    return () => clearInterval(t);
+  }, []);
 
   // ── Persisted run (survives refresh) ──────────────────────────────────
   const [openRun, setOpenRun] = useState<EnrichmentRunRow | null>(null);
