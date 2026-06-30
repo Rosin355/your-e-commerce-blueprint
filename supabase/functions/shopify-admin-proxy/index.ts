@@ -897,56 +897,84 @@ serve(async (req) => {
         break;
       case "update_product": {
         const { id, handle, sku, metafields, debug, retries, metafields_only, ...productData } = data;
-        // Resolve real Shopify ID. Trust `id` only if it looks like a Shopify
-        // numeric ID (>= 10 digits). DB-source ids are short hash codes which
-        // would write to the wrong product or fail; in that case we resolve
-        // by handle (preferito) or sku to guarantee idempotent UPDATE (no
-        // duplicates, sovrascrive il prodotto esistente).
         const looksLikeShopifyId = (v: any) => {
           const n = Number(v);
           return Number.isFinite(n) && n > 0 && String(n).length >= 10;
         };
         let resolvedId: number | null = looksLikeShopifyId(id) ? Number(id) : null;
         let resolvedBy = resolvedId ? "id" : null;
-        if (!resolvedId && (handle || sku)) {
-          const lookup = await searchProductBySkuOrHandle({ handle, sku });
-          if (lookup.found && lookup.id) {
-            resolvedId = Number(lookup.id);
-            resolvedBy = lookup.matchedBy || "lookup";
+        try {
+          if (!resolvedId && (handle || sku)) {
+            const lookup = await searchProductBySkuOrHandle({ handle, sku });
+            if (lookup.found && lookup.id) {
+              resolvedId = Number(lookup.id);
+              resolvedBy = lookup.matchedBy || "lookup";
+            }
           }
-        }
-        if (!resolvedId) {
-          throw new Error(
-            `Prodotto non trovato su Shopify (id=${id}, handle=${handle || "n/a"}, sku=${sku || "n/a"}). Importa prima il CSV base o crea il prodotto.`,
-          );
-        }
-        console.log(`[update_product] resolved id=${resolvedId} via ${resolvedBy} (input id=${id}, handle=${handle || "—"})`);
+          if (!resolvedId) {
+            throw new Error(
+              `Prodotto non trovato su Shopify (id=${id}, handle=${handle || "n/a"}, sku=${sku || "n/a"}). Importa prima il CSV base o crea il prodotto.`,
+            );
+          }
+          console.log(`[update_product] resolved id=${resolvedId} via ${resolvedBy} (input id=${id}, handle=${handle || "—"})`);
 
-        let updatedId: any = resolvedId;
-        // When metafields_only=true we skip productUpdate (body HTML / SEO) and
-        // only push the 16 custom.* metafields. Used by the "Pubblica solo
-        // metafield" action for products that already exist in Shopify (e.g.
-        // imported via the base CSV) but lack metafield data.
-        if (!metafields_only) {
-          const updateRes = await shopifyAdminFetch(`products/${resolvedId}.json`, "PUT", {
-            product: { ...productData, id: resolvedId },
+          let updatedId: any = resolvedId;
+          // When metafields_only=true we skip productUpdate (body HTML / SEO) and
+          // only push the 19 custom.* metafields. Used by the "Pubblica solo
+          // metafield" action for products that already exist in Shopify (e.g.
+          // imported via the base CSV) but lack metafield data.
+          if (!metafields_only) {
+            const updateRes = await shopifyAdminFetch(`products/${resolvedId}.json`, "PUT", {
+              product: { ...productData, id: resolvedId },
+            });
+            updatedId = updateRes.product?.id;
+          }
+          let metafieldsResult: any;
+          if (metafields && typeof metafields === "object") {
+            metafieldsResult = await setProductCustomMetafields(Number(resolvedId), metafields as Record<string, string>, {
+              debug: !!debug,
+              maxRetries: typeof retries === "number" ? retries : undefined,
+            });
+          }
+
+          // Determina status: skipped non sono errori; failed > 0 => partial
+          const failedCount = metafieldsResult?.details
+            ? metafieldsResult.details.filter((d: any) => d?.status === "failed").length
+            : 0;
+          const persistStatus: "synced" | "partial" = failedCount > 0 ? "partial" : "synced";
+
+          // Best-effort persist
+          await persistShopifySyncState({
+            sku, handle,
+            productId: resolvedId,
+            resolvedBy,
+            status: persistStatus,
+            error: null,
+            mode: metafields_only ? "metafields_only" : "full_publish",
+            metafieldsReport: metafieldsResult ?? null,
           });
-          updatedId = updateRes.product?.id;
-        }
-        let metafieldsResult: any;
-        if (metafields && typeof metafields === "object") {
-          metafieldsResult = await setProductCustomMetafields(Number(resolvedId), metafields as Record<string, string>, {
-            debug: !!debug,
-            maxRetries: typeof retries === "number" ? retries : undefined,
+
+          result = {
+            success: true,
+            id: updatedId,
+            resolved_by: resolvedBy,
+            metafields: metafieldsResult,
+            metafields_only: !!metafields_only,
+            sync_status: persistStatus,
+          };
+        } catch (err: any) {
+          // Persist failure state, then rethrow so caller still sees error
+          await persistShopifySyncState({
+            sku, handle,
+            productId: resolvedId,
+            resolvedBy,
+            status: "failed",
+            error: err?.message || String(err),
+            mode: metafields_only ? "metafields_only" : "full_publish",
+            metafieldsReport: null,
           });
+          throw err;
         }
-        result = {
-          success: true,
-          id: updatedId,
-          resolved_by: resolvedBy,
-          metafields: metafieldsResult,
-          metafields_only: !!metafields_only,
-        };
         break;
       }
       case "get_metafield_config":
