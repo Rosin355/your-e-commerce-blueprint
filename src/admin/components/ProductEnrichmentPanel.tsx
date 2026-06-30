@@ -233,7 +233,7 @@ function ModeAPanel() {
     closeOpenRun,
   } = useProductEnrichment();
   const [openReportFor, setOpenReportFor] = useState<number | null>(null);
-  const [syncFilter, setSyncFilter] = useState<"all" | "todo" | "ok" | "issues">("all");
+  const [syncFilter, setSyncFilter] = useState<"all" | "todo" | "ok" | "issues">("todo");
   const [closingRun, setClosingRun] = useState(false);
 
   // Carica eventuale run aperto al mount
