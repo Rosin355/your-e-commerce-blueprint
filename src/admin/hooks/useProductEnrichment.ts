@@ -910,6 +910,8 @@ export function useProductEnrichment() {
     setDebugMetafields,
     metafieldsRetries,
     setMetafieldsRetries,
+    concurrency,
+    setConcurrency,
     // Persistent runs
     openRun,
     openRunItems,
