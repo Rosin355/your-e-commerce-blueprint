@@ -55,6 +55,21 @@ export interface BatchProgress {
 
 const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+/**
+ * Derives the persistent Shopify sync state for a batch result.
+ * - "ok": Shopify update succeeded AND no metafield failed (skipped is OK).
+ * - "partial": Shopify update succeeded but at least one metafield failed.
+ * - "error": update_product threw OR row marked failed.
+ * - "none": never published / pending.
+ */
+export type DerivedShopifyStatus = "ok" | "partial" | "error" | "none";
+export function deriveShopifyStatus(r: BatchProductResult): DerivedShopifyStatus {
+  if (r.status === "error") return "error";
+  if (!r.publishedAt) return "none";
+  const failed = r.metafieldsReport?.details?.some((d) => d.status === "failed") ?? false;
+  return failed ? "partial" : "ok";
+}
+
 // ── Hook ────────────────────────────────────────────────────────────────────
 
 export function useProductEnrichment() {
