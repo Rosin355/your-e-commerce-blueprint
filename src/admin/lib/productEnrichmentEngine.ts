@@ -269,13 +269,39 @@ export function rebuildDraftFromDbRow(row: {
 }): EnrichedProductDraft | null {
   const j = row.ai_enrichment_json as Partial<EnrichedProductDraft> | null;
   if (!j || typeof j !== "object") return null;
+
+  // ── Legacy-aware metafield recovery ───────────────────────────────────────
+  // ~2679 rows in DB still store the AI output in the LEGACY GeneratedContent
+  // shape (h1_title, care_guide, key_benefits, faq, ...) without the new
+  // `metafields` map. Rebuild metafields on-the-fly so the publish flow can
+  // push them to Shopify without rigenerating AI. Non-destructive: nothing is
+  // written back to DB here.
+  const rawMf = (j as any).metafields;
+  const hasModernMf = rawMf && typeof rawMf === "object" && Object.values(rawMf).some((v) => typeof v === "string" && v.trim().length > 0);
+  const looksLegacy = !hasModernMf && (
+    typeof (j as any).h1_title === "string" ||
+    Array.isArray((j as any).key_benefits) ||
+    Array.isArray((j as any).faq) ||
+    typeof (j as any).care_guide === "object"
+  );
+  const metafields: EnrichedProductDraft["metafields"] = looksLegacy
+    ? (mapAiOutputToMetafields(j as unknown as GeneratedContent, {
+        handle: row.handle ?? "",
+        title: (j as any).h1_title || (j as any).input_title || "",
+        product_category: "",
+        type: "",
+        tags: "",
+        seed_style: row.ai_seed_style ?? "",
+      }) as EnrichedProductDraft["metafields"])
+    : ((rawMf as EnrichedProductDraft["metafields"]) || ({} as EnrichedProductDraft["metafields"]));
+
   return {
     input_handle: (j.input_handle as string) || row.handle || "",
-    input_title: (j.input_title as string) || "",
-    body_html: (j.body_html as string) || row.optimized_description || "",
+    input_title: (j.input_title as string) || (j as any).h1_title || "",
+    body_html: (j.body_html as string) || (j as any).optimized_description || row.optimized_description || "",
     seo_title: (j.seo_title as string) || row.seo_title || "",
     seo_description: (j.seo_description as string) || row.seo_description || "",
-    metafields: (j.metafields as EnrichedProductDraft["metafields"]) || ({} as EnrichedProductDraft["metafields"]),
+    metafields,
     seed_style: (j.seed_style as string) || row.ai_seed_style || "",
     generated_at: (j.generated_at as string) || row.ai_enriched_at || new Date().toISOString(),
   };

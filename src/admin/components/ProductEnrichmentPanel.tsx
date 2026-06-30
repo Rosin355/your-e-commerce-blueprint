@@ -227,13 +227,15 @@ function ModeAPanel() {
     setDebugMetafields,
     metafieldsRetries,
     setMetafieldsRetries,
+    concurrency,
+    setConcurrency,
     openRun,
     openRunItems,
     refreshOpenRun,
     closeOpenRun,
   } = useProductEnrichment();
   const [openReportFor, setOpenReportFor] = useState<number | null>(null);
-  const [syncFilter, setSyncFilter] = useState<"all" | "todo" | "ok" | "issues">("all");
+  const [syncFilter, setSyncFilter] = useState<"all" | "todo" | "ok" | "issues">("todo");
   const [closingRun, setClosingRun] = useState(false);
 
   // Carica eventuale run aperto al mount
@@ -467,7 +469,7 @@ function ModeAPanel() {
                     ? "Disponibile solo con sorgente Shopify Admin"
                     : !hasDrafts
                       ? "Genera prima le bozze: pubblica solo contenuti già rivisti"
-                      : "Pubblica testi + SEO + metafield via Admin API"
+                      : "Pubblica testi + SEO + metafield via Admin API (salta i prodotti già sincronizzati)"
                 }
               >
                 {isRunning && batchProgress?.phase === "publish" ? (
@@ -475,7 +477,18 @@ function ModeAPanel() {
                 ) : (
                   <UploadCloud className="h-4 w-4" />
                 )}
-                Pubblica su Shopify (tutti)
+                Pubblica su Shopify (solo nuovi/modificati)
+              </Button>
+
+              <Button
+                onClick={() => publishAll(products, user?.email, { force: true })}
+                disabled={isRunning || isDbSource || !hasDrafts}
+                variant="outline"
+                className="gap-2 border-amber-300 text-amber-800 hover:bg-amber-50"
+                title="Ignora il check 'già sincronizzato' e ripubblica TUTTI i prodotti selezionati"
+              >
+                <RefreshCcw className="h-4 w-4" />
+                Forza re-sync (tutti)
               </Button>
 
               <Button
@@ -601,6 +614,17 @@ function ModeAPanel() {
                   onChange={(e) => setMetafieldsRetries(Number(e.target.value) || 0)}
                   className="h-6 w-14 rounded border bg-background px-1.5 text-xs"
                 />
+              </div>
+              <div className="flex items-center gap-1.5" title="Quante richieste in parallelo verso Shopify. 1 = più lento ma sicuro, 2 = più veloce ma rischio throttling.">
+                <span>Parallelismo:</span>
+                <select
+                  value={concurrency}
+                  onChange={(e) => setConcurrency(Number(e.target.value) || 1)}
+                  className="h-6 rounded border bg-background px-1 text-xs"
+                >
+                  <option value={1}>1 (sicuro)</option>
+                  <option value={2}>2 (veloce)</option>
+                </select>
               </div>
               <span className="ml-auto text-muted-foreground">
                 Configurazione namespace/key: vedi Settings → Metafields Shopify
