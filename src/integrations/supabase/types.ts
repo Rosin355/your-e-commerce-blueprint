@@ -196,6 +196,16 @@ export type Database = {
           product_type: string | null
           seo_description: string | null
           seo_title: string | null
+          shopify_last_sync_mode: string | null
+          shopify_metafields_failed: number
+          shopify_metafields_report: Json | null
+          shopify_metafields_skipped: number
+          shopify_metafields_written: number
+          shopify_product_id: string | null
+          shopify_resolved_by: string | null
+          shopify_sync_error: string | null
+          shopify_sync_status: string | null
+          shopify_synced_at: string | null
           short_description: string | null
           sku: string
           source_file: string | null
@@ -224,6 +234,16 @@ export type Database = {
           product_type?: string | null
           seo_description?: string | null
           seo_title?: string | null
+          shopify_last_sync_mode?: string | null
+          shopify_metafields_failed?: number
+          shopify_metafields_report?: Json | null
+          shopify_metafields_skipped?: number
+          shopify_metafields_written?: number
+          shopify_product_id?: string | null
+          shopify_resolved_by?: string | null
+          shopify_sync_error?: string | null
+          shopify_sync_status?: string | null
+          shopify_synced_at?: string | null
           short_description?: string | null
           sku: string
           source_file?: string | null
@@ -252,6 +272,16 @@ export type Database = {
           product_type?: string | null
           seo_description?: string | null
           seo_title?: string | null
+          shopify_last_sync_mode?: string | null
+          shopify_metafields_failed?: number
+          shopify_metafields_report?: Json | null
+          shopify_metafields_skipped?: number
+          shopify_metafields_written?: number
+          shopify_product_id?: string | null
+          shopify_resolved_by?: string | null
+          shopify_sync_error?: string | null
+          shopify_sync_status?: string | null
+          shopify_synced_at?: string | null
           short_description?: string | null
           sku?: string
           source_file?: string | null
