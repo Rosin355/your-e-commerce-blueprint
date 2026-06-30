@@ -346,8 +346,8 @@ export function useProductEnrichment() {
     try {
       const startRes = await startEnrichmentRun({
         mode: "generate",
-        items: products.map((p) => ({ sku: p.sku || `pid:${p.id}`, handle: p.handle, title: p.title })),
-        notes: { seedStyle, source: "batch", debug: debugMetafields, retries: metafieldsRetries },
+        items: targets.map((p) => ({ sku: p.sku || `pid:${p.id}`, handle: p.handle, title: p.title })),
+        notes: { seedStyle, source: "batch", debug: debugMetafields, retries: metafieldsRetries, force },
       });
       runId = startRes.runId;
       activeRunIdRef.current = runId;
@@ -358,14 +358,14 @@ export function useProductEnrichment() {
     let successCount = 0;
     let processed = 0;
 
-    for (let i = 0; i < products.length; i++) {
+    for (let i = 0; i < targets.length; i++) {
       if (cancelRef.current) {
-        toast.warning(`Generazione interrotta — ${successCount}/${products.length} salvati nel DB`);
+        toast.warning(`Generazione interrotta — ${successCount}/${targets.length} salvati nel DB`);
         break;
       }
-      const p = products[i];
-      setBatchProgress({ current: i + 1, total: products.length, phase: "generate", currentTitle: p.title });
-      current = updateBatchItem(p.id, { status: "generating" }, current);
+      const p = targets[i];
+      setBatchProgress({ current: i + 1, total: targets.length, phase: "generate", currentTitle: p.title });
+      current = updateBatchItem(p.id, { status: "generating", startedAt: new Date().toISOString() }, current);
       setBatchResults([...current]);
 
       try {
@@ -393,20 +393,20 @@ export function useProductEnrichment() {
 
         current = updateBatchItem(
           p.id,
-          { draft: d, completeness: newCompleteness, savedAt, status: "done", error: null },
+          { draft: d, completeness: newCompleteness, savedAt, status: "done", error: null, startedAt: null },
           current,
         );
         successCount++;
         persistItem(p.sku, { status: "done" });
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Errore generazione";
-        current = updateBatchItem(p.id, { status: "error", error: msg }, current);
+        current = updateBatchItem(p.id, { status: "error", error: msg, startedAt: null }, current);
         persistItem(p.sku, { status: "error", error: msg });
       }
 
       setBatchResults([...current]);
       processed = i + 1;
-      if (i < products.length - 1 && !cancelRef.current) await delay(500);
+      if (i < targets.length - 1 && !cancelRef.current) await delay(500);
     }
 
     setBatchProgress(null);
@@ -424,8 +424,8 @@ export function useProductEnrichment() {
       refreshOpenRun().catch(() => {});
     }
 
-    if (processed === products.length) {
-      toast.success(`Generazione completata: ${successCount}/${products.length} riusciti`);
+    if (processed === targets.length) {
+      toast.success(`Generazione completata: ${successCount}/${targets.length} riusciti`);
     }
   }
 
