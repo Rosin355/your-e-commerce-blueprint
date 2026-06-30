@@ -306,8 +306,21 @@ export function useProductEnrichment() {
     }
   }
 
-  /** Generates enriched metafield drafts for all products — one AI call each */
-  async function generateAll(products: ShopifyAdminProduct[], seedStyle: string) {
+  /** Generates enriched metafield drafts for all products — one AI call each.
+   *  By default DOES NOT regenerate products that already have a draft (safe-resume).
+   *  Pass `{ force: true }` to rigenerate tutto (overwrite). */
+  async function generateAll(products: ShopifyAdminProduct[], seedStyle: string, opts?: { force?: boolean }) {
+    const force = !!opts?.force;
+    // Filter: skip products whose batch row already has a draft, unless force=true
+    const existingDraftIds = new Set(batchResults.filter((r) => r.draft).map((r) => r.productId));
+    const targets = force ? products : products.filter((p) => !existingDraftIds.has(p.id));
+    if (targets.length === 0) {
+      toast.info("Tutti i prodotti hanno già una bozza AI. Usa 'Rigenera' sul singolo prodotto se vuoi rifare l'AI.");
+      return;
+    }
+    if (targets.length < products.length) {
+      toast.info(`${products.length - targets.length} prodotti hanno già una bozza e verranno saltati. Genero solo i ${targets.length} mancanti.`);
+    }
     cancelRef.current = false;
     let current: BatchProductResult[] = batchResults.length
       ? [...batchResults]
