@@ -123,14 +123,19 @@ async function createCustomCollection(
 }
 
 async function main() {
-  const domain = Deno.env.get("SHOPIFY_STORE_DOMAIN");
-  const token = Deno.env.get("SHOPIFY_ADMIN_API_TOKEN");
+  const domain =
+    Deno.env.get("SHOPIFY_STORE_DOMAIN") ||
+    Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") ||
+    "";
+  const token = Deno.env.get("SHOPIFY_ADMIN_API_TOKEN") || "";
 
   console.log(`\n=== create-shopify-collections.ts ===`);
   console.log(`Mode: ${EXECUTE ? "EXECUTE (real writes)" : "DRY-RUN (no writes)"}`);
+  console.log(`Domain: ${domain || "(missing)"}`);
+  console.log(`Admin token present: ${token ? "yes" : "no"}`);  // boolean only — token never printed
 
   if (EXECUTE && (!domain || !token)) {
-    console.error("Mancano SHOPIFY_STORE_DOMAIN o SHOPIFY_ADMIN_API_TOKEN.");
+    console.error("Mancano SHOPIFY_STORE_DOMAIN (o SHOPIFY_STORE_PERMANENT_DOMAIN) o SHOPIFY_ADMIN_API_TOKEN.");
     Deno.exit(1);
   }
 
