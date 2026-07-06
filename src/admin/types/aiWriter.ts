@@ -39,6 +39,12 @@ export interface ShopifyAdminProduct {
   metafields?: Record<string, string>;
   /** Optional: persistent Shopify sync state (set when product comes from DB) */
   shopifySync?: ShopifySyncState;
+  /** Optional: AI draft snapshot from DB (used for offline rehydrate) */
+  aiDraft?: {
+    json: Record<string, unknown>;
+    enrichedAt: string | null;
+    seedStyle: string | null;
+  };
 }
 
 export interface AiWriterDraft {
