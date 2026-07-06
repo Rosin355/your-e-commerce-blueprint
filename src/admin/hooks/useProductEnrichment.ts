@@ -250,17 +250,49 @@ export function useProductEnrichment() {
       const isSynced = sync?.status === "synced" || sync?.status === "partial";
       const isFailed = sync?.status === "failed";
       const report = sync?.metafields?.report as MetafieldsReport | undefined;
+
+      // ── Pass 1: rehydrate draft from ai_enrichment_json already on product ──
+      let draft: EnrichedProductDraft | null = null;
+      let savedAt: string | null = null;
+      let restored = false;
+      if (p.aiDraft?.json) {
+        const rebuilt = rebuildDraftFromDbRow({
+          sku: p.sku ?? "",
+          handle: p.handle,
+          ai_enrichment_json: p.aiDraft.json,
+          ai_enriched_at: p.aiDraft.enrichedAt,
+          ai_seed_style: p.aiDraft.seedStyle,
+          seo_title: p.metafields_global_title_tag ?? null,
+          seo_description: p.metafields_global_description_tag ?? null,
+          optimized_description: p.body_html ?? null,
+        });
+        if (rebuilt) {
+          draft = rebuilt;
+          savedAt = p.aiDraft.enrichedAt ?? null;
+          restored = true;
+        }
+      }
+
+      const completeness = draft
+        ? evaluateCompletenessWithDraft(p, draft)
+        : evaluateProductCompleteness(p);
+
+      // Status priority: failed sync > synced (done) > has draft (done) > pending.
+      let status: BatchItemStatus = "pending";
+      if (isFailed) status = "error";
+      else if (isSynced || draft) status = "done";
+
       return {
         productId: p.id,
         sku: p.sku,
         handle: p.handle,
         title: p.title,
-        completeness: evaluateProductCompleteness(p),
-        draft: null,
+        completeness,
+        draft,
         publishedAt: isSynced ? sync?.syncedAt ?? null : null,
-        savedAt: null,
-        restored: false,
-        status: (isFailed ? "error" : "pending") as BatchItemStatus,
+        savedAt,
+        restored,
+        status,
         error: isFailed ? sync?.error ?? null : null,
         metafieldsReport: report && typeof report === "object" ? report : undefined,
       };
@@ -268,15 +300,35 @@ export function useProductEnrichment() {
     setBatchResults(initial);
     toast.success(`${initial.length} prodotti analizzati`);
 
-    // Rehydrate previously generated drafts from DB
-    const skus = products.map((p) => p.sku).filter((s): s is string => !!s);
-    if (skus.length === 0) return;
+    if (import.meta.env.DEV) {
+      const withAiJson = products.filter((p) => !!p.aiDraft?.json).length;
+      const withShopifyStatus = products.filter((p) => !!p.shopifySync?.status).length;
+      const rehydratedAsDraft = initial.filter((r) => r.restored).length;
+      const rehydratedAsShopifyOk = initial.filter((r) => deriveShopifyStatus(r) === "ok").length;
+      const partial = initial.filter((r) => deriveShopifyStatus(r) === "partial").length;
+      const failed = initial.filter((r) => deriveShopifyStatus(r) === "error").length;
+      console.info("[enrichment.rehydrate]", {
+        loadedFromDb: products.length,
+        withAiJson,
+        withShopifyStatus,
+        rehydratedAsDraft,
+        rehydratedAsShopifyOk,
+        partial,
+        failed,
+      });
+    }
+
+    // ── Pass 2: fill any gaps via get_enriched_drafts (best-effort) ──
+    const missingSkus = initial
+      .filter((r) => !r.draft && !!r.sku)
+      .map((r) => r.sku as string);
+    if (missingSkus.length === 0) return;
     try {
-      const { drafts } = await getEnrichedDraftsBySkus(skus);
+      const { drafts } = await getEnrichedDraftsBySkus(missingSkus);
       if (!drafts || drafts.length === 0) return;
       const bySku = new Map(drafts.map((d) => [d.sku, d]));
       const merged = initial.map((r) => {
-        if (!r.sku) return r;
+        if (!r.sku || r.draft) return r;
         const row = bySku.get(r.sku);
         if (!row) return r;
         const product = products.find((p) => p.id === r.productId);
@@ -285,7 +337,6 @@ export function useProductEnrichment() {
         const completeness = product
           ? evaluateCompletenessWithDraft(product, draft)
           : r.completeness;
-        // Status: if Shopify sync already OK keep "done"; else mark as restored draft
         const wasSynced = !!r.publishedAt;
         return {
           ...r,
@@ -297,9 +348,9 @@ export function useProductEnrichment() {
         };
       });
       setBatchResults(merged);
-      const restored = merged.filter((r) => r.restored).length;
-      if (restored > 0) {
-        toast.success(`${restored} bozze pre-esistenti ripristinate dal DB`);
+      const extra = merged.filter((r) => r.restored).length - initial.filter((r) => r.restored).length;
+      if (extra > 0) {
+        toast.success(`${extra} bozze pre-esistenti ripristinate dal DB`);
       }
     } catch (e) {
       console.error("[enrichment] rehydrate from DB failed:", e);
