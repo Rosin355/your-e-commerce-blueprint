@@ -188,7 +188,7 @@ async function listDbProducts(data: any) {
   let query = db
     .from("product_sync_csv_products")
     .select(
-      "sku, title, handle, description, tags, seo_title, seo_description, optimized_description, metafields, ai_enriched_at, ai_enrichment_json, imported_at, image_urls, " +
+      "sku, parent_sku, title, handle, description, tags, seo_title, seo_description, optimized_description, metafields, ai_enriched_at, ai_enrichment_json, ai_seed_style, imported_at, image_urls, " +
       "shopify_product_id, shopify_synced_at, shopify_sync_status, shopify_sync_error, shopify_resolved_by, " +
       "shopify_metafields_written, shopify_metafields_skipped, shopify_metafields_failed, shopify_metafields_report, shopify_last_sync_mode"
     )

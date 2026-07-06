@@ -21,6 +21,9 @@ interface DbProductRow {
   seo_description: string | null;
   optimized_description: string | null;
   metafields: unknown;
+  ai_enrichment_json?: unknown;
+  ai_enriched_at?: string | null;
+  ai_seed_style?: string | null;
   shopify_product_id?: string | null;
   shopify_synced_at?: string | null;
   shopify_sync_status?: string | null;
@@ -39,11 +42,23 @@ function mapRow(r: DbProductRow): ShopifyAdminProduct {
   const mf = r.metafields && typeof r.metafields === "object" && !Array.isArray(r.metafields)
     ? (r.metafields as Record<string, string>)
     : {};
-  const syncStatus = r.shopify_sync_status as
+
+  // Infer sync state: prefer explicit shopify_sync_status; else if we already
+  // have a shopify_product_id treat as "synced" (server-side skip logic uses
+  // the same signal — see toast "Saltato: già sincronizzato").
+  const rawStatus = r.shopify_sync_status as
     | "pending" | "synced" | "partial" | "failed" | null | undefined;
-  const shopifySync = syncStatus
+  const hasShopifyId = !!(r.shopify_product_id && String(r.shopify_product_id).trim());
+  const effectiveStatus: "pending" | "synced" | "partial" | "failed" | null =
+    rawStatus && rawStatus !== "pending"
+      ? rawStatus
+      : hasShopifyId
+        ? "synced"
+        : rawStatus ?? null;
+
+  const shopifySync = effectiveStatus
     ? {
-        status: syncStatus,
+        status: effectiveStatus,
         productId: r.shopify_product_id ?? null,
         syncedAt: r.shopify_synced_at ?? null,
         resolvedBy: r.shopify_resolved_by ?? null,
@@ -57,6 +72,15 @@ function mapRow(r: DbProductRow): ShopifyAdminProduct {
         },
       }
     : undefined;
+
+  const aiJson =
+    r.ai_enrichment_json && typeof r.ai_enrichment_json === "object" && !Array.isArray(r.ai_enrichment_json)
+      ? (r.ai_enrichment_json as Record<string, unknown>)
+      : null;
+  const aiDraft = aiJson
+    ? { json: aiJson, enrichedAt: r.ai_enriched_at ?? null, seedStyle: r.ai_seed_style ?? null }
+    : undefined;
+
   return {
     id: hashSku(r.sku),
     sku: r.sku,
@@ -70,6 +94,7 @@ function mapRow(r: DbProductRow): ShopifyAdminProduct {
     metafields: mf,
     images: imgs.map((src, i) => ({ id: i, src })),
     shopifySync,
+    aiDraft,
   };
 }
 
