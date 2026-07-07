@@ -45,6 +45,9 @@ export interface ShopifyAdminProduct {
     enrichedAt: string | null;
     seedStyle: string | null;
   };
+  /** Optional: ai_enriched_at timestamp — present even when ai_enrichment_json is null,
+   *  so rehydration can detect enrichment stored only in the seo/description/metafields columns. */
+  aiEnrichedAt?: string | null;
 }
 
 export interface AiWriterDraft {

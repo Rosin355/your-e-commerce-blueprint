@@ -260,22 +260,56 @@ export async function generateEnrichedDraft(
 export function rebuildDraftFromDbRow(row: {
   sku: string;
   handle: string | null;
+  /** Product title — used as draft title when ai_enrichment_json has none. */
+  title?: string | null;
   ai_enrichment_json: Record<string, unknown> | null;
   ai_enriched_at: string | null;
   ai_seed_style: string | null;
   seo_title: string | null;
   seo_description: string | null;
   optimized_description: string | null;
+  /** Persisted custom.* metafields already saved on the row (independent of ai_enrichment_json). */
+  metafields?: Record<string, string> | null;
 }): EnrichedProductDraft | null {
   const j = row.ai_enrichment_json as Partial<EnrichedProductDraft> | null;
-  if (!j || typeof j !== "object") return null;
 
-  // ── Legacy-aware metafield recovery ───────────────────────────────────────
-  // ~2679 rows in DB still store the AI output in the LEGACY GeneratedContent
-  // shape (h1_title, care_guide, key_benefits, faq, ...) without the new
-  // `metafields` map. Rebuild metafields on-the-fly so the publish flow can
-  // push them to Shopify without rigenerating AI. Non-destructive: nothing is
-  // written back to DB here.
+  const persistedMf: EnrichedProductDraft["metafields"] =
+    row.metafields && typeof row.metafields === "object" && !Array.isArray(row.metafields)
+      ? (row.metafields as EnrichedProductDraft["metafields"])
+      : ({} as EnrichedProductDraft["metafields"]);
+  const hasPersistedMf = Object.values(persistedMf).some(
+    (v) => typeof v === "string" && v.trim().length > 0,
+  );
+
+  // ── Case A: no ai_enrichment_json — rebuild from the persisted columns. ──
+  // Many rows were enriched by a pipeline that populated seo_*/optimized_description/
+  // metafields (and ai_enriched_at) but left ai_enrichment_json NULL. These must still
+  // surface as an existing draft (never "Da generare"). Non-destructive: no AI is
+  // regenerated and nothing is written back to the DB.
+  if (!j || typeof j !== "object") {
+    const hasPersistedEnrichment =
+      hasPersistedMf ||
+      !!(row.optimized_description || "").trim() ||
+      (!!(row.seo_title || "").trim() && !!(row.seo_description || "").trim()) ||
+      !!row.ai_enriched_at;
+    if (!hasPersistedEnrichment) return null;
+    return {
+      input_handle: row.handle || "",
+      input_title: (row.title || row.handle || "").trim(),
+      body_html: row.optimized_description || "",
+      seo_title: row.seo_title || "",
+      seo_description: row.seo_description || "",
+      metafields: persistedMf,
+      seed_style: row.ai_seed_style || "",
+      generated_at: row.ai_enriched_at || new Date().toISOString(),
+    };
+  }
+
+  // ── Case B: ai_enrichment_json present. ──
+  // Legacy-aware metafield recovery: some rows store the AI output in the LEGACY
+  // GeneratedContent shape (h1_title, care_guide, key_benefits, faq, ...) without the
+  // new `metafields` map. Rebuild metafields on-the-fly so the publish flow can push
+  // them to Shopify without rigenerating AI. Non-destructive.
   const rawMf = (j as any).metafields;
   const hasModernMf = rawMf && typeof rawMf === "object" && Object.values(rawMf).some((v) => typeof v === "string" && v.trim().length > 0);
   const looksLegacy = !hasModernMf && (
@@ -287,17 +321,22 @@ export function rebuildDraftFromDbRow(row: {
   const metafields: EnrichedProductDraft["metafields"] = looksLegacy
     ? (mapAiOutputToMetafields(j as unknown as GeneratedContent, {
         handle: row.handle ?? "",
-        title: (j as any).h1_title || (j as any).input_title || "",
+        title: (j as any).h1_title || (j as any).input_title || row.title || "",
         product_category: "",
         type: "",
         tags: "",
         seed_style: row.ai_seed_style ?? "",
       }) as EnrichedProductDraft["metafields"])
-    : ((rawMf as EnrichedProductDraft["metafields"]) || ({} as EnrichedProductDraft["metafields"]));
+    : hasModernMf
+      ? (rawMf as EnrichedProductDraft["metafields"])
+      // Fall back to the persisted metafields column when the JSON has none.
+      : hasPersistedMf
+        ? persistedMf
+        : ({} as EnrichedProductDraft["metafields"]);
 
   return {
     input_handle: (j.input_handle as string) || row.handle || "",
-    input_title: (j.input_title as string) || (j as any).h1_title || "",
+    input_title: (j.input_title as string) || (j as any).h1_title || row.title || "",
     body_html: (j.body_html as string) || (j as any).optimized_description || row.optimized_description || "",
     seo_title: (j.seo_title as string) || row.seo_title || "",
     seo_description: (j.seo_description as string) || row.seo_description || "",

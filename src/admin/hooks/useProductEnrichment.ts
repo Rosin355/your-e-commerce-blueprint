@@ -251,24 +251,42 @@ export function useProductEnrichment() {
       const isFailed = sync?.status === "failed";
       const report = sync?.metafields?.report as MetafieldsReport | undefined;
 
-      // ── Pass 1: rehydrate draft from ai_enrichment_json already on product ──
+      // ── Pass 1: rehydrate draft from ANY persisted enrichment on the product ──
+      // Not just ai_enrichment_json: rows enriched into seo_*/optimized_description/
+      // metafields (with ai_enriched_at set) must also surface as an existing draft,
+      // otherwise they wrongly show "Da generare".
+      const persistedMf =
+        p.metafields && typeof p.metafields === "object" ? p.metafields : {};
+      const hasPersistedMf = Object.values(persistedMf).some(
+        (v) => typeof v === "string" && v.trim().length > 0,
+      );
+      const hasEnrichment =
+        !!p.aiDraft?.json ||
+        hasPersistedMf ||
+        !!(p.body_html || "").trim() ||
+        (!!(p.metafields_global_title_tag || "").trim() &&
+          !!(p.metafields_global_description_tag || "").trim()) ||
+        !!p.aiEnrichedAt;
+
       let draft: EnrichedProductDraft | null = null;
       let savedAt: string | null = null;
       let restored = false;
-      if (p.aiDraft?.json) {
+      if (hasEnrichment) {
         const rebuilt = rebuildDraftFromDbRow({
           sku: p.sku ?? "",
           handle: p.handle,
-          ai_enrichment_json: p.aiDraft.json,
-          ai_enriched_at: p.aiDraft.enrichedAt,
-          ai_seed_style: p.aiDraft.seedStyle,
+          title: p.title,
+          ai_enrichment_json: p.aiDraft?.json ?? null,
+          ai_enriched_at: p.aiDraft?.enrichedAt ?? p.aiEnrichedAt ?? null,
+          ai_seed_style: p.aiDraft?.seedStyle ?? null,
           seo_title: p.metafields_global_title_tag ?? null,
           seo_description: p.metafields_global_description_tag ?? null,
           optimized_description: p.body_html ?? null,
+          metafields: persistedMf as Record<string, string>,
         });
         if (rebuilt) {
           draft = rebuilt;
-          savedAt = p.aiDraft.enrichedAt ?? null;
+          savedAt = p.aiDraft?.enrichedAt ?? p.aiEnrichedAt ?? null;
           restored = true;
         }
       }
@@ -301,17 +319,30 @@ export function useProductEnrichment() {
     toast.success(`${initial.length} prodotti analizzati`);
 
     if (import.meta.env.DEV) {
+      const nonEmptyMf = (m?: Record<string, string>) =>
+        !!m && Object.values(m).some((v) => typeof v === "string" && v.trim().length > 0);
       const withAiJson = products.filter((p) => !!p.aiDraft?.json).length;
+      const withPersistedMetafields = products.filter((p) => nonEmptyMf(p.metafields)).length;
       const withShopifyStatus = products.filter((p) => !!p.shopifySync?.status).length;
+      const withShopifyProductId = products.filter((p) => !!p.shopifySync?.productId).length;
+      const withMetafieldsReport = products.filter((p) => !!p.shopifySync?.metafields?.report).length;
       const rehydratedAsDraft = initial.filter((r) => r.restored).length;
+      const batchWithDraft = initial.filter((r) => !!r.draft).length;
+      const batchWithPublishedAt = initial.filter((r) => !!r.publishedAt).length;
       const rehydratedAsShopifyOk = initial.filter((r) => deriveShopifyStatus(r) === "ok").length;
       const partial = initial.filter((r) => deriveShopifyStatus(r) === "partial").length;
       const failed = initial.filter((r) => deriveShopifyStatus(r) === "error").length;
+      // Temporary rehydrate diagnostics (dev-only): confirms DB data → batch state mapping.
       console.info("[enrichment.rehydrate]", {
         loadedFromDb: products.length,
         withAiJson,
+        withPersistedMetafields,
         withShopifyStatus,
+        withShopifyProductId,
+        withMetafieldsReport,
         rehydratedAsDraft,
+        batchWithDraft,
+        batchWithPublishedAt,
         rehydratedAsShopifyOk,
         partial,
         failed,

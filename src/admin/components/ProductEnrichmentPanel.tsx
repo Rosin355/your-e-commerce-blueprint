@@ -263,12 +263,15 @@ function ModeAPanel() {
           onProgress: (n) => setLoadingCount(n),
         });
         setProducts(list);
-        resetBatch();
         if (list.length === 0) {
+          resetBatch();
           toast.warning(
             "Nessun prodotto nel Catalogo DB. Importa prima un CSV nella tab Catalogo DB.",
           );
         } else {
+          // Rehydrate the results list immediately so already-enriched/synced
+          // products show their real state (Bozza AI / Shopify OK) on "Carica".
+          await analyzeAll(list);
           toast.success(`${list.length} prodotti caricati dal Catalogo DB`);
         }
       } else {
@@ -393,6 +396,29 @@ function ModeAPanel() {
           )}
         </CardContent>
       </Card>
+
+      {/* Debug temporaneo (admin) — verifica reidratazione dopo "Carica" */}
+      {batchResults.length > 0 && (() => {
+        const nonEmptyMf = (m?: Record<string, string>) =>
+          !!m && Object.values(m).some((v) => typeof v === "string" && v.trim().length > 0);
+        const dbg = {
+          "prodotti caricati": products.length,
+          "con ai_enrichment_json": products.filter((p) => !!p.aiDraft?.json).length,
+          "con metafields salvati": products.filter((p) => nonEmptyMf(p.metafields)).length,
+          "con shopify_sync_status": products.filter((p) => !!p.shopifySync?.status).length,
+          "con shopify_product_id": products.filter((p) => !!p.shopifySync?.productId).length,
+          "con metafields_report": products.filter((p) => !!p.shopifySync?.metafields?.report).length,
+          "batch con draft ricostruito": batchResults.filter((r) => r.restored).length,
+          "batch con draft": batchResults.filter((r) => !!r.draft).length,
+          "batch con publishedAt": batchResults.filter((r) => !!r.publishedAt).length,
+        };
+        return (
+          <div className="rounded-md border border-dashed bg-muted/20 p-3 text-[11px] text-muted-foreground">
+            <span className="font-semibold">debug reidratazione (temporaneo):</span>{" "}
+            {Object.entries(dbg).map(([k, v]) => `${k} ${v}`).join(" · ")}
+          </div>
+        );
+      })()}
 
       {/* Step 2 — batch actions */}
       {batchResults.length > 0 && (

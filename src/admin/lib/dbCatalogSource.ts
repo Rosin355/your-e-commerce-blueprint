@@ -95,6 +95,7 @@ function mapRow(r: DbProductRow): ShopifyAdminProduct {
     images: imgs.map((src, i) => ({ id: i, src })),
     shopifySync,
     aiDraft,
+    aiEnrichedAt: r.ai_enriched_at ?? null,
   };
 }
 
