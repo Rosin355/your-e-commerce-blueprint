@@ -1,72 +1,64 @@
+## Obiettivo
 
-# Bug fix: rehydrate stato Admin > Arricchimento al reload
+Backup immediato e read-only delle 354 righe prodotto attualmente presenti in `product_sync_csv_products`, con focus sulle 350 bozze AI. Nessuna modifica ai dati, nessuna rigenerazione AI, nessuna sync Shopify, nessun tocco a storefront/nav/checkout.
 
-## Diagnosi
+## Cosa farò
 
-Ho ispezionato la catena di caricamento:
+### 1. Verifica preliminare read-only (SELECT)
+Eseguo query di conteggio su `product_sync_csv_products` per confermare i numeri prima di esportare:
+- totale righe
+- righe con `ai_enrichment_json IS NOT NULL` (bozze AI presenti)
+- righe con `shopify_sync_status = 'failed'` o `'partial'` (i "4 in errore")
+- righe con `shopify_product_id IS NOT NULL` (Shopify OK)
 
-- `shopify-admin-proxy → list_db_products` (righe 183–203) — la SELECT include già: `sku, handle, title, ai_enrichment_json, ai_enriched_at, seo_title, seo_description, optimized_description, metafields, image_urls` e tutti i campi `shopify_*` (product_id, synced_at, sync_status, sync_error, resolved_by, metafields_written/skipped/failed/report, last_sync_mode). Manca solo `ai_seed_style`.
-- `src/admin/lib/dbCatalogSource.ts::mapRow` — mappa già `shopifySync` completo (status, syncedAt, resolvedBy, error, metafields.report, lastMode) e `metafields`. Ma NON propaga `ai_enrichment_json` / `ai_enriched_at` sul prodotto (rehydrate della bozza avviene poi via `get_enriched_drafts`).
-- `useProductEnrichment.analyzeAll` — costruisce `initial` con `publishedAt = sync.syncedAt` quando `sync.status ∈ {synced, partial}` e con `metafieldsReport` dal DB. Poi chiama `getEnrichedDraftsBySkus(skus)` e fa merge dei draft. Se questa seconda chiamata fallisce (solo `console.error`), i draft restano `null` → tutto va a "Da generare".
-- `deriveShopifyStatus` usa `publishedAt`, quindi in teoria "Shopify OK" dovrebbe apparire subito. Se dopo il reload compaiono zero "Shopify OK", significa che `shopifySync` non arriva sul prodotto — quindi il problema è nel percorso `list_db_products → mapRow`, non nel derive.
+Se i numeri non tornano (es. non trovo 350 bozze o 354 prodotti), mi fermo e te lo segnalo prima di generare il backup, così decidiamo insieme.
 
-Probabile causa reale del "tutto zero": la SELECT/mapping restituisce le righe ma per un sottoinsieme il `shopify_sync_status` è `null` (o `pending`) perché il backend segna "già sincronizzato" leggendo `shopify_product_id`, non `shopify_sync_status`. In quel caso `mapRow` non crea `shopifySync` (l'if richiede uno status non-null) e i counters vanno a 0 anche se il prodotto è di fatto già su Shopify. Il toast "Saltato: già sincronizzato" durante Pubblica conferma esattamente questo mismatch.
+### 2. Export JSON (backup completo, fedele)
+Genero `/mnt/documents/backups/ai-drafts-backup-<timestamp>.json` con array di oggetti, un record per SKU, contenente esattamente i campi richiesti:
+- `sku`, `handle`, `title`
+- `ai_enrichment_json` (intero oggetto, non stringificato)
+- `ai_enriched_at`
+- `seo_title`, `seo_description`, `optimized_description`
+- `metafields` (intero oggetto)
+- `shopify_sync_status`
+- `shopify_metafields_report`
 
-## Cosa cambio (solo frontend + proxy read-only, nessuna migration, nessun tocco a checkout/storefront/nav/AI/Shopify write)
+Nessun token, nessun segreto, nessun campo `auth.*`.
 
-### Step 1 — `shopify-admin-proxy/index.ts::listDbProducts`
-- Aggiungo `ai_seed_style` e `parent_sku` alla SELECT.
-- Nessun'altra modifica di logica.
+### 3. Export CSV (leggibile, per apertura in Excel/Sheets)
+Genero `/mnt/documents/backups/ai-drafts-backup-<timestamp>.csv` con le stesse colonne. I campi JSON annidati (`ai_enrichment_json`, `metafields`, `shopify_metafields_report`) vengono serializzati come stringa JSON in singola cella, con escaping CSV corretto (virgolette raddoppiate, newline preservati).
 
-### Step 2 — `src/admin/lib/dbCatalogSource.ts`
-- Estendo `DbProductRow` con `ai_enrichment_json`, `ai_enriched_at`, `ai_seed_style`.
-- In `mapRow` costruisco `shopifySync` anche quando `shopify_sync_status` è null ma `shopify_product_id` è valorizzato → in tal caso deduco `status = "synced"` (allineato al comportamento server-side che lo tratta come "già sincronizzato"). `syncedAt` fallback su `shopify_synced_at` o `null`.
-- Propago `ai_enrichment_json` / `ai_enriched_at` / `ai_seed_style` sul prodotto in un campo opzionale `aiDraft` (nuovo campo su `ShopifyAdminProduct`) così il rehydrate funziona anche se `get_enriched_drafts` non risponde.
+Entrambi i file sono generati leggendo la stessa query, quindi contenuto identico.
 
-### Step 3 — `src/admin/types/aiWriter.ts`
-- Aggiungo campo opzionale `aiDraft?: { json: Record<string, unknown>; enrichedAt: string | null; seedStyle: string | null }` a `ShopifyAdminProduct`. Nessun cambio breaking.
+### 4. Report finale
+Ti mando:
+- numero esatto di bozze AI salvate nel backup (righe con `ai_enrichment_json` non nullo)
+- lista dei prodotti in errore: SKU, handle, title, `shopify_sync_status`, `shopify_sync_error`
+- path dei due file backup in `/mnt/documents/backups/`, esposti con `<presentation-artifact>` per download diretto
+- conferma esplicita che le bozze AI sono già persistite in DB (`product_sync_csv_products.ai_enrichment_json`) e quindi ricaricare la pagina NON le perde — la fix rehydrate del turno precedente le rilegge correttamente all'apertura di Catalogo DB
 
-### Step 4 — `src/admin/hooks/useProductEnrichment.ts::analyzeAll`
-- Rehydrate della bozza in due passaggi:
-  1. Primo pass sincrono: se `p.aiDraft?.json` esiste, ricostruisco il draft via `rebuildDraftFromDbRow` usando i campi già in memoria e imposto `savedAt = aiDraft.enrichedAt`, `restored = true`, `status = "done"` (a meno che `shopifySync.status === "failed"`).
-  2. Secondo pass (best-effort) su `getEnrichedDraftsBySkus` per completare eventuali righe mancanti.
-- Logica badge coerente col brief:
-  - `sync.status === "synced"` e `shopify_metafields_failed` in {0, null} → publishedAt valorizzato → derive "ok".
-  - `sync.status === "partial"` → derive "partial".
-  - `sync.status === "failed"` → derive "error" + messaggio.
-  - Se `aiDraft.json` esiste → mai "Da generare".
+## Cosa NON farò
 
-### Step 5 — Filtro "Da syncare"
-- Verifico che il tab `todo` escluda i risultati con `deriveShopifyStatus === "ok"`. Il tab "Tutti" resta invariato e mostra i badge.
+- Nessuna `UPDATE`, `INSERT`, `DELETE`, `ALTER`, `DROP` — solo `SELECT`.
+- Nessuna chiamata a `ai-enrich-products`, `create-product-ai`, `shopify-admin-proxy` (create/update/publish).
+- Nessuna modifica a checkout, storefront, nav, collezioni Shopify, metafield definitions, prodotti Shopify.
+- Nessun log/print di `SHOPIFY_ADMIN_API_TOKEN`, `SUPABASE_SERVICE_ROLE_KEY` o altri secret.
+- Nessuna migration.
+- Nessuna modifica di codice applicativo (nessun file `.ts`/`.tsx` toccato).
 
-### Step 6 — Log diagnostici (solo `import.meta.env.DEV`)
-In `analyzeAll`, un unico `console.info("[enrichment.rehydrate]", {...})` con:
-- `loadedFromDb`, `withAiJson`, `withShopifySyncStatus`, `rehydratedAsDraft`, `rehydratedAsShopifyOk`, `partial`, `failed`.
-Niente log in produzione, niente token, niente PII.
+## Dettagli tecnici
 
-## Cosa NON tocco
+- Fonte dati: tabella `public.product_sync_csv_products` (RLS attiva, accedo via psql con `PG*` env vars già presenti nel sandbox — service-level read).
+- Formato JSON: pretty-print con indent 2 per leggibilità, UTF-8.
+- Formato CSV: intestazione sulla prima riga, encoding UTF-8 con BOM per compatibilità Excel IT, separatore `,`.
+- File in `/mnt/documents/backups/` sono persistenti e scaricabili dall'utente.
+- Timestamp nel nome file in formato `YYYYMMDD-HHMMSS` UTC per evitare sovrascritture in caso di più backup.
 
-- Nessuna migration DB (schema invariato).
-- Nessuna rigenerazione AI, nessuna ripubblicazione su Shopify.
-- Nessuna modifica al checkout, storefront, PDP, navigazione, categorie, collezioni Shopify.
-- Nessuna modifica alle action write del proxy (`update_product`, `create_collections`, `publish_product_copy`).
-- Nessuna modifica a `enrichment-run`.
+## Test di accettazione
 
-## Test di accettazione (manuali sulla preview)
+- Entrambi i file esistono in `/mnt/documents/backups/`.
+- Il conteggio righe del CSV (esclusa intestazione) = conteggio elementi array JSON = conteggio righe query.
+- Almeno una riga di spot-check nel JSON mostra `ai_enrichment_json` come oggetto strutturato con i campi attesi (h1_title, seo_title, care_guide, ecc.).
+- Report chat elenca esattamente i 4 prodotti in errore con motivo, oppure segnala se il numero effettivo differisce.
 
-1. Aprire Admin > Arricchimento, "Carica Catalogo DB".
-2. Verificare che i prodotti con `shopify_product_id` mostrino badge "Shopify OK" (o "Parziale"/"Errore" secondo report).
-3. Verificare che i prodotti con `ai_enrichment_json` mostrino badge "Bozza AI", mai "Da generare".
-4. Reload pagina (F5) → "Carica Catalogo DB" di nuovo → contatori identici.
-5. Console DEV mostra `[enrichment.rehydrate]` con numeri coerenti (`rehydratedAsShopifyOk > 0`, `rehydratedAsDraft > 0`).
-6. Il tab "Da syncare" esclude i "Shopify OK"; il tab "Tutti" li mostra.
-7. Bottone "Pubblica" disabilitato solo quando manca davvero la bozza.
-8. `tsgo` e build passano.
-
-## File modificati (previsti)
-
-- `supabase/functions/shopify-admin-proxy/index.ts` (solo SELECT `listDbProducts`)
-- `src/admin/lib/dbCatalogSource.ts`
-- `src/admin/types/aiWriter.ts`
-- `src/admin/hooks/useProductEnrichment.ts`
-- (verifica sola lettura) `src/admin/components/ProductEnrichmentPanel.tsx` — modifica solo se il filtro `todo` non esclude già "ok".
+Confermi e procedo?
