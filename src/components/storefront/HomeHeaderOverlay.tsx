@@ -166,10 +166,12 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                               width={40}
                               height={40}
                               loading="lazy"
-                              className="h-10 w-10 shrink-0 rounded-md object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                              decoding="async"
+                              className="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-white/10 transition-all duration-500 group-hover:scale-[1.06] group-hover:brightness-110 group-hover:ring-white/25"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                             />
                           ) : (
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white/10 text-white/50">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-white/15 to-white/5 text-white/70 ring-1 ring-white/10">
                               <Leaf className="h-4 w-4" />
                             </span>
                           )}
@@ -186,23 +188,30 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
 
                   <div className="grid gap-5 md:grid-cols-2">
                     {activeItem.previewCards.map((card) => (
-                      <Link key={card.title} to={card.href} className="group block">
-                        <div className="overflow-hidden">
+                      <Link
+                        key={card.title}
+                        to={card.href}
+                        className="group block overflow-hidden rounded-2xl border border-white/10 bg-black/20 shadow-md ring-1 ring-white/5 transition-all duration-500 hover:shadow-2xl hover:ring-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                      >
+                        <div className="relative aspect-[4/5] w-full overflow-hidden">
                           {card.image ? (
                             <img
                               src={card.image}
                               alt={card.title}
-                              className="h-52 w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                               loading="lazy"
+                              decoding="async"
+                              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                             />
                           ) : (
-                            <div className={`h-52 w-full bg-gradient-to-br ${card.tone} transition-transform duration-700 group-hover:scale-[1.03]`} />
+                            <div className={`absolute inset-0 bg-gradient-to-br ${card.tone} transition-transform duration-700 group-hover:scale-[1.04]`} />
                           )}
-                        </div>
-                        <div className="border-x border-b border-white/10 bg-black/12 px-5 py-4">
-                          <p className="text-[10px] uppercase tracking-[0.22em] text-white/48">Selezione</p>
-                          <h4 className="mt-2 font-heading text-[1.35rem] font-medium text-white">{card.title}</h4>
-                          <p className="mt-2 text-sm leading-6 text-white/68">{card.description}</p>
+                          <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+                          <div className="absolute inset-x-0 bottom-0 p-5">
+                            <p className="text-[10px] uppercase tracking-[0.22em] text-white/70">Selezione</p>
+                            <h4 className="mt-1.5 font-heading text-[1.35rem] font-medium leading-tight text-white">{card.title}</h4>
+                            <p className="mt-1.5 text-[13px] leading-5 text-white/78 line-clamp-2">{card.description}</p>
+                          </div>
                         </div>
                       </Link>
                     ))}
@@ -259,9 +268,25 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                               key={link.label}
                               to={link.href}
                               onClick={() => setIsMobileNavOpen(false)}
-                              className="rounded-xl px-3 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/75 transition-colors hover:bg-muted"
+                              className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/75 transition-colors hover:bg-muted"
                             >
-                              {link.label}
+                              {link.image ? (
+                                <img
+                                  src={link.image}
+                                  alt=""
+                                  width={32}
+                                  height={32}
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="h-8 w-8 shrink-0 rounded-md object-cover ring-1 ring-border/50"
+                                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                                />
+                              ) : (
+                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-primary/15 to-accent/10 text-primary/70">
+                                  <Leaf className="h-3.5 w-3.5" />
+                                </span>
+                              )}
+                              <span className="flex-1">{link.label}</span>
                             </Link>
                           )
                         ))}
