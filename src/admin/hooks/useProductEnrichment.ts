@@ -74,6 +74,23 @@ export function deriveShopifyStatus(r: BatchProductResult): DerivedShopifyStatus
   return failed ? "partial" : "ok";
 }
 
+/**
+ * Stato del prodotto nella pipeline di arricchimento — 5 stati mutuamente esclusivi,
+ * usati SOLO per contatori/filtri/badge nel pannello admin (display).
+ * Raffina `deriveShopifyStatus`: lo stato "none" viene splittato in "da-generare"
+ * (nessuna bozza AI) e "da-syncare" (bozza presente ma non ancora inviata a Shopify).
+ * NB: non sostituisce `deriveShopifyStatus`, che resta la fonte per la logica di publish.
+ */
+export type EnrichmentItemState = "da-generare" | "da-syncare" | "ok" | "partial" | "error";
+export function classifyEnrichmentItem(r: BatchProductResult): EnrichmentItemState {
+  const s = deriveShopifyStatus(r);
+  if (s === "error") return "error";
+  if (s === "partial") return "partial";
+  if (s === "ok") return "ok";
+  // s === "none": bozza pronta ma non sincronizzata vs nessuna bozza
+  return r.draft ? "da-syncare" : "da-generare";
+}
+
 // ── Hook ────────────────────────────────────────────────────────────────────
 
 export function useProductEnrichment() {

@@ -10,6 +10,17 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   AlertCircle,
   CheckCircle2,
   ChevronDown,
@@ -32,7 +43,7 @@ import {
   mergeDraftsIntoShopifyCsv,
   type MergeReport,
 } from "../lib/productEnrichmentEngine";
-import { useProductEnrichment, deriveShopifyStatus, type BatchProductResult } from "../hooks/useProductEnrichment";
+import { useProductEnrichment, deriveShopifyStatus, classifyEnrichmentItem, type BatchProductResult } from "../hooks/useProductEnrichment";
 import type { ShopifyAdminProduct } from "../types/aiWriter";
 import type { EssentialProductInput } from "../types/productEnrichment";
 import { AI_GENERATED_KEYS, ALL_METAFIELD_KEYS, MANUAL_KEYS, METAFIELD_LABELS } from "../types/productEnrichment";
@@ -82,6 +93,16 @@ function ScoreBar({ score }: { score: number }) {
       <span className="text-xs font-medium tabular-nums">{score}%</span>
     </div>
   );
+}
+
+/** True se la bozza contiene almeno un campo MANUALE valorizzato (ibridatore, colori, curiosità, nome comune). */
+function draftHasManualValues(result: BatchProductResult): boolean {
+  const mf = result.draft?.metafields;
+  if (!mf) return false;
+  return Array.from(MANUAL_KEYS).some((k) => {
+    const v = mf[k];
+    return typeof v === "string" && v.trim().length > 0;
+  });
 }
 
 function StatusBadge({ result }: { result: BatchProductResult }) {
@@ -240,7 +261,7 @@ function ModeAPanel() {
     closeOpenRun,
   } = useProductEnrichment();
   const [openReportFor, setOpenReportFor] = useState<number | null>(null);
-  const [syncFilter, setSyncFilter] = useState<"all" | "todo" | "ok" | "issues">("todo");
+  const [syncFilter, setSyncFilter] = useState<"all" | "todo" | "ok" | "issues" | "generate">("todo");
   const [closingRun, setClosingRun] = useState(false);
 
   // Carica eventuale run aperto al mount
@@ -251,6 +272,8 @@ function ModeAPanel() {
 
   const isRunning = batchProgress !== null;
   const hasDrafts = batchResults.some((r) => r.draft);
+  // Tutte le righe hanno già una bozza AI → "Genera tutti" non ha nulla da fare (salta le esistenti).
+  const allHaveDrafts = batchResults.length > 0 && batchResults.every((r) => r.draft);
   const draftsForDownload = batchResults.filter((r) => r.draft).map((r) => r.draft!);
   const isDbSource = source === "db";
   const metafieldFailedItems = batchResults.filter((r) =>
@@ -402,26 +425,32 @@ function ModeAPanel() {
         </CardContent>
       </Card>
 
-      {/* Debug temporaneo (admin) — verifica reidratazione dopo "Carica" */}
+      {/* Diagnostica reidratazione — pannello collassabile (admin), non invasivo. */}
       {batchResults.length > 0 && (() => {
         const nonEmptyMf = (m?: Record<string, string>) =>
           !!m && Object.values(m).some((v) => typeof v === "string" && v.trim().length > 0);
         const dbg = {
           "prodotti caricati": products.length,
           "con ai_enrichment_json": products.filter((p) => !!p.aiDraft?.json).length,
+          "con ai_enriched_at": products.filter((p) => !!p.aiEnrichedAt).length,
           "con metafields salvati": products.filter((p) => nonEmptyMf(p.metafields)).length,
           "con shopify_sync_status": products.filter((p) => !!p.shopifySync?.status).length,
           "con shopify_product_id": products.filter((p) => !!p.shopifySync?.productId).length,
+          "con shopify_synced_at": products.filter((p) => !!p.shopifySync?.syncedAt).length,
           "con metafields_report": products.filter((p) => !!p.shopifySync?.metafields?.report).length,
           "batch con draft ricostruito": batchResults.filter((r) => r.restored).length,
           "batch con draft": batchResults.filter((r) => !!r.draft).length,
           "batch con publishedAt": batchResults.filter((r) => !!r.publishedAt).length,
         };
         return (
-          <div className="rounded-md border border-dashed bg-muted/20 p-3 text-[11px] text-muted-foreground">
-            <span className="font-semibold">debug reidratazione (temporaneo):</span>{" "}
-            {Object.entries(dbg).map(([k, v]) => `${k} ${v}`).join(" · ")}
-          </div>
+          <details className="rounded-md border border-dashed bg-muted/20 text-[11px] text-muted-foreground">
+            <summary className="cursor-pointer select-none px-3 py-2 font-medium">
+              🔧 Diagnostica reidratazione
+            </summary>
+            <div className="border-t border-dashed px-3 py-2">
+              {Object.entries(dbg).map(([k, v]) => `${k} ${v}`).join(" · ")}
+            </div>
+          </details>
         );
       })()}
 
@@ -481,14 +510,20 @@ function ModeAPanel() {
               <Button
                 onClick={() => generateAll(products, seedStyle)}
                 disabled={isRunning}
+                variant={allHaveDrafts ? "outline" : "default"}
                 className="gap-2"
+                title={
+                  allHaveDrafts
+                    ? "Tutte le bozze AI sono già presenti: questa azione salta i prodotti esistenti e non sovrascrive nulla."
+                    : "Genera le bozze AI per i prodotti che non ne hanno ancora una (non sovrascrive le esistenti)."
+                }
               >
                 {isRunning && batchProgress?.phase === "generate" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Sparkles className="h-4 w-4" />
                 )}
-                Genera metafield AI (tutti)
+                Genera metafield AI (mancanti)
               </Button>
 
               <Button
@@ -512,16 +547,38 @@ function ModeAPanel() {
                 Pubblica su Shopify (solo nuovi/modificati)
               </Button>
 
-              <Button
-                onClick={() => publishAll(products, user?.email, { force: true })}
-                disabled={isRunning || isDbSource || !hasDrafts}
-                variant="outline"
-                className="gap-2 border-amber-300 text-amber-800 hover:bg-amber-50"
-                title="Ignora il check 'già sincronizzato' e ripubblica TUTTI i prodotti selezionati"
-              >
-                <RefreshCcw className="h-4 w-4" />
-                Forza re-sync (tutti)
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    disabled={isRunning || isDbSource || !hasDrafts}
+                    variant="outline"
+                    className="gap-2 border-destructive/50 text-destructive hover:bg-destructive/10"
+                    title="Azione avanzata: ripubblica anche i prodotti già sincronizzati su Shopify"
+                  >
+                    <RefreshCcw className="h-4 w-4" />
+                    Forza re-sync (tutti)
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Forzare il re-sync di tutti i prodotti?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Azione avanzata. Ignora il controllo "già sincronizzato" e{" "}
+                      <strong className="text-foreground">riscrive su Shopify anche i prodotti già sincronizzati</strong>,
+                      sovrascrivendo testi, SEO e metafield con le bozze correnti. Usala solo se necessario.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annulla</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => publishAll(products, user?.email, { force: true })}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Sì, forza re-sync
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
 
               <Button
                 onClick={() => publishMetafieldsOnly(products)}
@@ -546,6 +603,16 @@ function ModeAPanel() {
 
               <ShopifyNativeCsvButton />
             </div>
+
+            {allHaveDrafts && (
+              <p className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50/60 p-2.5 text-xs text-amber-900">
+                <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>
+                  Le bozze AI sono già presenti. Usa <strong>Rigenera</strong> sul singolo prodotto solo se vuoi
+                  sovrascrivere i contenuti.
+                </span>
+              </p>
+            )}
 
 
             {/* Advanced merge section (collapsed) */}
@@ -683,32 +750,35 @@ function ModeAPanel() {
                 Risultati — {batchResults.length} prodotti
               </CardTitle>
               {(() => {
-                const okCount = batchResults.filter((r) => deriveShopifyStatus(r) === "ok").length;
-                const partialCount = batchResults.filter((r) => deriveShopifyStatus(r) === "partial").length;
-                const errorCount = batchResults.filter((r) => deriveShopifyStatus(r) === "error").length;
-                const draftCount = batchResults.filter((r) => r.draft).length;
-                const todoCount = batchResults.filter(
-                  (r) => deriveShopifyStatus(r) === "none" && !r.draft,
-                ).length;
+                const bozzeAiCount = batchResults.filter((r) => !!r.draft).length;
+                const okCount = batchResults.filter((r) => classifyEnrichmentItem(r) === "ok").length;
+                const daSyncareCount = batchResults.filter((r) => classifyEnrichmentItem(r) === "da-syncare").length;
+                const daGenerareCount = batchResults.filter((r) => classifyEnrichmentItem(r) === "da-generare").length;
+                const issuesCount = batchResults.filter((r) => {
+                  const s = classifyEnrichmentItem(r);
+                  return s === "partial" || s === "error";
+                }).length;
                 return (
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <span className="text-green-700 font-medium" title="Sync API riuscita (skipped sui metafield non contano come errore)">
+                    <span className="text-emerald-700 font-medium" title="Bozza AI salvata nel database (a prescindere dal sync)">
+                      {bozzeAiCount} bozze AI nel DB
+                    </span>
+                    <span>•</span>
+                    <span className="text-green-700 font-medium" title="Contenuto inviato a Shopify (sync riuscita)">
                       ✓ {okCount} Shopify OK
                     </span>
                     <span>•</span>
-                    <span className="text-amber-700 font-medium" title="Prodotto aggiornato ma uno o più metafield falliti">
-                      ⚠ {partialCount} parziali
+                    <span className="text-blue-700 font-medium" title="Bozza pronta ma non ancora inviata a Shopify">
+                      {daSyncareCount} da syncare
                     </span>
                     <span>•</span>
-                    <span className="text-red-700 font-medium">
-                      ✗ {errorCount} errori
+                    <span title="Nessuna bozza AI salvata">
+                      {daGenerareCount} da generare
                     </span>
                     <span>•</span>
-                    <span className="text-emerald-700 font-medium">
-                      {draftCount} bozze AI
+                    <span className="text-amber-700 font-medium" title="Parziali (metafield falliti) o errori di sync">
+                      ⚠ {issuesCount} parziali/errori
                     </span>
-                    <span>•</span>
-                    <span>{todoCount} da fare</span>
                   </div>
                 );
               })()}
@@ -719,18 +789,27 @@ function ModeAPanel() {
                 <TabsTrigger value="todo" className="h-7 text-xs">Da syncare</TabsTrigger>
                 <TabsTrigger value="ok" className="h-7 text-xs">Sync OK</TabsTrigger>
                 <TabsTrigger value="issues" className="h-7 text-xs">Parziali / errori</TabsTrigger>
+                <TabsTrigger value="generate" className="h-7 text-xs">Da generare</TabsTrigger>
               </TabsList>
             </Tabs>
+            {/* Legenda micro-copy (punto 10) */}
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] leading-relaxed text-muted-foreground">
+              <span><strong className="text-foreground">Bozza AI</strong> = contenuto salvato nel database</span>
+              <span><strong className="text-foreground">Shopify OK</strong> = contenuto inviato a Shopify</span>
+              <span><strong className="text-foreground">Da syncare</strong> = contenuto pronto ma non ancora inviato</span>
+              <span><strong className="text-foreground">Da generare</strong> = nessuna bozza AI salvata</span>
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y">
               {batchResults
                 .filter((result) => {
                   if (syncFilter === "all") return true;
-                  const s = deriveShopifyStatus(result);
+                  const s = classifyEnrichmentItem(result);
                   if (syncFilter === "ok") return s === "ok";
                   if (syncFilter === "issues") return s === "partial" || s === "error";
-                  if (syncFilter === "todo") return s === "none";
+                  if (syncFilter === "todo") return s === "da-syncare";
+                  if (syncFilter === "generate") return s === "da-generare";
                   return true;
                 })
                 .map((result) => (
@@ -792,6 +871,15 @@ function ModeAPanel() {
                       {result.restored && (
                         <Badge variant="outline" className="h-5 px-1.5 text-[9px]" title="Bozza ripristinata dal DB">
                           DB
+                        </Badge>
+                      )}
+                      {draftHasManualValues(result) && (
+                        <Badge
+                          variant="outline"
+                          className="h-5 border-purple-300 bg-purple-50 px-1.5 text-[9px] text-purple-700"
+                          title="Contiene campi manuali valorizzati (ibridatore, colore fiore/foglia, curiosità, nome comune)"
+                        >
+                          Manuale
                         </Badge>
                       )}
                     </div>
