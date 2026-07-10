@@ -166,10 +166,12 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                               width={40}
                               height={40}
                               loading="lazy"
-                              className="h-10 w-10 shrink-0 rounded-md object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                              decoding="async"
+                              className="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-white/10 transition-all duration-500 group-hover:scale-[1.06] group-hover:brightness-110 group-hover:ring-white/25"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                             />
                           ) : (
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white/10 text-white/50">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-white/15 to-white/5 text-white/70 ring-1 ring-white/10">
                               <Leaf className="h-4 w-4" />
                             </span>
                           )}
