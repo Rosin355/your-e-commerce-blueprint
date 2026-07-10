@@ -268,9 +268,25 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                               key={link.label}
                               to={link.href}
                               onClick={() => setIsMobileNavOpen(false)}
-                              className="rounded-xl px-3 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/75 transition-colors hover:bg-muted"
+                              className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/75 transition-colors hover:bg-muted"
                             >
-                              {link.label}
+                              {link.image ? (
+                                <img
+                                  src={link.image}
+                                  alt=""
+                                  width={32}
+                                  height={32}
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="h-8 w-8 shrink-0 rounded-md object-cover ring-1 ring-border/50"
+                                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                                />
+                              ) : (
+                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-primary/15 to-accent/10 text-primary/70">
+                                  <Leaf className="h-3.5 w-3.5" />
+                                </span>
+                              )}
+                              <span className="flex-1">{link.label}</span>
                             </Link>
                           )
                         ))}
