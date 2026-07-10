@@ -203,18 +203,20 @@ export const HomeHero = () => {
                 : undefined
             }
           >
-            <h1 className="whitespace-pre-line font-heading text-[2.35rem] font-medium leading-[0.92] tracking-[-0.032em] text-white md:text-[4.35rem] lg:text-[5.9rem]">
+            <h1 className="whitespace-pre-line font-heading text-[2.35rem] font-semibold leading-[0.95] tracking-[-0.028em] text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.45)] md:text-[4.35rem] lg:text-[5.6rem]">
               {slides[activeIndex].title}
             </h1>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-white/84 md:text-[1.02rem]">
+            <p className="mt-5 max-w-xl text-base leading-7 text-white drop-shadow-[0_1px_10px_rgba(0,0,0,0.5)] md:text-[1.08rem]">
               {slides[activeIndex].subtitle}
             </p>
             <a
               href="/collections/all"
-              className="mt-5 inline-flex text-[10px] font-semibold uppercase tracking-[0.22em] text-white/82 transition-colors hover:text-white"
+              className="mt-7 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-[13px] font-semibold uppercase tracking-[0.16em] text-primary-foreground shadow-lg transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
               Scopri il catalogo outdoor
+              <ChevronRight className="h-4 w-4" />
             </a>
+
           </div>
 
           {/* Exiting text overlay — absolute so it floats over the entering text
