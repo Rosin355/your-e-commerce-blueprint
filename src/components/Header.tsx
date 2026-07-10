@@ -266,21 +266,28 @@ export const Header = () => {
 
             <div className="grid gap-5 lg:grid-cols-2">
               {activeCategoryData.previewCards.map((card) => (
-                <a key={card.title} href={card.href} className="group block overflow-hidden rounded-[1.35rem] border border-border/65 bg-card/55">
-                  <div className="h-48 w-full overflow-hidden">
+                <a
+                  key={card.title}
+                  href={card.href}
+                  className="group block overflow-hidden rounded-2xl border border-border/60 bg-card/60 shadow-soft transition-all duration-500 hover:shadow-lg hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                >
+                  <div className="relative aspect-[4/5] w-full overflow-hidden">
                     <img
                       src={card.image}
                       alt={card.title}
                       width={800}
-                      height={512}
+                      height={1000}
                       loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                      decoding="async"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                     />
-                  </div>
-                  <div className="px-5 py-4">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Selezione</p>
-                    <h4 className="mt-2 font-heading text-[1.3rem] font-medium text-foreground">{card.title}</h4>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{card.description}</p>
+                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-5">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/75">Selezione</p>
+                      <h4 className="mt-1.5 font-heading text-[1.3rem] font-medium leading-tight text-white">{card.title}</h4>
+                      <p className="mt-1.5 text-[13px] leading-5 text-white/80 line-clamp-2">{card.description}</p>
+                    </div>
                   </div>
                 </a>
               ))}
