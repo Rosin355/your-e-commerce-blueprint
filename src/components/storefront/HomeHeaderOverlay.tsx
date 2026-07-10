@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Leaf, Mail, Menu, Search, SunMedium, User, X } from "lucide-react";
+import { ChevronRight, Leaf, Mail, Menu, Search, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -62,16 +62,16 @@ const navigationItems: NavItem[] = CATEGORIES.map((cat) => ({
 
 const BrandMark = ({ compact = false }: { compact?: boolean }) => (
   <span className="inline-flex items-center gap-2.5">
-    <span className={`${compact ? "text-[1.25rem]" : "text-[1.9rem]"} font-['Playfair_Display'] font-semibold tracking-[0.12em] text-white`}>
+    <span className={`${compact ? "text-[1.15rem]" : "text-[1.7rem]"} font-['Playfair_Display'] font-semibold tracking-[0.12em] text-primary-dark`}>
       ONLINE
     </span>
     <img
       src={logoOnlineGarden}
       alt="Online Garden logo"
-      className={`${compact ? "h-16 w-16" : "h-24 w-24"} object-contain`}
+      className={`${compact ? "h-12 w-12" : "h-16 w-16"} object-contain`}
       loading="eager"
     />
-    <span className={`${compact ? "text-[1.25rem]" : "text-[1.9rem]"} font-['Playfair_Display'] font-semibold tracking-[0.12em] text-white`}>
+    <span className={`${compact ? "text-[1.15rem]" : "text-[1.7rem]"} font-['Playfair_Display'] font-semibold tracking-[0.12em] text-primary-dark`}>
       GARDEN
     </span>
   </span>
@@ -81,6 +81,7 @@ export type HomeHeaderOverlayVariant = "hero" | "page";
 export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOverlayVariant }) => {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isDesktopSearchOpen, setIsDesktopSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [activeItem, setActiveItem] = useState<NavItem | null>(null);
 
@@ -88,34 +89,35 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
     <header
       className={[
         variant === "hero" ? "absolute inset-x-0 top-7 z-40" : "sticky inset-x-0 top-7 z-40",
-        "text-white md:top-8",
-        variant === "page" ? "bg-black/10 backdrop-blur-xl border-b border-white/12" : "",
+        "md:top-8",
+        // Sfondo solido crema, testo verde scuro — leggibile su qualsiasi immagine hero
+        "bg-[hsl(var(--cream))]/97 backdrop-blur-md border-b border-border/70 shadow-soft text-foreground",
       ].join(" ")}
     >
       <div className="mx-auto max-w-[1600px] px-4 md:px-6">
         <div
-          className="hidden border-b border-white/16 py-3.5 lg:block"
+          className="hidden py-3 lg:block"
           onMouseLeave={() => setActiveItem(null)}
         >
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center">
-            <nav className="flex items-center gap-8">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+            <nav className="flex items-center gap-6">
               {navigationItems.map((item) => (
                 <button
                   key={item.label}
                   type="button"
                   onMouseEnter={() => !item.isComingSoon && setActiveItem(item)}
                   onFocus={() => !item.isComingSoon && setActiveItem(item)}
-                  className={`relative inline-flex items-center gap-2 text-[13px] font-medium tracking-[0.015em] transition-colors ${
+                  className={`relative inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-[15px] font-semibold tracking-[0.01em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
                     item.isComingSoon
-                      ? "cursor-default text-white/40"
+                      ? "cursor-default text-muted-foreground/60"
                       : activeItem?.label === item.label
-                      ? "text-white"
-                      : "text-white/90 hover:text-white"
+                      ? "text-primary-dark"
+                      : "text-foreground/85 hover:text-primary-dark"
                   }`}
                 >
                   {item.label}
                   {item.isComingSoon && (
-                    <span className="rounded-full border border-white/20 bg-white/8 px-1.5 py-0.5 text-[9px] uppercase tracking-[0.18em] text-white/40">
+                    <span className="rounded-full border border-border bg-muted px-1.5 py-0.5 text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
                       presto
                     </span>
                   )}
@@ -127,60 +129,113 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               <BrandMark />
             </Link>
 
-            <div className="justify-self-end [&_button>span]:hidden [&_button_svg]:h-[15px] [&_button_svg]:w-[15px] flex items-center gap-1.5 [&_button]:h-8 [&_button]:w-8 [&_button]:rounded-full [&_button]:border [&_button]:border-white/18 [&_button]:bg-transparent [&_button]:text-white/92 [&_button]:hover:bg-white/16">
-              <a href="mailto:info@onlinegarden.it" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/18 bg-transparent text-white/92 transition-colors hover:bg-white/16" aria-label="Contatti">
-                <Mail className="h-4 w-4" />
+            <div className="flex items-center gap-2 justify-self-end">
+              {/* Pill Cerca — molto visibile */}
+              <button
+                type="button"
+                onClick={() => setIsDesktopSearchOpen((v) => !v)}
+                aria-label="Apri ricerca"
+                aria-expanded={isDesktopSearchOpen}
+                className="inline-flex h-11 min-w-[220px] items-center gap-2.5 rounded-full border-2 border-primary/25 bg-white px-4 text-left text-sm font-medium text-muted-foreground shadow-soft transition-colors hover:border-primary/50 hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+              >
+                <Search className="h-5 w-5 text-primary-dark" strokeWidth={2.25} />
+                <span>Cerca piante…</span>
+              </button>
+
+              <a
+                href="mailto:info@onlinegarden.it"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border/80 bg-white text-primary-dark transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                aria-label="Contattaci via email"
+              >
+                <Mail className="h-5 w-5" strokeWidth={2} />
               </a>
-              <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/18 bg-transparent text-white/92 transition-colors hover:bg-white/16" aria-label="Tema">
-                <SunMedium className="h-4 w-4" />
-              </button>
-              <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/18 bg-transparent text-white/92 transition-colors hover:bg-white/16" aria-label="Ricerca">
-                <Search className="h-4 w-4" />
-              </button>
-              <AccountButton />
-              <CartDrawer />
+
+              <div
+                className="[&_button>span]:hidden [&_button_svg]:h-5 [&_button_svg]:w-5 [&_button]:h-11 [&_button]:w-11 [&_button]:rounded-full [&_button]:border [&_button]:border-border/80 [&_button]:bg-white [&_button]:text-primary-dark [&_button]:hover:bg-muted"
+              >
+                <AccountButton />
+                <CartDrawer />
+              </div>
             </div>
           </div>
+
+          {/* Desktop search dropdown */}
+          {isDesktopSearchOpen ? (
+            <div className="absolute inset-x-0 top-full mt-2 z-50">
+              <div className="mx-auto max-w-[1600px] px-6">
+                <div className="ml-auto max-w-xl rounded-2xl border border-border bg-white p-3 shadow-lg">
+                  <div className="flex items-center gap-2">
+                    <Search className="ml-2 h-5 w-5 text-primary-dark" />
+                    <Input
+                      autoFocus
+                      value={searchValue}
+                      onChange={(e) => setSearchValue(e.target.value)}
+                      placeholder="Cerca piante, vasi, idee regalo…"
+                      className="h-11 border-0 bg-transparent text-base shadow-none focus-visible:ring-0"
+                    />
+                    <Button
+                      className="h-11 rounded-full px-5 text-sm font-semibold"
+                      onClick={() => console.log("Search:", searchValue)}
+                    >
+                      Cerca
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-11 w-11 rounded-full"
+                      onClick={() => setIsDesktopSearchOpen(false)}
+                      aria-label="Chiudi ricerca"
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {activeItem ? (
             <div className="absolute inset-x-0 top-full mt-px">
               <div className="mx-auto max-w-[1600px] px-6">
-                <div className="grid grid-cols-[0.92fr_1.08fr] gap-10 border border-white/14 bg-[rgba(12,16,13,0.72)] px-8 py-8 shadow-2xl backdrop-blur-xl">
+                <div className="grid grid-cols-[0.92fr_1.08fr] gap-10 rounded-b-2xl border border-border bg-white px-8 py-8 shadow-lg">
                   <div className="flex flex-col justify-between gap-8">
                     <div>
-                      <p className="text-[10px] uppercase tracking-[0.26em] text-white/56">Categorie</p>
-                      <h3 className="mt-3 font-heading text-[2rem] font-medium leading-tight text-white">{activeItem.title}</h3>
-                      <p className="mt-3 max-w-md text-sm leading-7 text-white/72">{activeItem.description}</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Categorie</p>
+                      <h3 className="mt-3 font-heading text-[2.1rem] font-semibold leading-tight text-primary-dark">{activeItem.title}</h3>
+                      <p className="mt-3 max-w-md text-[15px] leading-7 text-foreground/75">{activeItem.description}</p>
                     </div>
-                    <div className="grid gap-2">
+                    <div className="grid gap-1">
                       {activeItem.links.map((link) => (
                         <Link
                           key={link.label}
                           to={link.href}
-                          className="group flex items-center gap-3 border-b border-white/10 py-2 text-sm text-white/86 transition-colors hover:text-white"
+                          className="group flex items-center gap-3 rounded-lg border-b border-border/50 py-2.5 pr-2 text-[15px] font-medium text-foreground transition-colors hover:bg-muted/60 hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                         >
                           {link.image ? (
                             <img
                               src={link.image}
-                              alt={link.label}
-                              width={40}
-                              height={40}
+                              alt=""
+                              width={44}
+                              height={44}
                               loading="lazy"
                               decoding="async"
-                              className="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-white/10 transition-all duration-500 group-hover:scale-[1.06] group-hover:brightness-110 group-hover:ring-white/25"
+                              className="h-11 w-11 shrink-0 rounded-lg object-cover ring-1 ring-border transition-all duration-500 group-hover:scale-[1.06] group-hover:ring-primary/40"
                               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                             />
                           ) : (
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-white/15 to-white/5 text-white/70 ring-1 ring-white/10">
+                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/15 to-accent/10 text-primary/80 ring-1 ring-border">
                               <Leaf className="h-4 w-4" />
                             </span>
                           )}
                           <span className="flex-1">{link.label}</span>
-                          <ChevronRight className="h-4 w-4 text-white/52" />
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
                         </Link>
                       ))}
                     </div>
-                    <Link to={activeItem.catalogHref} className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/82 transition-colors hover:text-white">
+                    <Link
+                      to={activeItem.catalogHref}
+                      className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-5 py-2.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-primary-foreground shadow-sm transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                    >
                       Vai al catalogo
                       <ChevronRight className="h-4 w-4" />
                     </Link>
@@ -191,7 +246,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                       <Link
                         key={card.title}
                         to={card.href}
-                        className="group block overflow-hidden rounded-2xl border border-white/10 bg-black/20 shadow-md ring-1 ring-white/5 transition-all duration-500 hover:shadow-2xl hover:ring-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                        className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-500 hover:shadow-lg hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                       >
                         <div className="relative aspect-[4/5] w-full overflow-hidden">
                           {card.image ? (
@@ -200,17 +255,18 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                               alt={card.title}
                               loading="lazy"
                               decoding="async"
-                              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+                              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
                               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                             />
                           ) : (
                             <div className={`absolute inset-0 bg-gradient-to-br ${card.tone} transition-transform duration-700 group-hover:scale-[1.04]`} />
                           )}
-                          <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+                          {/* Gradiente più leggero, solo dietro il testo */}
+                          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
                           <div className="absolute inset-x-0 bottom-0 p-5">
-                            <p className="text-[10px] uppercase tracking-[0.22em] text-white/70">Selezione</p>
-                            <h4 className="mt-1.5 font-heading text-[1.35rem] font-medium leading-tight text-white">{card.title}</h4>
-                            <p className="mt-1.5 text-[13px] leading-5 text-white/78 line-clamp-2">{card.description}</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/90">Selezione</p>
+                            <h4 className="mt-1.5 font-heading text-[1.4rem] font-semibold leading-tight text-white drop-shadow-sm">{card.title}</h4>
+                            <p className="mt-1.5 text-[13px] leading-5 text-white/90 line-clamp-2">{card.description}</p>
                           </div>
                         </div>
                       </Link>
@@ -222,25 +278,31 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
           ) : null}
         </div>
 
-        <div className="border-b border-white/16 py-3 lg:hidden">
+        {/* MOBILE */}
+        <div className="py-3 lg:hidden">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
             <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full border border-white/20 bg-black/20 text-white hover:bg-white/20">
-                  <Menu className="h-5 w-5" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-11 w-11 rounded-full border border-border bg-white text-primary-dark hover:bg-muted"
+                  aria-label="Apri menu"
+                >
+                  <Menu className="h-6 w-6" strokeWidth={2.25} />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[90%] max-w-sm border-border bg-background/98">
+              <SheetContent side="left" className="w-[92%] max-w-sm border-border bg-background">
                 <SheetHeader>
                   <SheetTitle className="font-heading text-2xl text-primary-dark">Online Garden</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 space-y-4">
                   {navigationItems.map((item) => (
-                    <div key={item.label} className="rounded-2xl border border-border/70 bg-card p-2">
+                    <div key={item.label} className="rounded-2xl border border-border bg-card p-2">
                       {item.isComingSoon ? (
-                        <div className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-muted-foreground/50 cursor-default">
+                        <div className="flex items-center justify-between rounded-xl px-3 py-3.5 text-base font-semibold text-muted-foreground/60 cursor-default">
                           <span>{item.label}</span>
-                          <span className="text-[9px] uppercase tracking-[0.16em] text-muted-foreground/40 border border-border/40 rounded-full px-1.5 py-0.5">
+                          <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/50 border border-border/60 rounded-full px-1.5 py-0.5">
                             Presto
                           </span>
                         </div>
@@ -248,10 +310,10 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                         <Link
                           to={item.catalogHref}
                           onClick={() => setIsMobileNavOpen(false)}
-                          className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+                          className="flex items-center justify-between rounded-xl px-3 py-3.5 text-base font-semibold text-foreground transition-colors hover:bg-muted"
                         >
                           <span>{item.label}</span>
-                          <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Categoria</span>
+                          <ChevronRight className="h-5 w-5 text-muted-foreground" />
                         </Link>
                       )}
                       <div className="mt-1 grid gap-1 px-1 pb-1">
@@ -259,7 +321,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                           item.isComingSoon ? (
                             <span
                               key={link.label}
-                              className="rounded-xl px-3 py-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground/35 cursor-default block"
+                              className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground/45 cursor-default block"
                             >
                               {link.label}
                             </span>
@@ -268,22 +330,22 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                               key={link.label}
                               to={link.href}
                               onClick={() => setIsMobileNavOpen(false)}
-                              className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/75 transition-colors hover:bg-muted"
+                              className="flex items-center gap-3 rounded-xl px-2.5 py-2.5 text-[15px] font-medium text-foreground/85 transition-colors hover:bg-muted"
                             >
                               {link.image ? (
                                 <img
                                   src={link.image}
                                   alt=""
-                                  width={32}
-                                  height={32}
+                                  width={36}
+                                  height={36}
                                   loading="lazy"
                                   decoding="async"
-                                  className="h-8 w-8 shrink-0 rounded-md object-cover ring-1 ring-border/50"
+                                  className="h-9 w-9 shrink-0 rounded-md object-cover ring-1 ring-border"
                                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                                 />
                               ) : (
-                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-primary/15 to-accent/10 text-primary/70">
-                                  <Leaf className="h-3.5 w-3.5" />
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-primary/15 to-accent/10 text-primary/80">
+                                  <Leaf className="h-4 w-4" />
                                 </span>
                               )}
                               <span className="flex-1">{link.label}</span>
@@ -301,40 +363,59 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               <BrandMark compact />
             </Link>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-full border border-white/20 bg-black/20 text-white hover:bg-white/20"
+                className="h-11 w-11 rounded-full border border-border bg-white text-primary-dark hover:bg-muted"
                 onClick={() => setIsMobileSearchOpen((prev) => !prev)}
+                aria-label={isMobileSearchOpen ? "Chiudi ricerca" : "Apri ricerca"}
+                aria-expanded={isMobileSearchOpen}
               >
-                {isMobileSearchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+                {isMobileSearchOpen ? <X className="h-5 w-5" strokeWidth={2.25} /> : <Search className="h-5 w-5" strokeWidth={2.25} />}
               </Button>
-              <Link to="/auth" className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white transition-colors hover:bg-white/20" aria-label="Account">
-                <User className="h-4 w-4" />
+              <Link
+                to="/auth"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-primary-dark transition-colors hover:bg-muted"
+                aria-label="Area account"
+              >
+                <User className="h-5 w-5" strokeWidth={2.25} />
               </Link>
-              <div className="[&_button>span]:hidden [&_button_svg]:h-4 [&_button_svg]:w-4 [&_button]:h-10 [&_button]:w-10 [&_button]:rounded-full [&_button]:border [&_button]:border-white/20 [&_button]:bg-black/20 [&_button]:text-white [&_button]:hover:bg-white/20">
+              <div className="[&_button>span]:hidden [&_button_svg]:h-5 [&_button_svg]:w-5 [&_button]:h-11 [&_button]:w-11 [&_button]:rounded-full [&_button]:border [&_button]:border-border [&_button]:bg-white [&_button]:text-primary-dark [&_button]:hover:bg-muted">
                 <CartDrawer />
               </div>
             </div>
           </div>
 
-          {isMobileSearchOpen ? (
-            <div className="mt-3 flex items-center rounded-full border border-white/24 bg-black/20 p-1 backdrop-blur">
+          {/* Barra ricerca mobile — pill sempre visibile per over 50 */}
+          {!isMobileSearchOpen ? (
+            <button
+              type="button"
+              onClick={() => setIsMobileSearchOpen(true)}
+              className="mt-3 flex w-full items-center gap-2.5 rounded-full border-2 border-primary/25 bg-white px-4 py-3 text-left text-sm font-medium text-muted-foreground shadow-soft"
+              aria-label="Apri ricerca prodotti"
+            >
+              <Search className="h-5 w-5 text-primary-dark" strokeWidth={2.25} />
+              <span>Cerca piante, vasi, idee regalo…</span>
+            </button>
+          ) : (
+            <div className="mt-3 flex items-center gap-2 rounded-full border-2 border-primary/30 bg-white p-1.5 shadow-soft">
+              <Search className="ml-2 h-5 w-5 text-primary-dark" />
               <Input
+                autoFocus
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
                 placeholder="Cerca piante, vasi, idee regalo"
-                className="h-9 border-0 bg-transparent text-sm text-white placeholder:text-white/68 focus-visible:ring-0"
+                className="h-10 border-0 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus-visible:ring-0"
               />
               <Button
-                className="h-9 rounded-full bg-white px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary-dark hover:bg-white/90"
+                className="h-10 rounded-full px-4 text-sm font-semibold"
                 onClick={() => console.log("Search:", searchValue)}
               >
                 Cerca
               </Button>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
     </header>
