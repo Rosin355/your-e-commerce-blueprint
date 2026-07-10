@@ -190,6 +190,11 @@ export function mapAiOutputToMetafields(
     periodo_di_messa_a_dimora: typeof ai.planting_period === "string" ? ai.planting_period.trim() : "",
     periodo_di_raccolta: typeof ai.harvest_period === "string" ? ai.harvest_period.trim() : "",
     periodo_ottimale_di_potatura: typeof ai.pruning_period === "string" ? ai.pruning_period.trim() : "",
+    // STEP B — campi manuali: solo valore inserito dall'admin, l'AI non li tocca
+    ibridatore: input.ibridatore?.trim() ?? "",
+    colore_fiore: input.colore_fiore?.trim() ?? "",
+    colore_foglia: input.colore_foglia?.trim() ?? "",
+    curiosita: input.curiosita?.trim() ?? "",
   };
 }
 

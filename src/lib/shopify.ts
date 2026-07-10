@@ -54,6 +54,10 @@ export interface ShopifyProduct {
       name: string;
       values: string[];
     }>;
+    /** Shopify product type — usato per riconoscere le rose (Ibridatore). Assente nella query lista. */
+    productType?: string | null;
+    /** Tag prodotto — fallback per riconoscere le rose. Assente nella query lista. */
+    tags?: string[] | null;
     shortIntro?: { value: string; type?: string } | null;
     specialBullets?: { value: string; type?: string } | null;
     keyFeatures?: { value: string; type?: string } | null;
@@ -72,6 +76,14 @@ export interface ShopifyProduct {
     careGuide?: { value: string; type?: string } | null;
     faqTitle?: { value: string; type?: string } | null;
     faqItems?: { value: string; type?: string } | null;
+    /** custom.ibridatore — mostrato solo per le rose */
+    hybridizer?: { value: string; type?: string } | null;
+    /** custom.colore_fiore */
+    flowerColor?: { value: string; type?: string } | null;
+    /** custom.colore_foglia */
+    leafColor?: { value: string; type?: string } | null;
+    /** custom.curiosita — sostituisce "Spedizione e resi" quando valorizzato */
+    curiosity?: { value: string; type?: string } | null;
   };
 }
 

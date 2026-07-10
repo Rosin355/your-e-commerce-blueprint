@@ -19,7 +19,12 @@ export type ShopifyMetafieldKey =
   | "titolo_sezione_faq"
   | "faq_prodotto"
   | "attributi_prodotto"
-  | "long_description";
+  | "long_description"
+  // ── STEP B: nuovi campi manuali cliente ──
+  | "ibridatore"
+  | "colore_fiore"
+  | "colore_foglia"
+  | "curiosita";
 
 export const ALL_METAFIELD_KEYS: ShopifyMetafieldKey[] = [
   "nome_botanico",
@@ -41,6 +46,10 @@ export const ALL_METAFIELD_KEYS: ShopifyMetafieldKey[] = [
   "periodo_di_raccolta",
   "periodo_ottimale_di_potatura",
   "titolo_sezione_faq",
+  "ibridatore",
+  "colore_fiore",
+  "colore_foglia",
+  "curiosita",
 ];
 
 export const METAFIELD_LABELS: Record<ShopifyMetafieldKey, string> = {
@@ -63,6 +72,10 @@ export const METAFIELD_LABELS: Record<ShopifyMetafieldKey, string> = {
   faq_prodotto: "FAQ prodotto",
   attributi_prodotto: "Attributi prodotto",
   long_description: "Descrizione lunga",
+  ibridatore: "Ibridatore (rose)",
+  colore_fiore: "Colore fiore",
+  colore_foglia: "Colore foglia",
+  curiosita: "Curiosità (manuale)",
 };
 
 // Tutti i 19 metafield possono essere compilati dall'AI (best-effort).
@@ -88,9 +101,14 @@ export const AI_GENERATED_KEYS = new Set<ShopifyMetafieldKey>([
   "periodo_ottimale_di_potatura",
 ]);
 
-// Campi che usano comunque il valore inserito manualmente dall'utente quando presente
+// Campi che usano comunque il valore inserito manualmente dall'utente quando presente.
+// I campi STEP B sono manuali per scelta: l'AI non deve inventare ibridatore/colori/curiosità.
 export const MANUAL_KEYS = new Set<ShopifyMetafieldKey>([
   "nome_comune",
+  "ibridatore",
+  "colore_fiore",
+  "colore_foglia",
+  "curiosita",
 ]);
 
 // Maps Shopify CSV column header → internal metafield key
@@ -114,6 +132,10 @@ export const CSV_COLUMN_TO_KEY: Record<string, ShopifyMetafieldKey> = {
   "product.metafields.custom.faq_prodotto": "faq_prodotto",
   "product.metafields.custom.attributi_prodotto": "attributi_prodotto",
   "product.metafields.custom.long_description": "long_description",
+  "product.metafields.custom.ibridatore": "ibridatore",
+  "product.metafields.custom.colore_fiore": "colore_fiore",
+  "product.metafields.custom.colore_foglia": "colore_foglia",
+  "product.metafields.custom.curiosita": "curiosita",
 };
 
 // ── Input / output types ────────────────────────────────────────────────────
@@ -134,6 +156,15 @@ export interface EssentialProductInput {
   /** Free-text hints the admin can add (cultivation notes, origin, etc.) */
   cultivation_notes?: string;
   seed_style: string;
+  // ── STEP B: campi manuali (mai generati da AI) ──
+  /** Ibridatore — soprattutto per le rose */
+  ibridatore?: string;
+  /** Colore fiore (es. rosa, bianco, giallo) */
+  colore_fiore?: string;
+  /** Colore foglia (es. verde, verde scuro) */
+  colore_foglia?: string;
+  /** Curiosità — testo editoriale manuale mostrato al posto di "Spedizione e resi" */
+  curiosita?: string;
 }
 
 export type EnrichedMetafields = Partial<Record<ShopifyMetafieldKey, string>>;

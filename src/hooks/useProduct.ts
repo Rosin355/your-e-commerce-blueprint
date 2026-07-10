@@ -44,6 +44,8 @@ const PRODUCT_BY_HANDLE_QUERY = `
         name
         values
       }
+      productType
+      tags
       shortIntro: metafield(namespace: "custom", key: "short_intro") {
         value
         type
@@ -113,6 +115,22 @@ const PRODUCT_BY_HANDLE_QUERY = `
         type
       }
       faqItems: metafield(namespace: "custom", key: "faq_prodotto") {
+        value
+        type
+      }
+      hybridizer: metafield(namespace: "custom", key: "ibridatore") {
+        value
+        type
+      }
+      flowerColor: metafield(namespace: "custom", key: "colore_fiore") {
+        value
+        type
+      }
+      leafColor: metafield(namespace: "custom", key: "colore_foglia") {
+        value
+        type
+      }
+      curiosity: metafield(namespace: "custom", key: "curiosita") {
         value
         type
       }

@@ -36,6 +36,7 @@ import { useProductEnrichment, deriveShopifyStatus, type BatchProductResult } fr
 import type { ShopifyAdminProduct } from "../types/aiWriter";
 import type { EssentialProductInput } from "../types/productEnrichment";
 import { AI_GENERATED_KEYS, ALL_METAFIELD_KEYS, MANUAL_KEYS, METAFIELD_LABELS } from "../types/productEnrichment";
+import { ROSE_HYBRIDIZERS } from "@/config/roseHybridizers";
 import { MetafieldsReport } from "./MetafieldsReport";
 import EnrichmentCatalogStatus from "./EnrichmentCatalogStatus";
 import ResumeRunBanner from "./ResumeRunBanner";
@@ -63,6 +64,10 @@ const EMPTY_ESSENTIAL: EssentialProductInput = {
   tags: "",
   cultivation_notes: "",
   seed_style: "Pratico e tecnico",
+  ibridatore: "",
+  colore_fiore: "",
+  colore_foglia: "",
+  curiosita: "",
 };
 
 // ── Shared sub-components ────────────────────────────────────────────────────
@@ -445,9 +450,10 @@ function ModeAPanel() {
                 lo stato direttamente da Shopify Admin.
               </p>
               <p>
-                🧠 L'AI ora compila <strong>tutti i {ALL_METAFIELD_KEYS.length} campi</strong> incluso
+                🧠 L'AI compila <strong>{AI_GENERATED_KEYS.size} campi automatici</strong> incluso
                 nome botanico, origini e periodi stagionali (best-effort): rivedi a mano i campi
-                botanici e correggi se necessario.
+                botanici e correggi se necessario. I {MANUAL_KEYS.size} campi <strong>manuali</strong>{" "}
+                (ibridatore, colore fiore/foglia, curiosità, nome comune) non vengono generati dall'AI.
               </p>
               <p>
                 ⚠️ Il <strong>CSV "prodotti base"</strong> qui sotto importa SOLO titolo, descrizione,
@@ -1013,6 +1019,47 @@ function ModeBPanel() {
               onChange={(e) => set("cultivation_notes", e.target.value)}
               rows={3}
             />
+          </div>
+
+          {/* STEP B — Campi MANUALI: l'AI non li genera. Compilati a mano dal cliente. */}
+          <div className="space-y-3 rounded-md border border-dashed border-border/70 bg-muted/20 p-3">
+            <p className="text-xs font-medium text-muted-foreground">
+              Campi manuali <Badge variant="outline" className="ml-1 text-[9px]">Manuale</Badge>
+              <span className="ml-2 font-normal">— non generati dall'AI, compilali solo se certi.</span>
+            </p>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="ep-ibridatore">Ibridatore <span className="text-muted-foreground">(soprattutto per rose)</span></Label>
+                <Input
+                  id="ep-ibridatore"
+                  list="ep-ibridatore-options"
+                  placeholder="es. David Austin"
+                  value={form.ibridatore ?? ""}
+                  onChange={(e) => set("ibridatore", e.target.value)}
+                />
+                <datalist id="ep-ibridatore-options">
+                  {ROSE_HYBRIDIZERS.map((h) => <option key={h} value={h} />)}
+                </datalist>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="ep-colore-fiore">Colore fiore</Label>
+                <Input id="ep-colore-fiore" placeholder="es. rosa" value={form.colore_fiore ?? ""} onChange={(e) => set("colore_fiore", e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="ep-colore-foglia">Colore foglia</Label>
+                <Input id="ep-colore-foglia" placeholder="es. verde scuro" value={form.colore_foglia ?? ""} onChange={(e) => set("colore_foglia", e.target.value)} />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="ep-curiosita">Curiosità <span className="text-muted-foreground">(manuale — sostituisce "Spedizione e resi" nel PDP)</span></Label>
+              <Textarea
+                id="ep-curiosita"
+                placeholder="Un aneddoto o dettaglio editoriale sulla varietà. Lasciare vuoto per mantenere la sezione Spedizione e resi."
+                value={form.curiosita ?? ""}
+                onChange={(e) => set("curiosita", e.target.value)}
+                rows={3}
+              />
+            </div>
           </div>
 
           <div className="space-y-1">

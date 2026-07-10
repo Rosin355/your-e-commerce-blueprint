@@ -101,6 +101,20 @@ export function parseSeasonalCalendar(node: ProductNode): SeasonalCalendarSlot[]
   return result;
 }
 
+/**
+ * Riconosce un prodotto "rose" per decidere se mostrare l'Ibridatore.
+ * Segnale primario: Shopify product type == "Rose" (case-insensitive, tollera plurale/parziale).
+ * Fallback: tag prodotto che contiene "rosa"/"rose".
+ * NB: evita match troppo larghi (es. "rosmarino") ancorando alla radice "ros" + confine parola.
+ */
+export function isRoseProduct(node: ProductNode): boolean {
+  const type = (node.productType ?? "").toLowerCase().trim();
+  if (/\bros[ae]\b/.test(type)) return true;
+
+  const tags = Array.isArray(node.tags) ? node.tags : [];
+  return tags.some((tag) => /\bros[ae]\b/.test((tag ?? "").toLowerCase().trim()));
+}
+
 export type DifficultyLevel = "easy" | "medium" | "hard" | "unknown";
 
 export function getDifficultyLevel(value: string | null): DifficultyLevel {

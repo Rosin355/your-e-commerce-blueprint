@@ -24,12 +24,14 @@ import {
 import { toast } from "sonner";
 import {
   getDifficultyLevel,
+  isRoseProduct,
   parseBotanicalInfo,
   parseFaqItems,
   parseMultilineMetafield,
   parseProductAttributes,
   parseSeasonalCalendar,
   parseSingleLineMetafield,
+  type ProductAttribute,
   type SeasonalCalendarSlot,
 } from "@/components/storefront/pdpMetafields";
 
@@ -239,6 +241,22 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const resolvedCareGuide = parseMultilineMetafield(node.careGuide);
   const botanical = parseBotanicalInfo(node);
   const resolvedProductAttributes = parseProductAttributes(node.productAttributes);
+
+  // Nuovi metafield cliente (STEP B). Tutti condizionali: se vuoti, nulla cambia.
+  const isRose = isRoseProduct(node);
+  const resolvedHybridizer = isRose ? parseSingleLineMetafield(node.hybridizer) : null;
+  const resolvedFlowerColor = parseSingleLineMetafield(node.flowerColor);
+  const resolvedLeafColor = parseSingleLineMetafield(node.leafColor);
+  const resolvedCuriosity = parseMultilineMetafield(node.curiosity);
+
+  // Specifiche rapide = attributi JSON + colori + ibridatore (rose). `swatch` opzionale per i colori.
+  const quickSpecs: Array<ProductAttribute & { swatch?: string }> = [
+    ...resolvedProductAttributes,
+    ...(resolvedFlowerColor ? [{ key: "Colore fiore", value: resolvedFlowerColor, swatch: colorSwatchMap[resolvedFlowerColor.toLowerCase().trim()] }] : []),
+    ...(resolvedLeafColor ? [{ key: "Colore foglia", value: resolvedLeafColor, swatch: colorSwatchMap[resolvedLeafColor.toLowerCase().trim()] }] : []),
+    ...(resolvedHybridizer ? [{ key: "Ibridatore", value: resolvedHybridizer }] : []),
+  ];
+
   const seasonalCalendar = parseSeasonalCalendar(node);
   const faqItems = parseFaqItems(node.faqItems);
   const faqTitle = parseSingleLineMetafield(node.faqTitle) || "Domande frequenti";
@@ -513,11 +531,11 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               </div>
             )}
 
-            {resolvedProductAttributes.length > 0 && (
+            {quickSpecs.length > 0 && (
               <div className="border border-border bg-card p-5 md:p-7">
                 <h2 className="text-lg font-semibold text-foreground">Specifiche rapide</h2>
                 <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
-                  {resolvedProductAttributes.map((attr) => (
+                  {quickSpecs.map((attr) => (
                     <div
                       key={`${attr.key}-${attr.value}`}
                       className="border border-border/70 bg-background px-3 py-2.5"
@@ -525,8 +543,15 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                         {attr.key}
                       </p>
-                      <p className="mt-1 text-[14px] font-medium leading-tight text-foreground">
-                        {attr.value}
+                      <p className="mt-1 flex items-center gap-2 text-[14px] font-medium leading-tight text-foreground">
+                        {attr.swatch && (
+                          <span
+                            aria-hidden="true"
+                            className="inline-block h-3.5 w-3.5 shrink-0 rounded-full border border-border/60"
+                            style={{ backgroundColor: attr.swatch }}
+                          />
+                        )}
+                        <span>{attr.value}</span>
                       </p>
                     </div>
                   ))}
@@ -926,24 +951,45 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             </AccordionTrigger>
             <AccordionContent className="pb-6">{careInfoContent}</AccordionContent>
           </AccordionItem>
-          <AccordionItem value="shipping">
-            <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
-              Spedizione e resi
-            </AccordionTrigger>
-            <AccordionContent className="pb-6 text-[15px] leading-7 text-muted-foreground">
-              <div className="space-y-3">
-                <p>
-                  Tutti gli ordini vengono preparati in vivaio con imballaggio protetto. La consegna standard richiede in media{" "}
-                  <strong className="font-semibold text-foreground">3-5 giorni lavorativi</strong> in Italia.
-                </p>
-                <p>
-                  Se il prodotto arriva danneggiato o non conforme, contattaci entro{" "}
-                  <strong className="font-semibold text-foreground">48 ore</strong> per una sostituzione o il rimborso
-                  completo.
-                </p>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
+          {resolvedCuriosity.length > 0 ? (
+            /* Curiosità (manuale) sostituisce visivamente "Spedizione e resi" quando valorizzato. */
+            <AccordionItem value="curiosita">
+              <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
+                Curiosità
+              </AccordionTrigger>
+              <AccordionContent className="pb-6">
+                <div className="border-l-2 border-primary/40 bg-muted/30 py-4 pl-5 pr-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                    Lo sapevi che
+                  </p>
+                  <div className="mt-2 space-y-3 text-[15px] leading-7 text-foreground/85">
+                    {resolvedCuriosity.map((paragraph, idx) => (
+                      <p key={idx}>{paragraph}</p>
+                    ))}
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ) : (
+            <AccordionItem value="shipping">
+              <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
+                Spedizione e resi
+              </AccordionTrigger>
+              <AccordionContent className="pb-6 text-[15px] leading-7 text-muted-foreground">
+                <div className="space-y-3">
+                  <p>
+                    Tutti gli ordini vengono preparati in vivaio con imballaggio protetto. La consegna standard richiede in media{" "}
+                    <strong className="font-semibold text-foreground">3-5 giorni lavorativi</strong> in Italia.
+                  </p>
+                  <p>
+                    Se il prodotto arriva danneggiato o non conforme, contattaci entro{" "}
+                    <strong className="font-semibold text-foreground">48 ore</strong> per una sostituzione o il rimborso
+                    completo.
+                  </p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
         </Accordion>
       </section>
 

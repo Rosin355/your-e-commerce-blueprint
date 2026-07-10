@@ -75,6 +75,11 @@ const DEFINITIONS: Definition[] = [
   // FAQ
   { namespace: "custom", key: "faq_title", name: "Titolo sezione FAQ", description: "Es. Domande piu frequenti sull'Iris.", type: "single_line_text_field" },
   { namespace: "custom", key: "faq_items", name: "FAQ prodotto", description: "JSON array [{question, answer}] per accordion FAQ nel PDP.", type: "json" },
+  // STEP B — CAMPI MANUALI CLIENTE (compilati a mano, non dall'AI)
+  { namespace: "custom", key: "ibridatore", name: "Ibridatore", description: "Ibridatore/creatore della varietà. Soprattutto per le rose. Mostrato nel PDP solo per prodotti rose e solo se valorizzato.", type: "single_line_text_field" },
+  { namespace: "custom", key: "colore_fiore", name: "Colore fiore", description: "Colore del fiore (es. rosa, bianco, giallo). Mostrato nelle specifiche rapide del PDP se valorizzato.", type: "single_line_text_field" },
+  { namespace: "custom", key: "colore_foglia", name: "Colore foglia", description: "Colore del fogliame (es. verde, verde scuro). Mostrato nelle specifiche rapide del PDP se valorizzato.", type: "single_line_text_field" },
+  { namespace: "custom", key: "curiosita", name: "Curiosità", description: "Testo editoriale manuale. Nel PDP sostituisce la sezione 'Spedizione e resi' quando valorizzato.", type: "multi_line_text_field" },
 ];
 
 const CREATE_MUTATION = /* GraphQL */ `

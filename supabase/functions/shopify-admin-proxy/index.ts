@@ -486,6 +486,11 @@ const METAFIELD_TYPES: Record<string, string> = {
   periodo_di_raccolta: "single_line_text_field",
   periodo_ottimale_di_potatura: "single_line_text_field",
   titolo_sezione_faq: "single_line_text_field",
+  // STEP B — campi manuali cliente
+  ibridatore: "single_line_text_field",
+  colore_fiore: "single_line_text_field",
+  colore_foglia: "single_line_text_field",
+  curiosita: "multi_line_text_field",
 };
 
 const DEFAULT_MAX_RETRIES = Number(Deno.env.get("SHOPIFY_METAFIELDS_MAX_RETRIES") ?? "3");
