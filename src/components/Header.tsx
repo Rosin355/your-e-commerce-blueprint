@@ -243,10 +243,12 @@ export const Header = () => {
                         width={44}
                         height={44}
                         loading="lazy"
-                        className="h-11 w-11 shrink-0 rounded-md object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                        decoding="async"
+                        className="h-11 w-11 shrink-0 rounded-lg object-cover ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.06] group-hover:brightness-105 group-hover:ring-primary/40"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                       />
                     ) : (
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/15 to-accent/10 text-primary/70 ring-1 ring-border/60">
                         <Leaf className="h-4 w-4" />
                       </span>
                     )}
