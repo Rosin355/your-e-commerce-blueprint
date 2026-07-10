@@ -12,6 +12,34 @@
  *  - Nuova top-level: "Conifere" (in attesa lista + foto da Marco)
  */
 
+/**
+ * Chiavi immagine risolte nei componenti (Header, HomeHeaderOverlay) tramite IMAGE_MAP.
+ * - Le prime 8 sono le immagini "megamenu" storiche (src/assets/megamenu/*.jpg).
+ * - Le successive sono le foto categoria dedicate (src/assets/categories/*.jpg).
+ */
+export type CategoryImageKey =
+  | "outdoorLiving"
+  | "evergreenGarden"
+  | "roseSelection"
+  | "roseGift"
+  | "citrus"
+  | "berries"
+  | "potsAccessories"
+  | "bulbsSeasonal"
+  | "alberi"
+  | "arbusti"
+  | "aromatiche"
+  | "conifere"
+  | "erbaceeGraminacee"
+  | "alberiDaFrutto"
+  | "pianteGrasse"
+  | "piantePalustri"
+  | "piccoliFrutti"
+  | "rampicanti"
+  | "rose"
+  | "roseRampicanti"
+  | "siepi";
+
 export interface CategorySubLink {
   /** Etichetta mostrata in UI */
   label: string;
@@ -19,6 +47,8 @@ export interface CategorySubLink {
   handle: string;
   /** Se true, la collezione Shopify NON esiste ancora e va creata (dry-run) */
   toCreate?: boolean;
+  /** Thumbnail opzionale mostrata accanto al link nel mega-menu (fallback grafico se assente) */
+  image?: CategoryImageKey;
 }
 
 export interface CategoryNode {
@@ -31,7 +61,7 @@ export interface CategoryNode {
   previewCards?: Array<{
     title: string;
     description: string;
-    imageKey: "outdoorLiving" | "evergreenGarden" | "roseSelection" | "roseGift" | "citrus" | "berries" | "potsAccessories" | "bulbsSeasonal";
+    imageKey: CategoryImageKey;
     href: string;
   }>;
   /** Se true, la collezione top-level Shopify va creata */
@@ -44,14 +74,14 @@ export const CATEGORIES: CategoryNode[] = [
     handle: "piante-da-esterno",
     description: "Per giardini, balconi, terrazzi e aiuole dal tono naturale e raffinato.",
     links: [
-      { label: "Arbusti", handle: "arbusti", toCreate: true },
-      { label: "Alberi", handle: "alberi", toCreate: true },
-      { label: "Erbacee perenni e graminacee", handle: "erbacee-perenni-graminacee", toCreate: true },
-      { label: "Piante da siepe", handle: "piante-da-siepe", toCreate: true },
-      { label: "Piante grasse e succulente", handle: "piante-grasse-succulente", toCreate: true },
-      { label: "Aromatiche", handle: "aromatiche", toCreate: true },
-      { label: "Rampicanti / arbusti a spalliera", handle: "rampicanti-arbusti-spalliera", toCreate: true },
-      { label: "Rampicanti", handle: "rampicanti" },
+      { label: "Arbusti", handle: "arbusti", toCreate: true, image: "arbusti" },
+      { label: "Alberi", handle: "alberi", toCreate: true, image: "alberi" },
+      { label: "Erbacee perenni e graminacee", handle: "erbacee-perenni-graminacee", toCreate: true, image: "erbaceeGraminacee" },
+      { label: "Piante da siepe", handle: "piante-da-siepe", toCreate: true, image: "siepi" },
+      { label: "Piante grasse e succulente", handle: "piante-grasse-succulente", toCreate: true, image: "pianteGrasse" },
+      { label: "Aromatiche", handle: "aromatiche", toCreate: true, image: "aromatiche" },
+      { label: "Rampicanti / arbusti a spalliera", handle: "rampicanti-arbusti-spalliera", toCreate: true, image: "rampicanti" },
+      { label: "Rampicanti", handle: "rampicanti", image: "rampicanti" },
       { label: "Sempreverdi", handle: "sempreverdi" },
     ],
     previewCards: [
@@ -64,11 +94,12 @@ export const CATEGORIES: CategoryNode[] = [
     handle: "rose",
     description: "Collezioni romantiche e profumate per chi cerca eleganza senza tempo.",
     links: [
-      { label: "Rose cespuglio", handle: "rose-cespuglio" },
-      { label: "Rose rampicanti", handle: "rose-rampicanti" },
-      { label: "Rose profumate", handle: "rose-profumate" },
-      { label: "Rose paesaggistiche", handle: "rose-paesaggistiche", toCreate: true },
-      { label: "Rose a fiore grande", handle: "rose-fiore-grande", toCreate: true },
+      { label: "Rose cespuglio", handle: "rose-cespuglio", image: "rose" },
+      { label: "Rose rampicanti", handle: "rose-rampicanti", image: "roseRampicanti" },
+      { label: "Rose profumate", handle: "rose-profumate", image: "rose" },
+      // Foto dedicata non ancora fornita → riuso temporaneo dello scatto generico "rose"
+      { label: "Rose paesaggistiche", handle: "rose-paesaggistiche", toCreate: true, image: "rose" },
+      { label: "Rose a fiore grande", handle: "rose-fiore-grande", toCreate: true, image: "rose" },
     ],
     previewCards: [
       { title: "Rose selezionate", description: "Una proposta pensata per roseti, ingressi e spazi esterni dal tono poetico.", imageKey: "roseSelection", href: "/collections/rose" },
@@ -80,12 +111,12 @@ export const CATEGORIES: CategoryNode[] = [
     handle: "piante-da-frutto",
     description: "Varietà decorative e produttive, perfette per esterni e terrazze.",
     links: [
-      { label: "Alberi da frutto", handle: "alberi-da-frutto", toCreate: true },
-      { label: "Piccoli frutti", handle: "piccoli-frutti" },
+      { label: "Alberi da frutto", handle: "alberi-da-frutto", toCreate: true, image: "alberiDaFrutto" },
+      { label: "Piccoli frutti", handle: "piccoli-frutti", image: "piccoliFrutti" },
     ],
     previewCards: [
-      { title: "Alberi da frutto", description: "Varietà selezionate per giardini produttivi e ornamentali.", imageKey: "berries", href: "/collections/alberi-da-frutto" },
-      { title: "Piccoli frutti", description: "Una proposta piacevole da coltivare e vivere all'aperto.", imageKey: "citrus", href: "/collections/piccoli-frutti" },
+      { title: "Alberi da frutto", description: "Varietà selezionate per giardini produttivi e ornamentali.", imageKey: "alberiDaFrutto", href: "/collections/alberi-da-frutto" },
+      { title: "Piccoli frutti", description: "Una proposta piacevole da coltivare e vivere all'aperto.", imageKey: "piccoliFrutti", href: "/collections/piccoli-frutti" },
     ],
   },
   {
@@ -95,7 +126,7 @@ export const CATEGORIES: CategoryNode[] = [
     toCreate: true,
     links: [],
     previewCards: [
-      { title: "Conifere", description: "Collezione in arrivo, curata con Marco.", imageKey: "evergreenGarden", href: "/collections/conifere" },
+      { title: "Conifere", description: "Collezione in arrivo, curata con Marco.", imageKey: "conifere", href: "/collections/conifere" },
     ],
   },
   {
@@ -103,10 +134,11 @@ export const CATEGORIES: CategoryNode[] = [
     handle: "all",
     description: "Dettagli complementari per completare con gusto il tuo spazio verde.",
     links: [
-      { label: "Vasi da esterno", handle: "vasi-da-esterno" },
-      { label: "Accessori", handle: "accessori" },
-      { label: "Aromatiche da esterno", handle: "aromatiche-da-esterno" },
-      { label: "Bulbi", handle: "bulbi", toCreate: true },
+      { label: "Vasi da esterno", handle: "vasi-da-esterno", image: "potsAccessories" },
+      { label: "Accessori", handle: "accessori", image: "potsAccessories" },
+      { label: "Aromatiche da esterno", handle: "aromatiche-da-esterno", image: "aromatiche" },
+      // Foto dedicata non ancora fornita → riuso temporaneo dello scatto generico "bulbi stagionali"
+      { label: "Bulbi", handle: "bulbi", toCreate: true, image: "bulbsSeasonal" },
     ],
     previewCards: [
       { title: "Vasi e accessori", description: "Forme, materie e dettagli pensati per terrazzi e balconi curati.", imageKey: "potsAccessories", href: "/collections/vasi-da-esterno" },

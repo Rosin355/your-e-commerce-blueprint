@@ -7,26 +7,8 @@ import { AccountButton } from "./AccountButton";
 import { useState } from "react";
 import logoOnlineGardenAsset from "@/assets/logo-online-garden-v2.png.asset.json";
 const logoOnlineGarden = logoOnlineGardenAsset.url;
-import outdoorLivingImg from "@/assets/megamenu/outdoor-living.jpg";
-import evergreenGardenImg from "@/assets/megamenu/evergreen-garden.jpg";
-import roseSelectionImg from "@/assets/megamenu/rose-selection.jpg";
-import roseGiftImg from "@/assets/megamenu/rose-gift.jpg";
-import citrusImg from "@/assets/megamenu/citrus.jpg";
-import berriesImg from "@/assets/megamenu/berries.jpg";
-import potsAccessoriesImg from "@/assets/megamenu/pots-accessories.jpg";
-import bulbsSeasonalImg from "@/assets/megamenu/bulbs-seasonal.jpg";
 import { CATEGORIES, collectionHref } from "@/config/categories";
-
-const IMAGE_MAP = {
-  outdoorLiving: outdoorLivingImg,
-  evergreenGarden: evergreenGardenImg,
-  roseSelection: roseSelectionImg,
-  roseGift: roseGiftImg,
-  citrus: citrusImg,
-  berries: berriesImg,
-  potsAccessories: potsAccessoriesImg,
-  bulbsSeasonal: bulbsSeasonalImg,
-} as const;
+import { CATEGORY_IMAGES } from "@/config/categoryImages";
 
 export const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,11 +18,15 @@ export const Header = () => {
     label: cat.label,
     href: collectionHref(cat.handle),
     description: cat.description,
-    links: cat.links,
+    links: cat.links.map((link) => ({
+      label: link.label,
+      handle: link.handle,
+      image: link.image ? CATEGORY_IMAGES[link.image] : undefined,
+    })),
     previewCards: (cat.previewCards ?? []).map((card) => ({
       title: card.title,
       description: card.description,
-      image: IMAGE_MAP[card.imageKey],
+      image: CATEGORY_IMAGES[card.imageKey],
       href: card.href,
     })),
   }));
@@ -248,9 +234,23 @@ export const Header = () => {
                   <a
                     key={link.handle}
                     href={collectionHref(link.handle)}
-                    className="flex items-center justify-between border-b border-border/60 py-2.5 text-sm text-foreground/88 transition-colors hover:text-primary-dark"
+                    className="group flex items-center gap-3 border-b border-border/60 py-2 text-sm text-foreground/88 transition-colors hover:text-primary-dark"
                   >
-                    <span>{link.label}</span>
+                    {link.image ? (
+                      <img
+                        src={link.image}
+                        alt={link.label}
+                        width={44}
+                        height={44}
+                        loading="lazy"
+                        className="h-11 w-11 shrink-0 rounded-md object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                      />
+                    ) : (
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                        <Leaf className="h-4 w-4" />
+                      </span>
+                    )}
+                    <span className="flex-1">{link.label}</span>
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </a>
                 ))}

@@ -33,3 +33,7 @@ deno.lock
 *.sw?
 sync/.env
 sync/out/
+
+# Immagini categoria originali (iStock, ~180MB) — in build servono solo le versioni
+# ottimizzate in src/assets/categories/. Tenere gli originali fuori dal repo.
+src/assets/foto home/

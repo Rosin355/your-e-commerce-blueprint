@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Mail, Menu, Search, SunMedium, User, X } from "lucide-react";
+import { ChevronRight, Leaf, Mail, Menu, Search, SunMedium, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -8,19 +8,13 @@ import { AccountButton } from "@/components/AccountButton";
 import { CartDrawer } from "@/components/CartDrawer";
 import logoOnlineGardenAsset from "@/assets/logo-online-garden-v2.png.asset.json";
 const logoOnlineGarden = logoOnlineGardenAsset.url;
-import outdoorLivingImg from "@/assets/megamenu/outdoor-living.jpg";
-import evergreenGardenImg from "@/assets/megamenu/evergreen-garden.jpg";
-import roseSelectionImg from "@/assets/megamenu/rose-selection.jpg";
-import roseGiftImg from "@/assets/megamenu/rose-gift.jpg";
-import citrusImg from "@/assets/megamenu/citrus.jpg";
-import berriesImg from "@/assets/megamenu/berries.jpg";
-import potsAccessoriesImg from "@/assets/megamenu/pots-accessories.jpg";
-import bulbsSeasonalImg from "@/assets/megamenu/bulbs-seasonal.jpg";
 import { CATEGORIES, collectionHref } from "@/config/categories";
+import { CATEGORY_IMAGES } from "@/config/categoryImages";
 
 interface NavLink {
   label: string;
   href: string;
+  image?: string;
 }
 
 interface PreviewCard {
@@ -41,17 +35,6 @@ interface NavItem {
   previewCards: PreviewCard[];
 }
 
-const IMAGE_MAP = {
-  outdoorLiving: outdoorLivingImg,
-  evergreenGarden: evergreenGardenImg,
-  roseSelection: roseSelectionImg,
-  roseGift: roseGiftImg,
-  citrus: citrusImg,
-  berries: berriesImg,
-  potsAccessories: potsAccessoriesImg,
-  bulbsSeasonal: bulbsSeasonalImg,
-} as const;
-
 const DEFAULT_TONES = [
   "from-[#e8dfcf] via-[#d7c9b3] to-[#c7b08a]",
   "from-[#6b7f51] via-[#495a39] to-[#2e3a27]",
@@ -63,13 +46,17 @@ const navigationItems: NavItem[] = CATEGORIES.map((cat) => ({
   title: cat.label,
   description: cat.description,
   catalogHref: collectionHref(cat.handle),
-  links: cat.links.map((link) => ({ label: link.label, href: collectionHref(link.handle) })),
+  links: cat.links.map((link) => ({
+    label: link.label,
+    href: collectionHref(link.handle),
+    image: link.image ? CATEGORY_IMAGES[link.image] : undefined,
+  })),
   previewCards: (cat.previewCards ?? []).map((card, idx) => ({
     title: card.title,
     description: card.description,
     tone: DEFAULT_TONES[idx % DEFAULT_TONES.length],
     href: card.href,
-    image: IMAGE_MAP[card.imageKey],
+    image: CATEGORY_IMAGES[card.imageKey],
   })),
 }));
 
@@ -170,9 +157,23 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                         <Link
                           key={link.label}
                           to={link.href}
-                          className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-white/86 transition-colors hover:text-white"
+                          className="group flex items-center gap-3 border-b border-white/10 py-2 text-sm text-white/86 transition-colors hover:text-white"
                         >
-                          <span>{link.label}</span>
+                          {link.image ? (
+                            <img
+                              src={link.image}
+                              alt={link.label}
+                              width={40}
+                              height={40}
+                              loading="lazy"
+                              className="h-10 w-10 shrink-0 rounded-md object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                            />
+                          ) : (
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white/10 text-white/50">
+                              <Leaf className="h-4 w-4" />
+                            </span>
+                          )}
+                          <span className="flex-1">{link.label}</span>
                           <ChevronRight className="h-4 w-4 text-white/52" />
                         </Link>
                       ))}
