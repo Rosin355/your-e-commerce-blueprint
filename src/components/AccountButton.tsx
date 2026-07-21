@@ -18,7 +18,7 @@ export const AccountButton = () => {
   if (isLoading) return null;
 
   return (
-    <Button variant="ghost" size="sm" className="hidden md:flex gap-2" onClick={handleClick}>
+    <Button variant="ghost" size="sm" className="hidden md:inline-flex gap-2" onClick={handleClick} aria-label="Il mio account">
       <User className="h-5 w-5" />
       <span className="uppercase text-xs font-semibold">
         {user?.user_metadata?.first_name || (user ? 'Account' : 'Accedi / Registrati')}
