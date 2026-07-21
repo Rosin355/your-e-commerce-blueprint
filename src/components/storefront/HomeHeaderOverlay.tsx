@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, Leaf, Mail, Menu, Search, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,11 +118,34 @@ const BrandMark = ({ compact = false }: { compact?: boolean }) => {
 
 export type HomeHeaderOverlayVariant = "hero" | "page";
 export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOverlayVariant }) => {
+  const navigate = useNavigate();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isDesktopSearchOpen, setIsDesktopSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [activeItem, setActiveItem] = useState<NavItem | null>(null);
+
+  /** Handler unico della ricerca (desktop + mobile): naviga ai risultati su /collections/all?q=… */
+  const submitSearch = () => {
+    const term = searchValue.trim();
+    if (!term) return;
+    setIsDesktopSearchOpen(false);
+    setIsMobileSearchOpen(false);
+    setIsMobileNavOpen(false);
+    setSearchValue("");
+    navigate(`/collections/all?q=${encodeURIComponent(term)}`);
+  };
+
+  // Escape chiude mega-menu e dropdown ricerca (accessibilità tastiera)
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setActiveItem(null);
+      setIsDesktopSearchOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   return (
     <header
@@ -212,27 +235,30 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
             </div>
           </div>
 
-          {/* Desktop search dropdown */}
+          {/* Desktop search dropdown — submit reale via form (Enter o bottone) */}
           {isDesktopSearchOpen ? (
             <div className="absolute inset-x-0 top-full mt-2 z-50">
               <div className="mx-auto max-w-[1600px] px-6">
-                <div className="ml-auto max-w-xl rounded-2xl border border-border bg-white p-3 shadow-lg">
+                <form
+                  role="search"
+                  onSubmit={(e) => { e.preventDefault(); submitSearch(); }}
+                  className="ml-auto max-w-xl rounded-2xl border border-border bg-white p-3 shadow-lg"
+                >
                   <div className="flex items-center gap-2">
-                    <Search className="ml-2 h-5 w-5 text-primary-dark" />
+                    <Search className="ml-2 h-5 w-5 text-primary-dark" aria-hidden="true" />
                     <Input
                       autoFocus
                       value={searchValue}
                       onChange={(e) => setSearchValue(e.target.value)}
                       placeholder="Cerca piante, vasi, idee regalo…"
+                      aria-label="Cerca nel catalogo"
                       className="h-11 border-0 bg-transparent text-base shadow-none focus-visible:ring-0"
                     />
-                    <Button
-                      className="h-11 rounded-full px-5 text-sm font-semibold"
-                      onClick={() => console.log("Search:", searchValue)}
-                    >
+                    <Button type="submit" className="h-11 rounded-full px-5 text-sm font-semibold">
                       Cerca
                     </Button>
                     <Button
+                      type="button"
                       variant="ghost"
                       size="icon"
                       className="h-11 w-11 rounded-full"
@@ -242,16 +268,19 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                       <X className="h-5 w-5" />
                     </Button>
                   </div>
-                </div>
+                </form>
               </div>
             </div>
           ) : null}
 
           {activeItem ? (
-            /* Flush sotto l'header (niente gap che lasci intravedere la hero) */
+            /* Flush sotto l'header (niente gap che lasci intravedere la hero).
+               max-h = viewport dinamica − announcement (36px) − header (~68px) − margine:
+               il pannello scrolla al suo interno (overscroll-contain evita lo scroll pagina)
+               così ultime voci e "Vai al catalogo" restano sempre raggiungibili. */
             <div className="absolute inset-x-0 top-full">
               <div className="mx-auto max-w-[1600px] px-6">
-                <div className="grid grid-cols-[0.92fr_1.08fr] gap-10 rounded-b-2xl border border-border bg-white px-8 py-8 shadow-lg">
+                <div className="grid max-h-[calc(100dvh-9.5rem)] grid-cols-[0.92fr_1.08fr] gap-10 overflow-y-auto overscroll-contain rounded-b-2xl border border-border bg-white px-8 py-8 pb-10 shadow-lg">
                   <div className="flex flex-col justify-between gap-8">
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Categorie</p>
@@ -263,6 +292,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                         <Link
                           key={link.label}
                           to={link.href}
+                          onClick={() => setActiveItem(null)}
                           className="group flex items-center gap-3 rounded-lg border-b border-border/50 py-2.5 pr-2 text-[15px] font-medium text-foreground transition-colors hover:bg-muted/60 hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                         >
                           {link.image ? (
@@ -289,6 +319,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                     </div>
                     <Link
                       to={activeItem.catalogHref}
+                      onClick={() => setActiveItem(null)}
                       className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-5 py-2.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-primary-foreground shadow-sm transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                     >
                       Vai al catalogo
@@ -301,6 +332,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                       <Link
                         key={card.title}
                         to={card.href}
+                        onClick={() => setActiveItem(null)}
                         className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-500 hover:shadow-lg hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                       >
                         <div className="relative aspect-[4/5] w-full overflow-hidden">
@@ -348,11 +380,13 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                   <Menu className="h-6 w-6" strokeWidth={2.25} />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[92%] max-w-sm border-border bg-background">
-                <SheetHeader>
+              {/* Drawer: header fisso + body scrollabile (flex-1 min-h-0) così tutte le
+                  categorie e il contatto email in fondo restano raggiungibili. */}
+              <SheetContent side="left" className="flex h-full w-[92%] max-w-sm flex-col overflow-hidden border-border bg-background">
+                <SheetHeader className="shrink-0">
                   <SheetTitle className="font-heading text-2xl text-primary-dark">Online Garden</SheetTitle>
                 </SheetHeader>
-                <div className="mt-6 space-y-4">
+                <div className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain pb-[max(1.5rem,env(safe-area-inset-bottom))] pr-1">
                   {navigationItems.map((item) => (
                     <div key={item.label} className="rounded-2xl border border-border bg-card p-2">
                       {item.isComingSoon ? (
@@ -464,22 +498,24 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               <span>Cerca piante, vasi, idee regalo…</span>
             </button>
           ) : (
-            <div className="mt-3 flex items-center gap-2 rounded-full border-2 border-primary/30 bg-white p-1.5 shadow-soft">
-              <Search className="ml-2 h-5 w-5 text-primary-dark" />
+            <form
+              role="search"
+              onSubmit={(event) => { event.preventDefault(); submitSearch(); }}
+              className="mt-3 flex items-center gap-2 rounded-full border-2 border-primary/30 bg-white p-1.5 shadow-soft"
+            >
+              <Search className="ml-2 h-5 w-5 text-primary-dark" aria-hidden="true" />
               <Input
                 autoFocus
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
                 placeholder="Cerca piante, vasi, idee regalo"
+                aria-label="Cerca nel catalogo"
                 className="h-10 border-0 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus-visible:ring-0"
               />
-              <Button
-                className="h-10 rounded-full px-4 text-sm font-semibold"
-                onClick={() => console.log("Search:", searchValue)}
-              >
+              <Button type="submit" className="h-10 rounded-full px-4 text-sm font-semibold">
                 Cerca
               </Button>
-            </div>
+            </form>
           )}
         </div>
       </div>

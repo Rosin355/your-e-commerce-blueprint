@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronDown, ChevronRight, ChevronUp, Loader2, SlidersHorizontal, X } from "lucide-react";
 import { SiteHeader } from "@/components/storefront/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
+import { fetchAllProducts, ShopifyProduct } from "@/lib/shopify";
 
 type SortKey =
   | "featured"
@@ -72,6 +72,30 @@ const defaultFilters: FilterState = {
 const productIsInStock = (product: ShopifyProduct) =>
   product.node.variants.edges.some((variant) => variant.node.availableForSale);
 
+// Tetto di sicurezza per il caricamento paginato del catalogo (blocchi da 250).
+// Il catalogo attuale è ~460 prodotti: la ricerca copre tutto. Se il catalogo
+// supererà questo tetto, alzare il valore o passare alla ricerca server-side.
+const CATALOG_FETCH_LIMIT = 1000;
+
+/** Normalizza per la ricerca: minuscole + rimozione accenti (es. "Novità" → "novita"). */
+const normalizeText = (value: string) =>
+  value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+/** Match su titolo, handle, product type, tag, vendor e descrizione. */
+const productMatchesQuery = (product: ShopifyProduct, normalizedQuery: string) => {
+  const { node } = product;
+  const haystack = [
+    node.title,
+    node.handle,
+    node.productType ?? "",
+    ...(node.tags ?? []),
+    node.vendor ?? "",
+    node.description ?? "",
+  ]
+    .join(" ");
+  return normalizeText(haystack).includes(normalizedQuery);
+};
+
 const readProductOptionValues = (product: ShopifyProduct, matcher: RegExp) => {
   const option = product.node.options.find((opt) => matcher.test(opt.name));
   return option?.values ?? [];
@@ -119,6 +143,8 @@ const countBy = <T,>(items: T[], key: (item: T) => string) => {
 
 const AllProducts = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = (searchParams.get("q") ?? "").trim();
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
@@ -141,8 +167,15 @@ const AllProducts = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const list = await fetchProducts(60);
-        if (active) setProducts(list);
+        const list = await fetchAllProducts(CATALOG_FETCH_LIMIT);
+        if (active) {
+          setProducts(list);
+          if (import.meta.env.DEV && list.length === CATALOG_FETCH_LIMIT) {
+            console.warn(
+              `[AllProducts] raggiunto il tetto di ${CATALOG_FETCH_LIMIT} prodotti: il catalogo potrebbe essere più grande — alzare il tetto o passare a ricerca server-side.`,
+            );
+          }
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -155,15 +188,27 @@ const AllProducts = () => {
     };
   }, []);
 
+  // La ricerca (q) restringe il set PRIMA dei filtri: stats e filtri lavorano sui risultati.
+  const searchScoped = useMemo(() => {
+    if (!searchQuery) return products;
+    const normalized = normalizeText(searchQuery);
+    return products.filter((product) => productMatchesQuery(product, normalized));
+  }, [products, searchQuery]);
+
+  const clearSearch = () => {
+    searchParams.delete("q");
+    setSearchParams(searchParams, { replace: true });
+  };
+
   const stats = useMemo(() => {
-    const inStock = products.filter(productIsInStock).length;
-    const outOfStock = products.length - inStock;
+    const inStock = searchScoped.filter(productIsInStock).length;
+    const outOfStock = searchScoped.length - inStock;
 
     const sizeOptions = new Map<string, number>();
     const colorOptions = new Map<string, number>();
     const priceList: number[] = [];
 
-    products.forEach((product) => {
+    searchScoped.forEach((product) => {
       const sizes = readProductOptionValues(product, /size|taglia|misura|formato/i);
       sizes.forEach((value) => {
         sizeOptions.set(value, (sizeOptions.get(value) || 0) + 1);
@@ -188,10 +233,10 @@ const AllProducts = () => {
       priceMinValue,
       priceMaxValue,
     };
-  }, [products]);
+  }, [searchScoped]);
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    return searchScoped.filter((product) => {
       const inStock = productIsInStock(product);
       if (filters.availability.length) {
         const wantsIn = filters.availability.includes("in");
@@ -218,14 +263,14 @@ const AllProducts = () => {
 
       return true;
     });
-  }, [filters, products]);
+  }, [filters, searchScoped]);
 
   const sortedProducts = useMemo(() => sortProducts(filteredProducts, sort), [filteredProducts, sort]);
   const visibleProducts = sortedProducts.slice(0, visibleCount);
 
   useEffect(() => {
     setVisibleCount(INITIAL_VISIBLE);
-  }, [filters, sort]);
+  }, [filters, sort, searchQuery]);
 
   const activeFilterCount =
     filters.availability.length +
@@ -456,13 +501,34 @@ const AllProducts = () => {
               Home
             </button>
             <ChevronRight className="h-3 w-3 opacity-60" />
-            <span className="text-foreground">Tutti i prodotti</span>
+            <span className="text-foreground">{searchQuery ? "Ricerca" : "Tutti i prodotti"}</span>
           </nav>
 
           <header className="py-10 md:py-14">
             <h1 className="font-heading text-[2.5rem] font-semibold leading-[1.05] text-foreground md:text-[3rem]">
-              Tutti i prodotti
+              {searchQuery ? (
+                <>Risultati per «{searchQuery}»</>
+              ) : (
+                "Tutti i prodotti"
+              )}
             </h1>
+            {searchQuery && (
+              <div className="mt-4 flex flex-wrap items-center gap-4" aria-live="polite">
+                <p className="text-[15px] text-muted-foreground">
+                  {loading
+                    ? "Ricerca in corso…"
+                    : `${searchScoped.length} prodott${searchScoped.length === 1 ? "o" : "i"} trovat${searchScoped.length === 1 ? "o" : "i"}`}
+                </p>
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline underline-offset-4 hover:text-primary-dark"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Cancella ricerca
+                </button>
+              </div>
+            )}
             <div className="mt-5 max-w-3xl text-[15px] leading-7 text-muted-foreground">
               <p>
                 Scopri il mondo Online Garden — piante da esterno, rose, piante da frutto e accessori scelti per dare
@@ -597,17 +663,31 @@ const AllProducts = () => {
                 </div>
               ) : sortedProducts.length === 0 ? (
                 <div className="border border-border bg-card p-10 text-center">
-                  <p className="text-base font-semibold text-foreground">Nessun prodotto trovato</p>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Prova a rimuovere qualche filtro per ampliare i risultati.
+                  <p className="text-base font-semibold text-foreground">
+                    {searchQuery ? `Nessun risultato per «${searchQuery}»` : "Nessun prodotto trovato"}
                   </p>
-                  <button
-                    type="button"
-                    onClick={resetFilters}
-                    className="mt-4 inline-flex items-center gap-2 border border-foreground px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-foreground hover:bg-foreground hover:text-background"
-                  >
-                    Rimuovi filtri
-                  </button>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {searchQuery
+                      ? "Controlla eventuali errori di battitura o prova con un termine più generico."
+                      : "Prova a rimuovere qualche filtro per ampliare i risultati."}
+                  </p>
+                  {searchQuery ? (
+                    <button
+                      type="button"
+                      onClick={clearSearch}
+                      className="mt-4 inline-flex items-center gap-2 border border-foreground px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-foreground hover:bg-foreground hover:text-background"
+                    >
+                      Cancella la ricerca
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={resetFilters}
+                      className="mt-4 inline-flex items-center gap-2 border border-foreground px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-foreground hover:bg-foreground hover:text-background"
+                    >
+                      Rimuovi filtri
+                    </button>
+                  )}
                 </div>
               ) : (
                 <>

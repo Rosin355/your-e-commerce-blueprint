@@ -19,11 +19,13 @@ const CollectionPage = () => {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     setNotFound(false);
+    setApiError(null);
     fetchCollectionByHandle(handle, 60)
       .then((res) => {
         if (!active) return;
@@ -38,7 +40,10 @@ const CollectionPage = () => {
       })
       .catch((err) => {
         console.error(err);
-        if (active) setNotFound(true);
+        if (active) {
+          setNotFound(true);
+          setApiError(err instanceof Error ? err.message : String(err));
+        }
       })
       .finally(() => active && setLoading(false));
     return () => {
@@ -55,6 +60,14 @@ const CollectionPage = () => {
 
       <main className="flex-1 pt-24 md:pt-28">
         <div className="container mx-auto max-w-[1280px] px-4">
+          {/* Diagnostica visibile SOLO in sviluppo (mai al cliente in produzione) */}
+          {import.meta.env.DEV && !loading && (
+            <div className="mt-3 rounded-md border border-dashed border-border bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
+              <span className="font-semibold">[DEV] </span>
+              handle: <code>{handle}</code> · collection: {notFound ? "MISSING" : "FOUND"} · prodotti: {products.length}
+              {apiError ? <> · errore Storefront: {apiError}</> : null}
+            </div>
+          )}
           <nav className="flex items-center gap-2 text-xs text-muted-foreground pt-4">
             <button type="button" onClick={() => navigate("/")} className="hover:text-foreground">
               Home

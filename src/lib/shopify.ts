@@ -54,10 +54,12 @@ export interface ShopifyProduct {
       name: string;
       values: string[];
     }>;
-    /** Shopify product type — usato per riconoscere le rose (Ibridatore). Assente nella query lista. */
+    /** Shopify product type — rose detection (PDP) e ricerca catalogo. */
     productType?: string | null;
-    /** Tag prodotto — fallback per riconoscere le rose. Assente nella query lista. */
+    /** Tag prodotto — rose detection (PDP) e ricerca catalogo. */
     tags?: string[] | null;
+    /** Vendor — usato dalla ricerca catalogo. */
+    vendor?: string | null;
     shortIntro?: { value: string; type?: string } | null;
     specialBullets?: { value: string; type?: string } | null;
     keyFeatures?: { value: string; type?: string } | null;
@@ -131,6 +133,9 @@ export const STOREFRONT_PRODUCTS_QUERY = `
             name
             values
           }
+          productType
+          tags
+          vendor
         }
       }
     }
@@ -219,6 +224,36 @@ export async function fetchProducts(first: number = 20, _query?: string): Promis
     console.error('Errore nel recupero dei prodotti:', error);
     throw error;
   }
+}
+
+// Variante paginata della query prodotti: stessa selezione campi, con cursore.
+const STOREFRONT_PRODUCTS_PAGE_QUERY = STOREFRONT_PRODUCTS_QUERY
+  .replace('query GetProducts($first: Int!, $query: String) {', 'query GetProductsPage($first: Int!, $query: String, $after: String) {')
+  .replace('products(first: $first, query: $query) {', 'products(first: $first, query: $query, after: $after) { pageInfo { hasNextPage endCursor }');
+
+/**
+ * Carica l'intero catalogo paginando a blocchi di 250 (limite Storefront API),
+ * fino a `maxTotal` come tetto di sicurezza. Usata dalla pagina "Tutti i prodotti"
+ * così la ricerca client-side copre davvero tutto il catalogo (oggi ~460 prodotti).
+ */
+export async function fetchAllProducts(maxTotal: number = 1000): Promise<ShopifyProduct[]> {
+  const all: ShopifyProduct[] = [];
+  let after: string | null = null;
+  try {
+    while (all.length < maxTotal) {
+      const pageSize = Math.min(250, maxTotal - all.length);
+      const sfData = await storefrontApiRequest(STOREFRONT_PRODUCTS_PAGE_QUERY, { first: pageSize, after });
+      const conn = sfData?.data?.products;
+      if (!conn) break;
+      all.push(...(conn.edges || []));
+      if (!conn.pageInfo?.hasNextPage || !conn.pageInfo?.endCursor) break;
+      after = conn.pageInfo.endCursor;
+    }
+  } catch (error) {
+    console.error('Errore nel recupero del catalogo completo:', error);
+    if (all.length === 0) throw error; // fallimento totale → propaga; parziale → restituisci ciò che c'è
+  }
+  return all;
 }
 
 export interface ShopifyCollectionMeta {
