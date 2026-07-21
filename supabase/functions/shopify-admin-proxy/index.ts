@@ -6,6 +6,7 @@ import {
   isHeadlessStorefrontConfigured,
   storefrontListProducts,
   storefrontGetProductByHandle,
+  shopifyStorefrontGraphQL,
 } from "../_shared/shopify-storefront-server.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
