@@ -140,7 +140,7 @@ export const CATEGORIES: CategoryNode[] = [
       { label: "Accessori", handle: "accessori", image: "potsAccessories" },
       { label: "Aromatiche da esterno", handle: "aromatiche", image: "aromatiche" },
       // Foto dedicata non ancora fornita → riuso temporaneo dello scatto generico "bulbi stagionali"
-      { label: "Bulbi", handle: "bulbi", toCreate: true, image: "bulbsSeasonal" },
+      { label: "Bulbi", handle: "bulbi", image: "bulbsSeasonal" },
     ],
     previewCards: [
       { title: "Vasi e accessori", description: "Forme, materie e dettagli pensati per terrazzi e balconi curati.", imageKey: "potsAccessories", href: "/collections/vasi-da-esterno" },
