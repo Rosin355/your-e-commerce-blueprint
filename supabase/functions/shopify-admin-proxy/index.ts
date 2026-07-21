@@ -1080,6 +1080,108 @@ serve(async (req) => {
         result = { results: out };
         break;
       }
+      case "diagnose_collections": {
+        // READ-ONLY: per ciascun handle interroga Admin GraphQL (esistenza, id, titolo,
+        // productsCount, publications/canali, sortOrder, ruleSet smart) e in parallelo
+        // Storefront `collectionByHandle` per verificare la visibilità pubblica.
+        // Non crea, non modifica, non pubblica nulla.
+        const handles: string[] = Array.isArray(data?.handles) ? data.handles : [];
+        const legacyHandles: string[] = Array.isArray(data?.legacyHandles) ? data.legacyHandles : [];
+        const adminShop =
+          Deno.env.get("SHOPIFY_STORE_PERMANENT_DOMAIN") ||
+          Deno.env.get("SHOPIFY_ADMIN_SHOP") ||
+          "";
+        const storefrontConfigured = isHeadlessStorefrontConfigured();
+
+        const adminQ = `query($handle: String!) {
+          collectionByHandle(handle: $handle) {
+            id
+            handle
+            title
+            updatedAt
+            sortOrder
+            templateSuffix
+            productsCount { count }
+            ruleSet { appliedDisjunctively rules { column condition relation } }
+            resourcePublicationsV2(first: 25) {
+              edges {
+                node {
+                  isPublished
+                  publishDate
+                  publication { id name }
+                }
+              }
+            }
+          }
+        }`;
+
+        const storefrontQ = `query($handle: String!) {
+          collection(handle: $handle) { id handle title }
+        }`;
+
+        async function inspect(handle: string) {
+          const out: any = { handle };
+          try {
+            const r: any = await shopifyAdminGraphQL(adminQ, { handle });
+            const c = r?.collectionByHandle;
+            if (!c) {
+              out.admin = { exists: false };
+            } else {
+              const pubs = (c.resourcePublicationsV2?.edges || []).map((e: any) => ({
+                name: e?.node?.publication?.name || null,
+                id: e?.node?.publication?.id || null,
+                isPublished: !!e?.node?.isPublished,
+                publishDate: e?.node?.publishDate || null,
+              }));
+              out.admin = {
+                exists: true,
+                id: c.id,
+                handle: c.handle,
+                title: c.title,
+                updatedAt: c.updatedAt,
+                sortOrder: c.sortOrder,
+                templateSuffix: c.templateSuffix || null,
+                productsCount: c.productsCount?.count ?? null,
+                type: c.ruleSet ? "smart" : "custom",
+                ruleSet: c.ruleSet || null,
+                publications: pubs,
+                publishedChannelsCount: pubs.filter((p: any) => p.isPublished).length,
+                publishedOnOnlineStore: pubs.some(
+                  (p: any) => p.isPublished && /online store/i.test(p.name || "")
+                ),
+              };
+            }
+          } catch (e: any) {
+            out.admin = { exists: false, error: String(e?.message || e) };
+          }
+          if (storefrontConfigured) {
+            try {
+              const s: any = await shopifyStorefrontGraphQL(storefrontQ, { handle });
+              out.storefront = s?.collection
+                ? { visible: true, id: s.collection.id, title: s.collection.title }
+                : { visible: false };
+            } catch (e: any) {
+              out.storefront = { visible: false, error: String(e?.message || e) };
+            }
+          } else {
+            out.storefront = { visible: null, error: "storefront_not_configured" };
+          }
+          return out;
+        }
+
+        const results: any[] = [];
+        for (const h of handles) results.push(await inspect(h));
+        const legacy: any[] = [];
+        for (const h of legacyHandles) legacy.push(await inspect(h));
+
+        result = {
+          adminShop,
+          storefrontConfigured,
+          results,
+          legacy,
+        };
+        break;
+      }
       case "create_collections": {
         // WRITE LIMITATA: crea SOLO collezioni con handle nella allowlist e SOLO se mancanti.
         // Niente delete/rename/assegnazione prodotti. Mai logga token.
