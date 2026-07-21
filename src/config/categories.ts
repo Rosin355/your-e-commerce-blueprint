@@ -114,7 +114,7 @@ export const CATEGORIES: CategoryNode[] = [
     handle: "piante-da-frutto",
     description: "Varietà decorative e produttive, perfette per esterni e terrazze.",
     links: [
-      { label: "Alberi da frutto", handle: "alberi-da-frutto", toCreate: true, image: "alberiDaFrutto" },
+      { label: "Alberi da frutto", handle: "alberi-da-frutto", image: "alberiDaFrutto" },
       { label: "Piccoli frutti", handle: "piccoli-frutti", image: "piccoliFrutti" },
     ],
     previewCards: [
