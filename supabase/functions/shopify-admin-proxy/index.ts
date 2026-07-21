@@ -1224,6 +1224,183 @@ serve(async (req) => {
         result = { created, already_exists, failed, skipped };
         break;
       }
+      case "migrate_collections": {
+        // WRITE LIMITATA E REVERSIBILE:
+        // - Copia prodotti da collezione legacy (source) a collezione pulita (dest).
+        // - Solo coppie nella allowlist ALLOWED_PAIRS.
+        // - Dest deve essere CUSTOM (ruleSet null): altrimenti abort per quella coppia.
+        // - Non rimuove nulla dalla source. Non modifica prodotti.
+        // - Se `publish` = true, dopo la copia pubblica dest su Online Store + Headless.
+        const ALLOWED_PAIRS: Record<string, string> = {
+          "piante-da-esterno-arbusti": "arbusti",
+          "piante-da-esterno-alberi": "alberi",
+          "erbacee-perenni-e-graminacee": "erbacee-perenni-graminacee",
+          "rampicanti-e-arbusti-a-spalliera": "rampicanti-arbusti-spalliera",
+          "piante-da-esterno-conifere": "conifere",
+        };
+        const items: Array<{ sourceHandle: string; destHandle: string }> =
+          Array.isArray(data?.items) ? data.items : [];
+        const doPublish: boolean = data?.publish !== false;
+        const dryRun: boolean = data?.dryRun === true;
+
+        // Query publications once (Online Store + Headless).
+        const pubsQ = `query { publications(first: 25) { edges { node { id name } } } }`;
+        let publications: Array<{ id: string; name: string }> = [];
+        try {
+          const pr: any = await shopifyAdminGraphQL(pubsQ);
+          publications = (pr?.publications?.edges || []).map((e: any) => ({
+            id: e?.node?.id,
+            name: e?.node?.name || "",
+          })).filter((p: any) => p.id);
+        } catch (e: any) {
+          publications = [];
+        }
+        const onlineStorePub = publications.find((p) => /online store/i.test(p.name));
+        const headlessPub = publications.find((p) => /headless/i.test(p.name) || /hydrogen/i.test(p.name));
+
+        const inspectQ = `query($handle: String!) {
+          collectionByHandle(handle: $handle) {
+            id handle title
+            ruleSet { appliedDisjunctively rules { column condition relation } }
+            productsCount { count }
+          }
+        }`;
+        const productsQ = `query($id: ID!, $cursor: String) {
+          collection(id: $id) {
+            products(first: 250, after: $cursor) {
+              edges { cursor node { id } }
+              pageInfo { hasNextPage endCursor }
+            }
+          }
+        }`;
+        const addM = `mutation($id: ID!, $productIds: [ID!]!) {
+          collectionAddProductsV2(id: $id, productIds: $productIds) {
+            job { id done }
+            userErrors { field message }
+          }
+        }`;
+        const publishM = `mutation($id: ID!, $input: [PublicationInput!]!) {
+          publishablePublish(id: $id, input: $input) {
+            userErrors { field message }
+          }
+        }`;
+
+        async function fetchAllProductIds(collectionId: string): Promise<string[]> {
+          const ids: string[] = [];
+          let cursor: string | null = null;
+          for (let i = 0; i < 200; i++) {
+            const r: any = await shopifyAdminGraphQL(productsQ, { id: collectionId, cursor });
+            const edges = r?.collection?.products?.edges || [];
+            for (const ed of edges) if (ed?.node?.id) ids.push(ed.node.id);
+            const pi = r?.collection?.products?.pageInfo;
+            if (!pi?.hasNextPage) break;
+            cursor = pi.endCursor;
+          }
+          return ids;
+        }
+
+        const report: any[] = [];
+        for (const it of items) {
+          const src = it?.sourceHandle;
+          const dst = it?.destHandle;
+          const entry: any = { sourceHandle: src, destHandle: dst };
+          if (!src || !dst || ALLOWED_PAIRS[src] !== dst) {
+            entry.status = "skipped";
+            entry.reason = "pair_not_in_allowlist";
+            report.push(entry);
+            continue;
+          }
+          try {
+            const [sr, dr]: any = await Promise.all([
+              shopifyAdminGraphQL(inspectQ, { handle: src }),
+              shopifyAdminGraphQL(inspectQ, { handle: dst }),
+            ]);
+            const source = sr?.collectionByHandle;
+            const dest = dr?.collectionByHandle;
+            if (!source) { entry.status = "error"; entry.reason = "source_not_found"; report.push(entry); continue; }
+            if (!dest)   { entry.status = "error"; entry.reason = "dest_not_found";   report.push(entry); continue; }
+            entry.sourceId = source.id;
+            entry.destId = dest.id;
+            entry.sourceType = source.ruleSet ? "smart" : "custom";
+            entry.destType = dest.ruleSet ? "smart" : "custom";
+            if (dest.ruleSet) {
+              entry.status = "aborted";
+              entry.reason = "dest_is_smart_collection_cannot_add_products";
+              report.push(entry);
+              continue;
+            }
+            const [sourceIds, destIds] = await Promise.all([
+              fetchAllProductIds(source.id),
+              fetchAllProductIds(dest.id),
+            ]);
+            const destSet = new Set(destIds);
+            const missing = sourceIds.filter((id) => !destSet.has(id));
+            entry.sourceCount = sourceIds.length;
+            entry.destCountBefore = destIds.length;
+            entry.missingCount = missing.length;
+            entry.alreadyPresent = sourceIds.length - missing.length;
+
+            if (dryRun) {
+              entry.status = "dry_run";
+              report.push(entry);
+              continue;
+            }
+
+            const added: string[] = [];
+            const failed: any[] = [];
+            // batches of 250 (Shopify limit for collectionAddProductsV2)
+            for (let i = 0; i < missing.length; i += 250) {
+              const batch = missing.slice(i, i + 250);
+              try {
+                const ar: any = await shopifyAdminGraphQL(addM, { id: dest.id, productIds: batch });
+                const ue = ar?.collectionAddProductsV2?.userErrors || [];
+                if (ue.length) failed.push({ batchStart: i, userErrors: ue });
+                else added.push(...batch);
+              } catch (e: any) {
+                failed.push({ batchStart: i, error: String(e?.message || e) });
+              }
+            }
+            entry.addedCount = added.length;
+            entry.failedBatches = failed;
+
+            // Publications
+            if (doPublish && failed.length === 0) {
+              const pubInput: Array<{ publicationId: string }> = [];
+              if (onlineStorePub) pubInput.push({ publicationId: onlineStorePub.id });
+              if (headlessPub)    pubInput.push({ publicationId: headlessPub.id });
+              if (pubInput.length) {
+                try {
+                  const pr: any = await shopifyAdminGraphQL(publishM, { id: dest.id, input: pubInput });
+                  const ue = pr?.publishablePublish?.userErrors || [];
+                  entry.publishedTo = pubInput.map((p) => {
+                    const pub = publications.find((x) => x.id === p.publicationId);
+                    return pub?.name || p.publicationId;
+                  });
+                  if (ue.length) entry.publishErrors = ue;
+                } catch (e: any) {
+                  entry.publishError = String(e?.message || e);
+                }
+              } else {
+                entry.publishError = "no_publications_found";
+              }
+            }
+            entry.status = failed.length ? "partial" : "ok";
+            report.push(entry);
+          } catch (e: any) {
+            entry.status = "error";
+            entry.reason = String(e?.message || e);
+            report.push(entry);
+          }
+        }
+
+        result = {
+          publications: publications.map((p) => ({ id: p.id, name: p.name })),
+          onlineStorePublicationId: onlineStorePub?.id || null,
+          headlessPublicationId: headlessPub?.id || null,
+          report,
+        };
+        break;
+      }
 
       default:
         return jsonResponse({ success: false, error: "Azione non valida" }, 400);

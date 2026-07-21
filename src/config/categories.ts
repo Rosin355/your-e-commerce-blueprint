@@ -74,13 +74,13 @@ export const CATEGORIES: CategoryNode[] = [
     handle: "piante-da-esterno",
     description: "Per giardini, balconi, terrazzi e aiuole dal tono naturale e raffinato.",
     links: [
-      { label: "Arbusti", handle: "arbusti", toCreate: true, image: "arbusti" },
-      { label: "Alberi", handle: "alberi", toCreate: true, image: "alberi" },
-      { label: "Erbacee perenni e graminacee", handle: "erbacee-perenni-graminacee", toCreate: true, image: "erbaceeGraminacee" },
+      { label: "Arbusti", handle: "arbusti", image: "arbusti" },
+      { label: "Alberi", handle: "alberi", image: "alberi" },
+      { label: "Erbacee perenni e graminacee", handle: "erbacee-perenni-graminacee", image: "erbaceeGraminacee" },
       { label: "Piante da siepe", handle: "piante-da-siepe", toCreate: true, image: "siepi" },
       { label: "Piante grasse e succulente", handle: "piante-grasse-succulente", toCreate: true, image: "pianteGrasse" },
-      { label: "Aromatiche", handle: "aromatiche", toCreate: true, image: "aromatiche" },
-      { label: "Rampicanti / arbusti a spalliera", handle: "rampicanti-arbusti-spalliera", toCreate: true, image: "rampicanti" },
+      { label: "Aromatiche", handle: "aromatiche", image: "aromatiche" },
+      { label: "Rampicanti / arbusti a spalliera", handle: "rampicanti-arbusti-spalliera", image: "rampicanti" },
       { label: "Rampicanti", handle: "rampicanti", image: "rampicanti" },
       { label: "Sempreverdi", handle: "sempreverdi" },
     ],
@@ -126,7 +126,6 @@ export const CATEGORIES: CategoryNode[] = [
     label: "Conifere",
     handle: "conifere",
     description: "Sempreverdi strutturali per giardini di carattere — selezione in arrivo.",
-    toCreate: true,
     links: [],
     previewCards: [
       { title: "Conifere", description: "Collezione in arrivo, curata con Marco.", imageKey: "conifere", href: "/collections/conifere" },
@@ -139,7 +138,7 @@ export const CATEGORIES: CategoryNode[] = [
     links: [
       { label: "Vasi da esterno", handle: "vasi-da-esterno", image: "potsAccessories" },
       { label: "Accessori", handle: "accessori", image: "potsAccessories" },
-      { label: "Aromatiche da esterno", handle: "aromatiche-da-esterno", image: "aromatiche" },
+      { label: "Aromatiche da esterno", handle: "aromatiche", image: "aromatiche" },
       // Foto dedicata non ancora fornita → riuso temporaneo dello scatto generico "bulbi stagionali"
       { label: "Bulbi", handle: "bulbi", toCreate: true, image: "bulbsSeasonal" },
     ],
