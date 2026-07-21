@@ -138,7 +138,7 @@ export const CATEGORIES: CategoryNode[] = [
     links: [
       { label: "Vasi da esterno", handle: "vasi-da-esterno", image: "potsAccessories" },
       { label: "Accessori", handle: "accessori", image: "potsAccessories" },
-      { label: "Aromatiche da esterno", handle: "aromatiche-da-esterno", image: "aromatiche" },
+      { label: "Aromatiche da esterno", handle: "aromatiche", image: "aromatiche" },
       // Foto dedicata non ancora fornita → riuso temporaneo dello scatto generico "bulbi stagionali"
       { label: "Bulbi", handle: "bulbi", toCreate: true, image: "bulbsSeasonal" },
     ],
