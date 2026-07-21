@@ -126,7 +126,6 @@ export const CATEGORIES: CategoryNode[] = [
     label: "Conifere",
     handle: "conifere",
     description: "Sempreverdi strutturali per giardini di carattere — selezione in arrivo.",
-    toCreate: true,
     links: [],
     previewCards: [
       { title: "Conifere", description: "Collezione in arrivo, curata con Marco.", imageKey: "conifere", href: "/collections/conifere" },
