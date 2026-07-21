@@ -9,12 +9,13 @@ import { CartDrawer } from "@/components/CartDrawer";
 import logoOnlineGardenAsset from "@/assets/logo-online-garden-v2.png.asset.json";
 const logoOnlineGarden = logoOnlineGardenAsset.url;
 import { CATEGORIES, collectionHref } from "@/config/categories";
-import { CATEGORY_IMAGES } from "@/config/categoryImages";
+import { CATEGORY_IMAGES, CATEGORY_IMAGE_POSITION } from "@/config/categoryImages";
 
 interface NavLink {
   label: string;
   href: string;
   image?: string;
+  imagePosition?: string;
 }
 
 interface PreviewCard {
@@ -23,6 +24,7 @@ interface PreviewCard {
   tone: string;
   href: string;
   image?: string;
+  imagePosition?: string;
 }
 
 interface NavItem {
@@ -50,6 +52,7 @@ const navigationItems: NavItem[] = CATEGORIES.map((cat) => ({
     label: link.label,
     href: collectionHref(link.handle),
     image: link.image ? CATEGORY_IMAGES[link.image] : undefined,
+    imagePosition: link.image ? CATEGORY_IMAGE_POSITION[link.image] : undefined,
   })),
   previewCards: (cat.previewCards ?? []).map((card, idx) => ({
     title: card.title,
@@ -57,6 +60,7 @@ const navigationItems: NavItem[] = CATEGORIES.map((cat) => ({
     tone: DEFAULT_TONES[idx % DEFAULT_TONES.length],
     href: card.href,
     image: CATEGORY_IMAGES[card.imageKey],
+    imagePosition: CATEGORY_IMAGE_POSITION[card.imageKey],
   })),
 }));
 
@@ -125,8 +129,11 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
       className={[
         // top-9 = altezza della HomeAnnouncementBar (h-9): l'header parte flush sotto la fascia promo
         variant === "hero" ? "absolute inset-x-0 top-9 z-40" : "sticky inset-x-0 top-9 z-40",
-        // Sfondo solido crema, testo verde scuro — leggibile su qualsiasi immagine hero
-        "bg-[hsl(var(--cream))]/97 backdrop-blur-md border-b border-border/70 shadow-soft text-foreground",
+        // Glass crema: semi-trasparente + blur/saturate quando backdrop-filter è supportato,
+        // fallback quasi-solido altrimenti. Testo verde scuro sempre leggibile.
+        "bg-[hsl(var(--cream))]/95 supports-[backdrop-filter]:bg-[hsl(var(--cream))]/[0.82]",
+        "backdrop-blur-xl backdrop-saturate-150",
+        "border-b border-white/55 shadow-[0_8px_30px_rgba(24,50,33,0.08)] text-foreground",
       ].join(" ")}
     >
       <div className="mx-auto max-w-[1600px] px-4 md:px-6">
@@ -134,15 +141,24 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
           className="hidden py-3 xl:block"
           onMouseLeave={() => setActiveItem(null)}
         >
-          <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
-            <nav className="flex items-center gap-4 2xl:gap-6" aria-label="Categorie principali">
+          {/* [LOGO] [MENU] [SPACER] [CERCA] [MAIL] [ACCOUNT] [CART] */}
+          <div className="flex items-center gap-4 2xl:gap-6">
+            <Link
+              to="/"
+              aria-label="Homepage di Online Garden"
+              className="shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+            >
+              <BrandMark compact />
+            </Link>
+
+            <nav className="flex items-center gap-1 2xl:gap-2" aria-label="Categorie principali">
               {navigationItems.map((item) => (
                 <button
                   key={item.label}
                   type="button"
                   onMouseEnter={() => !item.isComingSoon && setActiveItem(item)}
                   onFocus={() => !item.isComingSoon && setActiveItem(item)}
-                  className={`group relative inline-flex min-h-[44px] items-center gap-2 rounded-md px-2 py-1 text-left text-[15px] font-semibold leading-[1.25] tracking-[0.01em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 after:absolute after:inset-x-2 after:bottom-0.5 after:h-[2px] after:rounded-full after:bg-primary after:transition-transform after:duration-300 motion-reduce:after:transition-none ${
+                  className={`group relative inline-flex min-h-[42px] items-center gap-1.5 rounded-md px-2.5 py-1 text-left text-[14.5px] font-semibold leading-[1.2] tracking-[0.01em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 after:absolute after:inset-x-2.5 after:bottom-0.5 after:h-[2px] after:rounded-full after:bg-primary after:transition-transform after:duration-300 motion-reduce:after:transition-none ${
                     item.isComingSoon
                       ? "cursor-default text-muted-foreground after:hidden"
                       : activeItem?.label === item.label
@@ -151,12 +167,12 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                   }`}
                 >
                   {item.isComingSoon ? (
-                    <span className="leading-[1.25]">{item.label}</span>
+                    <span className="leading-[1.2]">{item.label}</span>
                   ) : (
                     <AnimatedNavLabel label={item.label} />
                   )}
                   {item.isComingSoon && (
-                    <span className="shrink-0 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-primary-dark">
+                    <span className="shrink-0 -translate-y-1 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-1 py-px text-[8.5px] font-bold uppercase tracking-[0.08em] text-primary-dark">
                       presto
                     </span>
                   )}
@@ -164,40 +180,31 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               ))}
             </nav>
 
-            <Link
-              to="/"
-              aria-label="Homepage di Online Garden"
-              className="justify-self-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-            >
-              <span className="2xl:hidden"><BrandMark compact /></span>
-              <span className="hidden 2xl:inline"><BrandMark /></span>
-            </Link>
-
-            <div className="flex items-center justify-self-end gap-2">
+            <div className="ml-auto flex items-center gap-2">
               {/* Pill Cerca — riusa lo stato/handler esistenti (isDesktopSearchOpen + searchValue) */}
               <button
                 type="button"
                 onClick={() => setIsDesktopSearchOpen((v) => !v)}
                 aria-label="Cerca piante"
                 aria-expanded={isDesktopSearchOpen}
-                className="inline-flex h-12 items-center gap-2.5 rounded-full border-2 border-primary/25 bg-white pl-4 pr-5 text-left text-[15px] font-medium text-foreground/70 shadow-soft transition-colors hover:border-primary/50 hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 2xl:min-w-[260px]"
+                className="inline-flex h-10 min-w-[160px] items-center gap-2 rounded-full border border-primary/30 bg-white pl-3.5 pr-4 text-left text-[14.5px] font-medium text-foreground/70 shadow-soft transition-colors hover:border-primary/55 hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 min-[1440px]:min-w-[200px]"
               >
-                <Search className="h-5 w-5 shrink-0 text-primary-dark" strokeWidth={2.25} />
-                <span className="2xl:hidden">Cerca</span>
-                <span className="hidden 2xl:inline">Cerca piante…</span>
+                <Search className="h-[18px] w-[18px] shrink-0 text-primary-dark" strokeWidth={2.25} />
+                <span className="min-[1440px]:hidden">Cerca</span>
+                <span className="hidden min-[1440px]:inline">Cerca piante…</span>
               </button>
 
               <a
                 href="mailto:info@onlinegarden.it"
-                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-white text-primary-dark transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-white text-primary-dark transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                 aria-label="Contattaci via email"
               >
-                <Mail className="h-5 w-5" strokeWidth={2.25} />
+                <Mail className="h-[18px] w-[18px]" strokeWidth={2.25} />
               </a>
 
-              {/* Account + Carrello: stessa riga, stessa dimensione (48px) di email */}
+              {/* Account + Carrello: stessa riga, stessa dimensione (40px) di email */}
               <div
-                className="flex items-center gap-2 [&_button>span]:hidden [&_button_svg]:h-5 [&_button_svg]:w-5 [&_button]:h-12 [&_button]:w-12 [&_button]:shrink-0 [&_button]:rounded-full [&_button]:border [&_button]:border-border [&_button]:bg-white [&_button]:text-primary-dark [&_button]:transition-colors [&_button]:hover:bg-muted"
+                className="flex items-center gap-2 [&_button>span]:hidden [&_button_svg]:h-[18px] [&_button_svg]:w-[18px] [&_button]:h-10 [&_button]:w-10 [&_button]:shrink-0 [&_button]:rounded-full [&_button]:border [&_button]:border-border [&_button]:bg-white [&_button]:text-primary-dark [&_button]:transition-colors [&_button]:hover:bg-muted"
               >
                 <AccountButton />
                 <CartDrawer />
@@ -266,6 +273,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                               height={44}
                               loading="lazy"
                               decoding="async"
+                              style={link.imagePosition ? { objectPosition: link.imagePosition } : undefined}
                               className="h-11 w-11 shrink-0 rounded-lg object-cover ring-1 ring-border transition-all duration-500 group-hover:scale-[1.06] group-hover:ring-primary/40"
                               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                             />
@@ -302,6 +310,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                               alt={card.title}
                               loading="lazy"
                               decoding="async"
+                              style={card.imagePosition ? { objectPosition: card.imagePosition } : undefined}
                               className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
                               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                             />
@@ -387,6 +396,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                                   height={36}
                                   loading="lazy"
                                   decoding="async"
+                                  style={link.imagePosition ? { objectPosition: link.imagePosition } : undefined}
                                   className="h-9 w-9 shrink-0 rounded-md object-cover ring-1 ring-border"
                                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                                 />

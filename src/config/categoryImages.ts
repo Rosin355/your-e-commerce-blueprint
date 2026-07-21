@@ -31,6 +31,17 @@ import roseImg from "@/assets/categories/rose.jpg";
 import roseRampicantiImg from "@/assets/categories/rose-rampicanti.jpg";
 import siepiImg from "@/assets/categories/siepi.jpg";
 
+/**
+ * object-position per le foto il cui soggetto non è centrato (crop object-cover
+ * su thumbnail quadrati e card 4/5). Config, non hardcoded nei componenti.
+ * Default per le chiavi assenti: "center".
+ */
+export const CATEGORY_IMAGE_POSITION: Partial<Record<CategoryImageKey, string>> = {
+  rampicanti: "center top", // glicine nella metà alta, sotto è scuro
+  roseRampicanti: "center 30%", // fioritura concentrata in alto
+  rose: "center 45%", // panorama largo: alza leggermente il punto di crop
+};
+
 export const CATEGORY_IMAGES: Record<CategoryImageKey, string> = {
   outdoorLiving: outdoorLivingImg,
   evergreenGarden: evergreenGardenImg,

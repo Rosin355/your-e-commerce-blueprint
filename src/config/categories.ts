@@ -85,8 +85,10 @@ export const CATEGORIES: CategoryNode[] = [
       { label: "Sempreverdi", handle: "sempreverdi" },
     ],
     previewCards: [
-      { title: "Vivere l'esterno", description: "Una selezione luminosa per spazi aperti pieni di carattere.", imageKey: "outdoorLiving", href: "/collections/piante-da-esterno" },
-      { title: "Giardino essenziale", description: "Varietà scelte per composizioni curate e leggere.", imageKey: "evergreenGarden", href: "/collections/sempreverdi" },
+      // Nessuna foto dedicata "piante da esterno"/"sempreverdi" in foto home:
+      // riuso coerente delle foto delle sotto-categorie (arbusti, erbacee).
+      { title: "Vivere l'esterno", description: "Una selezione luminosa per spazi aperti pieni di carattere.", imageKey: "arbusti", href: "/collections/piante-da-esterno" },
+      { title: "Giardino essenziale", description: "Varietà scelte per composizioni curate e leggere.", imageKey: "erbaceeGraminacee", href: "/collections/sempreverdi" },
     ],
   },
   {
@@ -102,8 +104,9 @@ export const CATEGORIES: CategoryNode[] = [
       { label: "Rose a fiore grande", handle: "rose-fiore-grande", toCreate: true, image: "rose" },
     ],
     previewCards: [
-      { title: "Rose selezionate", description: "Una proposta pensata per roseti, ingressi e spazi esterni dal tono poetico.", imageKey: "roseSelection", href: "/collections/rose" },
-      { title: "Roseto profumato", description: "Composizioni eleganti dai profumi intensi.", imageKey: "roseGift", href: "/collections/rose-profumate" },
+      { title: "Rose selezionate", description: "Una proposta pensata per roseti, ingressi e spazi esterni dal tono poetico.", imageKey: "rose", href: "/collections/rose" },
+      // "rose-profumate" non ha foto dedicata: riuso della foto rose rampicanti (coerente col tema)
+      { title: "Roseto profumato", description: "Composizioni eleganti dai profumi intensi.", imageKey: "roseRampicanti", href: "/collections/rose-profumate" },
     ],
   },
   {
