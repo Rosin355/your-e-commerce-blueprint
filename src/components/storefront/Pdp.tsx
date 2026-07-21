@@ -724,6 +724,11 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             )}
 
             {optionGroups.map((group) => {
+              // Nascondi l'opzione "Title / Default Title" di Shopify per prodotti senza varianti reali
+              const isDefaultTitleOnly =
+                group.values.length <= 1 &&
+                (/^title$/i.test(group.name) || /^default title$/i.test(group.selectedValue));
+              if (isDefaultTitleOnly) return null;
               const isColorGroup = /color|colore|tonalit/i.test(group.name);
               return (
                 <div key={group.name} className="mt-4">
@@ -845,7 +850,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               <p className="mt-2 text-xs text-muted-foreground">Gia nel carrello: {inCartQuantity}</p>
             )}
 
-            {resolvedPromoText && limitedOfferVisible && (
+            {false && resolvedPromoText && limitedOfferVisible && (
               <div
                 className="relative mt-4 border p-4 pr-10"
                 style={{ borderColor: "rgba(180,72,60,0.3)", backgroundColor: "rgba(180,72,60,0.06)" }}
