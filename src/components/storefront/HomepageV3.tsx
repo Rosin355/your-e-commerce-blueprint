@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, CheckCircle2, HeadphonesIcon, Leaf, Loader2, PackageCheck, ShieldCheck } from "lucide-react";
 import heroBotanicalSpring from "@/assets/hero-botanical-spring.jpg";
-import newsletterOutdoorTree from "@/assets/newsletter-outdoor-tree.png";
+// Journal: foto dedicate coerenti coi titoli (set cliente + legacy per vasi/bulbi)
+import journalRoseRampicanti from "@/assets/categories/rose-rampicanti.jpg";
+import journalAlberiDaFrutto from "@/assets/categories/alberi-da-frutto.jpg";
+import journalVasi from "@/assets/megamenu/pots-accessories.jpg";
+import journalBulbi from "@/assets/megamenu/bulbs-seasonal.jpg";
+// Banner newsletter: riuso della foto "alberi" del set cliente (già ottimizzata)
+import newsletterAlberi from "@/assets/categories/alberi.jpg";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -166,10 +172,10 @@ export const HomepageV3 = () => {
   const getImage = (index: number) => imagePool[index % imagePool.length] ?? heroBotanicalSpring;
 
   const journalCards = [
-    { date: "22.03.26", title: "Come combinare vasi da esterno per terrazzi armoniosi", category: "Ispirazioni", author: "Online Garden" },
-    { date: "19.03.26", title: "Rose e rampicanti: idee per ingressi e pergolati", category: "Giardino", author: "Online Garden" },
-    { date: "10.03.26", title: "Bulbi e fioriture stagionali per balconi pieni di colore", category: "Stagionalita", author: "Online Garden" },
-    { date: "08.03.26", title: "Agrumi e fruttiferi: come dare carattere agli spazi outdoor", category: "Vivaio", author: "Online Garden" },
+    { date: "22.03.26", title: "Come combinare vasi da esterno per terrazzi armoniosi", category: "Ispirazioni", author: "Online Garden", image: journalVasi },
+    { date: "19.03.26", title: "Rose e rampicanti: idee per ingressi e pergolati", category: "Giardino", author: "Online Garden", image: journalRoseRampicanti },
+    { date: "10.03.26", title: "Bulbi e fioriture stagionali per balconi pieni di colore", category: "Stagionalita", author: "Online Garden", image: journalBulbi },
+    { date: "08.03.26", title: "Agrumi e fruttiferi: come dare carattere agli spazi outdoor", category: "Vivaio", author: "Online Garden", image: journalAlberiDaFrutto },
   ];
 
   return (
@@ -282,10 +288,10 @@ export const HomepageV3 = () => {
         <div className="container mx-auto px-4">
           {sectionHeading("Ispirazioni", "Idee e consigli per il tuo verde esterno", "Leggi tutto")}
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {journalCards.map((item, index) => (
+            {journalCards.map((item) => (
               <article key={item.title} className="group border border-border/60 bg-card/55">
                 <div className="relative">
-                  <img src={getImage(index + 1)} alt={item.title} className="h-44 w-full object-cover" />
+                  <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="h-44 w-full object-cover" />
                   <span className="absolute left-2 top-2 text-[10px] font-medium tracking-[0.12em] text-foreground/70">{item.date}</span>
                 </div>
                 <div className="space-y-3 p-4">
@@ -307,7 +313,7 @@ export const HomepageV3 = () => {
       <section ref={newsletterSectionRef} className="bg-background pb-16 md:pb-24">
         <div className="relative isolate min-h-[460px] overflow-hidden md:min-h-[560px]">
           <img
-            src={newsletterOutdoorTree}
+            src={newsletterAlberi}
             alt="Selezione outdoor Online Garden"
             className="absolute inset-0 h-[120%] w-full object-cover will-change-transform"
             style={reduceMotion ? { transform: "translateY(-8%) scale(1.02)" } : { transform: `translateY(calc(-8% + ${newsletterParallax}px)) scale(1.02)` }}

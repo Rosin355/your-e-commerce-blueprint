@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import heroOutdoorCustom1 from "@/assets/hero-outdoor-custom-1.png";
-import heroOutdoorCustom2 from "@/assets/hero-outdoor-custom-2.png";
-import heroOutdoorCustom3 from "@/assets/hero-outdoor-custom-3.png";
+// Foto reali dal set cliente ("foto home/foto home"), ottimizzate in src/assets/hero/.
+import heroGiardinoCurato from "@/assets/hero/hero-giardino-curato.jpg";
+import heroTerrazziEsterni from "@/assets/hero/hero-terrazzi-esterni.jpg";
+import heroBalconeGiardino from "@/assets/hero/hero-balcone-giardino.jpg";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { SiteHeader } from "./SiteHeader";
 
@@ -48,21 +49,21 @@ const KEYFRAMES = `
 const slides = [
   {
     id: "spring",
-    image: heroOutdoorCustom1,
+    image: heroGiardinoCurato,
     title: "Piante da giardino,\nscelte con cura",
     subtitle:
       "Aceri, arbusti ornamentali e fioriture pensate per dare carattere al tuo giardino, stagione dopo stagione.",
   },
   {
     id: "editorial",
-    image: heroOutdoorCustom2,
+    image: heroTerrazziEsterni,
     title: "Idee verdi per terrazzi,\nbalconi e giardini",
     subtitle:
       "Una selezione premium pensata per esterni luminosi, fioriture stagionali e composizioni dal gusto vivaistico.",
   },
   {
     id: "terrace",
-    image: heroOutdoorCustom3,
+    image: heroBalconeGiardino,
     title: "Trasforma il tuo balcone\nin un giardino",
     subtitle:
       "Vasi di carattere, ortensie, agrumi e fioriture stagionali per vestire terrazzi e balconi con stile mediterraneo.",
