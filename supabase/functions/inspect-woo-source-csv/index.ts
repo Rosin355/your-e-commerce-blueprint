@@ -29,7 +29,7 @@ function detectDelimiter(headerLine: string): string {
 }
 
 // Full RFC4180-ish CSV parser (handles quoted fields with embedded newlines).
-function parseCsv(text: string, delimiter: string): string[][] {
+function parseCsv(text: string, delimiter: string, maxRows = 0): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
@@ -55,6 +55,7 @@ function parseCsv(text: string, delimiter: string): string[][] {
       field = "";
       rows.push(row);
       row = [];
+      if (maxRows && rows.length >= maxRows) return rows;
     } else if (ch === "\r") {
       // skip, handled by \n
     } else {
@@ -172,6 +173,7 @@ Deno.serve(async (req) => {
     const requestedPaths: string[] = body.path ? [body.path] : ALLOWED_PATHS;
     const limit: number = Math.min(Number(body.limit ?? 400), 4000);
     const skuFilter: string[] = Array.isArray(body.skuFilter) ? body.skuFilter : [];
+    const maxRows: number = Math.min(Number(body.maxRows ?? 600), 5000);
 
     for (const p of requestedPaths) {
       if (!ALLOWED_PATHS.includes(p)) {
@@ -212,7 +214,7 @@ Deno.serve(async (req) => {
       const text = new TextDecoder("utf-8").decode(buf);
       const firstLine = splitLines(text)[0] ?? "";
       const delimiter = detectDelimiter(firstLine);
-      const matrix = parseCsv(text, delimiter);
+      const matrix = parseCsv(text, delimiter, maxRows);
       const headers = (matrix[0] ?? []).map((h) => h.replace(/^\ufeff/, "").trim());
       const dataRows = matrix.slice(1).filter((r) => r.some((c) => (c ?? "").trim() !== ""));
       const objs = dataRows.map((r) => {
