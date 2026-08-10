@@ -133,8 +133,8 @@ export async function processOneBatch(job: ProductSyncJobRow): Promise<{ done: b
     let batchFailed = 0;
 
     try {
-      const count = await upsertCsvCatalogRows(batch, STORAGE_PATH);
-      batchPersisted = count;
+      const result = await upsertCsvCatalogRows(batch, STORAGE_PATH);
+      batchPersisted = result.written;
     } catch (batchError) {
       batchFailed = batch.length;
       report = appendLog(report, {

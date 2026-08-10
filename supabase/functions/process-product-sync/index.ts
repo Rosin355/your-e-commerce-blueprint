@@ -59,7 +59,7 @@ serve(async (request) => {
     logs.push({ level: "info", message: `Batch ${batchIndex + 1}/${totalBatches} — ${rows.length} righe`, timestamp: new Date().toISOString() });
 
     try {
-      persisted = await upsertCsvCatalogRows(rows, sourceFile);
+      persisted = (await upsertCsvCatalogRows(rows, sourceFile)).written;
     } catch (err) {
       failed = rows.length;
       logs.push({ level: "error", message: `Errore batch ${batchIndex + 1}: ${err instanceof Error ? err.message : String(err)}`, timestamp: new Date().toISOString() });

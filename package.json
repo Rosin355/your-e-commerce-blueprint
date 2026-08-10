@@ -23,7 +23,11 @@
     "sync:customers:convert": "node sync/customers-convert.mjs",
     "sync:customers:shopify:dry-run": "node sync/customers-sync-shopify.mjs --dry-run",
     "sync:customers:shopify": "node sync/customers-sync-shopify.mjs",
-    "shopify:create-metafields": "tsx scripts/create-shopify-metafield-definitions.ts"
+    "shopify:create-metafields": "tsx scripts/create-shopify-metafield-definitions.ts",
+    "test:catalog": "node --import tsx --test scripts/tests/*.test.ts",
+    "dryrun:import": "node --import tsx scripts/dry-run-import.mjs",
+    "backup:catalog": "node scripts/backup-catalog.mjs",
+    "snapshot:shopify-manual": "node scripts/snapshot-shopify-manual-metafields.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
