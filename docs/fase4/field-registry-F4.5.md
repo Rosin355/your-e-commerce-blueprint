@@ -157,11 +157,12 @@ Colonne: Field key · Label Admin · Sorgente · Proprietà · Editor · Visibil
 - Colonne `*_acf`: mappate per nome quando riconosciute, altrimenti confluiscono in `raw_unmapped`.
 - Colonne sconosciute: **mai scartate**, sempre in `raw_unmapped` + snapshot baseline.
 
-## 7. Output quantitativo F4.5
+## 7. Output quantitativo F4.5 (conteggi ufficiali, allineati al SQL applicato)
 
 | Metrica | Valore |
 |---|---|
-| Field definitions proposte | **62** |
+| Field definitions | **68** |
+| Gruppi | **11** |
 | main | 10 |
 | content | 14 |
 | botanical | 12 |
@@ -172,10 +173,36 @@ Colonne: Field key · Label Admin · Sorgente · Proprietà · Editor · Visibil
 | seo | 4 |
 | shopify_state | 9 |
 | other_imported | 1 |
-| system/history | 5 (in `shopify_state`/`system`) |
-| Campi `ai_allowed = true` | 26 |
-| Campi `manual_only = true` | 5 (`nome_comune`, `ibridatore`, `colore_fiore`, `colore_foglia`, `curiosita`) |
-| Campi `publishable = false` | 24 |
-| Campi `UNKNOWN_REVIEW_REQUIRED` | 3 (`seo_title`, `seo_description`, `optimized_description`) |
+| system | 5 |
+| Campi `ai_allowed = true` | **28** |
+| Campi `manual_only = true` | **5** (`nome_comune`, `ibridatore`, `colore_fiore`, `colore_foglia`, `curiosita`) |
+| Campi `publishable = false` | **25** |
+| Campi `review_policy = legacy_unverified` | **3** (`seo_title`, `seo_description`, `optimized_description`) |
 | Colonne legacy mai popolate | 4 |
 | Colonne legacy senza definizione dedicata | 0 |
+
+I conteggi 62 / 26 / 24 citati in versioni precedenti sono **obsoleti** e non vanno più usati.
+Le sei definizioni aggiuntive dei gruppi `shopify_state` e `system` sono parte integrante del registry:
+conservano dati realmente presenti nelle 460 righe di origine Shopify, restano consultabili e non sono
+mai pubblicabili automaticamente.
+
+## 8. Ownership e review policy dei campi editoriali legacy
+
+| Campo | Ownership | Review policy | Stato valori legacy |
+|---|---|---|---|
+| `seo_title` | AI_ASSISTED | `legacy_unverified` | conservato, badge «Da verificare», publish bloccato |
+| `seo_description` | AI_ASSISTED | `legacy_unverified` | conservato, badge «Da verificare», publish bloccato |
+| `optimized_description` | AI_ASSISTED | `legacy_unverified` | conservato, badge «Da verificare», publish bloccato |
+
+Tutti gli altri campi hanno `review_policy = 'none'`.
+
+## 9. Scomposizione delle 8.343 celle ambigue
+
+| Origine | Celle | Classificazione |
+|---|---:|---|
+| `seo_title` (2.706) + `seo_description` (2.706) + `optimized_description` (2.706) | **8.118** | AI_ASSISTED · `legacy_ai_unknown_approval` · `legacy_unverified` · publish bloccato · protetto |
+| 9 chiavi metafield AI valorizzate su 25 prodotti (`care_info`, `come_prendersene_cura`, `conosci_meglio_la_tua_pianta`, `difficolta_di_coltivazione`, `key_features`, `promo_text`, `short_intro`, `special_bullets`, `titolo_sezione_faq`) | **225** | AI_ASSISTED · `legacy_ai_unknown_approval` · `legacy_unverified` · publish bloccato · protetto |
+| **Totale** | **8.343** | nessun valore resta genericamente AMBIGUOUS |
+
+Escluse perché non ambigue: `nome_comune` (25) e i 4 metafield manuali su `OG_393883` → MANUAL, `approved`, protetti.
+Le 6 chiavi metafield AI presenti ma vuote (`nome_botanico`, `origini_e_habitat`, `periodo_di_*`) → `SKIP_EMPTY`.
