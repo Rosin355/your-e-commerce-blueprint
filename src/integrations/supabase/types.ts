@@ -101,6 +101,7 @@ export type Database = {
           field_key: string
           id: string
           model: string | null
+          product_id: string
           prompt_hint: string | null
           resolved_at: string | null
           resolved_by: string | null
@@ -117,6 +118,7 @@ export type Database = {
           field_key: string
           id?: string
           model?: string | null
+          product_id: string
           prompt_hint?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
@@ -133,6 +135,7 @@ export type Database = {
           field_key?: string
           id?: string
           model?: string | null
+          product_id?: string
           prompt_hint?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
@@ -142,6 +145,13 @@ export type Database = {
           suggestion_text?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pas_product_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "product_ai_suggestions_field_key_fkey"
             columns: ["field_key"]
@@ -160,6 +170,7 @@ export type Database = {
           is_locked: boolean
           origin: string
           parent_sku: string | null
+          product_id: string
           publish_state: string
           published_at: string | null
           sku: string
@@ -178,6 +189,7 @@ export type Database = {
           is_locked?: boolean
           origin?: string
           parent_sku?: string | null
+          product_id: string
           publish_state?: string
           published_at?: string | null
           sku: string
@@ -196,6 +208,7 @@ export type Database = {
           is_locked?: boolean
           origin?: string
           parent_sku?: string | null
+          product_id?: string
           publish_state?: string
           published_at?: string | null
           sku?: string
@@ -207,6 +220,13 @@ export type Database = {
           value_text?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pcv_product_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "product_current_values_field_key_fkey"
             columns: ["field_key"]
@@ -385,6 +405,7 @@ export type Database = {
           job_id: string | null
           new_value: Json | null
           previous_value: Json | null
+          product_id: string
           sku: string
         }
         Insert: {
@@ -399,6 +420,7 @@ export type Database = {
           job_id?: string | null
           new_value?: Json | null
           previous_value?: Json | null
+          product_id: string
           sku: string
         }
         Update: {
@@ -413,9 +435,17 @@ export type Database = {
           job_id?: string | null
           new_value?: Json | null
           previous_value?: Json | null
+          product_id?: string
           sku?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "pfh_product_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "product_field_history_batch_id_fkey"
             columns: ["batch_id"]
@@ -502,7 +532,8 @@ export type Database = {
           finished_at: string | null
           id: string
           idempotency_key: string
-          lock_key: string
+          lock_key: string | null
+          product_id: string
           requested_by: string | null
           scope: Json
           skus: string[]
@@ -519,10 +550,11 @@ export type Database = {
           finished_at?: string | null
           id?: string
           idempotency_key: string
-          lock_key: string
+          lock_key?: string | null
+          product_id: string
           requested_by?: string | null
           scope?: Json
-          skus: string[]
+          skus?: string[]
           started_at?: string | null
           status?: string
           summary_json?: Json
@@ -536,7 +568,8 @@ export type Database = {
           finished_at?: string | null
           id?: string
           idempotency_key?: string
-          lock_key?: string
+          lock_key?: string | null
+          product_id?: string
           requested_by?: string | null
           scope?: Json
           skus?: string[]
@@ -546,7 +579,15 @@ export type Database = {
           target?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ppj_product_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_source_snapshots: {
         Row: {
@@ -563,6 +604,7 @@ export type Database = {
           normalized: Json
           parent_sku: string | null
           position: number
+          product_id: string | null
           raw_row: Json
           row_index: number
           row_type: string
@@ -592,6 +634,7 @@ export type Database = {
           normalized?: Json
           parent_sku?: string | null
           position?: number
+          product_id?: string | null
           raw_row: Json
           row_index: number
           row_type?: string
@@ -621,6 +664,7 @@ export type Database = {
           normalized?: Json
           parent_sku?: string | null
           position?: number
+          product_id?: string | null
           raw_row?: Json
           row_index?: number
           row_type?: string
@@ -642,6 +686,13 @@ export type Database = {
             columns: ["batch_id"]
             isOneToOne: false
             referencedRelation: "product_import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pss_product_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
