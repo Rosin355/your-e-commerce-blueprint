@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import ValueDisplay from './ValueDisplay';
 import type { AdminField } from '../lib/adminApi';
 import {
+  ENTITY_LABEL,
   hasValue,
   isLegacyAi,
   isManualField,
@@ -14,6 +15,14 @@ import {
   READ_ONLY_TOOLTIP,
   reviewLabel,
 } from '../lib/labels';
+
+/** Alcuni valori tecnici vanno tradotti prima di essere mostrati al cliente. */
+function displayValue(field: AdminField): unknown {
+  if (typeof field.value === 'string' && ENTITY_LABEL[field.value]) {
+    return ENTITY_LABEL[field.value];
+  }
+  return field.value;
+}
 
 const FUTURE_ACTIONS = ['Mantieni questo valore', 'Modifica', 'Migliora con AI', 'Scarta'];
 
@@ -61,7 +70,7 @@ export default function FieldCard({ field }: { field: AdminField }) {
       </header>
 
       <div className="mb-3">
-        <ValueDisplay value={field.value} label={field.label} />
+        <ValueDisplay value={displayValue(field)} label={field.label} />
       </div>
 
       {legacyAi && (
