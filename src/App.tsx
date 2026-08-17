@@ -17,6 +17,27 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AllProducts = lazy(() => import("./pages/AllProducts"));
 const CollectionPage = lazy(() => import("./pages/CollectionPage"));
 
+// Admin v2 (sola lettura, alimentato da product-admin-api)
+const AdminV2Guard = lazy(() => import("./adminv2/AdminV2Guard"));
+const AdminDashboard = lazy(() => import("./adminv2/pages/DashboardPage"));
+const AdminProducts = lazy(() => import("./adminv2/pages/ProductsPage"));
+const AdminProductDetail = lazy(() => import("./adminv2/pages/ProductDetailPage"));
+const AdminImportsPage = lazy(() =>
+  import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.ImportsPage })),
+);
+const AdminCategoriesPage = lazy(() =>
+  import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.CategoriesPage })),
+);
+const AdminPublicationsPage = lazy(() =>
+  import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.PublicationsPage })),
+);
+const AdminSettingsPage = lazy(() =>
+  import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.SettingsPage })),
+);
+const AdminTechnicalPage = lazy(() =>
+  import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.TechnicalToolsPage })),
+);
+
 
 const queryClient = new QueryClient();
 
