@@ -17,7 +17,7 @@ BEGIN;
 
 WITH batch AS (
   SELECT id FROM public.product_import_batches
-   WHERE profile_key = 'legacy_db_baseline'
+   WHERE profile_key = 'pre_admin_refactor_baseline'
    ORDER BY created_at LIMIT 1
 ),
 src AS (
