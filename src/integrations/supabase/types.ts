@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      bulbi_classification_matrix: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          botanical_type: string
+          confidence: number | null
+          created_at: string
+          id: string
+          manual_override: string | null
+          notes: string | null
+          product_id: string
+          proposal_source: string
+          proposed_season: string | null
+          review_status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          botanical_type: string
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          manual_override?: string | null
+          notes?: string | null
+          product_id: string
+          proposal_source?: string
+          proposed_season?: string | null
+          review_status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          botanical_type?: string
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          manual_override?: string | null
+          notes?: string | null
+          product_id?: string
+          proposal_source?: string
+          proposed_season?: string | null
+          review_status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulbi_classification_matrix_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pipeline_jobs: {
         Row: {
           ai_enriched_count: number | null
@@ -158,6 +214,253 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "product_field_definitions"
             referencedColumns: ["key"]
+          },
+        ]
+      }
+      product_categories: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          is_active: boolean
+          legacy_aliases: string[]
+          level: number
+          notes: string | null
+          parent_id: string | null
+          path_keys: string[]
+          slug: string
+          sort_order: number
+          stable_key: string
+          taxonomy_version: string
+          updated_at: string
+          visible_admin: boolean
+          visible_storefront: boolean
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          id?: string
+          is_active?: boolean
+          legacy_aliases?: string[]
+          level?: number
+          notes?: string | null
+          parent_id?: string | null
+          path_keys?: string[]
+          slug: string
+          sort_order?: number
+          stable_key: string
+          taxonomy_version?: string
+          updated_at?: string
+          visible_admin?: boolean
+          visible_storefront?: boolean
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          legacy_aliases?: string[]
+          level?: number
+          notes?: string | null
+          parent_id?: string | null
+          path_keys?: string[]
+          slug?: string
+          sort_order?: number
+          stable_key?: string
+          taxonomy_version?: string
+          updated_at?: string
+          visible_admin?: boolean
+          visible_storefront?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_category_assignments: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          category_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          notes: string | null
+          origin: string
+          product_id: string
+          proposed_by: string | null
+          source_map_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          origin?: string
+          product_id: string
+          proposed_by?: string | null
+          source_map_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          origin?: string
+          product_id?: string
+          proposed_by?: string | null
+          source_map_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_category_assignments_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_category_assignments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_category_assignments_source_map_id_fkey"
+            columns: ["source_map_id"]
+            isOneToOne: false
+            referencedRelation: "product_category_source_map"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_category_shopify_map: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          category_id: string
+          created_at: string
+          id: string
+          last_checked_at: string | null
+          last_error: string | null
+          map_status: string
+          shopify_collection_gid: string | null
+          shopify_handle: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category_id: string
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          last_error?: string | null
+          map_status?: string
+          shopify_collection_gid?: string | null
+          shopify_handle: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category_id?: string
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          last_error?: string | null
+          map_status?: string
+          shopify_collection_gid?: string | null
+          shopify_handle?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_category_shopify_map_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_category_source_map: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          assignment_role: string
+          confidence: number | null
+          created_at: string
+          id: string
+          mapping_method: string
+          mapping_status: string
+          notes: string | null
+          source_path_norm: string
+          source_path_original: string
+          source_profile: string
+          source_system: string
+          target_category: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          assignment_role?: string
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          mapping_method?: string
+          mapping_status?: string
+          notes?: string | null
+          source_path_norm: string
+          source_path_original: string
+          source_profile?: string
+          source_system?: string
+          target_category?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          assignment_role?: string
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          mapping_method?: string
+          mapping_status?: string
+          notes?: string | null
+          source_path_norm?: string
+          source_path_original?: string
+          source_profile?: string
+          source_system?: string
+          target_category?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_category_source_map_target_category_fkey"
+            columns: ["target_category"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1020,6 +1323,7 @@ export type Database = {
     }
     Functions: {
       can_edit_products: { Args: { _user_id: string }; Returns: boolean }
+      can_manage_taxonomy: { Args: { _user_id: string }; Returns: boolean }
       can_publish_products: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
