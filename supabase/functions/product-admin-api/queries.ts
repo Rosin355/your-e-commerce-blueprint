@@ -68,7 +68,7 @@ export async function listProducts(db: SupabaseClient, req: ListProductsRequest)
 
   const term = (req.search ?? "").trim();
   if (term || req.gtin) {
-    const like = `%${(req.gtin ?? term).replace(/[%_]/g, "")}%`;
+    const like = `%${escapeLike(req.gtin ?? term)}%`;
     const keys = req.gtin ? ["gtin"] : ["title", "sku", "gtin"];
     const { data, error } = await db
       .from("product_current_values")
