@@ -156,3 +156,61 @@ export async function getProductHistory(db: SupabaseClient, productId: string, l
   if (error) throw error;
   return data ?? [];
 }
+
+/** Conteggi aggregati per la Dashboard: solo `count`, mai righe complete. */
+export async function getDashboardStats(db: SupabaseClient) {
+  const countProducts = async (filter?: (q: any) => any) => {
+    let q = db.from("products").select("id", { count: "exact", head: true });
+    if (filter) q = filter(q);
+    const { count, error } = await q;
+    if (error) throw error;
+    return count ?? 0;
+  };
+  const countValues = async (filter: (q: any) => any) => {
+    const { count, error } = await filter(
+      db.from("product_current_values").select("id", { count: "exact", head: true }),
+    );
+    if (error) throw error;
+    return count ?? 0;
+  };
+
+  const [total, simple, variable, variation] = await Promise.all([
+    countProducts(),
+    countProducts((q) => q.eq("entity_type", "simple")),
+    countProducts((q) => q.eq("entity_type", "variable")),
+    countProducts((q) => q.eq("entity_type", "variation")),
+  ]);
+
+  const [valuesToReview, blockedValues, classified, described, shopifyErrors] = await Promise.all([
+    countValues((q) => q.in("review_status", ["review_required", "legacy_unverified"])),
+    countValues((q) => q.eq("publish_blocked", true)),
+    countValues((q) => q.eq("field_key", "product_category_raw").not("value_text", "is", null)),
+    countValues((q) => q.eq("field_key", "description").not("value_text", "is", null)),
+    countValues((q) => q.eq("field_key", "shopify_sync_status").eq("value_text", "error")),
+  ]);
+
+  const { data: batch } = await db
+    .from("product_import_batches")
+    .select("file_name,status,total_rows,created_at,applied_at")
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  return {
+    products: { total, simple, variable, variation },
+    values: { toReview: valuesToReview, publishBlocked: blockedValues },
+    quality: {
+      toClassify: Math.max(total - classified, 0),
+      incomplete: Math.max(total - described, 0),
+      errors: shopifyErrors,
+    },
+    lastBaseline: batch?.[0]
+      ? {
+        label: batch[0].file_name,
+        status: batch[0].status,
+        rows: batch[0].total_rows,
+        createdAt: batch[0].created_at,
+        appliedAt: batch[0].applied_at,
+      }
+      : null,
+  };
+}
