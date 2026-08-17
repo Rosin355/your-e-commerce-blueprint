@@ -99,7 +99,7 @@ export async function listProducts(db: SupabaseClient, req: ListProductsRequest)
     .order("sku", { ascending: true })
     .limit(pageSize + 1);
 
-  if (req.sku) pq = pq.ilike("sku", `%${req.sku.replace(/[%_]/g, "")}%`);
+  if (req.sku) pq = pq.ilike("sku", `%${escapeLike(req.sku)}%`);
   if (req.entityType) pq = pq.eq("entity_type", req.entityType);
   if (req.cursor) pq = pq.gt("sku", req.cursor);
   if (matchedIds) pq = pq.in("id", matchedIds.slice(0, 1000));
