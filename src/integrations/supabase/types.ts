@@ -92,6 +92,137 @@ export type Database = {
         }
         Relationships: []
       }
+      product_ai_suggestions: {
+        Row: {
+          based_on_value: Json | null
+          created_at: string
+          created_by: string | null
+          entity_type: string
+          field_key: string
+          id: string
+          model: string | null
+          prompt_hint: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          sku: string
+          status: string
+          suggestion_json: Json | null
+          suggestion_text: string | null
+        }
+        Insert: {
+          based_on_value?: Json | null
+          created_at?: string
+          created_by?: string | null
+          entity_type?: string
+          field_key: string
+          id?: string
+          model?: string | null
+          prompt_hint?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          sku: string
+          status?: string
+          suggestion_json?: Json | null
+          suggestion_text?: string | null
+        }
+        Update: {
+          based_on_value?: Json | null
+          created_at?: string
+          created_by?: string | null
+          entity_type?: string
+          field_key?: string
+          id?: string
+          model?: string | null
+          prompt_hint?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          sku?: string
+          status?: string
+          suggestion_json?: Json | null
+          suggestion_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_ai_suggestions_field_key_fkey"
+            columns: ["field_key"]
+            isOneToOne: false
+            referencedRelation: "product_field_definitions"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      product_current_values: {
+        Row: {
+          created_at: string
+          entity_type: string
+          field_key: string
+          id: string
+          is_locked: boolean
+          origin: string
+          parent_sku: string | null
+          publish_state: string
+          published_at: string | null
+          sku: string
+          source_batch_id: string | null
+          updated_at: string
+          updated_by: string | null
+          value_json: Json | null
+          value_number: number | null
+          value_text: string | null
+        }
+        Insert: {
+          created_at?: string
+          entity_type?: string
+          field_key: string
+          id?: string
+          is_locked?: boolean
+          origin?: string
+          parent_sku?: string | null
+          publish_state?: string
+          published_at?: string | null
+          sku: string
+          source_batch_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value_json?: Json | null
+          value_number?: number | null
+          value_text?: string | null
+        }
+        Update: {
+          created_at?: string
+          entity_type?: string
+          field_key?: string
+          id?: string
+          is_locked?: boolean
+          origin?: string
+          parent_sku?: string | null
+          publish_state?: string
+          published_at?: string | null
+          sku?: string
+          source_batch_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value_json?: Json | null
+          value_number?: number | null
+          value_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_current_values_field_key_fkey"
+            columns: ["field_key"]
+            isOneToOne: false
+            referencedRelation: "product_field_definitions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "product_current_values_source_batch_id_fkey"
+            columns: ["source_batch_id"]
+            isOneToOne: false
+            referencedRelation: "product_import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_enrichment_run_items: {
         Row: {
           error_message: string | null
@@ -174,6 +305,346 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      product_field_definitions: {
+        Row: {
+          ai_allowed: boolean
+          applies_to: string
+          created_at: string
+          data_type: string
+          editable: boolean
+          editor_type: string
+          field_group: string
+          help_text: string | null
+          key: string
+          label: string
+          manual_only: boolean
+          protected_on_reimport: boolean
+          publishable: boolean
+          required: boolean
+          shopify_mapping: Json
+          sort_order: number
+          source_aliases: string[]
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          ai_allowed?: boolean
+          applies_to?: string
+          created_at?: string
+          data_type?: string
+          editable?: boolean
+          editor_type?: string
+          field_group?: string
+          help_text?: string | null
+          key: string
+          label: string
+          manual_only?: boolean
+          protected_on_reimport?: boolean
+          publishable?: boolean
+          required?: boolean
+          shopify_mapping?: Json
+          sort_order?: number
+          source_aliases?: string[]
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          ai_allowed?: boolean
+          applies_to?: string
+          created_at?: string
+          data_type?: string
+          editable?: boolean
+          editor_type?: string
+          field_group?: string
+          help_text?: string | null
+          key?: string
+          label?: string
+          manual_only?: boolean
+          protected_on_reimport?: boolean
+          publishable?: boolean
+          required?: boolean
+          shopify_mapping?: Json
+          sort_order?: number
+          source_aliases?: string[]
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
+      product_field_history: {
+        Row: {
+          actor: string | null
+          actor_label: string | null
+          batch_id: string | null
+          change_type: string
+          created_at: string
+          entity_type: string
+          field_key: string
+          id: string
+          job_id: string | null
+          new_value: Json | null
+          previous_value: Json | null
+          sku: string
+        }
+        Insert: {
+          actor?: string | null
+          actor_label?: string | null
+          batch_id?: string | null
+          change_type: string
+          created_at?: string
+          entity_type?: string
+          field_key: string
+          id?: string
+          job_id?: string | null
+          new_value?: Json | null
+          previous_value?: Json | null
+          sku: string
+        }
+        Update: {
+          actor?: string | null
+          actor_label?: string | null
+          batch_id?: string | null
+          change_type?: string
+          created_at?: string
+          entity_type?: string
+          field_key?: string
+          id?: string
+          job_id?: string | null
+          new_value?: Json | null
+          previous_value?: Json | null
+          sku?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_field_history_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "product_import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_import_batches: {
+        Row: {
+          applied_at: string | null
+          checksum_sha256: string
+          created_at: string
+          created_by: string | null
+          detected_headers: Json
+          error_message: string | null
+          file_name: string
+          header_mapping: Json
+          id: string
+          idempotency_key: string
+          parent_rows: number
+          potential_data_loss: number
+          profile_key: string
+          report_json: Json
+          status: string
+          storage_path: string
+          total_rows: number
+          unmapped_headers: Json
+          updated_at: string
+          variation_rows: number
+        }
+        Insert: {
+          applied_at?: string | null
+          checksum_sha256: string
+          created_at?: string
+          created_by?: string | null
+          detected_headers?: Json
+          error_message?: string | null
+          file_name: string
+          header_mapping?: Json
+          id?: string
+          idempotency_key: string
+          parent_rows?: number
+          potential_data_loss?: number
+          profile_key?: string
+          report_json?: Json
+          status?: string
+          storage_path: string
+          total_rows?: number
+          unmapped_headers?: Json
+          updated_at?: string
+          variation_rows?: number
+        }
+        Update: {
+          applied_at?: string | null
+          checksum_sha256?: string
+          created_at?: string
+          created_by?: string | null
+          detected_headers?: Json
+          error_message?: string | null
+          file_name?: string
+          header_mapping?: Json
+          id?: string
+          idempotency_key?: string
+          parent_rows?: number
+          potential_data_loss?: number
+          profile_key?: string
+          report_json?: Json
+          status?: string
+          storage_path?: string
+          total_rows?: number
+          unmapped_headers?: Json
+          updated_at?: string
+          variation_rows?: number
+        }
+        Relationships: []
+      }
+      product_publication_jobs: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          error_json: Json | null
+          finished_at: string | null
+          id: string
+          idempotency_key: string
+          lock_key: string
+          requested_by: string | null
+          scope: Json
+          skus: string[]
+          started_at: string | null
+          status: string
+          summary_json: Json
+          target: string
+          updated_at: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          error_json?: Json | null
+          finished_at?: string | null
+          id?: string
+          idempotency_key: string
+          lock_key: string
+          requested_by?: string | null
+          scope?: Json
+          skus: string[]
+          started_at?: string | null
+          status?: string
+          summary_json?: Json
+          target?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          error_json?: Json | null
+          finished_at?: string | null
+          id?: string
+          idempotency_key?: string
+          lock_key?: string
+          requested_by?: string | null
+          scope?: Json
+          skus?: string[]
+          started_at?: string | null
+          status?: string
+          summary_json?: Json
+          target?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      product_source_snapshots: {
+        Row: {
+          batch_id: string
+          category_leaf: string | null
+          category_levels: Json
+          category_path_original: string | null
+          category_root: string | null
+          created_at: string
+          id: string
+          inventory_backorder: string | null
+          inventory_in_stock: boolean | null
+          inventory_quantity: number | null
+          normalized: Json
+          parent_sku: string | null
+          position: number
+          raw_row: Json
+          row_index: number
+          row_type: string
+          shopify_variant_id: string | null
+          sku: string
+          source_id: string | null
+          source_parent_id: string | null
+          variant_compare_price: number | null
+          variant_dimensions: Json
+          variant_image_url: string | null
+          variant_options: Json
+          variant_price: number | null
+          variant_status: string | null
+          variant_weight_grams: number | null
+        }
+        Insert: {
+          batch_id: string
+          category_leaf?: string | null
+          category_levels?: Json
+          category_path_original?: string | null
+          category_root?: string | null
+          created_at?: string
+          id?: string
+          inventory_backorder?: string | null
+          inventory_in_stock?: boolean | null
+          inventory_quantity?: number | null
+          normalized?: Json
+          parent_sku?: string | null
+          position?: number
+          raw_row: Json
+          row_index: number
+          row_type?: string
+          shopify_variant_id?: string | null
+          sku: string
+          source_id?: string | null
+          source_parent_id?: string | null
+          variant_compare_price?: number | null
+          variant_dimensions?: Json
+          variant_image_url?: string | null
+          variant_options?: Json
+          variant_price?: number | null
+          variant_status?: string | null
+          variant_weight_grams?: number | null
+        }
+        Update: {
+          batch_id?: string
+          category_leaf?: string | null
+          category_levels?: Json
+          category_path_original?: string | null
+          category_root?: string | null
+          created_at?: string
+          id?: string
+          inventory_backorder?: string | null
+          inventory_in_stock?: boolean | null
+          inventory_quantity?: number | null
+          normalized?: Json
+          parent_sku?: string | null
+          position?: number
+          raw_row?: Json
+          row_index?: number
+          row_type?: string
+          shopify_variant_id?: string | null
+          sku?: string
+          source_id?: string | null
+          source_parent_id?: string | null
+          variant_compare_price?: number | null
+          variant_dimensions?: Json
+          variant_image_url?: string | null
+          variant_options?: Json
+          variant_price?: number | null
+          variant_status?: string | null
+          variant_weight_grams?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_source_snapshots_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "product_import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_sync_csv_products: {
         Row: {
@@ -453,6 +924,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_edit_products: { Args: { _user_id: string }; Returns: boolean }
+      can_publish_products: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
