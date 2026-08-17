@@ -24,7 +24,7 @@ delle categorie.
 | Visibilità Admin / storefront | `visible_admin`, `visible_storefront` |
 | Versione tassonomia | `taxonomy_version` |
 | Alias legacy | `legacy_aliases[]` |
-| Mapping categoria sorgente | `product_category_source_map` |
+| Mapping categoria sorgente | `product_category_source_map` (molti-a-molti, stati proposed/approved/rejected/ambiguous/unmapped) |
 | Mapping collezione Shopify + stato | `product_category_shopify_map.map_status` |
 | Approvazione manuale | `approved_by` / `approved_at` su tutte le tabelle di mapping |
 | Override per prodotto | `product_category_assignments.origin = 'manual_override'` |
@@ -55,3 +55,33 @@ delle categorie.
 
 Nessuna cancellazione automatica. Rollback = disattivare le categorie
 (`is_active = false`) e riportare i mapping a `rejected`/`proposed`.
+
+## Aggiornamento post-audit F3.1 (17 ago 2026)
+
+**Blocco rilevato**: non esiste un'entità canonica prodotto. `sku` è testo libero
+in sei tabelle senza alcuna foreign key. F3.1 **non è stata applicata**.
+
+Prerequisito aggiunto: `docs/fase3/003a-product-canonical-F3.1.sql` crea
+`public.products` (id uuid stabile, `sku` UNIQUE, disattivazione logica, RLS,
+nessun popolamento). Le assegnazioni categoria e la matrice Bulbi referenziano
+`products.id`, non lo snapshot di import (un prodotto ha più import nel tempo).
+
+Correzioni introdotte in `003-taxonomy-additive-F3.1.sql` (revisione 2):
+
+- trigger anti-ciclo con risalita degli antenati (il solo `id <> parent_id` non basta);
+- `level` e `path_keys` derivati dal parent e ricalcolati sui discendenti al cambio
+  di parent o `stable_key`; il percorso usa solo chiavi stabili, mai il nome visualizzato;
+- `stable_key` univoca globalmente; indici parziali distinti per root (`parent_id IS NULL`)
+  e per fratelli, perché una UNIQUE con NULL non impedirebbe root duplicate;
+- `product_category_source_map`: sistema sorgente, profilo CSV, percorso originale e
+  normalizzato, metodo, confidenza, stato `unmapped`, molti-a-molti consentito;
+- `product_category_shopify_map`: GID collezione, handle, stato, ultima verifica, errore;
+- matrice Bulbi con stati `unclassified/proposed/approved/rejected/needs_review`;
+- RLS per ruolo: Editor/Publisher leggono e propongono, Admin/Tech Admin approvano
+  e configurano il mapping Shopify, anon nessun accesso;
+- tutte le FK in `RESTRICT` o `SET NULL`, nessuna cascata.
+
+## Conteggio tassonomia
+
+8 categorie principali e **14** sottocategorie (Esterno 4, Rose 5, Frutto 2, Bulbi 3).
+La richiesta indicava 13: la differenza va confermata prima del seed.
