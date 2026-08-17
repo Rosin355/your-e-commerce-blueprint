@@ -85,3 +85,35 @@ Correzioni introdotte in `003-taxonomy-additive-F3.1.sql` (revisione 2):
 
 8 categorie principali e **14** sottocategorie (Esterno 4, Rose 5, Frutto 2, Bulbi 3).
 La richiesta indicava 13: la differenza va confermata prima del seed.
+
+---
+
+## F4.0 — BACKFILL IDENTITÀ CANONICA (preparato, NON eseguito)
+
+Prerequisito applicato: `003a` (public.products), `003b` (product_id sulle tabelle F3),
+`003` rev.3 (tassonomia con FK a products.id).
+
+Tassonomia ufficiale provvisoria: **8 categorie principali + 14 sottocategorie = 22**
+(Esterno 4, Rose 5, Frutto 2, Bulbi 3). Nome confermato: **Rose a Fiore Grande**.
+
+### Sequenza del futuro backfill
+1. Lettura degli SKU distinti da `product_sync_csv_products` (sola lettura).
+2. Normalizzazione: `lower(btrim(sku))`.
+3. Rilevamento duplicati case-insensitive → **blocco su ambiguità**, nessuna scelta automatica.
+4. Rilevamento SKU vuoti/nulli → esclusi e riportati.
+5. Creazione righe in `public.products` (identità, nessun contenuto editoriale).
+6. Determinazione `entity_type`: `simple` / `variable` / `variation`
+   (dal tipo raw WooCommerce conservato nello snapshot).
+7. Risoluzione parent: `parent_sku` → `parent_product_id`; inserire prima i `variable`,
+   poi le `variation`. Parent mancante = riga bloccata, mai inventata.
+8. Popolamento `product_id` nelle tabelle F3 (oggi vuote, quindi nessun conflitto).
+9. `product_sync_csv_products`, `product_enrichment_run_items` e le altre tabelle
+   legacy popolate **non vengono modificate**.
+10. Dry-run obbligatorio con report (creabili / ambigui / bloccati / già presenti).
+11. Idempotenza garantita da `products_sku_norm_key`.
+12. Nessuna pubblicazione Shopify, nessun tocco all'inventario.
+
+### Non autorizzato in questa fase
+Seed tassonomia, backfill, import, assegnazione categorie reali, riclassificazione,
+AI, mutation Shopify, inventario, collezioni, storefront, menu, spedizioni,
+Edge Function, commit, push.
