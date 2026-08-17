@@ -148,6 +148,42 @@ export type Database = {
         }
         Relationships: []
       }
+      product_admin_command_log: {
+        Row: {
+          action: string
+          actor: string
+          created_at: string
+          field_key: string | null
+          id: string
+          idempotency_key: string
+          payload_hash: string
+          product_id: string | null
+          result_json: Json
+        }
+        Insert: {
+          action: string
+          actor: string
+          created_at?: string
+          field_key?: string | null
+          id?: string
+          idempotency_key: string
+          payload_hash: string
+          product_id?: string | null
+          result_json?: Json
+        }
+        Update: {
+          action?: string
+          actor?: string
+          created_at?: string
+          field_key?: string | null
+          id?: string
+          idempotency_key?: string
+          payload_hash?: string
+          product_id?: string | null
+          result_json?: Json
+        }
+        Relationships: []
+      }
       product_ai_suggestions: {
         Row: {
           based_on_value: Json | null
@@ -489,6 +525,7 @@ export type Database = {
           value_number: number | null
           value_origin: string
           value_text: string | null
+          version: number
         }
         Insert: {
           created_at?: string
@@ -514,6 +551,7 @@ export type Database = {
           value_number?: number | null
           value_origin?: string
           value_text?: string | null
+          version?: number
         }
         Update: {
           created_at?: string
@@ -539,6 +577,7 @@ export type Database = {
           value_number?: number | null
           value_origin?: string
           value_text?: string | null
+          version?: number
         }
         Relationships: [
           {
@@ -730,9 +769,16 @@ export type Database = {
           field_key: string
           id: string
           job_id: string | null
+          new_origin: string | null
+          new_review_status: string | null
           new_value: Json | null
+          new_version: number | null
+          previous_origin: string | null
+          previous_review_status: string | null
           previous_value: Json | null
+          previous_version: number | null
           product_id: string
+          request_key: string | null
           sku: string
         }
         Insert: {
@@ -745,9 +791,16 @@ export type Database = {
           field_key: string
           id?: string
           job_id?: string | null
+          new_origin?: string | null
+          new_review_status?: string | null
           new_value?: Json | null
+          new_version?: number | null
+          previous_origin?: string | null
+          previous_review_status?: string | null
           previous_value?: Json | null
+          previous_version?: number | null
           product_id: string
+          request_key?: string | null
           sku: string
         }
         Update: {
@@ -760,9 +813,16 @@ export type Database = {
           field_key?: string
           id?: string
           job_id?: string | null
+          new_origin?: string | null
+          new_review_status?: string | null
           new_value?: Json | null
+          new_version?: number | null
+          previous_origin?: string | null
+          previous_review_status?: string | null
           previous_value?: Json | null
+          previous_version?: number | null
           product_id?: string
+          request_key?: string | null
           sku?: string
         }
         Relationships: [
@@ -1346,6 +1406,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_update_product_field: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_actor_label?: string
+          p_expected_version: number
+          p_field_key: string
+          p_idempotency_key: string
+          p_payload_hash: string
+          p_product_id: string
+          p_value: Json
+        }
+        Returns: Json
+      }
       can_edit_products: { Args: { _user_id: string }; Returns: boolean }
       can_manage_taxonomy: { Args: { _user_id: string }; Returns: boolean }
       can_publish_products: { Args: { _user_id: string }; Returns: boolean }
