@@ -474,14 +474,20 @@ export type Database = {
           origin: string
           parent_sku: string | null
           product_id: string
+          protected_on_reimport: boolean
+          publish_blocked: boolean
           publish_state: string
           published_at: string | null
+          review_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
           sku: string
           source_batch_id: string | null
           updated_at: string
           updated_by: string | null
           value_json: Json | null
           value_number: number | null
+          value_origin: string
           value_text: string | null
         }
         Insert: {
@@ -493,14 +499,20 @@ export type Database = {
           origin?: string
           parent_sku?: string | null
           product_id: string
+          protected_on_reimport?: boolean
+          publish_blocked?: boolean
           publish_state?: string
           published_at?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           sku: string
           source_batch_id?: string | null
           updated_at?: string
           updated_by?: string | null
           value_json?: Json | null
           value_number?: number | null
+          value_origin?: string
           value_text?: string | null
         }
         Update: {
@@ -512,14 +524,20 @@ export type Database = {
           origin?: string
           parent_sku?: string | null
           product_id?: string
+          protected_on_reimport?: boolean
+          publish_blocked?: boolean
           publish_state?: string
           published_at?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           sku?: string
           source_batch_id?: string | null
           updated_at?: string
           updated_by?: string | null
           value_json?: Json | null
           value_number?: number | null
+          value_origin?: string
           value_text?: string | null
         }
         Relationships: [
@@ -645,10 +663,12 @@ export type Database = {
           protected_on_reimport: boolean
           publishable: boolean
           required: boolean
+          review_policy: string
           shopify_mapping: Json
           sort_order: number
           source_aliases: string[]
           updated_at: string
+          validation_rules: Json
           visible: boolean
         }
         Insert: {
@@ -666,10 +686,12 @@ export type Database = {
           protected_on_reimport?: boolean
           publishable?: boolean
           required?: boolean
+          review_policy?: string
           shopify_mapping?: Json
           sort_order?: number
           source_aliases?: string[]
           updated_at?: string
+          validation_rules?: Json
           visible?: boolean
         }
         Update: {
@@ -687,10 +709,12 @@ export type Database = {
           protected_on_reimport?: boolean
           publishable?: boolean
           required?: boolean
+          review_policy?: string
           shopify_mapping?: Json
           sort_order?: number
           source_aliases?: string[]
           updated_at?: string
+          validation_rules?: Json
           visible?: boolean
         }
         Relationships: []
