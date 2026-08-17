@@ -129,6 +129,15 @@ Deno.serve(async (req) => {
 
     const def = await getFieldDefinition(db, fieldKey);
     if (!def) return fail("NOT_FOUND", "Field key non registrata");
+
+    const editable = isFieldEditable(def);
+    if (!editable.ok) {
+      if (action === "validate_field_update") {
+        return json({ ok: false, valid: false, code: editable.code, message: editable.message, currentVersion: null });
+      }
+      return fail("FIELD_NOT_EDITABLE", editable.message ?? "Campo non modificabile");
+    }
+
     const row = await getCurrentValue(db, productId, fieldKey);
     if (!row) return fail("NOT_FOUND", "Valore corrente inesistente per questo campo");
 
