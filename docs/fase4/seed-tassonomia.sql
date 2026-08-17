@@ -16,7 +16,7 @@ WITH root AS (
     ('frutto',       'Piante da Frutto',    'piante-da-frutto',     NULL, 1, ARRAY['frutto'],       60, true),
     ('aromatiche',   'Aromatiche',          'aromatiche',           NULL, 1, ARRAY['aromatiche'],   70, true),
     ('bulbi',        'Bulbi',               'bulbi',                NULL, 1, ARRAY['bulbi'],        80, true)
-  ON CONFLICT (stable_key, taxonomy_version) DO UPDATE
+  ON CONFLICT (stable_key) DO UPDATE
     SET display_name = EXCLUDED.display_name,
         sort_order   = EXCLUDED.sort_order
   RETURNING id, stable_key
@@ -47,7 +47,7 @@ FROM (VALUES
 ) AS v(stable_key, display_name, slug, parent_stable, sort_order)
 JOIN public.product_categories p
   ON p.stable_key = v.parent_stable AND p.taxonomy_version = 'v1'
-ON CONFLICT (stable_key, taxonomy_version) DO UPDATE
+ON CONFLICT (stable_key) DO UPDATE
   SET display_name = EXCLUDED.display_name,
       parent_id    = EXCLUDED.parent_id,
       sort_order   = EXCLUDED.sort_order;
@@ -55,3 +55,10 @@ ON CONFLICT (stable_key, taxonomy_version) DO UPDATE
 -- NOTA: 'Rose a Fiore Grande' è il nome provvisorio corretto.
 -- Una futura rinomina modifica solo display_name/slug: stable_key, id,
 -- parent_id, mapping legacy e mapping Shopify restano invariati.
+
+-- NOTE (revisione 2, post-audit F3.1):
+-- * `stable_key` è ora univoca globalmente: l'idempotenza si basa su di essa.
+-- * `level` e `path_keys` sono calcolati dal trigger enforce_category_hierarchy();
+--   i valori indicati qui sono ignorati e ricalcolati dal database.
+-- * Il seed crea 8 categorie principali e 14 sottocategorie, non inserisce
+--   prodotti, non crea collezioni Shopify, non cancella nulla.
