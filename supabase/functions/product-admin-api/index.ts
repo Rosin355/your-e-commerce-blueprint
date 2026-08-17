@@ -14,7 +14,7 @@ import {
   listProducts,
 } from "./queries.ts";
 import { executeCommand, writesEnabled } from "./commands.ts";
-import { validateCommand } from "./validation.ts";
+import { isFieldEditable, validateCommand } from "./validation.ts";
 import {
   apiError,
   HTTP_BY_CODE,
