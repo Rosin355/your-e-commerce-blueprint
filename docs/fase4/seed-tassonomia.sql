@@ -1,64 +1,67 @@
 -- =====================================================================
--- FASE 4 — SEED TASSONOMIA · PREPARATO, NON APPLICATO
--- Idempotente su stable_key. Nessuna cancellazione. Nessun prodotto toccato.
--- Prerequisito: docs/fase3/003-taxonomy-additive-F3.1.sql applicata.
+-- FASE 4.1 — SEED TASSONOMIA · revisione 3 (stable key gerarchiche)
+-- 8 categorie principali + 14 sottocategorie = 22.
+-- Idempotente: INSERT ... WHERE NOT EXISTS. Nessun ON CONFLICT DO UPDATE,
+-- nessuna cancellazione, nessuna assegnazione prodotto, nessun mapping
+-- Shopify, nessuna matrice Bulbi.
+-- level e path_keys sono calcolati dai trigger: i valori passati sono
+-- irrilevanti e vengono sovrascritti.
+-- Visibilità iniziale: is_active = true, visible_admin = true,
+-- visible_storefront = FALSE (lo storefront pubblico resta invariato).
+-- taxonomy_version = '2026-v1'.
 -- =====================================================================
 
-WITH root AS (
-  INSERT INTO public.product_categories
-    (stable_key, display_name, slug, parent_id, level, path_keys, sort_order, visible_storefront)
-  VALUES
-    ('esterno',      'Piante da Esterno',   'piante-da-esterno',    NULL, 1, ARRAY['esterno'],      10, true),
-    ('rose',         'Rose',                'rose',                 NULL, 1, ARRAY['rose'],         20, true),
-    ('rampicanti',   'Rampicanti',          'rampicanti',           NULL, 1, ARRAY['rampicanti'],   30, true),
-    ('erbacee',      'Erbacee e Graminacee','erbacee-e-graminacee', NULL, 1, ARRAY['erbacee'],      40, true),
-    ('succulente',   'Grasse e Succulente', 'grasse-e-succulente',  NULL, 1, ARRAY['succulente'],   50, true),
-    ('frutto',       'Piante da Frutto',    'piante-da-frutto',     NULL, 1, ARRAY['frutto'],       60, true),
-    ('aromatiche',   'Aromatiche',          'aromatiche',           NULL, 1, ARRAY['aromatiche'],   70, true),
-    ('bulbi',        'Bulbi',               'bulbi',                NULL, 1, ARRAY['bulbi'],        80, true)
-  ON CONFLICT (stable_key) DO UPDATE
-    SET display_name = EXCLUDED.display_name,
-        sort_order   = EXCLUDED.sort_order
-  RETURNING id, stable_key
-)
-SELECT count(*) AS categorie_principali FROM root;
-
--- Sottocategorie: risolvono il parent per stable_key, quindi il seed resta
--- rieseguibile e indipendente dagli uuid generati.
+-- 1. Root (8)
 INSERT INTO public.product_categories
-  (stable_key, display_name, slug, parent_id, level, path_keys, sort_order, visible_storefront)
-SELECT v.stable_key, v.display_name, v.slug, p.id, 2,
-       ARRAY[p.stable_key, v.stable_key], v.sort_order, true
+  (stable_key, display_name, slug, parent_id, sort_order,
+   is_active, visible_admin, visible_storefront, taxonomy_version)
+SELECT v.stable_key, v.display_name, v.slug, NULL, v.sort_order,
+       true, true, false, '2026-v1'
 FROM (VALUES
-  ('esterno.alberi',      'Alberi',                'alberi',                'esterno', 10),
-  ('esterno.arbusti',     'Arbusti',               'arbusti',               'esterno', 20),
-  ('esterno.conifere',    'Conifere',              'conifere',              'esterno', 30),
-  ('esterno.siepi',       'Siepi',                 'siepi',                 'esterno', 40),
-  ('rose.rampicanti',     'Rose Rampicanti',       'rose-rampicanti',       'rose',    10),
-  ('rose.paesaggistiche', 'Rose Paesaggistiche',   'rose-paesaggistiche',   'rose',    20),
-  ('rose.cespuglio',      'Rose a Cespuglio',      'rose-a-cespuglio',      'rose',    30),
-  ('rose.tappezzanti',    'Rose Tappezzanti',      'rose-tappezzanti',      'rose',    40),
-  ('rose.fiore_grande',   'Rose a Fiore Grande',   'rose-a-fiore-grande',   'rose',    50),
-  ('frutto.alberi',       'Alberi da Frutto',      'alberi-da-frutto',      'frutto',  10),
-  ('frutto.piccoli',      'Piccoli Frutti',        'piccoli-frutti',        'frutto',  20),
-  ('bulbi.primaverile',   'Fioritura Primaverile', 'fioritura-primaverile', 'bulbi',   10),
-  ('bulbi.estiva',        'Fioritura Estiva',      'fioritura-estiva',      'bulbi',   20),
-  ('bulbi.autunnale',     'Fioritura Autunnale',   'fioritura-autunnale',   'bulbi',   30)
+  ('piante-da-esterno',  'Piante da Esterno',    'piante-da-esterno',    10),
+  ('rose',               'Rose',                 'rose',                 20),
+  ('rampicanti',         'Rampicanti',           'rampicanti',           30),
+  ('erbacee-graminacee', 'Erbacee e Graminacee', 'erbacee-e-graminacee', 40),
+  ('grasse-succulente',  'Grasse e Succulente',  'grasse-e-succulente',  50),
+  ('piante-da-frutto',   'Piante da Frutto',     'piante-da-frutto',     60),
+  ('aromatiche',         'Aromatiche',           'aromatiche',           70),
+  ('bulbi',              'Bulbi',                'bulbi',                80)
+) AS v(stable_key, display_name, slug, sort_order)
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.product_categories c WHERE c.stable_key = v.stable_key
+);
+
+-- 2. Sottocategorie (14) — parent risolto per stable_key
+INSERT INTO public.product_categories
+  (stable_key, display_name, slug, parent_id, sort_order,
+   is_active, visible_admin, visible_storefront, taxonomy_version)
+SELECT v.stable_key, v.display_name, v.slug, p.id, v.sort_order,
+       true, true, false, '2026-v1'
+FROM (VALUES
+  ('piante-da-esterno.alberi',   'Alberi',                'alberi',                'piante-da-esterno', 10),
+  ('piante-da-esterno.arbusti',  'Arbusti',               'arbusti',               'piante-da-esterno', 20),
+  ('piante-da-esterno.conifere', 'Conifere',              'conifere',              'piante-da-esterno', 30),
+  ('piante-da-esterno.siepi',    'Siepi',                 'siepi',                 'piante-da-esterno', 40),
+  ('rose.rampicanti',            'Rose Rampicanti',       'rose-rampicanti',       'rose',              10),
+  ('rose.paesaggistiche',        'Rose Paesaggistiche',   'rose-paesaggistiche',   'rose',              20),
+  ('rose.cespuglio',             'Rose a Cespuglio',      'rose-a-cespuglio',      'rose',              30),
+  ('rose.tappezzanti',           'Rose Tappezzanti',      'rose-tappezzanti',      'rose',              40),
+  ('rose.fiore-grande',          'Rose a Fiore Grande',   'rose-a-fiore-grande',   'rose',              50),
+  ('piante-da-frutto.alberi',        'Alberi da Frutto',  'alberi-da-frutto',      'piante-da-frutto',  10),
+  ('piante-da-frutto.piccoli-frutti','Piccoli Frutti',    'piccoli-frutti',        'piante-da-frutto',  20),
+  ('bulbi.fioritura-primaverile','Fioritura Primaverile', 'fioritura-primaverile', 'bulbi',             10),
+  ('bulbi.fioritura-estiva',     'Fioritura Estiva',      'fioritura-estiva',      'bulbi',             20),
+  ('bulbi.fioritura-autunnale',  'Fioritura Autunnale',   'fioritura-autunnale',   'bulbi',             30)
 ) AS v(stable_key, display_name, slug, parent_stable, sort_order)
-JOIN public.product_categories p
-  ON p.stable_key = v.parent_stable AND p.taxonomy_version = 'v1'
-ON CONFLICT (stable_key) DO UPDATE
-  SET display_name = EXCLUDED.display_name,
-      parent_id    = EXCLUDED.parent_id,
-      sort_order   = EXCLUDED.sort_order;
+JOIN public.product_categories p ON p.stable_key = v.parent_stable
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.product_categories c WHERE c.stable_key = v.stable_key
+);
 
--- NOTA: 'Rose a Fiore Grande' è il nome provvisorio corretto.
--- Una futura rinomina modifica solo display_name/slug: stable_key, id,
--- parent_id, mapping legacy e mapping Shopify restano invariati.
-
--- NOTE (revisione 2, post-audit F3.1):
--- * `stable_key` è ora univoca globalmente: l'idempotenza si basa su di essa.
--- * `level` e `path_keys` sono calcolati dal trigger enforce_category_hierarchy();
---   i valori indicati qui sono ignorati e ricalcolati dal database.
--- * Il seed crea 8 categorie principali e 14 sottocategorie, non inserisce
---   prodotti, non crea collezioni Shopify, non cancella nulla.
+-- NOTE
+-- * Nome confermato: 'Rose a Fiore Grande' (mai 'Rose Gradifiore').
+-- * Le stable_key NON sono handle Shopify: nomi e slug pubblici possono
+--   cambiare senza toccare stable_key, id o relazioni.
+-- * Una seconda esecuzione inserisce 0 righe e non modifica nulla:
+--   eventuali differenze su nomi/ordinamento vanno confrontate a parte
+--   e non sono corrette automaticamente.
