@@ -15,7 +15,9 @@ export type ReadAction =
   | "get_field_definitions"
   | "get_product_history"
   | "get_source_baseline"
-  | "validate_field_update";
+  | "validate_field_update"
+  | "get_admin_context"
+  | "get_dashboard_stats";
 
 export type CommandAction =
   | "update_field"
