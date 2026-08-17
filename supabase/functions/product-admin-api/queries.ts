@@ -14,6 +14,11 @@ const SUMMARY_FIELD_KEYS = [
   "gtin",
 ];
 
+/** Neutralizza i wildcard LIKE mantenendo intatti gli SKU con underscore. */
+function escapeLike(raw: string): string {
+  return raw.replace(/[\\%_]/g, (c) => `\\${c}`);
+}
+
 export async function getFieldDefinitions(db: SupabaseClient): Promise<FieldDefinition[]> {
   const { data, error } = await db
     .from("product_field_definitions")
