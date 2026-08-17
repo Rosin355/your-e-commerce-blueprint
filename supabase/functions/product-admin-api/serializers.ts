@@ -96,6 +96,7 @@ export function serializeSections(
 export function serializeProductSummary(
   product: { id: string; sku: string; entity_type: string; parent_product_id: string | null; updated_at: string },
   values: CurrentValueRow[],
+  parentSku: string | null = null,
 ) {
   const get = (key: string) => values.find((v) => v.field_key === key);
   const images = get("image_urls")?.value_json;
@@ -112,6 +113,7 @@ export function serializeProductSummary(
     title,
     entityType: product.entity_type,
     parentProductId: product.parent_product_id,
+    parentSku,
     mainImage: Array.isArray(images) ? (images[0] ?? null) : null,
     categoryEffective: get("category_effective")?.value_text ?? get("product_category_raw")?.value_text ?? null,
     reviewPendingCount: reviewPending,

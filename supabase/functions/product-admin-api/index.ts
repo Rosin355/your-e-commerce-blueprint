@@ -11,6 +11,7 @@ import {
   getProduct,
   getProductHistory,
   getSourceBaseline,
+  getDashboardStats,
   listProducts,
 } from "./queries.ts";
 import { executeCommand, writesEnabled } from "./commands.ts";
@@ -59,6 +60,21 @@ Deno.serve(async (req) => {
     const db = serviceClient();
 
     // ---------------- READ ----------------
+    if (action === "get_admin_context") {
+      return json({
+        ok: true,
+        roles: auth.roles,
+        writesEnabled: writesEnabled(),
+        canWrite: false,
+        readOnlyReason:
+          "Le modifiche saranno abilitate dopo il completamento dei test di sicurezza.",
+      });
+    }
+
+    if (action === "get_dashboard_stats") {
+      return json({ ok: true, stats: await getDashboardStats(db), writesEnabled: writesEnabled() });
+    }
+
     if (action === "get_field_definitions") {
       return json({ ok: true, definitions: await getFieldDefinitions(db) });
     }
@@ -76,12 +92,26 @@ Deno.serve(async (req) => {
       });
       const ids = productRows.map((p: { id: string }) => p.id);
       const values = await getCurrentValues(db, ids);
-      const items = productRows.map((p: never) =>
-        serializeProductSummary(
+      const parentIds = [
+        ...new Set(
+          productRows
+            .map((p: { parent_product_id: string | null }) => p.parent_product_id)
+            .filter((id): id is string => !!id),
+        ),
+      ];
+      const parentSkuById = new Map<string, string>();
+      if (parentIds.length) {
+        const { data: parents } = await db.from("products").select("id,sku").in("id", parentIds);
+        for (const parent of parents ?? []) parentSkuById.set(parent.id, parent.sku);
+      }
+      const items = productRows.map((p: never) => {
+        const row = p as { id: string; parent_product_id: string | null };
+        return serializeProductSummary(
           p,
-          values.filter((v) => v.product_id === (p as { id: string }).id),
-        )
-      );
+          values.filter((v) => v.product_id === row.id),
+          row.parent_product_id ? (parentSkuById.get(row.parent_product_id) ?? null) : null,
+        );
+      });
       return json({ ok: true, items, nextCursor, pageSize: items.length });
     }
 
@@ -114,6 +144,9 @@ Deno.serve(async (req) => {
           sku: product.sku,
           entityType: product.entity_type,
           parentProductId: product.parent_product_id,
+          parentSku: product.parent_product_id
+            ? ((await getProduct(db, product.parent_product_id))?.sku ?? null)
+            : null,
           isActive: product.is_active,
           updatedAt: product.updated_at,
         },

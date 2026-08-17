@@ -17,6 +17,27 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AllProducts = lazy(() => import("./pages/AllProducts"));
 const CollectionPage = lazy(() => import("./pages/CollectionPage"));
 
+// Admin v2 (sola lettura, alimentato da product-admin-api)
+const AdminV2Guard = lazy(() => import("./adminv2/AdminV2Guard"));
+const AdminDashboard = lazy(() => import("./adminv2/pages/DashboardPage"));
+const AdminProducts = lazy(() => import("./adminv2/pages/ProductsPage"));
+const AdminProductDetail = lazy(() => import("./adminv2/pages/ProductDetailPage"));
+const AdminImportsPage = lazy(() =>
+  import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.ImportsPage })),
+);
+const AdminCategoriesPage = lazy(() =>
+  import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.CategoriesPage })),
+);
+const AdminPublicationsPage = lazy(() =>
+  import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.PublicationsPage })),
+);
+const AdminSettingsPage = lazy(() =>
+  import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.SettingsPage })),
+);
+const AdminTechnicalPage = lazy(() =>
+  import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.TechnicalToolsPage })),
+);
+
 
 const queryClient = new QueryClient();
 
@@ -55,8 +76,21 @@ const App = () => (
             <Route path="/account/callback" element={<SuspenseLoader><AccountCallback /></SuspenseLoader>} />
             <Route path="/account" element={<SuspenseLoader><Account /></SuspenseLoader>} />
             
+            {/* Strumenti tecnici della versione precedente (accesso diretto) */}
             <Route path="/admin/import" element={<SuspenseLoader><AdminGuard /></SuspenseLoader>} />
-            <Route path="/admin/settings" element={<SuspenseLoader><AdminGuard page="settings" /></SuspenseLoader>} />
+            <Route path="/admin/settings-legacy" element={<SuspenseLoader><AdminGuard page="settings" /></SuspenseLoader>} />
+
+            {/* Nuovo Admin Online Garden (sola lettura) */}
+            <Route path="/admin" element={<SuspenseLoader><AdminV2Guard /></SuspenseLoader>}>
+              <Route index element={<SuspenseLoader><AdminDashboard /></SuspenseLoader>} />
+              <Route path="products" element={<SuspenseLoader><AdminProducts /></SuspenseLoader>} />
+              <Route path="products/:productId" element={<SuspenseLoader><AdminProductDetail /></SuspenseLoader>} />
+              <Route path="imports" element={<SuspenseLoader><AdminImportsPage /></SuspenseLoader>} />
+              <Route path="categories" element={<SuspenseLoader><AdminCategoriesPage /></SuspenseLoader>} />
+              <Route path="publications" element={<SuspenseLoader><AdminPublicationsPage /></SuspenseLoader>} />
+              <Route path="settings" element={<SuspenseLoader><AdminSettingsPage /></SuspenseLoader>} />
+              <Route path="technical" element={<SuspenseLoader><AdminTechnicalPage /></SuspenseLoader>} />
+            </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
