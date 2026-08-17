@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      bulbi_classification_matrix: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          botanical_type: string
+          confidence: number | null
+          created_at: string
+          id: string
+          manual_override: string | null
+          notes: string | null
+          product_id: string
+          proposal_source: string
+          proposed_season: string | null
+          review_status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          botanical_type: string
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          manual_override?: string | null
+          notes?: string | null
+          product_id: string
+          proposal_source?: string
+          proposed_season?: string | null
+          review_status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          botanical_type?: string
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          manual_override?: string | null
+          notes?: string | null
+          product_id?: string
+          proposal_source?: string
+          proposed_season?: string | null
+          review_status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulbi_classification_matrix_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pipeline_jobs: {
         Row: {
           ai_enriched_count: number | null
@@ -101,6 +157,7 @@ export type Database = {
           field_key: string
           id: string
           model: string | null
+          product_id: string
           prompt_hint: string | null
           resolved_at: string | null
           resolved_by: string | null
@@ -117,6 +174,7 @@ export type Database = {
           field_key: string
           id?: string
           model?: string | null
+          product_id: string
           prompt_hint?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
@@ -133,6 +191,7 @@ export type Database = {
           field_key?: string
           id?: string
           model?: string | null
+          product_id?: string
           prompt_hint?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
@@ -143,11 +202,265 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "pas_product_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "product_ai_suggestions_field_key_fkey"
             columns: ["field_key"]
             isOneToOne: false
             referencedRelation: "product_field_definitions"
             referencedColumns: ["key"]
+          },
+        ]
+      }
+      product_categories: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          is_active: boolean
+          legacy_aliases: string[]
+          level: number
+          notes: string | null
+          parent_id: string | null
+          path_keys: string[]
+          slug: string
+          sort_order: number
+          stable_key: string
+          taxonomy_version: string
+          updated_at: string
+          visible_admin: boolean
+          visible_storefront: boolean
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          id?: string
+          is_active?: boolean
+          legacy_aliases?: string[]
+          level?: number
+          notes?: string | null
+          parent_id?: string | null
+          path_keys?: string[]
+          slug: string
+          sort_order?: number
+          stable_key: string
+          taxonomy_version?: string
+          updated_at?: string
+          visible_admin?: boolean
+          visible_storefront?: boolean
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          legacy_aliases?: string[]
+          level?: number
+          notes?: string | null
+          parent_id?: string | null
+          path_keys?: string[]
+          slug?: string
+          sort_order?: number
+          stable_key?: string
+          taxonomy_version?: string
+          updated_at?: string
+          visible_admin?: boolean
+          visible_storefront?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_category_assignments: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          category_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          notes: string | null
+          origin: string
+          product_id: string
+          proposed_by: string | null
+          source_map_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          origin?: string
+          product_id: string
+          proposed_by?: string | null
+          source_map_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          origin?: string
+          product_id?: string
+          proposed_by?: string | null
+          source_map_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_category_assignments_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_category_assignments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_category_assignments_source_map_id_fkey"
+            columns: ["source_map_id"]
+            isOneToOne: false
+            referencedRelation: "product_category_source_map"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_category_shopify_map: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          category_id: string
+          created_at: string
+          id: string
+          last_checked_at: string | null
+          last_error: string | null
+          map_status: string
+          shopify_collection_gid: string | null
+          shopify_handle: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category_id: string
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          last_error?: string | null
+          map_status?: string
+          shopify_collection_gid?: string | null
+          shopify_handle: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category_id?: string
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          last_error?: string | null
+          map_status?: string
+          shopify_collection_gid?: string | null
+          shopify_handle?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_category_shopify_map_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_category_source_map: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          assignment_role: string
+          confidence: number | null
+          created_at: string
+          id: string
+          mapping_method: string
+          mapping_status: string
+          notes: string | null
+          source_path_norm: string
+          source_path_original: string
+          source_profile: string
+          source_system: string
+          target_category: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          assignment_role?: string
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          mapping_method?: string
+          mapping_status?: string
+          notes?: string | null
+          source_path_norm: string
+          source_path_original: string
+          source_profile?: string
+          source_system?: string
+          target_category?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          assignment_role?: string
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          mapping_method?: string
+          mapping_status?: string
+          notes?: string | null
+          source_path_norm?: string
+          source_path_original?: string
+          source_profile?: string
+          source_system?: string
+          target_category?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_category_source_map_target_category_fkey"
+            columns: ["target_category"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -160,6 +473,7 @@ export type Database = {
           is_locked: boolean
           origin: string
           parent_sku: string | null
+          product_id: string
           publish_state: string
           published_at: string | null
           sku: string
@@ -178,6 +492,7 @@ export type Database = {
           is_locked?: boolean
           origin?: string
           parent_sku?: string | null
+          product_id: string
           publish_state?: string
           published_at?: string | null
           sku: string
@@ -196,6 +511,7 @@ export type Database = {
           is_locked?: boolean
           origin?: string
           parent_sku?: string | null
+          product_id?: string
           publish_state?: string
           published_at?: string | null
           sku?: string
@@ -207,6 +523,13 @@ export type Database = {
           value_text?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pcv_product_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "product_current_values_field_key_fkey"
             columns: ["field_key"]
@@ -385,6 +708,7 @@ export type Database = {
           job_id: string | null
           new_value: Json | null
           previous_value: Json | null
+          product_id: string
           sku: string
         }
         Insert: {
@@ -399,6 +723,7 @@ export type Database = {
           job_id?: string | null
           new_value?: Json | null
           previous_value?: Json | null
+          product_id: string
           sku: string
         }
         Update: {
@@ -413,9 +738,17 @@ export type Database = {
           job_id?: string | null
           new_value?: Json | null
           previous_value?: Json | null
+          product_id?: string
           sku?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "pfh_product_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "product_field_history_batch_id_fkey"
             columns: ["batch_id"]
@@ -502,7 +835,8 @@ export type Database = {
           finished_at: string | null
           id: string
           idempotency_key: string
-          lock_key: string
+          lock_key: string | null
+          product_id: string
           requested_by: string | null
           scope: Json
           skus: string[]
@@ -519,10 +853,11 @@ export type Database = {
           finished_at?: string | null
           id?: string
           idempotency_key: string
-          lock_key: string
+          lock_key?: string | null
+          product_id: string
           requested_by?: string | null
           scope?: Json
-          skus: string[]
+          skus?: string[]
           started_at?: string | null
           status?: string
           summary_json?: Json
@@ -536,7 +871,8 @@ export type Database = {
           finished_at?: string | null
           id?: string
           idempotency_key?: string
-          lock_key?: string
+          lock_key?: string | null
+          product_id?: string
           requested_by?: string | null
           scope?: Json
           skus?: string[]
@@ -546,7 +882,15 @@ export type Database = {
           target?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ppj_product_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_source_snapshots: {
         Row: {
@@ -563,6 +907,7 @@ export type Database = {
           normalized: Json
           parent_sku: string | null
           position: number
+          product_id: string | null
           raw_row: Json
           row_index: number
           row_type: string
@@ -592,6 +937,7 @@ export type Database = {
           normalized?: Json
           parent_sku?: string | null
           position?: number
+          product_id?: string | null
           raw_row: Json
           row_index: number
           row_type?: string
@@ -621,6 +967,7 @@ export type Database = {
           normalized?: Json
           parent_sku?: string | null
           position?: number
+          product_id?: string | null
           raw_row?: Json
           row_index?: number
           row_type?: string
@@ -642,6 +989,13 @@ export type Database = {
             columns: ["batch_id"]
             isOneToOne: false
             referencedRelation: "product_import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pss_product_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -805,6 +1159,50 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          created_at: string
+          entity_type: string
+          id: string
+          is_active: boolean
+          legacy_source: string
+          parent_product_id: string | null
+          sku: string
+          sku_norm: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          entity_type?: string
+          id?: string
+          is_active?: boolean
+          legacy_source?: string
+          parent_product_id?: string | null
+          sku: string
+          sku_norm?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          entity_type?: string
+          id?: string
+          is_active?: boolean
+          legacy_source?: string
+          parent_product_id?: string | null
+          sku?: string
+          sku_norm?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_parent_product_id_fkey"
+            columns: ["parent_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -925,6 +1323,7 @@ export type Database = {
     }
     Functions: {
       can_edit_products: { Args: { _user_id: string }; Returns: boolean }
+      can_manage_taxonomy: { Args: { _user_id: string }; Returns: boolean }
       can_publish_products: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {

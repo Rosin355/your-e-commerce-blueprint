@@ -1,29 +1,3 @@
--- =====================================================================
--- FASE 3.1a — IDENTITÀ CANONICA PRODOTTO  ·  revisione 3
--- public.products diventa l'identità canonica dell'intero nuovo Admin.
--- Migration completamente additiva: nessun backfill, nessuna riga inserita,
--- nessuna modifica alle tabelle legacy popolate
--- (product_sync_csv_products, product_enrichment_run_items, ...).
---
--- SCELTA SKU NORMALIZZATO
--- Si usa una COLONNA GENERATA STORED `sku_norm` = lower(btrim(sku)) con
--- UNIQUE ordinaria, invece di un indice univoco su espressione, perché:
---   1. il valore normalizzato è leggibile e interrogabile dal backfill
---      (JOIN diretto contro gli SKU legacy normalizzati);
---   2. può essere il bersaglio di una FK futura, cosa impossibile con un
---      indice su espressione dichiarato solo a livello di indice;
---   3. non è scrivibile dai client: è sempre derivato dallo SKU originale,
---      quindi non può divergere.
--- La forma originale dello SKU resta intatta in `sku`.
--- =====================================================================
-
--- ---------------------------------------------------------------------
--- 0. Guardie di identità
--- ---------------------------------------------------------------------
-
--- Le colonne di identità non sono modificabili dai client (nemmeno da un
--- eventuale UPDATE via PostgREST o Edge Function): richiedono una sessione
--- tecnica esplicita. Nessuna AI può quindi alterare SKU, tipo o parent.
 CREATE OR REPLACE FUNCTION public.protect_product_identity()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -43,11 +17,6 @@ BEGIN
 END;
 $$;
 
--- Coerenza della relazione parent/variante + anti-ciclo con errore esplicito.
--- La FK garantisce l'esistenza del parent; il trigger garantisce che il parent
--- sia di tipo 'variable', che non esistano cicli e che la profondità non superi
--- il limite. Ogni violazione solleva un errore: nessun aggiornamento parziale,
--- l'intera transazione viene annullata.
 CREATE OR REPLACE FUNCTION public.enforce_product_parent()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -66,7 +35,6 @@ BEGIN
     RETURN NEW;
   END IF;
 
-  -- entity_type = 'variation'
   IF NEW.parent_product_id IS NULL THEN
     RAISE EXCEPTION 'Una variation richiede parent_product_id' USING ERRCODE = '23502';
   END IF;
@@ -83,7 +51,6 @@ BEGIN
       USING ERRCODE = '23514';
   END IF;
 
-  -- risalita esplicita: nessun ciclo ammesso
   v_cursor := NEW.parent_product_id;
   WHILE v_cursor IS NOT NULL LOOP
     v_depth := v_depth + 1;
@@ -101,17 +68,12 @@ BEGIN
 END;
 $$;
 
--- ---------------------------------------------------------------------
--- 1. public.products — solo identità, nessun contenuto editoriale
--- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.products (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   sku               text NOT NULL,
-  -- forma normalizzata derivata: case-insensitive e trim-safe
   sku_norm          text GENERATED ALWAYS AS (lower(btrim(sku))) STORED,
   entity_type       text NOT NULL DEFAULT 'simple'
                       CHECK (entity_type IN ('simple','variable','variation')),
-  -- relazione canonica: MAI parent_sku
   parent_product_id uuid REFERENCES public.products(id)
                       ON DELETE RESTRICT
                       DEFERRABLE INITIALLY IMMEDIATE,
@@ -127,25 +89,10 @@ CREATE TABLE IF NOT EXISTS public.products (
     CHECK ((entity_type = 'variation') = (parent_product_id IS NOT NULL))
 );
 
--- La FK è DEFERRABLE: parent e variation possono essere creati nella stessa
--- transazione posticipando il controllo con SET CONSTRAINTS ... DEFERRED.
--- Il default resta IMMEDIATE, così l'errore emerge subito nel caso ordinario.
--- Il trigger di coerenza è BEFORE ROW (non differibile): l'ordine di
--- inserimento controllato (prima il variable, poi le variation) resta quindi
--- la modalità raccomandata per il backfill.
-
 CREATE INDEX IF NOT EXISTS idx_products_parent ON public.products (parent_product_id)
   WHERE parent_product_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_products_type_active ON public.products (entity_type, is_active);
 
--- ---------------------------------------------------------------------
--- 2. RLS e grant
---    Lettura: qualunque ruolo redazionale autorizzato (Editor, Publisher,
---    Admin, Tech Admin) tramite can_edit_products.
---    Scrittura: NESSUNA policy per i client. La creazione e la modifica di
---    identità passano esclusivamente da API/Edge Function server-side
---    (service_role) con validazione e audit. anon: nessun accesso.
--- ---------------------------------------------------------------------
 GRANT SELECT ON public.products TO authenticated;
 GRANT ALL ON public.products TO service_role;
 REVOKE ALL ON public.products FROM anon;
@@ -163,5 +110,3 @@ CREATE TRIGGER trg_products_updated BEFORE UPDATE ON public.products
 
 REVOKE ALL ON FUNCTION public.protect_product_identity() FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION public.enforce_product_parent() FROM PUBLIC, anon, authenticated, service_role;
-
--- Rollback logico: tabella nuova e vuota. Nessun impatto se non popolata.
