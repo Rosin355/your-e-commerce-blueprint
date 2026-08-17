@@ -84,7 +84,7 @@ export default function ValueDisplay({ value, label }: { value: unknown; label?:
   }
 
   const text: string = String(value as unknown as string);
-  if (isImageUrl(text)) {
+  if (isImageUrl(text as unknown)) {
     return (
       <img
         src={text}
@@ -94,12 +94,10 @@ export default function ValueDisplay({ value, label }: { value: unknown; label?:
       />
     );
   }
-  if (/<[a-z][\s\S]*>/i.test(text)) {
-    return (
-      <p className="whitespace-pre-wrap text-sm leading-relaxed">
-        {text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()}
-      </p>
-    );
-  }
-  return <p className="whitespace-pre-wrap text-sm leading-relaxed">{text}</p>;
+  const plain = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  return (
+    <p className="whitespace-pre-wrap text-sm leading-relaxed">
+      {/<[a-z][\s\S]*>/i.test(text) ? plain : text}
+    </p>
+  );
 }
