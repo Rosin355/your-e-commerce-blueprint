@@ -805,6 +805,50 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          created_at: string
+          entity_type: string
+          id: string
+          is_active: boolean
+          legacy_source: string
+          parent_product_id: string | null
+          sku: string
+          sku_norm: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          entity_type?: string
+          id?: string
+          is_active?: boolean
+          legacy_source?: string
+          parent_product_id?: string | null
+          sku: string
+          sku_norm?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          entity_type?: string
+          id?: string
+          is_active?: boolean
+          legacy_source?: string
+          parent_product_id?: string | null
+          sku?: string
+          sku_norm?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_parent_product_id_fkey"
+            columns: ["parent_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
