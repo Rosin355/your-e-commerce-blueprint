@@ -83,7 +83,7 @@ export default function ValueDisplay({ value, label }: { value: unknown; label?:
     );
   }
 
-  const text = String(value);
+  const text: string = String(value as unknown as string);
   if (isImageUrl(text)) {
     return (
       <img
