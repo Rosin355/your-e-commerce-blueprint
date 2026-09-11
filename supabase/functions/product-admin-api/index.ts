@@ -90,7 +90,10 @@ Deno.serve(async (req) => {
         writeMode: mode,
         canWrite: canWriteNow,
         allowedActions: canWriteNow ? CANARY_ACTIONS : [],
-        editableFieldKeys: canWriteNow && mode === "canary" ? CANARY_FIELD_KEYS : [],
+        editableFieldKeys:
+          canWriteNow && mode === "canary"
+            ? [...new Set([...CANARY_FIELD_KEYS, ...manualKeys])]
+            : [],
         canaryManualOnly: mode === "canary",
         readOnlyReason: !enabled
           ? "Le modifiche sono temporaneamente disabilitate."
