@@ -72,6 +72,17 @@ Deno.serve(async (req) => {
       const enabled = writesEnabled();
       const canaryRole = canWriteCanary(auth.roles);
       const canWriteNow = enabled && (mode === "full" || canaryRole);
+      // I campi solo-manuali sono editabili a mano anche in canary: la lista arriva dal registro campi.
+      let manualKeys: string[] = [];
+      if (canWriteNow && mode === "canary") {
+        const { data: manualDefs } = await db
+          .from("product_field_definitions")
+          .select("key")
+          .eq("manual_only", true)
+          .eq("editable", true)
+          .eq("visible", true);
+        manualKeys = (manualDefs ?? []).map((d: { key: string }) => d.key);
+      }
       return json({
         ok: true,
         roles: auth.roles,
