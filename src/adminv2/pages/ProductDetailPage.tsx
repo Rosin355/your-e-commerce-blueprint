@@ -12,13 +12,29 @@ import {
 } from '@/components/ui/accordion';
 import FieldCard from '../components/FieldCard';
 import ValueDisplay from '../components/ValueDisplay';
-import { useProductDetail, useSourceBaseline } from '../hooks/useAdminData';
+import {
+  useAdminContext,
+  useFieldCommand,
+  useProductDetail,
+  useSourceBaseline,
+} from '../hooks/useAdminData';
 import { ENTITY_LABEL, formatDate, INVENTORY_NOTICE, hasValue } from '../lib/labels';
 
 export default function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
   const { data, isLoading, isError, error, refetch } = useProductDetail(productId);
   const { data: baselineData } = useSourceBaseline(productId);
+  const { data: context } = useAdminContext();
+  const command = useFieldCommand(productId);
+
+  // Le modifiche restano lato server: la UI si limita a rispecchiare ciò che il server consente.
+  const canWrite = context?.canWrite === true;
+  const allowedKeys = context?.editableFieldKeys ?? [];
+  const canEditField = (key: string, manualOnly: boolean) =>
+    canWrite &&
+    (context?.writeMode !== 'canary' ||
+      allowedKeys.includes(key) ||
+      (context?.canaryManualOnly === true && manualOnly));
 
   if (isLoading) {
     return (
@@ -76,6 +92,11 @@ export default function ProductDetailPage() {
             {product.isActive ? 'Attivo' : 'Non attivo'}
           </Badge>
         </div>
+        <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
+          {canWrite
+            ? 'Puoi modificare alcuni campi testuali. Le modifiche restano interne: non vengono inviate a Shopify.'
+            : (context?.readOnlyReason ?? 'Questa scheda è in sola lettura.')}
+        </p>
       </header>
 
       <Accordion type="multiple" defaultValue={sections.slice(0, 2).map((s) => s.key)}>
@@ -100,7 +121,12 @@ export default function ProductDetailPage() {
               ) : (
                 <div className="grid gap-3 lg:grid-cols-2">
                   {section.fields.map((field) => (
-                    <FieldCard key={field.key} field={field} />
+                    <FieldCard
+                      key={field.key}
+                      field={field}
+                      canEdit={canEditField(field.key, field.manualOnly)}
+                      onCommand={command.mutateAsync}
+                    />
                   ))}
                 </div>
               )}

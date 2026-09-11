@@ -1,10 +1,14 @@
-// F6 — Scheda campo in sola lettura: origine, stato, protezioni, baseline.
-import { Info, Lock, ShieldCheck, Sparkles } from 'lucide-react';
+// F6/F7 — Scheda campo: sola lettura per tutti, modifica manuale per Admin/Tech Admin in collaudo.
+import { useState } from 'react';
+import { Check, Info, Loader2, Lock, ShieldCheck, Sparkles, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { toast } from '@/hooks/useToast';
 import ValueDisplay from './ValueDisplay';
-import type { AdminField } from '../lib/adminApi';
+import { AdminApiError, type AdminField, type FieldCommandAction } from '../lib/adminApi';
 import {
   ENTITY_LABEL,
   hasValue,
@@ -24,12 +28,10 @@ function displayValue(field: AdminField): unknown {
   return field.value;
 }
 
-const FUTURE_ACTIONS = ['Mantieni questo valore', 'Modifica', 'Migliora con AI', 'Scarta'];
-
-function DisabledActions() {
+function DisabledActions({ actions }: { actions: string[] }) {
   return (
     <div className="flex flex-wrap gap-2 pt-1">
-      {FUTURE_ACTIONS.map((action) => (
+      {actions.map((action) => (
         <Tooltip key={action}>
           <TooltipTrigger asChild>
             <span tabIndex={0} className="inline-flex rounded-md">
@@ -45,12 +47,77 @@ function DisabledActions() {
   );
 }
 
-export default function FieldCard({ field }: { field: AdminField }) {
+export interface FieldCardProps {
+  field: AdminField;
+  /** Vero solo per Admin/Tech Admin quando le modifiche sono attive e il campo è in allowlist. */
+  canEdit?: boolean;
+  onCommand?: (input: {
+    action: FieldCommandAction;
+    fieldKey: string;
+    value?: unknown;
+    expectedVersion: number;
+  }) => Promise<{ ok: boolean; code?: string; result?: Record<string, unknown> }>;
+}
+
+export default function FieldCard({ field, canEdit = false, onCommand }: FieldCardProps) {
   const legacyAi = isLegacyAi(field);
   const manual = isManualField(field);
+  const editable = canEdit && !!onCommand && field.version !== null && !field.locked;
+  const isLongText = field.editorType === 'textarea' || field.dataType === 'text';
+
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+  const [busy, setBusy] = useState<null | FieldCommandAction>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const baselineDiffers =
     hasValue(field.baselineValue) &&
     JSON.stringify(field.baselineValue) !== JSON.stringify(field.value);
+
+  const startEdit = () => {
+    setDraft(typeof field.value === 'string' ? field.value : field.value == null ? '' : String(field.value));
+    setValidationError(null);
+    setEditing(true);
+  };
+
+  const run = async (action: FieldCommandAction, value?: unknown) => {
+    if (!onCommand || field.version === null) return;
+    setBusy(action);
+    setValidationError(null);
+    try {
+      const res = await onCommand({
+        action,
+        fieldKey: field.key,
+        value,
+        expectedVersion: field.version,
+      });
+      if (res?.code === 'NO_CHANGE') {
+        toast({ title: 'Nessuna modifica', description: 'Il valore era già questo.' });
+      } else {
+        toast({ title: 'Modifica salvata', description: `${field.label} aggiornato.` });
+      }
+      setEditing(false);
+    } catch (err) {
+      const message =
+        err instanceof AdminApiError ? err.message : 'Non è stato possibile salvare. Riprova.';
+      if (err instanceof AdminApiError && err.code === 'VALIDATION_ERROR') {
+        setValidationError(message);
+      } else {
+        toast({ title: 'Modifica non riuscita', description: message, variant: 'destructive' });
+      }
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const save = () => {
+    const trimmed = draft.trim();
+    if (!trimmed) {
+      setValidationError('Il campo non può restare vuoto.');
+      return;
+    }
+    void run('update_field', trimmed);
+  };
 
   return (
     <article className="rounded-lg border bg-card p-4">
@@ -69,9 +136,50 @@ export default function FieldCard({ field }: { field: AdminField }) {
         </div>
       </header>
 
-      <div className="mb-3">
-        <ValueDisplay value={displayValue(field)} label={field.label} />
-      </div>
+      {editing ? (
+        <div className="mb-3 space-y-2">
+          {isLongText ? (
+            <Textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              rows={5}
+              aria-label={`Modifica ${field.label}`}
+            />
+          ) : (
+            <Input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              aria-label={`Modifica ${field.label}`}
+            />
+          )}
+          {validationError && (
+            <p role="alert" className="text-xs text-destructive">{validationError}</p>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" onClick={save} disabled={busy !== null}>
+              {busy === 'update_field' ? (
+                <>
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" aria-hidden="true" /> Salvataggio…
+                </>
+              ) : (
+                'Salva'
+              )}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setEditing(false)}
+              disabled={busy !== null}
+            >
+              Annulla
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="mb-3">
+          <ValueDisplay value={displayValue(field)} label={field.label} />
+        </div>
+      )}
 
       {legacyAi && (
         <p className="mb-3 rounded-md bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
@@ -119,7 +227,57 @@ export default function FieldCard({ field }: { field: AdminField }) {
         </p>
       )}
 
-      {legacyAi && <DisabledActions />}
+      {editable && !editing && (
+        <div className="flex flex-wrap gap-2 pt-3">
+          <Button size="sm" variant="outline" onClick={startEdit} disabled={busy !== null}>
+            Modifica
+          </Button>
+          {legacyAi && (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void run('confirm_legacy_value')}
+                disabled={busy !== null}
+              >
+                {busy === 'confirm_legacy_value' ? (
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Check className="mr-1 h-3.5 w-3.5" aria-hidden="true" />
+                )}
+                Mantieni valore
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void run('reject_legacy_value')}
+                disabled={busy !== null}
+              >
+                {busy === 'reject_legacy_value' ? (
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                ) : (
+                  <X className="mr-1 h-3.5 w-3.5" aria-hidden="true" />
+                )}
+                Rifiuta valore
+              </Button>
+            </>
+          )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span tabIndex={0} className="inline-flex rounded-md">
+                <Button size="sm" variant="outline" disabled aria-disabled="true">
+                  Migliora con AI
+                </Button>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>La generazione automatica non è ancora attiva.</TooltipContent>
+          </Tooltip>
+        </div>
+      )}
+
+      {!editable && legacyAi && (
+        <DisabledActions actions={['Mantieni questo valore', 'Modifica', 'Migliora con AI', 'Scarta']} />
+      )}
     </article>
   );
 }

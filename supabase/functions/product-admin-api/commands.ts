@@ -6,6 +6,32 @@ export function writesEnabled(): boolean {
   return (Deno.env.get("PRODUCT_ADMIN_WRITES_ENABLED") ?? "false").toLowerCase() === "true";
 }
 
+export type WriteMode = "canary" | "full";
+
+/** F7 — modalità di scrittura decisa esclusivamente dal server. */
+export function writeMode(): WriteMode {
+  return (Deno.env.get("PRODUCT_ADMIN_WRITE_MODE") ?? "canary").toLowerCase() === "full"
+    ? "full"
+    : "canary";
+}
+
+/** F7 — allowlist campi editabili in canary (oltre ai manual_only già configurati). */
+export const CANARY_FIELD_KEYS = [
+  "title",
+  "short_description",
+  "description",
+  "seo_title",
+  "seo_description",
+  "optimized_description",
+];
+
+/** F7 — command consentiti in canary: nessun clear, nessuna operazione massiva. */
+export const CANARY_ACTIONS = ["update_field", "confirm_legacy_value", "reject_legacy_value"];
+
+export function isCanaryField(def: { key: string; manual_only: boolean }): boolean {
+  return CANARY_FIELD_KEYS.includes(def.key) || def.manual_only === true;
+}
+
 /** Hash canonico del payload per l'idempotenza. */
 export async function payloadHash(input: Record<string, unknown>): Promise<string> {
   const canonical = JSON.stringify(input, Object.keys(input).sort());

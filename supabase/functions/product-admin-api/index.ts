@@ -2,7 +2,7 @@
 // Nessuna chiamata Shopify, nessuna AI, nessuna pubblicazione, nessun import.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { authenticate, AuthError, serviceClient } from "./auth.ts";
-import { authorizeAction, isCommandAction, isKnownAction } from "./permissions.ts";
+import { authorizeAction, canWriteCanary, isCommandAction, isKnownAction } from "./permissions.ts";
 import {
   getCurrentValue,
   getCurrentValues,
@@ -14,7 +14,14 @@ import {
   getDashboardStats,
   listProducts,
 } from "./queries.ts";
-import { executeCommand, writesEnabled } from "./commands.ts";
+import {
+  CANARY_ACTIONS,
+  CANARY_FIELD_KEYS,
+  executeCommand,
+  isCanaryField,
+  writeMode,
+  writesEnabled,
+} from "./commands.ts";
 import { isFieldEditable, validateCommand } from "./validation.ts";
 import {
   apiError,
@@ -61,13 +68,24 @@ Deno.serve(async (req) => {
 
     // ---------------- READ ----------------
     if (action === "get_admin_context") {
+      const mode = writeMode();
+      const enabled = writesEnabled();
+      const canaryRole = canWriteCanary(auth.roles);
+      const canWriteNow = enabled && (mode === "full" || canaryRole);
       return json({
         ok: true,
         roles: auth.roles,
-        writesEnabled: writesEnabled(),
-        canWrite: false,
-        readOnlyReason:
-          "Le modifiche saranno abilitate dopo il completamento dei test di sicurezza.",
+        writesEnabled: enabled,
+        writeMode: mode,
+        canWrite: canWriteNow,
+        allowedActions: canWriteNow ? CANARY_ACTIONS : [],
+        editableFieldKeys: canWriteNow && mode === "canary" ? CANARY_FIELD_KEYS : [],
+        canaryManualOnly: mode === "canary",
+        readOnlyReason: !enabled
+          ? "Le modifiche sono temporaneamente disabilitate."
+          : canWriteNow
+            ? ""
+            : "Le modifiche sono attive solo per gli amministratori durante la fase di collaudo.",
       });
     }
 
@@ -213,6 +231,20 @@ Deno.serve(async (req) => {
     if (!writesEnabled()) {
       console.log(redactedLog(action, actorId, "WRITES_DISABLED"));
       return fail("WRITES_DISABLED", "Scritture disabilitate su questo ambiente");
+    }
+
+    // F7 — modalità canary: solo Admin/Tech Admin, solo command e campi in allowlist.
+    if (writeMode() === "canary") {
+      if (!canWriteCanary(auth.roles)) {
+        console.log(redactedLog(action, actorId, "FORBIDDEN_CANARY"));
+        return fail("FORBIDDEN", "Modifiche riservate agli amministratori in fase di collaudo");
+      }
+      if (!CANARY_ACTIONS.includes(targetAction)) {
+        return fail("FORBIDDEN", "Operazione non consentita in fase di collaudo");
+      }
+      if (!isCanaryField(def)) {
+        return fail("FIELD_NOT_EDITABLE", "Campo non ancora abilitato alle modifiche");
+      }
     }
 
     const result = await executeCommand(db, {

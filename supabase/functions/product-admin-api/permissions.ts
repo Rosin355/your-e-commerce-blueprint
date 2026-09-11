@@ -43,6 +43,13 @@ export function canWrite(roles: AppRole[]): boolean {
   return roles.some((r) => WRITE_ROLES.includes(r));
 }
 
+/** F7 — in modalità canary scrivono soltanto Admin e Tech Admin. */
+const CANARY_WRITE_ROLES: AppRole[] = ["admin", "tech_admin"];
+
+export function canWriteCanary(roles: AppRole[]): boolean {
+  return roles.some((r) => CANARY_WRITE_ROLES.includes(r));
+}
+
 /**
  * Publisher da solo NON scrive in F5 (e non pubblica: la pubblicazione non è in scope).
  * Publisher + editor → può scrivere grazie al ruolo editor.

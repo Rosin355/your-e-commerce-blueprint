@@ -1,11 +1,13 @@
 // F6 — Hook di lettura: cache, retry, debounce e paginazione a cursore.
 import { useEffect, useState } from 'react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AdminApiError,
   callAdminApi,
+  sendFieldCommand,
   type AdminContext,
   type DashboardStats,
+  type FieldCommandAction,
   type ProductDetail,
   type ProductSummary,
 } from '../lib/adminApi';
@@ -81,6 +83,23 @@ export function useProductDetail(productId?: string) {
     enabled: !!productId,
     staleTime: 30_000,
     retry,
+  });
+}
+
+/** F7 — invio comando su un singolo campo, con aggiornamento della scheda e della cronologia. */
+export function useFieldCommand(productId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      action: FieldCommandAction;
+      fieldKey: string;
+      value?: unknown;
+      expectedVersion: number;
+    }) => sendFieldCommand({ ...input, productId: productId! }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product', productId] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
+    },
   });
 }
 

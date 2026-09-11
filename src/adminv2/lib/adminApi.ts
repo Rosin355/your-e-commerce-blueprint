@@ -7,9 +7,16 @@ export type EntityType = 'simple' | 'variable' | 'variation';
 export interface AdminContext {
   roles: string[];
   writesEnabled: boolean;
+  writeMode?: 'canary' | 'full';
   canWrite: boolean;
+  allowedActions?: string[];
+  editableFieldKeys?: string[];
+  canaryManualOnly?: boolean;
   readOnlyReason: string;
 }
+
+/** F7 — comandi ammessi in fase di collaudo. */
+export type FieldCommandAction = 'update_field' | 'confirm_legacy_value' | 'reject_legacy_value';
 
 export interface DashboardStats {
   products: { total: number; simple: number; variable: number; variation: number };
@@ -57,6 +64,7 @@ export interface AdminField {
   publishable: boolean;
   editable: boolean;
   locked: boolean;
+  version: number | null;
   helpText: string | null;
 }
 
@@ -99,6 +107,11 @@ const MESSAGES: Record<string, string> = {
   FORBIDDEN: 'Il tuo account non ha accesso a questa sezione.',
   NOT_FOUND: 'Elemento non trovato.',
   WRITES_DISABLED: 'Le modifiche non sono ancora abilitate.',
+  VERSION_CONFLICT:
+    'Questo campo è stato modificato altrove nel frattempo. Ricarica la pagina e riprova.',
+  IDEMPOTENCY_CONFLICT: 'Richiesta duplicata con contenuto diverso. Ricarica la pagina e riprova.',
+  FIELD_NOT_EDITABLE: 'Questo campo non è modificabile.',
+  REVIEW_STATE_INVALID: 'Il valore non è più in attesa di verifica.',
   INTERNAL_ERROR: 'Si è verificato un problema. Riprova tra qualche istante.',
 };
 
@@ -138,4 +151,22 @@ export async function callAdminApi<T = unknown>(
   }
 
   return data as T;
+}
+
+/** F7 — invio di un singolo comando campo; la chiave rende l'invio ripetibile senza duplicati. */
+export async function sendFieldCommand(input: {
+  action: FieldCommandAction;
+  productId: string;
+  fieldKey: string;
+  value?: unknown;
+  expectedVersion: number;
+}): Promise<{ ok: boolean; code?: string; result?: Record<string, unknown> }> {
+  return callAdminApi({
+    action: input.action,
+    productId: input.productId,
+    fieldKey: input.fieldKey,
+    value: input.value ?? null,
+    expectedVersion: input.expectedVersion,
+    idempotencyKey: crypto.randomUUID(),
+  });
 }
