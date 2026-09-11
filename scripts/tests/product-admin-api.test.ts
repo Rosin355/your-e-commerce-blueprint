@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { authorizeAction, isCommandAction, isKnownAction } from "../../supabase/functions/product-admin-api/permissions.ts";
+import { authorizeAction, canWriteCanary, isCommandAction, isKnownAction } from "../../supabase/functions/product-admin-api/permissions.ts";
+import { CANARY_ACTIONS, isCanaryField } from "../../supabase/functions/product-admin-api/commands.ts";
 import {
   isFieldEditable,
   isNoChange,
@@ -173,4 +174,30 @@ test("page size limitata", () => {
   assert.equal(normalizePageSize(undefined), 25);
   assert.equal(normalizePageSize(-3), 25);
   assert.equal(normalizePageSize(10), 10);
+});
+
+// F7 — modalità canary: ruoli e allowlist campi.
+test("canary: solo admin e tech_admin possono scrivere", () => {
+  assert.equal(canWriteCanary(["admin"]), true);
+  assert.equal(canWriteCanary(["tech_admin"]), true);
+  assert.equal(canWriteCanary(["editor"]), false);
+  assert.equal(canWriteCanary(["publisher"]), false);
+  assert.equal(canWriteCanary([]), false);
+});
+
+test("canary: allowlist campi testuali e manual_only", () => {
+  assert.equal(isCanaryField({ key: "title", manual_only: false }), true);
+  assert.equal(isCanaryField({ key: "seo_description", manual_only: false }), true);
+  assert.equal(isCanaryField({ key: "optimized_description", manual_only: false }), true);
+  assert.equal(isCanaryField({ key: "ibridatore", manual_only: true }), true);
+  assert.equal(isCanaryField({ key: "price", manual_only: false }), false);
+  assert.equal(isCanaryField({ key: "inventory_quantity", manual_only: false }), false);
+  assert.equal(isCanaryField({ key: "handle", manual_only: false }), false);
+});
+
+test("canary: clear_field non è tra le azioni consentite", () => {
+  assert.deepEqual(CANARY_ACTIONS.includes("clear_field"), false);
+  assert.deepEqual(CANARY_ACTIONS.includes("update_field"), true);
+  assert.deepEqual(CANARY_ACTIONS.includes("confirm_legacy_value"), true);
+  assert.deepEqual(CANARY_ACTIONS.includes("reject_legacy_value"), true);
 });
