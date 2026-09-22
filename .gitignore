@@ -40,3 +40,6 @@ src/assets/foto home/
 
 # Backup DB locali (dati catalogo) — mai committare
 backups/
+
+# Export originali WordPress/WooCommerce: snapshot locali immutabili
+/imports/wordpress/raw/
