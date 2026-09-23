@@ -43,3 +43,6 @@ backups/
 
 # Export originali WordPress/WooCommerce: snapshot locali immutabili
 /imports/wordpress/raw/
+
+# Report locale del dry-run golden (può contenere dati catalogo autorizzati)
+/docs/wordpress-golden-foundation-dry-run.json

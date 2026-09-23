@@ -26,6 +26,7 @@
     "shopify:create-metafields": "tsx scripts/create-shopify-metafield-definitions.ts",
     "test:catalog": "node --import tsx --test scripts/tests/*.test.ts",
     "dryrun:import": "node --import tsx scripts/dry-run-import.mjs",
+    "dryrun:lossless-golden": "node --import tsx scripts/lossless-catalog-golden-dry-run.mjs --dry-run --golden-only --offline",
     "backup:catalog": "node scripts/backup-catalog.mjs",
     "snapshot:shopify-manual": "node scripts/snapshot-shopify-manual-metafields.mjs"
   },
