@@ -120,6 +120,8 @@ export interface ProductCurrentValue {
   value_number: number | null;
   origin: FieldOrigin;
   source_batch_id: string | null;
+  /** Snapshot sorgente certo; resta NULL per record legacy o mapping ambiguo. */
+  source_snapshot_id: string | null;
   is_locked: boolean;
   publish_state: PublishState;
   published_at: string | null;
@@ -140,6 +142,10 @@ export interface ProductAiSuggestion {
   model: string | null;
   prompt_hint: string | null;
   based_on_value: unknown | null;
+  /** Versione del current value usata dall'AI; nullable per suggerimenti legacy. */
+  base_version: number | null;
+  /** Versione del prompt; nullable per suggerimenti legacy. */
+  prompt_version: string | null;
   status: AiSuggestionStatus;
   created_by: string | null;
   created_at: string;
