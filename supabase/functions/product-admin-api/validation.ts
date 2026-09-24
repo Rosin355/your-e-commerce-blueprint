@@ -69,6 +69,23 @@ export function validateValue(def: FieldDefinition, value: unknown): ValidationR
       if (value === null || typeof value !== "object") {
         return { ok: false, code: "VALIDATION_ERROR", message: "atteso un oggetto o una lista" };
       }
+      if (def.key === "faq") {
+        const validFaq = Array.isArray(value) && value.every((entry) => {
+          if (!entry || typeof entry !== "object" || Array.isArray(entry)) return false;
+          const item = entry as Record<string, unknown>;
+          const keys = Object.keys(item).sort();
+          return keys.length === 2 && keys[0] === "answer" && keys[1] === "question" &&
+            typeof item.question === "string" && item.question.trim().length > 0 &&
+            typeof item.answer === "string" && item.answer.trim().length > 0;
+        });
+        if (!validFaq) {
+          return {
+            ok: false,
+            code: "VALIDATION_ERROR",
+            message: "FAQ attese come lista di domanda e risposta",
+          };
+        }
+      }
       return { ok: true };
     default: {
       if (typeof value !== "string") {
@@ -126,6 +143,12 @@ export function validateCommand(
 
   if (typeof opts.expectedVersion !== "number" || opts.expectedVersion < 1) {
     return { ok: false, code: "VALIDATION_ERROR", message: "expectedVersion mancante" };
+  }
+
+  // Rispecchia il gate effettivo della RPC atomica: l'unica azione ammessa
+  // su una riga locked è la conferma esplicita di un valore legacy.
+  if (row.is_locked && action !== "confirm_legacy_value") {
+    return { ok: false, code: "FIELD_NOT_EDITABLE", message: "valore bloccato" };
   }
 
   if (action === "update_field") {
