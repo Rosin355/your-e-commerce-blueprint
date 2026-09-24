@@ -2,9 +2,34 @@
 
 ## Stato
 
-**FASE 1B COMPLETATA PER FOUNDATION E MIGRATION; VERIFICHE LIVE FINALI ANCORA APERTE.**
+**FASE 1B.4 CHIUSA; FOUNDATION, MIGRATION E LOCKFILE INTEGRATI. LE VERIFICHE
+LIVE DIRETTE RESTANO FUORI DAL PERIMETRO CODEX.**
 
 ## Stato cliente — Fase 1B.4
+
+### Chiusura controllata PR #2 — 24 settembre 2026
+
+La PR #2 `fix(build): synchronize drizzle lockfile` risulta mergiata su `main`
+con merge commit `78fb4580765a0bba0ac0c2567b4d4f6e2efee2f8`. Il fetch finale Codex
+ha rilevato che il merge era già stato completato su GitHub; Codex non ha quindi
+tentato un secondo merge.
+
+Verifiche dirette Codex sul risultato presente in `origin/main`:
+
+- il merge commit ha come parent la base `3f3e8d0` e il commit approvato
+  `b4779aa`;
+- la PR contiene esclusivamente `package-lock.json` e
+  `docs/phase1a7-integration-status.md`;
+- il `package-lock.json` mergiato è byte-identico al lockfile approvato;
+- `npm ci`, typecheck, 44 test catalogo, build e `git diff --check` sono verdi
+  in un worktree separato sul merge commit;
+- il check GitGuardian associato alla PR è concluso con esito positivo;
+- non sono state eseguite operazioni su migration, database, backfill, Shopify,
+  storefront o deploy manuali.
+
+Il prossimo lavoro applicativo resta Admin V2. Registro migration e smoke test
+live risultano verificati nei report Lovable, ma non sono stati interrogati
+direttamente da Codex in questa chiusura.
 
 La PR #1 è stata mergiata su `main` con commit
 `1f8f1bdb13948957641e39a31f3b5935b111d93f`. La foundation lossless usa
@@ -77,7 +102,7 @@ Verifiche eseguite da Codex in un worktree pulito creato da `origin/main`:
 
 | Verifica | Esito |
 |---|---|
-| `npm ci --ignore-scripts` senza `node_modules` preesistente | PASS |
+| `npm ci` senza `node_modules` preesistente | PASS |
 | `npm run typecheck` | PASS |
 | `npm run test:catalog` | PASS, 44/44 |
 | `npm run build` | PASS, 1.903 moduli |
