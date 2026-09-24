@@ -251,9 +251,10 @@ Al 24 settembre 2026:
 - commit applicativo verificato:
   `a164e1916155477ff462361c268d7bbebfe1c8f9`;
 - `origin/main` è ancora `7858f6cf662b539257fa46e3708362297b05a9e7`;
-- il branch è un commit avanti e zero indietro rispetto a `origin/main`;
+- la PR contiene il commit applicativo e il successivo aggiornamento
+  documentale; `origin/main` non ha nuovi commit rispetto alla baseline;
 - mergeability GitHub `MERGEABLE`, stato `CLEAN` e controllo GitGuardian
-  superato sul commit applicativo;
+  superato anche sull'head documentale;
 - nessuna modifica upstream sovrapposta alle API dalla baseline;
 - nessuna migration e nessun backfill fanno parte della PR.
 
