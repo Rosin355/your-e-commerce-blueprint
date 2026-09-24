@@ -2,7 +2,90 @@
 
 ## Stato
 
-**APPROVATO PER PUBBLICAZIONE IN PR — nessuna operazione live.**
+**FASE 1B COMPLETATA PER FOUNDATION E MIGRATION; VERIFICHE LIVE FINALI ANCORA APERTE.**
+
+## Stato cliente — Fase 1B.4
+
+La PR #1 è stata mergiata su `main` con commit
+`1f8f1bdb13948957641e39a31f3b5935b111d93f`. La foundation lossless usa
+`products` come unica tabella canonica e non introduce
+`product_catalog_entities`.
+
+Lovable riferisce che la migration è stata applicata in produzione dopo backup
+e collaudo staging, senza backfill. Codex ha verificato direttamente repository,
+merge, migration registrata nei file Drizzle, tipi nullable, assenza di consumer
+runtime obbligatori e test locali; non ha accesso autorizzato al progetto live
+per confermare il registro migration del database o svolgere gli smoke test.
+Un successivo report Lovable post-merge riferisce anche la corrispondenza del
+registro Drizzle live e il superamento degli smoke test; tali due verifiche non
+sono state ripetute direttamente da Codex.
+
+Stato sintetico:
+
+- foundation e merge: completati;
+- migration live: applicata secondo il report Lovable;
+- dati esistenti: 24.466 valori preservati secondo il report Lovable;
+- backfill: non eseguito;
+- registro migration live: verificato secondo il report Lovable post-merge,
+  ancora da verificare direttamente da Codex;
+- smoke test live Admin V2, catalogo e OG_393883: superati secondo il report
+  Lovable post-merge, ancora da ripetere direttamente tramite canale autorizzato;
+- prossima fase funzionale: Admin V2.
+
+### Evidenze dirette e riferite
+
+| Ambito | Stato | Fonte |
+|---|---|---|
+| Merge PR #1 su `main` | Completato, commit `1f8f1bd` | Verifica diretta Codex su Git/GitHub |
+| Tipi delle tre colonne | Nullable nel codice e nei tipi generati | Verifica diretta Codex |
+| Migration Drizzle nel repository | Presente e byte-identica alla migration Supabase | Verifica diretta Codex |
+| Migration in produzione | Applicata; tre colonne ancora `NULL` | Report Lovable Fase 1B.2 |
+| Backup privato e ripristino | Verificati | Report Lovable Fase 1B.2 |
+| Collaudo staging | Superato | Report Lovable Fase 1B.1 |
+| Valori esistenti | 24.466 invariati | Report Lovable Fase 1B.2 |
+| Registro migration live | Registro Drizzle coerente | Report Lovable post-merge; non verificato direttamente da Codex |
+| Smoke test live | Eseguiti con esito positivo | Report Lovable post-merge; non ripetuti direttamente da Codex |
+
+### Dry-run backfill riferito da Lovable
+
+| Classificazione | Conteggio |
+|---|---:|
+| `MATCH_READY` | 14.295 |
+| `AMBIGUOUS_SOURCE` | 0 |
+| `NO_MATCH` | 271 |
+| `NOT_APPLICABLE` | 9.900 |
+| Totale | 24.466 |
+
+Questi numeri provengono dal report Lovable e non da una nuova interrogazione
+Codex della produzione. Il backfill non è stato eseguito: tutti i collegamenti
+restano `NULL` finché non sarà approvato un task separato.
+
+### Verifica build e lockfile — Fase 1B.4
+
+Codex ha riallineato `package-lock.json` alle tre dipendenze già dichiarate da
+Lovable in `package.json`:
+
+- `drizzle-kit` `^0.31.11`, risolta a `0.31.11`;
+- `drizzle-orm` `^0.45.3`, risolta a `0.45.3`;
+- `postgres` `^3.4.9`, risolta a `3.4.9`.
+
+Il riallineamento aggiunge soltanto i tre pacchetti e le loro 29 dipendenze
+transitive: nessun pacchetto già bloccato è stato aggiornato, rimosso o
+risolto a una versione differente. `package.json` è invariato.
+
+Verifiche eseguite da Codex in un worktree pulito creato da `origin/main`:
+
+| Verifica | Esito |
+|---|---|
+| `npm ci --ignore-scripts` senza `node_modules` preesistente | PASS |
+| `npm run typecheck` | PASS |
+| `npm run test:catalog` | PASS, 44/44 |
+| `npm run build` | PASS, 1.903 moduli |
+| `git diff --check` | PASS |
+
+La build mantiene i warning preesistenti sulle due classi Tailwind ambigue e sul
+chunk JavaScript principale oltre 500 kB; non sono introdotti da questa
+correzione del lockfile.
 
 Il riallineamento è stato eseguito in un worktree separato e non sincronizzato
 cloud, creato da `origin/main` (`273fdbf`). Il workspace storico sul branch
@@ -93,8 +176,10 @@ Introduce soltanto colonne nullable e idempotenti:
 | `product_ai_suggestions` | `prompt_version` | `text` |
 
 Non contiene DML e non altera dati, FK, indici, constraint, trigger, RLS, policy,
-grant o privilegi. Non è stata applicata né localmente al database live né su
-Lovable Cloud.
+grant o privilegi. Alla chiusura della Fase 1A.7 non era ancora applicata; il
+report Lovable Fase 1B.2 ne documenta ora l'applicazione in produzione. Codex ha
+verificato il file e il registro Drizzle nel repository, ma non ancora la entry
+nel registro migration del database live.
 
 ## Dry-run golden e dati privati
 
@@ -184,11 +269,13 @@ siano inutilizzate e backup verificato. Se in futuro esistesse un backfill, il
 rollback dati dovrebbe usare un journal per azzerare esclusivamente le righe della
 specifica esecuzione.
 
-## Prossimo lavoro Admin V2
+## Prossimo lavoro — Admin V2
 
-Dopo l'approvazione e la review della PR:
+Admin V2 è la prossima fase funzionale. Prima di abilitarne scritture o workflow:
 
-- verifica staging della migration senza backfill;
+- verificare direttamente registro migration e tre colonne tramite accesso
+  read-only autorizzato;
+- eseguire smoke test live di Admin V2, catalogo e OG_393883;
 - adattatore esplicito tra registry offline e definizioni live;
 - UI di provenance e stato legacy nullable;
 - review separata dei tre SKU con variation;
@@ -314,5 +401,5 @@ Nessun valore privato è riportato in questo documento.
 - [x] Nessun CSV, backup, snapshot Shopify, output privato o URL firmato in staging.
 - [x] Typecheck, test catalogo, build e `git diff --check` finali.
 - [x] Review esatta dello staging Git prima del commit: 13 file, nessun artefatto privato.
-- [ ] Push del solo branch e apertura PR verso `main`.
+- [x] Push del branch e PR #1 completati; merge `1f8f1bd` verificato.
 - [x] Nessun merge, migration live, backfill, deploy o modifica Shopify/storefront.
