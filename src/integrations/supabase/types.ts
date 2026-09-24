@@ -186,6 +186,7 @@ export type Database = {
       }
       product_ai_suggestions: {
         Row: {
+          base_version: number | null
           based_on_value: Json | null
           created_at: string
           created_by: string | null
@@ -195,6 +196,7 @@ export type Database = {
           model: string | null
           product_id: string
           prompt_hint: string | null
+          prompt_version: string | null
           resolved_at: string | null
           resolved_by: string | null
           sku: string
@@ -203,6 +205,7 @@ export type Database = {
           suggestion_text: string | null
         }
         Insert: {
+          base_version?: number | null
           based_on_value?: Json | null
           created_at?: string
           created_by?: string | null
@@ -212,6 +215,7 @@ export type Database = {
           model?: string | null
           product_id: string
           prompt_hint?: string | null
+          prompt_version?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
           sku: string
@@ -220,6 +224,7 @@ export type Database = {
           suggestion_text?: string | null
         }
         Update: {
+          base_version?: number | null
           based_on_value?: Json | null
           created_at?: string
           created_by?: string | null
@@ -229,6 +234,7 @@ export type Database = {
           model?: string | null
           product_id?: string
           prompt_hint?: string | null
+          prompt_version?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
           sku?: string
@@ -519,6 +525,7 @@ export type Database = {
           reviewed_by: string | null
           sku: string
           source_batch_id: string | null
+          source_snapshot_id: string | null
           updated_at: string
           updated_by: string | null
           value_json: Json | null
@@ -545,6 +552,7 @@ export type Database = {
           reviewed_by?: string | null
           sku: string
           source_batch_id?: string | null
+          source_snapshot_id?: string | null
           updated_at?: string
           updated_by?: string | null
           value_json?: Json | null
@@ -571,6 +579,7 @@ export type Database = {
           reviewed_by?: string | null
           sku?: string
           source_batch_id?: string | null
+          source_snapshot_id?: string | null
           updated_at?: string
           updated_by?: string | null
           value_json?: Json | null
