@@ -67,7 +67,7 @@ async function listProducts(data: any) {
   // multi-status non è supportata: ritorniamo hasNextPage=false e tutti i
   // risultati combinati (il caller carica già fino a 250 per chiamata).
   if (rawStatus.includes(",")) {
-    const statuses = rawStatus.split(",").map((s) => s.trim()).filter(Boolean);
+    const statuses = rawStatus.split(",").map((s: string) => s.trim()).filter(Boolean);
     const seen = new Set<number>();
     const merged: any[] = [];
     const warnings: string[] = [];
@@ -248,7 +248,8 @@ async function persistShopifySyncState(opts: {
     let q = db.from("product_sync_csv_products").update(patch);
     if (sku) q = q.eq("sku", sku);
     else q = q.eq("handle", handle);
-    const { error, count } = await q.select("sku", { count: "exact", head: true });
+    // deno-lint-ignore no-explicit-any
+    const { error, count } = await (q as any).select("sku", { count: "exact", head: true });
     if (error) {
       console.warn("[persistShopifySyncState] DB update error:", error.message);
       return;
