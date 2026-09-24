@@ -11,30 +11,18 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import FieldCard from '../components/FieldCard';
-import ValueDisplay from '../components/ValueDisplay';
 import {
   useAdminContext,
   useFieldCommand,
   useProductDetail,
-  useSourceBaseline,
 } from '../hooks/useAdminData';
-import { ENTITY_LABEL, formatDate, INVENTORY_NOTICE, hasValue } from '../lib/labels';
+import { ENTITY_LABEL, formatDate, INVENTORY_NOTICE } from '../lib/labels';
 
 export default function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
   const { data, isLoading, isError, error, refetch } = useProductDetail(productId);
-  const { data: baselineData } = useSourceBaseline(productId);
   const { data: context } = useAdminContext();
   const command = useFieldCommand(productId);
-
-  // Le modifiche restano lato server: la UI si limita a rispecchiare ciò che il server consente.
-  const canWrite = context?.canWrite === true;
-  const allowedKeys = context?.editableFieldKeys ?? [];
-  const canEditField = (key: string, manualOnly: boolean) =>
-    canWrite &&
-    (context?.writeMode !== 'canary' ||
-      allowedKeys.includes(key) ||
-      (context?.canaryManualOnly === true && manualOnly));
 
   if (isLoading) {
     return (
@@ -63,7 +51,6 @@ export default function ProductDetailPage() {
     .flatMap((s) => s.fields)
     .find((f) => f.key === 'title' || f.key === 'name');
   const title = (titleField?.value as string) ?? product.sku;
-  const baseline = (baselineData?.baseline?.normalized ?? {}) as Record<string, unknown>;
 
   return (
     <div className="space-y-5">
@@ -93,8 +80,8 @@ export default function ProductDetailPage() {
           </Badge>
         </div>
         <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-          {canWrite
-            ? 'Puoi modificare alcuni campi testuali. Le modifiche restano interne: non vengono inviate a Shopify.'
+          {context?.canWrite
+            ? 'Le capability sono calcolate dal server per ciascun campo. Le modifiche restano interne e non vengono inviate a Shopify.'
             : (context?.readOnlyReason ?? 'Questa scheda è in sola lettura.')}
         </p>
       </header>
@@ -124,8 +111,8 @@ export default function ProductDetailPage() {
                     <FieldCard
                       key={field.key}
                       field={field}
-                      canEdit={canEditField(field.key, field.manualOnly)}
                       onCommand={command.mutateAsync}
+                      onConflict={refetch}
                     />
                   ))}
                 </div>
@@ -133,31 +120,6 @@ export default function ProductDetailPage() {
             </AccordionContent>
           </AccordionItem>
         ))}
-
-        <AccordionItem value="baseline">
-          <AccordionTrigger className="text-base font-semibold">
-            Dati originali importati
-          </AccordionTrigger>
-          <AccordionContent>
-            <p className="mb-3 text-xs text-muted-foreground">
-              Copia non modificabile dei dati provenienti dal sistema precedente.
-            </p>
-            {Object.keys(baseline).length === 0 ? (
-              <p className="text-sm text-muted-foreground">Nessun dato originale disponibile.</p>
-            ) : (
-              <dl className="grid gap-2 sm:grid-cols-2">
-                {Object.entries(baseline)
-                  .filter(([, v]) => hasValue(v))
-                  .map(([key, value]) => (
-                    <div key={key} className="rounded-md border bg-muted/30 p-2">
-                      <dt className="text-xs font-medium text-muted-foreground">{key}</dt>
-                      <dd className="mt-1"><ValueDisplay value={value} /></dd>
-                    </div>
-                  ))}
-              </dl>
-            )}
-          </AccordionContent>
-        </AccordionItem>
 
         <AccordionItem value="history">
           <AccordionTrigger className="text-base font-semibold">Cronologia modifiche</AccordionTrigger>

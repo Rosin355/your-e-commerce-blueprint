@@ -1,6 +1,8 @@
 // F6 — Unico canale dati dell'Admin: la Edge Function product-admin-api.
 // Il browser non interroga mai direttamente le tabelle del catalogo.
 import { supabase } from '@/integrations/supabase/client';
+import { AdminApiError } from './AdminApiError';
+export { AdminApiError } from './AdminApiError';
 
 export type EntityType = 'simple' | 'variable' | 'variation';
 
@@ -55,17 +57,54 @@ export interface AdminField {
   dataType: string;
   value: unknown;
   baselineValue: unknown;
+  sourceState: 'linked_snapshot' | 'unlinked_baseline' | 'original_absent';
+  sourceSnapshotId: string | null;
   origin: string | null;
   reviewStatus: string | null;
   publishBlocked: boolean;
   protectedOnReimport: boolean;
   aiAllowed: boolean;
   manualOnly: boolean;
+  required: boolean;
+  appliesTo: 'product' | 'variant' | 'both';
+  validationRules: Record<string, unknown>;
   publishable: boolean;
   editable: boolean;
   locked: boolean;
   version: number | null;
   helpText: string | null;
+  capabilities: FieldCapabilities;
+}
+
+export type FieldCapabilityReason =
+  | 'allowed'
+  | 'writes_disabled'
+  | 'role_forbidden'
+  | 'not_applicable'
+  | 'definition_readonly'
+  | 'canary_field_not_allowed'
+  | 'current_value_missing'
+  | 'current_value_locked'
+  | 'legacy_review_not_required'
+  | 'phase_2c';
+
+export interface FieldCapabilities {
+  definitionEditable: boolean;
+  manualOnly: boolean;
+  isLocked: boolean;
+  protectedOnReimport: boolean;
+  aiAllowed: boolean;
+  appliesTo: 'product' | 'variant' | 'both';
+  applicable: boolean;
+  currentValueExists: boolean;
+  canUpdate: boolean;
+  canConfirmLegacy: boolean;
+  canRejectLegacy: boolean;
+  canSuggestAi: boolean;
+  updateBlockReason: FieldCapabilityReason;
+  confirmLegacyBlockReason: FieldCapabilityReason;
+  rejectLegacyBlockReason: FieldCapabilityReason;
+  aiBlockReason: FieldCapabilityReason;
 }
 
 export interface AdminSection {
@@ -94,12 +133,6 @@ export interface HistoryEntry {
   change_type: string;
   actor_label: string | null;
   created_at: string;
-}
-
-export class AdminApiError extends Error {
-  constructor(public code: string, message: string) {
-    super(message);
-  }
 }
 
 const MESSAGES: Record<string, string> = {
@@ -137,7 +170,11 @@ export async function callAdminApi<T = unknown>(
       try {
         const payload = await ctx.json();
         const code = payload?.error?.code ?? 'INTERNAL_ERROR';
-        throw new AdminApiError(code, MESSAGES[code] ?? payload?.error?.message ?? MESSAGES.INTERNAL_ERROR);
+        throw new AdminApiError(
+          code,
+          MESSAGES[code] ?? payload?.error?.message ?? MESSAGES.INTERNAL_ERROR,
+          payload?.error?.details,
+        );
       } catch (parsed) {
         if (parsed instanceof AdminApiError) throw parsed;
       }
@@ -147,7 +184,8 @@ export async function callAdminApi<T = unknown>(
 
   if (data && (data as { ok?: boolean }).ok === false) {
     const code = (data as { error?: { code?: string } }).error?.code ?? 'INTERNAL_ERROR';
-    throw new AdminApiError(code, MESSAGES[code] ?? MESSAGES.INTERNAL_ERROR);
+    const details = (data as { error?: { details?: Record<string, unknown> } }).error?.details;
+    throw new AdminApiError(code, MESSAGES[code] ?? MESSAGES.INTERNAL_ERROR, details);
   }
 
   return data as T;
