@@ -11,6 +11,7 @@ import {
   getProduct,
   getProductHistory,
   getSourceBaseline,
+  getSourceSnapshotsByIds,
   getDashboardStats,
   listProducts,
 } from "./queries.ts";
@@ -31,6 +32,7 @@ import {
   serializeSections,
 } from "./serializers.ts";
 import type { ApiErrorCode, CommandAction } from "./types.ts";
+import { appliesToEntity, type ProductEntityType } from "./capabilities.ts";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -136,10 +138,10 @@ Deno.serve(async (req) => {
         const { data: parents } = await db.from("products").select("id,sku").in("id", parentIds);
         for (const parent of parents ?? []) parentSkuById.set(parent.id, parent.sku);
       }
-      const items = productRows.map((p: never) => {
+      const items = productRows.map((p) => {
         const row = p as { id: string; parent_product_id: string | null };
         return serializeProductSummary(
-          p,
+          p as { id: string; sku: string; entity_type: string; parent_product_id: string | null; updated_at: string },
           values.filter((v) => v.product_id === row.id),
           row.parent_product_id ? (parentSkuById.get(row.parent_product_id) ?? null) : null,
         );
@@ -168,7 +170,13 @@ Deno.serve(async (req) => {
         getSourceBaseline(db, productId),
         getProductHistory(db, productId, 20),
       ]);
-      const baseline = (snapshot?.normalized ?? {}) as Record<string, unknown>;
+      const linkedSnapshots = await getSourceSnapshotsByIds(
+        db,
+        productId,
+        values
+          .map((value) => value.source_snapshot_id)
+          .filter((id): id is string => typeof id === "string"),
+      );
       return json({
         ok: true,
         product: {
@@ -182,7 +190,17 @@ Deno.serve(async (req) => {
           isActive: product.is_active,
           updatedAt: product.updated_at,
         },
-        sections: serializeSections(defs, values, baseline),
+        sections: serializeSections(
+          defs,
+          values,
+          product.entity_type as ProductEntityType,
+          {
+            roles: auth.roles,
+            writesEnabled: writesEnabled(),
+            writeMode: writeMode(),
+          },
+          { fallbackSnapshot: snapshot, linkedSnapshots },
+        ),
         history,
       });
     }
@@ -194,6 +212,21 @@ Deno.serve(async (req) => {
 
     const def = await getFieldDefinition(db, fieldKey);
     if (!def) return fail("NOT_FOUND", "Field key non registrata");
+
+    const commandProduct = await getProduct(db, productId);
+    if (!commandProduct) return fail("NOT_FOUND", "Prodotto inesistente");
+    if (!appliesToEntity(def.applies_to, commandProduct.entity_type as ProductEntityType)) {
+      if (action === "validate_field_update") {
+        return json({
+          ok: false,
+          valid: false,
+          code: "FIELD_NOT_EDITABLE",
+          message: "Campo non applicabile a questo tipo di prodotto",
+          currentVersion: null,
+        });
+      }
+      return fail("FIELD_NOT_EDITABLE", "Campo non applicabile a questo tipo di prodotto");
+    }
 
     const editable = isFieldEditable(def);
     if (!editable.ok) {

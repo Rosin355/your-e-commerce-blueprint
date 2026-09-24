@@ -79,9 +79,17 @@ export interface CurrentValueRow {
   review_status: string;
   publish_blocked: boolean;
   protected_on_reimport: boolean;
+  source_snapshot_id: string | null;
   is_locked: boolean;
   version: number;
   updated_at: string;
+}
+
+export interface SourceSnapshotRow {
+  id: string;
+  product_id: string | null;
+  normalized: Record<string, unknown>;
+  created_at: string;
 }
 
 export interface ListProductsFilters {

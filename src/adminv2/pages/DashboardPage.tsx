@@ -112,7 +112,7 @@ export default function DashboardPage() {
           <CardContent className="text-sm">
             <p>Collegamento attivo</p>
             <p className="text-muted-foreground">
-              Accesso in sola lettura{context?.roles?.length ? '' : ''}
+              {context?.canWrite ? 'Editing per campo controllato dal server' : 'Accesso in sola lettura'}
             </p>
           </CardContent>
         </Card>
@@ -124,7 +124,7 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
-            <p>Funzioni di modifica non ancora abilitate.</p>
+            <p>{context?.canWrite ? 'Nessuna pubblicazione automatica.' : 'Funzioni di modifica non abilitate.'}</p>
             <Link to="/admin/products" className="mt-2 inline-block text-primary underline">
               Vai al catalogo
             </Link>

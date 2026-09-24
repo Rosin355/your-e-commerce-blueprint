@@ -1,4 +1,4 @@
-// F6 — Guscio dell'Admin: menu principale, ruoli, stato sola lettura.
+// Fase 2B — Guscio Admin: lo stato operativo arriva dal server.
 import { NavLink, Outlet } from 'react-router-dom';
 import {
   BarChart3,
@@ -105,7 +105,9 @@ export default function AdminShell() {
 
       <div className="border-b bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
         <p className="mx-auto max-w-7xl px-4 py-2 text-sm">
-          Modalità consultazione: le funzioni di modifica non sono ancora abilitate.
+          {context?.canWrite
+            ? 'Modifiche field-by-field controllate dal server; nessuna pubblicazione automatica.'
+            : (context?.readOnlyReason ?? 'Modalità consultazione: le modifiche non sono abilitate.')}
         </p>
       </div>
 

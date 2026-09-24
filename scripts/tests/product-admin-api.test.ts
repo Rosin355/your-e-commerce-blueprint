@@ -51,6 +51,7 @@ function row(over: Partial<CurrentValueRow> = {}): CurrentValueRow {
     review_status: "approved",
     publish_blocked: false,
     protected_on_reimport: false,
+    source_snapshot_id: null,
     is_locked: false,
     version: 1,
     updated_at: "2026-08-17T00:00:00Z",
@@ -154,7 +155,16 @@ test("serializzazione sezioni e riepilogo", () => {
   const sections = serializeSections(
     [def(), def({ key: "seo_title", field_group: "seo", sort_order: 1 })],
     [row(), row({ field_key: "seo_title", review_status: "legacy_unverified", publish_blocked: true, version: 3 })],
-    { title: "Titolo originale" },
+    "simple",
+    { roles: ["admin"], writesEnabled: true, writeMode: "full" },
+    {
+      fallbackSnapshot: {
+        id: "33333333-3333-3333-3333-333333333333",
+        product_id: "22222222-2222-2222-2222-222222222222",
+        normalized: { title: "Titolo originale" },
+        created_at: "2026-08-17T00:00:00Z",
+      },
+    },
   );
   assert.deepEqual(sections.map((s) => s.key), ["main", "seo"]);
   assert.equal(sections[0].fields[0].baselineValue, "Titolo originale");
