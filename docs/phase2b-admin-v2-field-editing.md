@@ -6,7 +6,8 @@ Branch: `codex/admin-v2-field-editing`
 
 Base verificata: `origin/main` `7858f6cf662b539257fa46e3708362297b05a9e7`
 
-Stato: **implementazione locale completata, non committata e non distribuita; in attesa di approvazione**.
+Stato: **implementazione presente nella PR #4; merge sospeso in attesa della
+conferma di un rilascio coordinato Edge Function/frontend**.
 
 ## 1. Esito
 
@@ -25,8 +26,7 @@ Stato: **implementazione locale completata, non committata e non distribuita; in
   conflitto di versione.
 
 Non sono stati modificati funzione SQL atomica, schema, migration, dati,
-backfill, AI, Shopify o storefront. Non sono stati eseguiti deploy, commit o
-push.
+backfill, AI, Shopify o storefront. Non sono stati eseguiti deploy.
 
 ## 2. Contratto capability server-side
 
@@ -189,11 +189,13 @@ Query. La RPC rimane l'unico canale di scrittura.
 
 | Controllo | Esito |
 |---|---|
-| sync branch con `origin/main` | PASS — `0 ahead / 0 behind`, base `7858f6c` |
+| fetch e confronto con `origin/main` | PASS — branch `1 ahead / 0 behind`, base/main `7858f6c`; nessuna sovrapposizione upstream |
+| `npm ci` | PASS — installazione pulita da lockfile, 386 pacchetti |
 | `npm run typecheck` | PASS |
 | `npm run test:catalog` | PASS — 53/53; include capability, cinque manuali golden, `applies_to`, editor, FAQ, lineage e conflitto |
 | `deno check supabase/functions/product-admin-api/index.ts` | PASS |
 | `npm run build` | PASS — 1.907 moduli |
+| `git diff --check` | PASS |
 
 La build segnala i warning preesistenti sulle classi Tailwind arbitrarie e sul
 chunk principale oltre 500 kB; non sono errori introdotti dalla capability.
@@ -237,3 +239,97 @@ AI, Shopify, deploy o attivazione generalizzata delle scritture.
 - [x] nessuna modifica SQL, DB, AI, Shopify o storefront;
 - [ ] collaudo cliente/deploy — fuori scope e subordinato ad approvazione;
 - [ ] policy manual-only locked, insert dei campi assenti e AI proposal — Fase 2C.
+
+## 11. Gate di rilascio Fase 2B.2
+
+### 11.1 Stato GitHub verificato
+
+Al 24 settembre 2026:
+
+- PR #4 aperta, non draft, base `main` e head
+  `codex/admin-v2-field-editing`;
+- commit applicativo verificato:
+  `a164e1916155477ff462361c268d7bbebfe1c8f9`;
+- `origin/main` è ancora `7858f6cf662b539257fa46e3708362297b05a9e7`;
+- il branch è un commit avanti e zero indietro rispetto a `origin/main`;
+- mergeability GitHub `MERGEABLE`, stato `CLEAN` e controllo GitGuardian
+  superato sul commit applicativo;
+- nessuna modifica upstream sovrapposta alle API dalla baseline;
+- nessuna migration e nessun backfill fanno parte della PR.
+
+### 11.2 Verifica del modello di pubblicazione Lovable
+
+La documentazione ufficiale distingue tre operazioni:
+
+1. la sincronizzazione dei commit tra GitHub e il progetto Lovable;
+2. il deploy delle Edge Functions tramite l'integrazione Supabase/Lovable;
+3. la pubblicazione esplicita della versione frontend con **Publish changes**.
+
+Riferimenti:
+
+- [GitHub integration](https://docs.lovable.dev/integrations/github);
+- [Supabase integration](https://docs.lovable.dev/integrations/supabase);
+- [Edge Functions](https://docs.lovable.dev/features/edge-functions);
+- [Publish your Lovable project](https://docs.lovable.dev/features/publish).
+
+Le fonti non garantiscono che il merge GitHub renda disponibile la nuova Edge
+Function e il nuovo frontend in modo atomico o nello stesso ordine. Il gate è
+quindi **NO-GO al merge** finché il responsabile del rilascio non conferma un
+flusso coordinato che renda disponibile il backend prima del frontend.
+
+### 11.3 Matrice di compatibilità durante il rilascio
+
+| Frontend | `product-admin-api` | Esito |
+|---|---|---|
+| precedente | precedente | baseline attuale |
+| precedente | nuova | compatibile: la risposta API è additiva |
+| nuovo | precedente | **non compatibile**: mancano `capabilities` e `sourceState` richiesti dalla nuova UI |
+| nuovo | nuova | configurazione obiettivo |
+
+Questa asimmetria impone una sequenza **Edge Function prima, frontend dopo**.
+La PR non richiede migration o backfill preventivi: il campo
+`source_snapshot_id` può restare `NULL` e viene gestito come lineage non
+collegata o originale assente.
+
+### 11.4 Procedura coordinata proposta
+
+La seguente procedura è preparata ma non è stata eseguita:
+
+1. confermare nel progetto Lovable il repository, il branch sincronizzato
+   `main`, il progetto Supabase collegato e l'assenza di modifiche non
+   pubblicate estranee alla PR;
+2. dopo l'eventuale merge autorizzato, distribuire
+   `supabase/functions/product-admin-api` dall'esatto merge commit tramite il
+   canale Lovable/Supabase già autorizzato, senza eseguire migration;
+3. prima di pubblicare il frontend, eseguire smoke test read-only della Edge
+   Function autenticandosi come Admin: `get_admin_context`, lista prodotto,
+   `get_product` per `OG_393883`, parent e variation;
+4. verificare nelle risposte `capabilities`, `appliesTo`, `sourceState`,
+   `sourceSnapshotId` nullable, provenance e version; non invocare action di
+   comando;
+5. solo dopo l'esito positivo, pubblicare esplicitamente il frontend Lovable
+   dallo stesso merge commit;
+6. eseguire gli smoke test UI read-only descritti sotto e controllare log
+   frontend/Edge Function;
+7. in caso di problema frontend, ripristinare la precedente versione
+   pubblicata. La nuova API, essendo additiva, può restare attiva; un eventuale
+   rollback della funzione deve usare esclusivamente il canale autorizzato e la
+   versione precedente, senza rollback DB.
+
+Il merge può procedere soltanto con evidenza preventiva che il punto 2 preceda
+il punto 5, oppure con una garanzia esplicita della piattaforma equivalente.
+
+### 11.5 Smoke test post-rilascio
+
+- [ ] accesso Admin e caricamento lista senza errori browser o rete;
+- [ ] apertura read-only di `OG_393883` senza modifica di dati live;
+- [ ] corrente, originale, provenance, version e stato lineage visibili;
+- [ ] `source_snapshot_id=NULL` gestito senza errore né origine inventata;
+- [ ] cinque campi manuali locked senza pulsante Salva;
+- [ ] `applies_to` coerente su simple, parent `variable` e variation;
+- [ ] FAQ canoniche mostrate nell'editor domanda/risposta;
+- [ ] FAQ legacy opache mostrate read-only e non trasformate;
+- [ ] conflitto `expectedVersion` verificato successivamente solo in ambiente
+  autorizzato, senza overwrite automatico;
+- [ ] nessuna chiamata o attivazione di import, AI, Shopify o storefront;
+- [ ] nessuna migration, backfill o scrittura DB eseguita dal rilascio.
