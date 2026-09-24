@@ -1,5 +1,17 @@
 // F5 — Serializzazione risposte e errori. Modulo puro e testabile.
-import type { ApiErrorCode, CurrentValueRow, FieldDefinition } from "./types.ts";
+import type {
+  ApiErrorCode,
+  AppRole,
+  CurrentValueRow,
+  FieldDefinition,
+  SourceSnapshotRow,
+} from "./types.ts";
+import {
+  appliesToEntity,
+  calculateFieldCapabilities,
+  type CapabilityContext,
+  type ProductEntityType,
+} from "./capabilities.ts";
 import { currentValueOf, isFieldEditable } from "./validation.ts";
 
 export const HTTP_BY_CODE: Record<ApiErrorCode, number> = {
@@ -51,8 +63,65 @@ export const SHOPIFY_STATUS_LABEL: Record<string, string> = {
   never: "Mai sincronizzato",
 };
 
-export function serializeField(def: FieldDefinition, row: CurrentValueRow | undefined, baseline?: unknown) {
+export type SourceBaselineState = "linked_snapshot" | "unlinked_baseline" | "original_absent";
+
+export interface SourceSerializationContext {
+  fallbackSnapshot?: SourceSnapshotRow | null;
+  linkedSnapshots?: SourceSnapshotRow[];
+}
+
+const READ_ONLY_CAPABILITY_CONTEXT: CapabilityContext = {
+  roles: [] as AppRole[],
+  writesEnabled: false,
+  writeMode: "canary",
+};
+
+function hasOwn(record: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(record, key);
+}
+
+function sourceForField(
+  def: FieldDefinition,
+  row: CurrentValueRow | undefined,
+  source: SourceSerializationContext,
+): { baselineValue: unknown; sourceState: SourceBaselineState } {
+  const linked = row?.source_snapshot_id
+    ? source.linkedSnapshots?.find((snapshot) => snapshot.id === row.source_snapshot_id)
+    : undefined;
+
+  if (linked && hasOwn(linked.normalized, def.key)) {
+    return {
+      baselineValue: linked.normalized[def.key],
+      sourceState: "linked_snapshot",
+    };
+  }
+
+  if (linked) return { baselineValue: null, sourceState: "original_absent" };
+
+  // Se un id puntuale è presente ma non risolvibile, non sostituiamo silenziosamente
+  // la provenance con lo snapshot più recente del prodotto.
+  if (row?.source_snapshot_id) {
+    return { baselineValue: null, sourceState: "original_absent" };
+  }
+
+  const fallback = source.fallbackSnapshot?.normalized;
+  if (fallback && hasOwn(fallback, def.key)) {
+    return { baselineValue: fallback[def.key], sourceState: "unlinked_baseline" };
+  }
+
+  return { baselineValue: null, sourceState: "original_absent" };
+}
+
+export function serializeField(
+  def: FieldDefinition,
+  row: CurrentValueRow | undefined,
+  entityType: ProductEntityType,
+  capabilityContext: CapabilityContext = READ_ONLY_CAPABILITY_CONTEXT,
+  source: SourceSerializationContext = {},
+) {
   const editable = isFieldEditable(def).ok;
+  const { baselineValue, sourceState } = sourceForField(def, row, source);
+  const capabilities = calculateFieldCapabilities(def, row, entityType, capabilityContext);
   return {
     key: def.key,
     label: def.label,
@@ -60,35 +129,43 @@ export function serializeField(def: FieldDefinition, row: CurrentValueRow | unde
     editorType: def.editor_type,
     dataType: def.data_type,
     value: row ? currentValueOf(row) : null,
-    baselineValue: baseline ?? null,
+    baselineValue,
+    sourceState,
+    sourceSnapshotId: row?.source_snapshot_id ?? null,
     origin: row?.value_origin ?? null,
     reviewStatus: row?.review_status ?? null,
     publishBlocked: row?.publish_blocked ?? false,
-    protectedOnReimport: row?.protected_on_reimport ?? def.protected_on_reimport,
-    aiAllowed: def.ai_allowed,
+    protectedOnReimport: def.protected_on_reimport || row?.protected_on_reimport === true,
+    aiAllowed: capabilities.aiAllowed,
     manualOnly: def.manual_only,
+    required: def.required,
+    appliesTo: def.applies_to,
+    validationRules: def.validation_rules ?? {},
     publishable: def.publishable,
     editable,
     locked: row?.is_locked ?? false,
     version: row?.version ?? null,
     helpText: def.help_text,
     sortOrder: def.sort_order,
+    capabilities,
   };
 }
 
 export function serializeSections(
   defs: FieldDefinition[],
   rows: CurrentValueRow[],
-  baseline: Record<string, unknown> = {},
+  entityType: ProductEntityType = "simple",
+  capabilityContext: CapabilityContext = READ_ONLY_CAPABILITY_CONTEXT,
+  source: SourceSerializationContext = {},
 ) {
   const byKey = new Map(rows.map((r) => [r.field_key, r]));
   return GROUP_ORDER.map(({ key, label }) => ({
     key,
     label,
     fields: defs
-      .filter((d) => d.field_group === key && d.visible)
+      .filter((d) => d.field_group === key && d.visible && appliesToEntity(d.applies_to, entityType))
       .sort((a, b) => a.sort_order - b.sort_order)
-      .map((d) => serializeField(d, byKey.get(d.key), baseline[d.key])),
+      .map((d) => serializeField(d, byKey.get(d.key), entityType, capabilityContext, source)),
   })).filter((section) => section.fields.length > 0);
 }
 

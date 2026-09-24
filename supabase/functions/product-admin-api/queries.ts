@@ -1,6 +1,11 @@
 // F5 — Query di sola lettura. Nessuna tabella o colonna arbitraria dal client.
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
-import type { CurrentValueRow, FieldDefinition, ListProductsRequest } from "./types.ts";
+import type {
+  CurrentValueRow,
+  FieldDefinition,
+  ListProductsRequest,
+  SourceSnapshotRow,
+} from "./types.ts";
 import { normalizePageSize } from "./validation.ts";
 
 const SUMMARY_FIELD_KEYS = [
@@ -48,7 +53,7 @@ export async function getCurrentValues(
   let q = db
     .from("product_current_values")
     .select(
-      "id,product_id,sku,field_key,entity_type,value_text,value_number,value_json,value_origin,origin,review_status,publish_blocked,protected_on_reimport,is_locked,version,updated_at",
+      "id,product_id,sku,field_key,entity_type,value_text,value_number,value_json,value_origin,origin,review_status,publish_blocked,protected_on_reimport,source_snapshot_id,is_locked,version,updated_at",
     )
     .in("product_id", productIds);
   if (fieldKeys?.length) q = q.in("field_key", fieldKeys);
@@ -136,12 +141,29 @@ export async function getProduct(db: SupabaseClient, productId: string) {
 export async function getSourceBaseline(db: SupabaseClient, productId: string) {
   const { data, error } = await db
     .from("product_source_snapshots")
-    .select("id,batch_id,row_index,sku,parent_sku,row_type,normalized,raw_row,created_at")
+    .select("id,product_id,batch_id,row_index,sku,parent_sku,row_type,normalized,raw_row,created_at")
     .eq("product_id", productId)
     .order("created_at", { ascending: false })
     .limit(1);
   if (error) throw error;
   return data?.[0] ?? null;
+}
+
+/** Snapshot puntuali opzionali: nessun errore se source_snapshot_id è NULL. */
+export async function getSourceSnapshotsByIds(
+  db: SupabaseClient,
+  productId: string,
+  snapshotIds: string[],
+): Promise<SourceSnapshotRow[]> {
+  const ids = [...new Set(snapshotIds.filter(Boolean))];
+  if (!ids.length) return [];
+  const { data, error } = await db
+    .from("product_source_snapshots")
+    .select("id,product_id,normalized,created_at")
+    .eq("product_id", productId)
+    .in("id", ids);
+  if (error) throw error;
+  return (data ?? []) as SourceSnapshotRow[];
 }
 
 export async function getProductHistory(db: SupabaseClient, productId: string, limit = 50) {
