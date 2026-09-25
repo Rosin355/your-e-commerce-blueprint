@@ -77,7 +77,7 @@ serve(async (req) => {
     switch (action) {
       case "start": {
         const skus = Array.isArray(data.skus) ? (data.skus as string[]) : [];
-        const items = Array.isArray(data.items)
+        const items: Array<{ sku: string; handle?: string; title?: string }> = Array.isArray(data.items)
           ? (data.items as Array<{ sku: string; handle?: string; title?: string }>)
           : skus.map((s) => ({ sku: s }));
         if (items.length === 0) return json({ error: "items vuoti" }, 400);
