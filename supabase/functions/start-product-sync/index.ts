@@ -22,7 +22,7 @@ serve(async (request) => {
   }
 
   try {
-    const adminEmail = assertAdminRequest(request);
+    const adminEmail = await assertAdminRequest(request);
     const payload = await request.json().catch(() => ({}));
     const mode = normalizeMode(payload?.mode);
 

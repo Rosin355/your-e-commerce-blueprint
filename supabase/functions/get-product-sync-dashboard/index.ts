@@ -13,7 +13,7 @@ serve(async (request) => {
   }
 
   try {
-    assertAdminRequest(request);
+    await assertAdminRequest(request);
 
     const url = new URL(request.url);
     const body = request.method === "POST" ? await request.json().catch(() => ({})) : {};
