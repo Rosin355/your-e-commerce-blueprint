@@ -1,6 +1,9 @@
 # Deploy PR #9 — STORAGE-004 (2026-09-25)
 
-PR: https://github.com/Rosin355/your-e-commerce-blueprint/pull/9 — commit `2bc68e24e3061327c1fe4d5c2f66ced510c637cd`, aperta, non mergiata. Base = main `9a66d2c` (= HEAD Lovable). PR #10 non toccata.
+PR: https://github.com/Rosin355/your-e-commerce-blueprint/pull/9 — commit
+`2bc68e24e3061327c1fe4d5c2f66ced510c637cd`, mergiata il 25 settembre 2026
+nel commit `85feb23c3589f7a03888d8ada0f2f2f5c2726981`. Base iniziale = main
+`9a66d2c`. Il merge non ha modificato il tree già distribuito da Lovable.
 
 ## Preflight
 - Chiamanti: solo `src/admin/components/WooPipelinePanel.tsx` via `supabase.functions.invoke` (JWT utente Admin). Nessun chiamante esterno, script `sync/` o altra funzione.
@@ -33,4 +36,18 @@ Invarianti: 2.706 prodotti, 24.466 valori, pipeline_jobs 1, product_sync_jobs 36
 Versione precedente (vulnerabile) salvata solo fuori progetto, SHA256: csv-upload-url 43f7b994…, woo-enrichment-pipeline ab1574f6…, process-woo-job 57ad2ca5…. **Non va ripristinata automaticamente.** In regressione: forward-fix o disabilitazione dell'endpoint (usato solo dal pannello Woo).
 
 ## Stato
-PR #9 aperta: il merge allinea main con file identici. Nessun job, import, AI, Shopify sync, migration o modifica PR #10.
+
+Verifiche riferite da Lovable: deploy e smoke test riportati nelle sezioni
+precedenti, senza job, import, AI, Shopify sync o migration.
+
+Verifiche dirette Codex prima del merge:
+
+- tre Git blob e helper identici al commit PR e agli hash documentati;
+- `await assertAdminRequest(req)` prima di body, service role, DB, Storage e AI;
+- test auth 18/18, catalogo 190/190, Deno check, typecheck e build verdi;
+- merge PR #9 completato con tree identico al precedente `main` `9cc5ef2`.
+
+PR #10 è stata poi mergiata separatamente nel commit
+`a3650d66414ee351dd341b9fd199efaea1c4c1fe`; contiene esclusivamente
+documentazione e preflight read-only. Nessun redeploy è stato eseguito da
+Codex durante la chiusura.

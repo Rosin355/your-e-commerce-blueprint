@@ -2,7 +2,8 @@
 
 Data: 25 settembre 2026. Baseline: `9a66d2c0ba131c3101eb12851d0c4cff60a431bf`.
 Branch: `codex/sync-storage-separation`.
-Stato: proposta documentale e preflight read-only; nessuna modifica runtime,
+Stato: proposta documentale e preflight read-only mergiati con PR #10 nel
+commit `a3650d66414ee351dd341b9fd199efaea1c4c1fe`; nessuna modifica runtime,
 bucket, policy, oggetto o dato.
 
 ## Decisione proposta
@@ -20,7 +21,7 @@ su `shopify-ready.csv`. Rendere immediatamente privato l'intero bucket è
 altrettanto scorretto: interromperebbe gli URL pubblici delle immagini
 prodotto. La separazione fisica dei tipi di file è quindi necessaria.
 
-La PR corrente non realizza il trasferimento. Prima servono inventario live,
+La PR #10 non realizza il trasferimento. Prima servono inventario live,
 conferma dei chiamanti, finestra operativa, copia verificata, rilascio
 coordinato dei riferimenti e rimozione esplicita dell'originale pubblico.
 
