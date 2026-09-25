@@ -2,7 +2,8 @@
 
 Data: 25 settembre 2026. Baseline: `9a66d2c0ba131c3101eb12851d0c4cff60a431bf`.
 Branch: `codex/storage-pipeline-auth`.
-Stato: correzione minima verificata offline, non distribuita e non mergiata.
+Stato: distribuzione e smoke test riferiti da Lovable; hash e test riverificati
+direttamente da Codex; PR #9 mergiata in `85feb23c3589f7a03888d8ada0f2f2f5c2726981`.
 
 ## Esito sintetico
 
@@ -145,9 +146,11 @@ durante installazione o test.
 ## Stato per il cliente
 
 Il rischio di avvio o accesso non autorizzato alla pipeline è stato corretto
-nel codice e coperto da test offline. La produzione non è stata modificata:
-il rischio resta operativo finché Lovable non completa preflight, rilascio
-coordinato e smoke test autorizzati. Separatamente, il bucket `sync` pubblico
-espone potenzialmente i CSV operativi; la proposta STORAGE-003 è mantenuta in
-una PR documentale indipendente per non confondere autorizzazione applicativa
-e architettura Storage.
+nel codice, distribuito da Lovable e coperto da smoke test riferiti nel report
+deploy. Codex ha verificato direttamente corrispondenza degli hash, ordine
+dell'autorizzazione, 18 test auth, 190 test catalogo, Deno, typecheck e build,
+quindi ha completato il merge senza redeploy. STORAGE-004 è chiuso.
+
+Separatamente, il bucket `sync` pubblico espone potenzialmente i CSV operativi:
+STORAGE-003 resta aperto. La relativa documentazione e il preflight read-only
+sono stati mergiati con PR #10, senza modificare Storage.
