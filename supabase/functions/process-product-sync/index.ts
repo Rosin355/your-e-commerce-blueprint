@@ -11,7 +11,7 @@ serve(async (request) => {
   }
 
   try {
-    const adminEmail = assertAdminRequest(request);
+    const adminEmail = await assertAdminRequest(request);
 
     if (request.method === "GET") {
       const url = new URL(request.url);

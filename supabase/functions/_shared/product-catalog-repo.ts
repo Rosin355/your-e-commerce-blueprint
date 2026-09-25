@@ -136,7 +136,8 @@ export async function upsertCsvCatalogRows(
     if (error) {
       throw new Error(`Errore lettura catalogo esistente: ${error.message}`);
     }
-    for (const row of (data ?? []) as Array<Record<string, unknown>>) {
+    // La lista SELECT dinamica non è inferibile dal parser TypeScript PostgREST.
+    for (const row of (data ?? []) as unknown as Array<Record<string, unknown>>) {
       existingBySku.set(String(row.sku), row);
     }
   }
