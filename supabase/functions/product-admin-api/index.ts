@@ -2,7 +2,13 @@
 // Nessuna chiamata Shopify, nessuna AI, nessuna pubblicazione, nessun import.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { authenticate, AuthError, serviceClient } from "./auth.ts";
-import { authorizeAction, canWriteCanary, isCommandAction, isKnownAction } from "./permissions.ts";
+import {
+  authorizeAction,
+  canManageLockedManualValues,
+  canWriteCanary,
+  isCommandAction,
+  isKnownAction,
+} from "./permissions.ts";
 import {
   getCurrentValue,
   getCurrentValues,
@@ -236,17 +242,35 @@ Deno.serve(async (req) => {
       return fail("FIELD_NOT_EDITABLE", editable.message ?? "Campo non modificabile");
     }
 
-    const row = await getCurrentValue(db, productId, fieldKey);
-    if (!row) return fail("NOT_FOUND", "Valore corrente inesistente per questo campo");
-
     const targetAction: CommandAction =
       action === "validate_field_update"
         ? ((payload.targetAction as CommandAction) ?? "update_field")
         : (action as CommandAction);
 
-    const check = validateCommand(targetAction, def, row, payload.value, {
+    const row = await getCurrentValue(db, productId, fieldKey);
+    const allowLockedManual = def.manual_only && canManageLockedManualValues(auth.roles);
+    const expectedVersion = typeof payload.expectedVersion === "number" ? payload.expectedVersion : undefined;
+    const currentVersion = row?.version ?? 0;
+
+    if (expectedVersion !== undefined && expectedVersion !== currentVersion) {
+      if (action === "validate_field_update") {
+        return json({
+          ok: false,
+          valid: false,
+          code: "VERSION_CONFLICT",
+          message: "Il valore è stato modificato da un altro utente",
+          currentVersion,
+        });
+      }
+      return fail("VERSION_CONFLICT", "Il valore è stato modificato da un altro utente", {
+        currentVersion,
+      });
+    }
+
+    const check = validateCommand(targetAction, def, row ?? undefined, payload.value, {
       confirm: payload.confirm === true,
-      expectedVersion: typeof payload.expectedVersion === "number" ? payload.expectedVersion : undefined,
+      expectedVersion,
+      allowLockedManual,
     });
 
     if (action === "validate_field_update") {
@@ -255,21 +279,15 @@ Deno.serve(async (req) => {
         valid: check.ok,
         code: check.code ?? "VALID",
         message: check.message ?? null,
-        currentVersion: row.version,
+        currentVersion,
       });
     }
 
     if (!check.ok) {
       if (check.code === "NO_CHANGE") {
-        return json({ ok: true, code: "NO_CHANGE", version: row.version }, HTTP_BY_CODE.NO_CHANGE);
+        return json({ ok: true, code: "NO_CHANGE", version: row?.version ?? 0 }, HTTP_BY_CODE.NO_CHANGE);
       }
       return fail(check.code ?? "VALIDATION_ERROR", check.message ?? "Validazione fallita");
-    }
-
-    if (row.version !== payload.expectedVersion) {
-      return fail("VERSION_CONFLICT", "Il valore è stato modificato da un altro utente", {
-        currentVersion: row.version,
-      });
     }
 
     const idempotencyKey = typeof payload.idempotencyKey === "string" ? payload.idempotencyKey : "";

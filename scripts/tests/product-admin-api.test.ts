@@ -1,8 +1,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { authorizeAction, canWriteCanary, isCommandAction, isKnownAction } from "../../supabase/functions/product-admin-api/permissions.ts";
-import { CANARY_ACTIONS, isCanaryField } from "../../supabase/functions/product-admin-api/commands.ts";
+import {
+  authorizeAction,
+  canManageLockedManualValues,
+  canWriteCanary,
+  isCommandAction,
+  isKnownAction,
+} from "../../supabase/functions/product-admin-api/permissions.ts";
+import {
+  CANARY_ACTIONS,
+  canonicalizeJson,
+  isCanaryField,
+  payloadHash,
+} from "../../supabase/functions/product-admin-api/commands.ts";
 import {
   isFieldEditable,
   isNoChange,
@@ -116,6 +127,48 @@ test("expectedVersion obbligatorio", () => {
   assert.equal(res.code, "VALIDATION_ERROR");
 });
 
+test("creazione manual_only richiede Admin e expectedVersion zero", () => {
+  const manual = def({ key: "nome_comune", manual_only: true, ai_allowed: false });
+  assert.equal(validateCommand("update_field", manual, undefined, "Rosa", {
+    expectedVersion: 0,
+    allowLockedManual: true,
+  }).ok, true);
+  assert.equal(validateCommand("update_field", manual, undefined, "Rosa", {
+    expectedVersion: 1,
+    allowLockedManual: true,
+  }).ok, false);
+  assert.equal(validateCommand("update_field", manual, undefined, "Rosa", {
+    expectedVersion: 0,
+    allowLockedManual: false,
+  }).code, "FIELD_NOT_EDITABLE");
+  assert.equal(validateCommand("clear_field", manual, undefined, null, {
+    expectedVersion: 0,
+    allowLockedManual: true,
+    confirm: true,
+  }).code, "FIELD_NOT_EDITABLE");
+});
+
+test("manual_only locked è modificabile solo dal canale Admin esplicito", () => {
+  const manual = def({ key: "nome_comune", manual_only: true, ai_allowed: false });
+  const locked = row({ field_key: "nome_comune", is_locked: true });
+  assert.equal(validateCommand("update_field", manual, locked, "Rosa", {
+    expectedVersion: 1,
+  }).code, "FIELD_NOT_EDITABLE");
+  assert.equal(validateCommand("update_field", manual, locked, "Rosa", {
+    expectedVersion: 1,
+    allowLockedManual: true,
+  }).ok, true);
+  assert.equal(locked.is_locked, true);
+});
+
+test("hash idempotente canonicalizza ricorsivamente gli oggetti", async () => {
+  const a = { z: [{ answer: "A", question: "Q" }], meta: { b: 2, a: 1 } };
+  const b = { meta: { a: 1, b: 2 }, z: [{ question: "Q", answer: "A" }] };
+  assert.deepEqual(canonicalizeJson(a), canonicalizeJson(b));
+  assert.equal(await payloadHash(a), await payloadHash(b));
+  assert.notEqual(await payloadHash(a), await payloadHash({ ...b, z: [...b.z].reverse().concat([{ question: "Q2", answer: "A2" }]) }));
+});
+
 test("clear esplicito: conferma e campi required", () => {
   assert.equal(validateCommand("clear_field", def(), row(), null, { expectedVersion: 1 }).ok, false);
   assert.equal(
@@ -193,6 +246,9 @@ test("canary: solo admin e tech_admin possono scrivere", () => {
   assert.equal(canWriteCanary(["editor"]), false);
   assert.equal(canWriteCanary(["publisher"]), false);
   assert.equal(canWriteCanary([]), false);
+  assert.equal(canManageLockedManualValues(["admin"]), true);
+  assert.equal(canManageLockedManualValues(["tech_admin"]), true);
+  assert.equal(canManageLockedManualValues(["editor"]), false);
 });
 
 test("canary: allowlist campi testuali e manual_only", () => {

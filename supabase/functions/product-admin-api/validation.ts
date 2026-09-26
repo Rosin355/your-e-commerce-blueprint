@@ -134,20 +134,37 @@ export function isNoChange(row: CurrentValueRow, next: unknown): boolean {
 export function validateCommand(
   action: CommandAction,
   def: FieldDefinition,
-  row: CurrentValueRow,
+  row: CurrentValueRow | undefined,
   value: unknown,
-  opts: { confirm?: boolean; expectedVersion?: number } = {},
+  opts: { confirm?: boolean; expectedVersion?: number; allowLockedManual?: boolean } = {},
 ): ValidationResult {
   const editable = isFieldEditable(def);
   if (!editable.ok) return editable;
 
-  if (typeof opts.expectedVersion !== "number" || opts.expectedVersion < 1) {
+  if (typeof opts.expectedVersion !== "number" || opts.expectedVersion < 0) {
     return { ok: false, code: "VALIDATION_ERROR", message: "expectedVersion mancante" };
+  }
+
+  if (!row) {
+    if (opts.expectedVersion !== 0) {
+      return { ok: false, code: "VALIDATION_ERROR", message: "la creazione richiede expectedVersion=0" };
+    }
+    if (action !== "update_field" || !def.manual_only || opts.allowLockedManual !== true) {
+      return { ok: false, code: "FIELD_NOT_EDITABLE", message: "valore corrente inesistente" };
+    }
+    return validateValue(def, value);
+  }
+
+  if (opts.expectedVersion < 1) {
+    return { ok: false, code: "VALIDATION_ERROR", message: "expectedVersion non valida" };
   }
 
   // Rispecchia il gate effettivo della RPC atomica: l'unica azione ammessa
   // su una riga locked è la conferma esplicita di un valore legacy.
-  if (row.is_locked && action !== "confirm_legacy_value") {
+  if (
+    row.is_locked && action !== "confirm_legacy_value" &&
+    !(def.manual_only && opts.allowLockedManual === true && (action === "update_field" || action === "clear_field"))
+  ) {
     return { ok: false, code: "FIELD_NOT_EDITABLE", message: "valore bloccato" };
   }
 
