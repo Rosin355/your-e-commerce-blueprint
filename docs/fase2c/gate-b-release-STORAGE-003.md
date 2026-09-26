@@ -152,7 +152,64 @@ questo rollback.
 
 ## Stato Gate B e Gate C
 
-Gate B: **MERGE PASS; DEPLOY/SMOKE PENDING**.
+Gate B: **PASS** (rilascio Lovable del 26-09-2026, vedi sezione finale).
 
 Gate C: **NON AUTORIZZATO**. Non eliminare l'originale pubblico finché Gate B
 non è stato verificato e approvato separatamente.
+
+
+## Esito rilascio Lovable — 26-09-2026 ~14:05 UTC
+
+### Revisione
+- HEAD Lovable `9979d96` (merge PR #13): successivo a `2d8b9937` ma solo docs;
+  `git diff 2d8b993 HEAD -- src supabase` vuoto, runtime identico.
+- SHA-256 dei quattro entry point identici alla tabella "Release candidate".
+
+### Finestra di manutenzione
+- Nessuna feature flag inventata. Meccanismo usato: gli avvii Smart Sync
+  richiedono il ruolo Admin (`assertAdminRequest`) e nel progetto esiste un solo
+  utente, l'Admin; durante il rilascio nessuna sessione ha usato il pannello.
+- Job prima e dopo: 36 (29 completed, 2 failed, 1 pending, 4 processing orfani
+  di marzo), ultimo aggiornamento 2026-05-30: nessun job attivo o nuovo.
+
+### Distribuzione
+- Edge Functions distribuite dallo stesso working tree: `process-product-sync`,
+  `start-product-sync`, `csv-upload-url`, `storage-signed-url` (con moduli
+  `_shared` della stessa revisione). La piattaforma non espone ID versione:
+  prova di versione = comportamento nuovo (403 "Percorso sync non consentito").
+- Frontend pubblicato subito dopo: bundle `/assets/index-BkXxCU62.js` su
+  romeshbigbird.com (ecom-blueprint-gen.lovable.app reindirizza qui). Il chunk
+  admin caricato contiene `product-sync/jobs` e `register_source`.
+- Nessuna combinazione incompatibile lasciata attiva oltre i pochi secondi tra
+  deploy Edge e pubblicazione, a pannello inutilizzato.
+
+### Smoke test (read-only, nessun job/import)
+| Controllo | Esito |
+|---|---|
+| Login Admin e apertura /admin/import (sito pubblicato) | PASS |
+| storage-signed-url anon | 401 |
+| storage-signed-url Admin, CSV in `sync` | 403 |
+| csv-upload-url anon / Admin CSV in `sync` | 401 / 403 |
+| start-product-sync / process-product-sync anon | 400 / 401 |
+| process-product-sync Admin `register_source` su job inesistente | rifiutato, nessuna scrittura (status 401 con messaggio "Cannot coerce...": da normalizzare in 404 in un forward-fix non urgente) |
+| get-product-sync-dashboard Admin | 200, 2.706 prodotti |
+| Immagine `sync/product-images/` pubblica | 200 image/png |
+| Backup privato letto da Admin | 1.336.246 byte, SHA-256 `3d17f74d…2b7925` = Gate A |
+| Backup anonimo | negato (bucket non pubblico / oggetto non visibile) |
+| `sync` radice | solo `product-images/` e `shopify-ready.csv`: nessun nuovo CSV |
+| Catalogo / valori / job | 2.706 / 24.466 / 36 invariati |
+| Log funzioni (20 min, error/warning) | nessuna voce |
+
+Console del sito: solo "Failed to fetch" delle vetrine homepage interrotte dalla
+navigazione del test (già noto).
+
+### Limiti
+- Upload reale e registrazione di un job nuovo non eseguiti (vietato creare job):
+  coperti dai test offline Codex.
+- Caso non Admin non testabile live (unico utente = Admin).
+- Versioni Edge verificate per comportamento, non per ID di deploy.
+
+### Stato finale
+Smart Sync riaperto (nessuna restrizione tecnica da rimuovere).
+`sync/shopify-ready.csv` ancora presente. Gate C: **NON AUTORIZZATO**, richiede
+approvazione separata.
