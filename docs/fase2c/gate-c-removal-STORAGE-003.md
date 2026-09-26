@@ -3,6 +3,16 @@
 Data: 26 settembre 2026, ~15:00 UTC. Gate A e B superati; Gate C autorizzato.
 Nessun deploy, modifica DB/bucket/policy, import, AI o Shopify sync.
 
+## Tracciabilità delle verifiche
+
+Il primo preflight Codex aveva confermato direttamente dimensione e SHA-256
+dell'origine e il diniego anonimo sul backup, ma si era correttamente fermato
+prima della cancellazione perché la CLI disponibile non aveva privilegi sul
+progetto. Le successive verifiche amministrative, la cancellazione e i test
+post-intervento riportati sotto sono stati eseguiti tramite la sessione Admin
+autorizzata e registrati da Lovable. Nessuna verifica riferita viene presentata
+come eseguita direttamente da Codex.
+
 ## Controlli pre-cancellazione (sessione Admin)
 | Controllo | Esito |
 |---|---|
