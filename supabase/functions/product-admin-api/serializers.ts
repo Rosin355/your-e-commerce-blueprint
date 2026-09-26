@@ -144,7 +144,8 @@ export function serializeField(
     publishable: def.publishable,
     editable,
     locked: row?.is_locked ?? false,
-    version: row?.version ?? null,
+    // La versione 0 è il token esplicito per creare atomicamente un valore mancante.
+    version: row?.version ?? 0,
     helpText: def.help_text,
     sortOrder: def.sort_order,
     capabilities,

@@ -1,5 +1,5 @@
 // Fase 2B — Capability field-by-field calcolate esclusivamente sul server.
-import { canWrite, canWriteCanary } from "./permissions.ts";
+import { canManageLockedManualValues, canWrite, canWriteCanary } from "./permissions.ts";
 import { isCanaryField, type WriteMode } from "./commands.ts";
 import { isFieldEditable } from "./validation.ts";
 import type { AppRole, CurrentValueRow, FieldDefinition } from "./types.ts";
@@ -71,7 +71,6 @@ function writeGate(
   if (context.writeMode === "canary" && !isCanaryField(def)) {
     return "canary_field_not_allowed";
   }
-  if (!row) return "current_value_missing";
   return "allowed";
 }
 
@@ -85,14 +84,21 @@ export function calculateFieldCapabilities(
   const baseReason = writeGate(def, row, entityType, context);
   const locked = row?.is_locked === true;
   const legacyReview = row?.review_status === "legacy_unverified";
+  const manualAdmin = def.manual_only && canManageLockedManualValues(context.roles);
 
-  const updateReason = baseReason === "allowed" && locked
-    ? "current_value_locked"
-    : baseReason;
+  const updateReason = baseReason !== "allowed"
+    ? baseReason
+    : !row && !manualAdmin
+      ? "current_value_missing"
+      : locked && !manualAdmin
+        ? "current_value_locked"
+        : "allowed";
 
   // La RPC consente confirm_legacy_value anche quando is_locked=true.
   const confirmReason = baseReason !== "allowed"
     ? baseReason
+    : !row
+      ? "current_value_missing"
     : !legacyReview
       ? "legacy_review_not_required"
       : "allowed";
@@ -100,6 +106,8 @@ export function calculateFieldCapabilities(
   // La RPC rifiuta reject_legacy_value sui current value locked.
   const rejectReason = baseReason !== "allowed"
     ? baseReason
+    : !row
+      ? "current_value_missing"
     : locked
       ? "current_value_locked"
       : !legacyReview
