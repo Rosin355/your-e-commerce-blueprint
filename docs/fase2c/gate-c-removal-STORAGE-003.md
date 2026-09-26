@@ -1,108 +1,53 @@
-# STORAGE-003 — Gate C: preflight interrotto, rimozione non eseguita
+# STORAGE-003 — Gate C: rimozione del CSV pubblico
 
-Data: 26 settembre 2026. Baseline verificata: `origin/main`
-`78ec85a894828647a48ccdb4e76389b17b370a84`.
+Data: 26 settembre 2026, ~15:00 UTC. Gate A e B superati; Gate C autorizzato.
+Nessun deploy, modifica DB/bucket/policy, import, AI o Shopify sync.
 
-## Esito sintetico
+## Tracciabilità delle verifiche
 
-Gate C: **BLOCKED — NOT EXECUTED**.
+Il primo preflight Codex aveva confermato direttamente dimensione e SHA-256
+dell'origine e il diniego anonimo sul backup, ma si era correttamente fermato
+prima della cancellazione perché la CLI disponibile non aveva privilegi sul
+progetto. Le successive verifiche amministrative, la cancellazione e i test
+post-intervento riportati sotto sono stati eseguiti tramite la sessione Admin
+autorizzata e registrati da Lovable. Nessuna verifica riferita viene presentata
+come eseguita direttamente da Codex.
 
-Codex non ha eliminato alcun oggetto e non ha modificato bucket, policy,
-database, immagini, job o prodotti. `sync/shopify-ready.csv` è ancora
-pubblicamente accessibile. STORAGE-003 resta **OPEN**.
+## Controlli pre-cancellazione (sessione Admin)
+| Controllo | Esito |
+|---|---|
+| Backup `csv-pipeline/backups/storage-003/20260926/shopify-ready.csv` | 200, 1.336.246 byte, SHA-256 `3d17f74d…2b7925` = approvato |
+| `manifest.json` | 200, SHA-256 e dimensione coincidenti |
+| Originale `sync/shopify-ready.csv` | 200, 1.336.246 byte, SHA-256 identico al backup |
+| Backup via anonimo | 400 negato |
+| Job | nessun job nuovo (0 nelle ultime 24h); ultimo aggiornamento sync job 2026-05-30. Restano i 5 product_sync_jobs e 1 pipeline_job orfani di marzo in pending/processing, già documentati, senza processi né cron che li riprendano |
 
-Il blocco non dipende da una divergenza dell'origine: le verifiche pubbliche
-eseguite direttamente da Codex confermano byte e SHA-256 approvati nel Gate A.
-Manca invece un canale amministrativo utilizzabile per ripetere, subito prima
-della cancellazione, i controlli obbligatori su backup, manifest e job.
+Controlli ripetuti nello stesso script immediatamente prima della delete,
+con blocco automatico se hash o esistenza non corrispondevano.
 
-## Evidenze già approvate
+## Cancellazione
+Storage API `DELETE /storage/v1/object/sync` con il solo prefisso esatto
+`shopify-ready.csv` (nessun SQL, nessuna ricorsione). Risposta 200, un solo
+oggetto rimosso: `shopify-ready.csv`.
 
-Le seguenti evidenze sono **riferite dal Gate A/Gate B Lovable**, non
-rieseguite in questa attività con privilegi amministrativi:
+## Verifiche post-cancellazione
+| Controllo | Esito |
+|---|---|
+| Originale via endpoint pubblico | 400 (non più accessibile) |
+| Originale via endpoint autenticato Admin | 400 (inesistente) |
+| Backup privato | 200, SHA-256 e dimensione invariati; anonimo 400 |
+| Bucket `sync` | 6 oggetti, tutti in `product-images/`, 0 CSV |
+| Sei immagini pubbliche | 200 ciascuna |
+| Catalogo e job | products 2.706, current values 24.466, product_sync_jobs 36, pipeline_jobs 1: invariati |
 
-- backup privato:
-  `csv-pipeline/backups/storage-003/20260926/shopify-ready.csv`;
-- dimensione backup: 1.336.246 byte;
-- SHA-256 backup:
-  `3d17f74d475721da2ba43384e0cf96b6964cb07a973b7966a4a26bd02d2b7925`;
-- manifest privato presente e coerente;
-- inventario precedente di `sync`: un CSV in radice e sei immagini PNG sotto
-  `product-images/`;
-- invarianti precedenti: 2.706 prodotti, 24.466 current values e 36 job;
-- nessun job nuovo o attivo al termine del Gate B; quattro record
-  `processing` erano già stati classificati come orfani storici.
+Nessun contenuto, token o URL firmato stampato o salvato; file temporanei eliminati.
 
-## Verifiche eseguite direttamente da Codex
+## Stato finale
+Gate C **superato**. STORAGE-003 **chiuso**: `sync` contiene solo le immagini
+prodotto pubbliche; il CSV esiste solo come copia privata Admin-only.
+Rollback dati: eventuale ripristino solo in `csv-pipeline` dalla copia verificata,
+mai nel bucket pubblico.
 
-| Controllo | Esito | Gate |
-|---|---:|---|
-| Lettura pubblica dell'origine | HTTP 200 | PASS |
-| Dimensione origine | 1.336.246 byte | PASS |
-| SHA-256 origine | identico al Gate A | PASS |
-| Accesso pubblico anonimo al percorso del backup privato | HTTP 400 | PASS |
-| Accesso Admin al progetto tramite CLI già autenticata | HTTP 403, privilegi insufficienti | BLOCK |
-| Accesso al dashboard Supabase del progetto | autenticazione separata richiesta | BLOCK |
-| Rilettura Admin del backup e del manifest | non disponibile | NOT RUN |
-| Verifica live di assenza job/import in corso | non disponibile | NOT RUN |
-| Eliminazione del solo oggetto autorizzato | non eseguita | NOT RUN |
-
-La sessione Admin dell'applicazione è valida, ma l'interfaccia applicativa non
-espone una capability di eliminazione Storage né una vista che permetta di
-rieseguire tutti i controlli amministrativi richiesti. La CLI Supabase
-autenticata non ha accesso al progetto target. Non sono stati estratti o
-registrati token, contenuti CSV o URL firmati.
-
-## Inventario Storage dopo l'intervento
-
-Non essendoci stato alcun intervento, l'inventario resta quello verificato al
-Gate B:
-
-- `sync/shopify-ready.csv`: ancora presente e pubblico;
-- `sync/product-images/**`: sei immagini pubbliche, non modificate;
-- backup e manifest sotto `csv-pipeline/backups/storage-003/20260926/`:
-  invariati secondo l'ultima evidenza amministrativa Gate B; il percorso
-  pubblico anonimo del backup continua a essere negato.
-
-## Verifica del vecchio percorso di upload
-
-La revisione runtime già distribuita al Gate B limita le capability delle due
-funzioni di firma/upload a `sync/product-images/**`. Smart Sync usa
-`csv-pipeline/product-sync/jobs/<job-id>/input.csv`, registra `source_path` e
-abilita i batch solo dopo l'upload. Il codice versionato non contiene quindi
-un percorso attivo che debba ricreare `sync/shopify-ready.csv`.
-
-Questa verifica del contratto applicativo non sostituisce il controllo live
-dei log e degli eventuali job durante la finestra Gate C.
-
-## Azione necessaria per sbloccare Gate C
-
-Ripetere il Gate C tramite Lovable/Supabase con un'identità che abbia accesso
-amministrativo al progetto:
-
-1. rileggere backup e manifest, verificando 1.336.246 byte e SHA-256 approvato;
-2. confermare accesso anonimo negato e assenza di job/import in corso;
-3. confrontare nuovamente origine e backup;
-4. eliminare con API Storage esclusivamente l'oggetto
-   `sync/shopify-ready.csv`, senza ricorsione;
-5. verificare risposta non accessibile dell'origine e controllare un eventuale
-   residuo CDN senza eliminare altri file;
-6. verificare sei immagini pubbliche, backup Admin leggibile/anonimo negato e
-   invarianti 2.706 / 24.466 / 36;
-7. registrare l'evidenza amministrativa nel presente documento e marcare
-   `STORAGE-003 CLOSED` solo se tutti i controlli sono positivi.
-
-## Rollback sicuro
-
-Poiché la cancellazione non è stata eseguita, non serve alcun rollback. Dopo
-una futura rimozione autorizzata, un ripristino deve avvenire esclusivamente
-dal backup privato verificato e solo con una nuova autorizzazione esplicita;
-non va riattivato il vecchio writer pubblico.
-
-## Stato cliente
-
-Il passaggio applicativo al deposito CSV privato è completato, ma il vecchio
-CSV pubblico non è stato rimosso in questa attività perché mancava l'accesso
-amministrativo necessario a verificare il backup e lo stato dei job subito
-prima dell'operazione. Nessun dato è stato perso o modificato. STORAGE-003 non
-è ancora chiuso.
+## Per il cliente
+Il file di catalogo pubblico è stato cancellato. Resta una copia di sicurezza
+privata, identica e leggibile solo dall'Admin. Le foto prodotto funzionano come prima.
