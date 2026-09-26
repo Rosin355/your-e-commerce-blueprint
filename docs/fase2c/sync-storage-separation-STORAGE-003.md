@@ -1,10 +1,9 @@
 # Fase 2C — STORAGE-003: separazione asset pubblici e CSV privati
 
-Data: 25 settembre 2026. Baseline: `9a66d2c0ba131c3101eb12851d0c4cff60a431bf`.
-Branch: `codex/sync-storage-separation`.
-Stato: proposta documentale e preflight read-only mergiati con PR #10 nel
-commit `a3650d66414ee351dd341b9fd199efaea1c4c1fe`; nessuna modifica runtime,
-bucket, policy, oggetto o dato.
+Data: 26 settembre 2026. Baseline di implementazione: `fa87c83a` (`origin/main`).
+Branch: `codex/storage-003-smart-sync`.
+Stato: implementazione locale pronta per revisione; nessun deploy, job,
+import, modifica bucket/policy, copia o eliminazione di oggetti live.
 
 ## Decisione proposta
 
@@ -34,14 +33,14 @@ coordinato dei riferimenti e rimozione esplicita dell'originale pubblico.
 - la stessa migration crea una policy SELECT per
   `sync/product-images/**`, ma tale policy non limita il download pubblico di
   un bucket già pubblico;
-- `src/admin/lib/productSyncEngine.ts` carica `shopify-ready.csv` nella
-  radice di `sync` tramite la sessione Admin;
-- `_shared/product-sync-processor.ts` usa per default bucket `sync` e path
-  `shopify-ready.csv` con service role;
-- il flusso frontend corrente analizza lo stesso `File` localmente e invia i
-  batch a `process-product-sync`; il valore restituito dall'upload Storage non
-  è usato dal pannello. Il processor Storage resta però una dipendenza legacy
-  da validare, non da eliminare per supposizione;
+- prima di questa implementazione, `src/admin/lib/productSyncEngine.ts`
+  caricava un CSV nella radice di `sync`; ora crea prima il job e carica uno
+  snapshot univoco in `csv-pipeline/product-sync/jobs/<job-id>/input.csv`;
+- `_shared/product-sync-processor.ts` non aveva chiamanti runtime ed è stato
+  rimosso; non restano default applicativi verso il vecchio CSV pubblico;
+- il flusso frontend analizza il `File` localmente, crea il job, carica lo
+  snapshot privato, registra il path e solo dopo invia i batch a
+  `process-product-sync`;
 - `WooPipelinePanel` e le tre funzioni STORAGE-004 usano già il bucket
   privato `csv-pipeline` per input e output dei job;
 - nessun codice versionato richiede che i CSV siano pubblici.
@@ -90,17 +89,18 @@ riduce la tracciabilità; non è la scelta target.
 
 ## Impatto developer e designer
 
-Per il developer, un'implementazione successiva dovrà aggiornare in modo
-atomico i due riferimenti noti: upload browser in `productSyncEngine.ts` e
-lettura service-to-server in `_shared/product-sync-processor.ts`. Dovrà inoltre
-verificare eventuali chiamanti Lovable non versionati prima di rimuovere il
-file pubblico. Nessun fallback deve riscrivere il CSV in `sync`.
+Per il developer, il flusso implementato è: creazione job, upload privato,
+registrazione del path in `product_sync_jobs.report_json`, quindi invio dei
+batch letti dal `File` locale. `source_state=awaiting_upload` impedisce al
+server di elaborare un nuovo job prima della registrazione; i job legacy che
+non hanno tale proprietà restano processabili. Nessun fallback riscrive CSV
+in `sync`.
 
-Per il designer e il cliente il comportamento visuale non cambia: upload,
-progress e messaggi del pannello restano identici; gli URL delle immagini
-prodotto non cambiano. Gli errori di trasferimento devono essere mostrati come
-blocco dell'import, mai compensati pubblicando di nuovo il file. La privacy
-del CSV non deve dipendere da un nome poco prevedibile.
+Per il designer e il cliente il flusso resta nello stesso pannello: la
+selezione è ora esplicitamente indicata come verifica locale e l'upload parte
+solo dopo la creazione del job. Gli URL delle immagini prodotto non cambiano.
+Gli errori di trasferimento bloccano l'import e non sono compensati
+pubblicando di nuovo il file. La privacy del CSV non dipende dal nome.
 
 ## Preflight read-only
 
@@ -119,13 +119,14 @@ Non legge il contenuto degli oggetti, non crea URL e non modifica lo stato.
 - [ ] Verificare che le immagini pubbliche siano referenziate solo sotto
   `product-images/**` e che nessun CSV sia un asset storefront legittimo.
 
-## Piano di rollout proposto
+## Piano di rollout controllato
 
 1. Congelare temporaneamente i nuovi upload CSV durante la finestra.
 2. Creare il nuovo record/path privato per il file attivo usando un'operazione
    amministrativa approvata; verificare hash/dimensione senza esporre dati.
-3. Distribuire una modifica runtime dedicata che scriva e legga soltanto il
-   path privato e persista il path per job; nessuna modalità full automatica.
+3. Distribuire in modo coordinato frontend, `start-product-sync`,
+   `process-product-sync`, `csv-upload-url` e `storage-signed-url`; nessuna
+   modalità full automatica.
 4. Eseguire dry-run con fixture sintetica, poi smoke Admin autorizzato senza
    AI, import live o Shopify sync.
 5. Verificare che le immagini pubbliche continuino a rispondere e che il CSV
@@ -150,20 +151,20 @@ finché l'originale rimane nel bucket pubblico, l'esposizione resta attiva.
 - invarianti: nessun cambio agli URL `sync/product-images/**`, nessun import,
   AI o Shopify sync provocato dal rilascio.
 
-Gate Codex eseguiti nel worktree isolato il 25 settembre 2026:
+I risultati finali dei gate Codex per questa implementazione sono registrati
+in `implementation-STORAGE-003.md`.
 
 | Gate | Esito |
 |---|---|
 | `npm ci` | PASS, 386 pacchetti; lockfile invariato |
 | `deno check` delle tre funzioni pipeline baseline | PASS |
 | `npm run typecheck` | PASS |
-| `npm run test:catalog` | PASS, 172/172 |
-| `npm run build` | PASS, 1.907 moduli |
+| `npm run test:catalog` | PASS, 200/200 |
+| `npm run build` | PASS, 1.908 moduli |
 | `git diff --check` | PASS |
 
-Non esiste codice Storage da eseguire in questa PR. Avvisi preesistenti e non
-bloccanti: due dipendenze `@esbuild-kit` deprecate, due classi Tailwind
-arbitrarie ambigue e chunk principale superiore a 500 kB.
+Questa PR contiene codice runtime ma non esegue operazioni live. Gli avvisi
+preesistenti di build non autorizzano interventi fuori scope.
 
 ## Rollback sicuro
 
@@ -179,8 +180,7 @@ o deploy.
 
 ## Stato per il cliente
 
-Il rischio è compreso e la soluzione è definita senza interrompere le immagini
-pubbliche. Nessun sistema live è stato modificato. La separazione sarà pronta
-per l'esecuzione solo dopo il preflight read-only e l'approvazione del piano;
-fino alla rimozione controllata del CSV dal bucket pubblico, STORAGE-003 deve
-restare indicato come aperto.
+La modifica applicativa è pronta per revisione e mantiene pubbliche le foto
+prodotto. Nessun sistema live è stato modificato. STORAGE-003 resta aperto:
+serve completare gate A, gate B e infine la rimozione esplicita del solo CSV
+pubblico al gate C.

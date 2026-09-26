@@ -11,6 +11,16 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+function validPath(path: unknown): path is string {
+  return typeof path === "string" && path.length > 0 && path.length <= 1024 &&
+    path === path.trim() && !/[\\%?#\u0000-\u001f\u007f]/.test(path) &&
+    path.split("/").every((part) => part !== "" && part !== "." && part !== "..");
+}
+
+function isSyncProductImagePath(path: unknown): path is string {
+  return validPath(path) && path.startsWith("product-images/");
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -37,8 +47,13 @@ serve(async (req) => {
     let path: string;
     let jobId: string | undefined;
 
-    if (bucket === "sync" && body.path) {
-      path = String(body.path).replace(/[^a-zA-Z0-9._\-\/]/g, "_").slice(0, 200);
+    if (bucket === "sync") {
+      if (!isSyncProductImagePath(body.path)) {
+        return new Response(JSON.stringify({ success: false, error: "Percorso sync non consentito" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      path = body.path;
     } else {
       const safeName = (body.fileName || "upload.csv").replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 100);
       jobId = crypto.randomUUID();
@@ -51,7 +66,7 @@ serve(async (req) => {
 
     const { data, error } = await supabase.storage
       .from(bucket)
-      .createSignedUploadUrl(path, { upsert: true });
+      .createSignedUploadUrl(path, { upsert: bucket === "sync" });
 
     if (error) {
       console.error("[UploadURL] Error:", error);

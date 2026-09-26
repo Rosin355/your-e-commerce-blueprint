@@ -28,6 +28,8 @@ export interface ProductSyncReport {
   failed: number;
   logs: SyncLogEntry[];
   startedAt: string;
+  source_state?: "awaiting_upload" | "registered";
+  source_path?: string;
   finishedAt?: string;
   integrity?: CatalogIntegrityReport;
 }

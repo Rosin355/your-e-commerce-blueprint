@@ -227,3 +227,17 @@ for (const route of routes) {
     assert.ok(h.privilegedEvents.includes(route.privileged));
   });
 }
+
+test('csv-upload-url: sync consente solo product-images e non crea capability per CSV', async () => {
+  for (const path of ['shopify-ready.csv', 'jobs/fixture/input.csv', 'product-images', 'other/file.webp']) {
+    const denied = load('csv-upload-url', 'admin');
+    const response = await denied.handler(request({ bucket: 'sync', path }, 'admin'));
+    assert.equal(response.status, 403);
+    assert.deepEqual(denied.privilegedEvents, []);
+  }
+
+  const allowed = load('csv-upload-url', 'admin');
+  const response = await allowed.handler(request({ bucket: 'sync', path: 'product-images/fixture.webp' }, 'admin'));
+  assert.equal(response.status, 200);
+  assert.ok(allowed.privilegedEvents.includes('storage:sync'));
+});

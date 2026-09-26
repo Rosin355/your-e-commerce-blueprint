@@ -1,5 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { ProductSyncCatalogDashboard, ProductSyncJob, SyncMode } from "../types/productSync";
+import {
+  buildProductSyncStoragePath,
+  prepareSmartSyncCsv as prepareSmartSyncCsvInOrder,
+} from "./smartSyncFlow";
+export { buildProductSyncStoragePath } from "./smartSyncFlow";
 
 interface StartResponse {
   success: boolean;
@@ -15,6 +20,12 @@ interface ProcessResponse {
   done: boolean;
   error?: string;
   job: ProductSyncJob;
+}
+
+interface SourceRegistrationResponse {
+  success: boolean;
+  job: ProductSyncJob;
+  error?: string;
 }
 
 interface DashboardResponse {
@@ -255,7 +266,7 @@ export async function sendBatch(
   totalBatches: number,
   totalRows: number,
   adminEmail: string,
-  sourceFile = "shopify-ready.csv",
+  sourceFile = "legacy-local-csv",
 ): Promise<ProcessResponse> {
   const { data, error } = await supabase.functions.invoke("process-product-sync", {
     body: {
@@ -303,18 +314,60 @@ export async function fetchProductSyncDashboard(adminEmail: string, limit = 20):
   return typed.dashboard;
 }
 
-export async function uploadSyncCsv(file: File, _adminEmail: string): Promise<string> {
-  const storagePath = "shopify-ready.csv";
+const PRODUCT_SYNC_BUCKET = "csv-pipeline";
+
+export async function uploadSyncCsv(file: File, jobId: string): Promise<string> {
+  const storagePath = buildProductSyncStoragePath(jobId);
   const { error } = await supabase.storage
-    .from("sync")
+    .from(PRODUCT_SYNC_BUCKET)
     .upload(storagePath, file, {
       cacheControl: "3600",
-      upsert: true,
+      upsert: false,
       contentType: "text/csv",
     });
 
   if (error) throw new Error(error.message || "Errore upload CSV");
   return storagePath;
+}
+
+export async function registerProductSyncSource(
+  jobId: string,
+  sourcePath: string,
+  adminEmail: string,
+): Promise<SourceRegistrationResponse> {
+  const { data, error } = await supabase.functions.invoke("process-product-sync", {
+    body: { action: "register_source", job_id: jobId, source_path: sourcePath },
+    headers: headers(adminEmail),
+  });
+
+  if (error) throw new Error(error.message || "Errore registrazione sorgente CSV");
+  if (!data?.success || !data?.job) throw new Error(data?.error || "Registrazione sorgente non valida");
+  return data as SourceRegistrationResponse;
+}
+
+export interface SmartSyncPreparation {
+  jobId: string;
+  storagePath: string;
+  job: ProductSyncJob;
+}
+
+interface SmartSyncDependencies {
+  start: typeof startProductSync;
+  upload: typeof uploadSyncCsv;
+  register: typeof registerProductSyncSource;
+}
+
+export async function prepareSmartSyncCsv(
+  file: File,
+  mode: SyncMode,
+  adminEmail: string,
+  dependencies: SmartSyncDependencies = {
+    start: startProductSync,
+    upload: uploadSyncCsv,
+    register: registerProductSyncSource,
+  },
+): Promise<SmartSyncPreparation> {
+  return prepareSmartSyncCsvInOrder(file, mode, adminEmail, dependencies);
 }
 
 // ── AI Enrichment ──────────────────────────────────────────
