@@ -64,7 +64,7 @@ Secret `SYNC_CSV_BUCKET` e `SYNC_CSV_PATH`: **non configurati** (i default
 valgono solo nel processor non importato). Nessun cron, webhook o chiamante
 esterno versionato; nessun job attivo.
 
-## 3. Implementazione proposta (PR dedicata, non eseguita)
+## 3. Implementazione preparata (branch dedicato, non distribuita)
 
 1. `uploadSyncCsv(file, jobId)` scrive in
    `csv-pipeline/product-sync/jobs/<job-id>/input.csv`, `upsert: false`;
@@ -73,10 +73,9 @@ esterno versionato; nessun job attivo.
    `job_id` → path salvato in `report_json.source_path` (nessuna migration).
 3. `process-product-sync`: `source_file` diventa etichetta derivata dal job,
    non dal body.
-4. Processor legacy: rimuovere o allineare a `csv-pipeline` + path del job,
-   con validazione prefisso `product-sync/jobs/<uuid>/`; eliminare i default
-   `sync`/`shopify-ready.csv`.
-5. `csv-upload-url` e `storage-signed-url`: per `sync` consentire solo
+4. Processor legacy: rimosso dopo aver confermato assenza di import e
+   chiamanti versionati.
+5. `csv-upload-url` e `storage-signed-url`: per `sync` consentono solo
    `product-images/**`.
 6. Test offline: path per job, nessun riferimento runtime a
    `shopify-ready.csv` o CSV su `sync`, prefissi vietati respinti.
@@ -127,5 +126,6 @@ con tua approvazione, cancelliamo il file pubblico originale.
 
 ## Stato
 
-Preflight completato, pronto per: PR di implementazione → gate A (backup)
-→ gate B (deploy + smoke) → gate C (delete). Nessuno eseguito.
+Preflight completato e implementazione locale pronta per PR. Gate A (backup),
+gate B (deploy + smoke) e gate C (delete) non sono stati eseguiti. I risultati
+del codice e dei test sono in `implementation-STORAGE-003.md`.

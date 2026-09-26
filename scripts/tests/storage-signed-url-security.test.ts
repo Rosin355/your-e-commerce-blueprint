@@ -126,13 +126,20 @@ test('storage signed URL: non-Admin permitted image policy is preserved', async 
 for (const [bucket, path] of [
   ['csv-pipeline', 'jobs/user-a/input.csv'],
   ['csv-pipeline', 'jobs/user-b/input.csv'],
-  ['sync', 'shopify-ready.csv'],
 ]) {
   test(`storage signed URL: non-Admin denied by policy for ${bucket}/${path}`, async () => {
     const h = load();
     const r = await h.invoke({ bucket, path }, 'synthetic-user-a');
     assert.equal(r.status, 404);
     assert.deepEqual(await r.json(), { ok: false, error: 'File non disponibile' });
+  });
+}
+for (const path of ['shopify-ready.csv', 'jobs/fixture/input.csv', 'product-images', 'product-images/../private.csv']) {
+  test(`storage signed URL: sync path outside product-images denied before Storage: ${path}`, async () => {
+    const h = load();
+    const r = await h.invoke({ bucket: 'sync', path });
+    assert.equal(r.status, path.includes('..') ? 400 : 403);
+    assert.equal(h.calls.length, 0);
   });
 }
 test('storage signed URL: editable metadata cannot grant Admin privileges', async () => {

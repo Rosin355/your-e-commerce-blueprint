@@ -33,6 +33,7 @@ export async function createSyncJob(mode: SyncMode, initiatedBy: string): Promis
     failed: 0,
     logs: [],
     startedAt: new Date().toISOString(),
+    source_state: "awaiting_upload",
   };
 
   const { data, error } = await client

@@ -80,6 +80,8 @@ export interface SyncReportState {
   failed: number;
   logs: SyncLogEntry[];
   startedAt: string;
+  source_state?: "awaiting_upload" | "registered";
+  source_path?: string;
   finishedAt?: string;
   batchOffset?: number;
   batchProgress?: { current: number; total: number };
@@ -87,6 +89,7 @@ export interface SyncReportState {
     persistedAt: string;
     persistedCount: number;
     sourceFile: string;
+    sourcePath?: string;
   };
   integrity?: {
     csvSkuCount: number;

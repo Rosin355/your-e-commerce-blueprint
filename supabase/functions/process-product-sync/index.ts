@@ -3,6 +3,7 @@ import { assertAdminRequest } from "../_shared/admin-auth.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { getSyncJob, updateSyncJob } from "../_shared/job-repo.ts";
 import { upsertCsvCatalogRows } from "../_shared/product-catalog-repo.ts";
+import { registerProductSyncSource, smartSyncBatchIsBlocked } from "../_shared/product-sync-source.ts";
 import type { CsvProductRow } from "../_shared/product-sync-types.ts";
 
 serve(async (request) => {
@@ -32,13 +33,41 @@ serve(async (request) => {
       return jsonResponse({ error: "job_id mancante" }, 400);
     }
 
+    const action = String(body?.action || "process_batch");
+    if (action !== "process_batch" && action !== "register_source") {
+      return jsonResponse({ error: "Azione non consentita" }, 400);
+    }
+
     const rows: CsvProductRow[] = body?.rows || [];
     const batchIndex: number = body?.batch_index ?? 0;
     const totalBatches: number = body?.total_batches ?? 1;
     const totalRows: number = body?.total_rows ?? rows.length;
-    const sourceFile: string = body?.source_file || "shopify-ready.csv";
-
     const job = await getSyncJob(jobId);
+
+    if (action === "register_source") {
+      const sourcePath = String(body?.source_path || "").trim();
+      const currentReport = job.report_json || {};
+      const registration = registerProductSyncSource(jobId, job.status, currentReport, sourcePath);
+      if (!registration.ok) {
+        return jsonResponse({ success: false, error: registration.error }, registration.status);
+      }
+      if (registration.unchanged) {
+        return jsonResponse({ success: true, done: false, job });
+      }
+      const registered = await updateSyncJob(jobId, {
+        report_json: registration.report,
+      });
+      return jsonResponse({ success: true, done: false, job: registered });
+    }
+
+    // Jobs created by the Smart Sync flow cannot process rows until the
+    // immutable private snapshot is registered. Reports without source_state
+    // are legacy jobs and remain processable for backward compatibility.
+    if (smartSyncBatchIsBlocked(job.report_json)) {
+      return jsonResponse({ success: false, error: "Snapshot CSV non registrato" }, 409);
+    }
+
+    const sourceFile = job.report_json?.source_path || String(body?.source_file || "legacy-local-csv");
 
     // If already done, just return current state
     if (job.status === "completed" || job.status === "failed") {
@@ -88,7 +117,12 @@ serve(async (request) => {
       ...(isLastBatch ? {
         hasNextPage: false,
         finishedAt: new Date().toISOString(),
-        csvSnapshot: { persistedAt: new Date().toISOString(), persistedCount: newUpdated, sourceFile },
+        csvSnapshot: {
+          persistedAt: new Date().toISOString(),
+          persistedCount: newUpdated,
+          sourceFile,
+          ...(job.report_json?.source_path ? { sourcePath: job.report_json.source_path } : {}),
+        },
       } : {}),
     };
 

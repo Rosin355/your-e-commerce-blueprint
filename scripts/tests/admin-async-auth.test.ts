@@ -70,6 +70,7 @@ function load(functionName: string, scenario: Scenario, gate?: Promise<void>, mu
       if (id.startsWith('https://esm.sh/@supabase/supabase-js@')) return { createClient };
       if (id === '../_shared/admin-auth.ts') return module('supabase/functions/_shared/admin-auth.ts');
       if (id === '../_shared/cors.ts') return module('supabase/functions/_shared/cors.ts');
+      if (id === '../_shared/product-sync-source.ts') return module('supabase/functions/_shared/product-sync-source.ts');
       if (id === '../_shared/job-repo.ts' || id === '../_shared/product-catalog-repo.ts') return repo;
       throw new Error(`Import non autorizzato nel test offline: ${id}`);
     };

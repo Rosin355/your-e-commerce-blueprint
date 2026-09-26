@@ -33,10 +33,9 @@ import {
   propagateVariantPrices,
   resetStyleConflicts,
   parseShopifyReadyCsv,
+  prepareSmartSyncCsv,
   runAiEnrichBatch,
   sendBatch,
-  startProductSync,
-  uploadSyncCsv,
   getImageCounts,
   runImageGenBatch,
   getProductsWithImages,
@@ -151,7 +150,6 @@ export default function ProductSyncPanel() {
     }
     setUploading(true);
     try {
-      await uploadSyncCsv(file, session.email);
       setCsvFile(file);
       // Run header diagnostics
       try {
@@ -159,9 +157,9 @@ export default function ProductSyncPanel() {
         const diag = detectCsvHeaders(csvText);
         setCsvDiagnostics(diag);
       } catch { /* ignore diagnostics errors */ }
-      toast.success(`CSV "${file.name}" caricato con successo`);
+      toast.success(`CSV "${file.name}" selezionato e verificato localmente`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Errore upload");
+      toast.error(error instanceof Error ? error.message : "Errore lettura CSV");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -285,10 +283,13 @@ export default function ProductSyncPanel() {
         return;
       }
 
-      toast.success(`CSV parsato: ${allRows.length} righe. Invio batch...`);
+      toast.success(`CSV parsato: ${allRows.length} righe. Preparazione snapshot privato...`);
 
-      const startResponse = await startProductSync(mode, session.email);
-      const jobId = startResponse.job_id;
+      // Security invariant: create the job first, upload its immutable private
+      // snapshot second, then register the exact path before any DB batch.
+      const prepared = await prepareSmartSyncCsv(csvFile, mode, session.email);
+      const jobId = prepared.jobId;
+      setJob(prepared.job);
       setLastJobId(jobId);
 
       await runBatches(jobId, allRows, 0, csvFile.name);

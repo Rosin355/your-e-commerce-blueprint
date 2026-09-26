@@ -17,6 +17,10 @@ function validPath(path: unknown): path is string {
     path.split("/").every((part) => part !== "" && part !== "." && part !== "..");
 }
 
+function isSyncProductImagePath(path: string): boolean {
+  return path.startsWith("product-images/");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return reply({ ok: false, error: "Metodo non consentito" }, 405);
@@ -55,6 +59,9 @@ Deno.serve(async (req) => {
       return reply({ ok: false, error: "Bucket non consentito" }, 403);
     }
     if (!validPath(path)) return reply({ ok: false, error: "Percorso non valido" }, 400);
+    if (bucket === "sync" && !isSyncProductImagePath(path)) {
+      return reply({ ok: false, error: "Percorso sync non consentito" }, 403);
+    }
     if (expiresIn !== undefined &&
       (typeof expiresIn !== "number" || !Number.isSafeInteger(expiresIn) || expiresIn <= 0)) {
       return reply({ ok: false, error: "Durata non valida" }, 400);
