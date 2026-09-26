@@ -1,8 +1,11 @@
 # STORAGE-003 — Implementazione Smart Sync
 
-Data: 26 settembre 2026. Base: `origin/main@fa87c83a`.
-Branch: `codex/storage-003-smart-sync`.
-Stato: pronto per revisione; nessuna operazione live eseguita.
+Data: 26 settembre 2026. Base iniziale: `origin/main@fa87c83a`.
+Commit applicativo: `d349590a63a221e994cf3db628d65b2bd1534e19`.
+Merge commit: `2d8b993735ba1d2b84e4e16a833ddee5c6f03f9a`.
+Stato: PR #12 mergiata; deploy e smoke live non eseguiti da Codex. Gate B
+resta aperto e richiede il rilascio coordinato descritto in
+`gate-b-release-STORAGE-003.md`.
 
 ## Esito
 
@@ -69,7 +72,9 @@ La tabella dei gate finali viene compilata prima del commit:
 - verificare dimensione e SHA256 senza esporre contenuto, URL o metadata;
 - non eliminare ancora l'originale.
 
-Questo branch non esegue il gate A.
+Gate A è stato riportato da Lovable come completato e verificato nel documento
+`gate-a-backup-STORAGE-003.md`. Codex non dispone dell'accesso al progetto
+Supabase necessario per ripetere direttamente la lettura live.
 
 ### Gate B — deploy coordinato e smoke test
 
@@ -80,7 +85,9 @@ Questo branch non esegue il gate A.
 - verificare assenza di nuovi CSV in `sync` e osservabilità senza dati
   sensibili.
 
-Questo branch non esegue deploy o smoke live.
+Il merge è completato, ma non equivale a un deploy. Codex non ha eseguito
+deploy o smoke live perché il progetto non è accessibile al Supabase CLI
+autenticato e Computer Use non dispone dei permessi necessari per Lovable.
 
 ### Gate C — eliminazione esplicita
 
