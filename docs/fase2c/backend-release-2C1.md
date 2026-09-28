@@ -94,8 +94,8 @@ precedente al successivo merge documentale/applicativo della PR #15.
 `expectedVersion` nella Edge Function prima di arrivare alla RPC, quindi
 risponde 409 invece di restituire l'esito originale. Nessun effetto duplicato
 (requisito rispettato), ma un retry client dopo timeout vede un conflitto
-anziché un successo. La correzione 2C.1a descritta sotto è verificata offline,
-ma non è ancora distribuita.
+anziché un successo. La correzione 2C.1a descritta sotto è stata mergiata con
+PR #17 ma non è mai stata distribuita.
 
 **Integrità**: prodotti 2.706, values 24.466, AI suggestions 0, publication jobs 0, sync job 36, pipeline job 1, import batch 1; nessun altro current value aggiornato (max updated_at altri prodotti 2026-08-17). Nessuna chiamata AI/import/Shopify/storefront.
 
@@ -143,10 +143,14 @@ stata modificata.
 
 ### Rollout minimo e smoke richiesto
 
+La 2C.1a non deve essere distribuita da sola: il test concorrente successivo ha
+dimostrato il limite descritto nella sezione 2C.1b. Il rollout valido parte
+dalla revisione 2C.1b completa.
+
 1. verificare che il deploy corrente corrisponda ancora al codice 2C.1 e che la
    modalità resti `canary`;
-2. distribuire soltanto `product-admin-api` dalla revisione 2C.1a; nessuna
-   migration, frontend o modifica dati;
+2. distribuire soltanto `product-admin-api` dalla revisione 2C.1b approvata;
+   nessuna migration, frontend o modifica dati;
 3. eseguire un controllo read-only di Admin V2, catalogo e capability;
 4. con una fixture nuovamente approvata e dopo aver riportato SKU, field key,
    valore corrente/proposto, `expectedVersion` e rollback, applicare un comando
@@ -160,3 +164,74 @@ stata modificata.
 
 La prova create con `expectedVersion=0` resta un gate live separato. Non usare
 `OG_393883` per lo smoke e non eseguire AI, import o Shopify sync.
+
+## Forward-fix 2C.1b — riconciliazione del replay concorrente
+
+### Stato ed evidenza
+
+PR #17 / 2C.1a è presente su `main` tramite merge commit `98525eee`, ma non è
+stata distribuita. Il bug originale sequenziale è stato osservato live sul
+backend 2C.1; la race specifica della 2C.1a è invece una verifica esclusivamente
+offline, riprodotta su PostgreSQL isolato senza dati cliente.
+
+Nel caso concorrente, il retry iniziava prima del commit della prima request:
+il lookup Edge e quello iniziale della RPC non vedevano ancora il command log.
+Sono state riprodotte due finestre: se `getCurrentValue` leggeva la versione
+nuova dopo il commit, il request handler restituiva `VERSION_CONFLICT` prima di
+chiamare `executeCommand`; se leggeva ancora la versione precedente, la seconda
+RPC attendeva il lock e restituiva poi lo stesso conflitto. Lo stato dati
+restava corretto (`version=2`, una history, un command log), ma la risposta
+dipendeva dal timing. Il primo fix della PR #18 copriva soltanto la seconda
+finestra: il finding Codex P1 ha portato alla correzione anche del gate pre-RPC.
+
+### Correzione runtime
+
+Una helper condivisa riconcilia il command log per `(actor, idempotency_key)`
+usando lo stesso hash canonico. Il request handler la richiama una sola volta
+quando il controllo versione pre-RPC sta per restituire `VERSION_CONFLICT`;
+`executeCommand` la richiama una sola volta se è invece la RPC a restituire il
+conflitto. In entrambi i casi:
+
+- hash uguale e command già applicata: restituisce il precedente `result_json`
+  con `replayed=true`;
+- stessa key e hash diverso: restituisce `IDEMPOTENCY_CONFLICT`;
+- nessuna command: conserva il `VERSION_CONFLICT` originale.
+
+Non esistono polling, sleep o retry automatici nel runtime. La pausa controllata
+usata nel solo test è una barriera di fixture per forzare la sovrapposizione.
+RPC, migration 2C.1, schema, ACL, frontend e contratto HTTP restano invariati.
+
+### Test concorrente request-handler Codex
+
+Il test carica ed esegue il request handler reale di `index.ts` e lo collega a
+sessioni PostgreSQL isolate sincronizzate prima del commit della prima request.
+Risultato:
+
+- prima request: `APPLIED`, versione 2;
+- retry sovrapposto fermato al gate pre-RPC: HTTP 200, `replayed=true`, nessuna
+  invocazione della RPC dal retry;
+- retry sovrapposto che arriva alla RPC: HTTP 200, `replayed=true`, un solo
+  tentativo RPC e nessun retry write;
+- stato finale: versione 2, una history, un command log;
+- stessa key con payload differente: `IDEMPOTENCY_CONFLICT`;
+- nuova key con `expectedVersion` stale: `VERSION_CONFLICT`;
+- un solo re-check opportunistico nel ramo pre-RPC o post-RPC interessato.
+
+I test sequenziali continuano a coprire manual-only locked, creazione con
+`expectedVersion=0`, lineage, protezioni AI/re-import/strutturali, rollback
+atomico, canonicalizzazione JSON ricorsiva e ordine degli array FAQ.
+
+### Rollout minimo 2C.1b
+
+1. review e merge della PR dedicata;
+2. confronto della funzione live con la baseline 2C.1 e conferma `canary`;
+3. deploy della sola `product-admin-api` dalla revisione 2C.1b;
+4. smoke read-only su login Admin, catalogo e capability;
+5. solo con fixture approvata, first apply + exact replay sequenziale e
+   immediatamente sovrapposto; verificare 200, `replayed=true`, versione/history/
+   command log non duplicati;
+6. verificare payload diverso e nuova key stale; ripristinare con un nuovo
+   comando versionato.
+
+Nessuna prova create live e nessuna scrittura su `OG_393883` rientrano in
+questo rollout.

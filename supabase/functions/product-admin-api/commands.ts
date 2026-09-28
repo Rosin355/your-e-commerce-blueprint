@@ -119,8 +119,9 @@ export function resolveCommandReplay(
 export async function lookupCommandReplay(
   db: SupabaseClient,
   input: CommandInput,
+  knownHash?: string,
 ): Promise<CommandReplayResolution> {
-  const hash = await commandPayloadHash(input);
+  const hash = knownHash ?? await commandPayloadHash(input);
   const { data, error } = await db
     .from("product_admin_command_log")
     .select("payload_hash,result_json")
@@ -130,6 +131,28 @@ export async function lookupCommandReplay(
 
   if (error) throw error;
   return resolveCommandReplay((data as ExistingCommand | null) ?? null, hash);
+}
+
+/**
+ * Converte il lookup in un esito riutilizzabile dai gate Edge pre/post RPC.
+ * `null` significa che non esiste una command compatibile e il flusso normale
+ * deve proseguire; questa helper non esegue mai write né retry della RPC.
+ */
+export async function reconcileCommandReplay(
+  db: SupabaseClient,
+  input: CommandInput,
+  knownHash?: string,
+): Promise<Record<string, unknown> | null> {
+  const replay = await lookupCommandReplay(db, input, knownHash);
+  if (replay.kind === "replay") return replay.result;
+  if (replay.kind === "conflict") {
+    return {
+      ok: false,
+      code: "IDEMPOTENCY_CONFLICT",
+      message: "idempotencyKey già usata con un payload diverso",
+    };
+  }
+  return null;
 }
 
 export async function executeCommand(db: SupabaseClient, input: CommandInput) {
@@ -148,5 +171,15 @@ export async function executeCommand(db: SupabaseClient, input: CommandInput) {
   });
 
   if (error) throw error;
-  return data as Record<string, unknown>;
+  const result = data as Record<string, unknown>;
+
+  // Una request concorrente può aver mancato il lookup iniziale mentre la
+  // prima transazione non era ancora committata. Solo dopo un VERSION_CONFLICT
+  // rileggiamo una volta il command log; non ritentiamo mai la write.
+  if (result?.ok === false && result.code === "VERSION_CONFLICT") {
+    const replay = await reconcileCommandReplay(db, input, hash);
+    if (replay) return replay;
+  }
+
+  return result;
 }

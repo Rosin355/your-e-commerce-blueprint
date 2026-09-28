@@ -12,6 +12,7 @@ import {
   CANARY_ACTIONS,
   canonicalizeJson,
   commandPayloadHash,
+  executeCommand,
   isCanaryField,
   lookupCommandReplay,
   payloadHash,
@@ -206,6 +207,41 @@ function commandLogDb(entry: { payload_hash: string; result_json: Record<string,
   };
 }
 
+function commandExecutionDb(
+  rpcResult: Record<string, unknown>,
+  entry: { payload_hash: string; result_json: Record<string, unknown> } | null,
+) {
+  let rpcCalls = 0;
+  let lookupCalls = 0;
+  const builder = {
+    select: (_columns: string) => builder,
+    eq: (_column: string, _value: unknown) => builder,
+    maybeSingle: async () => {
+      lookupCalls += 1;
+      return { data: entry, error: null };
+    },
+  };
+  return {
+    get rpcCalls() {
+      return rpcCalls;
+    },
+    get lookupCalls() {
+      return lookupCalls;
+    },
+    client: {
+      rpc: async (name: string) => {
+        assert.equal(name, "admin_update_product_field");
+        rpcCalls += 1;
+        return { data: rpcResult, error: null };
+      },
+      from: (table: string) => {
+        assert.equal(table, "product_admin_command_log");
+        return builder;
+      },
+    },
+  };
+}
+
 test("replay applicato restituisce l'esito precedente prima del version check", async () => {
   const original = command();
   const hash = await commandPayloadHash(original);
@@ -247,6 +283,54 @@ test("ordine FAQ resta semantico nell'hash idempotente", async () => {
   const original = command();
   const reversed = command({ value: [...(original.value as unknown[])].reverse() });
   assert.notEqual(await commandPayloadHash(original), await commandPayloadHash(reversed));
+});
+
+test("VERSION_CONFLICT concorrente viene riconciliato con un solo lookup e nessun retry write", async () => {
+  const input = command();
+  const hash = await commandPayloadHash(input);
+  const db = commandExecutionDb(
+    { ok: false, code: "VERSION_CONFLICT", currentVersion: 2 },
+    { payload_hash: hash, result_json: { ok: true, code: "APPLIED", version: 2 } },
+  );
+
+  assert.deepEqual(await executeCommand(db.client as never, input), {
+    ok: true,
+    code: "APPLIED",
+    version: 2,
+    replayed: true,
+  });
+  assert.equal(db.rpcCalls, 1);
+  assert.equal(db.lookupCalls, 1);
+});
+
+test("post-conflict distingue key riusata e command realmente stale", async () => {
+  const input = command();
+  const differentPayloadDb = commandExecutionDb(
+    { ok: false, code: "VERSION_CONFLICT", currentVersion: 2 },
+    { payload_hash: "different-payload", result_json: { ok: true, code: "APPLIED", version: 2 } },
+  );
+  assert.equal((await executeCommand(differentPayloadDb.client as never, input)).code, "IDEMPOTENCY_CONFLICT");
+  assert.equal(differentPayloadDb.rpcCalls, 1);
+  assert.equal(differentPayloadDb.lookupCalls, 1);
+
+  const staleDb = commandExecutionDb(
+    { ok: false, code: "VERSION_CONFLICT", currentVersion: 2 },
+    null,
+  );
+  assert.deepEqual(await executeCommand(staleDb.client as never, input), {
+    ok: false,
+    code: "VERSION_CONFLICT",
+    currentVersion: 2,
+  });
+  assert.equal(staleDb.rpcCalls, 1);
+  assert.equal(staleDb.lookupCalls, 1);
+});
+
+test("un esito RPC diverso da VERSION_CONFLICT non attiva il secondo lookup", async () => {
+  const db = commandExecutionDb({ ok: true, code: "APPLIED", version: 2 }, null);
+  assert.equal((await executeCommand(db.client as never, command())).code, "APPLIED");
+  assert.equal(db.rpcCalls, 1);
+  assert.equal(db.lookupCalls, 0);
 });
 
 test("clear esplicito: conferma e campi required", () => {
