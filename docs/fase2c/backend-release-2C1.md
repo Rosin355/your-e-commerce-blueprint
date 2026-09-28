@@ -51,3 +51,22 @@ Sicurezza: prodotto non pubblicato da questa pipeline (nessuna sync Shopify), va
 
 ## Stato
 Migration applicata, backend distribuito, scritture smoke NON eseguite. In attesa di approvazione fixture. Nessun merge, AI, import o Shopify sync.
+
+## Smoke test live autorizzato — Prova A (UPDATE only) — 2026-09-28 14:38 UTC
+
+Solo prova A su OG_264361 (`d6492fb1-…ff12`, simple), campo `nome_comune`. Prova B (`colore_fiore`) NON eseguita; OG_393883 non toccato; PR #15 non mergiata.
+
+**Preflight (PASS)**: valore `Hemerocallis "Rosy" - Giglio Diurno Rosa`, version 1, manual_only, is_locked=true, manual/approved/protected, `source_snapshot_id` NULL, `source_batch_id` 1a44397e…; ruolo `admin`, writesEnabled, writeMode `canary`, `nome_comune` in allowlist. History/command log globali: 0.
+
+| Passo | Richiesta | Esito |
+|---|---|---|
+| UPDATE | expectedVersion 1, key `smoke-2c1-A-e3166b…` | 200 APPLIED, version 2 |
+| Replay stessa key | identica | 409 VERSION_CONFLICT (currentVersion 2); nessuna v3, nessuna history/log duplicata |
+| Conflitto | nuova key, expectedVersion 1 | 409 VERSION_CONFLICT; nessun dato cambiato |
+| Ripristino | expectedVersion 2, key `smoke-2c1-R-8818f7…` | 200 APPLIED, version 3 |
+
+**Stato finale**: valore originale, version 3, is_locked=true, manual/approved/protected, lineage invariata (snapshot NULL, stesso batch). History: 2 righe `manual_update` 1→2 e 2→3. Command log: 2 righe APPLIED (A, R).
+
+**Nota idempotenza**: il replay viene fermato dal controllo expectedVersion nella Edge Function prima di arrivare alla RPC, quindi risponde 409 invece di restituire l'esito originale. Nessun effetto duplicato (requisito rispettato), ma un retry client dopo timeout vedrebbe un conflitto anziché un successo: possibile forward-fix (consultare command log per idempotencyKey prima del version check).
+
+**Integrità**: prodotti 2.706, values 24.466, AI suggestions 0, publication jobs 0, sync job 36, pipeline job 1, import batch 1; nessun altro current value aggiornato (max updated_at altri prodotti 2026-08-17). Nessuna chiamata AI/import/Shopify/storefront.
