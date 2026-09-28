@@ -50,6 +50,11 @@ export function canWriteCanary(roles: AppRole[]): boolean {
   return roles.some((r) => CANARY_WRITE_ROLES.includes(r));
 }
 
+/** Solo questi ruoli possono superare il lock per un salvataggio manual_only. */
+export function canManageLockedManualValues(roles: AppRole[]): boolean {
+  return roles.some((r) => r === "admin" || r === "tech_admin");
+}
+
 /**
  * Publisher da solo NON scrive in F5 (e non pubblica: la pubblicazione non è in scope).
  * Publisher + editor → può scrivere grazie al ruolo editor.
