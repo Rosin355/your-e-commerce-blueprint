@@ -1,7 +1,7 @@
 # Online Garden — developer handoff
 
 Aggiornamento: 28 settembre 2026
-Baseline: `origin/main@d36bfd462c9df3c2a4d9181a1e20c4986c91d581`
+Baseline: `origin/main@98525eee7e4c60badf1953caa3036462541587e0`
 
 ## 1. Architettura
 
@@ -100,6 +100,14 @@ Regole:
   version check. Hash uguale restituisce il precedente `result_json` con
   `replayed=true`; hash diverso produce `IDEMPOTENCY_CONFLICT`; key nuova segue
   il normale controllo `expectedVersion` e la RPC atomica;
+- la 2C.1a è mergiata ma non va distribuita isolatamente: se il retry si
+  sovrappone alla prima transazione, entrambi i lookup iniziali possono non
+  vedere il command log e la RPC del retry può ancora restituire
+  `VERSION_CONFLICT` dopo aver atteso il lock;
+- la 2C.1b riconcilia esclusivamente quel risultato: dopo un
+  `VERSION_CONFLICT` RPC esegue un solo secondo lookup. Exact replay restituisce
+  l'esito applicato, hash diverso diventa `IDEMPOTENCY_CONFLICT`, assenza del
+  command log conserva il conflitto versione. Nessun polling o retry write;
 - una versione stale produce `VERSION_CONFLICT`, mai overwrite.
 
 I cinque campi manuali protetti sono `nome_comune`, `ibridatore`,
@@ -196,10 +204,11 @@ Per cambi DB/API/UI coordinati: migration retrocompatibile, Edge Function,
 smoke read-only, frontend, smoke UI. Non pubblicare un frontend che richiede un
 contratto backend non ancora disponibile.
 
-Per 2C.1a non esiste modifica DB o frontend: distribuire soltanto
+Per 2C.1b non esiste modifica DB o frontend: distribuire soltanto
 `product-admin-api` dalla revisione approvata, mantenere `canary`, quindi
-verificare un replay identico, un conflitto idempotente e una nuova command
-stale. La RPC resta il secondo gate atomico contro richieste concorrenti.
+verificare replay sequenziale e sovrapposto, conflitto idempotente e nuova
+command stale. La RPC resta il gate atomico; il secondo lookup è read-only e
+avviene solo dopo un suo `VERSION_CONFLICT`.
 
 ### Rollback
 
@@ -226,6 +235,15 @@ git diff --check
 Per le Edge Functions usare `deno check` sugli entry point interessati. Per SQL
 atomico usare PostgreSQL isolato con fixture sintetiche: non puntare mai il
 runner a un URL live.
+
+Per la race 2C.1b eseguire inoltre:
+
+```text
+node --import tsx scripts/test-admin-idempotent-race.mjs
+```
+
+La barriera temporale è confinata alla fixture PostgreSQL; il runtime non usa
+sleep, polling o retry automatici della write.
 
 ## 12. File chiave
 

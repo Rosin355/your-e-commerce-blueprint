@@ -119,8 +119,9 @@ export function resolveCommandReplay(
 export async function lookupCommandReplay(
   db: SupabaseClient,
   input: CommandInput,
+  knownHash?: string,
 ): Promise<CommandReplayResolution> {
-  const hash = await commandPayloadHash(input);
+  const hash = knownHash ?? await commandPayloadHash(input);
   const { data, error } = await db
     .from("product_admin_command_log")
     .select("payload_hash,result_json")
@@ -148,5 +149,22 @@ export async function executeCommand(db: SupabaseClient, input: CommandInput) {
   });
 
   if (error) throw error;
-  return data as Record<string, unknown>;
+  const result = data as Record<string, unknown>;
+
+  // Una request concorrente può aver mancato il lookup iniziale mentre la
+  // prima transazione non era ancora committata. Solo dopo un VERSION_CONFLICT
+  // rileggiamo una volta il command log; non ritentiamo mai la write.
+  if (result?.ok === false && result.code === "VERSION_CONFLICT") {
+    const replay = await lookupCommandReplay(db, input, hash);
+    if (replay.kind === "replay") return replay.result;
+    if (replay.kind === "conflict") {
+      return {
+        ok: false,
+        code: "IDEMPOTENCY_CONFLICT",
+        message: "idempotencyKey già usata con un payload diverso",
+      };
+    }
+  }
+
+  return result;
 }
