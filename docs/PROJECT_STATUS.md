@@ -1,7 +1,7 @@
 # Online Garden — stato consolidato del progetto
 
 Data di consolidamento: 28 settembre 2026
-Baseline Git verificata da Codex: `origin/main@3f674b48210908b115aa72f55bf692e4a3e85c35`
+Baseline Git verificata da Codex: `origin/main@d36bfd462c9df3c2a4d9181a1e20c4986c91d581`
 
 ## 1. Executive summary
 
@@ -21,7 +21,9 @@ La prova live di update e ripristino di un campo `manual_only` locked è stata
 eseguita su una fixture approvata e ha conservato lock, lineage e integrità. La
 creazione di un current value assente non è stata eseguita. Il replay non ha
 duplicato dati, ma viene esposto come `VERSION_CONFLICT`: è un gap applicativo
-da correggere prima di considerare completa l'idempotenza end-to-end.
+confermato sul backend live. Il forward-fix runtime 2C.1a è stato preparato e
+verificato offline: consulta il command log prima del controllo versione senza
+modificare RPC o migration, ma richiede ancora review, deploy e smoke live.
 `OG_393883` resta escluso dalle modifiche senza approvazione esplicita.
 
 ## 2. Come leggere le evidenze
@@ -44,7 +46,7 @@ diretta Codex.
 | WordPress lineage | **PARZIALE** | Snapshot presenti; `source_snapshot_id` nullable. Backfill non eseguito: dry-run 14.295 `MATCH_READY`, 271 `NO_MATCH`, 9.900 `NOT_APPLICABLE`, 0 ambigui (`LOVABLE REPORTED`). |
 | Golden SKU | **VERIFICATO** | Riconciliazione 20 SKU senza conflitti nel dry-run offline; `OG_393883` usato solo per letture e controlli di protezione. |
 | Admin V2 frontend | **LIVE** | PR #4 e pubblicazione 2B.6 completate; editor tipizzati, FAQ strutturate, capability server-side, lineage nullable e conflitti versione disponibili. |
-| Admin V2 backend 2C.1 | **LIVE, SMOKE PARZIALE** | Update locked e ripristino superati su fixture. Create con versione 0 non eseguita; replay senza duplicati ma restituisce conflitto. |
+| Admin V2 backend 2C.1 | **LIVE, SMOKE PARZIALE** | Update locked e ripristino superati su fixture. Create con versione 0 non eseguita; il live restituisce conflitto sul replay. Forward-fix 2C.1a offline, non distribuito. |
 | Sicurezza legacy | **CLOSED / MITIGATED** | PR #5, #6, #8 e #9 integrate e riportate come distribuite/collaudate. Restano documentati i limiti dei test non Admin dove non eseguiti live. |
 | Storage firmato | **CLOSED** | Autorizzazione caller e limiti bucket/percorso introdotti; non ripristinare la versione vulnerabile. |
 | Smart Sync | **LIVE / GATE A-B-C PASS** | PR #12 integrata; CSV nuovi in `csv-pipeline`, immagini ancora pubbliche in `sync/product-images/**`; CSV pubblico rimosso. |
@@ -70,6 +72,7 @@ diretta Codex.
 | STORAGE-003 Gate B docs | COMPLETATA | PR #13 `9979d96` | N/A | Docs-only. |
 | STORAGE-003 Gate C docs | COMPLETATA | PR #14, merge `4bd6115` | Sì | Report Gate C e tracciabilità delle verifiche integrati su `main`. |
 | 2C.1 manual locked backend | BACKEND LIVE; SMOKE PARZIALE | PR #15, merge `3f674b4`; Lovable `9b6ed9f`–`6db554d` | Sì, secondo report Lovable | PostgreSQL isolato 10/10; update/rollback live PASS, create non eseguita, replay semantico da correggere. |
+| 2C.1a replay idempotente | READY FOR REVIEW | branch `codex/admin-idempotent-replay-fix` | No | Fix solo Edge Function; test applicativi e PostgreSQL isolato PASS. Nessuna migration. |
 
 Le PR #14 e #15 sono state mergiate su `main`. Il merge ha integrato report,
 test e documentazione già revisionati; non costituisce una nuova applicazione
@@ -134,9 +137,10 @@ della migration né un nuovo deploy della Edge Function.
 
 ## 7. Open items reali
 
-1. Correggere la sequenza idempotenza/versione nella Edge Function affinché un
-   retry identico restituisca il risultato registrato senza essere tradotto in
-   `VERSION_CONFLICT`; mantenere il comportamento deny-by-default.
+1. Revisionare e rilasciare il forward-fix 2C.1a; dopo il deploy verificare che
+   un retry identico restituisca il risultato registrato, che il riuso della key
+   con payload diverso produca `IDEMPOTENCY_CONFLICT` e che una nuova command
+   stale resti `VERSION_CONFLICT`.
 2. Approvare separatamente lo smoke di creazione con `expectedVersion=0` e il
    relativo rollback; non usare `OG_393883` senza autorizzazione esplicita.
 3. Valutare l'esperienza UI finale del Salva sui manual-only locked dopo lo
@@ -150,7 +154,7 @@ della migration né un nuovo deploy della Edge Function.
 
 ## 8. Prossimi passi, in ordine
 
-1. Forward-fix idempotenza Edge Function e test di replay.
+1. Review, deploy controllato e smoke live del forward-fix idempotenza 2C.1a.
 2. Gate separato per lo smoke create con versione 0.
 3. Collaudo UX cliente Admin V2 sul comportamento aggiornato.
 4. Decisione sul backfill lineage.

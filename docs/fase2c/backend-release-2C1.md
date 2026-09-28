@@ -90,6 +90,73 @@ precedente al successivo merge documentale/applicativo della PR #15.
 
 **Stato finale**: valore originale, version 3, is_locked=true, manual/approved/protected, lineage invariata (snapshot NULL, stesso batch). History: 2 righe `manual_update` 1→2 e 2→3. Command log: 2 righe APPLIED (A, R).
 
-**Nota idempotenza**: il replay viene fermato dal controllo expectedVersion nella Edge Function prima di arrivare alla RPC, quindi risponde 409 invece di restituire l'esito originale. Nessun effetto duplicato (requisito rispettato), ma un retry client dopo timeout vedrebbe un conflitto anziché un successo: possibile forward-fix (consultare command log per idempotencyKey prima del version check).
+**Nota idempotenza live**: il replay viene fermato dal controllo
+`expectedVersion` nella Edge Function prima di arrivare alla RPC, quindi
+risponde 409 invece di restituire l'esito originale. Nessun effetto duplicato
+(requisito rispettato), ma un retry client dopo timeout vede un conflitto
+anziché un successo. La correzione 2C.1a descritta sotto è verificata offline,
+ma non è ancora distribuita.
 
 **Integrità**: prodotti 2.706, values 24.466, AI suggestions 0, publication jobs 0, sync job 36, pipeline job 1, import batch 1; nessun altro current value aggiornato (max updated_at altri prodotti 2026-08-17). Nessuna chiamata AI/import/Shopify/storefront.
+
+## Forward-fix 2C.1a — replay prima del version check
+
+### Causa verificata da Codex
+
+La RPC 2C.1 risolve già correttamente il replay all'inizio della transazione:
+legge `product_admin_command_log` per coppia `(actor, idempotency_key)`, compara
+`payload_hash` e restituisce `result_json` prima di leggere o bloccare il
+current value. Il difetto end-to-end è nel router di `product-admin-api`: la
+versione live legge il current value e restituisce `VERSION_CONFLICT` prima di
+invocare la RPC, rendendo irraggiungibile quel ramo per un retry successivo a
+un apply.
+
+La correzione runtime 2C.1a:
+
+1. autentica e autorizza normalmente il chiamante;
+2. verifica prodotto, field registry, `applies_to`, editabilità e ruolo
+   corrente richiesto dalla modalità canary;
+3. calcola lo stesso hash SHA-256 sul payload JSON canonicalizzato usato dalla
+   RPC;
+4. consulta in sola lettura il command log dell'attore prima del controllo
+   `expectedVersion`;
+5. per hash uguale restituisce il `result_json` già applicato con
+   `replayed=true`; per hash diverso risponde `IDEMPOTENCY_CONFLICT`;
+6. se la key non esiste, applica write gate e allowlist canary, quindi prosegue
+   con validazione versione e RPC esattamente come prima. La RPC mantiene il
+   secondo controllo atomico per le richieste concorrenti.
+
+Non serve una migration 2C.1a: firma, corpo, `SECURITY DEFINER`, `search_path`,
+ACL e schema della RPC restano invariati. La migration 2C.1 già applicata non è
+stata modificata.
+
+### Test Codex offline
+
+- `product-admin-api`: first lookup, exact replay, replay simulato dopo timeout,
+  riuso key con payload diverso, nuova key, canonicalizzazione JSON annidata e
+  ordine degli array FAQ;
+- PostgreSQL isolato: 10/10, inclusi first apply, due replay identici, versione,
+  history e command log invariati, conflitto idempotente, stale command distinta,
+  create `expectedVersion=0`, manual-only locked, lineage e rollback atomico;
+- `deno check`, typecheck, suite catalogo, build e `git diff --check` fanno parte
+  del gate PR e non costituiscono verifica live.
+
+### Rollout minimo e smoke richiesto
+
+1. verificare che il deploy corrente corrisponda ancora al codice 2C.1 e che la
+   modalità resti `canary`;
+2. distribuire soltanto `product-admin-api` dalla revisione 2C.1a; nessuna
+   migration, frontend o modifica dati;
+3. eseguire un controllo read-only di Admin V2, catalogo e capability;
+4. con una fixture nuovamente approvata e dopo aver riportato SKU, field key,
+   valore corrente/proposto, `expectedVersion` e rollback, applicare un comando
+   e ripetere la stessa richiesta: il replay deve rispondere 200 con l'esito
+   precedente e `replayed=true`, senza incremento versione né nuove righe di
+   history/command log;
+5. riusare la stessa key con payload diverso: atteso
+   `IDEMPOTENCY_CONFLICT`; usare una nuova key con versione stale: atteso
+   `VERSION_CONFLICT`;
+6. ripristinare con un nuovo comando versionato se la fixture è stata cambiata.
+
+La prova create con `expectedVersion=0` resta un gate live separato. Non usare
+`OG_393883` per lo smoke e non eseguire AI, import o Shopify sync.

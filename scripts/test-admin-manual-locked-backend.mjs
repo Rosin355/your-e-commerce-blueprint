@@ -233,12 +233,28 @@ try {
       AND new_value='"Nuovo nome"'::jsonb;`), '1');
   });
 
-  test('retry idempotente non duplica storico né versione', () => {
+  test('replay esatto e retry dopo timeout non duplicano storico, command log o versione', () => {
+    const versionBefore = sql(`SELECT version FROM public.product_current_values
+      WHERE product_id='${productId}' AND field_key='nome_comune';`);
+    const historyBefore = sql(`SELECT count(*) FROM public.product_field_history
+      WHERE product_id='${productId}' AND field_key='nome_comune';`);
+    const commandsBefore = sql(`SELECT count(*) FROM public.product_admin_command_log
+      WHERE actor='${adminId}' AND idempotency_key='request-0001';`);
     const replay = rpc();
     assert.equal(replay.replayed, true);
     assert.equal(replay.version, 2);
-    assert.equal(sql(`SELECT count(*) FROM public.product_field_history WHERE field_key='nome_comune';`), '1');
+    const replayAfterTimeout = rpc();
+    assert.equal(replayAfterTimeout.replayed, true);
+    assert.equal(replayAfterTimeout.version, 2);
+    assert.equal(sql(`SELECT version FROM public.product_current_values
+      WHERE product_id='${productId}' AND field_key='nome_comune';`), versionBefore);
+    assert.equal(sql(`SELECT count(*) FROM public.product_field_history
+      WHERE product_id='${productId}' AND field_key='nome_comune';`), historyBefore);
+    assert.equal(sql(`SELECT count(*) FROM public.product_admin_command_log
+      WHERE actor='${adminId}' AND idempotency_key='request-0001';`), commandsBefore);
     assert.equal(rpc({ key: 'request-0001', hash: 'different-hash' }).code, 'IDEMPOTENCY_CONFLICT');
+    assert.equal(sql(`SELECT count(*) FROM public.product_admin_command_log
+      WHERE actor='${adminId}' AND idempotency_key='request-0001';`), commandsBefore);
   });
 
   test('non Admin respinto su manual_only locked', () => {
@@ -278,6 +294,7 @@ try {
     assert.equal(conflict.currentVersion, 2);
     assert.equal(sql(`SELECT value_text||'|'||version FROM public.product_current_values WHERE field_key='nome_comune';`), before);
     assert.equal(sql(`SELECT count(*) FROM public.product_field_history WHERE field_key='nome_comune';`), history);
+    assert.equal(sql(`SELECT count(*) FROM public.product_admin_command_log WHERE idempotency_key='stale-key-01';`), '0');
   });
 
   test('FAQ canonica sostituisce legacy opaco senza perdere lo storico', () => {

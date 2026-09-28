@@ -1,7 +1,7 @@
 # Online Garden — developer handoff
 
 Aggiornamento: 28 settembre 2026
-Baseline: `origin/main@3f674b48210908b115aa72f55bf692e4a3e85c35`
+Baseline: `origin/main@d36bfd462c9df3c2a4d9181a1e20c4986c91d581`
 
 ## 1. Architettura
 
@@ -91,10 +91,15 @@ Regole:
   l'ordine degli array;
 - nella RPC, stesso idempotency key e stesso payload restituiscono replay senza
   nuova history; payload diverso produce `IDEMPOTENCY_CONFLICT`;
-- limite live noto: la Edge Function verifica `expectedVersion` prima che la
-  RPC possa risolvere il replay. Dopo un successo, un retry identico riceve
-  quindi `VERSION_CONFLICT`; non duplica dati ma non offre ancora semantica di
-  successo idempotente end-to-end;
+- limite del backend attualmente live: la Edge Function verifica
+  `expectedVersion` prima che la RPC possa risolvere il replay. Dopo un
+  successo, un retry identico riceve quindi `VERSION_CONFLICT`; non duplica
+  dati ma non offre ancora semantica di successo idempotente end-to-end;
+- il forward-fix 2C.1a, ancora non distribuito, esegue un lookup read-only del
+  command log dopo i gate di autenticazione/autorizzazione/canary e prima del
+  version check. Hash uguale restituisce il precedente `result_json` con
+  `replayed=true`; hash diverso produce `IDEMPOTENCY_CONFLICT`; key nuova segue
+  il normale controllo `expectedVersion` e la RPC atomica;
 - una versione stale produce `VERSION_CONFLICT`, mai overwrite.
 
 I cinque campi manuali protetti sono `nome_comune`, `ibridatore`,
@@ -191,6 +196,11 @@ Per cambi DB/API/UI coordinati: migration retrocompatibile, Edge Function,
 smoke read-only, frontend, smoke UI. Non pubblicare un frontend che richiede un
 contratto backend non ancora disponibile.
 
+Per 2C.1a non esiste modifica DB o frontend: distribuire soltanto
+`product-admin-api` dalla revisione approvata, mantenere `canary`, quindi
+verificare un replay identico, un conflitto idempotente e una nuova command
+stale. La RPC resta il secondo gate atomico contro richieste concorrenti.
+
 ### Rollback
 
 - frontend: ripubblicare l'ultima versione compatibile;
@@ -240,6 +250,8 @@ runner a un URL live.
 - non serializzare numeri, booleani, array o FAQ come stringhe;
 - non convertire valori legacy opachi senza scelta utente;
 - non fare retry automatici sui conflitti versione;
+- non classificare un exact replay come conflitto versione: prima consultare il
+  command log dell'attore e confrontare l'hash canonico;
 - non introdurre export, backup, token o URL firmati nel repository;
 - non eseguire migration, import, AI o Shopify per collaudare una modifica UI;
 - non usare `OG_393883` per scritture senza autorizzazione esplicita.
