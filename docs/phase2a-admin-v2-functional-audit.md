@@ -1,5 +1,13 @@
 # ONLINE GARDEN — Fase 2A: audit funzionale Admin V2
 
+> **Aggiornamento consolidato al 28 settembre 2026:** questo documento conserva
+> l'audit iniziale. I gap su capability, `applies_to`, editor tipizzati, FAQ,
+> lineage nullable e conflitti versione sono stati risolti dalla PR #4 e sono
+> live. Il backend 2C.1 per manual-only locked e creazione con versione 0 è
+> riportato come distribuito da Lovable. Update e ripristino live sono riusciti;
+> restano create con versione 0 e il forward-fix del replay idempotente.
+> Stato corrente: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 Data audit: 24 settembre 2026
 
 Branch di lavoro: `codex/admin-v2-field-editing`

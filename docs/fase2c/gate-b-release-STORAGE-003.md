@@ -1,5 +1,11 @@
 # STORAGE-003 — Gate B: merge completato, rilascio coordinato pendente
 
+> **Stato finale successivo:** Gate B e Gate C sono stati completati. Il CSV
+> pubblico è stato rimosso, il backup privato preservato e le immagini prodotto
+> restano pubbliche. Questo report conserva il piano precedente al rilascio;
+> usare `gate-c-removal-STORAGE-003.md` e `../PROJECT_STATUS.md` per lo stato
+> corrente.
+
 Data: 26 settembre 2026.
 
 ## Stato verificato

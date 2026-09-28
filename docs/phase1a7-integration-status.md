@@ -1,5 +1,10 @@
 # ONLINE GARDEN — Fase 1A.7: riallineamento sicuro
 
+> **Stato consolidato al 28 settembre 2026:** la foundation lossless è live e
+> invariata; il backfill `source_snapshot_id` non è stato eseguito. Admin V2,
+> hardening sicurezza e Smart Sync sono proseguiti nelle fasi successive. Per
+> lo stato operativo corrente usare [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 ## Stato
 
 **FASE 1B.4 CHIUSA; FOUNDATION, MIGRATION E LOCKFILE INTEGRATI. LE VERIFICHE
@@ -27,9 +32,10 @@ Verifiche dirette Codex sul risultato presente in `origin/main`:
 - non sono state eseguite operazioni su migration, database, backfill, Shopify,
   storefront o deploy manuali.
 
-Il prossimo lavoro applicativo resta Admin V2. Registro migration e smoke test
-live risultano verificati nei report Lovable, ma non sono stati interrogati
-direttamente da Codex in questa chiusura.
+Il lavoro applicativo successivo Admin V2 è stato realizzato nelle Fasi 2A–2C.1.
+Registro migration e smoke test della foundation risultano verificati nei
+report Lovable, ma non furono interrogati direttamente da Codex in questa
+chiusura storica.
 
 La PR #1 è stata mergiata su `main` con commit
 `1f8f1bdb13948957641e39a31f3b5935b111d93f`. La foundation lossless usa

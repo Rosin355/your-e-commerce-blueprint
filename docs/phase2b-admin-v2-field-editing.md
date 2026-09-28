@@ -1,13 +1,22 @@
 # ONLINE GARDEN — Fase 2B: editing field-by-field Admin V2
 
+> **Aggiornamento consolidato al 28 settembre 2026:** PR #4 mergiata con commit
+> `b129489e4dadd2fcd2bbc058bfaf6b4e27513805`; Edge Function e frontend sono
+> stati pubblicati e collaudati in sola lettura. Il successivo backend 2C.1 rende
+> autorizzabili i manual-only locked e la creazione con `expectedVersion=0`, ma
+> solo update e ripristino sono stati provati live. Creazione e semantica replay
+> completa restano aperte. Vedere
+> [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 Data: 24 settembre 2026
 
 Branch: `codex/admin-v2-field-editing`
 
 Base verificata: `origin/main` `7858f6cf662b539257fa46e3708362297b05a9e7`
 
-Stato: **implementazione presente nella PR #4; merge sospeso in attesa della
-conferma di un rilascio coordinato Edge Function/frontend**.
+Stato storico della sezione seguente: implementazione candidata nella PR #4.
+Stato finale: **MERGIATA E PUBBLICATA**; rilascio coordinato completato secondo
+il report `docs/fase2b/publish-frontend-2B6.md`.
 
 ## 1. Esito
 

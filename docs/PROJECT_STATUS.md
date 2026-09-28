@@ -1,0 +1,169 @@
+# Online Garden — stato consolidato del progetto
+
+Data di consolidamento: 28 settembre 2026
+Baseline Git verificata da Codex: `origin/main@3f674b48210908b115aa72f55bf692e4a3e85c35`
+
+## 1. Executive summary
+
+Online Garden dispone oggi di una fondazione catalogo lossless, Admin V2
+pubblicato, controlli di sicurezza sulle funzioni legacy e una pipeline Smart
+Sync che conserva i CSV di lavoro in Storage privato. `products` è l'unica
+anagrafica canonica; snapshot, valori correnti, suggerimenti, history e log dei
+comandi rimangono separati e tracciabili.
+
+La Fase 2C.1 è presente su `main` tramite commit Lovable successivi alla base
+della PR #15. Il report Lovable versionato dichiara backup privato completato,
+migration applicata una sola volta e `product-admin-api` distribuita dalla
+stessa revisione. Codex ha verificato direttamente codice, hash e cronologia
+Git, ma non ha interrogato autonomamente il database o il deployment live.
+
+La prova live di update e ripristino di un campo `manual_only` locked è stata
+eseguita su una fixture approvata e ha conservato lock, lineage e integrità. La
+creazione di un current value assente non è stata eseguita. Il replay non ha
+duplicato dati, ma viene esposto come `VERSION_CONFLICT`: è un gap applicativo
+da correggere prima di considerare completa l'idempotenza end-to-end.
+`OG_393883` resta escluso dalle modifiche senza approvazione esplicita.
+
+## 2. Come leggere le evidenze
+
+| Etichetta | Significato |
+|---|---|
+| `CODEX VERIFIED` | Verifica diretta su repository, GitHub, codice o test locale/isolato. |
+| `LOVABLE REPORTED` | Evidenza live riportata da Lovable e conservata nei report versionati; non ripetuta direttamente da Codex. |
+| `OFFLINE TESTED ONLY` | Comportamento provato con fixture sintetiche o PostgreSQL isolato, non con scritture live. |
+| `NOT EXECUTED LIVE` | Attività intenzionalmente non eseguita in produzione. |
+
+Una voce `LOVABLE REPORTED` non deve essere reinterpretata come verifica live
+diretta Codex.
+
+## 3. Stato per area
+
+| Area | Stato | Evidenza e limite attuale |
+|---|---|---|
+| Catalogo lossless | **LIVE / STABILE** | PR #1–#3 integrate; 2.706 prodotti e 24.466 current values preservati secondo i report live. `CODEX VERIFIED` per codice e merge; conteggi `LOVABLE REPORTED`. |
+| WordPress lineage | **PARZIALE** | Snapshot presenti; `source_snapshot_id` nullable. Backfill non eseguito: dry-run 14.295 `MATCH_READY`, 271 `NO_MATCH`, 9.900 `NOT_APPLICABLE`, 0 ambigui (`LOVABLE REPORTED`). |
+| Golden SKU | **VERIFICATO** | Riconciliazione 20 SKU senza conflitti nel dry-run offline; `OG_393883` usato solo per letture e controlli di protezione. |
+| Admin V2 frontend | **LIVE** | PR #4 e pubblicazione 2B.6 completate; editor tipizzati, FAQ strutturate, capability server-side, lineage nullable e conflitti versione disponibili. |
+| Admin V2 backend 2C.1 | **LIVE, SMOKE PARZIALE** | Update locked e ripristino superati su fixture. Create con versione 0 non eseguita; replay senza duplicati ma restituisce conflitto. |
+| Sicurezza legacy | **CLOSED / MITIGATED** | PR #5, #6, #8 e #9 integrate e riportate come distribuite/collaudate. Restano documentati i limiti dei test non Admin dove non eseguiti live. |
+| Storage firmato | **CLOSED** | Autorizzazione caller e limiti bucket/percorso introdotti; non ripristinare la versione vulnerabile. |
+| Smart Sync | **LIVE / GATE A-B-C PASS** | PR #12 integrata; CSV nuovi in `csv-pipeline`, immagini ancora pubbliche in `sync/product-images/**`; CSV pubblico rimosso. |
+| Shopify | **SEPARATO** | Nessun salvataggio Admin V2 attiva Shopify. Sync e pubblicazione commerciale richiedono task e approvazione separati. |
+| AI | **NON COLLEGATA AD ADMIN V2** | AI legacy preservata; `product_ai_suggestions` non è ancora un flusso cliente field-by-field. Nessuna applicazione automatica. |
+| Storefront/checkout | **FUORI DALLE MODIFICHE 2C.1** | Nessun cambiamento intenzionale. Collaudo commerciale end-to-end ancora da pianificare. |
+
+## 4. Fasi, PR e stato live
+
+| Fase | Stato | PR / commit principale | Live | Test / evidenza |
+|---|---|---|---|---|
+| 1A–1B, lossless foundation | COMPLETATA | PR #1, merge `1f8f1bd` | Sì | Test catalogo/build Codex; migration e 24.466 valori preservati `LOVABLE REPORTED`. |
+| 1B.4, lockfile | COMPLETATA | PR #2 `78fb458`, PR #3 `7858f6c` | N/A | `npm ci`, typecheck, catalogo e build verdi. |
+| 2A, audit Admin V2 | COMPLETATA | report audit | No deploy autonomo | Inventario funzionale `CODEX VERIFIED`. |
+| 2B, editor sicuri | COMPLETATA | PR #4 `b129489` | Sì | Edge-first e frontend pubblicato; smoke read-only `LOVABLE REPORTED`. |
+| 2C.0, RLS enrichment | CLOSED | PR #5 `dd3bcf7` | Sì | PostgreSQL isolato + applicazione live riferita. |
+| 2C.0, async auth | CLOSED | PR #6 `29725e3` | Sì | Test autorizzazione e deploy live riferito. |
+| Chiusura documentale | COMPLETATA | PR #7 `afccee2` | N/A | Docs-only. |
+| Signed URL | CLOSED | PR #8 `9a66d2c` | Sì | Test Storage; test live non Admin non eseguito. |
+| STORAGE-004 auth pipeline | CLOSED | PR #9 `85feb23` | Sì | Test auth/deno/build e deploy riferito. |
+| STORAGE-003 progetto | COMPLETATA | PR #10 `a3650d6`, #11 `003a4a4` | N/A | Piano e preflight read-only. |
+| STORAGE-003 Smart Sync | CLOSED | PR #12 `2d8b993` | Sì | Gate B superato; flusso job → upload privato → `source_path` → batch. |
+| STORAGE-003 Gate B docs | COMPLETATA | PR #13 `9979d96` | N/A | Docs-only. |
+| STORAGE-003 Gate C docs | COMPLETATA | PR #14, merge `4bd6115` | Sì | Report Gate C e tracciabilità delle verifiche integrati su `main`. |
+| 2C.1 manual locked backend | BACKEND LIVE; SMOKE PARZIALE | PR #15, merge `3f674b4`; Lovable `9b6ed9f`–`6db554d` | Sì, secondo report Lovable | PostgreSQL isolato 10/10; update/rollback live PASS, create non eseguita, replay semantico da correggere. |
+
+Le PR #14 e #15 sono state mergiate su `main`. Il merge ha integrato report,
+test e documentazione già revisionati; non costituisce una nuova applicazione
+della migration né un nuovo deploy della Edge Function.
+
+## 5. Stato sicurezza consolidato
+
+| Finding | Stato | Verifica |
+|---|---|---|
+| `LEGACY-001/002` — accesso eccessivo a enrichment runs/items | **CLOSED — LIVE VERIFIED BY LOVABLE** | RLS/GRANT ristretti con PR #5; test PostgreSQL isolato Codex. |
+| Auth asincrona non attesa in tre Edge Functions | **CLOSED — LIVE VERIFIED BY LOVABLE** | `await assertAdminRequest` con PR #6; vecchia versione non va ripristinata. |
+| `storage-signed-url` autorizzazione caller | **MITIGATED — LIVE VERIFIED BY LOVABLE** | PR #8; test live non Admin non eseguito e mantenuto come limite esplicito. |
+| STORAGE-004 — funzioni pipeline senza gate Admin completo | **CLOSED — LIVE VERIFIED BY LOVABLE** | PR #9; auth prima delle operazioni privilegiate. |
+| STORAGE-003 — CSV cliente nel bucket pubblico `sync` | **CLOSED — LIVE VERIFIED BY LOVABLE** | Gate A/B/C PASS; backup privato, Smart Sync privato e rimozione oggetto pubblico. |
+| Immagini prodotto pubbliche | **NOT APPLICABLE AS VULNERABILITY** | Accesso pubblico intenzionale limitato a `sync/product-images/**`. |
+| Campi manuali protetti non salvabili | **MITIGATED, LIVE UPDATE VERIFIED BY LOVABLE** | Update e rollback riusciti; create versione 0 e replay di successo restano aperti. |
+
+## 6. Fase 2C.1 — stato effettivo
+
+### Verificato direttamente da Codex
+
+- `origin/main@3f674b4` contiene la migration Supabase, la corrispondente
+  migration Drizzle, il journal e i sei moduli modificati di
+  `product-admin-api`;
+- la migration Supabase ha SHA-256
+  `b7f1fdafcced766f2f9443d9faa53cef769d3e9d48b3a35194ea2c0304b2a898`;
+- i file runtime su `main` coincidono con l'implementazione applicativa della
+  PR #15;
+- PR #15 è mergiata con merge commit
+  `3f674b48210908b115aa72f55bf692e4a3e85c35`; il suo commit applicativo è
+  `01b43137381cc19136a41e37d12c6bedfca48544`.
+
+### Evidenza live riferita da Lovable
+
+- preflight live read-only PASS e nessun drift incompatibile;
+- backup privato di RPC, ACL e sole righe fixture completato;
+- migration applicata e registrata una sola volta;
+- `product-admin-api` distribuita dalla stessa revisione;
+- 2.706 prodotti, 24.466 current values e 68 definizioni invariati;
+- 29 current values manuali restano locked/protected;
+- i cinque campi golden sono `manual_only`, AI disabilitata e protetti;
+- 13.501 combinazioni manuali applicabili non hanno ancora un current value;
+- history e command log risultavano vuoti prima dello smoke test;
+- `OG_393883` è stato controllato esclusivamente in lettura.
+
+### Smoke live riferito da Lovable
+
+- update di `OG_264361.nome_comune` da versione 1 a 2: PASS;
+- ripristino del valore iniziale da versione 2 a 3: PASS;
+- `is_locked`, protezione, provenance e lineage: preservate;
+- conflitto con versione stale: PASS, nessun dato aggiuntivo;
+- due modifiche applicate, due history e due command log: coerenti;
+- replay della stessa richiesta: nessun duplicato, ma risposta
+  `VERSION_CONFLICT` anziché replay di successo perché la Edge Function verifica
+  la versione prima di consultare il command log.
+
+### Non eseguito live
+
+- creazione al primo salvataggio con `expectedVersion=0`;
+- collaudo live con ruolo editor/non Admin;
+- qualsiasi scrittura su `OG_393883`.
+
+## 7. Open items reali
+
+1. Correggere la sequenza idempotenza/versione nella Edge Function affinché un
+   retry identico restituisca il risultato registrato senza essere tradotto in
+   `VERSION_CONFLICT`; mantenere il comportamento deny-by-default.
+2. Approvare separatamente lo smoke di creazione con `expectedVersion=0` e il
+   relativo rollback; non usare `OG_393883` senza autorizzazione esplicita.
+3. Valutare l'esperienza UI finale del Salva sui manual-only locked dopo lo
+   smoke backend; evitare attivazioni generali prima del collaudo cliente.
+4. Decidere separatamente se eseguire il backfill lineage dei soli 14.295
+   `MATCH_READY`; oggi resta opzionale e non eseguito.
+5. Progettare AI field-by-field come proposta versionata, mai overwrite.
+6. Eseguire collaudo commerciale Shopify/storefront/checkout separato.
+7. Riesaminare le variation WordPress di `OG_152965`, `OG_891874` e
+   `OG_758263` prima di cambiare l'attuale `entity_type` simple.
+
+## 8. Prossimi passi, in ordine
+
+1. Forward-fix idempotenza Edge Function e test di replay.
+2. Gate separato per lo smoke create con versione 0.
+3. Collaudo UX cliente Admin V2 sul comportamento aggiornato.
+4. Decisione sul backfill lineage.
+5. Disegno AI proposal per campo.
+6. Collaudo commerciale Shopify e storefront.
+
+## 9. Vincoli permanenti
+
+- nessun export privato, token o URL firmato in Git;
+- nessuna seconda anagrafica: la tabella canonica resta `products`;
+- nessuna scrittura browser diretta sulle tabelle lossless;
+- `is_locked` non va rimosso per rendere editabile un campo manuale;
+- AI, import e Shopify non possono sovrascrivere i cinque campi manuali;
+- migration già applicate non vanno rieseguite o registrate manualmente;
+- rollback tramite nuova modifica versionata o release precedente, mai tramite
+  cancellazione di history o riduzione della versione.

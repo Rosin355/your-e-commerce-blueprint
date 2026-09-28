@@ -1,5 +1,10 @@
 # STORAGE-003 — Implementazione Smart Sync
 
+> **Stato finale successivo:** PR #12 integrata e rilascio coordinato concluso;
+> Gate A, B e C superati. Il CSV pubblico non esiste più e `sync` conserva solo
+> le immagini prodotto pubbliche. Le note “pendente” sotto restano cronologia
+> della fase pre-release.
+
 Data: 26 settembre 2026. Base iniziale: `origin/main@fa87c83a`.
 Commit applicativo: `d349590a63a221e994cf3db628d65b2bd1534e19`.
 Merge commit: `2d8b993735ba1d2b84e4e16a833ddee5c6f03f9a`.
