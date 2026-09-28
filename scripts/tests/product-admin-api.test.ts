@@ -11,9 +11,12 @@ import {
 import {
   CANARY_ACTIONS,
   canonicalizeJson,
+  commandPayloadHash,
   isCanaryField,
+  lookupCommandReplay,
   payloadHash,
 } from "../../supabase/functions/product-admin-api/commands.ts";
+import type { CommandInput } from "../../supabase/functions/product-admin-api/commands.ts";
 import {
   isFieldEditable,
   isNoChange,
@@ -167,6 +170,83 @@ test("hash idempotente canonicalizza ricorsivamente gli oggetti", async () => {
   assert.deepEqual(canonicalizeJson(a), canonicalizeJson(b));
   assert.equal(await payloadHash(a), await payloadHash(b));
   assert.notEqual(await payloadHash(a), await payloadHash({ ...b, z: [...b.z].reverse().concat([{ question: "Q2", answer: "A2" }]) }));
+});
+
+function command(over: Partial<CommandInput> = {}): CommandInput {
+  return {
+    actor: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    action: "update_field",
+    productId: "22222222-2222-2222-2222-222222222222",
+    fieldKey: "faq",
+    value: [{ question: "Q1?", answer: "A1." }, { question: "Q2?", answer: "A2." }],
+    expectedVersion: 1,
+    idempotencyKey: "request-replay-1",
+    ...over,
+  };
+}
+
+function commandLogDb(entry: { payload_hash: string; result_json: Record<string, unknown> } | null) {
+  const filters: Record<string, unknown> = {};
+  const builder = {
+    select: (_columns: string) => builder,
+    eq: (column: string, value: unknown) => {
+      filters[column] = value;
+      return builder;
+    },
+    maybeSingle: async () => ({ data: entry, error: null }),
+  };
+  return {
+    filters,
+    client: {
+      from: (table: string) => {
+        assert.equal(table, "product_admin_command_log");
+        return builder;
+      },
+    },
+  };
+}
+
+test("replay applicato restituisce l'esito precedente prima del version check", async () => {
+  const original = command();
+  const hash = await commandPayloadHash(original);
+  const db = commandLogDb({
+    payload_hash: hash,
+    result_json: { ok: true, code: "APPLIED", version: 2 },
+  });
+
+  const replay = await lookupCommandReplay(db.client as never, original);
+  assert.equal(replay.kind, "replay");
+  if (replay.kind === "replay") {
+    assert.deepEqual(replay.result, { ok: true, code: "APPLIED", version: 2, replayed: true });
+  }
+  assert.deepEqual(db.filters, {
+    actor: original.actor,
+    idempotency_key: original.idempotencyKey,
+  });
+
+  // Un retry dopo timeout client percorre lo stesso ramo senza consultare la versione corrente.
+  const afterTimeout = await lookupCommandReplay(db.client as never, original);
+  assert.equal(afterTimeout.kind, "replay");
+});
+
+test("stessa key con payload diverso è conflitto; una nuova key prosegue", async () => {
+  const original = command();
+  const storedHash = await commandPayloadHash(original);
+  const reusedKey = command({ value: [...(original.value as unknown[]), { question: "Q3?", answer: "A3." }] });
+  const conflictDb = commandLogDb({
+    payload_hash: storedHash,
+    result_json: { ok: true, code: "APPLIED", version: 2 },
+  });
+  assert.equal((await lookupCommandReplay(conflictDb.client as never, reusedKey)).kind, "conflict");
+
+  const newDb = commandLogDb(null);
+  assert.equal((await lookupCommandReplay(newDb.client as never, command({ idempotencyKey: "request-new-2" }))).kind, "new");
+});
+
+test("ordine FAQ resta semantico nell'hash idempotente", async () => {
+  const original = command();
+  const reversed = command({ value: [...(original.value as unknown[])].reverse() });
+  assert.notEqual(await commandPayloadHash(original), await commandPayloadHash(reversed));
 });
 
 test("clear esplicito: conferma e campi required", () => {

@@ -68,14 +68,72 @@ export interface CommandInput {
   actorLabel?: string | null;
 }
 
-export async function executeCommand(db: SupabaseClient, input: CommandInput) {
-  const hash = await payloadHash({
+interface ExistingCommand {
+  payload_hash: string;
+  result_json: Record<string, unknown>;
+}
+
+export type CommandReplayResolution =
+  | { kind: "new"; payloadHash: string }
+  | { kind: "replay"; payloadHash: string; result: Record<string, unknown> }
+  | { kind: "conflict"; payloadHash: string };
+
+/** Payload condiviso dal preflight Edge e dalla RPC: deve restare byte-equivalente. */
+export function commandPayload(input: CommandInput): Record<string, unknown> {
+  return {
     action: input.action,
     productId: input.productId,
     fieldKey: input.fieldKey,
     value: input.value ?? null,
     expectedVersion: input.expectedVersion,
-  });
+  };
+}
+
+export async function commandPayloadHash(input: CommandInput): Promise<string> {
+  return payloadHash(commandPayload(input));
+}
+
+/**
+ * Distingue un replay applicato da un riuso illecito della stessa key.
+ * Il result_json persistito è l'esito atomico della RPC, non un valore client.
+ */
+export function resolveCommandReplay(
+  existing: ExistingCommand | null,
+  incomingHash: string,
+): CommandReplayResolution {
+  if (!existing) return { kind: "new", payloadHash: incomingHash };
+  if (existing.payload_hash !== incomingHash) {
+    return { kind: "conflict", payloadHash: incomingHash };
+  }
+  return {
+    kind: "replay",
+    payloadHash: incomingHash,
+    result: { ...existing.result_json, replayed: true },
+  };
+}
+
+/**
+ * Lookup read-only prima del version check Edge. La RPC ripete lo stesso gate
+ * dentro la transazione, coprendo anche due richieste concorrenti.
+ */
+export async function lookupCommandReplay(
+  db: SupabaseClient,
+  input: CommandInput,
+): Promise<CommandReplayResolution> {
+  const hash = await commandPayloadHash(input);
+  const { data, error } = await db
+    .from("product_admin_command_log")
+    .select("payload_hash,result_json")
+    .eq("actor", input.actor)
+    .eq("idempotency_key", input.idempotencyKey)
+    .maybeSingle();
+
+  if (error) throw error;
+  return resolveCommandReplay((data as ExistingCommand | null) ?? null, hash);
+}
+
+export async function executeCommand(db: SupabaseClient, input: CommandInput) {
+  const hash = await commandPayloadHash(input);
 
   const { data, error } = await db.rpc("admin_update_product_field", {
     p_actor: input.actor,

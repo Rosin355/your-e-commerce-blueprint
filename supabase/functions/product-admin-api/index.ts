@@ -26,6 +26,7 @@ import {
   CANARY_FIELD_KEYS,
   executeCommand,
   isCanaryField,
+  lookupCommandReplay,
   writeMode,
   writesEnabled,
 } from "./commands.ts";
@@ -247,9 +248,60 @@ Deno.serve(async (req) => {
         ? ((payload.targetAction as CommandAction) ?? "update_field")
         : (action as CommandAction);
 
-    const row = await getCurrentValue(db, productId, fieldKey);
     const allowLockedManual = def.manual_only && canManageLockedManualValues(auth.roles);
     const expectedVersion = typeof payload.expectedVersion === "number" ? payload.expectedVersion : undefined;
+    const idempotencyKey = typeof payload.idempotencyKey === "string" ? payload.idempotencyKey : "";
+    const commandValue = targetAction === "clear_field" ? { confirm: "true" } : payload.value;
+
+    if (action !== "validate_field_update") {
+      if (idempotencyKey.length < 8) return fail("VALIDATION_ERROR", "idempotencyKey mancante");
+      if (typeof expectedVersion !== "number" || expectedVersion < 0) {
+        return fail("VALIDATION_ERROR", "expectedVersion mancante");
+      }
+
+      // Un replay resta soggetto al ruolo corrente; non è però una nuova write.
+      const mode = writeMode();
+      if (mode === "canary") {
+        if (!canWriteCanary(auth.roles)) {
+          console.log(redactedLog(action, actorId, "FORBIDDEN_CANARY"));
+          return fail("FORBIDDEN", "Modifiche riservate agli amministratori in fase di collaudo");
+        }
+      }
+
+      const replay = await lookupCommandReplay(db, {
+        actor: auth.userId,
+        action: targetAction,
+        productId,
+        fieldKey,
+        value: commandValue,
+        expectedVersion,
+        idempotencyKey,
+      });
+      if (replay.kind === "conflict") {
+        return fail("IDEMPOTENCY_CONFLICT", "idempotencyKey già usata con un payload diverso");
+      }
+      if (replay.kind === "replay") {
+        console.log(redactedLog(action, actorId, "APPLIED_REPLAY"));
+        return json({ ok: true, result: replay.result });
+      }
+
+      if (!writesEnabled()) {
+        console.log(redactedLog(action, actorId, "WRITES_DISABLED"));
+        return fail("WRITES_DISABLED", "Scritture disabilitate su questo ambiente");
+      }
+
+      // F7 — una nuova command resta limitata ad azioni e campi canary.
+      if (mode === "canary") {
+        if (!CANARY_ACTIONS.includes(targetAction)) {
+          return fail("FORBIDDEN", "Operazione non consentita in fase di collaudo");
+        }
+        if (!isCanaryField(def)) {
+          return fail("FIELD_NOT_EDITABLE", "Campo non ancora abilitato alle modifiche");
+        }
+      }
+    }
+
+    const row = await getCurrentValue(db, productId, fieldKey);
     const currentVersion = row?.version ?? 0;
 
     if (expectedVersion !== undefined && expectedVersion !== currentVersion) {
@@ -290,34 +342,12 @@ Deno.serve(async (req) => {
       return fail(check.code ?? "VALIDATION_ERROR", check.message ?? "Validazione fallita");
     }
 
-    const idempotencyKey = typeof payload.idempotencyKey === "string" ? payload.idempotencyKey : "";
-    if (idempotencyKey.length < 8) return fail("VALIDATION_ERROR", "idempotencyKey mancante");
-
-    if (!writesEnabled()) {
-      console.log(redactedLog(action, actorId, "WRITES_DISABLED"));
-      return fail("WRITES_DISABLED", "Scritture disabilitate su questo ambiente");
-    }
-
-    // F7 — modalità canary: solo Admin/Tech Admin, solo command e campi in allowlist.
-    if (writeMode() === "canary") {
-      if (!canWriteCanary(auth.roles)) {
-        console.log(redactedLog(action, actorId, "FORBIDDEN_CANARY"));
-        return fail("FORBIDDEN", "Modifiche riservate agli amministratori in fase di collaudo");
-      }
-      if (!CANARY_ACTIONS.includes(targetAction)) {
-        return fail("FORBIDDEN", "Operazione non consentita in fase di collaudo");
-      }
-      if (!isCanaryField(def)) {
-        return fail("FIELD_NOT_EDITABLE", "Campo non ancora abilitato alle modifiche");
-      }
-    }
-
     const result = await executeCommand(db, {
       actor: auth.userId,
       action: targetAction,
       productId,
       fieldKey,
-      value: targetAction === "clear_field" ? { confirm: "true" } : payload.value,
+      value: commandValue,
       expectedVersion: payload.expectedVersion as number,
       idempotencyKey,
     });
