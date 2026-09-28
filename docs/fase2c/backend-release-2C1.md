@@ -1,6 +1,21 @@
 # Fase 2C.1 — Backup, migration e deploy backend (28/09/2026)
 
-PR #15 aperta, non mergiata. Commit applicativo `01b43137381cc19136a41e37d12c6bedfca48544` (1 commit avanti a main, 0 indietro).
+PR #15 mergiata su `main` con merge commit
+`3f674b48210908b115aa72f55bf692e4a3e85c35`. Commit applicativo:
+`01b43137381cc19136a41e37d12c6bedfca48544`.
+
+## Stato Git consolidato
+
+Al fetch Codex del 28 settembre, `origin/main` è
+`3f674b48210908b115aa72f55bf692e4a3e85c35` e contiene migration,
+registrazione Drizzle, moduli runtime, test e documentazione 2C.1. Il merge
+della PR non ha autorizzato né richiesto una seconda applicazione della
+migration o un nuovo deploy.
+
+Le verifiche Git, gli hash e il confronto dei file sono `CODEX VERIFIED`. I
+risultati di preflight, backup, migration, deploy e smoke read-only riportati
+nelle sezioni seguenti sono `LOVABLE REPORTED`, non interrogazioni live ripetute
+direttamente da Codex.
 
 ## Preflight live
 PASS completo (turno precedente), nessun drift. Ricontrollato prima della migration: 2.706 prodotti, 24.466 current values, 68 definizioni, 0 righe history, 0 righe command log; RPC SECURITY DEFINER, `search_path=""`, ACL `postgres, service_role, sandbox_exec` (nessun anon/authenticated/PUBLIC). md5 definizione pre: `2f8d2027…6082`.
@@ -30,7 +45,10 @@ Solo questa funzione, file dalla stessa revisione: 6 modificati (capabilities, c
 
 Limite: ruolo editor non testabile live (unico utente Admin); comportamento solo Admin/Tech Admin coperto da RPC (`user_roles`) e test offline della PR.
 
-## Fixture proposte (NON eseguite)
+## Fixture approvate originariamente
+
+La prova A è stata successivamente eseguita e ripristinata come documentato in
+fondo al report. La prova B non è stata eseguita.
 Prodotto: `OG_264361` — Hemerocallis "Rosy", simple, attivo, non golden, non OG_393883, nessuna history.
 
 | | A — UPDATE locked | B — CREATE assente |
@@ -49,12 +67,17 @@ Rollback:
 
 Sicurezza: prodotto non pubblicato da questa pipeline (nessuna sync Shopify), valori testuali coerenti col prodotto, un solo campo per fixture, prodotto senza storico precedente, backup delle righe già salvato.
 
-## Stato
-Migration applicata, backend distribuito, scritture smoke NON eseguite. In attesa di approvazione fixture. Nessun merge, AI, import o Shopify sync.
+## Stato prima dello smoke
+
+Migration applicata e backend distribuito; a questo punto del report le
+scritture non erano ancora state eseguite. Nessun merge, AI, import o Shopify
+sync.
 
 ## Smoke test live autorizzato — Prova A (UPDATE only) — 2026-09-28 14:38 UTC
 
-Solo prova A su OG_264361 (`d6492fb1-…ff12`, simple), campo `nome_comune`. Prova B (`colore_fiore`) NON eseguita; OG_393883 non toccato; PR #15 non mergiata.
+Solo prova A su OG_264361 (`d6492fb1-…ff12`, simple), campo `nome_comune`.
+Prova B (`colore_fiore`) NON eseguita; OG_393883 non toccato. La prova è
+precedente al successivo merge documentale/applicativo della PR #15.
 
 **Preflight (PASS)**: valore `Hemerocallis "Rosy" - Giglio Diurno Rosa`, version 1, manual_only, is_locked=true, manual/approved/protected, `source_snapshot_id` NULL, `source_batch_id` 1a44397e…; ruolo `admin`, writesEnabled, writeMode `canary`, `nome_comune` in allowlist. History/command log globali: 0.
 

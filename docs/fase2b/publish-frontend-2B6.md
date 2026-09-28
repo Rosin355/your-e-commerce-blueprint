@@ -1,5 +1,11 @@
 # Fase 2B.6 — Pubblicazione frontend Admin V2 (PR #4)
 
+> **Aggiornamento al 28 settembre 2026:** la pubblicazione descritta qui resta
+> valida. I finding legacy citati nel gate sono stati successivamente chiusi con
+> le PR #5 e #6. STORAGE-003/004 sono chiusi; il backend 2C.1 risulta distribuito
+> secondo il report Lovable. Update e ripristino live sono riusciti; create con
+> versione 0 e forward-fix del replay restano pendenti.
+
 Data: 2026-09-24 (UTC ~18:10)
 
 ## Gate
@@ -35,4 +41,8 @@ products 2.706 · snapshots 2.706 · current_values 24.466 · source_snapshot_id
 - La colonna "Originale WordPress" mostra "assente" per tutti i campi: nessun snapshot collegato (backfill non eseguito) e la baseline non collegata non viene mostrata. Comportamento coerente con `source_snapshot_id` NULL, non una regressione di dati.
 
 ## Stato Fase 2C
-Non avviata. Candidati: backfill dei 14.295 MATCH_READY, esposizione baseline non collegata, dati FAQ reali, fix policy legacy, uscita dal canary. Richiede nuova approvazione.
+
+La nota originaria “non avviata” è superata: 2C.0 sicurezza e STORAGE-003/004
+sono chiusi; 2C.1 backend è stato rilasciato secondo il report Lovable. Restano
+aperti lo smoke write manual-only locked, l'eventuale backfill dei 14.295
+`MATCH_READY`, dati FAQ reali e qualsiasi uscita dalla modalità canary.
