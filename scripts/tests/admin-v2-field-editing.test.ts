@@ -47,23 +47,34 @@ test('applies_to distingue simple, parent e variation', () => {
   assert.equal(appliesToEntity('both', 'variation'), true);
 });
 
-test('capability server-side rispettano lock, manual_only, re-import e riga assente', () => {
+test('capability server-side consentono manual_only locked e creazione solo ad Admin', () => {
   const lockedLegacy = calculateFieldCapabilities(
     def({ manual_only: true, ai_allowed: true }),
     row({ is_locked: true, review_status: 'legacy_unverified' }),
     'simple', writable,
   );
-  assert.equal(lockedLegacy.canUpdate, false);
-  assert.equal(lockedLegacy.updateBlockReason, 'current_value_locked');
+  assert.equal(lockedLegacy.canUpdate, true);
+  assert.equal(lockedLegacy.updateBlockReason, 'allowed');
   assert.equal(lockedLegacy.canConfirmLegacy, true);
   assert.equal(lockedLegacy.canRejectLegacy, false);
   assert.equal(lockedLegacy.manualOnly, true);
   assert.equal(lockedLegacy.aiAllowed, false);
   assert.equal(lockedLegacy.protectedOnReimport, true);
 
-  const absent = calculateFieldCapabilities(def(), undefined, 'simple', writable);
-  assert.equal(absent.canUpdate, false);
-  assert.equal(absent.updateBlockReason, 'current_value_missing');
+  const absentManual = calculateFieldCapabilities(def({ manual_only: true }), undefined, 'simple', writable);
+  assert.equal(absentManual.canUpdate, true);
+  assert.equal(absentManual.updateBlockReason, 'allowed');
+
+  const absentNormal = calculateFieldCapabilities(def(), undefined, 'simple', writable);
+  assert.equal(absentNormal.canUpdate, false);
+  assert.equal(absentNormal.updateBlockReason, 'current_value_missing');
+
+  const editorLocked = calculateFieldCapabilities(
+    def({ manual_only: true, ai_allowed: false }), row({ is_locked: true }), 'simple',
+    { roles: ['editor'], writesEnabled: true, writeMode: 'full' },
+  );
+  assert.equal(editorLocked.canUpdate, false);
+  assert.equal(editorLocked.updateBlockReason, 'current_value_locked');
 });
 
 test('i cinque campi manuali golden restano protetti e senza capability AI', () => {
@@ -78,12 +89,12 @@ test('i cinque campi manuali golden restano protetti e senza capability AI', () 
     assert.equal(capabilities.manualOnly, true, key);
     assert.equal(capabilities.protectedOnReimport, true, key);
     assert.equal(capabilities.aiAllowed, false, key);
-    assert.equal(capabilities.canUpdate, false, key);
-    assert.equal(capabilities.updateBlockReason, 'current_value_locked', key);
+    assert.equal(capabilities.canUpdate, true, key);
+    assert.equal(capabilities.updateBlockReason, 'allowed', key);
   }
 });
 
-test('validazione command rispecchia il lock della RPC atomica', () => {
+test('validazione command supera il lock solo per manual_only Admin', () => {
   const locked = row({ is_locked: true, review_status: 'legacy_unverified' });
   assert.equal(
     validateCommand('update_field', def(), locked, 'Nuovo titolo', { expectedVersion: 3 }).code,
@@ -97,6 +108,35 @@ test('validazione command rispecchia il lock della RPC atomica', () => {
     validateCommand('confirm_legacy_value', def(), locked, null, { expectedVersion: 3 }).ok,
     true,
   );
+  const manual = def({ key: 'nome_comune', manual_only: true, ai_allowed: false });
+  assert.equal(
+    validateCommand('update_field', manual, locked, 'Nuovo nome', {
+      expectedVersion: 3,
+      allowLockedManual: true,
+    }).ok,
+    true,
+  );
+  assert.equal(
+    validateCommand('reject_legacy_value', manual, locked, null, {
+      expectedVersion: 3,
+      allowLockedManual: true,
+    }).code,
+    'FIELD_NOT_EDITABLE',
+  );
+});
+
+test('campo manuale assente espone version zero e capability di creazione', () => {
+  const field = serializeField(
+    def({ key: 'nome_comune', manual_only: true, ai_allowed: false }),
+    undefined,
+    'simple',
+    writable,
+  );
+  assert.equal(field.version, 0);
+  assert.equal(field.capabilities.currentValueExists, false);
+  assert.equal(field.capabilities.canUpdate, true);
+  assert.equal(field.sourceSnapshotId, null);
+  assert.equal(field.sourceState, 'original_absent');
 });
 
 test('snapshot collegato, baseline non collegata e originale assente sono distinti', () => {
