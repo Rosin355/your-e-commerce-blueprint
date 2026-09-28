@@ -176,15 +176,21 @@ offline, riprodotta su PostgreSQL isolato senza dati cliente.
 
 Nel caso concorrente, il retry iniziava prima del commit della prima request:
 il lookup Edge e quello iniziale della RPC non vedevano ancora il command log.
-La seconda RPC attendeva il lock sul current value e, dopo il commit della
-prima, restituiva `VERSION_CONFLICT`. Lo stato dati restava corretto
-(`version=2`, una history, un command log), ma la risposta dipendeva dal timing.
+Sono state riprodotte due finestre: se `getCurrentValue` leggeva la versione
+nuova dopo il commit, il request handler restituiva `VERSION_CONFLICT` prima di
+chiamare `executeCommand`; se leggeva ancora la versione precedente, la seconda
+RPC attendeva il lock e restituiva poi lo stesso conflitto. Lo stato dati
+restava corretto (`version=2`, una history, un command log), ma la risposta
+dipendeva dal timing. Il primo fix della PR #18 copriva soltanto la seconda
+finestra: il finding Codex P1 ha portato alla correzione anche del gate pre-RPC.
 
 ### Correzione runtime
 
-`executeCommand` conserva un solo tentativo RPC. Esclusivamente quando quella
-RPC restituisce `VERSION_CONFLICT`, esegue un secondo e unico lookup read-only
-del command log per `(actor, idempotency_key)` usando lo stesso hash canonico:
+Una helper condivisa riconcilia il command log per `(actor, idempotency_key)`
+usando lo stesso hash canonico. Il request handler la richiama una sola volta
+quando il controllo versione pre-RPC sta per restituire `VERSION_CONFLICT`;
+`executeCommand` la richiama una sola volta se è invece la RPC a restituire il
+conflitto. In entrambi i casi:
 
 - hash uguale e command già applicata: restituisce il precedente `result_json`
   con `replayed=true`;
@@ -195,17 +201,21 @@ Non esistono polling, sleep o retry automatici nel runtime. La pausa controllata
 usata nel solo test è una barriera di fixture per forzare la sovrapposizione.
 RPC, migration 2C.1, schema, ACL, frontend e contratto HTTP restano invariati.
 
-### Test concorrente Codex
+### Test concorrente request-handler Codex
 
-Due sessioni PostgreSQL reali sono sincronizzate prima del commit della prima
-request. Risultato:
+Il test carica ed esegue il request handler reale di `index.ts` e lo collega a
+sessioni PostgreSQL isolate sincronizzate prima del commit della prima request.
+Risultato:
 
 - prima request: `APPLIED`, versione 2;
-- retry identico sovrapposto: `APPLIED`, `replayed=true`, versione 2;
+- retry sovrapposto fermato al gate pre-RPC: HTTP 200, `replayed=true`, nessuna
+  invocazione della RPC dal retry;
+- retry sovrapposto che arriva alla RPC: HTTP 200, `replayed=true`, un solo
+  tentativo RPC e nessun retry write;
 - stato finale: versione 2, una history, un command log;
 - stessa key con payload differente: `IDEMPOTENCY_CONFLICT`;
 - nuova key con `expectedVersion` stale: `VERSION_CONFLICT`;
-- una sola invocazione RPC per il retry e un solo lookup post-conflict.
+- un solo re-check opportunistico nel ramo pre-RPC o post-RPC interessato.
 
 I test sequenziali continuano a coprire manual-only locked, creazione con
 `expectedVersion=0`, lineage, protezioni AI/re-import/strutturali, rollback

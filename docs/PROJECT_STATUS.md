@@ -23,8 +23,10 @@ creazione di un current value assente non è stata eseguita. Il replay non ha
 duplicato dati, ma viene esposto come `VERSION_CONFLICT`: è un gap applicativo
 confermato sul backend live. La 2C.1a è stata mergiata con PR #17 ma non
 distribuita; un test concorrente ha individuato una race nella risposta del
-retry. La 2C.1b aggiunge un solo lookup post-`VERSION_CONFLICT`, è verificata
-offline e non modifica RPC, migration, schema o frontend.
+retry. La 2C.1b riconcilia sia il `VERSION_CONFLICT` pre-RPC sia quello restituito
+dalla RPC con un solo re-check opportunistico per ramo; il finding P1 è coperto
+da un test concorrente sul request handler completo. La verifica resta offline
+e non modifica RPC, migration, schema o frontend.
 `OG_393883` resta escluso dalle modifiche senza approvazione esplicita.
 
 ## 2. Come leggere le evidenze
@@ -74,7 +76,7 @@ diretta Codex.
 | STORAGE-003 Gate C docs | COMPLETATA | PR #14, merge `4bd6115` | Sì | Report Gate C e tracciabilità delle verifiche integrati su `main`. |
 | 2C.1 manual locked backend | BACKEND LIVE; SMOKE PARZIALE | PR #15, merge `3f674b4`; Lovable `9b6ed9f`–`6db554d` | Sì, secondo report Lovable | PostgreSQL isolato 10/10; update/rollback live PASS, create non eseguita, replay semantico da correggere. |
 | 2C.1a replay idempotente | MERGED, NON DEPLOYATA | PR #17, merge `98525ee`; commit `29adddb` | No | Replay sequenziale corretto; race concorrente riprodotta offline, quindi non distribuire da sola. |
-| 2C.1b race idempotente | READY FOR REVIEW | branch `codex/admin-idempotent-race-fix` | No | Unico lookup post-conflict, test PostgreSQL realmente concorrente PASS. Nessuna migration. |
+| 2C.1b race idempotente | READY FOR RE-REVIEW | PR #18, branch `codex/admin-idempotent-race-fix` | No | Finding P1 pre-RPC corretto; test request-handler/PostgreSQL concorrente PASS. Nessuna migration, nessun deploy. |
 
 Le PR #14 e #15 sono state mergiate su `main`. Il merge ha integrato report,
 test e documentazione già revisionati; non costituisce una nuova applicazione

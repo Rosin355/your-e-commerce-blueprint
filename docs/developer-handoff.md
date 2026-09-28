@@ -104,10 +104,14 @@ Regole:
   sovrappone alla prima transazione, entrambi i lookup iniziali possono non
   vedere il command log e la RPC del retry può ancora restituire
   `VERSION_CONFLICT` dopo aver atteso il lock;
-- la 2C.1b riconcilia esclusivamente quel risultato: dopo un
-  `VERSION_CONFLICT` RPC esegue un solo secondo lookup. Exact replay restituisce
-  l'esito applicato, hash diverso diventa `IDEMPOTENCY_CONFLICT`, assenza del
-  command log conserva il conflitto versione. Nessun polling o retry write;
+- il primo fix 2C.1b copriva il conflitto restituito dalla RPC, ma il finding P1
+  ha evidenziato che `getCurrentValue` poteva osservare il commit concorrente e
+  fermarsi al version check del request handler senza chiamare `executeCommand`;
+- la 2C.1b completa usa la stessa helper in entrambi i gate: un solo re-check
+  read-only prima di restituire il conflitto pre-RPC oppure, nell'altra finestra,
+  dopo il `VERSION_CONFLICT` RPC. Exact replay restituisce l'esito applicato,
+  hash diverso diventa `IDEMPOTENCY_CONFLICT`, command assente conserva il vero
+  conflitto versione. Nessun polling, sleep runtime o retry write;
 - una versione stale produce `VERSION_CONFLICT`, mai overwrite.
 
 I cinque campi manuali protetti sono `nome_comune`, `ibridatore`,
@@ -206,9 +210,9 @@ contratto backend non ancora disponibile.
 
 Per 2C.1b non esiste modifica DB o frontend: distribuire soltanto
 `product-admin-api` dalla revisione approvata, mantenere `canary`, quindi
-verificare replay sequenziale e sovrapposto, conflitto idempotente e nuova
-command stale. La RPC resta il gate atomico; il secondo lookup è read-only e
-avviene solo dopo un suo `VERSION_CONFLICT`.
+verificare replay sequenziale e sovrapposto in entrambe le finestre, conflitto
+idempotente e nuova command stale. La RPC resta il gate atomico; ogni ramo
+concorrente esegue al massimo un re-check read-only e nessun retry della write.
 
 ### Rollback
 
@@ -242,8 +246,9 @@ Per la race 2C.1b eseguire inoltre:
 node --import tsx scripts/test-admin-idempotent-race.mjs
 ```
 
-La barriera temporale è confinata alla fixture PostgreSQL; il runtime non usa
-sleep, polling o retry automatici della write.
+Il runner attraversa il request handler completo e forza separatamente il ramo
+pre-RPC e quello post-RPC. La barriera temporale è confinata alla fixture
+PostgreSQL; il runtime non usa sleep, polling o retry automatici della write.
 
 ## 12. File chiave
 

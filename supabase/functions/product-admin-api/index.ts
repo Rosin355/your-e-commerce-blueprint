@@ -26,7 +26,7 @@ import {
   CANARY_FIELD_KEYS,
   executeCommand,
   isCanaryField,
-  lookupCommandReplay,
+  reconcileCommandReplay,
   writeMode,
   writesEnabled,
 } from "./commands.ts";
@@ -39,6 +39,7 @@ import {
   serializeSections,
 } from "./serializers.ts";
 import type { ApiErrorCode, CommandAction } from "./types.ts";
+import type { CommandInput } from "./commands.ts";
 import { appliesToEntity, type ProductEntityType } from "./capabilities.ts";
 
 function json(body: unknown, status = 200): Response {
@@ -252,6 +253,7 @@ Deno.serve(async (req) => {
     const expectedVersion = typeof payload.expectedVersion === "number" ? payload.expectedVersion : undefined;
     const idempotencyKey = typeof payload.idempotencyKey === "string" ? payload.idempotencyKey : "";
     const commandValue = targetAction === "clear_field" ? { confirm: "true" } : payload.value;
+    let commandInput: CommandInput | null = null;
 
     if (action !== "validate_field_update") {
       if (idempotencyKey.length < 8) return fail("VALIDATION_ERROR", "idempotencyKey mancante");
@@ -268,7 +270,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      const replay = await lookupCommandReplay(db, {
+      commandInput = {
         actor: auth.userId,
         action: targetAction,
         productId,
@@ -276,13 +278,14 @@ Deno.serve(async (req) => {
         value: commandValue,
         expectedVersion,
         idempotencyKey,
-      });
-      if (replay.kind === "conflict") {
-        return fail("IDEMPOTENCY_CONFLICT", "idempotencyKey già usata con un payload diverso");
+      };
+      const replay = await reconcileCommandReplay(db, commandInput);
+      if (replay?.ok === false) {
+        return fail("IDEMPOTENCY_CONFLICT", String(replay.message));
       }
-      if (replay.kind === "replay") {
+      if (replay) {
         console.log(redactedLog(action, actorId, "APPLIED_REPLAY"));
-        return json({ ok: true, result: replay.result });
+        return json({ ok: true, result: replay });
       }
 
       if (!writesEnabled()) {
@@ -314,6 +317,17 @@ Deno.serve(async (req) => {
           currentVersion,
         });
       }
+      // La prima request può aver committato tra il lookup iniziale e questa
+      // lettura. Un solo re-check read-only riconcilia quel replay senza
+      // chiamare la RPC; se la key è nuova resta un vero VERSION_CONFLICT.
+      const replay = await reconcileCommandReplay(db, commandInput!);
+      if (replay?.ok === false) {
+        return fail("IDEMPOTENCY_CONFLICT", String(replay.message));
+      }
+      if (replay) {
+        console.log(redactedLog(action, actorId, "APPLIED_REPLAY_PRE_RPC"));
+        return json({ ok: true, result: replay });
+      }
       return fail("VERSION_CONFLICT", "Il valore è stato modificato da un altro utente", {
         currentVersion,
       });
@@ -342,15 +356,7 @@ Deno.serve(async (req) => {
       return fail(check.code ?? "VALIDATION_ERROR", check.message ?? "Validazione fallita");
     }
 
-    const result = await executeCommand(db, {
-      actor: auth.userId,
-      action: targetAction,
-      productId,
-      fieldKey,
-      value: commandValue,
-      expectedVersion: payload.expectedVersion as number,
-      idempotencyKey,
-    });
+    const result = await executeCommand(db, commandInput!);
 
     if (result?.ok === false) {
       const code = (result.code as ApiErrorCode) ?? "INTERNAL_ERROR";

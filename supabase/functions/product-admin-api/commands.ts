@@ -133,6 +133,28 @@ export async function lookupCommandReplay(
   return resolveCommandReplay((data as ExistingCommand | null) ?? null, hash);
 }
 
+/**
+ * Converte il lookup in un esito riutilizzabile dai gate Edge pre/post RPC.
+ * `null` significa che non esiste una command compatibile e il flusso normale
+ * deve proseguire; questa helper non esegue mai write né retry della RPC.
+ */
+export async function reconcileCommandReplay(
+  db: SupabaseClient,
+  input: CommandInput,
+  knownHash?: string,
+): Promise<Record<string, unknown> | null> {
+  const replay = await lookupCommandReplay(db, input, knownHash);
+  if (replay.kind === "replay") return replay.result;
+  if (replay.kind === "conflict") {
+    return {
+      ok: false,
+      code: "IDEMPOTENCY_CONFLICT",
+      message: "idempotencyKey già usata con un payload diverso",
+    };
+  }
+  return null;
+}
+
 export async function executeCommand(db: SupabaseClient, input: CommandInput) {
   const hash = await commandPayloadHash(input);
 
@@ -155,15 +177,8 @@ export async function executeCommand(db: SupabaseClient, input: CommandInput) {
   // prima transazione non era ancora committata. Solo dopo un VERSION_CONFLICT
   // rileggiamo una volta il command log; non ritentiamo mai la write.
   if (result?.ok === false && result.code === "VERSION_CONFLICT") {
-    const replay = await lookupCommandReplay(db, input, hash);
-    if (replay.kind === "replay") return replay.result;
-    if (replay.kind === "conflict") {
-      return {
-        ok: false,
-        code: "IDEMPOTENCY_CONFLICT",
-        message: "idempotencyKey già usata con un payload diverso",
-      };
-    }
+    const replay = await reconcileCommandReplay(db, input, hash);
+    if (replay) return replay;
   }
 
   return result;
