@@ -15,6 +15,13 @@
       "when": 1790326178024,
       "tag": "0001_restrict_legacy_enrichment_access",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790605926688,
+      "tag": "0002_allow_admin_manual_locked_field_edits",
+      "breakpoints": true
     }
   ]
 }

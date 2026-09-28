@@ -32,9 +32,26 @@ export function isCanaryField(def: { key: string; manual_only: boolean }): boole
   return CANARY_FIELD_KEYS.includes(def.key) || def.manual_only === true;
 }
 
-/** Hash canonico del payload per l'idempotenza. */
+/**
+ * Canonicalizzazione ricorsiva JSON: ordina le chiavi degli oggetti a ogni
+ * livello e conserva l'ordine degli array (significativo per FAQ e liste).
+ */
+export function canonicalizeJson(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalizeJson);
+  if (value !== null && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        // Comparatore a code point, indipendente dalla locale del runtime.
+        .sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
+        .map(([key, nested]) => [key, canonicalizeJson(nested)]),
+    );
+  }
+  return value;
+}
+
+/** Hash canonico ricorsivo del payload per l'idempotenza. */
 export async function payloadHash(input: Record<string, unknown>): Promise<string> {
-  const canonical = JSON.stringify(input, Object.keys(input).sort());
+  const canonical = JSON.stringify(canonicalizeJson(input));
   const bytes = new TextEncoder().encode(canonical);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
