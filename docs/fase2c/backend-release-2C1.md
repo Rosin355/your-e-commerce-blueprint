@@ -273,3 +273,23 @@ Nessuna nuova riga history/command/current value. Log funzione: solo boot, nessu
 - Conflitto: stessa key con valore diverso → `IDEMPOTENCY_CONFLICT`, nessuna write.
 - Rollback: salvataggio valore originale con expectedVersion 4 → versione 5, locked mantenuto, audit completo.
 - Idempotency key: UUID v4 nuovo per ogni comando logico (una per apply, una per rollback), riusata solo per il test di replay/conflitto.
+
+## Fase 2C.1b — Smoke WRITE live autorizzato (2026-09-28, 19:20 UTC)
+
+Backend `main@82f77933`, modalità canary. Fixture: OG_264361 (Hemerocallis "Rosy", simple), field `nome_comune`.
+
+**Preflight — PASS:** valore `Hemerocallis "Rosy" - Giglio Diurno Rosa`, versione 3, manual_only, `is_locked=true`, origine manual/approved, Admin autorizzato. Lineage: `source_snapshot_id` NULL, `source_batch_id` `1a44397e-44c4-4d8f-ada3-495b0965d710`. Conteggi: products 2.706, current values 24.466, history 2, command log 2.
+
+| Passo | Richiesta | Esito | Versione | History | Command log |
+|---|---|---|---|---|---|
+| First apply | valore + ` [test 2C.1b]`, expectedVersion 3, key A (UUID v4 nuova) | 200 `APPLIED` | 4 | 3 | 3 |
+| Exact replay | identica, key A | 200 `APPLIED`, `replayed=true` (log `APPLIED_REPLAY`) | 4 | 3 | 3 |
+| Conflitto | key A, valore ` [payload diverso]` | 409 `IDEMPOTENCY_CONFLICT`, nulla applicato | 4 | 3 | 3 |
+| Ripristino | valore originale, expectedVersion 4, key B (UUID v4 nuova) | 200 `APPLIED` | 5 | 4 | 4 |
+
+History nuove: `3→4` (key A) e `4→5` (key B). Command log nuove: `update_field APPLIED v4` e `update_field APPLIED v5`.
+
+**Stato finale:** valore originale, versione 5, `is_locked=true`, lineage identica al preflight.
+**Conteggi finali:** products 2.706 · current values 24.466 · history 4 · command log 4 · AI suggestions 0 · pubblicazioni 0 · sync jobs 36 · pipeline jobs 1 · import 1. Una sola riga current value modificata dopo il 28/09 14:39 (la fixture); OG_393883 non modificato.
+**Log:** tre righe (APPLIED, APPLIED_REPLAY, APPLIED); nessun errore, nessuna doppia write, nessun retry, nessun errore RPC.
+Nessuna chiamata AI, Shopify, import, Smart Sync o Storage. Nessun create expectedVersion=0, nessun test concorrente live, canary mantenuto, frontend non toccato.
