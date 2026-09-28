@@ -235,3 +235,41 @@ atomico, canonicalizzazione JSON ricorsiva e ordine degli array FAQ.
 
 Nessuna prova create live e nessuna scrittura su `OG_393883` rientrano in
 questo rollout.
+
+---
+
+## Fase 2C.1b — Deploy solo `product-admin-api` (2026-09-28, 19:15 UTC)
+
+**Revisione distribuita:** `main@82f77933bc289043e223a7a48d9bd273e96bbc41` (merge PR #18, include `2695411f`). Checkout Lovable a HEAD `82f7793`, nessuna differenza locale nella cartella della funzione.
+**Funzione distribuita:** soltanto `supabase/functions/product-admin-api` (9 file). Nessun frontend, altra Edge Function, migration, schema, Storage, AI, import o Shopify. Migration 2C.1 non riapplicata.
+
+SHA-256 dei file distribuiti:
+- auth.ts `9e849435…9f38` · capabilities.ts `7be863fb…b219` · commands.ts `3e2caeaa…05d` · index.ts `28ca2312…b358b450`
+- permissions.ts `10811f31…299a` · queries.ts `ec75ee63…abe` · serializers.ts `c9202da2…d4a6` · types.ts `34c7a4df…22b960` · validation.ts `42d90c12…ffed`
+
+### Preflight (prima del deploy) — PASS
+- Progetto Online Garden corretto; funzione raggiungibile; modalità `canary`; nessuna migration richiesta.
+- RPC `admin_update_product_field(uuid,text,uuid,text,jsonb,integer,text,text,text)`: SECURITY DEFINER, `search_path=""`, ACL solo postgres/service_role (+ ruolo interno sandbox), md5 corpo `fcc2fd75…222a`. Invariata dopo il deploy.
+
+### Codice idempotenza presente (verifica sul codice distribuito, nessuna write)
+`reconcileCommandReplay` (commands.ts), riconciliazione iniziale (index.ts ~282), pre-RPC (~323), post-RPC su VERSION_CONFLICT (commands.ts ~180), `IDEMPOTENCY_CONFLICT` (409), `replayed: true`.
+
+### Smoke read-only post-deploy — PASS
+- Auth: anonimo 401, chiave pubblica 401, token invalido 401, Admin 200 (`roles=[admin]`, `writeMode=canary`, azioni consentite solo update/confirm/reject).
+- OG_393883 (solo capability, nessun salvataggio): i 5 manual_only (`nome_comune`, `ibridatore`, `colore_fiore`, `colore_foglia`, `curiosita`) `isLocked=true`, `canUpdate=true`, AI non consentita. `sku`, `gtin`, `handle`, `shopify_product_id` → `definition_readonly`; `price`, `compare_at_price`, `inventory_quantity` → non modificabili (`canary_field_not_allowed`). `sourceState=original_absent`, `sourceSnapshotId` NULL.
+- Contratto versioni (solo `validate_field_update` e un comando rifiutato prima di qualsiasi write): versione errata → `VERSION_CONFLICT` con currentVersion; versione corretta → `VALID`; comando senza expectedVersion → 422 `expectedVersion mancante`. Il caso "create su campo assente con expectedVersion=0" non è verificabile su OG_393883 (nessun campo editabile assente); coperto dal codice (versione corrente 0 se riga assente) e dallo smoke 2C.1.
+- Nota: `validate_field_update` non applica il filtro canary (su `price` risponde col controllo versione), ma ogni comando di scrittura lo applica e le capability espongono `canUpdate=false`. Nessun rischio di write; eventuale miglioramento cosmetico.
+
+### Conteggi prima / dopo (identici)
+products 2.706 · current values 24.466 (max updated_at `2026-09-28 14:38:03`) · definizioni 68 · locked 29 · history 2 · command log 2 · AI suggestions 0 · publication jobs 0 · sync jobs 36 (5 `processing` storici) · pipeline jobs 1 · import batches 1.
+
+Nessuna nuova riga history/command/current value. Log funzione: solo boot, nessun errore. **Gate scritture ancora chiuso**: nessuna write live eseguita.
+
+### Proposta fixture smoke WRITE (non eseguita, attende approvazione)
+- SKU `OG_264361` (Hemerocallis "Rosy"), simple, attivo, non golden; field `nome_comune` (manual_only, locked).
+- Valore corrente `Hemerocallis "Rosy" - Giglio Diurno Rosa`, versione 3.
+- Temporaneo: stesso valore + ` [test 2C.1b]`, expectedVersion 3 → versione 4.
+- Replay: stessa richiesta con stessa key → risposta `replayed=true`, versione resta 4, nessuna nuova history.
+- Conflitto: stessa key con valore diverso → `IDEMPOTENCY_CONFLICT`, nessuna write.
+- Rollback: salvataggio valore originale con expectedVersion 4 → versione 5, locked mantenuto, audit completo.
+- Idempotency key: UUID v4 nuovo per ogni comando logico (una per apply, una per rollback), riusata solo per il test di replay/conflitto.
