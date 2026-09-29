@@ -78,3 +78,7 @@ forward-fix sul replay, il test controllato della creazione e la conferma UX.
 ## Aggiornamento 29/09/2026
 
 Il test controllato della creazione di un nuovo valore è riuscito: il colore del fiore "viola" è stato aggiunto al Gladiolo "Violet Summer" e resta come dato corretto. La parte server della fase 2C.1 è chiusa; resta la conferma UX.
+
+
+## Fase 2C.2 — QA finale Admin V2 (2026-09-29)
+ADMIN V2 UX — GO-LIVE READY (canary attivo). Backend 2C.1 CLOSED; create expectedVersion=0 live PASS; OG_365676.colore_fiore="viola" permanente; current values 24.467, history 5, command log 5. Due fix UX P3 (Salva solo con modifiche, niente "versione 0"). Dettagli: `docs/fase2c/qa-finale-admin-2C2.md`.
