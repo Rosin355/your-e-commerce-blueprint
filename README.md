@@ -12,6 +12,8 @@ Online Garden è in fase finale di preparazione al go-live. Backend Admin e UX s
 
 La diagnosi 3B ha chiarito che il problema inventario non è un semplice flag Shopify: 462/462 varianti hanno `quantityAvailable=0`, mentre i CSV storici contengono quantità esplicite solo per una piccola minoranza. La sorgente transazionale resta Shopify, ma serve prima definire una fonte stock operativa approvata e un flusso riproducibile. Anche l'attuale pubblicazione di 461 prodotti deriva da sync legacy parziali, non da un manifest commerciale deterministico.
 
+Il gate 3B.1A è attualmente **BLOCKED BY SHOPIFY CONFIG ACCESS**: l'accesso disponibile legge SKU/prezzo/status/ID ma non espone location, `tracked`, `inventoryPolicy` o livelli per location. Questo non prova che Shopify sia configurato male; significa solo che il canale di lettura attuale è insufficiente.
+
 ### Completato ad oggi
 
 | Area | Stato |
