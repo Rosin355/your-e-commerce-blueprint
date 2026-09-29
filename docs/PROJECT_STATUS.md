@@ -1,7 +1,31 @@
 # Online Garden — stato consolidato del progetto
 
-Data di consolidamento: 28 settembre 2026
-Baseline Git verificata da Codex: `origin/main@98525eee7e4c60badf1953caa3036462541587e0`
+Data di consolidamento: 29 settembre 2026
+Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
+
+## Stato operativo corrente — 29 settembre 2026
+
+> Questa sezione è autoritativa per il gate di go-live. Le sezioni storiche successive restano utili come tracciabilità delle fasi precedenti.
+
+- PR #18 / Fase 2C.1b: **MERGED e DEPLOYED** sulla sola `product-admin-api` da `main@82f77933`.
+- Smoke read-only post-deploy: **PASS**; canary ancora attivo; RPC/migration/schema invariati.
+- Smoke write live su `OG_264361.nome_comune`: **PASS**. First apply, exact replay con `replayed=true`, `IDEMPOTENCY_CONFLICT` e ripristino tutti corretti; valore finale originale, versione 5, lock/lineage preservati.
+- Conteggi dopo lo smoke: 2.706 prodotti, 24.466 current values, history 4, command log 4, AI suggestions 0, publication jobs 0, sync jobs 36, pipeline jobs 1, import batch 1.
+- Fixture CREATE `expectedVersion=0`: **QUALIFICATA LIVE READ-ONLY, WRITE NON ESEGUITA**. Candidata: `OG_365676.colore_fiore = "viola"`, prodotto simple/attivo, current ABSENT, history 0, key idempotenza assente, evidenza WordPress esplicita, valore permanente accettabile.
+- `OG_393883`: continua a essere escluso dalle scritture senza approvazione esplicita.
+
+### Gate mancanti per il go-live
+
+1. Eseguire il CREATE live `expectedVersion=0` sulla fixture qualificata e verificare version 1, lock, history 0→1, command log, replay e conflitto idempotente.
+2. QA finale Admin V2/UX cliente, incluso comportamento dei messaggi e capability.
+3. QA commerciale Shopify/storefront: pubblicazione prodotti/varianti, prezzi, immagini, disponibilità, spedizioni, checkout, email ordine e mobile.
+4. Ordine end-to-end controllato.
+5. Verifica/anomalia entity type su `OG_152965`, `OG_891874`, `OG_758263` prima di qualunque modifica strutturale.
+6. Decisione esplicita di uscita dal canary e go-live.
+
+### Non bloccanti
+
+Backfill lineage 14.295 `MATCH_READY`, AI field-by-field e miglioramenti cosmetici possono essere pianificati dopo il primo go-live, purché non cambino i gate commerciali sopra.
 
 ## 1. Executive summary
 

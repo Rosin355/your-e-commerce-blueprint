@@ -1,6 +1,51 @@
 # ONLINEGARDEN PROJECT
 
-Frontend e-commerce (tema piante) costruito con React + Vite, con catalogo prodotti e checkout integrati tramite Shopify Storefront API.
+Frontend e-commerce (tema piante) costruito con React + Vite, Supabase/Lovable Cloud per il backend Admin e Shopify per il commerce/checkout.
+
+## 🚀 Stato progetto e Go-Live
+
+**Aggiornamento operativo: 29 settembre 2026**  
+**Baseline runtime approvata:** `main@82f77933bc289043e223a7a48d9bd273e96bbc41`  
+**Modalità attuale:** `canary`
+
+Online Garden è in fase finale di preparazione al go-live. Il backend Admin V2 2C.1b è live e ha superato smoke test reali di update, replay idempotente, conflitto idempotente e ripristino senza effetti collaterali. Il prossimo gate backend è il primo CREATE live di un campo manuale assente con `expectedVersion=0`; la fixture `OG_365676 / colore_fiore = "viola"` è già stata qualificata in sola lettura ma **la write non è ancora stata eseguita**.
+
+### Completato ad oggi
+
+| Area | Stato |
+|---|---|
+| Foundation catalogo lossless + snapshot WordPress | ✅ Completata |
+| Admin V2 field-by-field | ✅ Live |
+| Editing manual-only locked con audit/versioning | ✅ Live |
+| Idempotenza sequenziale e concorrente 2C.1b | ✅ Live e smoke PASS |
+| Sicurezza legacy / auth Edge Functions | ✅ Chiusa |
+| STORAGE-003 / STORAGE-004 | ✅ Chiusi |
+| Smart Sync con CSV privati | ✅ Live |
+| Replay live `replayed=true` | ✅ PASS |
+| `IDEMPOTENCY_CONFLICT` live | ✅ PASS |
+| Fixture CREATE `expectedVersion=0` | ✅ Qualificata read-only, write pendente |
+
+### Gate mancanti prima del Go-Live commerciale
+
+1. **CREATE live `expectedVersion=0`** su `OG_365676.colore_fiore = "viola"`, con replay/conflitto e audit verificati.
+2. **QA finale Admin V2 / UX cliente**: salvataggi, stati lock, capability, errori e messaggi; il piccolo mismatch read-only su `validate_field_update` per campi canary può essere trattato come fix cosmetico separato.
+3. **QA Shopify/storefront commerciale**: prodotti e varianti pubblicati correttamente, prezzi, immagini, disponibilità, regole spedizione piante/bulbi, checkout ed email ordine.
+4. **Ordine end-to-end controllato** in modalità appropriata, con verifica mobile e ritorno dal checkout.
+5. **Revisione delle anomalie entity type** per `OG_152965`, `OG_891874`, `OG_758263` prima di qualunque variazione strutturale.
+6. **Decisione finale di uscita dal canary / go-live**, solo dopo i gate precedenti.
+
+### Non bloccanti per il primo Go-Live
+
+- backfill lineage dei 14.295 `MATCH_READY` (opzionale);
+- AI field-by-field come proposta versionata (fase successiva, mai overwrite automatico);
+- miglioramenti UX non critici e cleanup dei job storici inattivi.
+
+Per il dettaglio operativo usare:
+- [Stato consolidato](docs/PROJECT_STATUS.md)
+- [Stato cliente](docs/client-status.md)
+- [Developer handoff](docs/developer-handoff.md)
+- [Release backend 2C.1](docs/fase2c/backend-release-2C1.md)
+- [Checklist prelancio](docs/prelaunch-checklist.md)
 
 ## Stack Tecnologico
 
@@ -20,7 +65,7 @@ Frontend e-commerce (tema piante) costruito con React + Vite, con catalogo prodo
   - recupero dettaglio prodotto per `handle`
   - creazione del checkout/cart Shopify
 
-Nota: il progetto non include un backend custom (Node/Express/Nest ecc.). La logica server-side è delegata a Shopify tramite API client-side.
+Il progetto usa anche un backend applicativo server-side su Supabase/Lovable Cloud: database, Auth, RPC ed Edge Functions gestiscono Admin V2, import/sync, Storage, audit e sicurezza. Shopify resta il canale commerce/checkout e di pubblicazione.
 
 ## Requisiti Locali
 

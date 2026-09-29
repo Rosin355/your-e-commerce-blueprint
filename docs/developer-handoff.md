@@ -1,7 +1,16 @@
 # Online Garden — developer handoff
 
-Aggiornamento: 28 settembre 2026
-Baseline: `origin/main@98525eee7e4c60badf1953caa3036462541587e0`
+Aggiornamento: 29 settembre 2026
+Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
+
+## 0. Release snapshot corrente
+
+- 2C.1b è mergiata e live sulla sola `product-admin-api`; nessuna migration nuova.
+- Canary attivo.
+- Smoke live update/replay/conflict/restore su `OG_264361.nome_comune`: PASS; stato finale versione 5, valore originale, `is_locked=true`, lineage invariata.
+- Fixture CREATE `expectedVersion=0` qualificata read-only: `OG_365676.colore_fiore = "viola"`; current ABSENT, history 0, idempotency key assente, evidenza WordPress esplicita. Write ancora non eseguita.
+- Prossimi gate: create live → QA Admin UX → QA Shopify/storefront → ordine E2E → uscita canary.
+- Anomalie entity type ancora da preservare: `OG_152965`, `OG_891874`, `OG_758263`.
 
 ## 1. Architettura
 
