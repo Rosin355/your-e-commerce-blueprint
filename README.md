@@ -10,6 +10,8 @@ Frontend e-commerce (tema piante) costruito con React + Vite, Supabase/Lovable C
 
 Online Garden è in fase finale di preparazione al go-live. Backend Admin e UX sono pronti, ma il **QA commerciale Shopify/storefront è BLOCKED**: 458 prodotti su 461 risultano esauriti, solo 3 sono acquistabili, quei 3 non hanno immagini, e le spedizioni non sono ancora verificate. Il checkout tecnico apre correttamente Shopify, ma non è ancora stato completato un ordine E2E.
 
+La diagnosi 3B ha chiarito che il problema inventario non è un semplice flag Shopify: 462/462 varianti hanno `quantityAvailable=0`, mentre i CSV storici contengono quantità esplicite solo per una piccola minoranza. La sorgente transazionale resta Shopify, ma serve prima definire una fonte stock operativa approvata e un flusso riproducibile. Anche l'attuale pubblicazione di 461 prodotti deriva da sync legacy parziali, non da un manifest commerciale deterministico.
+
 ### Completato ad oggi
 
 | Area | Stato |
@@ -29,7 +31,7 @@ Online Garden è in fase finale di preparazione al go-live. Backend Admin e UX s
 
 ### Gate mancanti prima del Go-Live commerciale
 
-1. **Ripristinare le giacenze reali**: oggi 458/461 prodotti Shopify risultano esauriti.
+1. **Definire e collegare la fonte stock reale**: Shopify resta il registro transazionale, ma non esiste ancora un feed quantità completo e affidabile; 462/462 varianti hanno `quantityAvailable=0`.
 2. **Decidere e completare la pubblicazione catalogo**: Shopify espone 461 prodotti su 2.706 interni.
 3. **Aggiungere immagini ai prodotti acquistabili** e verificare copertura immagini del catalogo.
 4. **Verificare le spedizioni Italia** nel pannello Shopify o tramite ordine di prova completo.
@@ -50,6 +52,7 @@ Per il dettaglio operativo usare:
 - [Developer handoff](docs/developer-handoff.md)
 - [Release backend 2C.1](docs/fase2c/backend-release-2C1.md)
 - [Checklist prelancio](docs/prelaunch-checklist.md)
+- [Piano remediation Shopify 3B](docs/fase3b/shopify-remediation-plan.md)
 
 ## Stack Tecnologico
 
