@@ -11,7 +11,9 @@ Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 - Conteggi correnti: 24.467 current values, history 5, command log 5.
 - Admin V2 UX: **GO-LIVE READY**; due P3 corretti (dirty-save e label valore assente).
 - Non bloccanti: cronologia con field_key tecnici, ruolo Editor non provato live, mismatch cosmetico validate.
-- Prossimi gate: QA commerciale Shopify/storefront → ordine E2E → verifica anomaly entity type → uscita canary/go-live.
+- Fase 3A Shopify/storefront: **BLOCKED**. 461 published, 458 sold-out; only 3 purchasable and all without images; shipping not verified; mobile overflow present; checkout technical PASS.
+- Entity type: `OG_152965` safe; `OG_891874` and `OG_758263` require structural review.
+- Prossimi gate: inventory → publication scope → images → shipping → mobile fix → structural review → order E2E → exit canary.
 
 ## 1. Architettura
 
