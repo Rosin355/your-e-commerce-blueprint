@@ -1,6 +1,17 @@
 # Online Garden — note Admin UX
 
-Aggiornamento: 28 settembre 2026
+Aggiornamento: 29 settembre 2026
+
+## QA finale 2C.2
+
+Esito: **ADMIN V2 UX — GO-LIVE READY**.
+
+Verificato live in sola lettura: navigazione, lista/ricerca/dettaglio, fixture `OG_264361` v5, fixture `OG_365676.colore_fiore = "viola"` v1, cinque manual-only su `OG_393883`, campi strutturali read-only, responsive 1440/820/390, loading/error/empty state e console senza errori bloccanti.
+
+Correzioni P3 applicate: Salva solo su dirty state; "Valore non ancora inserito" per current assente; rimossa terminologia "RPC" da due messaggi; errori collegati ai field con `aria-describedby`.
+
+Coperti da codice/test, non live: VERSION_CONFLICT UX, replay/idempotency conflict UI, FAQ editor e FAQ legacy/opache. Non bloccanti: nomi tecnici in cronologia e ruolo Editor non provato live.
+
 
 ## Obiettivo dell'interfaccia
 
