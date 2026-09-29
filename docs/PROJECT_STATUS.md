@@ -5,27 +5,27 @@ Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 
 ## Stato operativo corrente — 29 settembre 2026
 
-> Questa sezione è autoritativa per il gate di go-live. Le sezioni storiche successive restano utili come tracciabilità delle fasi precedenti.
+> Questa sezione è autoritativa per il gate di go-live.
 
-- PR #18 / Fase 2C.1b: **MERGED e DEPLOYED** sulla sola `product-admin-api` da `main@82f77933`.
-- Smoke read-only post-deploy: **PASS**; canary ancora attivo; RPC/migration/schema invariati.
-- Smoke write live su `OG_264361.nome_comune`: **PASS**. First apply, exact replay con `replayed=true`, `IDEMPOTENCY_CONFLICT` e ripristino tutti corretti; valore finale originale, versione 5, lock/lineage preservati.
-- Conteggi dopo lo smoke: 2.706 prodotti, 24.466 current values, history 4, command log 4, AI suggestions 0, publication jobs 0, sync jobs 36, pipeline jobs 1, import batch 1.
-- Fixture CREATE `expectedVersion=0`: **QUALIFICATA LIVE READ-ONLY, WRITE NON ESEGUITA**. Candidata: `OG_365676.colore_fiore = "viola"`, prodotto simple/attivo, current ABSENT, history 0, key idempotenza assente, evidenza WordPress esplicita, valore permanente accettabile.
-- `OG_393883`: continua a essere escluso dalle scritture senza approvazione esplicita.
+- Backend 2C.1: **CLOSED lato server**.
+- 2C.1b live PASS: update, replay `replayed=true`, `IDEMPOTENCY_CONFLICT`, restore e race handling.
+- 2C.1c live PASS: CREATE `expectedVersion=0` su `OG_365676.colore_fiore = "viola"`; version 1, locked/manual/approved/protected, lineage NULL/NULL, history 0→1, replay PASS, conflict PASS.
+- Conteggi correnti: 2.706 products, 24.467 current values, history 5, command log 5, AI suggestions 0, publication jobs 0, sync jobs 36, pipeline jobs 1, import batch 1.
+- Admin V2 UX: **GO-LIVE READY**. QA read-only PASS su navigazione, fixture, campi strutturali, responsive 1440/820/390, loading/error/empty state.
+- Due P3 UI corretti: Salva solo su dirty state; "Valore non ancora inserito" al posto di "Versione: 0". Messaggi tecnici ripuliti e errori collegati ai field.
+- Non bloccanti: cronologia con nomi tecnici, ruolo Editor non provato live, mismatch cosmetico di `validate_field_update`.
+- `OG_393883` non modificato. Modalità `canary` ancora attiva.
 
 ### Gate mancanti per il go-live
 
-1. Eseguire il CREATE live `expectedVersion=0` sulla fixture qualificata e verificare version 1, lock, history 0→1, command log, replay e conflitto idempotente.
-2. QA finale Admin V2/UX cliente, incluso comportamento dei messaggi e capability.
-3. QA commerciale Shopify/storefront: pubblicazione prodotti/varianti, prezzi, immagini, disponibilità, spedizioni, checkout, email ordine e mobile.
-4. Ordine end-to-end controllato.
-5. Verifica/anomalia entity type su `OG_152965`, `OG_891874`, `OG_758263` prima di qualunque modifica strutturale.
-6. Decisione esplicita di uscita dal canary e go-live.
+1. QA commerciale Shopify/storefront: prodotti e varianti, prezzi, immagini, disponibilità, spedizioni, checkout, email ordine, mobile.
+2. Ordine end-to-end controllato.
+3. Verifica delle anomalie entity type `OG_152965`, `OG_891874`, `OG_758263` prima di modifiche strutturali.
+4. Decisione esplicita di uscita dal canary e go-live.
 
 ### Non bloccanti
 
-Backfill lineage 14.295 `MATCH_READY`, AI field-by-field e miglioramenti cosmetici possono essere pianificati dopo il primo go-live, purché non cambino i gate commerciali sopra.
+Backfill lineage 14.295 `MATCH_READY`, AI field-by-field, ruolo Editor live e miglioramenti cosmetici possono essere pianificati dopo il primo go-live.
 
 ## 1. Executive summary
 
