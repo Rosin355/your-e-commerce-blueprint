@@ -4,9 +4,9 @@ Aggiornamento: 29 settembre 2026
 
 ## Stato go-live aggiornato
 
-Il backend Admin è ora operativo in modalità di collaudo e ha superato anche il test live di richieste ripetute: una richiesta identica non crea duplicati, mentre il riuso scorretto della stessa chiave viene bloccato. Il prodotto di prova è stato riportato al valore originale e le protezioni sono rimaste attive.
+Backend Admin e interfaccia Admin V2 sono ora pronti per il go-live. Sono passati anche il primo inserimento di un campo manuale assente, il replay sicuro delle richieste e il QA finale dell'interfaccia. Il valore `colore_fiore = "viola"` su `OG_365676` resta intenzionalmente come dato editoriale corretto.
 
-Prima del go-live commerciale restano quattro blocchi principali: primo inserimento di un campo manuale ancora assente, controllo UX finale dell'Admin, collaudo completo Shopify/storefront/checkout e un ordine end-to-end controllato. La fixture per il primo inserimento è già stata verificata in sola lettura: `OG_365676`, campo `colore_fiore`, valore `viola`; non è stata ancora eseguita alcuna scrittura.
+Restano i controlli commerciali: catalogo Shopify/storefront, varianti, prezzi, immagini, spedizioni, checkout, email ordine, mobile e un ordine end-to-end controllato. La modalità `canary` resta attiva fino alla decisione finale di pubblicazione.
 
 ## In sintesi
 

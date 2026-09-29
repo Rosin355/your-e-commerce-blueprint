@@ -8,7 +8,7 @@ Frontend e-commerce (tema piante) costruito con React + Vite, Supabase/Lovable C
 **Baseline runtime approvata:** `main@82f77933bc289043e223a7a48d9bd273e96bbc41`  
 **Modalità attuale:** `canary`
 
-Online Garden è in fase finale di preparazione al go-live. Il backend Admin V2 2C.1b è live e ha superato smoke test reali di update, replay idempotente, conflitto idempotente e ripristino senza effetti collaterali. Il prossimo gate backend è il primo CREATE live di un campo manuale assente con `expectedVersion=0`; la fixture `OG_365676 / colore_fiore = "viola"` è già stata qualificata in sola lettura ma **la write non è ancora stata eseguita**.
+Online Garden è in fase finale di preparazione al go-live. Il backend Admin V2 2C.1 è chiuso lato server: update, replay idempotente, conflitto idempotente, ripristino e CREATE live con `expectedVersion=0` sono tutti PASS. Anche il QA finale Admin V2/UX è **GO-LIVE READY**. Restano i gate commerciali Shopify/storefront, l’ordine end-to-end controllato e la decisione esplicita di uscita dal canary.
 
 ### Completato ad oggi
 
@@ -23,22 +23,21 @@ Online Garden è in fase finale di preparazione al go-live. Il backend Admin V2 
 | Smart Sync con CSV privati | ✅ Live |
 | Replay live `replayed=true` | ✅ PASS |
 | `IDEMPOTENCY_CONFLICT` live | ✅ PASS |
-| Fixture CREATE `expectedVersion=0` | ✅ Qualificata read-only, write pendente |
+| CREATE live `expectedVersion=0` | ✅ PASS su `OG_365676.colore_fiore = "viola"` |
+| QA finale Admin V2 / UX | ✅ GO-LIVE READY |
 
 ### Gate mancanti prima del Go-Live commerciale
 
-1. **CREATE live `expectedVersion=0`** su `OG_365676.colore_fiore = "viola"`, con replay/conflitto e audit verificati.
-2. **QA finale Admin V2 / UX cliente**: salvataggi, stati lock, capability, errori e messaggi; il piccolo mismatch read-only su `validate_field_update` per campi canary può essere trattato come fix cosmetico separato.
-3. **QA Shopify/storefront commerciale**: prodotti e varianti pubblicati correttamente, prezzi, immagini, disponibilità, regole spedizione piante/bulbi, checkout ed email ordine.
-4. **Ordine end-to-end controllato** in modalità appropriata, con verifica mobile e ritorno dal checkout.
-5. **Revisione delle anomalie entity type** per `OG_152965`, `OG_891874`, `OG_758263` prima di qualunque variazione strutturale.
-6. **Decisione finale di uscita dal canary / go-live**, solo dopo i gate precedenti.
+1. **QA Shopify/storefront commerciale**: prodotti e varianti pubblicati correttamente, prezzi, immagini, disponibilità, regole spedizione piante/bulbi, checkout ed email ordine.
+2. **Ordine end-to-end controllato** in modalità appropriata, con verifica mobile e ritorno dal checkout.
+3. **Revisione delle anomalie entity type** per `OG_152965`, `OG_891874`, `OG_758263` prima di qualunque variazione strutturale.
+4. **Decisione finale di uscita dal canary / go-live**, solo dopo i gate precedenti.
 
 ### Non bloccanti per il primo Go-Live
 
 - backfill lineage dei 14.295 `MATCH_READY` (opzionale);
 - AI field-by-field come proposta versionata (fase successiva, mai overwrite automatico);
-- miglioramenti UX non critici e cleanup dei job storici inattivi.
+- miglioramenti UX non critici (nomi tecnici nella cronologia, ruolo Editor non provato live, mismatch cosmetico su `validate_field_update`) e cleanup dei job storici inattivi.
 
 Per il dettaglio operativo usare:
 - [Stato consolidato](docs/PROJECT_STATUS.md)
