@@ -198,3 +198,7 @@ della migration né un nuovo deploy della Edge Function.
 - migration già applicate non vanno rieseguite o registrate manualmente;
 - rollback tramite nuova modifica versionata o release precedente, mai tramite
   cancellazione di history o riduzione della versione.
+
+## Aggiornamento 29/09/2026 — 2C.1c
+
+Smoke live CREATE su OG_365676/`colore_fiore` = `viola` (v1, locked, lineage NULL) superato, con replay e IDEMPOTENCY_CONFLICT corretti. Backend 2C.1 chiuso; canary attivo. Dettagli in `docs/fase2c/backend-release-2C1.md`.

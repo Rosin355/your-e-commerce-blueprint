@@ -310,3 +310,13 @@ Nessuna write eseguita. Fixture qualificata tramite ambiente live gestito:
 - baseline live: products 2.706, current values 24.466, history 4, command log 4, AI suggestions 0, publication jobs 0, sync jobs 36, pipeline jobs 1, import batches 1.
 
 **Gate:** fixture live qualificata; CREATE/replay/conflict non ancora eseguiti. Nessun cleanup previsto: il valore `viola` può restare come dato editoriale corretto se il test viene autorizzato e applicato.
+
+## Fase 2C.1c — Smoke live CREATE (29/09/2026) — PASS
+
+- **Preflight:** OG_365676 / `84893e45…973e`, simple; `colore_fiore` ABSENT, history 0; manual_only/editable/visible true, ai_allowed false, protected_on_reimport true; key `phase2c1c:d441be40-…a897` assente; baseline 2.706 / 24.466 / 4 / 4 / 0 / 0 / 36 / 1 / 1.
+- **CREATE:** HTTP 200, `APPLIED`, `created=true`, version 1. Riga: `viola`, locked, manual/manual, approved, protected, draft; lineage `source_snapshot_id=NULL`, `source_batch_id=NULL`. History 0→1 (`manual_update`), command log +1.
+- **Replay esatto:** HTTP 200, `replayed=true`, nessuna nuova write.
+- **Stessa key, valore `viola intenso`:** HTTP 409 `IDEMPOTENCY_CONFLICT`, nulla applicato.
+- **VERSION_CONFLICT:** via `validate_field_update` (senza scrittura) con expectedVersion 0 → `VERSION_CONFLICT`, currentVersion 1.
+- **Finale:** products 2.706, current values 24.467, history 5, command log 5, AI 0, publication 0, sync 36, pipeline 1, import 1. Una sola riga modificata; OG_393883 hash invariato. Log: solo `APPLIED` e `APPLIED_REPLAY`, nessun errore. Nessuna AI/Shopify/import/Smart Sync/Storage.
+- Il valore `viola` resta intenzionalmente. Canary attivo. **Backend 2C.1 chiuso.**
