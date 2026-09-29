@@ -293,3 +293,20 @@ History nuove: `3→4` (key A) e `4→5` (key B). Command log nuove: `update_fie
 **Conteggi finali:** products 2.706 · current values 24.466 · history 4 · command log 4 · AI suggestions 0 · pubblicazioni 0 · sync jobs 36 · pipeline jobs 1 · import 1. Una sola riga current value modificata dopo il 28/09 14:39 (la fixture); OG_393883 non modificato.
 **Log:** tre righe (APPLIED, APPLIED_REPLAY, APPLIED); nessun errore, nessuna doppia write, nessun retry, nessun errore RPC.
 Nessuna chiamata AI, Shopify, import, Smart Sync o Storage. Nessun create expectedVersion=0, nessun test concorrente live, canary mantenuto, frontend non toccato.
+
+
+## Fase 2C.1c — Fixture CREATE expectedVersion=0 qualificata live (read-only, 2026-09-29)
+
+Nessuna write eseguita. Fixture qualificata tramite ambiente live gestito:
+
+- SKU `OG_365676`, product_id `84893e45-2ce8-4290-b5b6-8ae1df76973e`;
+- Gladiolo "Violet Summer" - Confezione da 10 Bulbi da Fiore;
+- entity_type `simple`, attivo, senza parent/varianti collegate;
+- field `colore_fiore`: current value **ABSENT**, history 0, expectedVersion futuro 0;
+- registry: `manual_only=true`, `editable=true`, `visible=true`, `ai_allowed=false`, `protected_on_reimport=true`, applicabile al simple;
+- evidenza WordPress esplicita: descrizione originale con più riferimenti a "viola profondo/intenso" e "fiori viola intenso"; valore proposto `"viola"`, considerato permanente e non inventato;
+- idempotency key riservata verificata assente prima della write;
+- nuova riga attesa dal contratto: version 1, `is_locked=true`, origin/value_origin manual, review approved, publish_state draft, `source_snapshot_id=NULL`, `source_batch_id=NULL`;
+- baseline live: products 2.706, current values 24.466, history 4, command log 4, AI suggestions 0, publication jobs 0, sync jobs 36, pipeline jobs 1, import batches 1.
+
+**Gate:** fixture live qualificata; CREATE/replay/conflict non ancora eseguiti. Nessun cleanup previsto: il valore `viola` può restare come dato editoriale corretto se il test viene autorizzato e applicato.
