@@ -8,6 +8,12 @@ Backend Admin e interfaccia Admin V2 sono ora pronti per il go-live. Sono passat
 
 Restano i controlli commerciali: catalogo Shopify/storefront, varianti, prezzi, immagini, spedizioni, checkout, email ordine, mobile e un ordine end-to-end controllato. La modalità `canary` resta attiva fino alla decisione finale di pubblicazione.
 
+## QA commerciale Shopify — esito
+
+Il pannello Admin è pronto, ma il negozio non è ancora pronto per il lancio commerciale. Il QA ha trovato quattro blocchi principali: quasi tutto il catalogo Shopify risulta esaurito (458 prodotti su 461), soltanto 461 prodotti risultano pubblicati rispetto ai 2.706 del catalogo interno, i tre prodotti acquistabili non hanno immagini e le spedizioni per l'Italia non sono ancora state verificate.
+
+Prezzi e carrello sono risultati coerenti; il checkout Shopify si apre correttamente. Prima del go-live servono quindi giacenze reali, decisione sul catalogo da pubblicare, immagini, verifica spedizioni, correzione mobile e un ordine di prova completo.
+
 ## In sintesi
 
 La nuova base catalogo e il pannello Admin sono online. I dati originali sono
