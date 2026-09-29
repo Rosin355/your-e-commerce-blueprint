@@ -29,6 +29,7 @@ Il gate 3B.1A è attualmente **BLOCKED BY SHOPIFY CONFIG ACCESS**: l'accesso dis
 | `IDEMPOTENCY_CONFLICT` live | ✅ PASS |
 | CREATE live `expectedVersion=0` | ✅ PASS su `OG_365676.colore_fiore = "viola"` |
 | QA finale Admin V2 / UX | ✅ GO-LIVE READY |
+| AI "Migliora con AI" Admin V2 | ❌ Da completare prima della consegna cliente |
 | QA commerciale Shopify / storefront | ❌ BLOCKED |
 
 ### Gate mancanti prima del Go-Live commerciale
@@ -45,7 +46,7 @@ Il gate 3B.1A è attualmente **BLOCKED BY SHOPIFY CONFIG ACCESS**: l'accesso dis
 ### Non bloccanti per il primo Go-Live
 
 - backfill lineage dei 14.295 `MATCH_READY` (opzionale);
-- AI field-by-field come proposta versionata (fase successiva, mai overwrite automatico);
+- **AI field-by-field nell'Admin V2 è requisito per la consegna cliente**: deve generare proposte, mai overwrite automatico, con approvazione esplicita;
 - miglioramenti UX non critici (nomi tecnici nella cronologia, ruolo Editor non provato live, mismatch cosmetico su `validate_field_update`) e cleanup dei job storici inattivi.
 
 Per il dettaglio operativo usare:
