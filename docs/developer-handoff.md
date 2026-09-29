@@ -11,7 +11,12 @@ Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 - Conteggi correnti: 24.467 current values, history 5, command log 5.
 - Admin V2 UX: **GO-LIVE READY**; due P3 corretti (dirty-save e label valore assente).
 - Non bloccanti: cronologia con field_key tecnici, ruolo Editor non provato live, mismatch cosmetico validate.
-- Prossimi gate: QA commerciale Shopify/storefront → ordine E2E → verifica anomaly entity type → uscita canary/go-live.
+- **Client handoff blocker**: Admin V2 deve includere il flusso field-by-field "Migliora con AI".
+- Fase 3A Shopify/storefront: **BLOCKED**. 461 published, 458 sold-out; only 3 purchasable and all without images; shipping not verified; mobile overflow present; checkout technical PASS.
+- Fase 3B read-only: root cause inventory = assenza di feed quantità completo + legacy normalization missing→0; 462/462 Shopify variants quantityAvailable=0. Publication = legacy partial sync, nessun manifest commerciale. Images = legacy sync crea mediaInputs ma non li invia. Mobile overflow = `HomeAnnouncementBar.tsx` / `whitespace-nowrap`. Checkout EN = locale Shopify pubblicato solo EN.
+- Fase 3B.1A: Shopify access corrente non espone inventory Admin fields (locations, tracked, inventoryPolicy, per-location levels). Stato = BLOCKED BY SHOPIFY CONFIG ACCESS, non prova di misconfiguration. Prossimo gate raccomandato: endpoint Admin read-only dedicato o export Inventory CSV.
+- Entity type: `OG_152965` safe; `OG_891874` and `OG_758263` require structural review.
+- Prossimi gate: inventory → publication scope → images → shipping → mobile fix → structural review → order E2E → exit canary.
 
 ## 1. Architettura
 
@@ -129,7 +134,7 @@ I cinque campi manuali protetti sono `nome_comune`, `ibridatore`,
 
 ## 5. AI
 
-Admin V2 non deve invocare le pipeline AI legacy. Un'integrazione futura deve:
+Admin V2 non deve invocare le pipeline AI legacy. L'integrazione field-by-field richiesta per la consegna cliente deve:
 
 1. creare una riga in `product_ai_suggestions`;
 2. registrare `base_version` e `prompt_version`;

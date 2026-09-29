@@ -15,17 +15,25 @@ Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 - Due P3 UI corretti: Salva solo su dirty state; "Valore non ancora inserito" al posto di "Versione: 0". Messaggi tecnici ripuliti e errori collegati ai field.
 - Non bloccanti: cronologia con nomi tecnici, ruolo Editor non provato live, mismatch cosmetico di `validate_field_update`.
 - `OG_393883` non modificato. Modalità `canary` ancora attiva.
+- Fase 3A Shopify/storefront: **BLOCKED**. Shopify espone 461 prodotti; 458 risultano esauriti. Solo `OG_257799`, `OG_426481`, `OG_797988` sono acquistabili e tutti e tre sono senza immagini. Checkout tecnico PASS; spedizioni/tasse/totale finale ed email ordine non ancora verificati. Mobile FAIL per overflow orizzontale su catalogo e prodotto. `OG_152965` safe; `OG_891874` e `OG_758263` richiedono review strutturale.
+- Fase 3B diagnosi: **COMPLETATA READ-ONLY**. 462/462 varianti Shopify hanno `quantityAvailable=0`; le sorgenti raw hanno quantità esplicite solo su 56/2.626 righe SKU (13 positive, 43 zero) e i normalizzatori legacy portano i mancanti a zero. Le pipeline legacy non impostano in modo completo quantity/tracking/location. I 461 prodotti live derivano da sync parziali, non da un manifest commerciale riproducibile. WordPress raw: 1.151 prodotti senza immagini, 493 con una, 982 con gallery; Shopify live: 3 senza immagini, 458 con una, 0 con gallery. Root cause mobile: `HomeAnnouncementBar.tsx` con `whitespace-nowrap`. Checkout EN perché il mercato/domain pubblica solo EN.
+- Fase 3B.1A inventory preflight: **STOP conservativo / BLOCKED BY SHOPIFY CONFIG ACCESS**. Account Shopify ricollegato; lettura prodotto disponibile solo per SKU/prezzo/status/ID. Non sono leggibili location, `inventoryItem.tracked`, `inventoryPolicy` o inventory levels, quindi non è possibile spiegare in modo affidabile perché i tre SKU acquistabili siano vendibili né costruire un manifest old→new. Nessuna write eseguita; canary invariato.
+- AI Admin V2: **CLIENT HANDOFF BLOCKER**. Il flusso "Migliora con AI" field-by-field deve essere completato prima di consegnare il pannello al cliente.
 
 ### Gate mancanti per il go-live
 
-1. QA commerciale Shopify/storefront: prodotti e varianti, prezzi, immagini, disponibilità, spedizioni, checkout, email ordine, mobile.
-2. Ordine end-to-end controllato.
-3. Verifica delle anomalie entity type `OG_152965`, `OG_891874`, `OG_758263` prima di modifiche strutturali.
-4. Decisione esplicita di uscita dal canary e go-live.
+1. Caricare/verificare giacenze reali su Shopify.
+2. Decidere il perimetro di pubblicazione e portare online i prodotti previsti per il lancio.
+3. Aggiungere foto ai prodotti acquistabili e verificare la copertura immagini.
+4. Verificare le regole di spedizione Italia.
+5. Correggere l'overflow mobile su catalogo/prodotto.
+6. Riesaminare `OG_891874` e `OG_758263`; preservare `OG_152965` come simple.
+7. Completare un ordine E2E controllato, includendo totale, tasse, spedizione, email e lingua checkout.
+8. Uscire dal canary solo dopo PASS del rerun QA commerciale.
 
 ### Non bloccanti
 
-Backfill lineage 14.295 `MATCH_READY`, AI field-by-field, ruolo Editor live e miglioramenti cosmetici possono essere pianificati dopo il primo go-live.
+Backfill lineage 14.295 `MATCH_READY`, ruolo Editor live e miglioramenti cosmetici possono essere pianificati dopo il primo go-live. **AI field-by-field è invece requisito per la consegna dell'Admin al cliente.**
 
 ## 1. Executive summary
 

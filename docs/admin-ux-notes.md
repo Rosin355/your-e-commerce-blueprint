@@ -13,6 +13,10 @@ Correzioni P3 applicate: Salva solo su dirty state; "Valore non ancora inserito"
 Coperti da codice/test, non live: VERSION_CONFLICT UX, replay/idempotency conflict UI, FAQ editor e FAQ legacy/opache. Non bloccanti: nomi tecnici in cronologia e ruolo Editor non provato live.
 
 
+## Requisito cliente — Migliora con AI
+
+Prima della consegna del pannello al cliente, i campi editoriali con `ai_allowed=true` devono poter generare una proposta AI separata. UX minima: **Migliora con AI → confronto corrente/proposta → Rifiuta / Modifica / Accetta**. L'accettazione passa dal normale salvataggio versionato dell'Admin V2. Campi `manual_only`, strutturali o `ai_allowed=false` restano esclusi. Nessuna azione AI pubblica automaticamente su Shopify.
+
 ## Obiettivo dell'interfaccia
 
 La scheda Admin deve permettere di capire, per ogni campo, cosa arriva dalla
