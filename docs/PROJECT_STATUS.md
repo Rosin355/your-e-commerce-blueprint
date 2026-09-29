@@ -15,13 +15,18 @@ Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 - Due P3 UI corretti: Salva solo su dirty state; "Valore non ancora inserito" al posto di "Versione: 0". Messaggi tecnici ripuliti e errori collegati ai field.
 - Non bloccanti: cronologia con nomi tecnici, ruolo Editor non provato live, mismatch cosmetico di `validate_field_update`.
 - `OG_393883` non modificato. Modalità `canary` ancora attiva.
+- Fase 3A Shopify/storefront: **BLOCKED**. Shopify espone 461 prodotti; 458 risultano esauriti. Solo `OG_257799`, `OG_426481`, `OG_797988` sono acquistabili e tutti e tre sono senza immagini. Checkout tecnico PASS; spedizioni/tasse/totale finale ed email ordine non ancora verificati. Mobile FAIL per overflow orizzontale su catalogo e prodotto. `OG_152965` safe; `OG_891874` e `OG_758263` richiedono review strutturale.
 
 ### Gate mancanti per il go-live
 
-1. QA commerciale Shopify/storefront: prodotti e varianti, prezzi, immagini, disponibilità, spedizioni, checkout, email ordine, mobile.
-2. Ordine end-to-end controllato.
-3. Verifica delle anomalie entity type `OG_152965`, `OG_891874`, `OG_758263` prima di modifiche strutturali.
-4. Decisione esplicita di uscita dal canary e go-live.
+1. Caricare/verificare giacenze reali su Shopify.
+2. Decidere il perimetro di pubblicazione e portare online i prodotti previsti per il lancio.
+3. Aggiungere foto ai prodotti acquistabili e verificare la copertura immagini.
+4. Verificare le regole di spedizione Italia.
+5. Correggere l'overflow mobile su catalogo/prodotto.
+6. Riesaminare `OG_891874` e `OG_758263`; preservare `OG_152965` come simple.
+7. Completare un ordine E2E controllato, includendo totale, tasse, spedizione, email e lingua checkout.
+8. Uscire dal canary solo dopo PASS del rerun QA commerciale.
 
 ### Non bloccanti
 
