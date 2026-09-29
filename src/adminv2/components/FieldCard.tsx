@@ -34,8 +34,8 @@ const BLOCK_REASON: Record<AdminField['capabilities']['updateBlockReason'], stri
   not_applicable: 'Il campo non si applica a questo tipo di prodotto.',
   definition_readonly: 'Il registro definisce questo campo come non modificabile.',
   canary_field_not_allowed: 'Il campo non è abilitato nella fase di collaudo.',
-  current_value_missing: 'Il valore corrente non esiste ancora: la RPC non può crearlo.',
-  current_value_locked: 'Il valore è bloccato e la RPC rifiuta il salvataggio.',
+  current_value_missing: 'Il valore non esiste ancora e non può essere creato in questa fase.',
+  current_value_locked: 'Il valore è bloccato e non può essere modificato con il tuo ruolo.',
   legacy_review_not_required: 'Il valore non richiede una revisione legacy.',
   phase_2c: 'Funzione prevista per la Fase 2C.',
 };
@@ -91,6 +91,9 @@ export default function FieldCard({ field, onCommand, onConflict }: FieldCardPro
     }
   };
 
+  const dirty = JSON.stringify(draft ?? null) !== JSON.stringify(cloneValue(field.key === 'faq' && parseFaqValue(field.value).kind === 'supported' ? (parseFaqValue(field.value) as { items: unknown }).items : field.value) ?? null);
+  const errorId = `field-error-${field.key}`;
+
   const save = () => {
     const normalized = normalizeEditorValue(field, draft);
     if (normalized.ok === false) {
@@ -133,7 +136,7 @@ export default function FieldCard({ field, onCommand, onConflict }: FieldCardPro
       <div className="mb-3 grid gap-3 md:grid-cols-2">
         <section className="rounded-md border p-3">
           <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Valore corrente</h4>
-          {editing ? <FieldEditor field={field} value={draft} onChange={setDraft} disabled={busy !== null} /> : <ValueDisplay value={displayValue(field)} label={field.label} />}
+          {editing ? <div aria-describedby={validationError ? errorId : undefined}><FieldEditor field={field} value={draft} onChange={setDraft} disabled={busy !== null} /></div> : <ValueDisplay value={displayValue(field)} label={field.label} />}
         </section>
         <section className="rounded-md border bg-muted/30 p-3">
           <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Originale WordPress</h4>
@@ -144,7 +147,7 @@ export default function FieldCard({ field, onCommand, onConflict }: FieldCardPro
         </section>
       </div>
 
-      {validationError && <p role="alert" className="mb-3 text-xs text-destructive">{validationError}</p>}
+      {validationError && <p id={errorId} role="alert" className="mb-3 text-xs text-destructive">{validationError}</p>}
       {conflictVersion !== null && (
         <Alert variant="destructive" className="mb-3">
           <AlertTitle>Versione modificata da un altro utente</AlertTitle>
@@ -161,7 +164,7 @@ export default function FieldCard({ field, onCommand, onConflict }: FieldCardPro
 
       <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <li>Origine: {originLabel(field.origin)}</li>
-        <li>Versione: {field.version ?? 'non presente'}</li>
+        <li>{field.version ? `Versione: ${field.version}` : 'Valore non ancora inserito'}</li>
         <li>Stato originale: {SOURCE_LABEL[field.sourceState]}</li>
         <li>Stato revisione: {reviewLabel(field.reviewStatus)}</li>
         <li className="inline-flex items-center gap-1"><ShieldCheck className="h-3 w-3" />{field.protectedOnReimport ? 'Protetto da re-import' : 'Non protetto da re-import'}</li>
@@ -173,7 +176,7 @@ export default function FieldCard({ field, onCommand, onConflict }: FieldCardPro
       <div className="flex flex-wrap gap-2 pt-3">
         {editing ? (
           <>
-            <Button size="sm" onClick={save} disabled={busy !== null || conflictVersion !== null}>{busy === 'update_field' && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}Salva</Button>
+            <Button size="sm" onClick={save} disabled={busy !== null || conflictVersion !== null || !dirty} title={!dirty ? 'Nessuna modifica da salvare' : undefined}>{busy === 'update_field' && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}Salva</Button>
             <Button size="sm" variant="outline" onClick={() => setEditing(false)} disabled={busy !== null}>Annulla</Button>
           </>
         ) : canUpdate ? (
