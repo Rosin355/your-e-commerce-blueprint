@@ -79,3 +79,19 @@ Prima di qualsiasi write inventory:
 - non inferire quantità mancanti;
 - non usare 0 come fallback di un missing;
 - richiedere approvazione esplicita prima del primo write.
+
+
+## 3B.1A — Inventory Admin read access blocker
+
+Il preflight è stato interrotto senza write. Dopo il rinnovo dell'accesso Shopify, il canale disponibile espone solo SKU, prezzo, stato e identificativi prodotto/variante. Non espone location, `inventoryItem.tracked`, `inventoryPolicy` o inventory levels per location.
+
+Conseguenze:
+- non è possibile spiegare in modo affidabile perché `OG_257799`, `OG_426481` e `OG_797988` risultino acquistabili;
+- non è possibile preparare un manifest inventory old→new senza inventare stato corrente;
+- lo stato provvisorio è **BLOCKED BY SHOPIFY CONFIG ACCESS**, che indica insufficienza del canale di lettura e non configurazione Shopify errata.
+
+Opzioni di sblocco:
+1. endpoint Edge Function Admin-only, strettamente read-only, che interroga Shopify Admin per locations, tracking, policy e levels;
+2. export CSV inventario da Shopify Admin da analizzare offline.
+
+Prima di qualsiasi write inventory resta obbligatorio un dry-run con quantità sorgente certa, location e old→new espliciti.
