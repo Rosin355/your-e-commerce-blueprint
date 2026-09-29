@@ -1,6 +1,12 @@
 # Online Garden — stato per il cliente
 
-Aggiornamento: 28 settembre 2026
+Aggiornamento: 29 settembre 2026
+
+## Stato go-live aggiornato
+
+Il backend Admin è ora operativo in modalità di collaudo e ha superato anche il test live di richieste ripetute: una richiesta identica non crea duplicati, mentre il riuso scorretto della stessa chiave viene bloccato. Il prodotto di prova è stato riportato al valore originale e le protezioni sono rimaste attive.
+
+Prima del go-live commerciale restano quattro blocchi principali: primo inserimento di un campo manuale ancora assente, controllo UX finale dell'Admin, collaudo completo Shopify/storefront/checkout e un ordine end-to-end controllato. La fixture per il primo inserimento è già stata verificata in sola lettura: `OG_365676`, campo `colore_fiore`, valore `viola`; non è stata ancora eseguita alcuna scrittura.
 
 ## In sintesi
 
