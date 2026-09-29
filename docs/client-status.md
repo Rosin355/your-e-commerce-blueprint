@@ -74,3 +74,7 @@ anticipo.
 La piattaforma è in una fase avanzata e controllata. Catalogo, Admin V2,
 sicurezza e Storage hanno una base stabile. La chiusura funzionale richiede il
 forward-fix sul replay, il test controllato della creazione e la conferma UX.
+
+## Aggiornamento 29/09/2026
+
+Il test controllato della creazione di un nuovo valore è riuscito: il colore del fiore "viola" è stato aggiunto al Gladiolo "Violet Summer" e resta come dato corretto. La parte server della fase 2C.1 è chiusa; resta la conferma UX.

@@ -287,3 +287,7 @@ PostgreSQL; il runtime non usa sleep, polling o retry automatici della write.
 - non introdurre export, backup, token o URL firmati nel repository;
 - non eseguire migration, import, AI o Shopify per collaudare una modifica UI;
 - non usare `OG_393883` per scritture senza autorizzazione esplicita.
+
+## Aggiornamento 29/09/2026 — 2C.1c
+
+Smoke live CREATE su OG_365676/`colore_fiore` = `viola` (v1, locked, lineage NULL) superato, con replay e IDEMPOTENCY_CONFLICT corretti. Backend 2C.1 chiuso; canary attivo. Dettagli in `docs/fase2c/backend-release-2C1.md`.
