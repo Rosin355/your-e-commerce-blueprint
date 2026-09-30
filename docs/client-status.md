@@ -8,6 +8,10 @@ Backend Admin e interfaccia Admin V2 sono ora pronti per il go-live. Sono passat
 
 Restano i controlli commerciali: catalogo Shopify/storefront, varianti, prezzi, immagini, spedizioni, checkout, email ordine, mobile e un ordine end-to-end controllato. La modalità `canary` resta attiva fino alla decisione finale di pubblicazione.
 
+La funzione richiesta “Migliora con AI” è stata implementata in ambiente di
+sviluppo ed è pronta per la review tecnica. **Non è ancora online**: il rilascio
+deve coordinare backend e interfaccia e sarà seguito da uno smoke controllato.
+
 ## In sintesi
 
 La nuova base catalogo e il pannello Admin sono online. I dati originali sono
@@ -34,6 +38,18 @@ quando una richiesta identica viene ripetuta.
 - backend per aggiornare i campi manuali protetti, secondo il report di
   rilascio Lovable.
 
+## Migliora con AI — cosa farà
+
+- il pulsante compare soltanto sui campi editoriali autorizzati dal server;
+- mostra una proposta separata dal valore corrente;
+- permette di modificare, rifiutare o accettare la proposta;
+- rifiutare non cambia il prodotto;
+- accettare usa la stessa protezione di versione e cronologia delle modifiche
+  manuali;
+- se un altro Admin modifica il campo nel frattempo, la proposta diventa
+  obsoleta e non può sovrascrivere il dato nuovo;
+- non pubblica su Shopify e non esegue elaborazioni massive.
+
 ## Cosa è protetto
 
 I cinque campi manuali principali — nome comune, ibridatore, colore del fiore,
@@ -45,35 +61,25 @@ fuori dall'editing libero della scheda prodotto.
 
 ## Cosa manca
 
-- collaudare separatamente la creazione di un valore manuale assente;
-- rendere il replay di una richiesta già riuscita riconoscibile come successo,
-  pur mantenendo l'attuale protezione contro i duplicati;
-- confermare in interfaccia il comportamento finale del pulsante Salva;
+- review e approvazione del codice “Migliora con AI”;
+- rilascio coordinato di endpoint, capability e frontend;
+- smoke con un campo non sensibile e una proposta controllata, senza Shopify;
 - decidere se collegare automaticamente i valori correnti agli originali
   WordPress quando l'abbinamento è certo;
-- progettare eventuali suggerimenti AI per singolo campo, sempre come proposta;
 - completare un collaudo commerciale separato di Shopify, storefront e checkout.
 
 ## Prossimo collaudo
 
-Prima di qualsiasi scrittura verranno presentati per approvazione:
-
-- prodotto e campo scelti;
-- valore attuale e valore di prova;
-- versione attesa;
-- modalità di ripristino.
-
-Il prodotto golden `OG_393883` non verrà modificato senza autorizzazione
-esplicita. La prima prova di update ha già confermato lock, lineage, history e
-assenza di AI/import/Shopify. Il prossimo test riguarda esclusivamente la
-creazione con versione iniziale zero e richiede un rollback approvato in
-anticipo.
+Prima dello smoke AI verranno concordati prodotto, campo, versione e contenuto
+atteso. La generazione non scriverà sul prodotto; l'eventuale accettazione sarà
+un passaggio umano separato. `OG_393883` resta escluso dalle scritture senza
+autorizzazione esplicita.
 
 ## Stato finale
 
 La piattaforma è in una fase avanzata e controllata. Catalogo, Admin V2,
-sicurezza e Storage hanno una base stabile. La chiusura funzionale richiede il
-forward-fix sul replay, il test controllato della creazione e la conferma UX.
+sicurezza e Storage hanno una base stabile. La funzione AI richiesta è pronta
+per review ma non è stata distribuita; resta un gate prima dell'handoff cliente.
 
 ## Aggiornamento 29/09/2026
 

@@ -86,7 +86,12 @@ export type FieldCapabilityReason =
   | 'current_value_missing'
   | 'current_value_locked'
   | 'legacy_review_not_required'
-  | 'phase_2c';
+  | 'phase_2c'
+  | 'ai_not_allowed'
+  | 'manual_only'
+  | 'structural_field'
+  | 'unsupported_ai_strategy'
+  | 'empty_or_unsupported_value';
 
 export interface FieldCapabilities {
   definitionEditable: boolean;
@@ -135,6 +140,18 @@ export interface HistoryEntry {
   created_at: string;
 }
 
+export interface AdminAiSuggestion {
+  id: string;
+  productId: string;
+  fieldKey: string;
+  suggestedValue: unknown;
+  baseVersion: number;
+  promptVersion: string;
+  model: string | null;
+  status: 'pending' | 'accepted' | 'rejected' | 'stale';
+  createdAt: string;
+}
+
 const MESSAGES: Record<string, string> = {
   UNAUTHENTICATED: 'Sessione scaduta. Effettua di nuovo l’accesso.',
   FORBIDDEN: 'Il tuo account non ha accesso a questa sezione.',
@@ -145,10 +162,19 @@ const MESSAGES: Record<string, string> = {
   IDEMPOTENCY_CONFLICT: 'Richiesta duplicata con contenuto diverso. Ricarica la pagina e riprova.',
   FIELD_NOT_EDITABLE: 'Questo campo non è modificabile.',
   REVIEW_STATE_INVALID: 'Il valore non è più in attesa di verifica.',
+  AI_NOT_ALLOWED: 'Questo campo non è abilitato a una proposta AI sicura.',
+  SUGGESTION_STALE: 'Il prodotto è stato modificato dopo la creazione della proposta.',
+  SUGGESTION_RESOLVED: 'La proposta AI è già stata risolta.',
+  RATE_LIMITED: 'Sono state richieste troppe proposte in poco tempo. Attendi e riprova.',
+  AI_NOT_CONFIGURED: 'Il servizio AI non è configurato.',
+  AI_TIMEOUT: 'Il servizio AI non ha risposto in tempo.',
+  AI_PROVIDER_ERROR: 'Il servizio AI non è disponibile. Riprova più tardi.',
+  MALFORMED_AI_OUTPUT: 'La proposta ricevuta non è in un formato sicuro.',
   INTERNAL_ERROR: 'Si è verificato un problema. Riprova tra qualche istante.',
 };
 
-export async function callAdminApi<T = unknown>(
+async function invokeWithAdminSession<T>(
+  functionName: 'product-admin-api' | 'product-admin-ai',
   body: Record<string, unknown>,
   signal?: AbortSignal,
 ): Promise<T> {
@@ -156,15 +182,13 @@ export async function callAdminApi<T = unknown>(
   const token = sessionData.session?.access_token;
   if (!token) throw new AdminApiError('UNAUTHENTICATED', MESSAGES.UNAUTHENTICATED);
 
-  const { data, error } = await supabase.functions.invoke('product-admin-api', {
+  const { data, error } = await supabase.functions.invoke(functionName, {
     body,
     headers: { Authorization: `Bearer ${token}` },
   });
 
   if (signal?.aborted) throw new DOMException('Richiesta annullata', 'AbortError');
-
   if (error) {
-    // La Edge Function restituisce il codice applicativo nel corpo anche con status != 200.
     const ctx = (error as { context?: Response }).context;
     if (ctx && typeof ctx.json === 'function') {
       try {
@@ -181,14 +205,57 @@ export async function callAdminApi<T = unknown>(
     }
     throw new AdminApiError('INTERNAL_ERROR', MESSAGES.INTERNAL_ERROR);
   }
-
   if (data && (data as { ok?: boolean }).ok === false) {
     const code = (data as { error?: { code?: string } }).error?.code ?? 'INTERNAL_ERROR';
     const details = (data as { error?: { details?: Record<string, unknown> } }).error?.details;
     throw new AdminApiError(code, MESSAGES[code] ?? MESSAGES.INTERNAL_ERROR, details);
   }
-
   return data as T;
+}
+
+export async function callAdminApi<T = unknown>(
+  body: Record<string, unknown>,
+  signal?: AbortSignal,
+): Promise<T> {
+  return invokeWithAdminSession<T>('product-admin-api', body, signal);
+}
+
+export async function callAdminAiApi<T = unknown>(body: Record<string, unknown>): Promise<T> {
+  return invokeWithAdminSession<T>('product-admin-ai', body);
+}
+
+export async function getAiSuggestions(productId: string) {
+  return callAdminAiApi<{ ok: true; suggestions: AdminAiSuggestion[] }>({
+    action: 'get_ai_suggestions',
+    productId,
+  });
+}
+
+export async function generateAiSuggestion(input: { productId: string; fieldKey: string; baseVersion: number }) {
+  return callAdminAiApi<{ ok: true; suggestion: AdminAiSuggestion; replayed: boolean }>({
+    action: 'generate_ai_suggestion',
+    ...input,
+  });
+}
+
+export async function rejectAiSuggestion(suggestionId: string) {
+  return callAdminAiApi<{ ok: true; suggestion: AdminAiSuggestion }>({
+    action: 'reject_ai_suggestion',
+    suggestionId,
+  });
+}
+
+export async function acceptAiSuggestion(input: {
+  suggestionId: string;
+  value: unknown;
+  expectedVersion: number;
+  idempotencyKey: string;
+}) {
+  return callAdminAiApi<{
+    ok: true;
+    result: Record<string, unknown>;
+    suggestion: AdminAiSuggestion;
+  }>({ action: 'accept_ai_suggestion', ...input });
 }
 
 /** F7 — invio di un singolo comando campo; la chiave rende l'invio ripetibile senza duplicati. */

@@ -7,7 +7,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { toast } from '@/hooks/useToast';
 import ValueDisplay from './ValueDisplay';
 import FieldEditor from './FieldEditor';
-import { AdminApiError, type AdminField, type FieldCommandAction } from '../lib/adminApi';
+import AiSuggestionCard from './AiSuggestionCard';
+import { AdminApiError, type AdminAiSuggestion, type AdminField, type FieldCommandAction } from '../lib/adminApi';
 import { isEditorValueSupported, normalizeEditorValue, parseFaqValue } from '../lib/fieldValueCodecs';
 import { ENTITY_LABEL, isLegacyAi, isManualField, LEGACY_AI_NOTICE, originLabel, reviewLabel } from '../lib/labels';
 
@@ -38,15 +39,24 @@ const BLOCK_REASON: Record<AdminField['capabilities']['updateBlockReason'], stri
   current_value_locked: 'Il valore è bloccato e non può essere modificato con il tuo ruolo.',
   legacy_review_not_required: 'Il valore non richiede una revisione legacy.',
   phase_2c: 'Funzione prevista per la Fase 2C.',
+  ai_not_allowed: 'Il registro non consente proposte AI per questo campo.',
+  manual_only: 'Questo campo è protetto e può essere modificato solo manualmente.',
+  structural_field: 'I campi strutturali non possono essere modificati dall’AI.',
+  unsupported_ai_strategy: 'Non esiste ancora una strategia AI sicura per questo campo.',
+  empty_or_unsupported_value: 'Serve un valore corrente supportato da migliorare.',
 };
 
 export interface FieldCardProps {
   field: AdminField;
   onCommand?: (input: { action: FieldCommandAction; fieldKey: string; value?: unknown; expectedVersion: number }) => Promise<{ ok: boolean; code?: string; result?: Record<string, unknown> }>;
   onConflict?: () => Promise<unknown> | unknown;
+  aiSuggestion?: AdminAiSuggestion;
+  onGenerateAi?: (input: { fieldKey: string; baseVersion: number }) => Promise<AdminAiSuggestion>;
+  onRejectAi?: (suggestionId: string) => Promise<unknown>;
+  onAcceptAi?: (input: { suggestionId: string; value: unknown; expectedVersion: number; idempotencyKey: string }) => Promise<unknown>;
 }
 
-export default function FieldCard({ field, onCommand, onConflict }: FieldCardProps) {
+export default function FieldCard({ field, onCommand, onConflict, aiSuggestion, onGenerateAi, onRejectAi, onAcceptAi }: FieldCardProps) {
   const legacyAi = isLegacyAi(field);
   const manual = isManualField(field);
   const editorSupported = isEditorValueSupported(field, field.value);
@@ -189,8 +199,17 @@ export default function FieldCard({ field, onCommand, onConflict }: FieldCardPro
         )}
         {legacyAi && field.capabilities.canConfirmLegacy && <Button size="sm" variant="outline" onClick={() => void run('confirm_legacy_value')} disabled={busy !== null}>{busy === 'confirm_legacy_value' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Check className="mr-1 h-3.5 w-3.5" />}Mantieni valore</Button>}
         {legacyAi && field.capabilities.canRejectLegacy && <Button size="sm" variant="outline" onClick={() => void run('reject_legacy_value')} disabled={busy !== null}>{busy === 'reject_legacy_value' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <X className="mr-1 h-3.5 w-3.5" />}Rifiuta valore</Button>}
-        {field.capabilities.aiAllowed && <Tooltip><TooltipTrigger asChild><span tabIndex={0} className="inline-flex rounded-md"><Button size="sm" variant="outline" disabled>Migliora con AI</Button></span></TooltipTrigger><TooltipContent>L’AI resta una proposta ed è prevista per la Fase 2C.</TooltipContent></Tooltip>}
       </div>
+      {field.capabilities.canSuggestAi && onGenerateAi && onRejectAi && onAcceptAi && onConflict && (
+        <AiSuggestionCard
+          field={field}
+          suggestion={aiSuggestion}
+          onGenerate={onGenerateAi}
+          onReject={onRejectAi}
+          onAccept={onAcceptAi}
+          onRefresh={onConflict}
+        />
+      )}
     </article>
   );
 }

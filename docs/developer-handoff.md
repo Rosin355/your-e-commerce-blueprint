@@ -12,6 +12,8 @@ Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 - Admin V2 UX: **GO-LIVE READY**; due P3 corretti (dirty-save e label valore assente).
 - Non bloccanti: cronologia con field_key tecnici, ruolo Editor non provato live, mismatch cosmetico validate.
 - Prossimi gate: QA commerciale Shopify/storefront → ordine E2E → verifica anomaly entity type → uscita canary/go-live.
+- Fase 2D: `codex/admin-ai-field-suggestions` su base `1931352`, **code ready
+  for review e non deployata**. Nessuna migration e nessuna call AI live.
 
 ## 1. Architettura
 
@@ -33,6 +35,7 @@ product_source_snapshots ──► product_current_values ──► Admin V2
 products = identità canonica
 product_field_definitions = contratto dei campi
 product_ai_suggestions = proposte separate, non applicazioni automatiche
+product-admin-ai = generate/reject/accept senza side effect Shopify
 ```
 
 Non creare `product_catalog_entities`: `products` è l'unica tabella canonica.
@@ -127,19 +130,39 @@ Regole:
 I cinque campi manuali protetti sono `nome_comune`, `ibridatore`,
 `colore_fiore`, `colore_foglia` e `curiosita`.
 
-## 5. AI
+## 5. AI field-by-field — Fase 2D
 
-Admin V2 non deve invocare le pipeline AI legacy. Un'integrazione futura deve:
+Endpoint: `supabase/functions/product-admin-ai/`.
 
-1. creare una riga in `product_ai_suggestions`;
-2. registrare `base_version` e `prompt_version`;
-3. mostrare confronto proposta/corrente;
-4. richiedere approvazione umana;
-5. applicare tramite lo stesso comando versionato;
-6. non proporre AI per `manual_only` o campi strutturali.
+Azioni:
 
-Non copiare nel nuovo flusso funzioni legacy che pubblicano direttamente su
-Shopify.
+- `get_ai_suggestions`: legge le pending e deriva `stale` confrontando
+  `base_version` con la versione corrente;
+- `generate_ai_suggestion`: ricostruisce contesto trusted server-side, chiama
+  una sola volta il provider e inserisce una proposta separata;
+- `reject_ai_suggestion`: risolve la proposta come `discarded` senza history
+  prodotto;
+- `accept_ai_suggestion`: usa `executeCommand` con action `update_field`,
+  `expectedVersion=base_version` e idempotency key; solo dopo il successo marca
+  la proposta `accepted`.
+
+La capability `canSuggestAi` è calcolata da `product-admin-api`: richiede campo
+visibile/editabile, `ai_allowed`, non `manual_only`, non strutturale,
+applicabile all'entity, strategia supportata, current value non locked e formato
+sicuro. In canary valgono anche ruolo Admin/Tech Admin e allowlist corrente.
+
+Il provider usa `LOVABLE_API_KEY` soltanto server-side, timeout 12 secondi,
+output strutturato e limite di cinque generazioni/minuto per attore. Il browser
+non invia prompt, modello o contesto. Prompt completi e segreti non sono loggati.
+
+`create-product-ai`, AI Writer, `shopify-admin-proxy` e pipeline bulk non sono
+importati. Non esiste fallback mock in produzione e non è presente alcuna
+chiamata Shopify.
+
+Lo schema esistente è sufficiente: nessuna migration. Gli stati DB
+`discarded`/`superseded` sono presentati all'UI come `rejected`/`stale`; il
+campo `model` registra `provider/model`, `prompt_hint` la strategia e
+`prompt_version` la versione del prompt.
 
 ## 6. Shopify e storefront
 
@@ -224,6 +247,13 @@ verificare replay sequenziale e sovrapposto in entrambe le finestre, conflitto
 idempotente e nuova command stale. La RPC resta il gate atomico; ogni ramo
 concorrente esegue al massimo un re-check read-only e nessun retry della write.
 
+Per 2D il rilascio deve essere coordinato: (1) deploy del nuovo
+`product-admin-ai`; (2) deploy di `product-admin-api` dalla stessa revisione;
+(3) smoke read-only delle capability e dell'elenco suggestion; (4) frontend;
+(5) generazione canary su fixture approvata; (6) STOP prima di “Accetta” finché
+la write non è autorizzata. Non distribuire il frontend se uno dei due endpoint
+non è disponibile.
+
 ### Rollback
 
 - frontend: ripubblicare l'ultima versione compatibile;
@@ -270,6 +300,7 @@ PostgreSQL; il runtime non usa sleep, polling o retry automatici della write.
 - `docs/phase2b-admin-v2-field-editing.md`: editor e capability;
 - `docs/fase2b/publish-frontend-2B6.md`: rilascio frontend;
 - `docs/fase2c/backend-release-2C1.md`: release backend 2C.1;
+- `docs/fase2d/admin-ai-field-suggestions.md`: architettura, test e rollout 2D;
 - `docs/fase2c/gate-c-removal-STORAGE-003.md`: chiusura Storage;
 - `supabase/functions/product-admin-api/`: API Admin;
 - `supabase/migrations/20260926150609_allow_admin_manual_locked_field_edits.sql`:

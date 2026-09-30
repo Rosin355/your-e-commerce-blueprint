@@ -3,7 +3,11 @@ import { useEffect, useState } from 'react';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AdminApiError,
+  acceptAiSuggestion,
   callAdminApi,
+  generateAiSuggestion,
+  getAiSuggestions,
+  rejectAiSuggestion,
   sendFieldCommand,
   type AdminContext,
   type DashboardStats,
@@ -83,6 +87,45 @@ export function useProductDetail(productId?: string) {
     enabled: !!productId,
     staleTime: 30_000,
     retry,
+  });
+}
+
+export function useAiSuggestions(productId?: string) {
+  return useQuery({
+    queryKey: ['admin', 'ai-suggestions', productId],
+    queryFn: async () => (await getAiSuggestions(productId!)).suggestions,
+    enabled: !!productId,
+    staleTime: 15_000,
+    retry,
+  });
+}
+
+export function useGenerateAiSuggestion(productId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { fieldKey: string; baseVersion: number }) =>
+      generateAiSuggestion({ productId: productId!, ...input }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'ai-suggestions', productId] }),
+  });
+}
+
+export function useRejectAiSuggestion(productId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (suggestionId: string) => rejectAiSuggestion(suggestionId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'ai-suggestions', productId] }),
+  });
+}
+
+export function useAcceptAiSuggestion(productId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: acceptAiSuggestion,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'ai-suggestions', productId] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product', productId] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
+    },
   });
 }
 

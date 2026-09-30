@@ -10,6 +10,12 @@ Frontend e-commerce (tema piante) costruito con React + Vite, Supabase/Lovable C
 
 Online Garden è in fase finale di preparazione al go-live. Il backend Admin V2 2C.1 è chiuso lato server: update, replay idempotente, conflitto idempotente, ripristino e CREATE live con `expectedVersion=0` sono tutti PASS. Anche il QA finale Admin V2/UX è **GO-LIVE READY**. Restano i gate commerciali Shopify/storefront, l’ordine end-to-end controllato e la decisione esplicita di uscita dal canary.
 
+La Fase 2D “Migliora con AI” è implementata su branch isolato dalla baseline
+`origin/main@193135224886e8d022e17ddf6e1b4d16f9dc8629` ed è **CODE READY FOR REVIEW,
+NON DEPLOYATA**. La generazione crea una proposta separata per campo; soltanto
+“Accetta” passa dal comando versionato Admin V2. Non esistono chiamate Shopify
+nel nuovo endpoint.
+
 ### Completato ad oggi
 
 | Area | Stato |
@@ -25,18 +31,20 @@ Online Garden è in fase finale di preparazione al go-live. Il backend Admin V2 
 | `IDEMPOTENCY_CONFLICT` live | ✅ PASS |
 | CREATE live `expectedVersion=0` | ✅ PASS su `OG_365676.colore_fiore = "viola"` |
 | QA finale Admin V2 / UX | ✅ GO-LIVE READY |
+| Admin AI field-by-field 2D | 🟡 Code ready, review/deploy/smoke mancanti |
 
 ### Gate mancanti prima del Go-Live commerciale
 
-1. **QA Shopify/storefront commerciale**: prodotti e varianti pubblicati correttamente, prezzi, immagini, disponibilità, regole spedizione piante/bulbi, checkout ed email ordine.
-2. **Ordine end-to-end controllato** in modalità appropriata, con verifica mobile e ritorno dal checkout.
-3. **Revisione delle anomalie entity type** per `OG_152965`, `OG_891874`, `OG_758263` prima di qualunque variazione strutturale.
-4. **Decisione finale di uscita dal canary / go-live**, solo dopo i gate precedenti.
+1. **Review e rilascio coordinato Fase 2D**: Edge `product-admin-ai`, capability
+   `product-admin-api`, frontend della stessa revisione e smoke senza publish.
+2. **QA Shopify/storefront commerciale**: prodotti e varianti pubblicati correttamente, prezzi, immagini, disponibilità, regole spedizione piante/bulbi, checkout ed email ordine.
+3. **Ordine end-to-end controllato** in modalità appropriata, con verifica mobile e ritorno dal checkout.
+4. **Revisione delle anomalie entity type** per `OG_152965`, `OG_891874`, `OG_758263` prima di qualunque variazione strutturale.
+5. **Decisione finale di uscita dal canary / go-live**, solo dopo i gate precedenti.
 
 ### Non bloccanti per il primo Go-Live
 
 - backfill lineage dei 14.295 `MATCH_READY` (opzionale);
-- AI field-by-field come proposta versionata (fase successiva, mai overwrite automatico);
 - miglioramenti UX non critici (nomi tecnici nella cronologia, ruolo Editor non provato live, mismatch cosmetico su `validate_field_update`) e cleanup dei job storici inattivi.
 
 Per il dettaglio operativo usare:
@@ -44,6 +52,7 @@ Per il dettaglio operativo usare:
 - [Stato cliente](docs/client-status.md)
 - [Developer handoff](docs/developer-handoff.md)
 - [Release backend 2C.1](docs/fase2c/backend-release-2C1.md)
+- [Admin AI field-by-field 2D](docs/fase2d/admin-ai-field-suggestions.md)
 - [Checklist prelancio](docs/prelaunch-checklist.md)
 
 ## Stack Tecnologico

@@ -15,17 +15,21 @@ Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 - Due P3 UI corretti: Salva solo su dirty state; "Valore non ancora inserito" al posto di "Versione: 0". Messaggi tecnici ripuliti e errori collegati ai field.
 - Non bloccanti: cronologia con nomi tecnici, ruolo Editor non provato live, mismatch cosmetico di `validate_field_update`.
 - `OG_393883` non modificato. Modalità `canary` ancora attiva.
+- Fase 2D Admin AI field-by-field: **CODE READY FOR REVIEW / NON DEPLOYATA** su
+  baseline `origin/main@193135224886e8d022e17ddf6e1b4d16f9dc8629`; nessuna call AI live,
+  nessuna migration e nessuna write Shopify.
 
 ### Gate mancanti per il go-live
 
-1. QA commerciale Shopify/storefront: prodotti e varianti, prezzi, immagini, disponibilità, spedizioni, checkout, email ordine, mobile.
-2. Ordine end-to-end controllato.
-3. Verifica delle anomalie entity type `OG_152965`, `OG_891874`, `OG_758263` prima di modifiche strutturali.
-4. Decisione esplicita di uscita dal canary e go-live.
+1. Review, rilascio coordinato e smoke controllato della Fase 2D.
+2. QA commerciale Shopify/storefront: prodotti e varianti, prezzi, immagini, disponibilità, spedizioni, checkout, email ordine, mobile.
+3. Ordine end-to-end controllato.
+4. Verifica delle anomalie entity type `OG_152965`, `OG_891874`, `OG_758263` prima di modifiche strutturali.
+5. Decisione esplicita di uscita dal canary e go-live.
 
 ### Non bloccanti
 
-Backfill lineage 14.295 `MATCH_READY`, AI field-by-field, ruolo Editor live e miglioramenti cosmetici possono essere pianificati dopo il primo go-live.
+Backfill lineage 14.295 `MATCH_READY`, ruolo Editor live e miglioramenti cosmetici possono essere pianificati dopo il primo go-live. L'AI field-by-field è invece un requisito di handoff: il codice è pronto ma non è ancora live.
 
 ## 1. Executive summary
 
@@ -78,7 +82,7 @@ diretta Codex.
 | Storage firmato | **CLOSED** | Autorizzazione caller e limiti bucket/percorso introdotti; non ripristinare la versione vulnerabile. |
 | Smart Sync | **LIVE / GATE A-B-C PASS** | PR #12 integrata; CSV nuovi in `csv-pipeline`, immagini ancora pubbliche in `sync/product-images/**`; CSV pubblico rimosso. |
 | Shopify | **SEPARATO** | Nessun salvataggio Admin V2 attiva Shopify. Sync e pubblicazione commerciale richiedono task e approvazione separati. |
-| AI | **NON COLLEGATA AD ADMIN V2** | AI legacy preservata; `product_ai_suggestions` non è ancora un flusso cliente field-by-field. Nessuna applicazione automatica. |
+| AI | **2D CODE READY / NON LIVE** | Endpoint separato, capability server-side, UX proposta/modifica/rifiuta/accetta e stale handling implementati offline. AI legacy preservata; nessuna applicazione automatica o Shopify. |
 | Storefront/checkout | **FUORI DALLE MODIFICHE 2C.1** | Nessun cambiamento intenzionale. Collaudo commerciale end-to-end ancora da pianificare. |
 
 ## 4. Fasi, PR e stato live
@@ -101,6 +105,7 @@ diretta Codex.
 | 2C.1 manual locked backend | BACKEND LIVE; SMOKE PARZIALE | PR #15, merge `3f674b4`; Lovable `9b6ed9f`–`6db554d` | Sì, secondo report Lovable | PostgreSQL isolato 10/10; update/rollback live PASS, create non eseguita, replay semantico da correggere. |
 | 2C.1a replay idempotente | MERGED, NON DEPLOYATA | PR #17, merge `98525ee`; commit `29adddb` | No | Replay sequenziale corretto; race concorrente riprodotta offline, quindi non distribuire da sola. |
 | 2C.1b race idempotente | READY FOR RE-REVIEW | PR #18, branch `codex/admin-idempotent-race-fix` | No | Finding P1 pre-RPC corretto; test request-handler/PostgreSQL concorrente PASS. Nessuna migration, nessun deploy. |
+| 2D Admin AI field-by-field | CODE READY FOR REVIEW | branch `codex/admin-ai-field-suggestions`, base `1931352` | No | 22/22 test AI mirati, catalogo 232/232, typecheck/build/deno check PASS; nessuna call AI live. |
 
 Le PR #14 e #15 sono state mergiate su `main`. Il merge ha integrato report,
 test e documentazione già revisionati; non costituisce una nuova applicazione

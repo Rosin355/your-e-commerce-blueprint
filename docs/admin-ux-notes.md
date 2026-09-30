@@ -12,6 +12,29 @@ Correzioni P3 applicate: Salva solo su dirty state; "Valore non ancora inserito"
 
 Coperti da codice/test, non live: VERSION_CONFLICT UX, replay/idempotency conflict UI, FAQ editor e FAQ legacy/opache. Non bloccanti: nomi tecnici in cronologia e ruolo Editor non provato live.
 
+## Fase 2D — “Migliora con AI” (code ready, non live)
+
+Per un campo con `canSuggestAi=true` la card mostra “Migliora con AI”. Il click
+non cambia il prodotto: apre una proposta con confronto Attuale/Proposta e le
+azioni Modifica proposta, Rifiuta e Accetta.
+
+| Stato | Esperienza |
+|---|---|
+| idle | pulsante “Migliora con AI” |
+| loading | “Sto preparando una proposta…” con `aria-live` |
+| proposal | confronto a due colonne da tablet/desktop, una colonna su mobile |
+| editing | stesso editor tipizzato del campo; FAQ come domanda/risposta |
+| accepted | conferma salvataggio e refresh del valore/versione |
+| rejected | conferma che il prodotto non è stato modificato |
+| stale | avviso, “Scarta” e “Genera nuova proposta”; nessun Accetta |
+| provider error | errore leggibile, proposta/current invariati |
+
+Il bottone non compare per i cinque campi manuali, identità, prezzo,
+inventario, Shopify, relazioni parent/variation o campi senza strategia sicura.
+Il layout usa griglie responsive (`md:grid-cols-2`), azioni `flex-wrap`, label
+esplicite, focus nativo dei controlli e regioni `aria-live`; la verifica in
+questo task è offline/statica + build, non uno smoke browser live.
+
 
 ## Obiettivo dell'interfaccia
 
