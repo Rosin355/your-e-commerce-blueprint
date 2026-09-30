@@ -253,3 +253,13 @@ applicata finché la PR e il piano di rilascio non sono approvati.
 - Shopify/storefront: **NON TOCCATI**.
 
 **2D ADMIN AI — CODE READY FOR REVIEW**
+
+## Fase 2D.4 — Controlled live rollout (30/09/2026) — BLOCKED
+
+- main = `d16b575` (merge PR #22). Migration `20260930152426_harden_product_admin_ai_concurrency.sql` (SHA-256 `f6889fab…a9bb2`) applicata **una volta**, byte-identica, via Lovable → Drizzle `0003` (registro 3 → 4 voci).
+- Pre/post: suggestions 0/0, current values 24.467/24.467, history 5/5, command log 5/5, prodotti 2.706, reservation 0.
+- PASS: tabella, 3 indici, RLS attiva, anon/authenticated senza privilegi su tabella e RPC; RPC firma `(uuid, uuid, text, integer)`, SECURITY INVOKER, `search_path=''`, EXECUTE solo service_role.
+- **FAIL**: service_role ha `arwdDxtm` (anche DELETE/TRUNCATE/REFERENCES/TRIGGER/MAINTAIN) invece di soli SELECT/INSERT/UPDATE, per default privileges dello schema `public`; la migration non fa `revoke all ... from service_role`.
+- Nota preesistente: `product_ai_suggestions` concede `arwdDxtm` ad `authenticated` (mitigato da RLS, da verificare).
+- Per regola del gate: **Edge Functions NON deployate**, nessuno smoke, frontend non pubblicato, AI non chiamata, Shopify intatto, canary attivo.
+- Stato: 2D BACKEND NOT LIVE — migration applicata, funzioni non distribuite.
