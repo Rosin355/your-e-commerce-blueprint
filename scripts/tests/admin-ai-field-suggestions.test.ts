@@ -25,6 +25,7 @@ import {
 const PRODUCT_ID = '11111111-1111-4111-8111-111111111111';
 const SUGGESTION_ID = '22222222-2222-4222-8222-222222222222';
 const ACTOR_ID = '33333333-3333-4333-8333-333333333333';
+const RESERVATION_ID = '55555555-5555-4555-8555-555555555555';
 
 function def(overrides: Partial<FieldDefinition> = {}): FieldDefinition {
   return {
@@ -62,9 +63,12 @@ class FakeRepo implements AiRepository {
   current: CurrentValueRow | null = row();
   pending: AiSuggestionRow[] = [];
   stored = new Map<string, AiSuggestionRow>();
-  recent = 0;
   inserted: AiSuggestionRow[] = [];
   resolutions: Array<{ id: string; status: string }> = [];
+  reservationResult: Awaited<ReturnType<AiRepository['reserveGeneration']>> = {
+    code: 'RESERVED', reservationId: RESERVATION_ID,
+  };
+  completedReservations: Array<{ id: string; outcome: string; suggestionId?: string }> = [];
   executeCalls = 0;
   reconcileResult: Record<string, unknown> | null = null;
   executeResult: Record<string, unknown> = { ok: true, code: 'APPLIED', version: 2 };
@@ -79,7 +83,12 @@ class FakeRepo implements AiRepository {
   async getOriginal() { return this.original; }
   async listPending() { return this.pending; }
   async getSuggestion(id: string) { return this.stored.get(id) ?? null; }
-  async countRecent() { return this.recent; }
+  async reserveGeneration() { return this.reservationResult; }
+  async completeGenerationReservation(
+    id: string, _actor: string, outcome: 'completed' | 'failed', suggestionId?: string,
+  ) {
+    this.completedReservations.push({ id, outcome, suggestionId });
+  }
   async insertSuggestion(input: Omit<AiSuggestionRow, 'id' | 'created_at' | 'resolved_at' | 'resolved_by'>) {
     const created = suggestion({ ...input, id: SUGGESTION_ID });
     this.inserted.push(created);
@@ -90,8 +99,10 @@ class FakeRepo implements AiRepository {
   async resolveSuggestion(id: string, status: 'accepted' | 'discarded' | 'superseded') {
     this.resolutions.push({ id, status });
     const existing = this.stored.get(id);
-    if (existing) existing.status = status;
+    if (!existing || existing.status !== 'pending') return false;
+    existing.status = status;
     this.pending = this.pending.filter((item) => item.id !== id);
+    return true;
   }
   async reconcileCommand(input: Record<string, unknown>) {
     this.lastCommand = input;
@@ -108,7 +119,7 @@ const provider = async () => ({ value: 'Titolo migliorato', provider: 'lovable' 
 
 test('1. ai_allowed=true espone la capability solo per un valore supportato', () => {
   const capability = calculateFieldCapabilities(def(), row(), 'simple', {
-    roles: ['admin'], writesEnabled: true, writeMode: 'full',
+    roles: ['admin'], writesEnabled: true, writeMode: 'full', productActive: true,
   });
   assert.equal(capability.canSuggestAi, true);
   assert.equal(capability.aiBlockReason, 'allowed');
@@ -327,4 +338,153 @@ test('23. UX contiene stati responsive/accessibili senza JSON grezzo', () => {
 test('24. output con markup attivo viene rifiutato prima del salvataggio', () => {
   const result = validateSuggestedValue(def(), strategyForField('title')!, '<script>alert(1)</script>');
   assert.equal(result.ok, false);
+});
+
+test('25. lo slot atomico è riservato prima della call provider', async () => {
+  const repo = new FakeRepo();
+  repo.reservationResult = { code: 'RATE_LIMITED' };
+  let providerCalls = 0;
+  await assert.rejects(
+    generateAiSuggestion(repo, {
+      actor: ACTOR_ID, productId: PRODUCT_ID, fieldKey: 'title', baseVersion: 1,
+    }, async () => {
+      providerCalls += 1;
+      return provider();
+    }),
+    (error: unknown) => error instanceof AiServiceError && error.code === 'RATE_LIMITED',
+  );
+  assert.equal(providerCalls, 0);
+  assert.equal(repo.inserted.length, 0);
+});
+
+test('26. una reservation equivalente in corso non duplica la call provider', async () => {
+  const repo = new FakeRepo();
+  repo.reservationResult = {
+    code: 'GENERATION_IN_PROGRESS', reservationId: RESERVATION_ID, suggestionId: null,
+  };
+  let providerCalls = 0;
+  await assert.rejects(
+    generateAiSuggestion(repo, {
+      actor: ACTOR_ID, productId: PRODUCT_ID, fieldKey: 'title', baseVersion: 1,
+    }, async () => {
+      providerCalls += 1;
+      return provider();
+    }),
+    (error: unknown) =>
+      error instanceof AiServiceError && error.code === 'GENERATION_IN_PROGRESS',
+  );
+  assert.equal(providerCalls, 0);
+});
+
+test('27. exact replay FAQ precede il gate mutabile sul valore ormai vuoto', async () => {
+  const repo = new FakeRepo();
+  repo.definition = def({ key: 'faq', data_type: 'json', editor_type: 'json' });
+  repo.current = row({ field_key: 'faq', value_text: null, value_json: [], version: 2 });
+  repo.stored.set(SUGGESTION_ID, suggestion({
+    field_key: 'faq', suggestion_text: null,
+    suggestion_json: [{ question: 'Domanda?', answer: 'Risposta.' }], status: 'accepted',
+  }));
+  repo.reconcileResult = { ok: true, code: 'APPLIED', version: 2, replayed: true };
+  const result = await acceptAiSuggestion(repo, {
+    actor: ACTOR_ID, suggestionId: SUGGESTION_ID, value: [], expectedVersion: 1,
+    idempotencyKey: 'accept-key-replay-before-eligibility', canaryOnly: true,
+  });
+  assert.equal(result.result.replayed, true);
+  assert.equal(repo.executeCalls, 0);
+});
+
+test('28. un accept concorrente non degrada accepted a superseded', async () => {
+  const repo = new FakeRepo();
+  const initial = suggestion();
+  repo.stored.set(SUGGESTION_ID, initial);
+  repo.executeCommand = async () => {
+    repo.executeCalls += 1;
+    repo.stored.set(SUGGESTION_ID, suggestion({ status: 'accepted' }));
+    return { ok: false, code: 'VERSION_CONFLICT', currentVersion: 2 };
+  };
+  await assert.rejects(
+    acceptAiSuggestion(repo, {
+      actor: ACTOR_ID, suggestionId: SUGGESTION_ID, value: 'Titolo revisionato', expectedVersion: 1,
+      idempotencyKey: 'accept-key-concurrent-status',
+    }),
+    (error: unknown) => error instanceof AiServiceError && error.code === 'SUGGESTION_STALE',
+  );
+  assert.equal(repo.stored.get(SUGGESTION_ID)?.status, 'accepted');
+  assert.equal(repo.executeCalls, 1);
+});
+
+test('29. due accept concorrenti applicano una sola history e preservano accepted', async () => {
+  const repo = new FakeRepo();
+  repo.stored.set(SUGGESTION_ID, suggestion());
+  repo.getSuggestion = async (id: string) => {
+    const stored = repo.stored.get(id);
+    return stored ? structuredClone(stored) : null;
+  };
+
+  let executeAttempts = 0;
+  let appliedWrites = 0;
+  let historyWrites = 0;
+  let releaseBoth!: () => void;
+  const bothEntered = new Promise<void>((resolve) => { releaseBoth = resolve; });
+  repo.executeCommand = async () => {
+    const attempt = ++executeAttempts;
+    if (executeAttempts === 2) releaseBoth();
+    await bothEntered;
+    if (attempt === 1) {
+      appliedWrites += 1;
+      historyWrites += 1;
+      return { ok: true, code: 'APPLIED', version: 2 };
+    }
+    return { ok: false, code: 'VERSION_CONFLICT', currentVersion: 2 };
+  };
+
+  const outcomes = await Promise.allSettled([
+    acceptAiSuggestion(repo, {
+      actor: ACTOR_ID, suggestionId: SUGGESTION_ID, value: 'Titolo concorrente', expectedVersion: 1,
+      idempotencyKey: 'accept-concurrent-key-a',
+    }),
+    acceptAiSuggestion(repo, {
+      actor: ACTOR_ID, suggestionId: SUGGESTION_ID, value: 'Titolo concorrente', expectedVersion: 1,
+      idempotencyKey: 'accept-concurrent-key-b',
+    }),
+  ]);
+
+  assert.equal(outcomes.filter((item) => item.status === 'fulfilled').length, 1);
+  assert.equal(outcomes.filter((item) => item.status === 'rejected').length, 1);
+  assert.equal(appliedWrites, 1);
+  assert.equal(historyWrites, 1);
+  assert.equal(repo.stored.get(SUGGESTION_ID)?.status, 'accepted');
+  assert.equal(repo.resolutions.some((item) => item.status === 'superseded'), false);
+});
+
+test('30. tutte le transizioni di stato DB sono condizionate a pending', () => {
+  const source = readFileSync('supabase/functions/product-admin-ai/service.ts', 'utf8');
+  assert.match(source, /\.eq\("status", "pending"\)/);
+  assert.doesNotMatch(source, /\.eq\("id", id\);/);
+});
+
+test('31. prodotto inattivo non espone Migliora con AI', () => {
+  const capability = calculateFieldCapabilities(def(), row(), 'simple', {
+    roles: ['admin'], writesEnabled: true, writeMode: 'full', productActive: false,
+  });
+  assert.equal(capability.canSuggestAi, false);
+  assert.equal(capability.aiBlockReason, 'product_inactive');
+});
+
+test('32. prodotto inattivo è respinto server-side prima del provider', async () => {
+  const repo = new FakeRepo();
+  repo.product = { ...repo.product!, is_active: false };
+  let providerCalls = 0;
+  await assert.rejects(
+    generateAiSuggestion(repo, {
+      actor: ACTOR_ID, productId: PRODUCT_ID, fieldKey: 'title', baseVersion: 1,
+    }, async () => {
+      providerCalls += 1;
+      return provider();
+    }),
+    (error: unknown) =>
+      error instanceof AiServiceError && error.code === 'AI_NOT_ALLOWED' &&
+      error.details?.reason === 'product_inactive',
+  );
+  assert.equal(providerCalls, 0);
 });

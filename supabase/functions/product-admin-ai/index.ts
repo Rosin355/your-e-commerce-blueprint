@@ -44,14 +44,12 @@ export interface HandlerDependencies {
   authenticate: (req: Request) => Promise<AuthContext>;
   repository: () => AiRepository;
   generate: typeof callAiProvider;
-  now: () => Date;
 }
 
 const DEFAULT_DEPS: HandlerDependencies = {
   authenticate,
   repository: () => createSupabaseAiRepository(serviceClient()),
   generate: callAiProvider,
-  now: () => new Date(),
 };
 
 function json(body: unknown, status = 200): Response {
@@ -72,6 +70,7 @@ const HTTP: Record<string, number> = {
   IDEMPOTENCY_CONFLICT: 409,
   SUGGESTION_STALE: 409,
   SUGGESTION_RESOLVED: 409,
+  GENERATION_IN_PROGRESS: 409,
   RATE_LIMITED: 429,
   AI_NOT_CONFIGURED: 503,
   AI_TIMEOUT: 504,
@@ -134,6 +133,9 @@ async function requireAiWrite(
     if (!suggestion) return fail("NOT_FOUND", "Proposta AI inesistente");
     fieldKey = suggestion.field_key;
   }
+  // Un accept replay deve essere riconciliato dal service prima di qualsiasi
+  // gate AI mutabile (stato prodotto/campo/valore e allowlist canary).
+  if (action === "accept_ai_suggestion") return null;
   if (!fieldKey) return fail("VALIDATION_ERROR", "fieldKey mancante");
   const def = await repo.getDefinition(fieldKey);
   if (!def) return fail("NOT_FOUND", "Field key non registrata");
@@ -207,7 +209,6 @@ export async function handleProductAdminAi(
           baseVersion: payload.baseVersion as number,
         },
         deps.generate,
-        deps.now(),
       );
       console.log(JSON.stringify({
         scope: "product-admin-ai",
@@ -253,6 +254,7 @@ export async function handleProductAdminAi(
       value: payload.value,
       expectedVersion: payload.expectedVersion as number,
       idempotencyKey: payload.idempotencyKey,
+      canaryOnly: writeMode() === "canary",
     });
     return json({ ok: true, ...accepted });
   } catch (error) {

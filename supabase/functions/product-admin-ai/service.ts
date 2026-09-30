@@ -2,6 +2,7 @@ import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.8
 import {
   type CommandInput,
   executeCommand,
+  isCanaryField,
   reconcileCommandReplay,
 } from "../product-admin-api/commands.ts";
 import {
@@ -58,6 +59,15 @@ export interface ProductRow {
   is_active: boolean;
 }
 
+export type GenerationReservation =
+  | { code: "RESERVED"; reservationId: string }
+  | {
+    code: "GENERATION_IN_PROGRESS";
+    reservationId: string;
+    suggestionId: string | null;
+  }
+  | { code: "RATE_LIMITED" };
+
 export interface AiRepository {
   getProduct(productId: string): Promise<ProductRow | null>;
   getDefinition(fieldKey: string): Promise<FieldDefinition | null>;
@@ -73,7 +83,18 @@ export interface AiRepository {
   ): Promise<unknown | null>;
   listPending(productId: string): Promise<AiSuggestionRow[]>;
   getSuggestion(id: string): Promise<AiSuggestionRow | null>;
-  countRecent(actor: string, sinceIso: string): Promise<number>;
+  reserveGeneration(input: {
+    actor: string;
+    productId: string;
+    fieldKey: string;
+    baseVersion: number;
+  }): Promise<GenerationReservation>;
+  completeGenerationReservation(
+    reservationId: string,
+    actor: string,
+    outcome: "completed" | "failed",
+    suggestionId?: string,
+  ): Promise<void>;
   insertSuggestion(
     input: Omit<
       AiSuggestionRow,
@@ -84,7 +105,7 @@ export interface AiRepository {
     id: string,
     status: "accepted" | "discarded" | "superseded",
     actor: string,
-  ): Promise<void>;
+  ): Promise<boolean>;
   reconcileCommand(
     input: CommandInput,
   ): Promise<Record<string, unknown> | null>;
@@ -158,14 +179,42 @@ export function createSupabaseAiRepository(db: SupabaseClient): AiRepository {
       if (error) throw error;
       return data as unknown as AiSuggestionRow | null;
     },
-    async countRecent(actor, sinceIso) {
-      const { count, error } = await db
-        .from("product_ai_suggestions")
-        .select("id", { count: "exact", head: true })
-        .eq("created_by", actor)
-        .gte("created_at", sinceIso);
+    async reserveGeneration(input) {
+      const { data, error } = await db.rpc("reserve_product_ai_generation", {
+        p_actor: input.actor,
+        p_product_id: input.productId,
+        p_field_key: input.fieldKey,
+        p_base_version: input.baseVersion,
+      });
       if (error) throw error;
-      return count ?? 0;
+      const reservation = data as GenerationReservation;
+      if (
+        !reservation ||
+        !["RESERVED", "GENERATION_IN_PROGRESS", "RATE_LIMITED"].includes(
+          reservation.code,
+        )
+      ) {
+        throw new Error("Invalid AI generation reservation response");
+      }
+      return reservation;
+    },
+    async completeGenerationReservation(
+      reservationId,
+      actor,
+      outcome,
+      suggestionId,
+    ) {
+      const { error } = await db
+        .from("product_ai_generation_reservations")
+        .update({
+          status: outcome,
+          suggestion_id: outcome === "completed" ? suggestionId : null,
+          resolved_at: new Date().toISOString(),
+        })
+        .eq("id", reservationId)
+        .eq("actor", actor)
+        .eq("status", "reserved");
+      if (error) throw error;
     },
     async insertSuggestion(input) {
       const { data, error } = await db
@@ -177,15 +226,19 @@ export function createSupabaseAiRepository(db: SupabaseClient): AiRepository {
       return data as unknown as AiSuggestionRow;
     },
     async resolveSuggestion(id, status, actor) {
-      const { error } = await db
+      const { data, error } = await db
         .from("product_ai_suggestions")
         .update({
           status,
           resolved_at: new Date().toISOString(),
           resolved_by: actor,
         })
-        .eq("id", id);
+        .eq("id", id)
+        .eq("status", "pending")
+        .select("id")
+        .maybeSingle();
       if (error) throw error;
+      return data !== null;
     },
     reconcileCommand: (input) => reconcileCommandReplay(db, input),
     executeCommand: (input) => executeCommand(db, input),
@@ -201,6 +254,7 @@ export type AiServiceErrorCode =
   | "IDEMPOTENCY_CONFLICT"
   | "SUGGESTION_STALE"
   | "SUGGESTION_RESOLVED"
+  | "GENERATION_IN_PROGRESS"
   | "RATE_LIMITED"
   | "INTERNAL_ERROR";
 
@@ -297,7 +351,11 @@ async function loadEligibleTarget(
   if (!product) throw new AiServiceError("NOT_FOUND", "Prodotto inesistente");
   if (!def) throw new AiServiceError("NOT_FOUND", "Field key non registrata");
   if (!product.is_active) {
-    throw new AiServiceError("AI_NOT_ALLOWED", "Prodotto non attivo");
+    throw new AiServiceError(
+      "AI_NOT_ALLOWED",
+      "Prodotto non attivo",
+      { reason: "product_inactive" },
+    );
   }
   const applies = def.applies_to === "both" ||
     (product.entity_type === "variation"
@@ -359,7 +417,6 @@ export async function generateAiSuggestion(
     strategy: NonNullable<ReturnType<typeof strategyForField>>,
     context: AiTrustedContext,
   ) => Promise<AiProviderResult>,
-  now = new Date(),
 ): Promise<
   {
     suggestion: PublicAiSuggestion;
@@ -396,43 +453,102 @@ export async function generateAiSuggestion(
     await repo.resolveSuggestion(pending.id, "superseded", input.actor);
   }
 
-  const recent = await repo.countRecent(
-    input.actor,
-    new Date(now.getTime() - 60_000).toISOString(),
-  );
-  if (recent >= 5) {
+  // Prepariamo il contesto prima della reservation: soltanto una richiesta che
+  // è pronta a chiamare il provider deve consumare uno slot.
+  const context = await trustedContext(repo, product, def, row);
+  const reservation = await repo.reserveGeneration({
+    actor: input.actor,
+    productId: product.id,
+    fieldKey: def.key,
+    baseVersion: row.version,
+  });
+  if (reservation.code === "RATE_LIMITED") {
     throw new AiServiceError(
       "RATE_LIMITED",
       "Troppe proposte in un minuto. Attendi e riprova.",
     );
   }
+  if (reservation.code === "GENERATION_IN_PROGRESS") {
+    const reservedSuggestion = reservation.suggestionId
+      ? await repo.getSuggestion(reservation.suggestionId)
+      : null;
+    const replay = reservedSuggestion?.status === "pending"
+      ? reservedSuggestion
+      : (await repo.listPending(product.id)).find((item) =>
+        item.field_key === def.key && item.base_version === row.version
+      );
+    if (replay) {
+      return {
+        suggestion: serializeSuggestion(replay, row.version),
+        replayed: true,
+        usageTokens: null,
+      };
+    }
+    throw new AiServiceError(
+      "GENERATION_IN_PROGRESS",
+      "Una proposta equivalente è già in preparazione",
+    );
+  }
 
-  const context = await trustedContext(repo, product, def, row);
-  const provider = await generate(strategy, context);
-  const checked = validateSuggestedValue(def, strategy, provider.value);
-  if (!checked.ok) throw new AiServiceError("VALIDATION_ERROR", checked.reason);
+  try {
+    const provider = await generate(strategy, context);
+    const checked = validateSuggestedValue(def, strategy, provider.value);
+    if (!checked.ok) {
+      throw new AiServiceError("VALIDATION_ERROR", checked.reason);
+    }
 
-  const value = checked.value;
-  const created = await repo.insertSuggestion({
-    sku: product.sku,
-    entity_type: product.entity_type === "variation" ? "variant" : "product",
-    product_id: product.id,
-    field_key: def.key,
-    suggestion_text: typeof value === "string" ? value : null,
-    suggestion_json: typeof value === "string" ? null : value,
-    model: `${provider.provider}/${provider.model}`,
-    prompt_hint: strategy.id,
-    based_on_value: currentValueOf(row),
-    status: "pending",
-    created_by: input.actor,
-    base_version: row.version,
-    prompt_version: strategy.version,
-  });
-  return {
-    suggestion: serializeSuggestion(created, row.version),
-    replayed: false,
-    usageTokens: provider.usageTokens,
-  };
+    const value = checked.value;
+    const created = await repo.insertSuggestion({
+      sku: product.sku,
+      entity_type: product.entity_type === "variation" ? "variant" : "product",
+      product_id: product.id,
+      field_key: def.key,
+      suggestion_text: typeof value === "string" ? value : null,
+      suggestion_json: typeof value === "string" ? null : value,
+      model: `${provider.provider}/${provider.model}`,
+      prompt_hint: strategy.id,
+      based_on_value: currentValueOf(row),
+      status: "pending",
+      created_by: input.actor,
+      base_version: row.version,
+      prompt_version: strategy.version,
+    });
+    // La suggestion pending è già la sorgente autoritativa per eventuali
+    // replay: un errore di audit non deve trasformare un successo in retry.
+    await repo.completeGenerationReservation(
+      reservation.reservationId,
+      input.actor,
+      "completed",
+      created.id,
+    ).catch(() => undefined);
+    return {
+      suggestion: serializeSuggestion(created, row.version),
+      replayed: false,
+      usageTokens: provider.usageTokens,
+    };
+  } catch (error) {
+    await repo.completeGenerationReservation(
+      reservation.reservationId,
+      input.actor,
+      "failed",
+    ).catch(() => undefined);
+    throw error;
+  }
+}
+
+async function transitionPendingSuggestion(
+  repo: AiRepository,
+  suggestion: AiSuggestionRow,
+  status: "accepted" | "discarded" | "superseded",
+  actor: string,
+): Promise<AiSuggestionRow> {
+  if (suggestion.status !== "pending") return suggestion;
+  const changed = await repo.resolveSuggestion(suggestion.id, status, actor);
+  if (changed) {
+    suggestion.status = status;
+    return suggestion;
+  }
+  return await repo.getSuggestion(suggestion.id) ?? suggestion;
 }
 
 export async function rejectAiSuggestion(
@@ -454,8 +570,19 @@ export async function rejectAiSuggestion(
     );
   }
   if (suggestion.status === "pending") {
-    await repo.resolveSuggestion(suggestion.id, "discarded", input.actor);
-    suggestion.status = "discarded";
+    const latest = await transitionPendingSuggestion(
+      repo,
+      suggestion,
+      "discarded",
+      input.actor,
+    );
+    if (latest.status === "accepted") {
+      throw new AiServiceError(
+        "SUGGESTION_RESOLVED",
+        "La proposta è già stata accettata",
+      );
+    }
+    return serializeSuggestion(latest, current?.version ?? 0);
   }
   return serializeSuggestion(suggestion, current?.version ?? 0);
 }
@@ -468,6 +595,7 @@ export async function acceptAiSuggestion(
     value: unknown;
     expectedVersion: number;
     idempotencyKey: string;
+    canaryOnly?: boolean;
   },
 ): Promise<
   { result: Record<string, unknown>; suggestion: PublicAiSuggestion }
@@ -476,42 +604,54 @@ export async function acceptAiSuggestion(
   if (!suggestion) {
     throw new AiServiceError("NOT_FOUND", "Proposta AI inesistente");
   }
-  const { product, def, row } = await loadEligibleTarget(
-    repo,
-    suggestion.product_id,
-    suggestion.field_key,
-  );
-  if (input.expectedVersion !== suggestion.base_version) {
-    throw new AiServiceError(
-      "VALIDATION_ERROR",
-      "expectedVersion diversa dalla base della proposta",
-    );
-  }
-
   const command: CommandInput = {
     actor: input.actor,
     action: "update_field",
-    productId: product.id,
-    fieldKey: def.key,
+    productId: suggestion.product_id,
+    fieldKey: suggestion.field_key,
     value: input.value,
     expectedVersion: input.expectedVersion,
     idempotencyKey: input.idempotencyKey,
   };
 
-  // Il replay esatto è risolto prima dei gate di stato/versione e non richiama la RPC.
+  // Il replay esatto precede ogni gate AI mutabile e non richiama la RPC.
   const replay = await repo.reconcileCommand(command);
   if (replay?.ok === false) {
     throw new AiServiceError("IDEMPOTENCY_CONFLICT", String(replay.message));
   }
   if (replay) {
-    if (suggestion.status === "pending") {
-      await repo.resolveSuggestion(suggestion.id, "accepted", input.actor);
-    }
-    suggestion.status = "accepted";
+    const replaySuggestion = await transitionPendingSuggestion(
+      repo,
+      suggestion,
+      "accepted",
+      input.actor,
+    );
+    const current = await repo.getCurrent(
+      suggestion.product_id,
+      suggestion.field_key,
+    );
     return {
       result: replay,
-      suggestion: serializeSuggestion(suggestion, row.version),
+      suggestion: serializeSuggestion(replaySuggestion, current?.version ?? 0),
     };
+  }
+
+  const { def, row } = await loadEligibleTarget(
+    repo,
+    suggestion.product_id,
+    suggestion.field_key,
+  );
+  if (input.canaryOnly && !isCanaryField(def)) {
+    throw new AiServiceError(
+      "AI_NOT_ALLOWED",
+      "Campo non abilitato nel canary",
+    );
+  }
+  if (input.expectedVersion !== suggestion.base_version) {
+    throw new AiServiceError(
+      "VALIDATION_ERROR",
+      "expectedVersion diversa dalla base della proposta",
+    );
   }
 
   if (suggestion.status !== "pending") {
@@ -521,7 +661,12 @@ export async function acceptAiSuggestion(
     );
   }
   if (row.version !== suggestion.base_version) {
-    await repo.resolveSuggestion(suggestion.id, "superseded", input.actor);
+    await transitionPendingSuggestion(
+      repo,
+      suggestion,
+      "superseded",
+      input.actor,
+    );
     throw new AiServiceError(
       "SUGGESTION_STALE",
       "Il prodotto è cambiato dopo la proposta",
@@ -548,7 +693,11 @@ export async function acceptAiSuggestion(
   const result = await repo.executeCommand(command);
   if (result?.ok === false) {
     if (result.code === "VERSION_CONFLICT") {
-      await repo.resolveSuggestion(suggestion.id, "superseded", input.actor);
+      // Dopo l'ingresso nella RPC un accept concorrente può avere già applicato
+      // il valore, ma non avere ancora marcato la suggestion come accepted.
+      // Non trasformiamo quindi il pending in superseded in questa finestra:
+      // il winner completerà la transizione. Un vero stale resta comunque
+      // rifiutato e viene esposto come tale dal confronto delle versioni.
       throw new AiServiceError(
         "SUGGESTION_STALE",
         "Il prodotto è cambiato dopo la proposta",
@@ -569,12 +718,16 @@ export async function acceptAiSuggestion(
     );
   }
 
-  await repo.resolveSuggestion(suggestion.id, "accepted", input.actor);
-  suggestion.status = "accepted";
+  const acceptedSuggestion = await transitionPendingSuggestion(
+    repo,
+    suggestion,
+    "accepted",
+    input.actor,
+  );
   return {
     result,
     suggestion: serializeSuggestion(
-      suggestion,
+      acceptedSuggestion,
       (result.version as number | undefined) ?? row.version + 1,
     ),
   };

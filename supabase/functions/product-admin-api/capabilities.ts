@@ -26,7 +26,8 @@ export type FieldCapabilityReason =
   | "manual_only"
   | "structural_field"
   | "unsupported_ai_strategy"
-  | "empty_or_unsupported_value";
+  | "empty_or_unsupported_value"
+  | "product_inactive";
 
 export interface FieldCapabilities {
   definitionEditable: boolean;
@@ -51,6 +52,7 @@ export interface CapabilityContext {
   roles: AppRole[];
   writesEnabled: boolean;
   writeMode: WriteMode;
+  productActive?: boolean;
 }
 
 /** Simple e variable/parent usano campi product; solo variation usa campi variant. */
@@ -127,7 +129,11 @@ export function calculateFieldCapabilities(
 
   const effectiveAiAllowed = def.ai_allowed && !def.manual_only && applicable;
   const aiEligibility = aiValueEligibility(def, row);
-  const aiReason = baseReason !== "allowed" ? baseReason : aiEligibility;
+  const aiReason = context.productActive === false
+    ? "product_inactive"
+    : baseReason !== "allowed"
+    ? baseReason
+    : aiEligibility;
 
   return {
     definitionEditable: def.editable,

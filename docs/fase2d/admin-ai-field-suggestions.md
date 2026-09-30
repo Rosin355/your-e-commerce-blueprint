@@ -1,6 +1,6 @@
 # Fase 2D — Admin AI field-by-field
 
-Stato: **CODE READY FOR REVIEW — NON DEPLOYATO**
+Stato: **2D.2 HARDENED / CODE READY FOR REVIEW — NON DEPLOYATO**
 
 Baseline implementazione: `origin/main@193135224886e8d022e17ddf6e1b4d16f9dc8629`
 
@@ -31,11 +31,33 @@ modificano soltanto lo stato della proposta.
   fallback mock e qualunque funzione di publish/update Shopify;
 - nessun import del client Shopify è presente nel nuovo endpoint.
 
-### Compatibilità schema
+### Compatibilità schema e migration 2D.2
 
 `product_ai_suggestions` possiede già `id`, `product_id`, `field_key`, valore proposto
 (`suggestion_text`/`suggestion_json`), `base_version`, `prompt_version`, `model`, `status`,
-`created_by` e timestamp. Non serve una migration.
+`created_by` e timestamp. Queste colonne restano invariate.
+
+La review concorrente ha però dimostrato che la tabella suggestion non può
+riservare uno slot **prima** del provider: la riga nasce soltanto dopo la
+risposta AI. Un contatore Edge o un check seguito da insert non sarebbe sicuro
+tra isolate distribuiti. La migration incrementale
+`20260930152426_harden_product_admin_ai_concurrency.sql` è quindi necessaria e
+introduce soltanto:
+
+- `product_ai_generation_reservations`, audit tecnico di reservation
+  `reserved/completed/failed`, senza contenuti del prompt o del prodotto;
+- indici per attore/tempo e target/versione/tempo;
+- `reserve_product_ai_generation(...)`, RPC `SECURITY INVOKER` che mantiene una
+  sezione critica PostgreSQL breve con advisory transaction lock, prenota al
+  massimo 5 call/attore/60 secondi e deduplica target equivalenti;
+- RLS attiva, nessuna policy client, grant tabella/RPC solo a `service_role`;
+  `anon` e `authenticated` non possono leggere o invocare la primitive.
+
+La reservation avviene subito prima della chiamata provider. Nessun polling,
+sleep, retry automatico o lock rimane aperto durante la chiamata esterna. Una
+reservation fallita conta comunque nel limite anti-abuso del minuto, ma non
+impedisce una nuova generazione dello stesso target. La migration è soltanto
+preparata nel repository: **non è stata applicata live**.
 
 La tabella ammette gli stati DB `pending`, `accepted`, `discarded`, `superseded`. Il contratto
 API espone rispettivamente `pending`, `accepted`, `rejected`, `stale`; questa mappatura evita
@@ -99,8 +121,32 @@ Endpoint `product-admin-ai`, solo JWT utente verificato e ruoli caricati dal DB.
 
 Una pending sulla stessa versione viene restituita come replay senza nuova call
 AI. Una pending superata viene `superseded`; il nuovo tentativo produce una
-nuova riga. Il limite è cinque generazioni per attore in 60 secondi. Non ci sono
-polling, job background o retry automatici della write.
+nuova riga. La reservation DB atomica precede la call provider: il limite è
+cinque generazioni per attore in 60 secondi anche con richieste simultanee; due
+richieste concorrenti per lo stesso prodotto/campo/versione consumano una sola
+provider call. Non ci sono polling, job background o retry automatici.
+
+## Hardening 2D.2 — quattro finding P2
+
+1. **Rate limit concorrente**: sostituito il precedente `count` non atomico con
+   la reservation PostgreSQL descritta sopra. Sei richieste simultanee dello
+   stesso attore producono al massimo cinque slot/provider call.
+2. **Accept concorrente**: tutte le risoluzioni sono compare-and-set
+   `WHERE status='pending'`. `accepted`, `discarded` e `superseded` sono stati
+   terminali: una request perdente non può più degradare `accepted`. Un
+   `VERSION_CONFLICT` restituito dopo l'ingresso nella RPC non marca subito la
+   proposta `superseded`, perché il winner potrebbe essere nella breve finestra
+   tra apply atomico e transizione `accepted`; il confronto versione continua a
+   esporre la request perdente come stale senza alterare lo stato terminale.
+3. **Exact replay**: dopo il lookup minimo della suggestion viene costruita
+   l'identità del comando e consultato il command log. Un replay applicato torna
+   prima di stato prodotto, valore AI, allowlist canary e altri gate mutabili;
+   auth, ruolo e gate operativo restano invariati. Un payload diverso continua
+   a restituire `IDEMPOTENCY_CONFLICT`.
+4. **Prodotti inattivi**: `product-admin-api` riceve `products.is_active` nel
+   calcolo server-side e restituisce `canSuggestAi=false` con
+   `aiBlockReason=product_inactive`; il service conserva lo stesso blocco prima
+   del provider.
 
 ## Contesto e provider
 
@@ -151,8 +197,9 @@ di rilascio perché il frontend non è stato pubblicato.
 | Gate | Esito |
 |---|---|
 | `npm ci` | PASS, lockfile invariato |
-| test AI mirati | PASS 22/22; coprono i casi richiesti inclusi replay pending, conflitto idempotente e markup attivo |
-| `npm run test:catalog` | PASS 232/232 |
+| test AI mirati | PASS 30/30; inclusi reservation/rate limit, target concorrente, accept race, replay FAQ e prodotto inattivo |
+| PostgreSQL isolato concorrente | PASS; 6 simultanee → 5 reservation e 1 rate limit; target equivalente → 1 reservation |
+| `npm run test:catalog` | PASS 240/240 |
 | `npm run typecheck` | PASS |
 | `deno check product-admin-ai` | PASS |
 | `deno check product-admin-api` | PASS |
@@ -160,26 +207,31 @@ di rilascio perché il frontend non è stato pubblicato.
 | `git diff --check` | PASS |
 
 I test non chiamano provider, database, AI o Shopify live. Provider e repository
-sono fixture sintetiche; il test statico impedisce import di client Shopify o
+sono fixture sintetiche; la migration viene applicata soltanto a un cluster
+PostgreSQL effimero locale. Il test statico impedisce import di client Shopify o
 publish legacy nel nuovo endpoint.
 
 ## Piano di rilascio
 
-1. review del diff e conferma che non esistano migration;
-2. confermare `LOVABLE_API_KEY` e scegliere `ADMIN_AI_MODEL` senza esporre i
+1. review del diff e preflight read-only di tabella/RPC/ACL live;
+2. backup dello schema interessato e applicazione **una sola volta** della
+   migration 2D.2 tramite il canale Lovable autorizzato;
+3. verificare RLS, grant, firma RPC e registro migration senza manipolarlo;
+4. confermare `LOVABLE_API_KEY` e scegliere `ADMIN_AI_MODEL` senza esporre i
    valori;
-3. deploy `product-admin-ai` dalla revisione approvata;
-4. deploy `product-admin-api` dalla stessa revisione, mantenendo canary;
-5. smoke read-only di auth, capability e lista suggestion;
-6. pubblicare il frontend della stessa revisione;
-7. test di generazione su un campo/fixture approvati: verificare una sola riga
+5. deploy `product-admin-ai` dalla revisione approvata;
+6. deploy `product-admin-api` dalla stessa revisione, mantenendo canary;
+7. smoke read-only di auth, capability e lista suggestion;
+8. pubblicare il frontend della stessa revisione;
+9. test di generazione su un campo/fixture approvati: verificare una sola riga
    pending e zero variazioni di current/history/command log;
-8. STOP prima di Accetta finché non è autorizzata la scrittura;
-9. dopo approvazione, test accept/replay/conflict e verifica esplicita di zero
+10. STOP prima di Accetta finché non è autorizzata la scrittura;
+11. dopo approvazione, test accept/replay/conflict e verifica esplicita di zero
    chiamate Shopify.
 
-Non pubblicare il frontend se uno dei due endpoint non è disponibile. Nessuna
-migration è richiesta o deve essere applicata.
+Non pubblicare il frontend se uno dei due endpoint non è disponibile. La nuova
+migration reservation è un prerequisito del runtime 2D.2 e non deve essere
+applicata finché la PR e il piano di rilascio non sono approvati.
 
 ## Rollback
 
@@ -188,10 +240,13 @@ migration è richiesta o deve essere applicata.
 - rimuovere/disabilitare `product-admin-ai` soltanto dopo il rollback frontend;
 - le suggestion già create restano dati separati e non modificano il catalogo;
 - non cancellare suggestion/history e non toccare Shopify per il rollback.
+- la tabella reservation può restare inertizzata senza impatto se l'Edge viene
+  ritirata; un eventuale `DROP` richiede una nuova migration approvata, solo
+  dopo rollback Edge e verifica che non esistano reservation attive.
 
 ## Stato conclusivo
 
-- migration: **NO**;
+- migration: **SÌ, incrementale 2D.2; PREPARATA / NON APPLICATA LIVE**;
 - deploy/frontend publish: **NON ESEGUITI**;
 - AI live: **NON CHIAMATA**;
 - database live: **NON TOCCATO**;
