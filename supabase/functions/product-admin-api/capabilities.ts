@@ -1,8 +1,13 @@
 // Fase 2B — Capability field-by-field calcolate esclusivamente sul server.
-import { canManageLockedManualValues, canWrite, canWriteCanary } from "./permissions.ts";
+import {
+  canManageLockedManualValues,
+  canWrite,
+  canWriteCanary,
+} from "./permissions.ts";
 import { isCanaryField, type WriteMode } from "./commands.ts";
 import { isFieldEditable } from "./validation.ts";
 import type { AppRole, CurrentValueRow, FieldDefinition } from "./types.ts";
+import { aiValueEligibility } from "../product-admin-ai/ai-core.ts";
 
 export type ProductEntityType = "simple" | "variable" | "variation";
 
@@ -16,7 +21,13 @@ export type FieldCapabilityReason =
   | "current_value_missing"
   | "current_value_locked"
   | "legacy_review_not_required"
-  | "phase_2c";
+  | "phase_2c"
+  | "ai_not_allowed"
+  | "manual_only"
+  | "structural_field"
+  | "unsupported_ai_strategy"
+  | "empty_or_unsupported_value"
+  | "product_inactive";
 
 export interface FieldCapabilities {
   definitionEditable: boolean;
@@ -41,6 +52,7 @@ export interface CapabilityContext {
   roles: AppRole[];
   writesEnabled: boolean;
   writeMode: WriteMode;
+  productActive?: boolean;
 }
 
 /** Simple e variable/parent usano campi product; solo variation usa campi variant. */
@@ -84,37 +96,44 @@ export function calculateFieldCapabilities(
   const baseReason = writeGate(def, row, entityType, context);
   const locked = row?.is_locked === true;
   const legacyReview = row?.review_status === "legacy_unverified";
-  const manualAdmin = def.manual_only && canManageLockedManualValues(context.roles);
+  const manualAdmin = def.manual_only &&
+    canManageLockedManualValues(context.roles);
 
   const updateReason = baseReason !== "allowed"
     ? baseReason
     : !row && !manualAdmin
-      ? "current_value_missing"
-      : locked && !manualAdmin
-        ? "current_value_locked"
-        : "allowed";
+    ? "current_value_missing"
+    : locked && !manualAdmin
+    ? "current_value_locked"
+    : "allowed";
 
   // La RPC consente confirm_legacy_value anche quando is_locked=true.
   const confirmReason = baseReason !== "allowed"
     ? baseReason
     : !row
-      ? "current_value_missing"
+    ? "current_value_missing"
     : !legacyReview
-      ? "legacy_review_not_required"
-      : "allowed";
+    ? "legacy_review_not_required"
+    : "allowed";
 
   // La RPC rifiuta reject_legacy_value sui current value locked.
   const rejectReason = baseReason !== "allowed"
     ? baseReason
     : !row
-      ? "current_value_missing"
+    ? "current_value_missing"
     : locked
-      ? "current_value_locked"
-      : !legacyReview
-        ? "legacy_review_not_required"
-        : "allowed";
+    ? "current_value_locked"
+    : !legacyReview
+    ? "legacy_review_not_required"
+    : "allowed";
 
   const effectiveAiAllowed = def.ai_allowed && !def.manual_only && applicable;
+  const aiEligibility = aiValueEligibility(def, row);
+  const aiReason = context.productActive === false
+    ? "product_inactive"
+    : baseReason !== "allowed"
+    ? baseReason
+    : aiEligibility;
 
   return {
     definitionEditable: def.editable,
@@ -122,7 +141,8 @@ export function calculateFieldCapabilities(
     isLocked: locked,
     // La protezione è conservativa: una policy del registry non può essere
     // indebolita da un flag false eventualmente presente sulla singola riga.
-    protectedOnReimport: def.protected_on_reimport || row?.protected_on_reimport === true,
+    protectedOnReimport: def.protected_on_reimport ||
+      row?.protected_on_reimport === true,
     aiAllowed: effectiveAiAllowed,
     appliesTo: def.applies_to,
     applicable,
@@ -130,10 +150,10 @@ export function calculateFieldCapabilities(
     canUpdate: updateReason === "allowed",
     canConfirmLegacy: confirmReason === "allowed",
     canRejectLegacy: rejectReason === "allowed",
-    canSuggestAi: false,
+    canSuggestAi: aiReason === "allowed",
     updateBlockReason: updateReason,
     confirmLegacyBlockReason: confirmReason,
     rejectLegacyBlockReason: rejectReason,
-    aiBlockReason: effectiveAiAllowed ? "phase_2c" : "definition_readonly",
+    aiBlockReason: aiReason,
   };
 }

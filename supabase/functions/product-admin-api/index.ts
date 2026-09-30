@@ -206,6 +206,7 @@ Deno.serve(async (req) => {
             roles: auth.roles,
             writesEnabled: writesEnabled(),
             writeMode: writeMode(),
+            productActive: product.is_active,
           },
           { fallbackSnapshot: snapshot, linkedSnapshots },
         ),

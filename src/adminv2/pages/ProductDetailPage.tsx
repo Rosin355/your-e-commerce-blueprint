@@ -13,8 +13,12 @@ import {
 import FieldCard from '../components/FieldCard';
 import {
   useAdminContext,
+  useAcceptAiSuggestion,
+  useAiSuggestions,
   useFieldCommand,
+  useGenerateAiSuggestion,
   useProductDetail,
+  useRejectAiSuggestion,
 } from '../hooks/useAdminData';
 import { ENTITY_LABEL, formatDate, INVENTORY_NOTICE } from '../lib/labels';
 
@@ -23,6 +27,10 @@ export default function ProductDetailPage() {
   const { data, isLoading, isError, error, refetch } = useProductDetail(productId);
   const { data: context } = useAdminContext();
   const command = useFieldCommand(productId);
+  const aiSuggestions = useAiSuggestions(productId);
+  const generateAi = useGenerateAiSuggestion(productId);
+  const rejectAi = useRejectAiSuggestion(productId);
+  const acceptAi = useAcceptAiSuggestion(productId);
 
   if (isLoading) {
     return (
@@ -113,6 +121,10 @@ export default function ProductDetailPage() {
                       field={field}
                       onCommand={command.mutateAsync}
                       onConflict={refetch}
+                      aiSuggestion={aiSuggestions.data?.find((item) => item.fieldKey === field.key)}
+                      onGenerateAi={async (input) => (await generateAi.mutateAsync(input)).suggestion}
+                      onRejectAi={async (suggestionId) => { await rejectAi.mutateAsync(suggestionId); }}
+                      onAcceptAi={async (input) => { await acceptAi.mutateAsync(input); }}
                     />
                   ))}
                 </div>

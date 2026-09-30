@@ -4,8 +4,10 @@ Frontend e-commerce (tema piante) costruito con React + Vite, Supabase/Lovable C
 
 ## 🚀 Stato progetto e Go-Live
 
-**Aggiornamento operativo: 29 settembre 2026**  
-**Baseline runtime approvata:** `main@82f77933bc289043e223a7a48d9bd273e96bbc41`  
+**Aggiornamento operativo: 30 settembre 2026**
+
+**Baseline runtime approvata:** `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
+
 **Modalità attuale:** `canary`
 
 Online Garden è in fase finale di preparazione al go-live. Backend Admin e UX sono pronti, ma il **QA commerciale Shopify/storefront è BLOCKED**: 458 prodotti su 461 risultano esauriti, solo 3 sono acquistabili, quei 3 non hanno immagini, e le spedizioni non sono ancora verificate. Il checkout tecnico apre correttamente Shopify, ma non è ancora stato completato un ordine E2E.
@@ -13,6 +15,12 @@ Online Garden è in fase finale di preparazione al go-live. Backend Admin e UX s
 La diagnosi 3B ha chiarito che il problema inventario non è un semplice flag Shopify: 462/462 varianti hanno `quantityAvailable=0`, mentre i CSV storici contengono quantità esplicite solo per una piccola minoranza. La sorgente transazionale resta Shopify, ma serve prima definire una fonte stock operativa approvata e un flusso riproducibile. Anche l'attuale pubblicazione di 461 prodotti deriva da sync legacy parziali, non da un manifest commerciale deterministico.
 
 Il gate 3B.1A è attualmente **BLOCKED BY SHOPIFY CONFIG ACCESS**: l'accesso disponibile legge SKU/prezzo/status/ID ma non espone location, `tracked`, `inventoryPolicy` o livelli per location. Questo non prova che Shopify sia configurato male; significa solo che il canale di lettura attuale è insufficiente.
+
+La Fase 2D “Migliora con AI” è stata implementata da `origin/main@1931352` e
+riallineata alla baseline corrente `origin/main@81f6a98`; è **CODE READY FOR
+REVIEW, NON DEPLOYATA**. La generazione crea una proposta separata per campo;
+soltanto “Accetta” passa dal comando versionato Admin V2. Non esistono chiamate
+Shopify nel nuovo endpoint.
 
 ### Completato ad oggi
 
@@ -29,24 +37,25 @@ Il gate 3B.1A è attualmente **BLOCKED BY SHOPIFY CONFIG ACCESS**: l'accesso dis
 | `IDEMPOTENCY_CONFLICT` live | ✅ PASS |
 | CREATE live `expectedVersion=0` | ✅ PASS su `OG_365676.colore_fiore = "viola"` |
 | QA finale Admin V2 / UX | ✅ GO-LIVE READY |
-| AI "Migliora con AI" Admin V2 | ❌ Da completare prima della consegna cliente |
+| Admin AI field-by-field 2D | 🟡 Code ready; review, deploy e smoke mancanti |
 | QA commerciale Shopify / storefront | ❌ BLOCKED |
 
 ### Gate mancanti prima del Go-Live commerciale
 
-1. **Definire e collegare la fonte stock reale**: Shopify resta il registro transazionale, ma non esiste ancora un feed quantità completo e affidabile; 462/462 varianti hanno `quantityAvailable=0`.
-2. **Decidere e completare la pubblicazione catalogo**: Shopify espone 461 prodotti su 2.706 interni.
-3. **Aggiungere immagini ai prodotti acquistabili** e verificare copertura immagini del catalogo.
-4. **Verificare le spedizioni Italia** nel pannello Shopify o tramite ordine di prova completo.
-5. **Correggere overflow mobile** su catalogo e pagina prodotto.
-6. **Rivedere varianti/struttura**: `OG_891874` e `OG_758263` richiedono review; `OG_152965` è safe.
-7. **Ordine end-to-end controllato** con totale, tasse, spedizione, email e lingua checkout.
-8. **Decisione finale di uscita dal canary / go-live**.
+1. **Review e rilascio coordinato Fase 2D**: Edge `product-admin-ai`, capability
+   `product-admin-api`, frontend della stessa revisione e smoke senza publish.
+2. **Definire e collegare la fonte stock reale**: Shopify resta il registro transazionale, ma non esiste ancora un feed quantità completo e affidabile; 462/462 varianti hanno `quantityAvailable=0`.
+3. **Decidere e completare la pubblicazione catalogo**: Shopify espone 461 prodotti su 2.706 interni.
+4. **Aggiungere immagini ai prodotti acquistabili** e verificare copertura immagini del catalogo.
+5. **Verificare le spedizioni Italia** nel pannello Shopify o tramite ordine di prova completo.
+6. **Correggere overflow mobile** su catalogo e pagina prodotto.
+7. **Rivedere varianti/struttura**: `OG_891874` e `OG_758263` richiedono review; `OG_152965` è safe.
+8. **Ordine end-to-end controllato** con totale, tasse, spedizione, email e lingua checkout.
+9. **Decisione finale di uscita dal canary / go-live**.
 
 ### Non bloccanti per il primo Go-Live
 
 - backfill lineage dei 14.295 `MATCH_READY` (opzionale);
-- **AI field-by-field nell'Admin V2 è requisito per la consegna cliente**: deve generare proposte, mai overwrite automatico, con approvazione esplicita;
 - miglioramenti UX non critici (nomi tecnici nella cronologia, ruolo Editor non provato live, mismatch cosmetico su `validate_field_update`) e cleanup dei job storici inattivi.
 
 Per il dettaglio operativo usare:
@@ -54,6 +63,7 @@ Per il dettaglio operativo usare:
 - [Stato cliente](docs/client-status.md)
 - [Developer handoff](docs/developer-handoff.md)
 - [Release backend 2C.1](docs/fase2c/backend-release-2C1.md)
+- [Admin AI field-by-field 2D](docs/fase2d/admin-ai-field-suggestions.md)
 - [Checklist prelancio](docs/prelaunch-checklist.md)
 - [Piano remediation Shopify 3B](docs/fase3b/shopify-remediation-plan.md)
 

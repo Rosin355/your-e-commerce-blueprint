@@ -1,12 +1,16 @@
 # Online Garden — stato per il cliente
 
-Aggiornamento: 29 settembre 2026
+Aggiornamento: 30 settembre 2026
 
 ## Stato go-live aggiornato
 
 Backend Admin e interfaccia Admin V2 sono ora pronti per il go-live. Sono passati anche il primo inserimento di un campo manuale assente, il replay sicuro delle richieste e il QA finale dell'interfaccia. Il valore `colore_fiore = "viola"` su `OG_365676` resta intenzionalmente come dato editoriale corretto.
 
 Restano i controlli commerciali: catalogo Shopify/storefront, varianti, prezzi, immagini, spedizioni, checkout, email ordine, mobile e un ordine end-to-end controllato. La modalità `canary` resta attiva fino alla decisione finale di pubblicazione.
+
+La funzione richiesta “Migliora con AI” è stata implementata in ambiente di
+sviluppo ed è pronta per la review tecnica. **Non è ancora online**: il rilascio
+deve coordinare backend e interfaccia e sarà seguito da uno smoke controllato.
 
 ## QA commerciale Shopify — esito
 
@@ -28,10 +32,9 @@ e sono stati chiusi i principali interventi di sicurezza su accessi e file di
 sincronizzazione.
 
 L'ultimo aggiornamento backend permette a un Admin autorizzato di modificare i
-campi manuali protetti senza togliere la protezione contro import e AI. Una
-prova controllata di modifica e ripristino è riuscita; resta da collaudare la
-creazione di un campo ancora assente e da migliorare il messaggio restituito
-quando una richiesta identica viene ripetuta.
+campi manuali protetti senza togliere la protezione contro import e AI. Update,
+ripristino, replay idempotente, conflitto e creazione con versione iniziale zero
+sono stati collaudati; la modalità `canary` resta attiva.
 
 ## Cosa è completato e online
 
@@ -46,6 +49,18 @@ quando una richiesta identica viene ripetuta.
 - backend per aggiornare i campi manuali protetti, secondo il report di
   rilascio Lovable.
 
+## Migliora con AI — cosa farà
+
+- il pulsante compare soltanto sui campi editoriali autorizzati dal server;
+- mostra una proposta separata dal valore corrente;
+- permette di modificare, rifiutare o accettare la proposta;
+- rifiutare non cambia il prodotto;
+- accettare usa la stessa protezione di versione e cronologia delle modifiche
+  manuali;
+- se un altro Admin modifica il campo nel frattempo, la proposta diventa
+  obsoleta e non può sovrascrivere il dato nuovo;
+- non pubblica su Shopify e non esegue elaborazioni massive.
+
 ## Cosa è protetto
 
 I cinque campi manuali principali — nome comune, ibridatore, colore del fiore,
@@ -57,39 +72,29 @@ fuori dall'editing libero della scheda prodotto.
 
 ## Cosa manca
 
-- collaudare separatamente la creazione di un valore manuale assente;
-- rendere il replay di una richiesta già riuscita riconoscibile come successo,
-  pur mantenendo l'attuale protezione contro i duplicati;
-- confermare in interfaccia il comportamento finale del pulsante Salva;
+- review e approvazione del codice “Migliora con AI”;
+- rilascio coordinato di endpoint, capability e frontend;
+- smoke con un campo non sensibile e una proposta controllata, senza Shopify;
 - decidere se collegare automaticamente i valori correnti agli originali
   WordPress quando l'abbinamento è certo;
-- progettare eventuali suggerimenti AI per singolo campo, sempre come proposta;
 - completare un collaudo commerciale separato di Shopify, storefront e checkout.
 
 ## Prossimo collaudo
 
-Prima di qualsiasi scrittura verranno presentati per approvazione:
-
-- prodotto e campo scelti;
-- valore attuale e valore di prova;
-- versione attesa;
-- modalità di ripristino.
-
-Il prodotto golden `OG_393883` non verrà modificato senza autorizzazione
-esplicita. La prima prova di update ha già confermato lock, lineage, history e
-assenza di AI/import/Shopify. Il prossimo test riguarda esclusivamente la
-creazione con versione iniziale zero e richiede un rollback approvato in
-anticipo.
+Prima dello smoke AI verranno concordati prodotto, campo, versione e contenuto
+atteso. La generazione non scriverà sul prodotto; l'eventuale accettazione sarà
+un passaggio umano separato. `OG_393883` resta escluso dalle scritture senza
+autorizzazione esplicita.
 
 ## Stato finale
 
 La piattaforma è in una fase avanzata e controllata. Catalogo, Admin V2,
-sicurezza e Storage hanno una base stabile. La chiusura funzionale richiede il
-forward-fix sul replay, il test controllato della creazione e la conferma UX.
+sicurezza e Storage hanno una base stabile. La funzione AI richiesta è pronta
+per review ma non è stata distribuita; resta un gate prima dell'handoff cliente.
 
 ## Aggiornamento 29/09/2026
 
-Il test controllato della creazione di un nuovo valore è riuscito: il colore del fiore "viola" è stato aggiunto al Gladiolo "Violet Summer" e resta come dato corretto. La parte server della fase 2C.1 è chiusa; resta la conferma UX.
+Il test controllato della creazione di un nuovo valore è riuscito: il colore del fiore "viola" è stato aggiunto al Gladiolo "Violet Summer" e resta come dato corretto. La parte server della fase 2C.1 è chiusa e la UX Admin V2 è stata confermata; restano il rilascio controllato della Fase 2D e i gate commerciali Shopify.
 
 
 ## Fase 2C.2 — QA finale Admin V2 (2026-09-29)
