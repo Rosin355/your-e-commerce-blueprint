@@ -184,6 +184,64 @@ export type Database = {
         }
         Relationships: []
       }
+      product_ai_generation_reservations: {
+        Row: {
+          actor: string
+          base_version: number
+          field_key: string
+          id: string
+          product_id: string
+          reserved_at: string
+          resolved_at: string | null
+          status: string
+          suggestion_id: string | null
+        }
+        Insert: {
+          actor: string
+          base_version: number
+          field_key: string
+          id?: string
+          product_id: string
+          reserved_at?: string
+          resolved_at?: string | null
+          status?: string
+          suggestion_id?: string | null
+        }
+        Update: {
+          actor?: string
+          base_version?: number
+          field_key?: string
+          id?: string
+          product_id?: string
+          reserved_at?: string
+          resolved_at?: string | null
+          status?: string
+          suggestion_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_ai_generation_reservations_field_key_fkey"
+            columns: ["field_key"]
+            isOneToOne: false
+            referencedRelation: "product_field_definitions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "product_ai_generation_reservations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_ai_generation_reservations_suggestion_id_fkey"
+            columns: ["suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "product_ai_suggestions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_ai_suggestions: {
         Row: {
           base_version: number | null
@@ -1438,6 +1496,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      reserve_product_ai_generation: {
+        Args: {
+          p_actor: string
+          p_base_version: number
+          p_field_key: string
+          p_product_id: string
+        }
+        Returns: Json
       }
     }
     Enums: {
