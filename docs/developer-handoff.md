@@ -1,6 +1,6 @@
 # Online Garden — developer handoff
 
-Aggiornamento: 29 settembre 2026
+Aggiornamento: 30 settembre 2026
 Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 
 ## 0. Release snapshot corrente
@@ -11,9 +11,14 @@ Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 - Conteggi correnti: 24.467 current values, history 5, command log 5.
 - Admin V2 UX: **GO-LIVE READY**; due P3 corretti (dirty-save e label valore assente).
 - Non bloccanti: cronologia con field_key tecnici, ruolo Editor non provato live, mismatch cosmetico validate.
-- Prossimi gate: QA commerciale Shopify/storefront → ordine E2E → verifica anomaly entity type → uscita canary/go-live.
-- Fase 2D: `codex/admin-ai-field-suggestions` su base `1931352`, **code ready
-  for review e non deployata**. Nessuna migration e nessuna call AI live.
+- Fase 2D: `codex/admin-ai-field-suggestions`, implementata da `1931352` e
+  riallineata a `origin/main@81f6a98`, **code ready for review e non deployata**.
+  È il client handoff blocker; nessuna migration, call AI live o write Shopify.
+- Fase 3A Shopify/storefront: **BLOCKED**. 461 published, 458 sold-out; only 3 purchasable and all without images; shipping not verified; mobile overflow present; checkout technical PASS.
+- Fase 3B read-only: root cause inventory = assenza di feed quantità completo + legacy normalization missing→0; 462/462 Shopify variants quantityAvailable=0. Publication = legacy partial sync, nessun manifest commerciale. Images = legacy sync crea mediaInputs ma non li invia. Mobile overflow = `HomeAnnouncementBar.tsx` / `whitespace-nowrap`. Checkout EN = locale Shopify pubblicato solo EN.
+- Fase 3B.1A: Shopify access corrente non espone inventory Admin fields (locations, tracked, inventoryPolicy, per-location levels). Stato = BLOCKED BY SHOPIFY CONFIG ACCESS, non prova di misconfiguration. Prossimo gate raccomandato: endpoint Admin read-only dedicato o export Inventory CSV.
+- Entity type: `OG_152965` safe; `OG_891874` and `OG_758263` require structural review.
+- Prossimi gate: review/rilascio 2D → inventory → publication scope → images → shipping → mobile fix → structural review → order E2E → exit canary.
 
 ## 1. Architettura
 
@@ -104,33 +109,21 @@ Regole:
   l'ordine degli array;
 - nella RPC, stesso idempotency key e stesso payload restituiscono replay senza
   nuova history; payload diverso produce `IDEMPOTENCY_CONFLICT`;
-- limite del backend attualmente live: la Edge Function verifica
-  `expectedVersion` prima che la RPC possa risolvere il replay. Dopo un
-  successo, un retry identico riceve quindi `VERSION_CONFLICT`; non duplica
-  dati ma non offre ancora semantica di successo idempotente end-to-end;
-- il forward-fix 2C.1a, ancora non distribuito, esegue un lookup read-only del
-  command log dopo i gate di autenticazione/autorizzazione/canary e prima del
-  version check. Hash uguale restituisce il precedente `result_json` con
-  `replayed=true`; hash diverso produce `IDEMPOTENCY_CONFLICT`; key nuova segue
-  il normale controllo `expectedVersion` e la RPC atomica;
-- la 2C.1a è mergiata ma non va distribuita isolatamente: se il retry si
-  sovrappone alla prima transazione, entrambi i lookup iniziali possono non
-  vedere il command log e la RPC del retry può ancora restituire
-  `VERSION_CONFLICT` dopo aver atteso il lock;
-- il primo fix 2C.1b copriva il conflitto restituito dalla RPC, ma il finding P1
-  ha evidenziato che `getCurrentValue` poteva osservare il commit concorrente e
-  fermarsi al version check del request handler senza chiamare `executeCommand`;
-- la 2C.1b completa usa la stessa helper in entrambi i gate: un solo re-check
+- la 2C.1b live usa la stessa helper in entrambi i gate: un solo re-check
   read-only prima di restituire il conflitto pre-RPC oppure, nell'altra finestra,
   dopo il `VERSION_CONFLICT` RPC. Exact replay restituisce l'esito applicato,
   hash diverso diventa `IDEMPOTENCY_CONFLICT`, command assente conserva il vero
   conflitto versione. Nessun polling, sleep runtime o retry write;
+- lo smoke live ha confermato `replayed=true`, nessun duplicato e create con
+  `expectedVersion=0`; la 2C.1a non è stata distribuita autonomamente;
 - una versione stale produce `VERSION_CONFLICT`, mai overwrite.
 
 I cinque campi manuali protetti sono `nome_comune`, `ibridatore`,
 `colore_fiore`, `colore_foglia` e `curiosita`.
 
 ## 5. AI field-by-field — Fase 2D
+
+Admin V2 non invoca le pipeline AI legacy. L'endpoint dedicato è:
 
 Endpoint: `supabase/functions/product-admin-ai/`.
 
@@ -222,7 +215,8 @@ il file Drizzle effettivamente registrato ha SHA-256
 Lovable la riporta applicata una sola volta; Codex ha verificato file e Git, non
 il registro live direttamente. Lo smoke live riferito ha applicato update e
 ripristino su una fixture, preservando lock e lineage; la creazione con versione
-0 non è stata eseguita.
+0 è stata poi validata su `OG_365676.colore_fiore`, con replay e conflitto
+idempotente corretti.
 
 ## 10. Rilascio e rollback
 

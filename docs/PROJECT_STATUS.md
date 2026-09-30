@@ -1,9 +1,9 @@
 # Online Garden — stato consolidato del progetto
 
-Data di consolidamento: 29 settembre 2026
+Data di consolidamento: 30 settembre 2026
 Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 
-## Stato operativo corrente — 29 settembre 2026
+## Stato operativo corrente — 30 settembre 2026
 
 > Questa sezione è autoritativa per il gate di go-live.
 
@@ -16,16 +16,24 @@ Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 - Non bloccanti: cronologia con nomi tecnici, ruolo Editor non provato live, mismatch cosmetico di `validate_field_update`.
 - `OG_393883` non modificato. Modalità `canary` ancora attiva.
 - Fase 2D Admin AI field-by-field: **CODE READY FOR REVIEW / NON DEPLOYATA** su
-  baseline `origin/main@193135224886e8d022e17ddf6e1b4d16f9dc8629`; nessuna call AI live,
-  nessuna migration e nessuna write Shopify.
+  branch `codex/admin-ai-field-suggestions`, implementata inizialmente da
+  `1931352` e riallineata a `origin/main@81f6a98`; nessuna call AI live,
+  migration o write Shopify.
+- Fase 3A Shopify/storefront: **BLOCKED**. Shopify espone 461 prodotti; 458 risultano esauriti. Solo `OG_257799`, `OG_426481`, `OG_797988` sono acquistabili e tutti e tre sono senza immagini. Checkout tecnico PASS; spedizioni/tasse/totale finale ed email ordine non ancora verificati. Mobile FAIL per overflow orizzontale su catalogo e prodotto. `OG_152965` safe; `OG_891874` e `OG_758263` richiedono review strutturale.
+- Fase 3B diagnosi: **COMPLETATA READ-ONLY**. 462/462 varianti Shopify hanno `quantityAvailable=0`; le sorgenti raw hanno quantità esplicite solo su 56/2.626 righe SKU (13 positive, 43 zero) e i normalizzatori legacy portano i mancanti a zero. Le pipeline legacy non impostano in modo completo quantity/tracking/location. I 461 prodotti live derivano da sync parziali, non da un manifest commerciale riproducibile. WordPress raw: 1.151 prodotti senza immagini, 493 con una, 982 con gallery; Shopify live: 3 senza immagini, 458 con una, 0 con gallery. Root cause mobile: `HomeAnnouncementBar.tsx` con `whitespace-nowrap`. Checkout EN perché il mercato/domain pubblica solo EN.
+- Fase 3B.1A inventory preflight: **STOP conservativo / BLOCKED BY SHOPIFY CONFIG ACCESS**. Account Shopify ricollegato; lettura prodotto disponibile solo per SKU/prezzo/status/ID. Non sono leggibili location, `inventoryItem.tracked`, `inventoryPolicy` o inventory levels, quindi non è possibile spiegare in modo affidabile perché i tre SKU acquistabili siano vendibili né costruire un manifest old→new. Nessuna write eseguita; canary invariato.
 
 ### Gate mancanti per il go-live
 
 1. Review, rilascio coordinato e smoke controllato della Fase 2D.
-2. QA commerciale Shopify/storefront: prodotti e varianti, prezzi, immagini, disponibilità, spedizioni, checkout, email ordine, mobile.
-3. Ordine end-to-end controllato.
-4. Verifica delle anomalie entity type `OG_152965`, `OG_891874`, `OG_758263` prima di modifiche strutturali.
-5. Decisione esplicita di uscita dal canary e go-live.
+2. Caricare/verificare giacenze reali su Shopify.
+3. Decidere il perimetro di pubblicazione e portare online i prodotti previsti per il lancio.
+4. Aggiungere foto ai prodotti acquistabili e verificare la copertura immagini.
+5. Verificare le regole di spedizione Italia.
+6. Correggere l'overflow mobile su catalogo/prodotto.
+7. Riesaminare `OG_891874` e `OG_758263`; preservare `OG_152965` come simple.
+8. Completare un ordine E2E controllato, includendo totale, tasse, spedizione, email e lingua checkout.
+9. Uscire dal canary solo dopo PASS del rerun QA commerciale.
 
 ### Non bloccanti
 
@@ -45,17 +53,12 @@ migration applicata una sola volta e `product-admin-api` distribuita dalla
 stessa revisione. Codex ha verificato direttamente codice, hash e cronologia
 Git, ma non ha interrogato autonomamente il database o il deployment live.
 
-La prova live di update e ripristino di un campo `manual_only` locked è stata
-eseguita su una fixture approvata e ha conservato lock, lineage e integrità. La
-creazione di un current value assente non è stata eseguita. Il replay non ha
-duplicato dati, ma viene esposto come `VERSION_CONFLICT`: è un gap applicativo
-confermato sul backend live. La 2C.1a è stata mergiata con PR #17 ma non
-distribuita; un test concorrente ha individuato una race nella risposta del
-retry. La 2C.1b riconcilia sia il `VERSION_CONFLICT` pre-RPC sia quello restituito
-dalla RPC con un solo re-check opportunistico per ramo; il finding P1 è coperto
-da un test concorrente sul request handler completo. La verifica resta offline
-e non modifica RPC, migration, schema o frontend.
-`OG_393883` resta escluso dalle modifiche senza approvazione esplicita.
+Le prove live 2C.1–2C.1c hanno confermato update/ripristino di un campo
+`manual_only` locked, replay idempotente, conflitto con payload diverso e
+creazione con `expectedVersion=0`. Lock, lineage e audit sono rimasti integri.
+La 2C.1b è live tramite la baseline runtime `main@82f7793`; la 2C.1a non è stata
+distribuita autonomamente. `OG_393883` resta escluso dalle modifiche senza
+approvazione esplicita.
 
 ## 2. Come leggere le evidenze
 
@@ -77,7 +80,7 @@ diretta Codex.
 | WordPress lineage | **PARZIALE** | Snapshot presenti; `source_snapshot_id` nullable. Backfill non eseguito: dry-run 14.295 `MATCH_READY`, 271 `NO_MATCH`, 9.900 `NOT_APPLICABLE`, 0 ambigui (`LOVABLE REPORTED`). |
 | Golden SKU | **VERIFICATO** | Riconciliazione 20 SKU senza conflitti nel dry-run offline; `OG_393883` usato solo per letture e controlli di protezione. |
 | Admin V2 frontend | **LIVE** | PR #4 e pubblicazione 2B.6 completate; editor tipizzati, FAQ strutturate, capability server-side, lineage nullable e conflitti versione disponibili. |
-| Admin V2 backend 2C.1 | **LIVE, SMOKE PARZIALE** | Update locked e ripristino superati su fixture. Create con versione 0 non eseguita; il live restituisce conflitto sul replay. 2C.1a mergiata ma non distribuita; 2C.1b offline pronta per review. |
+| Admin V2 backend 2C.1 | **LIVE / CLOSED** | Update, restore, replay `replayed=true`, `IDEMPOTENCY_CONFLICT` e create `expectedVersion=0` superati live; canary ancora attivo. |
 | Sicurezza legacy | **CLOSED / MITIGATED** | PR #5, #6, #8 e #9 integrate e riportate come distribuite/collaudate. Restano documentati i limiti dei test non Admin dove non eseguiti live. |
 | Storage firmato | **CLOSED** | Autorizzazione caller e limiti bucket/percorso introdotti; non ripristinare la versione vulnerabile. |
 | Smart Sync | **LIVE / GATE A-B-C PASS** | PR #12 integrata; CSV nuovi in `csv-pipeline`, immagini ancora pubbliche in `sync/product-images/**`; CSV pubblico rimosso. |
@@ -102,10 +105,11 @@ diretta Codex.
 | STORAGE-003 Smart Sync | CLOSED | PR #12 `2d8b993` | Sì | Gate B superato; flusso job → upload privato → `source_path` → batch. |
 | STORAGE-003 Gate B docs | COMPLETATA | PR #13 `9979d96` | N/A | Docs-only. |
 | STORAGE-003 Gate C docs | COMPLETATA | PR #14, merge `4bd6115` | Sì | Report Gate C e tracciabilità delle verifiche integrati su `main`. |
-| 2C.1 manual locked backend | BACKEND LIVE; SMOKE PARZIALE | PR #15, merge `3f674b4`; Lovable `9b6ed9f`–`6db554d` | Sì, secondo report Lovable | PostgreSQL isolato 10/10; update/rollback live PASS, create non eseguita, replay semantico da correggere. |
-| 2C.1a replay idempotente | MERGED, NON DEPLOYATA | PR #17, merge `98525ee`; commit `29adddb` | No | Replay sequenziale corretto; race concorrente riprodotta offline, quindi non distribuire da sola. |
-| 2C.1b race idempotente | READY FOR RE-REVIEW | PR #18, branch `codex/admin-idempotent-race-fix` | No | Finding P1 pre-RPC corretto; test request-handler/PostgreSQL concorrente PASS. Nessuna migration, nessun deploy. |
-| 2D Admin AI field-by-field | CODE READY FOR REVIEW | branch `codex/admin-ai-field-suggestions`, base `1931352` | No | 22/22 test AI mirati, catalogo 232/232, typecheck/build/deno check PASS; nessuna call AI live. |
+| 2C.1 manual locked backend | BACKEND LIVE / CLOSED | PR #15, merge `3f674b4`; Lovable `9b6ed9f`–`6db554d` | Sì, secondo report Lovable | PostgreSQL isolato 10/10; update/rollback live PASS. |
+| 2C.1a replay idempotente | INTEGRATA IN 2C.1b | PR #17, merge `98525ee`; commit `29adddb` | Non autonomamente | Fix sequenziale preservato; la release standalone non è stata eseguita. |
+| 2C.1b race idempotente | LIVE / CLOSED | PR #18; runtime `main@82f7793` | Sì | Replay sequenziale e concorrente, key diversa/payload diverso e stale command PASS; nessuna migration. |
+| 2C.1c create version zero | LIVE SMOKE PASS | fixture approvata `OG_365676.colore_fiore` | Sì | Create v1, replay e `IDEMPOTENCY_CONFLICT` PASS; valore editoriale mantenuto. |
+| 2D Admin AI field-by-field | CODE READY FOR REVIEW | branch `codex/admin-ai-field-suggestions`; implementazione `1931352`, integrazione `81f6a98` | No | 22/22 test AI mirati, catalogo 232/232, typecheck/build/deno check PASS; nessuna call AI live. |
 
 Le PR #14 e #15 sono state mergiate su `main`. Il merge ha integrato report,
 test e documentazione già revisionati; non costituisce una nuova applicazione
@@ -158,40 +162,35 @@ della migration né un nuovo deploy della Edge Function.
 - `is_locked`, protezione, provenance e lineage: preservate;
 - conflitto con versione stale: PASS, nessun dato aggiuntivo;
 - due modifiche applicate, due history e due command log: coerenti;
-- replay della stessa richiesta: nessun duplicato, ma risposta
-  `VERSION_CONFLICT` anziché replay di successo perché la Edge Function verifica
-  la versione prima di consultare il command log.
+- lo smoke iniziale aveva evidenziato `VERSION_CONFLICT` sul replay; dopo il
+  forward-fix 2C.1b il replay live restituisce `replayed=true` senza duplicati;
+- create `expectedVersion=0` su `OG_365676.colore_fiore`: PASS, con replay e
+  `IDEMPOTENCY_CONFLICT` corretti.
 
 ### Non eseguito live
 
-- creazione al primo salvataggio con `expectedVersion=0`;
 - collaudo live con ruolo editor/non Admin;
 - qualsiasi scrittura su `OG_393883`.
 
 ## 7. Open items reali
 
-1. Revisionare e rilasciare la 2C.1b completa; non distribuire la 2C.1a da sola.
-   Dopo il deploy verificare replay sequenziale e concorrente, riuso della key
-   con payload diverso e nuova command stale.
-2. Approvare separatamente lo smoke di creazione con `expectedVersion=0` e il
-   relativo rollback; non usare `OG_393883` senza autorizzazione esplicita.
-3. Valutare l'esperienza UI finale del Salva sui manual-only locked dopo lo
-   smoke backend; evitare attivazioni generali prima del collaudo cliente.
-4. Decidere separatamente se eseguire il backfill lineage dei soli 14.295
+1. Revisionare e rilasciare in modo coordinato la Fase 2D; eseguire prima lo
+   smoke read-only e fermarsi prima di ogni accettazione non autorizzata.
+2. Collaudare, se necessario, il ruolo Editor/non Admin senza usare
+   `OG_393883` per scritture.
+3. Decidere separatamente se eseguire il backfill lineage dei soli 14.295
    `MATCH_READY`; oggi resta opzionale e non eseguito.
-5. Progettare AI field-by-field come proposta versionata, mai overwrite.
-6. Eseguire collaudo commerciale Shopify/storefront/checkout separato.
-7. Riesaminare le variation WordPress di `OG_152965`, `OG_891874` e
+4. Eseguire il piano di remediation e collaudo commerciale Shopify/storefront.
+5. Riesaminare le variation WordPress di `OG_152965`, `OG_891874` e
    `OG_758263` prima di cambiare l'attuale `entity_type` simple.
 
 ## 8. Prossimi passi, in ordine
 
-1. Review, merge, deploy controllato e smoke live della 2C.1b.
-2. Gate separato per lo smoke create con versione 0.
-3. Collaudo UX cliente Admin V2 sul comportamento aggiornato.
-4. Decisione sul backfill lineage.
-5. Disegno AI proposal per campo.
-6. Collaudo commerciale Shopify e storefront.
+1. Review e merge della Fase 2D, senza deploy automatico.
+2. Rilascio coordinato Edge/API/frontend e smoke AI controllato.
+3. Decisione sul backfill lineage.
+4. Remediation inventario/pubblicazione/immagini/spedizioni Shopify.
+5. Collaudo commerciale Shopify e storefront.
 
 ## 9. Vincoli permanenti
 

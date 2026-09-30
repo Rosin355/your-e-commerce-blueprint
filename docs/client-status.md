@@ -1,6 +1,6 @@
 # Online Garden — stato per il cliente
 
-Aggiornamento: 29 settembre 2026
+Aggiornamento: 30 settembre 2026
 
 ## Stato go-live aggiornato
 
@@ -12,6 +12,18 @@ La funzione richiesta “Migliora con AI” è stata implementata in ambiente di
 sviluppo ed è pronta per la review tecnica. **Non è ancora online**: il rilascio
 deve coordinare backend e interfaccia e sarà seguito da uno smoke controllato.
 
+## QA commerciale Shopify — esito
+
+Il pannello Admin è pronto, ma il negozio non è ancora pronto per il lancio commerciale. Il QA ha trovato quattro blocchi principali: quasi tutto il catalogo Shopify risulta esaurito (458 prodotti su 461), soltanto 461 prodotti risultano pubblicati rispetto ai 2.706 del catalogo interno, i tre prodotti acquistabili non hanno immagini e le spedizioni per l'Italia non sono ancora state verificate.
+
+Prezzi e carrello sono risultati coerenti; il checkout Shopify si apre correttamente. Prima del go-live servono quindi giacenze reali, decisione sul catalogo da pubblicare, immagini, verifica spedizioni, correzione mobile e un ordine di prova completo.
+
+## Diagnosi commerciale 3B
+
+La diagnosi ha confermato che il blocco principale non si risolve semplicemente attivando i prodotti: le quantità disponibili non hanno oggi una fonte operativa completa da sincronizzare. Shopify deve restare il registro delle giacenze effettive, ma prima serve stabilire quale gestionale/feed alimenta quantità, tracking e location per ogni SKU.
+
+È stato inoltre confermato che l'attuale catalogo Shopify deriva da sincronizzazioni storiche parziali: i 461 prodotti online non rappresentano ancora un catalogo di lancio deliberato. Le immagini multiple presenti in WordPress non sono state trasferite dalle vecchie pipeline, e il checkout italiano non è ancora pubblicato in lingua italiana.
+
 ## In sintesi
 
 La nuova base catalogo e il pannello Admin sono online. I dati originali sono
@@ -20,10 +32,9 @@ e sono stati chiusi i principali interventi di sicurezza su accessi e file di
 sincronizzazione.
 
 L'ultimo aggiornamento backend permette a un Admin autorizzato di modificare i
-campi manuali protetti senza togliere la protezione contro import e AI. Una
-prova controllata di modifica e ripristino è riuscita; resta da collaudare la
-creazione di un campo ancora assente e da migliorare il messaggio restituito
-quando una richiesta identica viene ripetuta.
+campi manuali protetti senza togliere la protezione contro import e AI. Update,
+ripristino, replay idempotente, conflitto e creazione con versione iniziale zero
+sono stati collaudati; la modalità `canary` resta attiva.
 
 ## Cosa è completato e online
 
@@ -83,7 +94,7 @@ per review ma non è stata distribuita; resta un gate prima dell'handoff cliente
 
 ## Aggiornamento 29/09/2026
 
-Il test controllato della creazione di un nuovo valore è riuscito: il colore del fiore "viola" è stato aggiunto al Gladiolo "Violet Summer" e resta come dato corretto. La parte server della fase 2C.1 è chiusa; resta la conferma UX.
+Il test controllato della creazione di un nuovo valore è riuscito: il colore del fiore "viola" è stato aggiunto al Gladiolo "Violet Summer" e resta come dato corretto. La parte server della fase 2C.1 è chiusa e la UX Admin V2 è stata confermata; restano il rilascio controllato della Fase 2D e i gate commerciali Shopify.
 
 
 ## Fase 2C.2 — QA finale Admin V2 (2026-09-29)

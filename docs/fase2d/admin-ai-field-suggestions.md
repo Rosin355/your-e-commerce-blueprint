@@ -2,7 +2,9 @@
 
 Stato: **CODE READY FOR REVIEW — NON DEPLOYATO**
 
-Baseline Git: `origin/main@193135224886e8d022e17ddf6e1b4d16f9dc8629`
+Baseline implementazione: `origin/main@193135224886e8d022e17ddf6e1b4d16f9dc8629`
+
+Baseline integrazione: `origin/main@81f6a98148fc15b80dd50c6d7762fa7b2d5e34e9`
 
 Branch isolato: `codex/admin-ai-field-suggestions`
 

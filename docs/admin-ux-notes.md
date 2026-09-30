@@ -1,6 +1,6 @@
 # Online Garden — note Admin UX
 
-Aggiornamento: 29 settembre 2026
+Aggiornamento: 30 settembre 2026
 
 ## QA finale 2C.2
 
@@ -35,6 +35,10 @@ Il layout usa griglie responsive (`md:grid-cols-2`), azioni `flex-wrap`, label
 esplicite, focus nativo dei controlli e regioni `aria-live`; la verifica in
 questo task è offline/statica + build, non uno smoke browser live.
 
+
+## Requisito cliente — Migliora con AI
+
+Prima della consegna del pannello al cliente, i campi editoriali con `ai_allowed=true` devono poter generare una proposta AI separata. UX minima: **Migliora con AI → confronto corrente/proposta → Rifiuta / Modifica / Accetta**. L'accettazione passa dal normale salvataggio versionato dell'Admin V2. Campi `manual_only`, strutturali o `ai_allowed=false` restano esclusi. Nessuna azione AI pubblica automaticamente su Shopify.
 
 ## Obiettivo dell'interfaccia
 
