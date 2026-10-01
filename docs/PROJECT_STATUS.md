@@ -1,7 +1,8 @@
 # Online Garden — stato consolidato del progetto
 
-Data di consolidamento: 30 settembre 2026
+Data di consolidamento: 1 ottobre 2026
 Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
+Baseline Git 2D.4A: `origin/main@0959f95202824cb2a005a6f140282995579a3895`
 
 ## Stato operativo corrente — 30 settembre 2026
 
@@ -15,19 +16,23 @@ Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 - Due P3 UI corretti: Salva solo su dirty state; "Valore non ancora inserito" al posto di "Versione: 0". Messaggi tecnici ripuliti e errori collegati ai field.
 - Non bloccanti: cronologia con nomi tecnici, ruolo Editor non provato live, mismatch cosmetico di `validate_field_update`.
 - `OG_393883` non modificato. Modalità `canary` ancora attiva.
-- Fase 2D Admin AI field-by-field: **CODE READY FOR REVIEW / NON DEPLOYATA** su
-  branch `codex/admin-ai-field-suggestions`, implementata inizialmente da
-  `1931352` e riallineata a `origin/main@81f6a98`. L'hardening 2D.2 risolve
-  offline i quattro finding P2 (rate limit concorrente, accept race, replay
-  prima dei gate mutabili, prodotti inattivi). La migration reservation è
-  preparata ma non applicata; nessuna call AI live o write Shopify.
+- Fase 2D Admin AI field-by-field: PR #22 integrata, ma Edge Functions e
+  frontend **NON DEPLOYATI**. La migration reservation 2D.2 è stata applicata
+  live una sola volta. Il gate ACL ha rilevato privilegi `service_role`
+  eccessivi sulla reservation: forward migration 2D.4A preparata, non applicata.
+  L'audit separato rileva inoltre `authenticated=ALL` su
+  `product_ai_suggestions`: le write di riga sono bloccate da RLS, ma
+  TRUNCATE/REFERENCES/TRIGGER non sono governati da RLS. Release AI bloccata;
+  nessuna call AI live o write Shopify.
 - Fase 3A Shopify/storefront: **BLOCKED**. Shopify espone 461 prodotti; 458 risultano esauriti. Solo `OG_257799`, `OG_426481`, `OG_797988` sono acquistabili e tutti e tre sono senza immagini. Checkout tecnico PASS; spedizioni/tasse/totale finale ed email ordine non ancora verificati. Mobile FAIL per overflow orizzontale su catalogo e prodotto. `OG_152965` safe; `OG_891874` e `OG_758263` richiedono review strutturale.
 - Fase 3B diagnosi: **COMPLETATA READ-ONLY**. 462/462 varianti Shopify hanno `quantityAvailable=0`; le sorgenti raw hanno quantità esplicite solo su 56/2.626 righe SKU (13 positive, 43 zero) e i normalizzatori legacy portano i mancanti a zero. Le pipeline legacy non impostano in modo completo quantity/tracking/location. I 461 prodotti live derivano da sync parziali, non da un manifest commerciale riproducibile. WordPress raw: 1.151 prodotti senza immagini, 493 con una, 982 con gallery; Shopify live: 3 senza immagini, 458 con una, 0 con gallery. Root cause mobile: `HomeAnnouncementBar.tsx` con `whitespace-nowrap`. Checkout EN perché il mercato/domain pubblica solo EN.
 - Fase 3B.1A inventory preflight: **STOP conservativo / BLOCKED BY SHOPIFY CONFIG ACCESS**. Account Shopify ricollegato; lettura prodotto disponibile solo per SKU/prezzo/status/ID. Non sono leggibili location, `inventoryItem.tracked`, `inventoryPolicy` o inventory levels, quindi non è possibile spiegare in modo affidabile perché i tre SKU acquistabili siano vendibili né costruire un manifest old→new. Nessuna write eseguita; canary invariato.
 
 ### Gate mancanti per il go-live
 
-1. Review, rilascio coordinato e smoke controllato della Fase 2D.
+1. Applicare e verificare la forward ACL 2D.4A, poi correggere separatamente
+   l'ACL di `product_ai_suggestions`; soltanto dopo, rilascio coordinato e smoke
+   controllato della Fase 2D.
 2. Caricare/verificare giacenze reali su Shopify.
 3. Decidere il perimetro di pubblicazione e portare online i prodotti previsti per il lancio.
 4. Aggiungere foto ai prodotti acquistabili e verificare la copertura immagini.
@@ -87,7 +92,7 @@ diretta Codex.
 | Storage firmato | **CLOSED** | Autorizzazione caller e limiti bucket/percorso introdotti; non ripristinare la versione vulnerabile. |
 | Smart Sync | **LIVE / GATE A-B-C PASS** | PR #12 integrata; CSV nuovi in `csv-pipeline`, immagini ancora pubbliche in `sync/product-images/**`; CSV pubblico rimosso. |
 | Shopify | **SEPARATO** | Nessun salvataggio Admin V2 attiva Shopify. Sync e pubblicazione commerciale richiedono task e approvazione separati. |
-| AI | **2D.2 HARDENED / NON LIVE** | Endpoint separato, capability server-side, UX proposta/modifica/rifiuta/accetta e stale handling implementati offline. Reservation atomica DB e race/replay hardening testati solo in isolamento; AI legacy preservata; nessuna applicazione automatica o Shopify. |
+| AI | **2D.4A FORWARD FIX PREPARATA / RELEASE BLOCCATA** | Codice 2D integrato ma non distribuito. Migration 2D.2 live una volta; ACL reservation eccessiva da restringere con forward-fix. Audit `product_ai_suggestions`: grant authenticated oltre RLS, remediation separata obbligatoria. AI legacy preservata; nessuna call AI o Shopify. |
 | Storefront/checkout | **FUORI DALLE MODIFICHE 2C.1** | Nessun cambiamento intenzionale. Collaudo commerciale end-to-end ancora da pianificare. |
 
 ## 4. Fasi, PR e stato live
@@ -111,7 +116,7 @@ diretta Codex.
 | 2C.1a replay idempotente | INTEGRATA IN 2C.1b | PR #17, merge `98525ee`; commit `29adddb` | Non autonomamente | Fix sequenziale preservato; la release standalone non è stata eseguita. |
 | 2C.1b race idempotente | LIVE / CLOSED | PR #18; runtime `main@82f7793` | Sì | Replay sequenziale e concorrente, key diversa/payload diverso e stale command PASS; nessuna migration. |
 | 2C.1c create version zero | LIVE SMOKE PASS | fixture approvata `OG_365676.colore_fiore` | Sì | Create v1, replay e `IDEMPOTENCY_CONFLICT` PASS; valore editoriale mantenuto. |
-| 2D Admin AI field-by-field | 2D.2 HARDENED / CODE READY FOR REVIEW | branch `codex/admin-ai-field-suggestions`; implementazione `1931352`, integrazione `81f6a98` | No | Test AI 30/30, catalogo 240/240 e PostgreSQL concorrente PASS offline; migration reservation non applicata; nessuna call AI live. |
+| 2D Admin AI field-by-field | 2D.4A FORWARD FIX PREPARATA / BLOCKED | PR #22 merge `d16b575`; forward branch `codex/admin-ai-privilege-forward-fix` da `0959f95` | No | Migration 2D.2 applicata una volta; Edge/frontend non deployati. Test AI 32/32, catalogo 242/242 e PostgreSQL ACL/concorrenza PASS offline; audit suggestion rileva security gap non ancora corretto. |
 
 Le PR #14 e #15 sono state mergiate su `main`. Il merge ha integrato report,
 test e documentazione già revisionati; non costituisce una nuova applicazione
@@ -128,6 +133,8 @@ della migration né un nuovo deploy della Edge Function.
 | STORAGE-003 — CSV cliente nel bucket pubblico `sync` | **CLOSED — LIVE VERIFIED BY LOVABLE** | Gate A/B/C PASS; backup privato, Smart Sync privato e rimozione oggetto pubblico. |
 | Immagini prodotto pubbliche | **NOT APPLICABLE AS VULNERABILITY** | Accesso pubblico intenzionale limitato a `sync/product-images/**`. |
 | Campi manuali protetti non salvabili | **MITIGATED, LIVE UPDATE VERIFIED BY LOVABLE** | Update e rollback riusciti; create versione 0 e replay di successo restano aperti. |
+| Reservation AI: `service_role=arwdDxtm` | **FORWARD FIX PREPARATA / NON LIVE** | Default ACL live ha ampliato il grant; migration 2D.4A revoca tutto e riassegna solo SELECT/INSERT/UPDATE. |
+| `product_ai_suggestions`: `authenticated=arwdDxtm` | **ACTUAL_SECURITY_GAP / BLOCKING** | RLS blocca INSERT/UPDATE/DELETE senza policy write, ma non governa TRUNCATE/REFERENCES/TRIGGER. Remediation separata richiesta prima del deploy AI. |
 
 ## 6. Fase 2C.1 — stato effettivo
 
@@ -176,23 +183,28 @@ della migration né un nuovo deploy della Edge Function.
 
 ## 7. Open items reali
 
-1. Revisionare e rilasciare in modo coordinato la Fase 2D; eseguire prima lo
-   smoke read-only e fermarsi prima di ogni accettazione non autorizzata.
-2. Collaudare, se necessario, il ruolo Editor/non Admin senza usare
+1. Eseguire preflight/backup ACL, applicare una sola volta la forward migration
+   2D.4A e verificare ACL SIU/registro Drizzle.
+2. Approvare una remediation separata per i privilegi di
+   `product_ai_suggestions`; non affidarsi alla sola RLS.
+3. Rilasciare in modo coordinato la Fase 2D; eseguire prima lo smoke read-only e
+   fermarsi prima di ogni accettazione non autorizzata.
+4. Collaudare, se necessario, il ruolo Editor/non Admin senza usare
    `OG_393883` per scritture.
-3. Decidere separatamente se eseguire il backfill lineage dei soli 14.295
+5. Decidere separatamente se eseguire il backfill lineage dei soli 14.295
    `MATCH_READY`; oggi resta opzionale e non eseguito.
-4. Eseguire il piano di remediation e collaudo commerciale Shopify/storefront.
-5. Riesaminare le variation WordPress di `OG_152965`, `OG_891874` e
+6. Eseguire il piano di remediation e collaudo commerciale Shopify/storefront.
+7. Riesaminare le variation WordPress di `OG_152965`, `OG_891874` e
    `OG_758263` prima di cambiare l'attuale `entity_type` simple.
 
 ## 8. Prossimi passi, in ordine
 
-1. Review e merge della Fase 2D, senza deploy automatico.
-2. Rilascio coordinato Edge/API/frontend e smoke AI controllato.
-3. Decisione sul backfill lineage.
-4. Remediation inventario/pubblicazione/immagini/spedizioni Shopify.
-5. Collaudo commerciale Shopify e storefront.
+1. Review/merge e applicazione controllata della forward migration 2D.4A.
+2. Remediation separata `product_ai_suggestions` e verifica ACL live.
+3. Rilascio coordinato Edge/API/frontend e smoke AI controllato.
+4. Decisione sul backfill lineage.
+5. Remediation inventario/pubblicazione/immagini/spedizioni Shopify.
+6. Collaudo commerciale Shopify e storefront.
 
 ## 9. Vincoli permanenti
 
@@ -212,3 +224,17 @@ Smoke live CREATE su OG_365676/`colore_fiore` = `viola` (v1, locked, lineage NUL
 
 ## Fase 2C.2 — QA finale Admin V2 (2026-09-29)
 ADMIN V2 UX — GO-LIVE READY (canary attivo). Backend 2C.1 CLOSED; create expectedVersion=0 live PASS; OG_365676.colore_fiore="viola" permanente; current values 24.467, history 5, command log 5. Due fix UX P3 (Salva solo con modifiche, niente "versione 0"). Dettagli: `docs/fase2c/qa-finale-admin-2C2.md`.
+
+## Fase 2D.4A — privilegi AI (2026-10-01)
+
+`CODEX VERIFIED`: forward migration minimale per restringere
+`product_ai_generation_reservations` a SELECT/INSERT/UPDATE del solo
+`service_role`; PostgreSQL isolato PASS con default ACL live-like, RPC e
+concorrenza invariati. `NOT EXECUTED LIVE`: migration, Edge, frontend e AI.
+
+Audit repository `product_ai_suggestions`: solo il backend 2D usa
+SELECT/INSERT/UPDATE; frontend e AI Writer legacy non dipendono direttamente
+dalla tabella. L'ACL live riferita `authenticated=ALL` resta un gate bloccante,
+perché RLS non copre TRUNCATE/REFERENCES/TRIGGER. Preflight live read-only da
+eseguire tramite Lovable; nessun progetto Online Garden accessibile al
+connettore Codex.
