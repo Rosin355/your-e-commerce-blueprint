@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { calculateFieldCapabilities } from '../../supabase/functions/product-admin-api/capabilities.ts';
@@ -487,4 +488,48 @@ test('32. prodotto inattivo è respinto server-side prima del provider', async (
       error.details?.reason === 'product_inactive',
   );
   assert.equal(providerCalls, 0);
+});
+
+test('33. forward migration 2D.4B restringe product_ai_suggestions senza riscrivere la 2D.2', () => {
+  const originalPath =
+    'supabase/migrations/20260930152426_harden_product_admin_ai_concurrency.sql';
+  const original = readFileSync(originalPath, 'utf8');
+  assert.equal(
+    createHash('sha256').update(original).digest('hex'),
+    'f6889fabd360fc9586f7690cddfd6727593441a67efc523768a59f313f1a9bb2',
+  );
+
+  const forward = readFileSync(
+    'supabase/migrations/20261001131926_restrict_product_ai_suggestion_privileges.sql',
+    'utf8',
+  );
+  assert.match(
+    forward,
+    /revoke all privileges\s+on table public\.product_ai_suggestions\s+from public, anon, authenticated, service_role;/i,
+  );
+  assert.match(
+    forward,
+    /grant select, insert, update\s+on table public\.product_ai_suggestions\s+to service_role;/i,
+  );
+  assert.doesNotMatch(
+    forward,
+    /^\s*(?:alter|create|drop|insert|update|delete|truncate)\b/im,
+  );
+  assert.doesNotMatch(forward, /alter default privileges/i);
+  assert.doesNotMatch(forward, /product_ai_generation_reservations/i);
+});
+
+test('34. product-admin-ai usa product_ai_suggestions soltanto con SELECT, INSERT e UPDATE', () => {
+  const source = readFileSync(
+    'supabase/functions/product-admin-ai/service.ts',
+    'utf8',
+  );
+  assert.equal(
+    source.match(/\.from\("product_ai_suggestions"\)/g)?.length,
+    4,
+  );
+  assert.match(source, /\.from\("product_ai_suggestions"\)[\s\S]*?\.select\(/);
+  assert.match(source, /\.from\("product_ai_suggestions"\)[\s\S]*?\.insert\(/);
+  assert.match(source, /\.from\("product_ai_suggestions"\)[\s\S]*?\.update\(/);
+  assert.doesNotMatch(source, /\.delete\(/);
 });
