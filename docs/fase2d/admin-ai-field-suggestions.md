@@ -1,12 +1,15 @@
 # Fase 2D — Admin AI field-by-field
 
-Stato: **2D.4A FORWARD FIX PREPARATA / RELEASE AI BLOCCATA — NON DEPLOYATO**
+Stato: **2D.4C PR #23 MERGIATA / PR #24 READY — RUNTIME NON DEPLOYATO**
 
 Baseline implementazione: `origin/main@193135224886e8d022e17ddf6e1b4d16f9dc8629`
 
 Baseline integrazione: `origin/main@81f6a98148fc15b80dd50c6d7762fa7b2d5e34e9`
 
 Branch isolato: `codex/admin-ai-field-suggestions`
+
+Branch hardening ACL suggestion: `codex/admin-ai-suggestions-acl-fix`, basato
+e riallineato su `origin/main@85a895a6caaec391d5f760eb694f6e6b3811aa72`.
 
 ## Architecture note
 
@@ -56,21 +59,24 @@ introduce soltanto:
 La reservation avviene subito prima della chiamata provider. Nessun polling,
 sleep, retry automatico o lock rimane aperto durante la chiamata esterna. Una
 reservation fallita conta comunque nel limite anti-abuso del minuto, ma non
-impedisce una nuova generazione dello stesso target. La migration è soltanto
-stata applicata live una sola volta tramite Lovable; Edge Functions e frontend
-2D non sono stati distribuiti.
+impedisce una nuova generazione dello stesso target. La migration 2D.2 risulta
+applicata live una sola volta tramite Lovable e non deve essere riapplicata. La
+forward migration reservation della PR #23 è mergiata ma non applicata live;
+Edge Functions e frontend 2D non sono stati distribuiti.
 
 La tabella ammette gli stati DB `pending`, `accepted`, `discarded`, `superseded`. Il contratto
 API espone rispettivamente `pending`, `accepted`, `rejected`, `stale`; questa mappatura evita
 una modifica retroattiva del CHECK live. `model` registra `provider/modello` e `prompt_hint`
 registra la strategia, senza memorizzare chiavi o prompt completi.
 
-Il contratto repository originario richiede `anon` senza grant,
-`authenticated` con SELECT vincolata dalla policy
-`can_edit_products(auth.uid())` e `service_role` per le scritture server-side.
-Il preflight live 2D.4 ha però rilevato ACL più ampie su
-`product_ai_suggestions`; l'audit 2D.4A le tratta separatamente senza modificarle.
-Il trigger `assert_ai_field_allowed` resta una seconda difesa DB sugli INSERT.
+Il preflight live 2D.4A ha rilevato su `product_ai_suggestions` privilegi `ALL`
+sia per `authenticated` sia per `service_role`. RLS blocca le write di riga
+senza policy, ma non governa `TRUNCATE`, `REFERENCES` e `TRIGGER`. La remediation
+2D.4B della PR #24 revoca tutti i grant per-oggetto a `PUBLIC`, `anon`,
+`authenticated` e `service_role`, poi concede soltanto `SELECT`, `INSERT`,
+`UPDATE` a `service_role`. La policy SELECT `ai_suggestions_read` resta
+deliberatamente invariata ma inattiva senza ACL; il trigger
+`assert_ai_field_allowed` resta una seconda difesa sugli INSERT server-side.
 
 ### Confini di sicurezza
 
@@ -200,9 +206,10 @@ di rilascio perché il frontend non è stato pubblicato.
 | Gate | Esito |
 |---|---|
 | `npm ci` | PASS, lockfile invariato |
-| test AI mirati | PASS 32/32; inclusi reservation/rate limit, target concorrente, accept race, replay FAQ, prodotto inattivo e gate statici 2D.4A |
+| test AI mirati | PASS 34/34; la numerazione descrittiva arriva a 36 per due titoli accorpati |
 | PostgreSQL isolato concorrente | PASS; 6 simultanee → 5 reservation e 1 rate limit; target equivalente → 1 reservation |
-| `npm run test:catalog` | PASS 242/242 |
+| PostgreSQL isolato ACL suggestion | PASS; authenticated negato su 7 operazioni, service_role SIU, non-drift completo |
+| `npm run test:catalog` | PASS 244/244 |
 | `npm run typecheck` | PASS |
 | `deno check product-admin-ai` | PASS |
 | `deno check product-admin-api` | PASS |
@@ -217,12 +224,10 @@ publish legacy nel nuovo endpoint.
 ## Piano di rilascio
 
 1. review del diff e preflight read-only di tabella/RPC/ACL live;
-2. non riapplicare la migration 2D.2, già presente e registrata live;
-3. applicare una sola volta la forward migration 2D.4A dopo backup ACL e
-   preflight read-only; verificare ACL per-oggetto e registrazione Drizzle senza
-   manipolarne manualmente il journal;
-4. chiudere o accettare esplicitamente il finding ACL su
-   `product_ai_suggestions` prima di distribuire l'endpoint AI;
+2. non riapplicare la migration 2D.2, già registrata una volta secondo Lovable;
+3. integrare la PR #24 e applicare una sola volta, in ordine, la forward
+   migration 2D.4A della PR #23 e la remediation 2D.4B della PR #24;
+4. verificare RLS, ACL esatti e registro migration senza manipolarlo;
 5. confermare `LOVABLE_API_KEY` e scegliere `ADMIN_AI_MODEL` senza esporre i
    valori;
 6. deploy `product-admin-ai` dalla revisione approvata;
@@ -235,9 +240,9 @@ publish legacy nel nuovo endpoint.
 12. dopo approvazione, test accept/replay/conflict e verifica esplicita di zero
    chiamate Shopify.
 
-Non pubblicare il frontend se uno dei due endpoint non è disponibile. La nuova
-migration reservation è un prerequisito del runtime 2D.2 e non deve essere
-applicata finché la PR e il piano di rilascio non sono approvati.
+Non pubblicare il frontend se uno dei due endpoint non è disponibile. Le due
+remediation ACL sono prerequisiti del runtime 2D e non devono essere applicate
+finché le rispettive PR e il piano di rilascio non sono approvati.
 
 ## Rollback
 
@@ -386,5 +391,19 @@ ACL non saranno corretti in un task separato.
 6. soltanto dopo, deploy coordinato Edge Functions → frontend e smoke
    read-only; STOP prima di chiamate AI o scritture prodotto non autorizzate.
 
-**2D.4A: FORWARD FIX RESERVATION PRONTA; RELEASE AI BLOCCATA DAL FINDING
-`product_ai_suggestions`.**
+**2D.4A: FORWARD FIX RESERVATION MERGIATA; MIGRATION NON APPLICATA LIVE.**
+
+## Fase 2D.4B — remediation ACL suggestion (01/10/2026)
+
+- audit repository: il browser passa sempre da `product-admin-ai`; il service
+  usa `SELECT`, `INSERT`, `UPDATE`; la RPC reservation usa soltanto `SELECT`;
+  nessun flusso usa `DELETE`;
+- target ACL: nessun privilegio a `PUBLIC`, `anon`, `authenticated`; soltanto
+  `SELECT`, `INSERT`, `UPDATE` a `service_role`;
+- policy `ai_suggestions_read` conservata e inattiva senza grant tabella;
+- nuova migration forward-only
+  `20261001131926_restrict_product_ai_suggestion_privileges.sql`;
+- PostgreSQL isolato: test positivi/negativi e non-drift PASS;
+- dettagli, rollout e rollback in
+  `docs/fase2d/product-ai-suggestions-acl-2D4B.md`;
+- migration live, deploy, AI live e write dati: **NON ESEGUITI**.
