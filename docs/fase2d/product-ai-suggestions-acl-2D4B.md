@@ -2,11 +2,13 @@
 
 Stato: **FIX FORWARD-ONLY PRONTA PER REVIEW — NON APPLICATA LIVE**
 
-Baseline Git: `origin/main@0959f95202824cb2a005a6f140282995579a3895`
+Baseline Git dopo il riallineamento 2D.4C:
+`origin/main@85a895a6caaec391d5f760eb694f6e6b3811aa72`
 
 Branch: `codex/admin-ai-suggestions-acl-fix`
 
-Questa remediation è separata dalla PR #23, che restringe i privilegi della
+Questa remediation è separata dalla PR #23, già mergiata con commit
+`85a895a6caaec391d5f760eb694f6e6b3811aa72`, che restringe i privilegi della
 tabella `product_ai_generation_reservations`. Non modifica runtime, frontend,
 policy RLS, default privileges o migration già applicate.
 
@@ -120,15 +122,16 @@ migration e verifica:
 - seconda applicazione offline stabile.
 
 I test AI statici verificano anche che il service contenga soltanto i quattro
-accessi attesi e nessuna `.delete()`. I titoli numerati arrivano a 34 perché due
-test storici accorpano più requisiti; i casi `node:test` effettivi sono **32**.
+accessi attesi e nessuna `.delete()`. Dopo l'integrazione della PR #23, i titoli
+numerati arrivano a 36 perché due test storici accorpano più requisiti; i casi
+`node:test` effettivi sono **34**.
 
 ## 6. Rollout controllato
 
 Ordine minimo raccomandato:
 
-1. mergiare e verificare la PR #23 senza deploy;
-2. mergiare questa PR separata;
+1. verificare la PR #23 già mergiata, senza applicarne la migration live;
+2. revisionare e mergiare questa PR separata;
 3. eseguire backup definizioni/ACL e preflight read-only Lovable;
 4. applicare una sola volta la migration reservation della PR #23 e verificarne
    il registro;

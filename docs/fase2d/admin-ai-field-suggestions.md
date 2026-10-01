@@ -1,6 +1,6 @@
 # Fase 2D — Admin AI field-by-field
 
-Stato: **2D.4B ACL FIX READY FOR REVIEW — RUNTIME NON DEPLOYATO**
+Stato: **2D.4C PR #23 MERGIATA / PR #24 READY — RUNTIME NON DEPLOYATO**
 
 Baseline implementazione: `origin/main@193135224886e8d022e17ddf6e1b4d16f9dc8629`
 
@@ -9,7 +9,7 @@ Baseline integrazione: `origin/main@81f6a98148fc15b80dd50c6d7762fa7b2d5e34e9`
 Branch isolato: `codex/admin-ai-field-suggestions`
 
 Branch hardening ACL suggestion: `codex/admin-ai-suggestions-acl-fix`, basato
-su `origin/main@0959f95202824cb2a005a6f140282995579a3895`.
+e riallineato su `origin/main@85a895a6caaec391d5f760eb694f6e6b3811aa72`.
 
 ## Architecture note
 
@@ -59,10 +59,10 @@ introduce soltanto:
 La reservation avviene subito prima della chiamata provider. Nessun polling,
 sleep, retry automatico o lock rimane aperto durante la chiamata esterna. Una
 reservation fallita conta comunque nel limite anti-abuso del minuto, ma non
-impedisce una nuova generazione dello stesso target. La migration è soltanto
-stata applicata una volta secondo il report Lovable della Fase 2D.4A; non deve
-essere riapplicata. Le Edge Functions e il frontend 2D non sono stati
-distribuiti perché il gate ACL è rimasto bloccante.
+impedisce una nuova generazione dello stesso target. La migration 2D.2 risulta
+applicata live una sola volta tramite Lovable e non deve essere riapplicata. La
+forward migration reservation della PR #23 è mergiata ma non applicata live;
+Edge Functions e frontend 2D non sono stati distribuiti.
 
 La tabella ammette gli stati DB `pending`, `accepted`, `discarded`, `superseded`. Il contratto
 API espone rispettivamente `pending`, `accepted`, `rejected`, `stale`; questa mappatura evita
@@ -72,11 +72,11 @@ registra la strategia, senza memorizzare chiavi o prompt completi.
 Il preflight live 2D.4A ha rilevato su `product_ai_suggestions` privilegi `ALL`
 sia per `authenticated` sia per `service_role`. RLS blocca le write di riga
 senza policy, ma non governa `TRUNCATE`, `REFERENCES` e `TRIGGER`. La remediation
-2D.4B revoca tutti i grant per-oggetto a `PUBLIC`, `anon`, `authenticated` e
-`service_role`, poi concede soltanto `SELECT`, `INSERT`, `UPDATE` a
-`service_role`. La policy SELECT `ai_suggestions_read` resta deliberatamente
-invariata ma inattiva senza ACL; il trigger `assert_ai_field_allowed` resta una
-seconda difesa sugli INSERT server-side.
+2D.4B della PR #24 revoca tutti i grant per-oggetto a `PUBLIC`, `anon`,
+`authenticated` e `service_role`, poi concede soltanto `SELECT`, `INSERT`,
+`UPDATE` a `service_role`. La policy SELECT `ai_suggestions_read` resta
+deliberatamente invariata ma inattiva senza ACL; il trigger
+`assert_ai_field_allowed` resta una seconda difesa sugli INSERT server-side.
 
 ### Confini di sicurezza
 
@@ -206,10 +206,10 @@ di rilascio perché il frontend non è stato pubblicato.
 | Gate | Esito |
 |---|---|
 | `npm ci` | PASS, lockfile invariato |
-| test AI mirati | PASS 32/32; 30 casi funzionali più 2 regression test ACL/dipendenze; la numerazione descrittiva arriva a 34 per due titoli accorpati |
+| test AI mirati | PASS 34/34; la numerazione descrittiva arriva a 36 per due titoli accorpati |
 | PostgreSQL isolato concorrente | PASS; 6 simultanee → 5 reservation e 1 rate limit; target equivalente → 1 reservation |
 | PostgreSQL isolato ACL suggestion | PASS; authenticated negato su 7 operazioni, service_role SIU, non-drift completo |
-| `npm run test:catalog` | PASS 242/242 |
+| `npm run test:catalog` | PASS 244/244 |
 | `npm run typecheck` | PASS |
 | `deno check product-admin-ai` | PASS |
 | `deno check product-admin-api` | PASS |
@@ -225,8 +225,8 @@ publish legacy nel nuovo endpoint.
 
 1. review del diff e preflight read-only di tabella/RPC/ACL live;
 2. non riapplicare la migration 2D.2, già registrata una volta secondo Lovable;
-3. integrare prima la PR #23 e poi la remediation 2D.4B, applicando ciascuna
-   nuova migration forward una sola volta tramite il canale Lovable;
+3. integrare la PR #24 e applicare una sola volta, in ordine, la forward
+   migration 2D.4A della PR #23 e la remediation 2D.4B della PR #24;
 4. verificare RLS, ACL esatti e registro migration senza manipolarlo;
 5. confermare `LOVABLE_API_KEY` e scegliere `ADMIN_AI_MODEL` senza esporre i
    valori;
@@ -257,13 +257,15 @@ finché le rispettive PR e il piano di rilascio non sono approvati.
 
 ## Stato conclusivo
 
-- migration: **SÌ, incrementale 2D.2; PREPARATA / NON APPLICATA LIVE**;
+- migration 2D.2: **APPLICATA LIVE UNA SOLA VOLTA** secondo evidenza Lovable;
+- migration 2D.4A: **PREPARATA / NON APPLICATA LIVE**;
 - deploy/frontend publish: **NON ESEGUITI**;
 - AI live: **NON CHIAMATA**;
-- database live: **NON TOCCATO**;
+- database live da Codex in 2D.4A: **NON TOCCATO**; la sola applicazione 2D.2
+  resta evidenza Lovable preesistente;
 - Shopify/storefront: **NON TOCCATI**.
 
-**2D ADMIN AI — CODE READY FOR REVIEW**
+**2D.2 CODE MERGED — DEPLOYMENT BLOCCATO DAI GATE ACL 2D.4A**
 
 ## Fase 2D.4 — Controlled live rollout (30/09/2026) — BLOCKED
 
@@ -274,6 +276,122 @@ finché le rispettive PR e il piano di rilascio non sono approvati.
 - Nota preesistente: `product_ai_suggestions` concede `arwdDxtm` ad `authenticated` (mitigato da RLS, da verificare).
 - Per regola del gate: **Edge Functions NON deployate**, nessuno smoke, frontend non pubblicato, AI non chiamata, Shopify intatto, canary attivo.
 - Stato: 2D BACKEND NOT LIVE — migration applicata, funzioni non distribuite.
+
+## Fase 2D.4A — forward-fix ACL reservation e audit suggestion (01/10/2026)
+
+### Causa e correzione minimale
+
+La migration 2D.2 eseguiva un `GRANT SELECT, INSERT, UPDATE` a
+`service_role`, ma PostgreSQL tratta `GRANT` in modo additivo. Al momento della
+creazione, il default ACL live dello schema/owner aveva già assegnato
+`arwdDxtm`; il grant ristretto non poteva rimuovere `DELETE`, `TRUNCATE`,
+`REFERENCES`, `TRIGGER` e `MAINTAIN`.
+
+La nuova migration incrementale
+`20261001130202_restrict_product_admin_ai_reservation_privileges.sql` contiene
+esclusivamente:
+
+```sql
+revoke all privileges
+on table public.product_ai_generation_reservations
+from public, anon, authenticated, service_role;
+
+grant select, insert, update
+on table public.product_ai_generation_reservations
+to service_role;
+```
+
+Non modifica la migration 2D.2 già applicata, dati, owner, schema, RLS, policy,
+indici, FK, RPC, `search_path`, execute ACL o default privileges. La seconda
+applicazione offline produce lo stesso ACL, ma in produzione deve comunque
+essere registrata e applicata una sola volta dal canale Lovable.
+
+### ACL attesa dopo la forward migration
+
+| Oggetto / ruolo | Privilegi attesi |
+|---|---|
+| reservation / `PUBLIC` | nessuno |
+| reservation / `anon` | nessuno |
+| reservation / `authenticated` | nessuno |
+| reservation / `service_role` | `SELECT`, `INSERT`, `UPDATE` soltanto |
+| RPC reservation / `service_role` | `EXECUTE`, invariato |
+| RPC reservation / altri ruoli | nessuno, invariato |
+
+Il runtime richiede esattamente questi tre privilegi: la RPC `SECURITY
+INVOKER` legge e inserisce reservation; `product-admin-ai` risolve una
+reservation con un update condizionale. Nessun codice runtime esegue delete,
+truncate, reference o trigger management.
+
+### Audit `product_ai_suggestions`
+
+Audit repository `CODEX VERIFIED`:
+
+- `product-admin-ai` esegue SELECT per lista/dettaglio, INSERT della proposta e
+  UPDATE condizionale dello stato; non esegue DELETE o TRUNCATE;
+- la RPC reservation esegue soltanto SELECT per riconoscere una pending ancora
+  valida;
+- Admin V2 invoca la Edge Function, senza accesso diretto browser alla tabella;
+- AI Writer e pipeline legacy usano `products.ai_enrichment_json` e le tabelle
+  enrichment, non `product_ai_suggestions`;
+- non risultano dipendenze Shopify, import o Storage su questa tabella.
+
+Classificazione rispetto all'ACL live riferita `authenticated = arwdDxtm`:
+
+| Superficie | Classificazione | Motivo |
+|---|---|---|
+| SELECT authenticated | `SAFE_BY_RLS` | La policy limita la lettura a `can_edit_products(auth.uid())`. |
+| INSERT/UPDATE/DELETE authenticated | `OVERPRIVILEGED_BUT_BLOCKED` | Non esistono policy write per `authenticated`; RLS nega le righe. |
+| TRUNCATE/REFERENCES/TRIGGER authenticated | `ACTUAL_SECURITY_GAP` | RLS non governa questi privilegi; eventuali FK o limiti di schema sono difese incidentali, non il contratto autorizzativo. |
+| Service role ALL | `LEGACY_DEPENDENCY_REQUIRES_REVIEW` | Il runtime osservato usa SIU, ma il grant storico esplicito è più ampio e va corretto in una migration separata approvata. |
+
+La classificazione complessiva è quindi **ACTUAL_SECURITY_GAP**. La forward
+migration 2D.4A non lo corregge perché il perimetro autorizzato è esclusivamente
+la tabella reservation. Edge e frontend AI restano bloccati finché il preflight
+live non conferma owner/policy/default ACL e non viene approvata una remediation
+separata per `product_ai_suggestions`.
+
+### Default ACL e preflight live
+
+Il repository non contiene `ALTER DEFAULT PRIVILEGES`; la causa live è quindi
+esterna alla migration Git. Il file read-only
+`docs/fase2d/product-ai-privilege-audit-2D4A.sql` distingue:
+
+- owner effettivo delle tabelle;
+- ACL per-oggetto correnti;
+- default ACL per owner e schema `public`;
+- policy RLS, RPC, trigger e FK dipendenti.
+
+Il connettore disponibile non autorizza l'accesso al project ref Online Garden:
+Codex non ha eseguito il preflight live. Lovable deve eseguirlo prima
+dell'applicazione. In questa fase non si esegue `ALTER DEFAULT PRIVILEGES`; il
+rischio futuro resta che nuove tabelle ereditino privilegi ampi finché i default
+ACL non saranno corretti in un task separato.
+
+### Test offline 2D.4A
+
+- PostgreSQL isolato: riprodotto default ACL ampio → migration 2D.2 → ACL
+  `service_role` eccessivo → forward migration → solo SIU;
+- dati reservation, RLS, indici, vincoli, funzione, function ACL e default ACL
+  invariati;
+- RPC ancora operativa e concorrenza invariata: 6 tentativi → 5 RESERVED + 1
+  RATE_LIMITED; doppio target → 1 RESERVED + 1 GENERATION_IN_PROGRESS;
+- seconda applicazione offline stabile;
+- prova RLS: INSERT senza write policy negato, TRUNCATE su tabella-probe con
+  grant esplicito consentito, confermando che RLS non copre quel privilegio;
+- preflight read-only validato sintatticamente su PostgreSQL isolato;
+- nessun accesso o modifica live, nessuna call AI, Shopify o deploy.
+
+### Gate di rilascio
+
+1. backup di ACL tabella/RPC e output del preflight read-only;
+2. conferma owner e default ACL reali;
+3. applicazione una sola volta della forward migration tramite Lovable;
+4. verifica ACL esatta SIU e Drizzle registry senza editing manuale;
+5. remediation separata di `product_ai_suggestions`;
+6. soltanto dopo, deploy coordinato Edge Functions → frontend e smoke
+   read-only; STOP prima di chiamate AI o scritture prodotto non autorizzate.
+
+**2D.4A: FORWARD FIX RESERVATION MERGIATA; MIGRATION NON APPLICATA LIVE.**
 
 ## Fase 2D.4B — remediation ACL suggestion (01/10/2026)
 
