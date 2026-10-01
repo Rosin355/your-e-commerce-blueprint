@@ -1,7 +1,8 @@
 # Online Garden — developer handoff
 
-Aggiornamento: 30 settembre 2026
+Aggiornamento: 1 ottobre 2026
 Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
+Baseline Git 2D.4A: `origin/main@0959f95202824cb2a005a6f140282995579a3895`
 
 ## 0. Release snapshot corrente
 
@@ -11,10 +12,13 @@ Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 - Conteggi correnti: 24.467 current values, history 5, command log 5.
 - Admin V2 UX: **GO-LIVE READY**; due P3 corretti (dirty-save e label valore assente).
 - Non bloccanti: cronologia con field_key tecnici, ruolo Editor non provato live, mismatch cosmetico validate.
-- Fase 2D: `codex/admin-ai-field-suggestions`, implementata da `1931352` e
-  riallineata a `origin/main@81f6a98`, **code ready for review e non deployata**.
-  È il client handoff blocker; la migration incrementale 2D.2 per reservation
-  atomiche è preparata ma non applicata; nessuna call AI live o write Shopify.
+- Fase 2D: PR #22 integrata; migration reservation 2D.2 applicata live una sola
+  volta, ma Edge Functions e frontend **non deployati**. Il gate ACL ha rilevato
+  privilegi `service_role` eccessivi sulla reservation. La forward migration
+  2D.4A è preparata e non applicata. L'audit separato classifica inoltre il
+  grant live `authenticated=ALL` su `product_ai_suggestions` come security gap
+  perché RLS non governa TRUNCATE/REFERENCES/TRIGGER. Release AI bloccata;
+  nessuna call AI live o write Shopify.
 - Fase 3A Shopify/storefront: **BLOCKED**. 461 published, 458 sold-out; only 3 purchasable and all without images; shipping not verified; mobile overflow present; checkout technical PASS.
 - Fase 3B read-only: root cause inventory = assenza di feed quantità completo + legacy normalization missing→0; 462/462 Shopify variants quantityAvailable=0. Publication = legacy partial sync, nessun manifest commerciale. Images = legacy sync crea mediaInputs ma non li invia. Mobile overflow = `HomeAnnouncementBar.tsx` / `whitespace-nowrap`. Checkout EN = locale Shopify pubblicato solo EN.
 - Fase 3B.1A: Shopify access corrente non espone inventory Admin fields (locations, tracked, inventoryPolicy, per-location levels). Stato = BLOCKED BY SHOPIFY CONFIG ACCESS, non prova di misconfiguration. Prossimo gate raccomandato: endpoint Admin read-only dedicato o export Inventory CSV.
@@ -163,10 +167,23 @@ La migration incrementale
 `20260930152426_harden_product_admin_ai_concurrency.sql` aggiunge esclusivamente
 tabella reservation, indici e RPC `SECURITY INVOKER`. RLS è attiva; tabella e
 funzione sono negate a `anon/authenticated` e concesse solo a `service_role`.
-Non è stata applicata live. Gli stati DB `discarded`/`superseded` sono
+È stata applicata live una sola volta tramite Lovable. Il default ACL live ha
+però ampliato il grant tabella a `service_role=arwdDxtm`: la forward migration
+`20261001130202_restrict_product_admin_ai_reservation_privileges.sql` esegue
+`REVOKE ALL` per-oggetto e riassegna soltanto SELECT/INSERT/UPDATE. Non modifica
+la RPC o i default ACL ed è ancora **non applicata live**. Gli stati DB
+`discarded`/`superseded` sono
 presentati all'UI come `rejected`/`stale`; il campo `model` registra
 `provider/model`, `prompt_hint` la strategia e `prompt_version` la versione del
 prompt.
+
+L'audit `product_ai_suggestions` rileva nel repository solo SELECT/INSERT/UPDATE
+dal backend 2D e nessun accesso diretto frontend o AI Writer legacy. Il grant
+live riferito `authenticated=arwdDxtm` non è però completamente mitigato da
+RLS: le policy bloccano le write di riga, mentre TRUNCATE, REFERENCES e TRIGGER
+sono fuori dal perimetro RLS. Non distribuire 2D prima del preflight
+`docs/fase2d/product-ai-privilege-audit-2D4A.sql` e di una remediation separata
+approvata; la migration 2D.4A autorizzata non modifica questa tabella.
 
 Tutte le transizioni suggestion sono conditional update da `pending`. Un
 accept concorrente perdente non può sovrascrivere `accepted`; gli stati risolti
@@ -260,13 +277,15 @@ verificare replay sequenziale e sovrapposto in entrambe le finestre, conflitto
 idempotente e nuova command stale. La RPC resta il gate atomico; ogni ramo
 concorrente esegue al massimo un re-check read-only e nessun retry della write.
 
-Per 2D il rilascio deve essere coordinato: (1) preflight/backup DB; (2)
-applicazione una sola volta della migration reservation e verifica del registro;
-(3) deploy del nuovo `product-admin-ai`; (4) deploy di `product-admin-api` dalla
-stessa revisione; (5) smoke read-only delle capability e dell'elenco
-suggestion; (6) frontend; (7) generazione canary su fixture approvata; (8) STOP
-prima di “Accetta” finché la write non è autorizzata. Non distribuire Edge o
-frontend prima della migration: il nuovo endpoint richiede la RPC reservation.
+Per 2D il rilascio deve essere coordinato: (1) preflight read-only e backup ACL;
+(2) non riapplicare la migration 2D.2; (3) applicare una sola volta la forward
+migration 2D.4A e verificare ACL SIU/registro Drizzle; (4) correggere con task e
+migration separati il grant `authenticated` di `product_ai_suggestions`; (5)
+deploy del nuovo `product-admin-ai`; (6) deploy di `product-admin-api` dalla
+stessa revisione; (7) smoke read-only delle capability e dell'elenco suggestion;
+(8) frontend; (9) generazione canary su fixture approvata; (10) STOP prima di
+“Accetta” finché la write non è autorizzata. Non distribuire Edge o frontend
+finché entrambi i gate ACL non sono chiusi.
 
 ### Rollback
 
@@ -310,11 +329,13 @@ Per l'hardening concorrente 2D.2 eseguire inoltre:
 node scripts/test-admin-ai-generation-concurrency.mjs
 ```
 
-Il runner avvia PostgreSQL effimero, applica solo fixture sintetiche e la nuova
-migration, lancia sei reservation simultanee e un doppio target equivalente,
-quindi verifica ACL/RLS. Non conosce URL o credenziali live.
+Il runner avvia PostgreSQL effimero, riproduce il default ACL ampio osservato
+live, applica migration 2D.2 e forward 2D.4A, verifica ACL esatta SIU e assenza
+di drift su dati/RLS/indici/vincoli/RPC/default ACL, poi lancia sei reservation
+simultanee e un doppio target equivalente. Valida anche il preflight read-only e
+dimostra che RLS non governa TRUNCATE. Non conosce URL o credenziali live.
 
-Gate offline 2D.2: test AI mirati **30/30**, catalogo **240/240** e runner
+Gate offline 2D.4A: test AI mirati **32/32**, catalogo **242/242** e runner
 PostgreSQL concorrente PASS. Questi risultati non costituiscono deploy né prova
 su dati live.
 
@@ -329,8 +350,12 @@ su dati live.
 - `docs/fase2b/publish-frontend-2B6.md`: rilascio frontend;
 - `docs/fase2c/backend-release-2C1.md`: release backend 2C.1;
 - `docs/fase2d/admin-ai-field-suggestions.md`: architettura, test e rollout 2D;
+- `docs/fase2d/product-ai-privilege-audit-2D4A.sql`: preflight ACL/RLS/default
+  ACL esclusivamente read-only;
 - `supabase/migrations/20260930152426_harden_product_admin_ai_concurrency.sql`:
-  reservation atomica 2D.2, non applicata live;
+  reservation atomica 2D.2, applicata live una sola volta;
+- `supabase/migrations/20261001130202_restrict_product_admin_ai_reservation_privileges.sql`:
+  forward-fix per-oggetto SIU, non applicata live;
 - `docs/fase2c/gate-c-removal-STORAGE-003.md`: chiusura Storage;
 - `supabase/functions/product-admin-api/`: API Admin;
 - `supabase/migrations/20260926150609_allow_admin_manual_locked_field_edits.sql`:
