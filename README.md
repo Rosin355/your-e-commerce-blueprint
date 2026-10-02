@@ -295,3 +295,7 @@ Prima del go-live, seguire `docs/prelaunch-checklist.md`.
 - `OPENAI_COPY_MODEL` (opzionale)
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
+
+
+## Fase 2D.7 (2026-10-02)
+2D EDGE BACKEND LIVE · READ-ONLY SMOKE PASS · FRONTEND NOT PUBLISHED · AI PROVIDER NOT CALLED · AI GENERATION NOT YET TESTED · CANARY ACTIVE. Dettagli: `docs/fase2d/edge-live-2D7.md`.

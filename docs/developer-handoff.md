@@ -390,3 +390,7 @@ Smoke live CREATE su OG_365676/`colore_fiore` = `viola` (v1, locked, lineage NUL
 
 ## Fase 2C.2 — QA finale Admin V2 (2026-09-29)
 ADMIN V2 UX — GO-LIVE READY (canary attivo). Backend 2C.1 CLOSED; create expectedVersion=0 live PASS; OG_365676.colore_fiore="viola" permanente; current values 24.467, history 5, command log 5. Due fix UX P3 (Salva solo con modifiche, niente "versione 0"). Dettagli: `docs/fase2c/qa-finale-admin-2C2.md`.
+
+
+## Fase 2D.7 (2026-10-02)
+2D EDGE BACKEND LIVE · READ-ONLY SMOKE PASS · FRONTEND NOT PUBLISHED · AI PROVIDER NOT CALLED · AI GENERATION NOT YET TESTED · CANARY ACTIVE. Dettagli: `docs/fase2d/edge-live-2D7.md`.

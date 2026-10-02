@@ -113,3 +113,7 @@ backend. Il deploy successivo si è fermato durante il packaging e non ha
 distribuito nuove Edge Functions. La funzione resta intenzionalmente non
 pubblicata finché la correzione 2D.6 non sarà revisionata. Catalogo, Admin V2,
 Shopify e dati prodotto non sono stati modificati.
+
+
+## Fase 2D.7 (2026-10-02)
+2D EDGE BACKEND LIVE · READ-ONLY SMOKE PASS · FRONTEND NOT PUBLISHED · AI PROVIDER NOT CALLED · AI GENERATION NOT YET TESTED · CANARY ACTIVE. Dettagli: `docs/fase2d/edge-live-2D7.md`.
