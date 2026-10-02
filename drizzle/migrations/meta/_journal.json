@@ -29,6 +29,20 @@
       "when": 1790788924595,
       "tag": "0003_harden_product_admin_ai_concurrency",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790928742292,
+      "tag": "0004_restrict_product_admin_ai_reservation_privileges",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790928758278,
+      "tag": "0005_restrict_product_ai_suggestion_privileges",
+      "breakpoints": true
     }
   ]
 }
