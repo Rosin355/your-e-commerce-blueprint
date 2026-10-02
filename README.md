@@ -302,3 +302,7 @@ Prima del go-live, seguire `docs/prelaunch-checklist.md`.
 
 ## Fase 2D.8 — AI generation smoke (2026-10-02)
 Frontend AI pubblicato; una generazione su OG_264361 `seo_title` → suggestion pending `72d271c6`, valore prodotto invariato, accept/reject non testati, canary attivo. Dettagli: `docs/fase2d/ai-generation-smoke-2D8.md`.
+
+
+## 2D.9 — Controlled accept (2026-10-02)
+Accept live su OG_264361/seo_title v1→v2, history/command +1, replay idempotente e conflict 409 verificati, Shopify non toccato, provider 0, canary attivo, restore non eseguito. Dettagli: `docs/fase2d/ai-controlled-accept-2D9.md`.

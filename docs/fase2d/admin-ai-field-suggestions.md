@@ -468,3 +468,7 @@ Frontend AI pubblicato; una generazione su OG_264361 `seo_title` → suggestion 
 
 ## 2D.8S — Post-publish security (2026-10-02)
 POST-PUBLISH SECURITY PASS (read-only), nessun P1/P2; suggestion OG_264361/seo_title ancora pending; CONTROLLED ACCEPT NOT YET TESTED; canary attivo. Dettagli: `docs/fase2d/post-publish-security-2D8S.md`.
+
+
+## 2D.9 — Controlled accept (2026-10-02)
+Accept live su OG_264361/seo_title v1→v2, history/command +1, replay idempotente e conflict 409 verificati, Shopify non toccato, provider 0, canary attivo, restore non eseguito. Dettagli: `docs/fase2d/ai-controlled-accept-2D9.md`.
