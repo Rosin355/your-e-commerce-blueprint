@@ -394,3 +394,6 @@ ADMIN V2 UX — GO-LIVE READY (canary attivo). Backend 2C.1 CLOSED; create expec
 
 ## Fase 2D.7 (2026-10-02)
 2D EDGE BACKEND LIVE · READ-ONLY SMOKE PASS · FRONTEND NOT PUBLISHED · AI PROVIDER NOT CALLED · AI GENERATION NOT YET TESTED · CANARY ACTIVE. Dettagli: `docs/fase2d/edge-live-2D7.md`.
+
+## Fase 2D.8 — AI generation smoke (2026-10-02)
+Frontend AI pubblicato; una generazione su OG_264361 `seo_title` → suggestion pending `72d271c6`, valore prodotto invariato, accept/reject non testati, canary attivo. Dettagli: `docs/fase2d/ai-generation-smoke-2D8.md`.
