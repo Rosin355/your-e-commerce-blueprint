@@ -407,3 +407,16 @@ ACL non saranno corretti in un task separato.
 - dettagli, rollout e rollback in
   `docs/fase2d/product-ai-suggestions-acl-2D4B.md`;
 - migration live, deploy, AI live e write dati: **NON ESEGUITI**.
+
+## Fase 2D.5 — Live ACL remediation (2026-10-02)
+
+- main: `eee8f43d4bbcc5030f3ca152b347b688d37c68ef`
+- 2D.4A `20261001130202_…` (sha256 `8b64dfdc…120ada`) applicata una volta → drizzle `0004`. Reservation: service_role = SELECT,INSERT,UPDATE; PUBLIC/anon/authenticated nessun privilegio; RLS ON; 3 indici, 7 vincoli, 0 righe; default ACL md5 `61e1d4c7…cf09a` invariato.
+- 2D.4B `20261001131926_…` (sha256 `2a57fc58…69cd7d`) applicata una volta → drizzle `0005`. Suggestions: service_role = SELECT,INSERT,UPDATE; authenticated rimosso; RLS ON; policy `ai_suggestions_read` e 1 trigger invariati.
+- Registro Drizzle: 4 → 6 entry.
+- Conteggi prima = dopo: products 2.706, current values 24.467, history 5, command log 5, suggestions 0, reservation 0.
+- Warning: ruoli piattaforma `sandbox_exec*` mantengono INSERT,SELECT (non gestiti dalla migration).
+- Deploy Edge `product-admin-ai` + `product-admin-api`: **FALLITO al bundling, nulla distribuito**. Import cross-function (`product-admin-ai/index.ts` → `../product-admin-api/auth.ts`; `product-admin-api/capabilities.ts` → `../product-admin-ai/ai-core.ts`) non inclusi nel bundle. Online resta la `product-admin-api` precedente. Forward-fix richiesto: spostare i moduli condivisi in `supabase/functions/_shared/`.
+- Smoke auth/capability/get_ai_suggestions: non eseguiti. Frontend non pubblicato, provider AI non chiamato, Shopify non toccato, canary attivo.
+
+Stato: 2D.5 BACKEND LIVE — BLOCKED (deploy Edge).
