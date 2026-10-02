@@ -4,7 +4,7 @@ Frontend e-commerce (tema piante) costruito con React + Vite, Supabase/Lovable C
 
 ## 🚀 Stato progetto e Go-Live
 
-**Aggiornamento operativo: 30 settembre 2026**
+**Aggiornamento operativo: 2 ottobre 2026**
 
 **Baseline runtime approvata:** `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 
@@ -16,11 +16,13 @@ La diagnosi 3B ha chiarito che il problema inventario non è un semplice flag Sh
 
 Il gate 3B.1A è attualmente **BLOCKED BY SHOPIFY CONFIG ACCESS**: l'accesso disponibile legge SKU/prezzo/status/ID ma non espone location, `tracked`, `inventoryPolicy` o livelli per location. Questo non prova che Shopify sia configurato male; significa solo che il canale di lettura attuale è insufficiente.
 
-La Fase 2D “Migliora con AI” è stata implementata da `origin/main@1931352` e
-riallineata alla baseline corrente `origin/main@81f6a98`; è **CODE READY FOR
-REVIEW, NON DEPLOYATA**. La generazione crea una proposta separata per campo;
-soltanto “Accetta” passa dal comando versionato Admin V2. Non esistono chiamate
-Shopify nel nuovo endpoint.
+La Fase 2D “Migliora con AI” ha il database pronto: le migration reservation e
+le due remediation ACL risultano applicate una sola volta e verificate secondo
+il report Lovable. Le Edge Functions e il frontend restano **NON DEPLOYATI**:
+il tentativo si è fermato prima della distribuzione perché i due endpoint Admin
+avevano import tra cartelle sibling non inclusi nel pacchetto. La Fase 2D.6
+estrae le primitive condivise in `supabase/functions/_shared/`, senza cambiare
+il comportamento runtime, chiamare AI o introdurre dipendenze Shopify.
 
 ### Completato ad oggi
 
@@ -37,13 +39,14 @@ Shopify nel nuovo endpoint.
 | `IDEMPOTENCY_CONFLICT` live | ✅ PASS |
 | CREATE live `expectedVersion=0` | ✅ PASS su `OG_365676.colore_fiore = "viola"` |
 | QA finale Admin V2 / UX | ✅ GO-LIVE READY |
-| Admin AI field-by-field 2D | 🟡 Code ready; review, deploy e smoke mancanti |
+| Admin AI field-by-field 2D | 🟡 Database ready; fix packaging 2D.6 in review, Edge/frontend non live |
 | QA commerciale Shopify / storefront | ❌ BLOCKED |
 
 ### Gate mancanti prima del Go-Live commerciale
 
-1. **Review e rilascio coordinato Fase 2D**: Edge `product-admin-ai`, capability
-   `product-admin-api`, frontend della stessa revisione e smoke senza publish.
+1. **Integrare il packaging fix 2D.6 e poi rilasciare in modo coordinato la Fase
+   2D**: Edge `product-admin-ai`, capability `product-admin-api`, frontend della
+   stessa revisione e smoke senza publish.
 2. **Definire e collegare la fonte stock reale**: Shopify resta il registro transazionale, ma non esiste ancora un feed quantità completo e affidabile; 462/462 varianti hanno `quantityAvailable=0`.
 3. **Decidere e completare la pubblicazione catalogo**: Shopify espone 461 prodotti su 2.706 interni.
 4. **Aggiungere immagini ai prodotti acquistabili** e verificare copertura immagini del catalogo.
@@ -64,6 +67,7 @@ Per il dettaglio operativo usare:
 - [Developer handoff](docs/developer-handoff.md)
 - [Release backend 2C.1](docs/fase2c/backend-release-2C1.md)
 - [Admin AI field-by-field 2D](docs/fase2d/admin-ai-field-suggestions.md)
+- [Packaging indipendente Edge 2D.6](docs/fase2d/admin-edge-packaging-2D6.md)
 - [Checklist prelancio](docs/prelaunch-checklist.md)
 - [Piano remediation Shopify 3B](docs/fase3b/shopify-remediation-plan.md)
 

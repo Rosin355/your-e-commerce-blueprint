@@ -7,7 +7,7 @@ import {
 import { isCanaryField, type WriteMode } from "./commands.ts";
 import { isFieldEditable } from "./validation.ts";
 import type { AppRole, CurrentValueRow, FieldDefinition } from "./types.ts";
-import { aiValueEligibility } from "../product-admin-ai/ai-core.ts";
+import { aiValueEligibility } from "../_shared/admin-ai-core.ts";
 
 export type ProductEntityType = "simple" | "variable" | "variation";
 

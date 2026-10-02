@@ -1,6 +1,6 @@
 # Online Garden — developer handoff
 
-Aggiornamento: 1 ottobre 2026
+Aggiornamento: 2 ottobre 2026
 Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 Baseline Git 2D.4A: `origin/main@0959f95202824cb2a005a6f140282995579a3895`
 
@@ -12,11 +12,11 @@ Baseline Git 2D.4A: `origin/main@0959f95202824cb2a005a6f140282995579a3895`
 - Conteggi correnti: 24.467 current values, history 5, command log 5.
 - Admin V2 UX: **GO-LIVE READY**; due P3 corretti (dirty-save e label valore assente).
 - Non bloccanti: cronologia con field_key tecnici, ruolo Editor non provato live, mismatch cosmetico validate.
-- Fase 2D: PR #23 mergiata; runtime **non deployato**. La migration 2D.2
-  risulta applicata una volta secondo Lovable. La forward migration reservation
-  2D.4A della PR #23 e la remediation suggestion 2D.4B della PR #24 non sono
-  applicate live. Entrambe hanno target ACL SIU del solo `service_role`;
-  nessuna call AI live o write Shopify.
+- Fase 2D: **BACKEND DATABASE READY / EDGE NON DEPLOYATE**. Le migration 2D.2,
+  2D.4A e 2D.4B risultano applicate una volta secondo Lovable, con ACL SIU
+  verificate. Il deploy si è fermato al bundling prima della distribuzione per
+  import cross-function. La 2D.6 sposta le primitive condivise in `_shared`
+  senza cambiare runtime; nessuna call AI live o write Shopify.
 - Fase 3A Shopify/storefront: **BLOCKED**. 461 published, 458 sold-out; only 3 purchasable and all without images; shipping not verified; mobile overflow present; checkout technical PASS.
 - Fase 3B read-only: root cause inventory = assenza di feed quantità completo + legacy normalization missing→0; 462/462 Shopify variants quantityAvailable=0. Publication = legacy partial sync, nessun manifest commerciale. Images = legacy sync crea mediaInputs ma non li invia. Mobile overflow = `HomeAnnouncementBar.tsx` / `whitespace-nowrap`. Checkout EN = locale Shopify pubblicato solo EN.
 - Fase 3B.1A: Shopify access corrente non espone inventory Admin fields (locations, tracked, inventoryPolicy, per-location levels). Stato = BLOCKED BY SHOPIFY CONFIG ACCESS, non prova di misconfiguration. Prossimo gate raccomandato: endpoint Admin read-only dedicato o export Inventory CSV.
@@ -81,15 +81,17 @@ Frontend: `src/adminv2/`.
 - `lib/fieldValueCodecs.ts`: conversioni conservative;
 - `lib/adminApi.ts`: unico contratto browser verso la Edge Function.
 
-Backend: `supabase/functions/product-admin-api/`.
+Backend: `supabase/functions/product-admin-api/`, con primitive condivise
+Admin V2/AI in `supabase/functions/_shared/admin-v2-*.ts` e
+`admin-ai-core.ts`.
 
-- `auth.ts`: verifica JWT e ruoli;
-- `permissions.ts`: matrice action/ruolo;
-- `queries.ts`: prodotti, valori, snapshot e history;
+- `auth.ts`: facade compatibile verso auth V2 condivisa;
+- `permissions.ts`: facade compatibile verso matrice action/ruolo condivisa;
+- `queries.ts`: facade compatibile verso query condivise;
 - `capabilities.ts`: decisione server-side per campo;
 - `serializers.ts`: view model Admin;
-- `validation.ts`: tipo, applicabilità e vincoli;
-- `commands.ts`: idempotenza e invocazione RPC;
+- `validation.ts`: facade compatibile verso tipo, applicabilità e vincoli;
+- `commands.ts`: facade compatibile verso idempotenza e invocazione RPC;
 - `index.ts`: router delle action.
 
 Le capability sono autoritative. Il frontend non deve dedurre `canUpdate` dal
@@ -169,8 +171,8 @@ funzione sono negate a `anon/authenticated` e concesse solo a `service_role`.
 però ampliato il grant tabella a `service_role=arwdDxtm`: la forward migration
 `20261001130202_restrict_product_admin_ai_reservation_privileges.sql` esegue
 `REVOKE ALL` per-oggetto e riassegna soltanto SELECT/INSERT/UPDATE. Non modifica
-la RPC o i default ACL; è inclusa nella PR #23 già mergiata ma ancora **non
-applicata live**. Gli stati DB
+la RPC o i default ACL; risulta applicata una sola volta e verificata live
+secondo Lovable. Gli stati DB
 `discarded`/`superseded` sono
 presentati all'UI come `rejected`/`stale`; il campo `model` registra
 `provider/model`, `prompt_hint` la strategia e `prompt_version` la versione del
@@ -183,7 +185,8 @@ solo `SELECT`. Il browser non interroga la tabella direttamente. La remediation
 e limita `service_role` a SIU. Risolve il finding live riferito
 `authenticated=arwdDxtm`, che la sola RLS non copre per
 TRUNCATE/REFERENCES/TRIGGER. La policy SELECT `ai_suggestions_read` resta
-presente ma non concede accesso senza ACL. Dettagli in
+presente ma non concede accesso senza ACL. La migration risulta applicata una
+sola volta e verificata live secondo Lovable. Dettagli in
 `docs/fase2d/product-ai-suggestions-acl-2D4B.md`.
 
 Tutte le transizioni suggestion sono conditional update da `pending`. Un
@@ -278,14 +281,11 @@ verificare replay sequenziale e sovrapposto in entrambe le finestre, conflitto
 idempotente e nuova command stale. La RPC resta il gate atomico; ogni ramo
 concorrente esegue al massimo un re-check read-only e nessun retry della write.
 
-Per 2D il rilascio deve essere coordinato: (1) merge PR #24 e preflight/backup
-DB; (2) non riapplicare la migration 2D.2 già registrata; (3) applicare una sola
-volta, in ordine, le migration ACL 2D.4A della PR #23 e 2D.4B della PR #24; (4)
-verificare ACL e registro; (5) deploy di `product-admin-ai` e
-`product-admin-api` dalla stessa revisione; (6) smoke read-only; (7) frontend;
-(8) generazione canary su fixture approvata; (9) STOP prima di “Accetta” finché
-la write non è autorizzata. Non distribuire Edge o frontend prima della
-chiusura di entrambi i gate ACL.
+Per 2D il rilascio deve essere coordinato: (1) merge del packaging fix 2D.6;
+(2) non riapplicare le migration 2D.2/2D.4A/2D.4B già registrate; (3) deploy di
+`product-admin-ai` e `product-admin-api` dalla stessa revisione; (4) smoke
+read-only; (5) frontend; (6) generazione canary su fixture approvata; (7) STOP
+prima di “Accetta” finché la write non è autorizzata.
 
 ### Rollback
 
@@ -335,10 +335,11 @@ di drift su dati/RLS/indici/vincoli/RPC/default ACL, poi lancia sei reservation
 simultanee e un doppio target equivalente. Valida anche il preflight read-only e
 dimostra che RLS non governa TRUNCATE. Non conosce URL o credenziali live.
 
-Gate offline 2D.4C: test AI mirati **34/34**, catalogo **244/244**, runner
-PostgreSQL reservation concurrency e runner ACL suggestion PASS. La numerazione
-descrittiva dei test arriva a 36 perché due titoli storici accorpano più
-requisiti. Questi risultati non costituiscono deploy né prova su dati live.
+Gate offline 2D.6: test AI mirati **34/34**, catalogo **249/249** inclusi cinque
+regression test packaging, runner PostgreSQL reservation concurrency e runner
+ACL suggestion PASS. I due grafi Edge risolvono rispettivamente 16 e 11 moduli
+locali con zero import sibling. Questi risultati non costituiscono deploy né
+prova su dati live.
 
 ## 12. File chiave
 
@@ -351,6 +352,8 @@ requisiti. Questi risultati non costituiscono deploy né prova su dati live.
 - `docs/fase2b/publish-frontend-2B6.md`: rilascio frontend;
 - `docs/fase2c/backend-release-2C1.md`: release backend 2C.1;
 - `docs/fase2d/admin-ai-field-suggestions.md`: architettura, test e rollout 2D;
+- `docs/fase2d/admin-edge-packaging-2D6.md`: grafo import, moduli shared,
+  verifica packaging e gate di rilascio;
 - `docs/fase2d/product-ai-privilege-audit-2D4A.sql`: preflight ACL/RLS/default
   ACL esclusivamente read-only;
 - `docs/fase2d/product-ai-suggestions-acl-2D4B.md`: dipendenze, ACL target,
@@ -358,9 +361,9 @@ requisiti. Questi risultati non costituiscono deploy né prova su dati live.
 - `supabase/migrations/20260930152426_harden_product_admin_ai_concurrency.sql`:
   reservation atomica 2D.2, applicata una volta secondo Lovable;
 - `supabase/migrations/20261001130202_restrict_product_admin_ai_reservation_privileges.sql`:
-  forward-fix per-oggetto SIU, inclusa nella PR #23 e non applicata live;
+  forward-fix per-oggetto SIU, applicata una volta secondo Lovable;
 - `supabase/migrations/20261001131926_restrict_product_ai_suggestion_privileges.sql`:
-  ACL SIU `service_role`, non applicata live;
+  ACL SIU `service_role`, applicata una volta secondo Lovable;
 - `docs/fase2c/gate-c-removal-STORAGE-003.md`: chiusura Storage;
 - `supabase/functions/product-admin-api/`: API Admin;
 - `supabase/migrations/20260926150609_allow_admin_manual_locked_field_edits.sql`:
