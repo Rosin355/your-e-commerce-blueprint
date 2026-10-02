@@ -95,3 +95,9 @@ Opzioni di sblocco:
 2. export CSV inventario da Shopify Admin da analizzare offline.
 
 Prima di qualsiasi write inventory resta obbligatorio un dry-run con quantità sorgente certa, location e old→new espliciti.
+
+## 3B.1A — Rerun 2 ottobre 2026
+
+Account Shopify ricollegato; letture eseguite solo su OG_257799 (variante 55507146146132), OG_426481, OG_797988: tutti ACTIVE, monovariante. Il canale espone ancora solo ID, SKU, prezzo, stato: nessun `tracked`, `inventoryPolicy`, location, inventory level, available/committed. Nessun canale read-only Admin inventory esistente nelle Edge Function. Nessuna write.
+
+Esito: **3B.1A INVENTORY CONFIG — BLOCKED: canale Shopify senza dati inventory/location.**
