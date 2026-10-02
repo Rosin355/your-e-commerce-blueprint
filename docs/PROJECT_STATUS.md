@@ -234,3 +234,7 @@ dalla tabella. L'ACL live riferita `authenticated=ALL` resta un gate bloccante,
 perché RLS non copre TRUNCATE/REFERENCES/TRIGGER. Preflight live read-only da
 eseguire tramite Lovable; nessun progetto Online Garden accessibile al
 connettore Codex.
+
+
+## Fase 2D.7 (2026-10-02)
+2D EDGE BACKEND LIVE · READ-ONLY SMOKE PASS · FRONTEND NOT PUBLISHED · AI PROVIDER NOT CALLED · AI GENERATION NOT YET TESTED · CANARY ACTIVE. Dettagli: `docs/fase2d/edge-live-2D7.md`.
