@@ -1,6 +1,6 @@
 # Online Garden — stato per il cliente
 
-Aggiornamento: 30 settembre 2026
+Aggiornamento: 2 ottobre 2026
 
 ## Stato go-live aggiornato
 
@@ -8,9 +8,12 @@ Backend Admin e interfaccia Admin V2 sono ora pronti per il go-live. Sono passat
 
 Restano i controlli commerciali: catalogo Shopify/storefront, varianti, prezzi, immagini, spedizioni, checkout, email ordine, mobile e un ordine end-to-end controllato. La modalità `canary` resta attiva fino alla decisione finale di pubblicazione.
 
-La funzione richiesta “Migliora con AI” è stata implementata in ambiente di
-sviluppo ed è pronta per la review tecnica. **Non è ancora online**: il rilascio
-deve coordinare backend e interfaccia e sarà seguito da uno smoke controllato.
+La funzione richiesta “Migliora con AI” è stata implementata e il database è
+stato predisposto con privilegi minimi verificati. **Non è ancora online**: il
+primo tentativo di pubblicazione delle funzioni si è fermato prima della
+distribuzione per un problema tecnico di packaging tra moduli. La correzione
+2D.6 organizza il codice condiviso in modo compatibile con pacchetti separati,
+senza modificare prodotti, chiamare AI o coinvolgere Shopify.
 
 ## QA commerciale Shopify — esito
 
@@ -72,10 +75,9 @@ fuori dall'editing libero della scheda prodotto.
 
 ## Cosa manca
 
-- restringere due permessi tecnici del database emersi nel controllo finale;
-  una correzione è pronta, la seconda richiede approvazione separata;
-- review e approvazione finale di “Migliora con AI” dopo la chiusura dei due
-  controlli di sicurezza;
+- review e merge della correzione di packaging 2D.6;
+- pubblicazione coordinata e controllata delle due Edge Functions dalla stessa
+  revisione, seguita da smoke read-only;
 - rilascio coordinato di endpoint, capability e frontend;
 - smoke con un campo non sensibile e una proposta controllata, senza Shopify;
 - decidere se collegare automaticamente i valori correnti agli originali
@@ -103,12 +105,11 @@ Il test controllato della creazione di un nuovo valore è riuscito: il colore de
 ## Fase 2C.2 — QA finale Admin V2 (2026-09-29)
 ADMIN V2 UX — GO-LIVE READY (canary attivo). Backend 2C.1 CLOSED; create expectedVersion=0 live PASS; OG_365676.colore_fiore="viola" permanente; current values 24.467, history 5, command log 5. Due fix UX P3 (Salva solo con modifiche, niente "versione 0"). Dettagli: `docs/fase2c/qa-finale-admin-2C2.md`.
 
-## Aggiornamento sicurezza AI — 01/10/2026
+## Aggiornamento sicurezza AI — 02/10/2026
 
-Il controllo pre-rilascio ha funzionato come previsto: prima di pubblicare
-“Migliora con AI” sono stati individuati permessi database più ampi del
-necessario. La correzione per la prenotazione delle richieste AI è pronta e
-testata offline; un secondo permesso sulla tabella delle proposte richiede una
-correzione separata. La funzione resta intenzionalmente non pubblicata fino alla
-chiusura di entrambi i gate. Catalogo, Admin V2, Shopify e dati prodotto non sono
-stati modificati.
+Il controllo pre-rilascio ha funzionato come previsto: i permessi database
+delle reservation e delle proposte AI sono ora limitati a quanto serve al
+backend. Il deploy successivo si è fermato durante il packaging e non ha
+distribuito nuove Edge Functions. La funzione resta intenzionalmente non
+pubblicata finché la correzione 2D.6 non sarà revisionata. Catalogo, Admin V2,
+Shopify e dati prodotto non sono stati modificati.

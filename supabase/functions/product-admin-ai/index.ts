@@ -4,17 +4,17 @@ import {
   authenticate,
   AuthError,
   serviceClient,
-} from "../product-admin-api/auth.ts";
+} from "../_shared/admin-v2-auth.ts";
 import {
   canRead,
   canWrite,
   canWriteCanary,
-} from "../product-admin-api/permissions.ts";
+} from "../_shared/admin-v2-permissions.ts";
 import {
   isCanaryField,
   writeMode,
   writesEnabled,
-} from "../product-admin-api/commands.ts";
+} from "../_shared/admin-v2-commands.ts";
 import { AiProviderError, callAiProvider } from "./provider.ts";
 import {
   acceptAiSuggestion,
@@ -25,7 +25,7 @@ import {
   listAiSuggestions,
   rejectAiSuggestion,
 } from "./service.ts";
-import type { AuthContext } from "../product-admin-api/types.ts";
+import type { AuthContext } from "../_shared/admin-v2-types.ts";
 
 type AiAction =
   | "get_ai_suggestions"

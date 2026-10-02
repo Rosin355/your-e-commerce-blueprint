@@ -4,7 +4,7 @@ import {
   executeCommand,
   isCanaryField,
   reconcileCommandReplay,
-} from "../product-admin-api/commands.ts";
+} from "../_shared/admin-v2-commands.ts";
 import {
   getCurrentValue,
   getCurrentValues,
@@ -12,16 +12,16 @@ import {
   getProduct,
   getSourceBaseline,
   getSourceSnapshotsByIds,
-} from "../product-admin-api/queries.ts";
+} from "../_shared/admin-v2-queries.ts";
 import type {
   CurrentValueRow,
   FieldDefinition,
-} from "../product-admin-api/types.ts";
+} from "../_shared/admin-v2-types.ts";
 import {
   currentValueOf,
   isFieldEditable,
   validateCommand,
-} from "../product-admin-api/validation.ts";
+} from "../_shared/admin-v2-validation.ts";
 import {
   aiDefinitionEligibility,
   type AiTrustedContext,
@@ -29,7 +29,7 @@ import {
   mapSuggestionStatus,
   strategyForField,
   validateSuggestedValue,
-} from "./ai-core.ts";
+} from "../_shared/admin-ai-core.ts";
 import type { AiProviderResult } from "./provider.ts";
 
 export interface AiSuggestionRow {

@@ -1,6 +1,6 @@
 # Fase 2D — Admin AI field-by-field
 
-Stato: **2D.4C PR #23 MERGIATA / PR #24 READY — RUNTIME NON DEPLOYATO**
+Stato: **2D BACKEND DATABASE READY / EDGE DEPLOY BLOCCATO FINO AL MERGE 2D.6 / AI NON LIVE**
 
 Baseline implementazione: `origin/main@193135224886e8d022e17ddf6e1b4d16f9dc8629`
 
@@ -61,8 +61,9 @@ sleep, retry automatico o lock rimane aperto durante la chiamata esterna. Una
 reservation fallita conta comunque nel limite anti-abuso del minuto, ma non
 impedisce una nuova generazione dello stesso target. La migration 2D.2 risulta
 applicata live una sola volta tramite Lovable e non deve essere riapplicata. La
-forward migration reservation della PR #23 è mergiata ma non applicata live;
-Edge Functions e frontend 2D non sono stati distribuiti.
+forward migration reservation della PR #23 risulta applicata una volta e
+verificata secondo Lovable; Edge Functions e frontend 2D non sono stati
+distribuiti.
 
 La tabella ammette gli stati DB `pending`, `accepted`, `discarded`, `superseded`. Il contratto
 API espone rispettivamente `pending`, `accepted`, `rejected`, `stale`; questa mappatura evita
@@ -209,7 +210,7 @@ di rilascio perché il frontend non è stato pubblicato.
 | test AI mirati | PASS 34/34; la numerazione descrittiva arriva a 36 per due titoli accorpati |
 | PostgreSQL isolato concorrente | PASS; 6 simultanee → 5 reservation e 1 rate limit; target equivalente → 1 reservation |
 | PostgreSQL isolato ACL suggestion | PASS; authenticated negato su 7 operazioni, service_role SIU, non-drift completo |
-| `npm run test:catalog` | PASS 244/244 |
+| `npm run test:catalog` | PASS 249/249 dopo i 5 regression test packaging 2D.6 |
 | `npm run typecheck` | PASS |
 | `deno check product-admin-ai` | PASS |
 | `deno check product-admin-api` | PASS |
@@ -420,3 +421,39 @@ ACL non saranno corretti in un task separato.
 - Smoke auth/capability/get_ai_suggestions: non eseguiti. Frontend non pubblicato, provider AI non chiamato, Shopify non toccato, canary attivo.
 
 Stato: 2D.5 BACKEND LIVE — BLOCKED (deploy Edge).
+
+## Fase 2D.6 — packaging indipendente Edge (02/10/2026)
+
+Il deploy 2D.5 non ha distribuito alcuna funzione perché il pacchetto di ogni
+Edge Function non comprende le cartelle sibling. Il grafo precedente conteneva
+11 import cross-function: `product-admin-ai` dipendeva da auth, permission,
+command, query, type e validation di `product-admin-api`; in senso inverso, le
+capability Admin dipendevano da `product-admin-ai/ai-core.ts`.
+
+Il fix 2D.6 rende autoritative in `supabase/functions/_shared/` le primitive
+realmente condivise:
+
+- `admin-v2-auth.ts`, distinto dal precedente `admin-auth.ts` legacy;
+- `admin-v2-types.ts`, `admin-v2-permissions.ts`, `admin-v2-commands.ts`;
+- `admin-v2-queries.ts`, `admin-v2-validation.ts`;
+- `admin-ai-core.ts`, limitato a eligibility, strategie e validazione pura.
+
+Provider, segreti, parsing provider e orchestrazione restano locali a
+`product-admin-ai`; handler e serializer restano locali alla rispettiva
+funzione. Le facade nei percorsi storici di `product-admin-api` conservano i
+contratti di import e riesportano la stessa implementazione condivisa. Il grafo
+ricorsivo di entrambi gli entrypoint risolve soltanto moduli propri, `_shared` e
+dipendenze esterne: import sibling = zero.
+
+Nessuna semantica di auth, ruoli Admin/Tech Admin, canary, capability,
+idempotenza, replay, expectedVersion, lock, eligibility AI, rate limit o
+isolamento Shopify è cambiata. Nessuna migration è stata aggiunta.
+
+I ruoli tecnici live `sandbox_exec*` non sono nominati da alcuna migration del
+repository. Senza evidenza read-only su membership, owner e default ACL live,
+la classificazione resta `UNKNOWN_NEEDS_LIVE_VERIFICATION`: plausibilmente
+platform-managed, ma non revocabili in questo task. Non costituiscono un
+blocco del packaging in assenza di esposizione applicativa dimostrata.
+
+Stato operativo: migration ACL live già applicate; Edge Functions e frontend
+non pubblicati; AI non chiamata; nessuna write live.
