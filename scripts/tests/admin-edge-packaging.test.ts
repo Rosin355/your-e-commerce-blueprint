@@ -10,15 +10,25 @@ import * as apiPermissions from "../../supabase/functions/product-admin-api/perm
 
 test("2D.6: ogni Edge Function risolve solo moduli propri, _shared o dipendenze esterne", () => {
   const graphs = auditAllFunctionGraphs();
-  assert.deepEqual(graphs.map((graph) => graph.functionName), ["product-admin-api", "product-admin-ai"]);
-  assert.ok(graphs.every((graph) => graph.modules.some((module) => module.includes("/_shared/"))));
+  assert.deepEqual(graphs.map((graph) => graph.functionName), [
+    "product-admin-api",
+    "product-admin-ai",
+  ]);
+  assert.ok(
+    graphs.every((graph) =>
+      graph.modules.some((module) => module.includes("/_shared/"))
+    ),
+  );
 });
 
 test("2D.6: le facade Admin V2 esportano esattamente le implementazioni shared", () => {
   assert.equal(apiPermissions.canRead, sharedPermissions.canRead);
   assert.equal(apiPermissions.canWrite, sharedPermissions.canWrite);
   assert.equal(apiCommands.executeCommand, sharedCommands.executeCommand);
-  assert.equal(apiCommands.reconcileCommandReplay, sharedCommands.reconcileCommandReplay);
+  assert.equal(
+    apiCommands.reconcileCommandReplay,
+    sharedCommands.reconcileCommandReplay,
+  );
 });
 
 test("2D.6: admin, tech_admin e canary conservano la matrice autorizzativa", () => {
@@ -33,8 +43,14 @@ test("2D.6: admin, tech_admin e canary conservano la matrice autorizzativa", () 
 });
 
 test("2D.6: il contratto auth V2 resta JWT verificato, ruoli DB e AuthError tipizzato", () => {
-  const source = readFileSync("supabase/functions/_shared/admin-v2-auth.ts", "utf8");
-  const facade = readFileSync("supabase/functions/product-admin-api/auth.ts", "utf8");
+  const source = readFileSync(
+    "supabase/functions/_shared/admin-v2-auth.ts",
+    "utf8",
+  );
+  const facade = readFileSync(
+    "supabase/functions/product-admin-api/auth.ts",
+    "utf8",
+  );
   assert.match(source, /auth\.getUser\(\)/);
   assert.match(source, /\.from\("user_roles"\)/);
   assert.match(source, /export class AuthError extends Error/);
@@ -49,5 +65,8 @@ test("2D.6: packaging non introduce dipendenze Shopify nei due runtime Admin", (
     "supabase/functions/product-admin-ai/index.ts",
     "supabase/functions/product-admin-ai/service.ts",
   ].map((path) => readFileSync(path, "utf8")).join("\n");
-  assert.doesNotMatch(sources, /shopify-admin|shopifyAdmin|publish_product|publishProduct/);
+  assert.doesNotMatch(
+    sources,
+    /shopify-admin|shopifyAdmin|publish_product|publishProduct/,
+  );
 });

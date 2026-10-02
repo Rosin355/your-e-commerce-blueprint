@@ -8,7 +8,8 @@ const functionsRoot = resolve(repositoryRoot, "supabase/functions");
 const sharedRoot = resolve(functionsRoot, "_shared");
 const targets = ["product-admin-api", "product-admin-ai"];
 
-const IMPORT_PATTERN = /(?:import|export)\s+(?:type\s+)?(?:[^"']*?\s+from\s+)?["']([^"']+)["']|import\(\s*["']([^"']+)["']\s*\)/g;
+const IMPORT_PATTERN =
+  /(?:import|export)\s+(?:type\s+)?(?:[^"']*?\s+from\s+)?["']([^"']+)["']|import\(\s*["']([^"']+)["']\s*\)/g;
 
 function isInside(path, root) {
   const rel = relative(root, path);
@@ -23,16 +24,28 @@ function localImports(source) {
 
 function resolveModule(importer, specifier) {
   const candidate = resolve(dirname(importer), specifier);
-  const alternatives = [candidate, `${candidate}.ts`, resolve(candidate, "index.ts")];
+  const alternatives = [
+    candidate,
+    `${candidate}.ts`,
+    resolve(candidate, "index.ts"),
+  ];
   const found = alternatives.find((path) => existsSync(path));
-  assert.ok(found, `Import locale non risolto: ${relative(repositoryRoot, importer)} -> ${specifier}`);
+  assert.ok(
+    found,
+    `Import locale non risolto: ${
+      relative(repositoryRoot, importer)
+    } -> ${specifier}`,
+  );
   return found;
 }
 
 export function auditFunctionGraph(functionName) {
   const functionRoot = resolve(functionsRoot, functionName);
   const entrypoint = resolve(functionRoot, "index.ts");
-  assert.ok(existsSync(entrypoint), `Entrypoint assente: ${functionName}/index.ts`);
+  assert.ok(
+    existsSync(entrypoint),
+    `Entrypoint assente: ${functionName}/index.ts`,
+  );
 
   const pending = [entrypoint];
   const visited = new Set();
@@ -46,10 +59,13 @@ export function auditFunctionGraph(functionName) {
     const source = readFileSync(importer, "utf8");
     for (const specifier of localImports(source)) {
       const imported = resolveModule(importer, specifier);
-      const allowed = isInside(imported, functionRoot) || isInside(imported, sharedRoot);
+      const allowed = isInside(imported, functionRoot) ||
+        isInside(imported, sharedRoot);
       assert.ok(
         allowed,
-        `Import sibling vietato: ${relative(repositoryRoot, importer)} -> ${relative(repositoryRoot, imported)}`,
+        `Import sibling vietato: ${relative(repositoryRoot, importer)} -> ${
+          relative(repositoryRoot, imported)
+        }`,
       );
       edges.push([importer, imported]);
       pending.push(imported);
@@ -59,7 +75,9 @@ export function auditFunctionGraph(functionName) {
   return {
     functionName,
     modules: [...visited].map((path) => relative(repositoryRoot, path)).sort(),
-    edges: edges.map(([from, to]) => [relative(repositoryRoot, from), relative(repositoryRoot, to)]),
+    edges: edges.map((
+      [from, to],
+    ) => [relative(repositoryRoot, from), relative(repositoryRoot, to)]),
   };
 }
 
@@ -67,8 +85,12 @@ export function auditAllFunctionGraphs() {
   return targets.map(auditFunctionGraph);
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (
+  process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
   for (const graph of auditAllFunctionGraphs()) {
-    console.log(`PASS ${graph.functionName}: ${graph.modules.length} moduli locali risolvibili; zero import sibling.`);
+    console.log(
+      `PASS ${graph.functionName}: ${graph.modules.length} moduli locali risolvibili; zero import sibling.`,
+    );
   }
 }
