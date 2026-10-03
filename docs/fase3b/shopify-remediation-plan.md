@@ -121,3 +121,6 @@ Stato: **STOCK-20 BATCH EXECUTOR CODE READY / LIVE BATCH NOT YET EXECUTED**.
 
 ## Aggiornamento 3B.1G live dry-run (2026-10-03)
 Batch `stock20-3b1g-batch-001` (25 SKU simple UPDATE_EXISTING) installato come configurazione server-side; DRY_RUN live unico: 0 FAILED, 0 drift, 0 stop, 25 `SET_AVAILABLE_20` pianificate, zero write. EXECUTE ancora disabilitato. Dettagli in `stock20-live-dry-run-3B1G.md`.
+
+## Aggiornamento 3B.1G live EXECUTE batch #1 (2026-10-03)
+Batch `stock20-3b1g-batch-001`: 25/25 UPDATED a available=20 (tracked/DENY invariati), 0 FAILED, 0 recovery; gate EXECUTE eliminato subito dopo. Dettagli in `stock20-live-execute-batch1-3B1G.md`.
