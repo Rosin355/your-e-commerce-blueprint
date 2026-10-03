@@ -10,6 +10,7 @@ import {
   SHOPIFY_CREATE_LOCATION_ID,
   SHOPIFY_CREATE_STOCK_TARGET,
   type ShopifyCreateClient,
+  type ShopifyMediaIdentity,
   type ShopifyProductIdentity,
   type ShopifyVariantIdentity,
 } from "./types.ts";
@@ -51,41 +52,65 @@ function assertNoErrors(errors: UserError[] | undefined, operation: string) {
 }
 
 const PRODUCT_FIELDS = `
-  id handle title
+  id handle title descriptionHtml status
+  variantsCount { count }
+  mediaCount { count }
   options { name values }
   variants(first: 100) {
     nodes {
-      id sku
+      id sku price inventoryPolicy
       selectedOptions { name value }
-      inventoryItem { id }
+      inventoryItem {
+        id tracked
+        inventoryLevel(locationId: $locationId) {
+          quantities(names: ["available"]) { name quantity }
+        }
+      }
       product { id handle }
     }
   }
+  media(first: 100) { nodes { id alt status mediaContentType } }
 `;
 
 const FIND_PRODUCT = `
-query CreateIdentity($identifier: ProductIdentifierInput!, $variantQuery: String!) {
+query CreateIdentity(
+  $identifier: ProductIdentifierInput!,
+  $variantQuery: String!,
+  $locationId: ID!
+) {
   product: productByIdentifier(identifier: $identifier) { ${PRODUCT_FIELDS} }
   productVariants(first: 100, query: $variantQuery) {
     nodes {
-      id sku selectedOptions { name value } inventoryItem { id }
+      id sku price inventoryPolicy selectedOptions { name value }
+      inventoryItem {
+        id tracked
+        inventoryLevel(locationId: $locationId) {
+          quantities(names: ["available"]) { name quantity }
+        }
+      }
       product { id handle title options { name values } }
     }
   }
 }`;
 
 const FIND_VARIANTS = `
-query CreateVariantsBySku($query: String!) {
+query CreateVariantsBySku($query: String!, $locationId: ID!) {
   productVariants(first: 100, query: $query) {
     nodes {
-      id sku selectedOptions { name value } inventoryItem { id }
+      id sku price inventoryPolicy selectedOptions { name value }
+      inventoryItem {
+        id tracked
+        inventoryLevel(locationId: $locationId) {
+          quantities(names: ["available"]) { name quantity }
+        }
+      }
       product { id handle }
     }
   }
 }`;
 
 const CREATE_PRODUCT = `
-mutation CreateProductShell($product: ProductCreateInput!) {
+mutation CreateProductShell($product: ProductCreateInput!, $locationId: ID!) {
   productCreate(product: $product) {
     product { ${PRODUCT_FIELDS} }
     userErrors { field message }
@@ -131,6 +156,14 @@ mutation AttachApprovedMedia($product: ProductUpdateInput!, $media: [CreateMedia
   }
 }`;
 
+const GET_MEDIA = `
+query VerifyProductMedia($id: ID!) {
+  product(id: $id) {
+    id
+    media(first: 100) { nodes { id alt status mediaContentType } }
+  }
+}`;
+
 const VERIFY_VARIANT = `
 query VerifyCreatedVariant($id: ID!, $locationId: ID!) {
   productVariant(id: $id) {
@@ -146,7 +179,7 @@ query VerifyCreatedVariant($id: ID!, $locationId: ID!) {
 }`;
 
 const VERIFY_PRODUCT = `
-query VerifyCreatedProduct($id: ID!) {
+query VerifyCreatedProduct($id: ID!, $locationId: ID!) {
   product(id: $id) { ${PRODUCT_FIELDS} }
 }`;
 
@@ -158,18 +191,47 @@ function variantIdentity(
   value: {
     id: string;
     sku: string | null;
-    inventoryItem: { id: string };
+    price: string;
+    inventoryPolicy: "DENY" | "CONTINUE";
+    inventoryItem: {
+      id: string;
+      tracked: boolean;
+      inventoryLevel: {
+        quantities: Array<{ name: string; quantity: number }>;
+      } | null;
+    };
     selectedOptions: CreateOptionValue[];
     product: { id: string; handle: string };
   },
 ): ShopifyVariantIdentity {
+  const available = value.inventoryItem.inventoryLevel?.quantities.find(
+    (entry) => entry.name === "available",
+  )?.quantity ?? null;
   return {
     id: value.id,
     sku: value.sku ?? "",
     productId: value.product.id,
     productHandle: value.product.handle,
     inventoryItemId: value.inventoryItem.id,
+    price: value.price,
+    tracked: value.inventoryItem.tracked,
+    inventoryPolicy: value.inventoryPolicy,
+    available,
     selectedOptions: value.selectedOptions,
+  };
+}
+
+function mediaIdentity(value: {
+  id: string;
+  alt: string | null;
+  status: ShopifyMediaIdentity["status"];
+  mediaContentType: string;
+}): ShopifyMediaIdentity {
+  return {
+    id: value.id,
+    alt: value.alt ?? "",
+    status: value.status,
+    mediaContentType: value.mediaContentType,
   };
 }
 
@@ -178,21 +240,17 @@ function productIdentity(value: any): ShopifyProductIdentity {
     id: value.id,
     handle: value.handle,
     title: value.title,
+    descriptionHtml: value.descriptionHtml,
+    status: value.status,
     options: (value.options ?? []).map((entry: any) => ({
       name: entry.name,
       values: entry.values ?? [],
     })),
+    variantCount: value.variantsCount?.count ?? 0,
     variants: (value.variants?.nodes ?? []).map(variantIdentity),
+    mediaCount: value.mediaCount?.count ?? 0,
+    media: (value.media?.nodes ?? []).map(mediaIdentity),
   };
-}
-
-function sameOptions(
-  actual: CreateOptionValue[],
-  expected: CreateOptionValue[],
-): boolean {
-  if (actual.length !== expected.length) return false;
-  const map = new Map(actual.map((entry) => [entry.name, entry.value]));
-  return expected.every((entry) => map.get(entry.name) === entry.value);
 }
 
 export class AdminGraphqlCreateClient implements ShopifyCreateClient {
@@ -200,6 +258,7 @@ export class AdminGraphqlCreateClient implements ShopifyCreateClient {
     const data = await graphql<any>(FIND_PRODUCT, {
       identifier: { handle: family.handle },
       variantQuery: searchQuery(family.variants.map((entry) => entry.sku)),
+      locationId: SHOPIFY_CREATE_LOCATION_ID,
     });
     const handleProduct = data.product ? productIdentity(data.product) : null;
     const skuMatches = (data.productVariants?.nodes ?? []).map(variantIdentity);
@@ -237,6 +296,7 @@ export class AdminGraphqlCreateClient implements ShopifyCreateClient {
         handle: family.handle,
         status: "DRAFT",
       },
+      locationId: SHOPIFY_CREATE_LOCATION_ID,
     });
     assertNoErrors(data.productCreate?.userErrors, "productCreate");
     if (!data.productCreate?.product?.id) {
@@ -249,7 +309,10 @@ export class AdminGraphqlCreateClient implements ShopifyCreateClient {
   }
 
   async createOptions(productId: string, family: CreateFamily) {
-    const existing = await graphql<any>(VERIFY_PRODUCT, { id: productId });
+    const existing = await graphql<any>(VERIFY_PRODUCT, {
+      id: productId,
+      locationId: SHOPIFY_CREATE_LOCATION_ID,
+    });
     const actual = new Map(
       (existing.product?.options ?? []).map((entry: any) => [
         entry.name,
@@ -295,6 +358,7 @@ export class AdminGraphqlCreateClient implements ShopifyCreateClient {
     if (skus.length === 0) return [];
     const data = await graphql<any>(FIND_VARIANTS, {
       query: searchQuery(skus),
+      locationId: SHOPIFY_CREATE_LOCATION_ID,
     });
     return (data.productVariants?.nodes ?? []).map(variantIdentity);
   }
@@ -341,7 +405,7 @@ export class AdminGraphqlCreateClient implements ShopifyCreateClient {
   }
 
   async attachMedia(productId: string, media: CreateMedia[]) {
-    if (media.length === 0) return;
+    if (media.length === 0) return [];
     const data = await graphql<any>(ATTACH_MEDIA, {
       product: { id: productId },
       media: media.map((entry) => ({
@@ -351,16 +415,33 @@ export class AdminGraphqlCreateClient implements ShopifyCreateClient {
       })),
     });
     assertNoErrors(data.productUpdate?.userErrors, "productUpdate.media");
-    const nodes = data.productUpdate?.product?.media?.nodes ?? [];
-    if (
-      nodes.length < media.length ||
-      nodes.some((entry: any) => entry.status === "FAILED")
-    ) {
+    const expectedAlts = new Set(media.map((entry) => entry.alt));
+    const nodes: ShopifyMediaIdentity[] = (
+      data.productUpdate?.product?.media?.nodes ?? []
+    ).map(mediaIdentity).filter((entry: ShopifyMediaIdentity) =>
+      expectedAlts.has(entry.alt)
+    );
+    if (nodes.length !== media.length) {
       throw new ShopifyCreateError(
         "MEDIA_CONFIRMATION_FAILED",
-        "Shopify non ha confermato tutti i media approvati",
+        "Shopify non ha restituito gli ID di tutti i media approvati",
       );
     }
+    return nodes;
+  }
+
+  async getMedia(productId: string, mediaIds: string[]) {
+    const data = await graphql<any>(GET_MEDIA, { id: productId });
+    if (!data.product) {
+      throw new ShopifyCreateError(
+        "PRODUCT_VERIFICATION_FAILED",
+        "Prodotto non trovato durante la verifica media",
+      );
+    }
+    const expectedIds = new Set(mediaIds);
+    return (data.product.media?.nodes ?? []).map(mediaIdentity).filter(
+      (entry: ShopifyMediaIdentity) => expectedIds.has(entry.id),
+    );
   }
 
   async configureInventory(input: {
@@ -393,30 +474,17 @@ export class AdminGraphqlCreateClient implements ShopifyCreateClient {
     }
   }
 
-  async verifyProduct(productId: string, family: CreateFamily) {
-    const data = await graphql<any>(VERIFY_PRODUCT, { id: productId });
+  async verifyProduct(productId: string, _family: CreateFamily) {
+    const data = await graphql<any>(VERIFY_PRODUCT, {
+      id: productId,
+      locationId: SHOPIFY_CREATE_LOCATION_ID,
+    });
     if (!data.product) {
       throw new ShopifyCreateError(
         "PRODUCT_VERIFICATION_FAILED",
         "Prodotto Shopify non trovato dopo la creazione",
       );
     }
-    const product = productIdentity(data.product);
-    if (
-      product.handle !== family.handle || product.title !== family.title ||
-      family.variants.some((expected) => {
-        const actual = product.variants.find((entry) =>
-          entry.sku === expected.sku
-        );
-        return !actual ||
-          !sameOptions(actual.selectedOptions, expected.optionValues);
-      })
-    ) {
-      throw new ShopifyCreateError(
-        "PRODUCT_VERIFICATION_FAILED",
-        "Mapping parent/varianti diverso dal manifest",
-      );
-    }
-    return product;
+    return productIdentity(data.product);
   }
 }

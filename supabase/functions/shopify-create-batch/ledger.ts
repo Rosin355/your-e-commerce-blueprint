@@ -73,6 +73,7 @@ export class SupabaseCreationLedger implements CreationLedger {
   }
 
   async complete(record: LedgerRecord): Promise<void> {
+    const now = new Date().toISOString();
     const { data, error } = await serviceClient()
       .from("shopify_creation_ledger")
       .update({
@@ -80,8 +81,8 @@ export class SupabaseCreationLedger implements CreationLedger {
         shopify_product_id: record.shopifyProductId ?? null,
         shopify_variant_id: record.shopifyVariantId ?? null,
         result_json: record.result ?? {},
-        verified_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        verified_at: record.status === "RESERVED" ? null : now,
+        updated_at: now,
       })
       .eq("request_key", record.requestKey)
       .eq("payload_hash", record.payloadHash)

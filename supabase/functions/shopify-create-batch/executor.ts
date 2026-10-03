@@ -9,7 +9,9 @@ import type {
   CreateVariant,
   CreationLedger,
   LedgerRecord,
+  MediaPollingOptions,
   ShopifyCreateClient,
+  ShopifyMediaIdentity,
   ShopifyProductIdentity,
 } from "./types.ts";
 
@@ -126,23 +128,205 @@ function failure(
   );
 }
 
-function exactVariantMatch(
-  product: ShopifyProductIdentity,
-  variant: CreateVariant,
+function sameOptions(
+  actual: Array<{ name: string; value: string }>,
+  expected: Array<{ name: string; value: string }>,
 ) {
-  const found = product.variants.find((entry) => entry.sku === variant.sku);
-  if (!found) return false;
-  const actual = new Map(
-    found.selectedOptions.map((entry) => [entry.name, entry.value]),
+  if (actual.length !== expected.length) return false;
+  const actualMap = new Map(
+    actual.map((entry) => [entry.name, entry.value]),
   );
-  return variant.optionValues.every((entry) =>
-    actual.get(entry.name) === entry.value
-  );
+  return expected.every((entry) => actualMap.get(entry.name) === entry.value);
 }
 
-function isComplete(product: ShopifyProductIdentity, family: CreateFamily) {
-  return product.handle === family.handle && product.title === family.title &&
-    family.variants.every((variant) => exactVariantMatch(product, variant));
+function normalizeHtml(value: string) {
+  return value.replace(/\r\n/g, "\n").trim();
+}
+
+function moneyCents(value: string): number | null {
+  if (!/^\d+(?:\.\d{1,2})?$/.test(value)) return null;
+  const [whole, fraction = ""] = value.split(".");
+  return Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
+}
+
+function sameSet(actual: string[], expected: string[]) {
+  return actual.length === expected.length &&
+    new Set(actual).size === actual.length &&
+    new Set(expected).size === expected.length &&
+    actual.every((entry) => expected.includes(entry)) &&
+    expected.every((entry) => actual.includes(entry));
+}
+
+function variantPostconditionIssue(
+  actual: ShopifyProductIdentity["variants"][number],
+  expected: CreateVariant,
+): ProductPostconditionIssue | null {
+  if (!sameOptions(actual.selectedOptions, expected.optionValues)) {
+    return {
+      code: "VARIANT_IDENTITY_CONFLICT",
+      message: `Opzioni non conformi per ${expected.sku}`,
+    };
+  }
+  if (moneyCents(actual.price) !== moneyCents(expected.price)) {
+    return {
+      code: "VARIANT_PRICE_MISMATCH",
+      message: `Prezzo non conforme per ${expected.sku}`,
+    };
+  }
+  if (
+    !actual.inventoryItemId || actual.tracked !== true ||
+    actual.inventoryPolicy !== "DENY" || actual.available !== 20
+  ) {
+    return {
+      code: "INVENTORY_MISMATCH",
+      message: `Inventario non conforme per ${expected.sku}`,
+    };
+  }
+  return null;
+}
+
+export interface ProductPostconditionIssue {
+  code: string;
+  message: string;
+}
+
+function parentPostconditionIssue(
+  product: ShopifyProductIdentity,
+  family: CreateFamily,
+): ProductPostconditionIssue | null {
+  if (product.handle !== family.handle || product.title !== family.title) {
+    return {
+      code: "IDENTITY_CONFLICT",
+      message: "Handle o titolo non coincidono",
+    };
+  }
+  if (
+    normalizeHtml(product.descriptionHtml) !==
+      normalizeHtml(family.descriptionHtml) || product.status !== "DRAFT"
+  ) {
+    return {
+      code: "PRODUCT_STATE_MISMATCH",
+      message: "Descrizione o stato prodotto non coincidono",
+    };
+  }
+  return null;
+}
+
+export function productPostconditionIssue(
+  product: ShopifyProductIdentity,
+  family: CreateFamily,
+): ProductPostconditionIssue | null {
+  const parentIssue = parentPostconditionIssue(product, family);
+  if (parentIssue) return parentIssue;
+  if (product.options.length !== family.optionNames.length) {
+    return {
+      code: "OPTION_STRUCTURE_MISMATCH",
+      message: "Numero opzioni Shopify non conforme",
+    };
+  }
+  for (const [index, name] of family.optionNames.entries()) {
+    const actual = product.options[index];
+    const expectedValues = [
+      ...new Set(
+        family.variants.map((variant) =>
+          variant.optionValues.find((entry) => entry.name === name)?.value ?? ""
+        ),
+      ),
+    ];
+    if (
+      !actual || actual.name !== name ||
+      !sameSet(actual.values, expectedValues)
+    ) {
+      return {
+        code: "OPTION_STRUCTURE_MISMATCH",
+        message: `Opzione non conforme: ${name}`,
+      };
+    }
+  }
+  const expectedSkus = family.variants.map((entry) => entry.sku);
+  const actualSkus = product.variants.map((entry) => entry.sku);
+  if (
+    product.variantCount > family.variants.length ||
+    actualSkus.some((entry) => !expectedSkus.includes(entry))
+  ) {
+    return {
+      code: "UNEXPECTED_VARIANTS",
+      message: "Shopify contiene varianti extra non previste",
+    };
+  }
+  if (!sameSet(actualSkus, expectedSkus)) {
+    return {
+      code: "INCOMPLETE_EXISTING_PRODUCT",
+      message: "Mancano una o più varianti attese",
+    };
+  }
+  for (const expected of family.variants) {
+    const actual = product.variants.find((entry) =>
+      entry.sku === expected.sku
+    )!;
+    const issue = variantPostconditionIssue(actual, expected);
+    if (issue) return issue;
+  }
+  const expectedAlts = family.media.map((entry) => entry.alt);
+  const actualAlts = product.media.map((entry) => entry.alt);
+  if (
+    product.mediaCount > family.media.length ||
+    product.media.some((entry) => entry.mediaContentType !== "IMAGE") ||
+    actualAlts.some((entry) => !expectedAlts.includes(entry))
+  ) {
+    return {
+      code: "MEDIA_SET_MISMATCH",
+      message: "Sono presenti media non approvati o inattesi",
+    };
+  }
+  if (!sameSet(actualAlts, expectedAlts)) {
+    return {
+      code: "MEDIA_MISSING",
+      message: "Mancano uno o più media approvati",
+    };
+  }
+  if (product.media.some((entry) => entry.status === "FAILED")) {
+    return { code: "MEDIA_FAILED", message: "Elaborazione media fallita" };
+  }
+  if (product.media.some((entry) => entry.status !== "READY")) {
+    return { code: "MEDIA_PENDING", message: "Media non ancora READY" };
+  }
+  return null;
+}
+
+const DEFAULT_MEDIA_POLLING: MediaPollingOptions = {
+  maxAttempts: 5,
+  delayMs: 750,
+  sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+};
+
+async function pollMediaReady(
+  client: ShopifyCreateClient,
+  productId: string,
+  mediaIds: string[],
+  initial: ShopifyMediaIdentity[],
+  polling: MediaPollingOptions,
+) {
+  let media = initial;
+  for (let attempt = 0; attempt < polling.maxAttempts; attempt += 1) {
+    if (media.length !== mediaIds.length) {
+      throw new ShopifyCreateError(
+        "MEDIA_CONFIRMATION_FAILED",
+        "Shopify non restituisce tutti i media attesi",
+      );
+    }
+    if (media.some((entry) => entry.status === "FAILED")) {
+      return { state: "FAILED" as const, media };
+    }
+    if (media.every((entry) => entry.status === "READY")) {
+      return { state: "READY" as const, media };
+    }
+    if (attempt + 1 < polling.maxAttempts) {
+      await polling.sleep(polling.delayMs);
+      media = await client.getMedia(productId, mediaIds);
+    }
+  }
+  return { state: "PENDING" as const, media };
 }
 
 async function reserve(
@@ -165,7 +349,7 @@ async function reserve(
 async function complete(
   ledger: CreationLedger,
   record: LedgerRecord,
-  status: "APPLIED" | "RECONCILED",
+  status: LedgerRecord["status"],
   extra: Partial<LedgerRecord> = {},
 ) {
   await ledger.complete({ ...record, ...extra, status });
@@ -177,6 +361,7 @@ async function executeFamily(
   manifest: CreateManifest,
   family: CreateFamily,
   mode: CreateMode,
+  mediaPolling: MediaPollingOptions,
 ): Promise<CreateFamilyResult> {
   const result = initialResult(manifest, family);
   let identity: Awaited<ReturnType<ShopifyCreateClient["findProduct"]>>;
@@ -202,23 +387,23 @@ async function executeFamily(
     };
   }
   if (mode === "DRY_RUN") {
-    if (identity.product && isComplete(identity.product, family)) {
-      return {
-        ...result,
-        status: "ALREADY_EXISTS",
-        shopifyProductId: identity.product.id,
-        shopifyVariantIds: Object.fromEntries(
-          identity.product.variants.map((entry) => [entry.sku, entry.id]),
-        ),
-      };
-    }
     if (identity.product) {
+      const issue = productPostconditionIssue(identity.product, family);
+      if (!issue) {
+        return {
+          ...result,
+          status: "ALREADY_EXISTS",
+          shopifyProductId: identity.product.id,
+          shopifyVariantIds: Object.fromEntries(
+            identity.product.variants.map((entry) => [entry.sku, entry.id]),
+          ),
+        };
+      }
       return {
         ...result,
-        status: "BLOCKED",
-        code: "PARTIAL_EXISTING_WITHOUT_LEDGER",
-        message:
-          "Esiste un parent parziale; verificare il ledger prima di creare",
+        status: issue.code === "MEDIA_PENDING" ? "MEDIA_PENDING" : "BLOCKED",
+        code: issue.code,
+        message: issue.message,
       };
     }
     return result;
@@ -235,6 +420,29 @@ async function executeFamily(
   };
 
   try {
+    if (identity.product) {
+      const existingParentRecord = await ledger.get(parentRecord.requestKey);
+      if (!existingParentRecord) {
+        const issue = productPostconditionIssue(identity.product, family);
+        if (!issue) {
+          return {
+            ...result,
+            status: "ALREADY_EXISTS",
+            shopifyProductId: identity.product.id,
+            shopifyVariantIds: Object.fromEntries(
+              identity.product.variants.map((entry) => [entry.sku, entry.id]),
+            ),
+          };
+        }
+        return {
+          ...result,
+          status: issue.code === "MEDIA_PENDING" ? "MEDIA_PENDING" : "BLOCKED",
+          code: issue.code,
+          message: issue.message,
+          shopifyProductId: identity.product.id,
+        };
+      }
+    }
     const parentReservation = await reserve(ledger, parentRecord);
     let product = identity.product;
     if (product) {
@@ -246,11 +454,15 @@ async function executeFamily(
             "Il parent Shopify non coincide con quello registrato nel ledger",
           );
         }
+        const parentIssue = parentPostconditionIssue(product, family);
+        if (parentIssue) {
+          throw new ShopifyCreateError(parentIssue.code, parentIssue.message);
+        }
         await complete(ledger, parentRecord, "RECONCILED", {
           shopifyProductId: product.id,
         });
         result.appliedOperations.push("RECONCILE_PARENT");
-      } else if (isComplete(product, family)) {
+      } else if (!productPostconditionIssue(product, family)) {
         await complete(ledger, parentRecord, "RECONCILED", {
           shopifyProductId: product.id,
         });
@@ -263,9 +475,10 @@ async function executeFamily(
           ),
         };
       } else {
+        const issue = productPostconditionIssue(product, family)!;
         throw new ShopifyCreateError(
-          "AMBIGUOUS_EXISTING_PARENT",
-          "Parent esistente senza corrispondenza ledger certa",
+          issue.code,
+          issue.message,
         );
       }
     } else {
@@ -334,10 +547,11 @@ async function executeFamily(
         continue;
       }
       result.shopifyVariantIds[expected.sku] = existing.id;
-      if (!exactVariantMatch({ ...product!, variants: [existing] }, expected)) {
+      const variantIssue = variantPostconditionIssue(existing, expected);
+      if (variantIssue) {
         throw new ShopifyCreateError(
-          "VARIANT_IDENTITY_CONFLICT",
-          `Opzioni diverse per ${expected.sku}`,
+          variantIssue.code,
+          variantIssue.message,
         );
       }
       const record: LedgerRecord = {
@@ -515,23 +729,88 @@ async function executeFamily(
         shopifyProductId: product.id,
       };
       const mediaReservation = await reserve(ledger, mediaRecord);
-      if (mediaReservation.kind === "EXISTING") {
-        if (mediaReservation.record.status === "RESERVED") {
-          throw new ShopifyCreateError(
-            "MEDIA_RECONCILIATION_REQUIRED",
-            "Esito media precedente incerto; nessun upload duplicato eseguito",
-          );
-        }
-      } else {
-        await client.attachMedia(product.id, family.media);
-        await complete(ledger, mediaRecord, "APPLIED");
+      let media: ShopifyMediaIdentity[];
+      let mediaIds: string[];
+      if (mediaReservation.kind === "RESERVED") {
+        media = await client.attachMedia(product.id, family.media);
+        mediaIds = media.map((entry) => entry.id);
+        await complete(ledger, mediaRecord, "RESERVED", {
+          result: { mediaIds },
+        });
         result.appliedOperations.push("ATTACH_APPROVED_MEDIA");
+      } else {
+        const saved = mediaReservation.record.result?.mediaIds;
+        mediaIds = Array.isArray(saved)
+          ? saved.filter((entry): entry is string => typeof entry === "string")
+          : [];
+        if (mediaIds.length === 0) {
+          product = await client.verifyProduct(product.id, family);
+          const expectedAlts = new Set(family.media.map((entry) => entry.alt));
+          const candidates = product.media.filter((entry) =>
+            expectedAlts.has(entry.alt)
+          );
+          if (candidates.length !== family.media.length) {
+            throw new ShopifyCreateError(
+              "MEDIA_RECONCILIATION_REQUIRED",
+              "Media reservation senza ID riconciliabili; nessun nuovo upload eseguito",
+            );
+          }
+          mediaIds = candidates.map((entry) => entry.id);
+          media = candidates;
+          await complete(ledger, mediaRecord, "RESERVED", {
+            result: { mediaIds },
+          });
+        } else {
+          media = await client.getMedia(product.id, mediaIds);
+        }
       }
+      const mediaResult = await pollMediaReady(
+        client,
+        product.id,
+        mediaIds,
+        media,
+        mediaPolling,
+      );
+      if (mediaResult.state === "FAILED") {
+        await complete(ledger, mediaRecord, "FAILED", {
+          result: { mediaIds },
+        });
+        throw new ShopifyCreateError(
+          "MEDIA_FAILED",
+          "Shopify ha terminato l'elaborazione media con FAILED",
+        );
+      }
+      if (mediaResult.state === "PENDING") {
+        return {
+          ...result,
+          status: "MEDIA_PENDING",
+          code: "MEDIA_PROCESSING_TIMEOUT",
+          message: "Media ancora PROCESSING/UPLOADED al termine del polling",
+        };
+      }
+      await complete(
+        ledger,
+        mediaRecord,
+        mediaReservation.kind === "RESERVED" ? "APPLIED" : "RECONCILED",
+        { result: { mediaIds } },
+      );
+      result.appliedOperations.push("VERIFY_MEDIA_READY");
     }
 
-    await client.verifyProduct(product.id, family);
+    product = await client.verifyProduct(product.id, family);
+    const finalIssue = productPostconditionIssue(product, family);
+    if (finalIssue) {
+      throw new ShopifyCreateError(finalIssue.code, finalIssue.message);
+    }
     result.appliedOperations.push("VERIFY_MAPPING");
-    result.status = family.publicationIntent === "READY_TO_PUBLISH"
+    const mutated = result.appliedOperations.some((entry) =>
+      entry === "CREATE_PARENT_DRAFT" || entry === "CREATE_OPTIONS" ||
+      entry.startsWith("CREATE_VARIANT:") ||
+      entry === "ATTACH_APPROVED_MEDIA"
+    );
+    result.status = !mutated
+      ? "RECONCILED"
+      : family.publicationIntent === "READY_TO_PUBLISH"
       ? "READY_TO_PUBLISH"
       : "CREATED";
     return result;
@@ -545,6 +824,7 @@ export async function executeCreateBatch(
   ledger: CreationLedger,
   manifest: CreateManifest,
   mode: CreateMode,
+  mediaPolling: MediaPollingOptions = DEFAULT_MEDIA_POLLING,
 ): Promise<CreateBatchReport> {
   const results: CreateFamilyResult[] = [];
   let stopped = false;
@@ -561,7 +841,14 @@ export async function executeCreateBatch(
     }
     try {
       results.push(
-        await executeFamily(client, ledger, manifest, family, mode),
+        await executeFamily(
+          client,
+          ledger,
+          manifest,
+          family,
+          mode,
+          mediaPolling,
+        ),
       );
     } catch (error) {
       const failed = error instanceof CreateExecutionError
@@ -580,13 +867,15 @@ export async function executeCreateBatch(
     READY_TO_PUBLISH: 0,
     ALREADY_EXISTS: 0,
     RECONCILED: 0,
+    MEDIA_PENDING: 0,
     BLOCKED: 0,
     FAILED: 0,
     SKIPPED: 0,
   };
   for (const result of results) summary[result.status] += 1;
   return {
-    ok: summary.FAILED === 0 && summary.BLOCKED === 0,
+    ok: summary.FAILED === 0 && summary.BLOCKED === 0 &&
+      summary.MEDIA_PENDING === 0,
     mode,
     batchId: manifest.batchId,
     stopped,

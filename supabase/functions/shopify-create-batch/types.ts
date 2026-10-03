@@ -12,6 +12,7 @@ export type CreateResultStatus =
   | "READY_TO_PUBLISH"
   | "ALREADY_EXISTS"
   | "RECONCILED"
+  | "MEDIA_PENDING"
   | "BLOCKED"
   | "FAILED"
   | "SKIPPED";
@@ -75,15 +76,37 @@ export interface ShopifyVariantIdentity {
   productId: string;
   productHandle: string;
   inventoryItemId: string;
+  price: string;
+  tracked: boolean;
+  inventoryPolicy: "DENY" | "CONTINUE";
+  available: number | null;
   selectedOptions: CreateOptionValue[];
+}
+
+export type ShopifyMediaStatus =
+  | "UPLOADED"
+  | "PROCESSING"
+  | "READY"
+  | "FAILED";
+
+export interface ShopifyMediaIdentity {
+  id: string;
+  alt: string;
+  status: ShopifyMediaStatus;
+  mediaContentType: "IMAGE" | string;
 }
 
 export interface ShopifyProductIdentity {
   id: string;
   handle: string;
   title: string;
+  descriptionHtml: string;
+  status: "DRAFT" | "ACTIVE" | "ARCHIVED";
   options: Array<{ name: string; values: string[] }>;
+  variantCount: number;
   variants: ShopifyVariantIdentity[];
+  mediaCount: number;
+  media: ShopifyMediaIdentity[];
 }
 
 export interface CreatedVariant {
@@ -132,7 +155,14 @@ export interface ShopifyCreateClient {
     productId: string,
     variants: CreateVariant[],
   ): Promise<CreatedVariant[]>;
-  attachMedia(productId: string, media: CreateMedia[]): Promise<void>;
+  attachMedia(
+    productId: string,
+    media: CreateMedia[],
+  ): Promise<ShopifyMediaIdentity[]>;
+  getMedia(
+    productId: string,
+    mediaIds: string[],
+  ): Promise<ShopifyMediaIdentity[]>;
   configureInventory(input: {
     productId: string;
     variantId: string;
@@ -144,6 +174,12 @@ export interface ShopifyCreateClient {
     productId: string,
     family: CreateFamily,
   ): Promise<ShopifyProductIdentity>;
+}
+
+export interface MediaPollingOptions {
+  maxAttempts: number;
+  delayMs: number;
+  sleep(ms: number): Promise<void>;
 }
 
 export interface CreateFamilyResult {

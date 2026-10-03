@@ -203,6 +203,9 @@ function parseFamily(value: unknown, index: number): CreateFamily {
   const media = exactArray(input.media, `${label}.media`).map(
     (entry, mediaIndex) => parseMedia(entry, `${label}.media[${mediaIndex}]`),
   );
+  if (new Set(media.map((entry) => entry.alt)).size !== media.length) {
+    throw new Error(`MANIFEST_DUPLICATE_MEDIA_ALT: ${parentSku}`);
+  }
   if (
     input.mediaStatus !== "APPROVED" &&
     input.mediaStatus !== "NO_APPROVED_IMAGE"

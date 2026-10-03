@@ -18,6 +18,7 @@ import type {
   CreationLedger,
   LedgerRecord,
   ShopifyCreateClient,
+  ShopifyMediaStatus,
   ShopifyProductIdentity,
   ShopifyVariantIdentity,
 } from "../../supabase/functions/shopify-create-batch/types.ts";
@@ -102,6 +103,8 @@ class FakeClient implements ShopifyCreateClient {
   ambiguous = false;
   failSystemicSku: string | null = null;
   failVariantsAfter = -1;
+  mediaStatusSequence: ShopifyMediaStatus[] = ["READY"];
+  mediaPollIndex = 0;
   inventoryInputs: Array<{
     productId: string;
     variantId: string;
@@ -134,8 +137,13 @@ class FakeClient implements ShopifyCreateClient {
       id: `gid://shopify/Product/${this.products.size + 100}`,
       handle: family.handle,
       title: family.title,
+      descriptionHtml: family.descriptionHtml,
+      status: "DRAFT",
       options: [{ name: "Title", values: ["Default Title"] }],
+      variantCount: 0,
       variants: [],
+      mediaCount: 0,
+      media: [],
     };
     this.products.set(product.id, product);
     return structuredClone(product);
@@ -185,9 +193,14 @@ class FakeClient implements ShopifyCreateClient {
         inventoryItemId: `gid://shopify/InventoryItem/${
           300 + product.variants.length
         }`,
+        price: variant.price,
+        tracked: true,
+        inventoryPolicy: "DENY",
+        available: 20,
         selectedOptions: variant.optionValues,
       };
       product.variants.push(identity);
+      product.variantCount = product.variants.length;
       created.push({
         id: identity.id,
         sku: identity.sku,
@@ -198,8 +211,31 @@ class FakeClient implements ShopifyCreateClient {
     return created;
   }
 
-  async attachMedia(_productId: string, media: CreateMedia[]) {
+  async attachMedia(productId: string, media: CreateMedia[]) {
     this.writes.push(`media:${media.length}`);
+    const product = this.products.get(productId)!;
+    const status = this.mediaStatusSequence[0] ?? "READY";
+    this.mediaPollIndex = 1;
+    product.media = media.map((entry, index) => ({
+      id: `gid://shopify/MediaImage/${400 + index}`,
+      alt: entry.alt,
+      status,
+      mediaContentType: "IMAGE",
+    }));
+    product.mediaCount = product.media.length;
+    return structuredClone(product.media);
+  }
+
+  async getMedia(productId: string, mediaIds: string[]) {
+    const product = this.products.get(productId)!;
+    const status = this.mediaStatusSequence[
+      Math.min(this.mediaPollIndex, this.mediaStatusSequence.length - 1)
+    ] ?? "READY";
+    this.mediaPollIndex += 1;
+    for (const media of product.media) media.status = status;
+    return structuredClone(
+      product.media.filter((entry) => mediaIds.includes(entry.id)),
+    );
   }
 
   async configureInventory(input: {
@@ -216,6 +252,24 @@ class FakeClient implements ShopifyCreateClient {
     return structuredClone(this.products.get(productId)!);
   }
 }
+
+async function seedCompleteProduct(
+  client: FakeClient,
+  family: CreateFamily,
+) {
+  const product = await client.createProductShell(family);
+  await client.createOptions(product.id, family);
+  await client.createVariants(product.id, family.variants);
+  await client.attachMedia(product.id, family.media);
+  client.writes = [];
+  return client.products.get(product.id)!;
+}
+
+const instantPolling = {
+  maxAttempts: 4,
+  delayMs: 0,
+  sleep: async (_ms: number) => {},
+};
 
 Deno.test("manifest: denylist, TEST, duplicate SKU e publish-blocked sono fail-fast", () => {
   assertThrows(
@@ -411,7 +465,7 @@ Deno.test("replay dello stesso batch non duplica parent, variant o media", async
   await executeCreateBatch(client, ledger, m, "EXECUTE");
   const firstWrites = [...client.writes];
   const replay = await executeCreateBatch(client, ledger, m, "EXECUTE");
-  assertEquals(replay.summary.CREATED, 1);
+  assertEquals(replay.summary.RECONCILED, 1);
   assertEquals(client.writes, firstWrites);
   const parentKey = `shopify-create:${m.batchId}:${
     m.families[0].parentSku
@@ -427,10 +481,7 @@ Deno.test("parent completo già esistente viene riconciliato senza write", async
   const m = manifest();
   const family = m.families[0];
   const client = new FakeClient();
-  const product = await client.createProductShell(family);
-  await client.createOptions(product.id, family);
-  await client.createVariants(product.id, family.variants);
-  client.writes = [];
+  await seedCompleteProduct(client, family);
   const report = await executeCreateBatch(
     client,
     new FakeLedger(),
@@ -440,6 +491,89 @@ Deno.test("parent completo già esistente viene riconciliato senza write", async
   assertEquals(report.summary.ALREADY_EXISTS, 1);
   assertEquals(client.writes, []);
 });
+
+for (
+  const scenario of [
+    {
+      name: "prezzo errato",
+      code: "VARIANT_PRICE_MISMATCH",
+      mutate: (product: ShopifyProductIdentity) => {
+        product.variants[0].price = "99.99";
+      },
+    },
+    {
+      name: "variante extra inattesa",
+      code: "UNEXPECTED_VARIANTS",
+      mutate: (product: ShopifyProductIdentity) => {
+        product.variants.push({
+          ...structuredClone(product.variants[0]),
+          id: "gid://shopify/ProductVariant/extra",
+          sku: "OG_UNEXPECTED_EXTRA",
+        });
+        product.variantCount = product.variants.length;
+      },
+    },
+    {
+      name: "descrizione errata",
+      code: "PRODUCT_STATE_MISMATCH",
+      mutate: (product: ShopifyProductIdentity) => {
+        product.descriptionHtml = "<p>Descrizione diversa.</p>";
+      },
+    },
+    {
+      name: "stato ACTIVE invece di DRAFT",
+      code: "PRODUCT_STATE_MISMATCH",
+      mutate: (product: ShopifyProductIdentity) => {
+        product.status = "ACTIVE";
+      },
+    },
+    {
+      name: "tracking disattivato",
+      code: "INVENTORY_MISMATCH",
+      mutate: (product: ShopifyProductIdentity) => {
+        product.variants[0].tracked = false;
+      },
+    },
+    {
+      name: "inventory policy CONTINUE",
+      code: "INVENTORY_MISMATCH",
+      mutate: (product: ShopifyProductIdentity) => {
+        product.variants[0].inventoryPolicy = "CONTINUE";
+      },
+    },
+    {
+      name: "available diverso da 20",
+      code: "INVENTORY_MISMATCH",
+      mutate: (product: ShopifyProductIdentity) => {
+        product.variants[0].available = 19;
+      },
+    },
+    {
+      name: "media approvato mancante",
+      code: "MEDIA_MISSING",
+      mutate: (product: ShopifyProductIdentity) => {
+        product.media = [];
+        product.mediaCount = 0;
+      },
+    },
+  ]
+) {
+  Deno.test(`reconciliation completa: ${scenario.name} blocca ALREADY_EXISTS`, async () => {
+    const m = manifest();
+    const client = new FakeClient();
+    const product = await seedCompleteProduct(client, m.families[0]);
+    scenario.mutate(product);
+    const report = await executeCreateBatch(
+      client,
+      new FakeLedger(),
+      m,
+      "DRY_RUN",
+    );
+    assertEquals(report.summary.ALREADY_EXISTS, 0);
+    assertEquals(report.results[0].code, scenario.code);
+    assertEquals(client.writes, []);
+  });
+}
 
 Deno.test("parent parziale senza ledger viene bloccato", async () => {
   const m = manifest();
@@ -453,7 +587,7 @@ Deno.test("parent parziale senza ledger viene bloccato", async () => {
     "DRY_RUN",
   );
   assertEquals(report.summary.BLOCKED, 1);
-  assertEquals(report.results[0].code, "PARTIAL_EXISTING_WITHOUT_LEDGER");
+  assertEquals(report.results[0].code, "OPTION_STRUCTURE_MISMATCH");
 });
 
 Deno.test("identità ambigua blocca prima di qualsiasi write", async () => {
@@ -476,15 +610,24 @@ Deno.test("SKU già presente sotto altro parent blocca la creazione", async () =
     id: "gid://shopify/Product/other",
     handle: "other",
     title: "Other",
+    descriptionHtml: "<p>Other product description.</p>",
+    status: "DRAFT",
     options: [],
+    variantCount: 1,
     variants: [{
       id: "gid://shopify/ProductVariant/other",
       sku: m.families[0].variants[0].sku,
       productId: "gid://shopify/Product/other",
       productHandle: "other",
       inventoryItemId: "gid://shopify/InventoryItem/other",
+      price: m.families[0].variants[0].price,
+      tracked: true,
+      inventoryPolicy: "DENY",
+      available: 20,
       selectedOptions: m.families[0].variants[0].optionValues,
     }],
+    mediaCount: 0,
+    media: [],
   });
   const report = await executeCreateBatch(
     client,
@@ -553,6 +696,101 @@ Deno.test("immagine approvata mancante viene riportata, mai sostituita", async (
   );
   assertEquals(report.results[0].code, "APPROVED_MEDIA_MISSING");
   assertEquals(client.writes, []);
+});
+
+for (
+  const scenario of [
+    { name: "READY immediato", states: ["READY"] },
+    { name: "PROCESSING poi READY", states: ["PROCESSING", "READY"] },
+    {
+      name: "UPLOADED poi PROCESSING poi READY",
+      states: ["UPLOADED", "PROCESSING", "READY"],
+    },
+  ] as Array<{ name: string; states: ShopifyMediaStatus[] }>
+) {
+  Deno.test(`media polling: ${scenario.name} completa senza duplicati`, async () => {
+    const client = new FakeClient();
+    client.mediaStatusSequence = scenario.states;
+    const report = await executeCreateBatch(
+      client,
+      new FakeLedger(),
+      manifest(),
+      "EXECUTE",
+      instantPolling,
+    );
+    assertEquals(report.summary.CREATED, 1);
+    assertEquals(
+      client.writes.filter((entry) => entry === "media:1").length,
+      1,
+    );
+  });
+}
+
+Deno.test("media polling: PROCESSING poi FAILED non viene marcato APPLIED", async () => {
+  const client = new FakeClient();
+  client.mediaStatusSequence = ["PROCESSING", "FAILED"];
+  const ledger = new FakeLedger();
+  const m = manifest();
+  const report = await executeCreateBatch(
+    client,
+    ledger,
+    m,
+    "EXECUTE",
+    instantPolling,
+  );
+  assertEquals(report.summary.FAILED, 1);
+  assertEquals(report.results[0].code, "MEDIA_FAILED");
+  const mediaRow = [...ledger.rows.values()].find((entry) =>
+    entry.operation === "ATTACH_MEDIA"
+  );
+  assertEquals(mediaRow?.status, "FAILED");
+});
+
+Deno.test("media polling: timeout resta MEDIA_PENDING e ledger RESERVED", async () => {
+  const client = new FakeClient();
+  client.mediaStatusSequence = ["PROCESSING"];
+  const ledger = new FakeLedger();
+  const report = await executeCreateBatch(
+    client,
+    ledger,
+    manifest(),
+    "EXECUTE",
+    { ...instantPolling, maxAttempts: 3 },
+  );
+  assertEquals(report.summary.MEDIA_PENDING, 1);
+  assertEquals(report.results[0].code, "MEDIA_PROCESSING_TIMEOUT");
+  const mediaRow = [...ledger.rows.values()].find((entry) =>
+    entry.operation === "ATTACH_MEDIA"
+  );
+  assertEquals(mediaRow?.status, "RESERVED");
+});
+
+Deno.test("retry media PROCESSING riusa gli ID e non ripete l'upload", async () => {
+  const client = new FakeClient();
+  client.mediaStatusSequence = ["PROCESSING"];
+  const ledger = new FakeLedger();
+  const m = manifest();
+  const first = await executeCreateBatch(
+    client,
+    ledger,
+    m,
+    "EXECUTE",
+    { ...instantPolling, maxAttempts: 2 },
+  );
+  assertEquals(first.summary.MEDIA_PENDING, 1);
+  const writes = [...client.writes];
+  client.mediaStatusSequence = ["PROCESSING", "READY"];
+  client.mediaPollIndex = 0;
+  const replay = await executeCreateBatch(
+    client,
+    ledger,
+    m,
+    "EXECUTE",
+    instantPolling,
+  );
+  assertEquals(replay.summary.RECONCILED, 1);
+  assertEquals(client.writes, writes);
+  assertEquals(client.writes.filter((entry) => entry === "media:1").length, 1);
 });
 
 Deno.test("payload hash è canonico e distingue payload differenti", async () => {

@@ -76,6 +76,28 @@ La migration proposta crea `shopify_creation_ledger`, privata e accessibile in l
 
 Un errore sistemico arresta il batch; un errore item-level resta isolato e viene riportato. Un successo parziale conserva gli ID già confermati nel ledger.
 
+## Contratto di riconciliazione esatta (R1)
+
+`ALREADY_EXISTS`, la riconciliazione del replay e `READY_TO_PUBLISH` richiedono tutte le post-condizioni seguenti; la sola corrispondenza handle/SKU non è sufficiente:
+
+- parent: handle e titolo esatti, descrizione HTML uguale dopo la sola normalizzazione documentata `CRLF → LF` e trim esterno, stato `DRAFT`;
+- opzioni: stessi nomi, stesso ordine e stesso insieme di valori;
+- varianti: insieme esatto `expected == actual`, verificato anche tramite `variantsCount` per rilevare elementi oltre la prima pagina; nessuna variante extra viene ignorata o eliminata;
+- per ogni variante: SKU e option values esatti, prezzo confrontato deterministicamente in centesimi (`12.5` equivale solo a `12.50`), inventory item presente, `tracked=true`, policy `DENY`, quantità `available=20` sulla location approvata;
+- media: stesso conteggio, solo tipo `IMAGE`, alt approvati esatti e stato terminale `READY`; media mancanti, extra o placeholder bloccano la riconciliazione.
+
+Le difformità conservano codici distinti, fra cui `IDENTITY_CONFLICT`, `PRODUCT_STATE_MISMATCH`, `OPTION_STRUCTURE_MISMATCH`, `UNEXPECTED_VARIANTS`, `VARIANT_PRICE_MISMATCH`, `INVENTORY_MISMATCH`, `MEDIA_MISSING`, `MEDIA_SET_MISMATCH` e `MEDIA_PENDING`. Un oggetto simile ma non esatto non viene corretto o riconciliato automaticamente.
+
+## Elaborazione asincrona dei media (R1)
+
+L'upload non viene marcato `APPLIED` finché ogni media non è `READY`. Dopo la mutation, gli ID Shopify restituiti vengono salvati nel ledger mantenendo l'operazione `RESERVED`; il server esegue al massimo cinque letture, distanziate di 750 ms. Non esistono loop illimitati o retry automatici dell'upload.
+
+- `READY`: ledger `APPLIED`/`RECONCILED` e verifica finale del prodotto;
+- `FAILED`: ledger `FAILED`, item fallito;
+- `UPLOADED`/`PROCESSING` oltre il limite: risultato `MEDIA_PENDING` con codice `MEDIA_PROCESSING_TIMEOUT`, ledger ancora `RESERVED`;
+- replay durante `PROCESSING`: riusa i media ID salvati, legge lo stato e prosegue il polling senza creare un secondo media object;
+- reservation legacy/incerta senza ID: tenta solo una riconciliazione read-only tramite media già associati e alt approvati; se non è univoca restituisce `MEDIA_RECONCILIATION_REQUIRED`, senza upload.
+
 ## Canary live futuro
 
 Il candidato deve essere scelto dal manifest privato ricalcolato: una famiglia `CREATE_NEW` pulita, con un parent e 1–2 varianti, contenuti originali/manuali completi, prezzo valido, media reale approvato, nessun mapping esistente e nessuna appartenenza alle famiglie escluse.
