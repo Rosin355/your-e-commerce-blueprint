@@ -110,3 +110,11 @@ Il finding "165 variation come prodotti separati" è corretto in: 2 variation st
 
 ## Aggiornamento 3B.1D (2026-10-03)
 Canary BLOCKED senza write: nessun mezzo per impostare quantità 20 (manca inventory write e token Admin). Vedi `shopify-canary-write-3B1D.md`.
+
+## Aggiornamento 3B.1F (2026-10-03)
+Canary `OG_257799` completato con esito PASS: `tracked false→true`, policy `DENY` invariata, `available/on_hand 0→20`, location `gid://shopify/Location/117678014804`, nessuna modifica estranea. Dettagli in `stock20-canary-3B1F.md`.
+
+## Aggiornamento 3B.1G (2026-10-03)
+Preparato executor server-side per batch massimo 25, dry-run di default, manifest privato server-side, validazioni fail-fast, quantità assoluta 20, idempotenza Shopify nativa e report per item. Nessuna chiamata o write live. Il repository non contiene i record del manifest 3B.1C: Lovable deve fornire l'export inventory read-only e installare il batch approvato senza versionare dati privati. Dettagli in `stock20-batch-executor-3B1G.md`.
+
+Stato: **STOCK-20 BATCH EXECUTOR CODE READY / LIVE BATCH NOT YET EXECUTED**.
