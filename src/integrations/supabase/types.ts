@@ -1420,6 +1420,54 @@ export type Database = {
         }
         Relationships: []
       }
+      shopify_creation_ledger: {
+        Row: {
+          batch_id: string
+          created_at: string
+          id: string
+          internal_sku: string
+          operation: string
+          payload_hash: string
+          request_key: string
+          result_json: Json
+          shopify_product_id: string | null
+          shopify_variant_id: string | null
+          status: string
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          id?: string
+          internal_sku: string
+          operation: string
+          payload_hash: string
+          request_key: string
+          result_json?: Json
+          shopify_product_id?: string | null
+          shopify_variant_id?: string | null
+          status: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          id?: string
+          internal_sku?: string
+          operation?: string
+          payload_hash?: string
+          request_key?: string
+          result_json?: Json
+          shopify_product_id?: string | null
+          shopify_variant_id?: string | null
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       shopify_oauth_states: {
         Row: {
           created_at: string
