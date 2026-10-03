@@ -34,3 +34,9 @@ Il codice della funzione è identico alla revisione approvata `916b679` (diff vu
 - Totale cumulativo 002–013: target eseguiti 281 (287 pianificati − 6 esclusi), 281 UPDATED, 0 ALREADY_AT_TARGET, 0 FAILED, 0 SKIPPED, 0 RECOVERY, 281/281 verificati a 20 (con batch 001: 306).
 - Esclusioni: OG_758263-01/-02, OG_891874-01/-02, TEST-001, TEST-002.
 - Manifest attivo: batch 013 (completato). Batch 002–013: COMPLETATI. Redeploy funzione in questa sessione: nessuno (funzione sempre disponibile).
+
+## Handoff alla Fase 3B.2
+
+Il totale definitivo, includendo il batch 001, è **306 inventory item verificati a available=20**. Le famiglie strutturali escluse sono intenzionalmente invariate. Il gate EXECUTE stock è assente; dopo la verifica operativa conclusiva il secret del manifest stock può essere rimosso.
+
+Il lavoro successivo è la creazione controllata di prodotti/varianti mancanti descritta in `shopify-create-executor-3B2.md`. Il nuovo percorso non modifica il comportamento di `shopify-stock20-batch` e richiede un proprio manifest privato, ledger, dry-run e approvazione canary.

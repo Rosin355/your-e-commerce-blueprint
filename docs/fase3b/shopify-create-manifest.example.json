@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "3B.2-v1",
+  "sourceManifest": "3B.1C",
+  "batchId": "example-do-not-deploy",
+  "families": [
+    {
+      "internalProductId": "example-parent-1",
+      "parentSku": "EXAMPLE_PARENT",
+      "entityType": "variable",
+      "action": "CREATE_VARIABLE_PARENT",
+      "title": "Esempio non distribuibile",
+      "descriptionHtml": "<p>Fixture sintetica per documentare il contratto, non contiene dati cliente.</p>",
+      "descriptionSource": "MANUAL",
+      "handle": "example-do-not-deploy",
+      "shopifyProductId": null,
+      "optionNames": ["Formato"],
+      "variants": [
+        {
+          "internalProductId": "example-child-1",
+          "sku": "EXAMPLE_VARIANT_1",
+          "parentSku": "EXAMPLE_PARENT",
+          "entityType": "variation",
+          "action": "CREATE_VARIANT",
+          "price": "10.00",
+          "optionValues": [{ "name": "Formato", "value": "Piccolo" }],
+          "shopifyVariantId": null,
+          "stockTarget": 20,
+          "readiness": "READY_FOR_SALE",
+          "structureStatus": "CREATE_NEW"
+        }
+      ],
+      "media": [
+        {
+          "originalSource": "https://example.invalid/product.jpg",
+          "alt": "Fixture sintetica",
+          "approved": true
+        }
+      ],
+      "mediaStatus": "APPROVED",
+      "publicationIntent": "CREATE_DRAFT",
+      "publishBlockedFields": [],
+      "stockTarget": 20,
+      "readiness": "READY_FOR_SALE",
+      "structureStatus": "CREATE_NEW"
+    }
+  ]
+}
