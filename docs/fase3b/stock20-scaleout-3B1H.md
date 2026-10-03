@@ -9,7 +9,10 @@ Esclusi: tutti i 25 item del batch 001 (già fatti), OG_152965-01 e gli altri SK
 | 002 | 25 SET_AVAILABLE_20, 0 errori | 25 / 0 / 0 | 25/25 | PASS |
 | 003 | 25 SET_AVAILABLE_20, 0 errori | 25 / 0 / 0 | 25/25 (dopo ripristino funzione) | PASS |
 | 004 | 25 SET_AVAILABLE_20, 0 errori | 25 / 0 / 0 | 25/25 | PASS |
-| 005–013 | — | — | — | NON ESEGUITI |
+| 005 | 25 SET_AVAILABLE_20, 0 errori, ID manifest = file approvato | 25 / 0 / 0 | 25/25 | PASS |
+| 006–013 | — | — | — | NON ESEGUITI (sostituzione manifest 006 rifiutata dall'utente) |
+
+Sessione 005: funzione presente e funzionante (verifica read-only pre-lotto 004: 25 ALREADY_AT_TARGET), nessun redeploy necessario.
 
 ## Incidente: funzione non trovata
 Dopo l'EXECUTE del batch 003, una richiesta di verifica in sola lettura ha restituito `NOT_FOUND` (funzione non presente in esecuzione); nessuna scrittura coinvolta.
