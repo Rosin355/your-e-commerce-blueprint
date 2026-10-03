@@ -118,3 +118,6 @@ Canary `OG_257799` completato con esito PASS: `tracked false→true`, policy `DE
 Preparato executor server-side per batch massimo 25, dry-run di default, manifest privato server-side, validazioni fail-fast, quantità assoluta 20, idempotenza Shopify nativa e report per item. Nessuna chiamata o write live. Il repository non contiene i record del manifest 3B.1C: Lovable deve fornire l'export inventory read-only e installare il batch approvato senza versionare dati privati. Dettagli in `stock20-batch-executor-3B1G.md`.
 
 Stato: **STOCK-20 BATCH EXECUTOR CODE READY / LIVE BATCH NOT YET EXECUTED**.
+
+## Aggiornamento 3B.1G live dry-run (2026-10-03)
+Batch `stock20-3b1g-batch-001` (25 SKU simple UPDATE_EXISTING) installato come configurazione server-side; DRY_RUN live unico: 0 FAILED, 0 drift, 0 stop, 25 `SET_AVAILABLE_20` pianificate, zero write. EXECUTE ancora disabilitato. Dettagli in `stock20-live-dry-run-3B1G.md`.
