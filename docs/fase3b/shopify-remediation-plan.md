@@ -124,3 +124,9 @@ Batch `stock20-3b1g-batch-001` (25 SKU simple UPDATE_EXISTING) installato come c
 
 ## Aggiornamento 3B.1G live EXECUTE batch #1 (2026-10-03)
 Batch `stock20-3b1g-batch-001`: 25/25 UPDATED a available=20 (tracked/DENY invariati), 0 FAILED, 0 recovery; gate EXECUTE eliminato subito dopo. Dettagli in `stock20-live-execute-batch1-3B1G.md`.
+
+## Chiusura 3B.1H e avvio 3B.2 (2026-10-03)
+
+Lo scale-out stock batch 001–013 è concluso: **306 inventory item verificati a 20**, tracking attivo, policy `DENY`, zero failed e zero recovery. Le famiglie strutturali e gli SKU test sono rimasti esclusi; il gate EXECUTE stock è disabilitato e il manifest secret stock può essere rimosso dopo la verifica operativa finale.
+
+Il passo successivo è 3B.2: creazione controllata dei parent/variant Shopify mancanti. L'executor è preparato code-first con manifest privato server-side, DRY_RUN di default, ledger idempotente e canary massimo una famiglia; nessun deploy o write live è stato eseguito. I conteggi 3B.1C nel repository restano storici finché non vengono ricomputati dagli input privati. Vedi `shopify-create-executor-3B2.md`.
