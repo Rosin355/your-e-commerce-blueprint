@@ -10,3 +10,7 @@ verify_jwt = false
 
 [functions.shopify-admin-proxy]
 verify_jwt = false
+
+# JWT e ruoli admin/tech_admin verificati dentro la funzione tramite Admin V2.
+[functions.shopify-stock20-batch]
+verify_jwt = false

@@ -134,10 +134,11 @@ export async function resolveAdminAccessToken(): Promise<string> {
   throw new Error(SHOPIFY_AUTH_ERROR_HINT);
 }
 
-async function getConfig(): Promise<ShopifyAdminConfig> {
+async function getConfig(apiVersionOverride?: string): Promise<ShopifyAdminConfig> {
   const shop = getShopDomain();
   const accessToken = await resolveAdminAccessToken();
-  const apiVersion = Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-07";
+  const apiVersion = apiVersionOverride ||
+    Deno.env.get("SHOPIFY_ADMIN_API_VERSION") || "2025-07";
   if (!shop) throw new Error("SHOPIFY_STORE_PERMANENT_DOMAIN non configurato");
   return { shop, accessToken, apiVersion };
 }
@@ -193,11 +194,12 @@ export async function shopifyAdminFetch(
   return data;
 }
 
-export async function shopifyAdminGraphQL<T = any>(
+async function runShopifyAdminGraphQL<T = any>(
   query: string,
   variables: Record<string, unknown> = {},
+  apiVersionOverride?: string,
 ): Promise<T> {
-  let cfg = await getConfig();
+  let cfg = await getConfig(apiVersionOverride);
   let attempts = 0;
   let unauthorizedRetried = false;
 
@@ -221,7 +223,7 @@ export async function shopifyAdminGraphQL<T = any>(
     if (response.status === 401 && !unauthorizedRetried) {
       unauthorizedRetried = true;
       invalidateClientCredentialsCache();
-      cfg = await getConfig();
+      cfg = await getConfig(apiVersionOverride);
       continue;
     }
 
@@ -238,6 +240,33 @@ export async function shopifyAdminGraphQL<T = any>(
   }
 
   throw new Error("Shopify rate limit persistente");
+}
+
+export async function shopifyAdminGraphQL<T = any>(
+  query: string,
+  variables: Record<string, unknown> = {},
+): Promise<T> {
+  return await runShopifyAdminGraphQL<T>(query, variables);
+}
+
+/**
+ * Usa una versione Admin GraphQL esplicita per operazioni che dipendono da un
+ * contratto versionato. Le chiamate esistenti mantengono il comportamento
+ * precedente tramite shopifyAdminGraphQL.
+ */
+export async function shopifyAdminGraphQLAtVersion<T = any>(
+  apiVersion: string,
+  query: string,
+  variables: Record<string, unknown> = {},
+): Promise<T> {
+  if (!/^20\d{2}-(01|04|07|10)$/.test(apiVersion)) {
+    throw new Error("Versione Shopify Admin API non valida");
+  }
+  return await runShopifyAdminGraphQL<T>(
+    query,
+    variables,
+    apiVersion,
+  );
 }
 
 export function jsonResponse(data: unknown, status = 200): Response {
