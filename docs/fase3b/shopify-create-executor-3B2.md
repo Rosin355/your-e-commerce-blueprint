@@ -1,7 +1,9 @@
 # Fase 3B.2 — Executor sicuro per creazione prodotti Shopify
 
 Data: 3 ottobre 2026
-Stato: **CODE FIRST — NESSUN DEPLOY, NESSUNA WRITE SHOPIFY LIVE**
+Stato: **PR #27 MERGED — LIVE CANARY PENDING; NESSUN DEPLOY, NESSUNA WRITE SHOPIFY LIVE**
+
+Baseline applicativa: `main@c6fc3b199e5e8dca21f0debb235677abb10e6be0` (merge PR #27). La migration e la Edge Function descritte sotto sono versionate ma non sono state applicate o distribuite da Codex.
 
 ## Obiettivo e confini
 
@@ -102,6 +104,52 @@ L'upload non viene marcato `APPLIED` finché ogni media non è `READY`. Dopo la 
 
 Il candidato deve essere scelto dal manifest privato ricalcolato: una famiglia `CREATE_NEW` pulita, con un parent e 1–2 varianti, contenuti originali/manuali completi, prezzo valido, media reale approvato, nessun mapping esistente e nessuna appartenenza alle famiglie escluse.
 
+Gli input privati reali 3B.1C non sono presenti nel repository né nei worktree locali verificati dopo il merge. Di conseguenza non è stato nominato alcuno SKU e non è stato generato un manifest canary locale. Lovable deve usare in ambiente privato `manifest-3B1C-shopify-final.csv` e l'export editoriale approvato richiesto dal builder; non sono sostituibili con i CSV WordPress o con la fixture sintetica versionata.
+
+### Handoff Lovable — Gate live DRY_RUN
+
+Eseguire i passi nell'ordine seguente e fermarsi al primo esito non conforme:
+
+1. fissare la revisione `c6fc3b199e5e8dca21f0debb235677abb10e6be0` e verificare che il tree contenga `20261003163930_create_shopify_creation_ledger.sql` e `shopify-create-batch`;
+2. dai due input privati 3B.1C generare un nuovo file `0600`, fuori da Git, con `scripts/build-shopify-create-manifest.mjs --limit 1`;
+3. accettare la sola famiglia che abbia esattamente un parent `CREATE_VARIABLE_PARENT`, 1–2 child `CREATE_VARIANT`, `READY_FOR_SALE`, `CREATE_NEW`, prezzi positivi, descrizione `ORIGINAL|MANUAL`, nessun `publishBlockedFields`, media HTTPS reali approvati e mapping Shopify tutti nulli;
+4. escludere `OG_393883`, `OG_152965`, `OG_891874`, `OG_758263`, SKU `TEST`, denylist, restructure, structural review e qualsiasi identità già presente o ambigua; riportare parent SKU e child SKU scelti senza pubblicare il manifest;
+5. applicare **una sola volta** esclusivamente `20261003163930_create_shopify_creation_ledger.sql`; non modificare altre migration o il registro manualmente;
+6. verificare in sola lettura `to_regclass('public.shopify_creation_ledger')`, `pg_class.relrowsecurity` e gli ACL: `PUBLIC`, `anon`, `authenticated` senza privilegi; `service_role` soltanto `SELECT`, `INSERT`, `UPDATE`, senza `DELETE`, `TRUNCATE`, `REFERENCES`, `TRIGGER`;
+7. impostare il manifest come secret server-side `SHOPIFY_CREATE_BATCH_MANIFEST_JSON`; lasciare assente oppure esattamente `false` `SHOPIFY_CREATE_EXECUTE_ENABLED`;
+8. distribuire **solo** `shopify-create-batch` dalla stessa revisione; non distribuire frontend o altre Edge Function;
+9. invocare come Admin/Tech Admin `POST` con `{"mode":"DRY_RUN","batchId":"<batch-id-privato>"}` e senza conferma EXECUTE;
+10. accettare il risultato soltanto se riporta una famiglia pianificata: un parent `DRAFT`, l'insieme esatto delle 1–2 varianti, tracking `true`, policy `DENY`, stock target `20`, soli media approvati, nessuna publication e **zero mutation**; allegare conteggi `planned`, `skipped`, `failed`, drift/errori sistemici e conferma zero mutation;
+11. terminare il Gate live dopo il report. Non abilitare EXECUTE e non effettuare write Shopify.
+
+Comandi SQL di preflight, tutti read-only dopo l'applicazione autorizzata della sola migration:
+
+```sql
+select to_regclass('public.shopify_creation_ledger') as ledger_table;
+
+select c.relrowsecurity as rls_enabled
+from pg_class c
+join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public' and c.relname = 'shopify_creation_ledger';
+
+select grantee, privilege_type
+from information_schema.role_table_grants
+where table_schema = 'public'
+  and table_name = 'shopify_creation_ledger'
+  and grantee in ('anon', 'authenticated', 'service_role')
+order by grantee, privilege_type;
+
+select
+  has_table_privilege('anon', 'public.shopify_creation_ledger', 'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') as anon_any,
+  has_table_privilege('authenticated', 'public.shopify_creation_ledger', 'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') as authenticated_any,
+  has_table_privilege('service_role', 'public.shopify_creation_ledger', 'SELECT') as service_select,
+  has_table_privilege('service_role', 'public.shopify_creation_ledger', 'INSERT') as service_insert,
+  has_table_privilege('service_role', 'public.shopify_creation_ledger', 'UPDATE') as service_update,
+  has_table_privilege('service_role', 'public.shopify_creation_ledger', 'DELETE,TRUNCATE,REFERENCES,TRIGGER') as service_forbidden_any;
+```
+
+Atteso: tabella presente, RLS `true`, nessuna riga grant per `anon`/`authenticated`, soli tre grant al `service_role`; `anon_any=false`, `authenticated_any=false`, i tre flag service consentiti `true`, `service_forbidden_any=false`.
+
 Procedura controllata, non eseguita:
 
 1. applicare una sola volta la migration ledger;
@@ -135,3 +183,5 @@ La migration può essere ritirata prima dell'uso live. Dopo la prima applicazion
 - token Shopify con scope minimi verificati;
 - DRY_RUN live a zero mutation approvato;
 - approvazione esplicita separata per EXECUTE.
+
+Il merge della PR #27 chiude il gate Git. Non chiude i gate migration, deploy, selezione canary, DRY_RUN o EXECUTE.
