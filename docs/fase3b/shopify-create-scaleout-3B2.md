@@ -75,7 +75,9 @@ Migration locale non applicata: `20261003205811_create_shopify_create_manifests_
 }
 ```
 
-Ogni entry accetta esclusivamente questi cinque campi. Il path deve derivare esattamente dal `batchId`; SHA-256 e `familyCount` vengono verificati prima dell'executor. Il request HTTP accetta solo `batchId`, `mode`, `confirm` e rifiuta manifest, object path, SHA o payload prodotto.
+Ogni entry accetta esclusivamente questi cinque campi. Il path deve derivare esattamente dal `batchId`; SHA-256 e `familyCount` vengono verificati prima dell'executor. Il request HTTP accetta solo `batchId`, `mode`, `confirm`, `approvalDigest` e rifiuta manifest, object path, SHA o payload prodotto.
+
+Il DRY_RUN restituisce `manifestSha256` e `approvalDigest = SHA-256(batchId:manifestSha256:schemaVersion)`. EXECUTE deve inviare esattamente quel digest: la funzione ricarica indice e manifest, ricalcola entrambi i valori e restituisce `MANIFEST_APPROVAL_MISMATCH` prima di costruire il client Shopify se il contenuto approvato è cambiato. Anche il DRY_RUN finale di VERIFY invia lo stesso digest, così una sostituzione fra EXECUTE e verifica non può essere ignorata. `approvalDigest` identifica l'artefatto approvato, ma non sostituisce JWT, ruolo Admin, conferma EXECUTE o gate server-side.
 
 ## Generazione privata
 
@@ -96,7 +98,7 @@ Upload operativo: creare/applicare il bucket privato, caricare tutti i batch con
 
 ## Workflow server-side senza interazione tra batch
 
-`scripts/run-shopify-create-scaleout.mjs` usa soltanto i batch ID dell'indice privato locale e chiama l'endpoint Admin. Per ogni batch esegue DRY_RUN → EXECUTE → DRY_RUN di verifica. `--start-batch` abilita il resume; una seconda esecuzione riconcilia i prodotti esistenti.
+`scripts/run-shopify-create-scaleout.mjs` usa soltanto i batch ID dell'indice privato locale e chiama l'endpoint Admin. Per ogni batch esegue DRY_RUN, acquisisce digest e SHA server-side, quindi li vincola a EXECUTE e al DRY_RUN di VERIFY. Un digest assente/diverso o una risposta riferita a un altro SHA arrestano globalmente il runner. `--start-batch` abilita il resume; una seconda esecuzione riconcilia i prodotti esistenti.
 
 ```bash
 SHOPIFY_CREATE_ENDPOINT='<endpoint>' \

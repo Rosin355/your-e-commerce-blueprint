@@ -133,8 +133,8 @@ Il passo successivo è 3B.2: creazione controllata dei parent/variant Shopify ma
 
 ## Aggiornamento 3B.2 Storage scale-out (2026-10-03)
 
-Canary `OG_111899` PASS: parent `DRAFT`, una variante, stock 20, tracked, `DENY`, media `READY`, zero duplicati; gate EXECUTE rimosso. L'export owner-approved classifica 903 famiglie `SAFE_CREATE`, ma il secret manifest limita il batch a circa cinque famiglie e rende impraticabile la rotazione manuale.
+La PR #27 è stata integrata con merge `c6fc3b199e5e8dca21f0debb235677abb10e6be0`; il successivo canary `OG_111899` è PASS: parent `DRAFT`, una variante, stock 20, tracked, `DENY`, media `READY`, zero duplicati e gate EXECUTE rimosso. L'handoff docs-only della PR #28, basato sul vecchio secret manifest, è quindi superato e non deve essere eseguito. L'export owner-approved classifica 903 famiglie `SAFE_CREATE`, ma il secret manifest limita il batch a circa cinque famiglie e rende impraticabile la rotazione manuale.
 
-Forward-fix code-first: bucket Supabase Storage privato `shopify-create-manifests`, indice metadata-only con SHA-256, batch massimo 10, loader server-side service-role, request senza manifest/path/SHA, builder deterministico e runner sequenziale con resume. 903 famiglie corrispondono a 91 batch; il conteggio varianti reale sarà stampato dagli input privati al rollout. Tutti i prodotti restano `DRAFT` e la pubblicazione è disabilitata.
+Forward-fix code-first: bucket Supabase Storage privato `shopify-create-manifests`, indice metadata-only con SHA-256, batch massimo 10, loader server-side service-role, request senza manifest/path/SHA, pinning `approvalDigest` fra DRY_RUN, EXECUTE e VERIFY, builder deterministico e runner sequenziale con resume. 903 famiglie corrispondono a 91 batch; il conteggio varianti reale sarà stampato dagli input privati al rollout. Tutti i prodotti restano `DRAFT` e la pubblicazione è disabilitata.
 
 Stato: **STORAGE SCALE-OUT CODE READY / NON DEPLOYATO / NESSUNA WRITE LIVE**. Servono migration bucket, upload privato, deploy della sola Edge Function, DRY_RUN del primo batch e autorizzazione separata per la finestra EXECUTE. Dettagli in `shopify-create-scaleout-3B2.md`.

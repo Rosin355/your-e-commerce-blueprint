@@ -3,6 +3,8 @@
 Data: 3 ottobre 2026
 Stato: **CANARY LIVE PASS — STORAGE SCALE-OUT CODE READY; FORWARD-FIX NON DEPLOYATA**
 
+Baseline storica: PR #27 integrata con merge `c6fc3b199e5e8dca21f0debb235677abb10e6be0`; il successivo canary `OG_111899` è PASS. La procedura docs-only della PR #28, basata sul vecchio secret manifest, è superata dalla forward-fix Storage di questa PR e non deve essere eseguita. La nuova migration e la nuova revisione Edge descritte sotto non sono state applicate o distribuite da Codex.
+
 ## Obiettivo e confini
 
 La fase introduce un executor Admin-only per creare in Shopify famiglie commerciali già classificate `CREATE_VARIABLE_PARENT` + `CREATE_VARIANT` nel manifest privato 3B.1C. Non modifica l'executor stock-20, non pubblica prodotti e non accetta payload prodotto dal frontend.
@@ -52,17 +54,18 @@ Sono sempre esclusi `OG_393883`, le famiglie `OG_152965`, `OG_891874`, `OG_75826
 Endpoint: `shopify-create-batch`.
 
 1. autentica JWT e ruoli `admin|tech_admin` con i moduli Admin V2 condivisi;
-2. accetta dal request soltanto `batchId`, `mode` e la conferma EXECUTE; manifest, path, SHA e payload prodotto sono rifiutati;
+2. accetta dal request soltanto `batchId`, `mode`, conferma EXECUTE e `approvalDigest`; manifest, path, SHA e payload prodotto sono rifiutati;
 3. scarica con `service_role` il solo `index.json` dal bucket privato fisso `shopify-create-manifests`;
 4. verifica che il `batchId` sia approvato e che il path sia esattamente `batches/<batchId>.json`;
 5. scarica l'oggetto privato, calcola SHA-256 sui byte e confronta hash e `familyCount` prima di parsare lo schema `3B.2-v1`;
-6. parte in `DRY_RUN` se la modalità non è esplicitamente `EXECUTE`;
-7. per EXECUTE richiede conferma `SHOPIFY_CREATE_EXECUTE` e gate `SHOPIFY_CREATE_EXECUTE_ENABLED=true`;
-8. ricerca prima handle e tutti gli SKU; un'identità ambigua blocca la famiglia;
-9. crea il parent in `DRAFT`, le opzioni e le varianti in ordine parent-first;
-10. imposta in creazione SKU, tracking, `DENY` e quantità assoluta 20 sulla location `gid://shopify/Location/117678014804`;
-11. allega soltanto media approvati e verifica identità e post-condizioni;
-12. non esegue mutation di pubblicazione.
+6. deriva `approvalDigest = SHA-256(batchId:manifestSha256:schemaVersion)` e lo restituisce nel `DRY_RUN`;
+7. per EXECUTE ricarica indice e manifest, richiede lo stesso `approvalDigest`, la conferma `SHOPIFY_CREATE_EXECUTE` e il gate `SHOPIFY_CREATE_EXECUTE_ENABLED=true`; digest assente o diverso blocca prima di qualsiasi client/write Shopify;
+8. il DRY_RUN finale di VERIFY invia lo stesso digest e rileva una sostituzione avvenuta dopo EXECUTE;
+9. ricerca prima handle e tutti gli SKU; un'identità ambigua blocca la famiglia;
+10. crea il parent in `DRAFT`, le opzioni e le varianti in ordine parent-first;
+11. imposta in creazione SKU, tracking, `DENY` e quantità assoluta 20 sulla location `gid://shopify/Location/117678014804`;
+12. allega soltanto media approvati e verifica identità e post-condizioni;
+13. non esegue mutation di pubblicazione.
 
 Non esiste fallback a `SHOPIFY_CREATE_BATCH_MANIFEST_JSON`: due sorgenti concorrenti renderebbero ambiguo l'oggetto approvato. `MANIFEST_BATCH_NOT_APPROVED`, `MANIFEST_INDEX_INVALID` e `MANIFEST_INTEGRITY_ERROR` fermano la richiesta prima di qualsiasi client Shopify.
 
@@ -107,14 +110,20 @@ L'upload non viene marcato `APPLIED` finché ogni media non è `READY`. Dopo la 
 
 Il canary `OG_111899` è PASS: un parent `DRAFT`, una variante, stock 20, tracking attivo, policy `DENY`, media `READY` e zero duplicati. Il gate EXECUTE è stato rimosso dopo la verifica. Questo risultato valida le regole business esistenti ma non distribuisce automaticamente la forward-fix Storage.
 
+### Continuità con PR #27 e PR #28
+
+La PR #27 ha introdotto l'executor e la migration ledger; l'handoff docs-only della PR #28 registrava correttamente che gli input 3B.1C sono privati, non presenti nei worktree e non sostituibili con CSV WordPress o fixture sintetiche. Conserva inoltre i criteri canary: un solo parent `CREATE_VARIABLE_PARENT`, 1–2 child `CREATE_VARIANT`, `READY_FOR_SALE`, `CREATE_NEW`, prezzi positivi, contenuti `ORIGINAL|MANUAL`, media HTTPS approvati, mapping nulli e tutte le denylist applicate.
+
+Quel handoff operativo è però superato: ledger e ACL sono stati verificati, il canary è PASS e il vecchio secret `SHOPIFY_CREATE_BATCH_MANIFEST_JSON` non è più una sorgente ammessa dalla forward-fix. Non va riapplicata la migration ledger né ripetuto il canary. Le verifiche ACL read-only restano valide per audit (`RLS=true`; nessun privilegio `anon|authenticated`; `service_role` solo `SELECT|INSERT|UPDATE`, senza `DELETE|TRUNCATE|REFERENCES|TRIGGER`). Il rollout corrente parte dalla migration Storage, dall'upload privato e dal DRY_RUN con pinning descritti sotto.
+
 ## Scale-out controllato e resume
 
 Con 903 famiglie, batch da massimo 10 producono **91 batch**. Il numero reale di varianti viene stampato dal builder sugli export privati. Il workflow `run-shopify-create-scaleout.mjs` elabora sequenzialmente ogni `batchId` già presente nell'indice:
 
-1. DRY_RUN;
+1. DRY_RUN e acquisizione di `approvalDigest` + `manifestSha256`;
 2. stop se `FAILED`, `BLOCKED`, `MEDIA_PENDING`, conflitto di identità/idempotenza o errore sistemico sono diversi da zero;
-3. EXECUTE una volta soltanto durante la finestra autorizzata;
-4. nuovo DRY_RUN di verifica, che deve riconciliare gli oggetti già creati senza mutation;
+3. EXECUTE una volta soltanto durante la finestra autorizzata, inviando esattamente il digest del DRY_RUN;
+4. nuovo DRY_RUN di VERIFY con lo stesso digest, che deve riconciliare gli oggetti già creati senza mutation;
 5. batch successivo.
 
 `--start-batch` riparte da un batch preciso. Ledger e riconciliazione esatta rendono sicuro il replay di batch già completati; non viene eseguito rollback distruttivo. Un safe skip item-level può proseguire, mentre errori sistemici, di integrità o duplicate protection fermano l'intera esecuzione.
@@ -142,3 +151,5 @@ Ledger, bucket, indice e manifest non vanno eliminati durante un incidente: sono
 - token Shopify con scope minimi verificati;
 - DRY_RUN del primo batch Storage a zero mutation approvato;
 - finestra scale-out EXECUTE separatamente autorizzata e gate rimosso nel `finally`.
+
+Il merge della PR #27 e il canary live chiudono i gate storici dell'executor singolo. Non chiudono i gate migration Storage, deploy della forward-fix, upload privato, DRY_RUN Storage o finestra EXECUTE scale-out.

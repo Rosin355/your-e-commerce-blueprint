@@ -29,6 +29,12 @@ export interface PrivateManifestStore {
   download(path: string): Promise<Uint8Array>;
 }
 
+export interface ApprovedCreateManifest {
+  manifest: CreateManifest;
+  manifestSha256: string;
+  approvalDigest: string;
+}
+
 function record(value: unknown, label: string): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error(`MANIFEST_INDEX_INVALID: ${label}`);
@@ -114,6 +120,18 @@ export async function sha256Hex(bytes: Uint8Array): Promise<string> {
     .join("");
 }
 
+export async function createManifestApprovalDigest(
+  batchId: string,
+  manifestSha256: string,
+  schemaVersion: string,
+): Promise<string> {
+  return await sha256Hex(
+    new TextEncoder().encode(
+      `${batchId}:${manifestSha256}:${schemaVersion}`,
+    ),
+  );
+}
+
 function parseJson(bytes: Uint8Array, label: string): unknown {
   try {
     return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
@@ -135,7 +153,7 @@ export class SupabasePrivateManifestStore implements PrivateManifestStore {
 export async function loadApprovedCreateManifest(
   batchId: string,
   store: PrivateManifestStore = new SupabasePrivateManifestStore(),
-): Promise<CreateManifest> {
+): Promise<ApprovedCreateManifest> {
   if (!BATCH_ID.test(batchId)) {
     throw new Error("MANIFEST_BATCH_NOT_APPROVED");
   }
@@ -161,5 +179,13 @@ export async function loadApprovedCreateManifest(
   ) {
     throw new Error("MANIFEST_INTEGRITY_ERROR");
   }
-  return manifest;
+  return {
+    manifest,
+    manifestSha256: approved.sha256,
+    approvalDigest: await createManifestApprovalDigest(
+      approved.batchId,
+      approved.sha256,
+      approved.schemaVersion,
+    ),
+  };
 }

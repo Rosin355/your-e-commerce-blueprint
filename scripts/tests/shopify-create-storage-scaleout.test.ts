@@ -7,8 +7,12 @@ import {
 } from "jsr:@std/assert";
 import { readFileSync } from "node:fs";
 import { parseCreateManifest } from "../../supabase/functions/shopify-create-batch/manifest.ts";
-import { parseCreateBatchRequest } from "../../supabase/functions/shopify-create-batch/request.ts";
 import {
+  assertManifestApproval,
+  parseCreateBatchRequest,
+} from "../../supabase/functions/shopify-create-batch/request.ts";
+import {
+  createManifestApprovalDigest,
   loadApprovedCreateManifest,
   parseManifestIndex,
   type PrivateManifestStore,
@@ -103,6 +107,9 @@ async function indexFor(raw: string, overrides: Record<string, unknown> = {}) {
 class FakeStore implements PrivateManifestStore {
   paths: string[] = [];
   constructor(private objects: Map<string, string>) {}
+  set(path: string, value: string) {
+    this.objects.set(path, value);
+  }
   download(path: string): Promise<Uint8Array> {
     this.paths.push(path);
     const value = this.objects.get(path);
@@ -119,12 +126,21 @@ Deno.test("private index approva il batch e SHA match carica il manifest", async
       ["batches/shopify-create-3b2-002.json", raw],
     ]),
   );
-  const manifest = await loadApprovedCreateManifest(
+  const approved = await loadApprovedCreateManifest(
     "shopify-create-3b2-002",
     store,
   );
-  assertEquals(manifest.batchId, "shopify-create-3b2-002");
-  assertEquals(manifest.families.length, 1);
+  assertEquals(approved.manifest.batchId, "shopify-create-3b2-002");
+  assertEquals(approved.manifest.families.length, 1);
+  assertEquals(approved.manifestSha256, await sha256Hex(encoder.encode(raw)));
+  assertEquals(
+    approved.approvalDigest,
+    await createManifestApprovalDigest(
+      "shopify-create-3b2-002",
+      approved.manifestSha256,
+      "3B.2-v1",
+    ),
+  );
   assertEquals(store.paths, [
     "index.json",
     "batches/shopify-create-3b2-002.json",
@@ -203,6 +219,137 @@ Deno.test("request non può fornire manifest, object path, SHA o payload", () =>
       "REQUEST_FIELD_FORBIDDEN",
     );
   }
+});
+
+async function mutableApprovedStore(raw: string) {
+  return new FakeStore(
+    new Map([
+      ["index.json", await indexFor(raw)],
+      ["batches/shopify-create-3b2-002.json", raw],
+    ]),
+  );
+}
+
+async function replaceApprovedManifest(store: FakeStore, raw: string) {
+  store.set("index.json", await indexFor(raw));
+  store.set("batches/shopify-create-3b2-002.json", raw);
+}
+
+Deno.test("A: manifest stabile mantiene approval digest fra DRY_RUN ed EXECUTE", async () => {
+  const store = await mutableApprovedStore(rawManifest());
+  const dryRun = await loadApprovedCreateManifest(
+    "shopify-create-3b2-002",
+    store,
+  );
+  const execute = await loadApprovedCreateManifest(
+    "shopify-create-3b2-002",
+    store,
+  );
+  assertEquals(execute.approvalDigest, dryRun.approvalDigest);
+  assertManifestApproval(
+    "EXECUTE",
+    dryRun.approvalDigest,
+    execute.approvalDigest,
+  );
+});
+
+Deno.test("B: sostituzione prima di EXECUTE blocca con zero write", async () => {
+  const original = rawManifest();
+  const store = await mutableApprovedStore(original);
+  const dryRun = await loadApprovedCreateManifest(
+    "shopify-create-3b2-002",
+    store,
+  );
+  const replaced = original.replace(
+    "Prodotto OG_SCALE_001",
+    "Prodotto OG_SCALE_001 aggiornato",
+  );
+  await replaceApprovedManifest(store, replaced);
+  const execute = await loadApprovedCreateManifest(
+    "shopify-create-3b2-002",
+    store,
+  );
+  let shopifyWrites = 0;
+  assertThrows(
+    () => {
+      assertManifestApproval(
+        "EXECUTE",
+        dryRun.approvalDigest,
+        execute.approvalDigest,
+      );
+      shopifyWrites += 1;
+    },
+    Error,
+    "MANIFEST_APPROVAL_MISMATCH",
+  );
+  assertEquals(shopifyWrites, 0);
+});
+
+Deno.test("C: sostituzione prima di VERIFY è rilevata dal digest approvato", async () => {
+  const original = rawManifest();
+  const store = await mutableApprovedStore(original);
+  const execute = await loadApprovedCreateManifest(
+    "shopify-create-3b2-002",
+    store,
+  );
+  await replaceApprovedManifest(
+    store,
+    original.replace("12.50", "13.50"),
+  );
+  const verify = await loadApprovedCreateManifest(
+    "shopify-create-3b2-002",
+    store,
+  );
+  assertThrows(
+    () =>
+      assertManifestApproval(
+        "DRY_RUN",
+        execute.approvalDigest,
+        verify.approvalDigest,
+      ),
+    Error,
+    "MANIFEST_APPROVAL_MISMATCH",
+  );
+});
+
+Deno.test("D: digest sconosciuto è bloccato", async () => {
+  const store = await mutableApprovedStore(rawManifest());
+  const current = await loadApprovedCreateManifest(
+    "shopify-create-3b2-002",
+    store,
+  );
+  assertThrows(
+    () =>
+      assertManifestApproval("EXECUTE", "f".repeat(64), current.approvalDigest),
+    Error,
+    "MANIFEST_APPROVAL_MISMATCH",
+  );
+});
+
+Deno.test("E: EXECUTE senza digest è bloccato", () => {
+  assertThrows(
+    () => assertManifestApproval("EXECUTE", undefined, "a".repeat(64)),
+    Error,
+    "MANIFEST_APPROVAL_REQUIRED",
+  );
+});
+
+Deno.test("F: DRY_RUN iniziale non richiede digest", () => {
+  assertManifestApproval("DRY_RUN", undefined, "a".repeat(64));
+});
+
+Deno.test("G: sha256 raw non può sostituire approvalDigest", () => {
+  assertThrows(
+    () =>
+      parseCreateBatchRequest({
+        batchId: "shopify-create-3b2-002",
+        mode: "EXECUTE",
+        confirm: "SHOPIFY_CREATE_EXECUTE",
+        sha256: "a".repeat(64),
+      }),
+    Error,
+    "REQUEST_FIELD_FORBIDDEN: sha256",
+  );
 });
 
 Deno.test("batch e index applicano il massimo di 10 famiglie", async () => {
@@ -364,6 +511,9 @@ function report(batchId: string, mode: string, status: string) {
     stopped: false,
     summary: summary(status),
     results: [{ parentSku: "OG_FIXTURE", status }],
+    manifestSha256: "a".repeat(64),
+    approvalDigest: "b".repeat(64),
+    approvalPinned: mode === "EXECUTE",
   };
 }
 
@@ -383,13 +533,19 @@ Deno.test("runner gate disabilitato esegue solo DRY_RUN sequenziali a zero write
 
 Deno.test("runner esegue DRY_RUN, EXECUTE, verify e supporta resume/replay", async () => {
   const calls: string[] = [];
+  const approvalArguments: Array<string | undefined> = [];
   const phases = new Map<string, number>();
   await runScaleout({
     batchIds: ["batch-002", "batch-003", "batch-004"],
     startBatch: "batch-003",
     executeWindow: true,
-    callBatch: (batchId: string, mode: string) => {
+    callBatch: (
+      batchId: string,
+      mode: string,
+      approvalDigest?: string,
+    ) => {
       calls.push(`${batchId}:${mode}`);
+      approvalArguments.push(approvalDigest);
       const phase = (phases.get(batchId) || 0) + 1;
       phases.set(batchId, phase);
       const status = phase === 1
@@ -408,6 +564,14 @@ Deno.test("runner esegue DRY_RUN, EXECUTE, verify e supporta resume/replay", asy
     "batch-004:EXECUTE",
     "batch-004:DRY_RUN",
   ]);
+  assertEquals(approvalArguments, [
+    undefined,
+    "b".repeat(64),
+    "b".repeat(64),
+    undefined,
+    "b".repeat(64),
+    "b".repeat(64),
+  ]);
 
   const replayCalls: string[] = [];
   await runScaleout({
@@ -419,6 +583,73 @@ Deno.test("runner esegue DRY_RUN, EXECUTE, verify e supporta resume/replay", asy
     },
   });
   assertEquals(replayCalls.length, 3);
+});
+
+Deno.test("runner arresta globalmente un digest cambiato fra DRY_RUN ed EXECUTE", async () => {
+  const calls: string[] = [];
+  await assertRejects(
+    () =>
+      runScaleout({
+        batchIds: ["batch-002", "batch-003"],
+        executeWindow: true,
+        callBatch: (batchId: string, mode: string) => {
+          calls.push(`${batchId}:${mode}`);
+          const value = report(
+            batchId,
+            mode,
+            mode === "DRY_RUN" ? "PLANNED" : "CREATED",
+          );
+          if (mode === "EXECUTE") value.approvalDigest = "c".repeat(64);
+          return Promise.resolve(value);
+        },
+      }),
+    Error,
+    "SCALEOUT_STOP_APPROVAL_MISMATCH:batch-002:EXECUTE",
+  );
+  assertEquals(calls, ["batch-002:DRY_RUN", "batch-002:EXECUTE"]);
+});
+
+Deno.test("runner arresta globalmente un digest cambiato prima del VERIFY", async () => {
+  const calls: string[] = [];
+  let phase = 0;
+  await assertRejects(
+    () =>
+      runScaleout({
+        batchIds: ["batch-002", "batch-003"],
+        executeWindow: true,
+        callBatch: (batchId: string, mode: string) => {
+          phase += 1;
+          calls.push(`${batchId}:${mode}`);
+          const status = phase === 1
+            ? "PLANNED"
+            : phase === 2
+            ? "CREATED"
+            : "ALREADY_EXISTS";
+          const value = report(batchId, mode, status);
+          if (phase === 3) value.manifestSha256 = "d".repeat(64);
+          return Promise.resolve(value);
+        },
+      }),
+    Error,
+    "SCALEOUT_STOP_APPROVAL_MISMATCH:batch-002:VERIFY",
+  );
+  assertEquals(calls, [
+    "batch-002:DRY_RUN",
+    "batch-002:EXECUTE",
+    "batch-002:DRY_RUN",
+  ]);
+});
+
+Deno.test("handler verifica approval digest prima di costruire il client Shopify", () => {
+  const runtime = readFileSync(
+    "supabase/functions/shopify-create-batch/index.ts",
+    "utf8",
+  );
+  assert(runtime.indexOf("assertManifestApproval(") > 0);
+  assert(
+    runtime.indexOf("assertManifestApproval(") <
+      runtime.indexOf("new AdminGraphqlCreateClient()"),
+  );
 });
 
 Deno.test("runner ferma tutti i batch su errore sistemico o integrità", async () => {

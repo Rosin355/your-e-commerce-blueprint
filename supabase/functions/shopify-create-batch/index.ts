@@ -6,7 +6,7 @@ import { SupabaseCreationLedger } from "./ledger.ts";
 import { loadApprovedCreateManifest } from "./storage-manifest.ts";
 import { AdminGraphqlCreateClient } from "./shopify-client.ts";
 import type { CreateMode } from "./types.ts";
-import { parseCreateBatchRequest } from "./request.ts";
+import { assertManifestApproval, parseCreateBatchRequest } from "./request.ts";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -35,7 +35,12 @@ export async function handleShopifyCreateBatch(
     }
     const body = parseCreateBatchRequest(await req.json().catch(() => null));
     const mode: CreateMode = body.mode;
-    const manifest = await loadApprovedCreateManifest(body.batchId);
+    const approved = await loadApprovedCreateManifest(body.batchId);
+    assertManifestApproval(
+      mode,
+      body.approvalDigest,
+      approved.approvalDigest,
+    );
     if (
       mode === "EXECUTE" &&
       (body.confirm !== "SHOPIFY_CREATE_EXECUTE" ||
@@ -50,18 +55,23 @@ export async function handleShopifyCreateBatch(
     const report = await executeCreateBatch(
       new AdminGraphqlCreateClient(),
       new SupabaseCreationLedger(),
-      manifest,
+      approved.manifest,
       mode,
     );
     console.log(JSON.stringify({
       scope: "shopify-create-batch",
       actor: `${auth.userId.slice(0, 8)}…`,
-      batchId: manifest.batchId,
+      batchId: approved.manifest.batchId,
       mode,
       summary: report.summary,
       stopped: report.stopped,
     }));
-    return json(report, report.ok ? 200 : 207);
+    return json({
+      ...report,
+      manifestSha256: approved.manifestSha256,
+      approvalDigest: approved.approvalDigest,
+      approvalPinned: body.approvalDigest !== undefined,
+    }, report.ok ? 200 : 207);
   } catch (error) {
     if (error instanceof AuthError) {
       return fail(
@@ -75,7 +85,12 @@ export async function handleShopifyCreateBatch(
     const safe = /^(MANIFEST_|BATCH_|REQUEST_)/.test(code)
       ? raw
       : "Executor non disponibile; consultare i log server-side";
-    const status = code.startsWith("REQUEST_") ? 422 : 503;
+    const status = code.startsWith("REQUEST_")
+      ? 422
+      : code === "MANIFEST_APPROVAL_REQUIRED" ||
+          code === "MANIFEST_APPROVAL_MISMATCH"
+      ? 409
+      : 503;
     return fail(code, safe, status);
   }
 }

@@ -2,6 +2,7 @@
 import { readFileSync } from "node:fs";
 
 const INDEX_SCHEMA = "3B.2-scaleout-v1";
+const SHA256 = /^[0-9a-f]{64}$/;
 
 function parseArgs(argv) {
   const result = { executeWindow: false };
@@ -60,11 +61,21 @@ function zero(report, key) {
   return Number(report?.summary?.[key] || 0) === 0;
 }
 
-function safeReport(report, mode, batchId) {
+function approvalMetadata(report, expected) {
+  const valid = SHA256.test(String(report?.approvalDigest || "")) &&
+    SHA256.test(String(report?.manifestSha256 || ""));
+  if (!valid) return false;
+  return !expected ||
+    (report.approvalDigest === expected.approvalDigest &&
+      report.manifestSha256 === expected.manifestSha256);
+}
+
+function safeReport(report, mode, batchId, expectedApproval) {
   return report?.mode === mode && report?.batchId === batchId &&
     report?.ok === true && Array.isArray(report?.results) &&
     report?.stopped === false && zero(report, "FAILED") &&
     zero(report, "BLOCKED") && zero(report, "MEDIA_PENDING") &&
+    approvalMetadata(report, expectedApproval) &&
     !report.results?.some((result) =>
       /IDENTITY_CONFLICT|DUPLICATE_SKU_CONFLICT|IDEMPOTENCY_CONFLICT/.test(
         String(result?.code || ""),
@@ -72,8 +83,8 @@ function safeReport(report, mode, batchId) {
     );
 }
 
-function verifiedReport(report, batchId) {
-  return safeReport(report, "DRY_RUN", batchId) &&
+function verifiedReport(report, batchId, expectedApproval) {
+  return safeReport(report, "DRY_RUN", batchId, expectedApproval) &&
     Number(report?.summary?.PLANNED || 0) === 0 &&
     report.results?.every((result) =>
       ["ALREADY_EXISTS", "RECONCILED", "SKIPPED"].includes(result.status)
@@ -96,18 +107,36 @@ export async function runScaleout({
     if (!safeReport(dryRun, "DRY_RUN", batchId)) {
       throw new Error(`SCALEOUT_STOP_DRY_RUN:${batchId}`);
     }
+    const approval = {
+      approvalDigest: dryRun.approvalDigest,
+      manifestSha256: dryRun.manifestSha256,
+    };
     if (!executeWindow) {
       completed.push({ batchId, phase: "DRY_RUN" });
       continue;
     }
-    const executed = await callBatch(batchId, "EXECUTE");
+    const executed = await callBatch(
+      batchId,
+      "EXECUTE",
+      approval.approvalDigest,
+    );
     onReport({ batchId, phase: "EXECUTE", summary: executed.summary });
-    if (!safeReport(executed, "EXECUTE", batchId)) {
+    if (!approvalMetadata(executed, approval)) {
+      throw new Error(`SCALEOUT_STOP_APPROVAL_MISMATCH:${batchId}:EXECUTE`);
+    }
+    if (!safeReport(executed, "EXECUTE", batchId, approval)) {
       throw new Error(`SCALEOUT_STOP_EXECUTE:${batchId}`);
     }
-    const verified = await callBatch(batchId, "DRY_RUN");
+    const verified = await callBatch(
+      batchId,
+      "DRY_RUN",
+      approval.approvalDigest,
+    );
     onReport({ batchId, phase: "VERIFY", summary: verified.summary });
-    if (!verifiedReport(verified, batchId)) {
+    if (!approvalMetadata(verified, approval)) {
+      throw new Error(`SCALEOUT_STOP_APPROVAL_MISMATCH:${batchId}:VERIFY`);
+    }
+    if (!verifiedReport(verified, batchId, approval)) {
       throw new Error(`SCALEOUT_STOP_VERIFY:${batchId}`);
     }
     completed.push({ batchId, phase: "VERIFIED" });
@@ -115,7 +144,7 @@ export async function runScaleout({
   return completed;
 }
 
-async function invoke(endpoint, token, batchId, mode) {
+async function invoke(endpoint, token, batchId, mode, approvalDigest) {
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
@@ -126,6 +155,7 @@ async function invoke(endpoint, token, batchId, mode) {
       batchId,
       mode,
       ...(mode === "EXECUTE" ? { confirm: "SHOPIFY_CREATE_EXECUTE" } : {}),
+      ...(approvalDigest ? { approvalDigest } : {}),
     }),
   });
   const report = await response.json().catch(() => null);
@@ -151,7 +181,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       batchIds,
       startBatch: args["start-batch"],
       executeWindow: args.executeWindow,
-      callBatch: (batchId, mode) => invoke(endpoint, token, batchId, mode),
+      callBatch: (batchId, mode, approvalDigest) =>
+        invoke(endpoint, token, batchId, mode, approvalDigest),
       onReport: (report) => console.log(JSON.stringify(report)),
     });
     console.log(JSON.stringify({ ok: true, completed: completed.length }));
