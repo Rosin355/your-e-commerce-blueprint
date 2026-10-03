@@ -104,3 +104,6 @@ Esito: **3B.1A INVENTORY CONFIG — BLOCKED: canale Shopify senza dati inventory
 
 ## 3B.1B — Catalog readiness (3 ottobre 2026)
 Audit read-only: 2.560 READY_FOR_SALE, 55 NEEDS_REVIEW, 89 NOT_READY, 2 STRUCTURAL_REVIEW; 421 mappati, 980 prodotti da creare; stock-20 proposto per 1.472 varianti. Nessuna write. Dettagli: `catalog-readiness-stock20-3B1B.md`. Stato: WAITING FOR OWNER APPROVAL.
+
+## Aggiornamento 3B.1C (2026-10-03)
+Il finding "165 variation come prodotti separati" è corretto in: 2 variation standalone + 147 parent variable live a variante singola senza figlie (151 variation mancanti). Manifest finale: UPDATE_EXISTING 313, CREATE_VARIABLE_PARENT 941, CREATE_VARIANT 1.006, RESTRUCTURE_REQUIRED 300, SKIP 146; stock-20 su 1.472 unità. Dettagli in `shopify-structure-reconciliation-3B1C.md`. Nessuna write.
