@@ -17,7 +17,7 @@ Esclusi: tutti i 25 item del batch 001 (già fatti), OG_152965-01 e gli altri SK
 | 010 | 23 SET_AVAILABLE_20 + 1 ENABLE_TRACKING (OG_797988), 0 errori; esclusi OG_758263-01/-02 su decisione utente | 23 / 0 / 0 | 23/23 | PASS |
 | 011 | 23 SET_AVAILABLE_20, 0 errori; esclusi OG_891874-01/-02 (stessa regola di famiglia strutturale) | 23 / 0 / 0 | 23/23 | PASS |
 | 012 | 25 SET_AVAILABLE_20, 0 errori | 25 / 0 / 0 | 25/25 | PASS |
-| 013 | — | — | — | IN ATTESA: contiene TEST-001 e TEST-002 (prodotti di test); serve conferma |
+| 013 | 10 SET_AVAILABLE_20, 0 errori; esclusi TEST-001/TEST-002 su decisione utente | 10 / 0 / 0 | 10/10 | PASS |
 
 Sessione 005: funzione presente e funzionante (verifica read-only pre-lotto 004: 25 ALREADY_AT_TARGET), nessun redeploy necessario.
 
@@ -31,6 +31,6 @@ Il codice della funzione è identico alla revisione approvata `916b679` (diff vu
 ## Stato
 - Gate EXECUTE presente: NO
 - Scritture non correlate: 0 (nessuna modifica a prodotti, varianti, prezzi, contenuti, immagini, pubblicazione, database, AI o Smart Sync)
-- Totale cumulativo 002–012: 271 UPDATED, 0 ALREADY_AT_TARGET, 0 FAILED, 0 SKIPPED, 0 RECOVERY, 271/271 verificati a 20 (con batch 001: 296).
-- Esclusioni: OG_758263-01/-02, OG_891874-01/-02.
-- Manifest attivo: batch 012 (completato). Redeploy funzione in questa sessione: nessuno (funzione sempre disponibile).
+- Totale cumulativo 002–013: target eseguiti 281 (287 pianificati − 6 esclusi), 281 UPDATED, 0 ALREADY_AT_TARGET, 0 FAILED, 0 SKIPPED, 0 RECOVERY, 281/281 verificati a 20 (con batch 001: 306).
+- Esclusioni: OG_758263-01/-02, OG_891874-01/-02, TEST-001, TEST-002.
+- Manifest attivo: batch 013 (completato). Batch 002–013: COMPLETATI. Redeploy funzione in questa sessione: nessuno (funzione sempre disponibile).
