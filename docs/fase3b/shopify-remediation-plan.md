@@ -101,3 +101,6 @@ Prima di qualsiasi write inventory resta obbligatorio un dry-run con quantità s
 Account Shopify ricollegato; letture eseguite solo su OG_257799 (variante 55507146146132), OG_426481, OG_797988: tutti ACTIVE, monovariante. Il canale espone ancora solo ID, SKU, prezzo, stato: nessun `tracked`, `inventoryPolicy`, location, inventory level, available/committed. Nessun canale read-only Admin inventory esistente nelle Edge Function. Nessuna write.
 
 Esito: **3B.1A INVENTORY CONFIG — BLOCKED: canale Shopify senza dati inventory/location.**
+
+## 3B.1B — Catalog readiness (3 ottobre 2026)
+Audit read-only: 2.560 READY_FOR_SALE, 55 NEEDS_REVIEW, 89 NOT_READY, 2 STRUCTURAL_REVIEW; 421 mappati, 980 prodotti da creare; stock-20 proposto per 1.472 varianti. Nessuna write. Dettagli: `catalog-readiness-stock20-3B1B.md`. Stato: WAITING FOR OWNER APPROVAL.
