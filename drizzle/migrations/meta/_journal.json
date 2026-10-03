@@ -43,6 +43,13 @@
       "when": 1790928758278,
       "tag": "0005_restrict_product_ai_suggestion_privileges",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791059497775,
+      "tag": "0006_create_shopify_creation_ledger",
+      "breakpoints": true
     }
   ]
 }
