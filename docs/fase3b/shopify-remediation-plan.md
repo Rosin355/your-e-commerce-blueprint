@@ -107,3 +107,6 @@ Audit read-only: 2.560 READY_FOR_SALE, 55 NEEDS_REVIEW, 89 NOT_READY, 2 STRUCTUR
 
 ## Aggiornamento 3B.1C (2026-10-03)
 Il finding "165 variation come prodotti separati" è corretto in: 2 variation standalone + 147 parent variable live a variante singola senza figlie (151 variation mancanti). Manifest finale: UPDATE_EXISTING 313, CREATE_VARIABLE_PARENT 941, CREATE_VARIANT 1.006, RESTRUCTURE_REQUIRED 300, SKIP 146; stock-20 su 1.472 unità. Dettagli in `shopify-structure-reconciliation-3B1C.md`. Nessuna write.
+
+## Aggiornamento 3B.1D (2026-10-03)
+Canary BLOCKED senza write: nessun mezzo per impostare quantità 20 (manca inventory write e token Admin). Vedi `shopify-canary-write-3B1D.md`.
