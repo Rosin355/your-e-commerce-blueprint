@@ -144,7 +144,9 @@ def main(manifest, out_json, out_csv):
         cands.append((sku, d["id"], title, dh, handle, variants, https))
     with ThreadPoolExecutor(16) as ex:
         res = list(ex.map(lambda c: check_img(c[6]), cands))
-    products, seen = [], set()
+    from collections import Counter as _C
+    hc = _C(c[4] for c, ok in zip(cands, res) if ok)
+    products, seen = [], {h for h, n in hc.items() if n > 1}
     for c, ok in zip(cands, res):
         sku, pid, title, dh, handle, variants, https = c
         if not ok:
