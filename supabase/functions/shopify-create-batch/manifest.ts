@@ -294,16 +294,4 @@ export function parseCreateManifest(value: unknown): CreateManifest {
   };
 }
 
-export function loadServerCreateManifest(
-  raw: string | undefined,
-): CreateManifest {
-  if (!raw) throw new Error("MANIFEST_NOT_CONFIGURED");
-  try {
-    return parseCreateManifest(JSON.parse(raw));
-  } catch (error) {
-    if (error instanceof SyntaxError) throw new Error("MANIFEST_INVALID: JSON");
-    throw error;
-  }
-}
-
 export { SHOPIFY_CREATE_LOCATION_ID };

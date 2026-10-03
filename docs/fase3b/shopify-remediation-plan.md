@@ -130,3 +130,11 @@ Batch `stock20-3b1g-batch-001`: 25/25 UPDATED a available=20 (tracked/DENY invar
 Lo scale-out stock batch 001–013 è concluso: **306 inventory item verificati a 20**, tracking attivo, policy `DENY`, zero failed e zero recovery. Le famiglie strutturali e gli SKU test sono rimasti esclusi; il gate EXECUTE stock è disabilitato e il manifest secret stock può essere rimosso dopo la verifica operativa finale.
 
 Il passo successivo è 3B.2: creazione controllata dei parent/variant Shopify mancanti. L'executor è preparato code-first con manifest privato server-side, DRY_RUN di default, ledger idempotente e canary massimo una famiglia; nessun deploy o write live è stato eseguito. I conteggi 3B.1C nel repository restano storici finché non vengono ricomputati dagli input privati. Vedi `shopify-create-executor-3B2.md`.
+
+## Aggiornamento 3B.2 Storage scale-out (2026-10-03)
+
+Canary `OG_111899` PASS: parent `DRAFT`, una variante, stock 20, tracked, `DENY`, media `READY`, zero duplicati; gate EXECUTE rimosso. L'export owner-approved classifica 903 famiglie `SAFE_CREATE`, ma il secret manifest limita il batch a circa cinque famiglie e rende impraticabile la rotazione manuale.
+
+Forward-fix code-first: bucket Supabase Storage privato `shopify-create-manifests`, indice metadata-only con SHA-256, batch massimo 10, loader server-side service-role, request senza manifest/path/SHA, builder deterministico e runner sequenziale con resume. 903 famiglie corrispondono a 91 batch; il conteggio varianti reale sarà stampato dagli input privati al rollout. Tutti i prodotti restano `DRAFT` e la pubblicazione è disabilitata.
+
+Stato: **STORAGE SCALE-OUT CODE READY / NON DEPLOYATO / NESSUNA WRITE LIVE**. Servono migration bucket, upload privato, deploy della sola Edge Function, DRY_RUN del primo batch e autorizzazione separata per la finestra EXECUTE. Dettagli in `shopify-create-scaleout-3B2.md`.

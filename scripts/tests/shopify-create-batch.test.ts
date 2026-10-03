@@ -821,7 +821,8 @@ Deno.test("nessun segreto, Storefront write o pubblicazione automatica nel runti
   );
   assert(!/body\.(families|products|variants|locationId)/.test(source));
   assert(/SHOPIFY_CREATE_EXECUTE_ENABLED/.test(source));
-  assert(/SHOPIFY_CREATE_BATCH_MANIFEST_JSON/.test(source));
+  assert(!/SHOPIFY_CREATE_BATCH_MANIFEST_JSON/.test(source));
+  assert(/loadApprovedCreateManifest/.test(source));
 });
 
 Deno.test("idempotency conflict nel ledger blocca payload differente", async () => {

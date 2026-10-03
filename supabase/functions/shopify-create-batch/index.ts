@@ -3,9 +3,10 @@ import { canWriteCanary } from "../_shared/admin-v2-permissions.ts";
 import { corsHeaders } from "../_shared/shopify-admin-client.ts";
 import { executeCreateBatch } from "./executor.ts";
 import { SupabaseCreationLedger } from "./ledger.ts";
-import { loadServerCreateManifest } from "./manifest.ts";
+import { loadApprovedCreateManifest } from "./storage-manifest.ts";
 import { AdminGraphqlCreateClient } from "./shopify-client.ts";
 import type { CreateMode } from "./types.ts";
+import { parseCreateBatchRequest } from "./request.ts";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -32,20 +33,9 @@ export async function handleShopifyCreateBatch(
     if (!canWriteCanary(auth.roles)) {
       return fail("FORBIDDEN", "Solo admin o tech_admin", 403);
     }
-    const body = await req.json().catch(() => ({})) as Record<string, unknown>;
-    if (
-      body.mode !== undefined && body.mode !== "DRY_RUN" &&
-      body.mode !== "EXECUTE"
-    ) {
-      return fail("VALIDATION_ERROR", "mode non valido", 422);
-    }
-    const mode: CreateMode = body.mode === "EXECUTE" ? "EXECUTE" : "DRY_RUN";
-    const manifest = loadServerCreateManifest(
-      Deno.env.get("SHOPIFY_CREATE_BATCH_MANIFEST_JSON"),
-    );
-    if (body.batchId !== manifest.batchId) {
-      return fail("BATCH_ID_MISMATCH", "batchId non approvato", 409);
-    }
+    const body = parseCreateBatchRequest(await req.json().catch(() => null));
+    const mode: CreateMode = body.mode;
+    const manifest = await loadApprovedCreateManifest(body.batchId);
     if (
       mode === "EXECUTE" &&
       (body.confirm !== "SHOPIFY_CREATE_EXECUTE" ||
@@ -82,10 +72,11 @@ export async function handleShopifyCreateBatch(
     }
     const raw = error instanceof Error ? error.message : String(error);
     const code = raw.split(":", 1)[0] || "INTERNAL_ERROR";
-    const safe = /^(MANIFEST_|BATCH_)/.test(code)
+    const safe = /^(MANIFEST_|BATCH_|REQUEST_)/.test(code)
       ? raw
       : "Executor non disponibile; consultare i log server-side";
-    return fail(code, safe, 503);
+    const status = code.startsWith("REQUEST_") ? 422 : 503;
+    return fail(code, safe, status);
   }
 }
 
