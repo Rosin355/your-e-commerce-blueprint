@@ -57,6 +57,13 @@
       "when": 1791060035434,
       "tag": "0007_harden_shopify_creation_ledger_acl",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791065906193,
+      "tag": "0008_deny_client_shopify_create_manifests",
+      "breakpoints": true
     }
   ]
 }
