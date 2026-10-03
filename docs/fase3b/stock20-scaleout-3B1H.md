@@ -29,4 +29,5 @@ Il codice della funzione è identico alla revisione approvata `916b679` (diff vu
 ## Stato
 - Gate EXECUTE presente: NO
 - Scritture non correlate: 0 (nessuna modifica a prodotti, varianti, prezzi, contenuti, immagini, pubblicazione, database, AI o Smart Sync)
-- Totale cumulativo 002–004: 75 UPDATED, 0 FAILED, 0 SKIPPED, 0 RECOVERY, 75/75 verificati a 20.
+- Totale cumulativo 002–009: 200 UPDATED, 0 ALREADY_AT_TARGET, 0 FAILED, 0 SKIPPED, 0 RECOVERY, 200/200 verificati a 20.
+- Manifest attivo: batch 009 (completato). Redeploy funzione in questa sessione: nessuno (funzione sempre disponibile).
