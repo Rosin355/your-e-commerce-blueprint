@@ -10,7 +10,12 @@ Esclusi: tutti i 25 item del batch 001 (già fatti), OG_152965-01 e gli altri SK
 | 003 | 25 SET_AVAILABLE_20, 0 errori | 25 / 0 / 0 | 25/25 (dopo ripristino funzione) | PASS |
 | 004 | 25 SET_AVAILABLE_20, 0 errori | 25 / 0 / 0 | 25/25 | PASS |
 | 005 | 25 SET_AVAILABLE_20, 0 errori, ID manifest = file approvato | 25 / 0 / 0 | 25/25 | PASS |
-| 006–013 | — | — | — | NON ESEGUITI (sostituzione manifest 006 rifiutata dall'utente) |
+| 006 | 25 SET_AVAILABLE_20, 0 errori, ID = file approvato | 25 / 0 / 0 | 25/25 | PASS |
+| 007 | 25 SET_AVAILABLE_20, 0 errori, ID = file approvato | 25 / 0 / 0 | 25/25 | PASS |
+| 008 | 25 SET_AVAILABLE_20, 0 errori, ID = file approvato | 25 / 0 / 0 | 25/25 | PASS |
+| 009 | 25 SET_AVAILABLE_20, 0 errori, ID = file approvato | 25 / 0 / 0 | 25/25 | PASS |
+| 010 | — | — | — | IN ATTESA: contiene OG_758263-01/-02 (famiglia di OG_758263 in denylist strutturale); serve conferma |
+| 011–013 | — | — | — | NON ESEGUITI |
 
 Sessione 005: funzione presente e funzionante (verifica read-only pre-lotto 004: 25 ALREADY_AT_TARGET), nessun redeploy necessario.
 
@@ -24,4 +29,5 @@ Il codice della funzione è identico alla revisione approvata `916b679` (diff vu
 ## Stato
 - Gate EXECUTE presente: NO
 - Scritture non correlate: 0 (nessuna modifica a prodotti, varianti, prezzi, contenuti, immagini, pubblicazione, database, AI o Smart Sync)
-- Totale cumulativo 002–004: 75 UPDATED, 0 FAILED, 0 SKIPPED, 0 RECOVERY, 75/75 verificati a 20.
+- Totale cumulativo 002–009: 200 UPDATED, 0 ALREADY_AT_TARGET, 0 FAILED, 0 SKIPPED, 0 RECOVERY, 200/200 verificati a 20.
+- Manifest attivo: batch 009 (completato). Redeploy funzione in questa sessione: nessuno (funzione sempre disponibile).
