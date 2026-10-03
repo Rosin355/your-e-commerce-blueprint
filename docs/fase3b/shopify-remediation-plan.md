@@ -131,16 +131,10 @@ Lo scale-out stock batch 001–013 è concluso: **306 inventory item verificati 
 
 Il passo successivo è 3B.2: creazione controllata dei parent/variant Shopify mancanti. L'executor è preparato code-first con manifest privato server-side, DRY_RUN di default, ledger idempotente e canary massimo una famiglia; nessun deploy o write live è stato eseguito. I conteggi 3B.1C nel repository restano storici finché non vengono ricomputati dagli input privati. Vedi `shopify-create-executor-3B2.md`.
 
-## Aggiornamento 3B.2 post-merge (2026-10-03)
+## Aggiornamento 3B.2 Storage scale-out (2026-10-03)
 
-La PR #27 è stata integrata con merge commit `c6fc3b199e5e8dca21f0debb235677abb10e6be0`. Stato: **LIVE CANARY PENDING**.
+La PR #27 è stata integrata con merge `c6fc3b199e5e8dca21f0debb235677abb10e6be0`; il successivo canary `OG_111899` è PASS: parent `DRAFT`, una variante, stock 20, tracked, `DENY`, media `READY`, zero duplicati e gate EXECUTE rimosso. L'handoff docs-only della PR #28, basato sul vecchio secret manifest, è quindi superato e non deve essere eseguito. L'export owner-approved classifica 903 famiglie `SAFE_CREATE`, ma il secret manifest limita il batch a circa cinque famiglie e rende impraticabile la rotazione manuale.
 
-- migration autorizzabile nel prossimo gate: soltanto `20261003163930_create_shopify_creation_ledger.sql`, una sola applicazione;
-- deploy autorizzabile nel prossimo gate: soltanto `shopify-create-batch` dalla medesima revisione;
-- `SHOPIFY_CREATE_EXECUTE_ENABLED` deve restare assente o `false`;
-- il manifest canary deve restare privato e server-side;
-- i dati privati reali 3B.1C non sono disponibili localmente, quindi nessuno SKU è stato inventato o selezionato da fonti incomplete;
-- Lovable deve costruire una sola famiglia sicura (un parent, 1–2 varianti) dagli input privati, eseguire esclusivamente DRY_RUN e confermare zero mutation;
-- EXECUTE e qualsiasi write Shopify richiedono un'approvazione successiva separata.
+Forward-fix code-first: bucket Supabase Storage privato `shopify-create-manifests`, indice metadata-only con SHA-256, batch massimo 10, loader server-side service-role, request senza manifest/path/SHA, pinning `approvalDigest` fra DRY_RUN, EXECUTE e VERIFY, builder deterministico e runner sequenziale con resume. 903 famiglie corrispondono a 91 batch; il conteggio varianti reale sarà stampato dagli input privati al rollout. Tutti i prodotti restano `DRAFT` e la pubblicazione è disabilitata.
 
-Procedura, criteri canary, query ACL/RLS read-only e risultato atteso sono documentati in `shopify-create-executor-3B2.md`. Codex non ha eseguito deploy, migration live o write Shopify.
+Stato: **STORAGE SCALE-OUT CODE READY / NON DEPLOYATO / NESSUNA WRITE LIVE**. Servono migration bucket, upload privato, deploy della sola Edge Function, DRY_RUN del primo batch e autorizzazione separata per la finestra EXECUTE. Dettagli in `shopify-create-scaleout-3B2.md`.

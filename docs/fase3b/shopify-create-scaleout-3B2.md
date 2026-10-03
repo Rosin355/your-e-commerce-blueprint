@@ -1,6 +1,6 @@
 # 3B.2 — Product creation scale-out (report cumulativo)
 
-Stato: **Canary PASS; scale-out STOPPED (limite di trasporto del manifest)**.
+Stato: **Canary PASS; Storage scale-out CODE READY, NON DEPLOYATO**.
 
 ## Export editoriale deterministico
 - Generatore: `scripts/build-3b2-editorial-export.py` (regole owner-approved: handle da titolo ORIGINAL, description ORIGINAL con `\n` → newline e HTML minimo, option `Formato` da suffisso, immagini solo `www.onlinegarden.it/wp-content/uploads/` con http→https, HEAD 200 `image/*` stesso path; nessuna AI, nessun campo publishBlocked).
@@ -45,6 +45,74 @@ Migration additiva separata, nessun impatto sui dati o sull'executor (usa solo s
 ## Blocker scale-out
 Il manifest viene letto solo dal secret `SHOPIFY_CREATE_BATCH_MANIFEST_JSON`, limitato a 24.576 caratteri. Una famiglia media occupa ~3 KB (description ORIGINAL completa): 10 famiglie superano il limite, ~5 ci stanno. 903 famiglie = ~180 lotti, ciascuno con sostituzione manuale del secret e gate on/off: non eseguibile in modo affidabile.
 
-Forward-fix proposto (richiede approvazione, è una modifica di codice): leggere il manifest da file privato `csv-pipeline/shopify-create/<batchId>.json` con SHA-256 approvato nel secret, mantenendo invariati gate EXECUTE, denylist, validazione e ledger.
+Il limite viene rimosso senza frammentare le descrizioni e senza sostituire manualmente secret: la forward-fix usa Supabase Storage privato e non mantiene il vecchio secret come seconda sorgente.
 
-Stato finale: gate EXECUTE assente; manifest canary ancora configurato (inerte senza gate).
+## Architettura Storage implementata
+
+- bucket fisso: `shopify-create-manifests`, `public=false`, solo JSON, massimo 5 MiB per oggetto;
+- client/browser: nessuna policy di accesso; una policy RLS `AS RESTRICTIVE` nega esplicitamente il bucket a `anon` e `authenticated` anche in presenza di policy più ampie;
+- runtime: download esclusivamente con `service_role`; nessuna chiave privilegiata passa al frontend;
+- indice fisso: `index.json`;
+- batch: `batches/shopify-create-3b2-NNN.json`, massimo 10 famiglie;
+- nessun manifest o contenuto privato in Git e nessun URL firmato.
+
+Migration locale non applicata: `20261003205811_create_shopify_create_manifests_bucket.sql`.
+
+### Contratto `index.json`
+
+```json
+{
+  "schemaVersion": "3B.2-scaleout-v1",
+  "batches": [
+    {
+      "batchId": "shopify-create-3b2-002",
+      "objectPath": "batches/shopify-create-3b2-002.json",
+      "sha256": "<64 caratteri esadecimali>",
+      "familyCount": 10,
+      "schemaVersion": "3B.2-v1"
+    }
+  ]
+}
+```
+
+Ogni entry accetta esclusivamente questi cinque campi. Il path deve derivare esattamente dal `batchId`; SHA-256 e `familyCount` vengono verificati prima dell'executor. Il request HTTP accetta solo `batchId`, `mode`, `confirm`, `approvalDigest` e rifiuta manifest, object path, SHA o payload prodotto.
+
+Il DRY_RUN restituisce `manifestSha256` e `approvalDigest = SHA-256(batchId:manifestSha256:schemaVersion)`. EXECUTE deve inviare esattamente quel digest: la funzione ricarica indice e manifest, ricalcola entrambi i valori e restituisce `MANIFEST_APPROVAL_MISMATCH` prima di costruire il client Shopify se il contenuto approvato è cambiato. Anche il DRY_RUN finale di VERIFY invia lo stesso digest, così una sostituzione fra EXECUTE e verifica non può essere ignorata. `approvalDigest` identifica l'artefatto approvato, ma non sostituisce JWT, ruolo Admin, conferma EXECUTE o gate server-side.
+
+## Generazione privata
+
+```bash
+node scripts/build-shopify-create-scaleout.mjs \
+  --manifest /private/manifest-3B1C-shopify-final.csv \
+  --content /private/content.json \
+  --output-dir /private/shopify-create-scaleout-3b2 \
+  --batch-prefix shopify-create-3b2 \
+  --batch-size 10 \
+  --start-number 2 \
+  --expected-families 903
+```
+
+Il builder crea file `0600`, non sovrascrive directory esistenti, ordina deterministicamente parent/varianti, produce l'indice per ultimo e stampa conteggi esatti. **903 parent producono 91 batch**; il totale varianti reale non è ricostruibile dal repository e deve provenire dall'output privato del comando. L'ultimo batch contiene 3 famiglie se tutte le 903 superano nuovamente i gate.
+
+Upload operativo: creare/applicare il bucket privato, caricare tutti i batch con upsert disabilitato, verificarne SHA e dimensione, quindi caricare `index.json` per ultimo e congelarlo per la finestra. Il canary già creato può essere riconciliato senza duplicazione se ricompare: ledger e verifica esatta bloccano qualsiasi payload differente.
+
+## Workflow server-side senza interazione tra batch
+
+`scripts/run-shopify-create-scaleout.mjs` usa soltanto i batch ID dell'indice privato locale e chiama l'endpoint Admin. Per ogni batch esegue DRY_RUN, acquisisce digest e SHA server-side, quindi li vincola a EXECUTE e al DRY_RUN di VERIFY. Un digest assente/diverso o una risposta riferita a un altro SHA arrestano globalmente il runner. `--start-batch` abilita il resume; una seconda esecuzione riconcilia i prodotti esistenti.
+
+```bash
+SHOPIFY_CREATE_ENDPOINT='<endpoint>' \
+SHOPIFY_CREATE_ADMIN_JWT='<token admin temporaneo>' \
+node scripts/run-shopify-create-scaleout.mjs \
+  --index /private/shopify-create-scaleout-3b2/index.json \
+  --start-batch shopify-create-3b2-002 \
+  --execute-window
+```
+
+Lovable deve aprire una sola finestra impostando `SHOPIFY_CREATE_EXECUTE_ENABLED=true`, eseguire il runner e rimuovere il gate in un `finally`. Qualsiasi errore sistemico, integrità/SHA, identity/duplicate/idempotency conflict, `FAILED`, `BLOCKED` o `MEDIA_PENDING` arresta tutti i batch. Safe skip espliciti possono proseguire. Nessun prodotto viene pubblicato: tutti restano `DRAFT`.
+
+## Stato e rollout
+
+Questa PR non crea il bucket live, non carica manifest, non distribuisce funzioni e non chiama Shopify. Prima del rollout servono backup/preflight Storage, conteggi builder reali, upload privato verificato, deploy della sola funzione, DRY_RUN Storage del primo batch e approvazione separata della finestra EXECUTE.
+
+Rollback: rimuovere immediatamente il gate, fermare il runner e conservare bucket, indice, manifest e ledger. Non cancellare automaticamente prodotti o righe ledger. Ripristinare la precedente Edge Function solo dopo aver verificato che nessun workflow scale-out sia attivo.

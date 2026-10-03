@@ -86,7 +86,7 @@ export function summarizeCreateScope(rows) {
   };
 }
 
-export function buildCreateManifest({ rows, contentRows, batchId, limit }) {
+export function selectCreateFamilies({ rows, contentRows }) {
   const summary = summarizeCreateScope(rows);
   const content = new Map(contentRows.map((entry) => [entry.sku, entry]));
   const variantsByParent = new Map();
@@ -99,7 +99,6 @@ export function buildCreateManifest({ rows, contentRows, batchId, limit }) {
   const families = [];
   const blocked = [];
   for (const row of rows) {
-    if (families.length >= limit) break;
     if (
       !parentEligible(row) || denied(row.sku)
     ) continue;
@@ -169,6 +168,12 @@ export function buildCreateManifest({ rows, contentRows, batchId, limit }) {
       structureStatus: "CREATE_NEW",
     });
   }
+  return { families, blocked, summary };
+}
+
+export function buildCreateManifest({ rows, contentRows, batchId, limit }) {
+  const selected = selectCreateFamilies({ rows, contentRows });
+  const families = selected.families.slice(0, limit);
   return {
     manifest: {
       schemaVersion: "3B.2-v1",
@@ -176,7 +181,25 @@ export function buildCreateManifest({ rows, contentRows, batchId, limit }) {
       batchId,
       families,
     },
-    summary: { ...summary, selectedFamilies: families.length, blocked },
+    summary: {
+      ...selected.summary,
+      selectedFamilies: families.length,
+      blocked: selected.blocked,
+    },
+  };
+}
+
+export function safeBuilderSummary(summary) {
+  const blockedReasons = {};
+  for (const entry of summary.blocked || []) {
+    const reason = String(entry.reason || "UNKNOWN").split(":", 1)[0];
+    blockedReasons[reason] = (blockedReasons[reason] || 0) + 1;
+  }
+  const { blocked: _blocked, ...counts } = summary;
+  return {
+    ...counts,
+    blockedCount: summary.blocked?.length || 0,
+    blockedReasons,
   };
 }
 
@@ -196,5 +219,5 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     flag: "wx",
     mode: 0o600,
   });
-  console.log(JSON.stringify(result.summary));
+  console.log(JSON.stringify(safeBuilderSummary(result.summary)));
 }
