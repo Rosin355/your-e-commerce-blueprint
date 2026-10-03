@@ -8,6 +8,20 @@ export type Stock20ItemStatus =
   | "ALREADY_AT_TARGET"
   | "SKIPPED"
   | "FAILED";
+export type Stock20Mutation =
+  | "ENABLE_TRACKING"
+  | "SET_POLICY_DENY"
+  | "SET_AVAILABLE_20";
+export type Stock20FailedStep =
+  | "READ_BEFORE"
+  | "VALIDATE_BEFORE"
+  | "ENABLE_TRACKING"
+  | "SET_POLICY_DENY"
+  | "SET_AVAILABLE_20_PRIMARY"
+  | "READ_AFTER_PRIMARY_ERROR"
+  | "SET_AVAILABLE_20_RECOVERY"
+  | "READ_AFTER"
+  | "POSTCONDITION";
 
 export interface Stock20ManifestItem {
   sku: string;
@@ -62,16 +76,17 @@ export interface Stock20ShopifyClient {
 export interface Stock20ItemResult {
   sku: string;
   inventoryItemId: string;
+  /** Chiave primaria mantenuta per compatibilità con il report 3B.1G iniziale. */
   idempotencyKey: string;
+  primaryIdempotencyKey: string;
   status: Stock20ItemStatus;
   before?: Stock20LiveState;
   after?: Stock20LiveState;
-  plannedMutations: Array<
-    "ENABLE_TRACKING" | "SET_POLICY_DENY" | "SET_AVAILABLE_20"
-  >;
-  appliedMutations: Array<
-    "ENABLE_TRACKING" | "SET_POLICY_DENY" | "SET_AVAILABLE_20"
-  >;
+  plannedMutations: Stock20Mutation[];
+  appliedMutations: Stock20Mutation[];
+  failedStep?: Stock20FailedStep;
+  recoveryAttempted: boolean;
+  recoveryIdempotencyKey?: string;
   code?: string;
   message?: string;
 }

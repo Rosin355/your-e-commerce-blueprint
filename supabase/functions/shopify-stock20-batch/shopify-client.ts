@@ -74,6 +74,14 @@ function assertNoUserErrors(
   operation: string,
 ) {
   if (!errors?.length) return;
+  if (
+    errors.some((entry) => entry.code === "IDEMPOTENCY_PREVIOUS_ATTEMPT_FAILED")
+  ) {
+    throw new Stock20Error(
+      "IDEMPOTENCY_PREVIOUS_ATTEMPT_FAILED",
+      "Il tentativo idempotente precedente non è riutilizzabile",
+    );
+  }
   const message = errors.map((entry) =>
     `${entry.code ? `${entry.code}:` : ""}${entry.message}`
   ).join(" | ");
@@ -178,6 +186,16 @@ export class AdminGraphqlStock20Client implements Stock20ShopifyClient {
       data.productVariantsBulkUpdate?.userErrors,
       "productVariantsBulkUpdate",
     );
+    const confirmed = data.productVariantsBulkUpdate?.productVariants?.some(
+      (variant) =>
+        variant.id === variantId && variant.inventoryPolicy === policy,
+    );
+    if (!confirmed) {
+      throw new Stock20Error(
+        "POLICY_POSTCONDITION_FAILED",
+        "Shopify non ha confermato inventoryPolicy=DENY",
+      );
+    }
   }
 
   async setAvailableAbsolute(input: {
@@ -189,7 +207,12 @@ export class AdminGraphqlStock20Client implements Stock20ShopifyClient {
   }): Promise<void> {
     const referenceKey = encodeURIComponent(input.idempotencyKey);
     const data = await graphql<{
-      inventorySetQuantities: { userErrors: UserError[] };
+      inventorySetQuantities: {
+        inventoryAdjustmentGroup: null | {
+          referenceDocumentUri: string | null;
+        };
+        userErrors: UserError[];
+      };
     }>(SET_AVAILABLE, {
       input: {
         name: "available",
@@ -208,5 +231,11 @@ export class AdminGraphqlStock20Client implements Stock20ShopifyClient {
       data.inventorySetQuantities?.userErrors,
       "inventorySetQuantities",
     );
+    if (!data.inventorySetQuantities?.inventoryAdjustmentGroup) {
+      throw new Stock20Error(
+        "QUANTITY_CONFIRMATION_MISSING",
+        "Shopify non ha confermato il gruppo di rettifica inventory",
+      );
+    }
   }
 }

@@ -6,6 +6,7 @@ import {
   executeStock20Batch,
   Stock20Error,
   stock20IdempotencyKey,
+  stock20RecoveryIdempotencyKey,
 } from "../../supabase/functions/shopify-stock20-batch/executor.ts";
 import { parseStock20Manifest } from "../../supabase/functions/shopify-stock20-batch/manifest.ts";
 import {
@@ -57,6 +58,13 @@ class MockClient implements Stock20ShopifyClient {
   failSku: string | null = null;
   systemicSku: string | null = null;
   concurrentReplay = false;
+  failTracking = false;
+  failPolicy = false;
+  quantityFailures: string[] = [];
+  previousAttemptLeavesTarget = false;
+  postconditionFailure = false;
+  quantitySucceeded = false;
+  quantityKeys: string[] = [];
 
   constructor(items: Stock20ManifestItem[]) {
     for (const entry of items) {
@@ -80,10 +88,17 @@ class MockClient implements Stock20ShopifyClient {
       throw new Stock20Error("AUTH_SCOPE", "scope mancante", true);
     }
     if (entry.sku === this.failSku) throw new Error("fixture item failure");
-    return structuredClone(this.states.get(entry.sku)!);
+    const state = structuredClone(this.states.get(entry.sku)!);
+    if (this.postconditionFailure && this.quantitySucceeded) {
+      state.available = 19;
+    }
+    return state;
   }
 
   async enableTracking(inventoryItemId: string) {
+    if (this.failTracking) {
+      throw new Stock20Error("ITEM_SHOPIFY_ERROR", "fixture tracking");
+    }
     this.mutations.push(`track:${inventoryItemId}`);
     for (const state of this.states.values()) {
       if (state.inventoryItemId === inventoryItemId) state.tracked = true;
@@ -91,6 +106,9 @@ class MockClient implements Stock20ShopifyClient {
   }
 
   async setInventoryPolicy(_productId: string, variantId: string) {
+    if (this.failPolicy) {
+      throw new Stock20Error("ITEM_SHOPIFY_ERROR", "fixture policy");
+    }
     this.mutations.push(`policy:${variantId}`);
     for (const state of this.states.values()) {
       if (state.shopifyVariantId === variantId) state.inventoryPolicy = "DENY";
@@ -101,14 +119,27 @@ class MockClient implements Stock20ShopifyClient {
     inventoryItemId: string;
     quantity: 20;
     compareQuantity: number;
+    idempotencyKey: string;
   }) {
     this.mutations.push(`quantity:${input.inventoryItemId}:${input.quantity}`);
+    this.quantityKeys.push(input.idempotencyKey);
     const state = [...this.states.values()].find((candidate) =>
       candidate.inventoryItemId === input.inventoryItemId
     )!;
     assert.equal(state.available, input.compareQuantity);
+    const failure = this.quantityFailures.shift();
+    if (failure) {
+      if (this.previousAttemptLeavesTarget) {
+        state.tracked = true;
+        state.inventoryPolicy = "DENY";
+        state.available = 20;
+        state.onHand = 20;
+      }
+      throw new Stock20Error(failure, `fixture ${failure}`);
+    }
     state.available = input.quantity;
     state.onHand = input.quantity;
+    this.quantitySucceeded = true;
     if (this.concurrentReplay) throw new Error("COMPARE_QUANTITY_STALE");
   }
 }
@@ -272,10 +303,141 @@ test("retry concorrente viene riconciliato con una sola rilettura e nessun secon
   );
 });
 
+test("P1-A: tracking confermato resta nel report se policy fallisce", async () => {
+  const m = manifest([item(1, { currentPolicy: "CONTINUE" })]);
+  const client = new MockClient(m.items);
+  client.failPolicy = true;
+  const report = await executeStock20Batch(client, m, "EXECUTE");
+  const result = report.results[0];
+  assert.equal(result.status, "FAILED");
+  assert.equal(result.failedStep, "SET_POLICY_DENY");
+  assert.deepEqual(result.appliedMutations, ["ENABLE_TRACKING"]);
+  assert.deepEqual(result.plannedMutations, [
+    "ENABLE_TRACKING",
+    "SET_POLICY_DENY",
+    "SET_AVAILABLE_20",
+  ]);
+  assert.equal(result.before?.tracked, false);
+  assert.equal(client.quantityKeys.length, 0);
+});
+
+test("P1-B: tracking e policy restano nel report se quantity fallisce", async () => {
+  const m = manifest([item(1, { currentPolicy: "CONTINUE" })]);
+  const client = new MockClient(m.items);
+  client.quantityFailures = ["ITEM_SHOPIFY_ERROR"];
+  const report = await executeStock20Batch(client, m, "EXECUTE");
+  const result = report.results[0];
+  assert.equal(result.status, "FAILED");
+  assert.equal(result.failedStep, "SET_AVAILABLE_20_PRIMARY");
+  assert.deepEqual(result.appliedMutations, [
+    "ENABLE_TRACKING",
+    "SET_POLICY_DENY",
+  ]);
+  assert.equal(
+    result.message,
+    "Operazione Shopify non completata per l'elemento",
+  );
+});
+
+test("P1-C: quantity confermata resta nel report se la postcondition fallisce", async () => {
+  const m = manifest([item(1, { currentPolicy: "CONTINUE" })]);
+  const client = new MockClient(m.items);
+  client.postconditionFailure = true;
+  const report = await executeStock20Batch(client, m, "EXECUTE");
+  const result = report.results[0];
+  assert.equal(result.status, "FAILED");
+  assert.equal(result.failedStep, "POSTCONDITION");
+  assert.deepEqual(result.appliedMutations, [
+    "ENABLE_TRACKING",
+    "SET_POLICY_DENY",
+    "SET_AVAILABLE_20",
+  ]);
+  assert.equal(result.after?.available, 19);
+});
+
+test("P1-D: fallimento prima della prima mutation riporta applied vuoto", async () => {
+  const m = manifest();
+  const client = new MockClient(m.items);
+  client.failTracking = true;
+  const report = await executeStock20Batch(client, m, "EXECUTE");
+  const result = report.results[0];
+  assert.equal(result.status, "FAILED");
+  assert.equal(result.failedStep, "ENABLE_TRACKING");
+  assert.deepEqual(result.appliedMutations, []);
+});
+
+test("P2-A: previous attempt già a 20 viene riconciliato senza recovery write", async () => {
+  const m = manifest([item(1, { currentTracked: true })]);
+  const client = new MockClient(m.items);
+  client.quantityFailures = ["IDEMPOTENCY_PREVIOUS_ATTEMPT_FAILED"];
+  client.previousAttemptLeavesTarget = true;
+  const report = await executeStock20Batch(client, m, "EXECUTE");
+  const result = report.results[0];
+  assert.equal(result.status, "ALREADY_AT_TARGET");
+  assert.equal(result.code, "IDEMPOTENCY_PREVIOUS_ATTEMPT_RECONCILED");
+  assert.equal(result.recoveryAttempted, false);
+  assert.equal(result.recoveryIdempotencyKey, undefined);
+  assert.equal(result.primaryIdempotencyKey, result.idempotencyKey);
+  assert.deepEqual(client.quantityKeys, [result.idempotencyKey]);
+});
+
+test("P2-B: previous attempt fallito usa una sola recovery-1 deterministica", async () => {
+  const m = manifest([item(1, { currentTracked: true })]);
+  const client = new MockClient(m.items);
+  client.quantityFailures = ["IDEMPOTENCY_PREVIOUS_ATTEMPT_FAILED"];
+  const report = await executeStock20Batch(client, m, "EXECUTE");
+  const result = report.results[0];
+  const recoveryKey = stock20RecoveryIdempotencyKey(
+    m.batchId,
+    m.items[0].inventoryItemId,
+  );
+  assert.equal(result.status, "UPDATED");
+  assert.equal(result.recoveryAttempted, true);
+  assert.equal(result.recoveryIdempotencyKey, recoveryKey);
+  assert.deepEqual(client.quantityKeys, [result.idempotencyKey, recoveryKey]);
+  assert.equal(client.states.get("OG_TEST_1")?.available, 20);
+});
+
+test("P2-C: errore anche su recovery-1 fallisce senza loop", async () => {
+  const m = manifest([item(1, { currentTracked: true })]);
+  const client = new MockClient(m.items);
+  client.quantityFailures = [
+    "IDEMPOTENCY_PREVIOUS_ATTEMPT_FAILED",
+    "IDEMPOTENCY_PREVIOUS_ATTEMPT_FAILED",
+  ];
+  const report = await executeStock20Batch(client, m, "EXECUTE");
+  const result = report.results[0];
+  assert.equal(result.status, "FAILED");
+  assert.equal(result.code, "IDEMPOTENCY_PREVIOUS_ATTEMPT_FAILED");
+  assert.equal(result.failedStep, "SET_AVAILABLE_20_RECOVERY");
+  assert.equal(result.recoveryAttempted, true);
+  assert.equal(client.quantityKeys.length, 2);
+  assert.match(client.quantityKeys[1], /:recovery-1$/);
+});
+
+test("P2-D: altri item error non attivano recovery speciale", async () => {
+  const m = manifest([item(1, { currentTracked: true })]);
+  const client = new MockClient(m.items);
+  client.quantityFailures = ["ITEM_SHOPIFY_ERROR"];
+  const report = await executeStock20Batch(client, m, "EXECUTE");
+  const result = report.results[0];
+  assert.equal(result.status, "FAILED");
+  assert.equal(result.failedStep, "SET_AVAILABLE_20_PRIMARY");
+  assert.equal(result.recoveryAttempted, false);
+  assert.equal(client.quantityKeys.length, 1);
+});
+
 test("chiave stabile e output/log non includono segreti", () => {
   assert.equal(
     stock20IdempotencyKey("batch-test-001", "gid://shopify/InventoryItem/3001"),
     "stock20:batch-test-001:gid://shopify/InventoryItem/3001:20",
+  );
+  assert.equal(
+    stock20RecoveryIdempotencyKey(
+      "batch-test-001",
+      "gid://shopify/InventoryItem/3001",
+    ),
+    "stock20:batch-test-001:gid://shopify/InventoryItem/3001:20:recovery-1",
   );
   const sources = [
     "supabase/functions/shopify-stock20-batch/index.ts",
@@ -291,6 +453,11 @@ test("chiave stabile e output/log non includono segreti", () => {
     /Storefront|productCreate|productUpdate|metafield|priceSet/,
   );
   assert.doesNotMatch(sources, /locations\s*\(|location\s*\{\s*id/);
+  assert.match(
+    sources,
+    /entry\.code === "IDEMPOTENCY_PREVIOUS_ATTEMPT_FAILED"/,
+  );
+  assert.match(sources, /:recovery-1/);
   const endpoint = readFileSync(
     "supabase/functions/shopify-stock20-batch/index.ts",
     "utf8",

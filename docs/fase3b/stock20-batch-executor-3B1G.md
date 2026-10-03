@@ -134,6 +134,15 @@ La quantità usa `inventorySetQuantities` in versione `2026-01` con:
 
 Se una richiesta concorrente ottiene un errore ma una singola rilettura mostra già `tracked=true`, `DENY`, `available=20`, il risultato viene riconciliato come `ALREADY_AT_TARGET`. Se il target non è completo, l'errore resta tale. Un item già conforme non genera write.
 
+Shopify `2026-01` può restituire `IDEMPOTENCY_PREVIOUS_ATTEMPT_FAILED`, che richiede una chiave nuova. Solo per questo codice l'executor:
+
+1. esegue una rilettura;
+2. se il target è già completo, conclude `ALREADY_AT_TARGET` senza nuova mutation;
+3. altrimenti usa una sola chiave deterministica `stock20:<batch-id>:<inventoryItemId>:20:recovery-1`;
+4. esegue al massimo una seconda `inventorySetQuantities` e verifica il read-after.
+
+Non esistono `recovery-2`, loop, sleep o retry automatici per altri errori. Se `recovery-1` fallisce, l'item è definitivamente `FAILED`.
+
 ## Report ed error handling
 
 Il report usa solo gli stati:
@@ -143,7 +152,9 @@ Il report usa solo gli stati:
 - `SKIPPED`;
 - `FAILED`.
 
-Contiene before/after, mutation pianificate/applicate e chiave idempotente, ma non token né credenziali. Un errore item-specific permette di continuare; errori sistemici di autenticazione, scope, location, schema API o rate limit persistente arrestano il batch e marcano i successivi `BATCH_STOPPED`.
+Contiene `before`, `after` quando disponibile, mutation pianificate, mutation realmente confermate, step fallito, chiave primaria, eventuale chiave recovery e indicatore `recoveryAttempted`, ma non token né credenziali. Le mutation completate prima di un errore restano nel `FAILED` result: non vengono azzerate né inferite. Questo rende espliciti i casi parziali, ad esempio tracking applicato seguito da fallimento policy/quantity.
+
+Un errore item-specific permette di continuare; errori sistemici di autenticazione, scope, location, schema API o rate limit persistente arrestano il batch e marcano i successivi `BATCH_STOPPED`. I messaggi restituiti sono sanitizzati; il dettaglio tecnico rimane nei log server-side.
 
 ## Test offline
 
@@ -163,7 +174,12 @@ Copertura dedicata con client mock e zero rete live:
 - errore item isolato;
 - stop su errore sistemico;
 - riconciliazione concorrente;
+- reporting parziale su fallimento dopo tracking, policy o quantity;
+- nessuna mutation confermata prima dell'errore;
+- recovery specifica `IDEMPOTENCY_PREVIOUS_ATTEMPT_FAILED`: target già raggiunto, `recovery-1` riuscita, recovery fallita senza loop e nessun recovery per errori generici;
 - assenza di segreti e chiamate Storefront/content.
+
+Suite mirata aggiornata: **20/20 PASS** offline, senza rete Shopify.
 
 ## Rollout Lovable
 
