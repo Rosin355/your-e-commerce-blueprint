@@ -126,3 +126,10 @@ Rollback: rimuovere immediatamente il gate, fermare il runner e conservare bucke
 - BLOCKED isolate (14) `PRODUCT_STATE_MISMATCH` — create come DRAFT su Shopify ma descrizione normalizzata da Shopify (HTML sorgente malformato, es. `< br >`): OG_238559, OG_341476, OG_422411, OG_489489, OG_538594, OG_553492, OG_644838, OG_728356, OG_746747, OG_778338, OG_839472, OG_847151, OG_865363, OG_942831. Remediation: pulizia HTML descrizione e riconciliazione, nessuna ricreazione.
 - Incidenti: 1 lettura Storage transitoria (lotto 014, nessuna scrittura); runner client sopravvissuti al timeout dello strumento in due casi (nessuna esecuzione EXECUTE concorrente, solo DRY_RUN in parallelo).
 - Gate `SHOPIFY_CREATE_EXECUTE_ENABLED`: **OFF** (rimosso).
+
+### Safe pause (2026-10-04 00:34 UTC)
+- Nessun lotto in corso al momento dello stop; nessun runner attivo.
+- Ultimo lotto completato: 092 (ultimo dell'indice). Lotti non completati: nessuno.
+- Famiglie create: 903; varianti: 930. BLOCKED: 14 (`PRODUCT_STATE_MISMATCH`, elencate sopra); FAILED: 0; MEDIA_PENDING: 0.
+- `SHOPIFY_CREATE_EXECUTE_ENABLED` assente nelle secret (read-back): EXECUTE OFF.
+- Ledger, bucket, `index.json`, manifest e prodotti intatti. Una nuova esecuzione con `--start-batch` su qualsiasi lotto produrrebbe solo ALREADY_EXISTS/BLOCKED (idempotenza ledger), senza duplicati.
