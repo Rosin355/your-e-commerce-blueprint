@@ -116,3 +116,13 @@ Lovable deve aprire una sola finestra impostando `SHOPIFY_CREATE_EXECUTE_ENABLED
 Questa PR non crea il bucket live, non carica manifest, non distribuisce funzioni e non chiama Shopify. Prima del rollout servono backup/preflight Storage, conteggi builder reali, upload privato verificato, deploy della sola funzione, DRY_RUN Storage del primo batch e approvazione separata della finestra EXECUTE.
 
 Rollback: rimuovere immediatamente il gate, fermare il runner e conservare bucket, indice, manifest e ledger. Non cancellare automaticamente prodotti o righe ledger. Ripristinare la precedente Edge Function solo dopo aver verificato che nessun workflow scale-out sia attivo.
+
+## Esito live scale-out Storage (lotti 002–092)
+
+- Bucket privato `shopify-create-manifests` (public=false, 5 MiB, policy client-deny). **Gap aperto:** `allowed_mime_types` = NULL (non application/json); gate MIME NON dichiarato PASS.
+- 91 manifest + `index.json` caricati (dimensioni verificate; SHA verificato server-side a ogni DRY_RUN tramite `approvalDigest`/`manifestSha256`).
+- Ledger 3B.2: 903 parent e 930 varianti con operazioni registrate; 0 request_key duplicate. 1 riga `ATTACH_MEDIA` rimasta RESERVED (OG_461758, lotto 037, runner interrotto lato client) — verifica successiva ALREADY_EXISTS.
+- Verificate ALREADY_EXISTS: 889 famiglie (incluso canary OG_111899). Tutte DRAFT, nessuna pubblicazione.
+- BLOCKED isolate (14) `PRODUCT_STATE_MISMATCH` — create come DRAFT su Shopify ma descrizione normalizzata da Shopify (HTML sorgente malformato, es. `< br >`): OG_238559, OG_341476, OG_422411, OG_489489, OG_538594, OG_553492, OG_644838, OG_728356, OG_746747, OG_778338, OG_839472, OG_847151, OG_865363, OG_942831. Remediation: pulizia HTML descrizione e riconciliazione, nessuna ricreazione.
+- Incidenti: 1 lettura Storage transitoria (lotto 014, nessuna scrittura); runner client sopravvissuti al timeout dello strumento in due casi (nessuna esecuzione EXECUTE concorrente, solo DRY_RUN in parallelo).
+- Gate `SHOPIFY_CREATE_EXECUTE_ENABLED`: **OFF** (rimosso).
