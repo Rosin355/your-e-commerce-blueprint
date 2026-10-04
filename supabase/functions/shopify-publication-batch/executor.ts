@@ -1,4 +1,6 @@
 import type {
+  PublicationEvidence,
+  PublicationEvidenceLedger,
   PublicationItem,
   PublicationLiveProduct,
   PublicationManifest,
@@ -112,7 +114,8 @@ function safeError(error: unknown) {
   if (error instanceof PublicationError) return error;
   const raw = error instanceof Error ? error.message : String(error);
   const systemic =
-    /401|403|scope|throttl|network|fetch|HTTP 5|service unavailable/i.test(raw);
+    /401|403|scope|throttl|rate limit persistente|network|fetch|HTTP 5|service unavailable|LEDGER_/i
+      .test(raw);
   return new PublicationError(
     systemic ? "SYSTEMIC_SHOPIFY_ERROR" : "ITEM_SHOPIFY_ERROR",
     systemic
@@ -122,8 +125,67 @@ function safeError(error: unknown) {
   );
 }
 
+export function publicationEvidenceRequestKey(
+  batchId: string,
+  productId: string,
+) {
+  return `shopify-publication:${batchId}:${productId}:SET_ACTIVE`;
+}
+
+export async function buildPublicationEvidence(
+  manifest: PublicationManifest,
+  item: PublicationItem,
+): Promise<PublicationEvidence> {
+  const requestKey = publicationEvidenceRequestKey(
+    manifest.batchId,
+    item.shopifyProductId,
+  );
+  const payload =
+    `${manifest.batchId}:${item.parentSku}:${item.shopifyProductId}:SET_ACTIVE`;
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(payload),
+  );
+  return {
+    batchId: manifest.batchId,
+    parentSku: item.parentSku,
+    productId: item.shopifyProductId,
+    operation: "SET_ACTIVE",
+    requestKey,
+    payloadHash: [...new Uint8Array(digest)]
+      .map((value) => value.toString(16).padStart(2, "0"))
+      .join(""),
+    status: "RESERVED",
+    appliedAt: null,
+    verifiedAt: null,
+  };
+}
+
+function evidenceIssue(
+  actual: PublicationEvidence,
+  expected: PublicationEvidence,
+): string | null {
+  if (
+    actual.batchId !== expected.batchId ||
+    actual.parentSku !== expected.parentSku ||
+    actual.productId !== expected.productId ||
+    actual.operation !== "SET_ACTIVE" ||
+    actual.requestKey !== expected.requestKey ||
+    actual.payloadHash !== expected.payloadHash
+  ) return "IDEMPOTENCY_CONFLICT";
+  if (
+    (actual.status === "APPLIED" && Boolean(actual.appliedAt)) ||
+    (actual.status === "VERIFIED" &&
+      Boolean(actual.appliedAt) &&
+      Boolean(actual.verifiedAt))
+  ) return null;
+  return "IDEMPOTENCY_CONFLICT";
+}
+
 async function executeItem(
   client: PublicationShopifyClient,
+  ledger: PublicationEvidenceLedger,
+  manifest: PublicationManifest,
   item: PublicationItem,
   targetPublicationId: string,
   mode: PublicationMode,
@@ -149,8 +211,30 @@ async function executeItem(
   if (!["DRAFT", "ACTIVE"].includes(product.status)) {
     return { ...base, status: "BLOCKED", code: "PRODUCT_STATUS_BLOCKED" };
   }
+  const expectedEvidence = await buildPublicationEvidence(manifest, item);
+  const storedEvidence = await ledger.find(
+    manifest.batchId,
+    item.parentSku,
+  );
+  if (storedEvidence) {
+    const proofIssue = evidenceIssue(storedEvidence, expectedEvidence);
+    if (proofIssue) {
+      return { ...base, status: "BLOCKED", code: proofIssue };
+    }
+  }
+  if (product.status === "ACTIVE" && !storedEvidence) {
+    return { ...base, status: "BLOCKED", code: "STATE_DRIFT" };
+  }
+  if (product.status === "DRAFT" && storedEvidence) {
+    return { ...base, status: "BLOCKED", code: "STATE_DRIFT" };
+  }
   const operations = planned(product, targetPublicationId);
-  if (operations.length === 0) return { ...base, status: "ALREADY_PUBLISHED" };
+  if (operations.length === 0) {
+    if (mode === "EXECUTE" && storedEvidence?.status === "APPLIED") {
+      await ledger.markVerified(expectedEvidence);
+    }
+    return { ...base, status: "ALREADY_PUBLISHED" };
+  }
   if (mode === "DRY_RUN") {
     return {
       ...base,
@@ -160,7 +244,17 @@ async function executeItem(
   }
   const applied: PublicationResult["appliedOperations"] = [];
   if (operations.includes("SET_ACTIVE")) {
+    const reservation = await ledger.reserve(expectedEvidence);
+    if (reservation.kind === "EXISTING") {
+      const proofIssue = evidenceIssue(reservation.evidence, expectedEvidence);
+      return {
+        ...base,
+        status: "BLOCKED",
+        code: proofIssue ?? "STATE_DRIFT",
+      };
+    }
     await client.activateProduct(item.shopifyProductId);
+    await ledger.markApplied(expectedEvidence);
     applied.push("SET_ACTIVE");
   }
   if (operations.includes("PUBLISH_ONLINE_STORE")) {
@@ -191,6 +285,7 @@ async function executeItem(
       "Prodotto non visibile solo su Online Store",
     );
   }
+  await ledger.markVerified(expectedEvidence);
   return {
     ...base,
     status: "PUBLISHED",
@@ -201,6 +296,7 @@ async function executeItem(
 
 export async function executePublicationBatch(
   client: PublicationShopifyClient,
+  ledger: PublicationEvidenceLedger,
   manifest: PublicationManifest,
   mode: PublicationMode,
 ): Promise<PublicationReport> {
@@ -233,7 +329,16 @@ export async function executePublicationBatch(
       continue;
     }
     try {
-      results.push(await executeItem(client, item, publication.id, mode));
+      results.push(
+        await executeItem(
+          client,
+          ledger,
+          manifest,
+          item,
+          publication.id,
+          mode,
+        ),
+      );
     } catch (error) {
       const safe = safeError(error);
       results.push({

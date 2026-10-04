@@ -3,6 +3,7 @@ import { canWriteCanary } from "../_shared/admin-v2-permissions.ts";
 import { corsHeaders } from "../_shared/shopify-admin-client.ts";
 import { assertApprovedDigest } from "../_shared/shopify-approved-manifest.ts";
 import { executePublicationBatch } from "./executor.ts";
+import { SupabasePublicationEvidenceLedger } from "./ledger.ts";
 import { parsePublicationRequest } from "./request.ts";
 import { AdminGraphqlPublicationClient } from "./shopify-client.ts";
 import { loadApprovedPublicationManifest } from "./storage-manifest.ts";
@@ -50,6 +51,7 @@ export async function handlePublicationBatch(req: Request) {
     }
     const report = await executePublicationBatch(
       new AdminGraphqlPublicationClient(),
+      new SupabasePublicationEvidenceLedger(),
       approved.manifest,
       body.mode,
     );

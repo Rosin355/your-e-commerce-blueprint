@@ -16,11 +16,14 @@ import type {
   RemediationShopifyClient,
 } from "../../supabase/functions/shopify-description-remediation/types.ts";
 import {
+  buildPublicationEvidence,
   executePublicationBatch,
   PublicationError,
 } from "../../supabase/functions/shopify-publication-batch/executor.ts";
 import { parsePublicationManifest } from "../../supabase/functions/shopify-publication-batch/manifest.ts";
 import type {
+  PublicationEvidence,
+  PublicationEvidenceLedger,
   PublicationLiveProduct,
   PublicationShopifyClient,
 } from "../../supabase/functions/shopify-publication-batch/types.ts";
@@ -81,8 +84,12 @@ class FakeRemediationClient implements RemediationShopifyClient {
   writes: Array<{ id: string; descriptionHtml: string }> = [];
   mutateUnrelated = false;
   systemic = false;
+  persistentThrottle = false;
 
   async readProduct(_productId: string) {
+    if (this.persistentThrottle) {
+      throw new Error("Shopify rate limit persistente");
+    }
     if (this.systemic) {
       throw new RemediationError("SYSTEMIC_SHOPIFY_ERROR", "fixture", true);
     }
@@ -160,6 +167,52 @@ Deno.test("3B.3 DRY_RUN e drift concorrente producono zero write", async () => {
   );
   assertEquals(drift.results[0].code, "STATE_DRIFT");
   assertEquals(driftClient.writes.length, 0);
+});
+
+Deno.test("3B.3 blocca snapshot varianti o media troncato", async () => {
+  const variantsClient = new FakeRemediationClient();
+  const variants = await executeRemediationBatch(
+    variantsClient,
+    remediationManifest({
+      expectedCurrent: remediationState({ variantCount: 2 }),
+    }),
+    "EXECUTE",
+  );
+  assertEquals(variants.results[0].code, "SNAPSHOT_TRUNCATED");
+  assertEquals(variantsClient.writes.length, 0);
+
+  const mediaClient = new FakeRemediationClient();
+  mediaClient.product!.mediaCount = 2;
+  const media = await executeRemediationBatch(
+    mediaClient,
+    remediationManifest(),
+    "EXECUTE",
+  );
+  assertEquals(media.results[0].code, "SNAPSHOT_TRUNCATED");
+  assertEquals(mediaClient.writes.length, 0);
+
+  const exactClient = new FakeRemediationClient();
+  const exact = await executeRemediationBatch(
+    exactClient,
+    remediationManifest(),
+    "DRY_RUN",
+  );
+  assertEquals(exact.summary.READY_TO_REMEDIATE, 1);
+});
+
+Deno.test("3B.3 throttle persistente arresta il batch", async () => {
+  const manifest = remediationManifest();
+  const second = structuredClone(manifest.items[0]);
+  second.parentSku = "OG_341476";
+  second.shopifyProductId = "gid://shopify/Product/101";
+  second.expectedCurrent.id = second.shopifyProductId;
+  manifest.items.push(second);
+  const client = new FakeRemediationClient();
+  client.persistentThrottle = true;
+  const report = await executeRemediationBatch(client, manifest, "EXECUTE");
+  assertEquals(report.results[0].code, "SYSTEMIC_SHOPIFY_ERROR");
+  assertEquals(report.results[1].code, "BATCH_STOPPED");
+  assertEquals(client.writes.length, 0);
 });
 
 Deno.test("3B.3 rileva cambi estranei e il retry non ripete la mutation", async () => {
@@ -256,7 +309,7 @@ function publicationLive(
 class FakePublicationClient implements PublicationShopifyClient {
   products = new Map<string, PublicationLiveProduct>();
   writes: string[] = [];
-  systemicProductId: string | null = null;
+  persistentThrottleProductId: string | null = null;
 
   constructor(product = publicationLive()) {
     this.products.set(product.id, structuredClone(product));
@@ -267,8 +320,8 @@ class FakePublicationClient implements PublicationShopifyClient {
   }
 
   async readProduct(id: string) {
-    if (id === this.systemicProductId) {
-      throw new PublicationError("SYSTEMIC_SHOPIFY_ERROR", "fixture", true);
+    if (id === this.persistentThrottleProductId) {
+      throw new Error("Shopify rate limit persistente");
     }
     const product = this.products.get(id);
     return product ? structuredClone(product) : null;
@@ -285,39 +338,142 @@ class FakePublicationClient implements PublicationShopifyClient {
   }
 }
 
+class FakePublicationLedger implements PublicationEvidenceLedger {
+  rows = new Map<string, PublicationEvidence>();
+
+  key(batchId: string, parentSku: string) {
+    return `${batchId}:${parentSku}`;
+  }
+
+  async find(batchId: string, parentSku: string) {
+    return structuredClone(this.rows.get(this.key(batchId, parentSku)) ?? null);
+  }
+
+  async reserve(evidence: PublicationEvidence) {
+    const key = this.key(evidence.batchId, evidence.parentSku);
+    const existing = this.rows.get(key);
+    if (existing) {
+      return { kind: "EXISTING" as const, evidence: structuredClone(existing) };
+    }
+    this.rows.set(key, structuredClone(evidence));
+    return { kind: "RESERVED" as const };
+  }
+
+  async markApplied(evidence: PublicationEvidence) {
+    this.rows.set(this.key(evidence.batchId, evidence.parentSku), {
+      ...structuredClone(evidence),
+      status: "APPLIED",
+      appliedAt: "2026-10-04T12:00:00.000Z",
+    });
+  }
+
+  async markVerified(evidence: PublicationEvidence) {
+    const key = this.key(evidence.batchId, evidence.parentSku);
+    const current = this.rows.get(key)!;
+    this.rows.set(key, {
+      ...current,
+      status: "VERIFIED",
+      verifiedAt: "2026-10-04T12:01:00.000Z",
+    });
+  }
+}
+
+function runPublication(
+  client: PublicationShopifyClient,
+  manifest: ReturnType<typeof publicationManifest>,
+  mode: "DRY_RUN" | "EXECUTE",
+  ledger = new FakePublicationLedger(),
+) {
+  return executePublicationBatch(client, ledger, manifest, mode);
+}
+
 Deno.test("3B.4 safe DRAFT pubblica con ACTIVE + solo Online Store", async () => {
   const client = new FakePublicationClient();
-  const report = await executePublicationBatch(
+  const ledger = new FakePublicationLedger();
+  const report = await runPublication(
     client,
     publicationManifest(),
     "EXECUTE",
+    ledger,
   );
   assertEquals(report.summary.PUBLISHED, 1);
   assertEquals(client.writes, [
     "ACTIVE:gid://shopify/Product/500",
     "PUBLISH:gid://shopify/Product/500:gid://shopify/Publication/900",
   ]);
+  const proof = await ledger.find(
+    "shopify-publication-3b4-001",
+    "OG_111899",
+  );
+  assertEquals(proof?.status, "VERIFIED");
+  assertEquals(Boolean(proof?.appliedAt && proof.verifiedAt), true);
 });
 
-Deno.test("3B.4 già pubblicato e replay sono idempotenti", async () => {
+Deno.test("3B.4 ACTIVE con prova SET_ACTIVE valida consente il replay", async () => {
+  const manifest = publicationManifest();
   const client = new FakePublicationClient(publicationLive({
     status: "ACTIVE",
-    publicationIds: ["gid://shopify/Publication/900"],
   }));
-  const first = await executePublicationBatch(
+  const ledger = new FakePublicationLedger();
+  const proof = await buildPublicationEvidence(manifest, manifest.items[0]);
+  ledger.rows.set(ledger.key(proof.batchId, proof.parentSku), {
+    ...proof,
+    status: "APPLIED",
+    appliedAt: "2026-10-04T12:00:00.000Z",
+  });
+  const report = await runPublication(
+    client,
+    manifest,
+    "EXECUTE",
+    ledger,
+  );
+  assertEquals(report.summary.PUBLISHED, 1);
+  assertEquals(client.writes, [
+    "PUBLISH:gid://shopify/Product/500:gid://shopify/Publication/900",
+  ]);
+});
+
+Deno.test("3B.4 ACTIVE senza prova SET_ACTIVE è STATE_DRIFT", async () => {
+  const client = new FakePublicationClient(publicationLive({
+    status: "ACTIVE",
+  }));
+  const report = await runPublication(
     client,
     publicationManifest(),
     "EXECUTE",
   );
-  assertEquals(first.summary.ALREADY_PUBLISHED, 1);
+  assertEquals(report.results[0].code, "STATE_DRIFT");
   assertEquals(client.writes.length, 0);
+});
 
+Deno.test("3B.4 ACTIVE con prova conflittuale è IDEMPOTENCY_CONFLICT", async () => {
+  const manifest = publicationManifest();
+  const client = new FakePublicationClient(publicationLive({
+    status: "ACTIVE",
+  }));
+  const ledger = new FakePublicationLedger();
+  const proof = await buildPublicationEvidence(manifest, manifest.items[0]);
+  ledger.rows.set(ledger.key(proof.batchId, proof.parentSku), {
+    ...proof,
+    productId: "gid://shopify/Product/999",
+    status: "APPLIED",
+    appliedAt: "2026-10-04T12:00:00.000Z",
+  });
+  const report = await runPublication(client, manifest, "EXECUTE", ledger);
+  assertEquals(report.results[0].code, "IDEMPOTENCY_CONFLICT");
+  assertEquals(client.writes.length, 0);
+});
+
+Deno.test("3B.4 replay completo è idempotente", async () => {
   const replayClient = new FakePublicationClient();
-  await executePublicationBatch(replayClient, publicationManifest(), "EXECUTE");
-  const replay = await executePublicationBatch(
+  const replayLedger = new FakePublicationLedger();
+  const manifest = publicationManifest();
+  await runPublication(replayClient, manifest, "EXECUTE", replayLedger);
+  const replay = await runPublication(
     replayClient,
-    publicationManifest(),
+    manifest,
     "EXECUTE",
+    replayLedger,
   );
   assertEquals(replay.summary.ALREADY_PUBLISHED, 1);
   assertEquals(replayClient.writes.length, 2);
@@ -325,7 +481,7 @@ Deno.test("3B.4 già pubblicato e replay sono idempotenti", async () => {
 
 Deno.test("3B.4 DRY_RUN esegue zero mutation", async () => {
   const client = new FakePublicationClient();
-  const report = await executePublicationBatch(
+  const report = await runPublication(
     client,
     publicationManifest(),
     "DRY_RUN",
@@ -348,7 +504,7 @@ Deno.test("3B.4 blocca media mancante, stock errato e variante inattesa", async 
     ] as const
   ) {
     const client = new FakePublicationClient(product);
-    const report = await executePublicationBatch(
+    const report = await runPublication(
       client,
       publicationManifest(),
       "EXECUTE",
@@ -368,7 +524,7 @@ Deno.test("3B.4 blocca publication inattese o schedulate", async () => {
     ]
   ) {
     const client = new FakePublicationClient(product);
-    const report = await executePublicationBatch(
+    const report = await runPublication(
       client,
       publicationManifest(),
       "EXECUTE",
@@ -396,7 +552,7 @@ Deno.test("3B.4 manifest blocca structural, TEST e publishBlocked", () => {
   );
 });
 
-Deno.test("3B.4 errore sistemico arresta gli item successivi", async () => {
+Deno.test("3B.4 throttle persistente arresta gli item successivi", async () => {
   const first = publicationExpected();
   const second = structuredClone(first);
   second.id = "gid://shopify/Product/501";
@@ -423,18 +579,21 @@ Deno.test("3B.4 errore sistemico arresta gli item successivi", async () => {
       publicationIds: [],
     }),
   );
-  client.systemicProductId = first.id;
-  const report = await executePublicationBatch(client, manifest, "EXECUTE");
+  client.persistentThrottleProductId = first.id;
+  const report = await runPublication(client, manifest, "EXECUTE");
   assertEquals(report.results[0].status, "FAILED");
+  assertEquals(report.results[0].code, "SYSTEMIC_SHOPIFY_ERROR");
   assertEquals(report.results[1].status, "SKIPPED");
+  assertEquals(report.results[1].code, "BATCH_STOPPED");
   assertEquals(report.stopped, true);
+  assertEquals(client.writes.length, 0);
 });
 
 Deno.test("3B.4 canale differente viene bloccato prima delle mutation", async () => {
   const client = new FakePublicationClient();
   client.readPublication = async (id: string) => ({ id, name: "Headless" });
   await assertRejects(
-    () => executePublicationBatch(client, publicationManifest(), "EXECUTE"),
+    () => runPublication(client, publicationManifest(), "EXECUTE"),
     PublicationError,
     "Canale Online Store non verificato",
   );

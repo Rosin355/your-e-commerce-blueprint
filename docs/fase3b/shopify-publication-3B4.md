@@ -46,6 +46,18 @@ La visibilità richiede entrambe le condizioni: `Product.status=ACTIVE` e pubbli
 - mutation minime: `productUpdate(status: ACTIVE)` e `publishablePublish` solo se necessarie;
 - già completo → `ALREADY_PUBLISHED`, zero mutation.
 
+### Prova durevole per replay ACTIVE
+
+Lo stato Shopify `ACTIVE` non è mai considerato da solo una prova di replay. Il workflow riusa `shopify_creation_ledger` con operazione `SET_ACTIVE`, request key deterministica e transizioni `RESERVED → APPLIED → VERIFIED`; registra `batchId`, parent SKU, product ID, payload hash, `applied_at` e `verified_at`.
+
+- `DRAFT` senza evidenza: normale flusso eleggibile;
+- `ACTIVE` con evidenza esatta `APPLIED|VERIFIED`: riconciliazione/replay ammesso;
+- `ACTIVE` senza evidenza: `STATE_DRIFT`, nessuna pubblicazione;
+- evidenza con request key, hash, batch, SKU o product ID incompatibili: `IDEMPOTENCY_CONFLICT`;
+- `DRAFT` con evidenza già applicata: `STATE_DRIFT`.
+
+La migration `20261004120000_extend_shopify_ledger_publication.sql` estende il ledger privato esistente; è inclusa come codice ma non viene applicata da Codex. Il deploy dell'Edge Function resta bloccato finché la migration non viene approvata e applicata separatamente.
+
 Batch 25 è un default conservativo: operazione più leggera della creazione, ma con più letture e due possibili mutation. Un aumento richiede misure reali di latenza/rate-limit.
 
 ## Export Admin read-only obbligatorio
@@ -98,5 +110,7 @@ node scripts/run-shopify-publication.mjs \
 ```
 
 Drift, identity conflict, media/stock mismatch, varianti/publication inattese, blocked/failed o errore sistemico fermano globalmente. Il resume parte da un batch approvato; il replay non duplica mutation.
+
+Anche `Shopify rate limit persistente` è classificato come errore sistemico dopo l'esaurimento dei retry 429: arresta immediatamente il batch e marca gli item successivi `BATCH_STOPPED`, senza ulteriori write Shopify.
 
 Rollback: gate OFF e stop runner. Nessun unpublish automatico. Le esclusioni strutturali restano backlog post-launch. Questa revisione non distribuisce funzioni, non carica manifest, non modifica secret, non chiama Shopify e non pubblica prodotti.

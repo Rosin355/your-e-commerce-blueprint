@@ -98,6 +98,34 @@ export interface PublicationShopifyClient {
   publishProduct(productId: string, publicationId: string): Promise<void>;
 }
 
+export type PublicationEvidenceStatus =
+  | "RESERVED"
+  | "APPLIED"
+  | "VERIFIED"
+  | "FAILED";
+
+export interface PublicationEvidence {
+  batchId: string;
+  parentSku: string;
+  productId: string;
+  operation: "SET_ACTIVE";
+  requestKey: string;
+  payloadHash: string;
+  status: PublicationEvidenceStatus;
+  appliedAt: string | null;
+  verifiedAt: string | null;
+}
+
+export interface PublicationEvidenceLedger {
+  find(batchId: string, parentSku: string): Promise<PublicationEvidence | null>;
+  reserve(evidence: PublicationEvidence): Promise<
+    | { kind: "RESERVED" }
+    | { kind: "EXISTING"; evidence: PublicationEvidence }
+  >;
+  markApplied(evidence: PublicationEvidence): Promise<void>;
+  markVerified(evidence: PublicationEvidence): Promise<void>;
+}
+
 export interface PublicationResult {
   parentSku: string;
   shopifyProductId: string;

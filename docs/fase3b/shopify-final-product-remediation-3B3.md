@@ -33,6 +33,8 @@ Tag attivi (`script`, `style`, `iframe`, `object`, `embed`, `form`, `svg`, `math
 
 Prima della mutation l'executor rilegge il prodotto per ID e confronta l'intero stato con lo snapshot approvato. Target già presente → `ALREADY_REMEDIATED`; qualsiasi variazione → `STATE_DRIFT`, zero write.
 
+Prima di `sameState` verifica inoltre la completezza sia dello snapshot approvato sia della nuova lettura: `variantCount == variants.length` e `mediaCount == media.length`. Una pagina Shopify troncata produce `SNAPSHOT_TRUNCATED`, blocca l'item e non esegue write.
+
 La sola mutation è `productUpdate(product: { id, descriptionHtml })`. Dopo la write vengono verificati ID invariato, descrizione esatta e uguaglianza di tutti i campi estranei. Una differenza genera `FIELD_ISOLATION_POSTCONDITION_FAILED` e stop sistemico. Il client non espone metodi create; il retry sul target già corretto non riscrive.
 
 ## Preflight privato richiesto a Lovable
@@ -76,3 +78,5 @@ node scripts/run-shopify-remediation.mjs \
 ```
 
 Il comando è DRY_RUN. Solo dopo approvazione e apertura temporanea del gate si aggiunge `--execute-window`. Il gate va rimosso in `finally`. Criterio di uscita: VERIFY tutto `ALREADY_REMEDIATED`, zero blocked/failed/skipped. Solo allora le famiglie entrano in un nuovo preflight 3B.4.
+
+L'errore esatto `Shopify rate limit persistente`, emesso dopo l'esaurimento dei retry 429 del client condiviso, è sistemico: l'item corrente fallisce, tutti i successivi diventano `BATCH_STOPPED` e non vengono eseguite ulteriori write.

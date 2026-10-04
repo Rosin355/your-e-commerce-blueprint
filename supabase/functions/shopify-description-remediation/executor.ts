@@ -60,7 +60,7 @@ function safeError(error: unknown) {
   if (error instanceof RemediationError) return error;
   const raw = error instanceof Error ? error.message : String(error);
   const systemic =
-    /401|403|scope|throttl|network|fetch|HTTP 5|service unavailable/i
+    /401|403|scope|throttl|rate limit persistente|network|fetch|HTTP 5|service unavailable/i
       .test(raw);
   return new RemediationError(
     systemic ? "SYSTEMIC_SHOPIFY_ERROR" : "ITEM_SHOPIFY_ERROR",
@@ -87,6 +87,15 @@ async function executeItem(
   const before = await client.readProduct(item.shopifyProductId);
   if (!before || before.id !== item.shopifyProductId) {
     return { ...base, status: "BLOCKED", code: "IDENTITY_MISMATCH" };
+  }
+  if (
+    item.expectedCurrent.variantCount !==
+      item.expectedCurrent.variants.length ||
+    item.expectedCurrent.mediaCount !== item.expectedCurrent.media.length ||
+    before.variantCount !== before.variants.length ||
+    before.mediaCount !== before.media.length
+  ) {
+    return { ...base, status: "BLOCKED", code: "SNAPSHOT_TRUNCATED" };
   }
   if (canonicalDescription(before.descriptionHtml) === target) {
     return { ...base, status: "ALREADY_REMEDIATED" };
