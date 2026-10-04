@@ -133,3 +133,11 @@ Rollback: rimuovere immediatamente il gate, fermare il runner e conservare bucke
 - Famiglie create: 903; varianti: 930. BLOCKED: 14 (`PRODUCT_STATE_MISMATCH`, elencate sopra); FAILED: 0; MEDIA_PENDING: 0.
 - `SHOPIFY_CREATE_EXECUTE_ENABLED` assente nelle secret (read-back): EXECUTE OFF.
 - Ledger, bucket, `index.json`, manifest e prodotti intatti. Una nuova esecuzione con `--start-batch` su qualsiasi lotto produrrebbe solo ALREADY_EXISTS/BLOCKED (idempotenza ledger), senza duplicati.
+
+## Handoff finale verso 3B.3 e 3B.4
+
+La creazione scale-out è conclusa fino al batch 092: 903 famiglie / 930 varianti create in `DRAFT`, 0 `FAILED`, 0 `MEDIA_PENDING` e 0 duplicati. Le 14 famiglie `PRODUCT_STATE_MISMATCH` esistono già e non devono essere ricreate: passano al workflow 3B.3 `UPDATE_DESCRIPTION_ONLY`. La pubblicazione resta un workflow separato 3B.4 e non è stata eseguita da questa implementazione.
+
+Riferimenti: `shopify-final-product-remediation-3B3.md` e `shopify-publication-3B4.md`.
+
+Stato: **CREATION SCALE-OUT COMPLETATO · REMEDIATION/PUBLICATION CODE READY PER REVIEW · NESSUN DEPLOY O WRITE LIVE DA CODEX**.
