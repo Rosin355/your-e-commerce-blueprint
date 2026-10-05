@@ -145,7 +145,7 @@ Lo scale-out reale ha completato i batch 002–092: 903 famiglie e 930 varianti 
 
 La verifica finale ha distinto 889 famiglie riconciliate e 14 famiglie esistenti bloccate esclusivamente dal confronto descrizione: `OG_238559`, `OG_341476`, `OG_422411`, `OG_489489`, `OG_538594`, `OG_553492`, `OG_644838`, `OG_728356`, `OG_746747`, `OG_778338`, `OG_839472`, `OG_847151`, `OG_865363`, `OG_942831`.
 
-Sono stati predisposti due workflow isolati e non distribuiti: 3B.3 aggiorna solo `descriptionHtml` sul prodotto già mappato, con ORIGINAL approvato e stop `STATE_DRIFT`; 3B.4 pubblica solo prodotti che superano nuovamente tutti i gate, impostando `ACTIVE` e pubblicando esclusivamente su `Online Store`.
+Sono stati predisposti due workflow isolati e non distribuiti: 3B.3 aggiorna solo `descriptionHtml` sul prodotto già mappato, con ORIGINAL approvato e stop `STATE_DRIFT`; 3B.4 pubblica solo prodotti che superano nuovamente tutti i gate, impostando `ACTIVE` e aggiungendo esclusivamente Online Store, Ecom Blueprint Gen 6ud1s Headless e Lovable.
 
 Le esclusioni strutturali (`OG_152965`, `OG_891874`, `OG_758263`, `OG_393883`, TEST e `RESTRUCTURE_REQUIRED`) restano fuori. Il conteggio globale `READY_TO_PUBLISH` deve provenire dal nuovo export Admin read-only descritto nei documenti 3B.3/3B.4.
 
@@ -160,3 +160,9 @@ Stato: **FINAL PRODUCT WORKFLOW CODE READY / PUBLICATION PENDING / POST-LAUNCH R
 
 ## Prossimo passo 3B.4 (5 ottobre 2026)
 Estendere `shopify-publication-batch` a un publication set fisso (Online Store + Headless + Lovable), rigenerare i manifest 002–037 con nuovi SHA, ridistribuire solo quella funzione, poi DRY_RUN/EXECUTE/VERIFY per lotto. Richiede autorizzazione esplicita.
+
+## Aggiornamento multi-channel 3B.4 (5 ottobre 2026)
+
+Il codice v2 vincola il set esatto richiesto dalla vetrina: Online Store, Headless `338862113108` e Lovable `328891826516`. Point of Sale e Shop non sono target. Le publication storiche estranee vengono preservate e riportate, mentre il workflow blocca se introduce un nuovo canale non approvato. L'idempotenza opera per target: canale presente = zero mutation; canale mancante = una sola `publishablePublish`; tre presenti = `ALREADY_PUBLISHED`. Il replay ACTIVE continua a richiedere prova ledger durevole.
+
+Manifest v1 e relativi approval digest sono superseded. Il builder offline v2 è testato per escludere `OG_111899` e produrre 36 batch per le 886 famiglie rimanenti, ma la sessione non possiede i 36 file sorgente privati v1: nessun manifest cliente reale è stato generato o caricato. Prossimo gate sicuro in ambiente Lovable: montare le sorgenti private, eseguire il builder, verificare 886/36 e gli SHA, quindi sottoporre separatamente deploy e finestra live. Nessun deploy o write live fa parte di questa modifica.

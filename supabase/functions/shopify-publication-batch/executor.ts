@@ -1,4 +1,5 @@
 import type {
+  ApprovedPublicationTarget,
   PublicationEvidence,
   PublicationEvidenceLedger,
   PublicationItem,
@@ -9,6 +10,7 @@ import type {
   PublicationResult,
   PublicationResultStatus,
   PublicationShopifyClient,
+  ResolvedPublicationTarget,
 } from "./types.ts";
 
 export class PublicationError extends Error {
@@ -101,13 +103,99 @@ function unrelatedState(product: PublicationLiveProduct) {
   };
 }
 
-function planned(product: PublicationLiveProduct, targetPublicationId: string) {
+function publicationOperation(
+  publication: ResolvedPublicationTarget,
+): PublicationResult["plannedOperations"][number] {
+  if (publication.name === "Online Store") return "PUBLISH_ONLINE_STORE";
+  if (publication.name === "Ecom Blueprint Gen 6ud1s Headless") {
+    return "PUBLISH_HEADLESS";
+  }
+  return "PUBLISH_LOVABLE";
+}
+
+function planned(
+  product: PublicationLiveProduct,
+  approvedPublications: ResolvedPublicationTarget[],
+) {
   const operations: PublicationResult["plannedOperations"] = [];
   if (product.status !== "ACTIVE") operations.push("SET_ACTIVE");
-  if (!product.publicationIds.includes(targetPublicationId)) {
-    operations.push("PUBLISH_ONLINE_STORE");
+  for (const publication of approvedPublications) {
+    if (!product.publicationIds.includes(publication.id)) {
+      operations.push(publicationOperation(publication));
+    }
   }
   return operations;
+}
+
+function sortedUnique(values: string[]) {
+  return [...new Set(values)].sort();
+}
+
+function sameIds(left: string[], right: string[]) {
+  return canonical(sortedUnique(left)) === canonical(sortedUnique(right));
+}
+
+function extraPublicationIds(
+  product: PublicationLiveProduct,
+  approvedPublications: ResolvedPublicationTarget[],
+) {
+  const approved = new Set(approvedPublications.map(({ id }) => id));
+  return sortedUnique(product.publicationIds.filter((id) => !approved.has(id)));
+}
+
+function approvedScheduledTransitionAllowed(
+  before: PublicationLiveProduct,
+  after: PublicationLiveProduct,
+  approvedPublications: ResolvedPublicationTarget[],
+) {
+  const approved = new Set(approvedPublications.map(({ id }) => id));
+  const beforeUnrelated = before.scheduledPublicationIds.filter((id) =>
+    !approved.has(id)
+  );
+  const afterUnrelated = after.scheduledPublicationIds.filter((id) =>
+    !approved.has(id)
+  );
+  if (!sameIds(beforeUnrelated, afterUnrelated)) return false;
+
+  const expectedApprovedAfter = before.scheduledPublicationIds.filter((id) =>
+    approved.has(id) && !after.publicationIds.includes(id)
+  );
+  const actualApprovedAfter = after.scheduledPublicationIds.filter((id) =>
+    approved.has(id)
+  );
+  return sameIds(expectedApprovedAfter, actualApprovedAfter);
+}
+
+async function resolveApprovedPublications(
+  client: PublicationShopifyClient,
+  approvedPublications: ApprovedPublicationTarget[],
+): Promise<ResolvedPublicationTarget[]> {
+  const available = await client.listPublications();
+  const resolved = approvedPublications.map((approved) => {
+    const matches = available.filter((publication) =>
+      approved.id
+        ? publication.id === approved.id && publication.name === approved.name
+        : publication.name === approved.name
+    );
+    if (matches.length !== 1) {
+      throw new PublicationError(
+        "APPROVED_PUBLICATION_SET_MISMATCH",
+        `Publication approvata non verificata: ${approved.name}`,
+        true,
+      );
+    }
+    return { id: matches[0].id, name: approved.name };
+  });
+  if (
+    new Set(resolved.map(({ id }) => id)).size !== approvedPublications.length
+  ) {
+    throw new PublicationError(
+      "APPROVED_PUBLICATION_SET_MISMATCH",
+      "Il publication set approvato non è univoco",
+      true,
+    );
+  }
+  return resolved;
 }
 
 function safeError(error: unknown) {
@@ -187,27 +275,28 @@ async function executeItem(
   ledger: PublicationEvidenceLedger,
   manifest: PublicationManifest,
   item: PublicationItem,
-  targetPublicationId: string,
+  approvedPublications: ResolvedPublicationTarget[],
   mode: PublicationMode,
 ): Promise<PublicationResult> {
   const product = await client.readProduct(item.shopifyProductId);
+  const preExistingExtraPublicationIds = product
+    ? extraPublicationIds(product, approvedPublications)
+    : [];
   const base = {
     parentSku: item.parentSku,
     shopifyProductId: item.shopifyProductId,
     plannedOperations: [] as PublicationResult["plannedOperations"],
     appliedOperations: [] as PublicationResult["appliedOperations"],
+    preExistingExtraPublicationIds,
+    ...(preExistingExtraPublicationIds.length > 0
+      ? { warningCode: "PRE_EXISTING_EXTRA_PUBLICATION" as const }
+      : {}),
   };
   if (!product) {
     return { ...base, status: "BLOCKED", code: "PRODUCT_NOT_FOUND" };
   }
   const issue = invariantIssue(product, item);
   if (issue) return { ...base, status: "BLOCKED", code: issue };
-  const unexpectedPublications = product.publicationIds.filter((id) =>
-    id !== targetPublicationId
-  );
-  if (unexpectedPublications.length || product.scheduledPublicationIds.length) {
-    return { ...base, status: "BLOCKED", code: "UNEXPECTED_PUBLICATION" };
-  }
   if (!["DRAFT", "ACTIVE"].includes(product.status)) {
     return { ...base, status: "BLOCKED", code: "PRODUCT_STATUS_BLOCKED" };
   }
@@ -228,7 +317,7 @@ async function executeItem(
   if (product.status === "DRAFT" && storedEvidence) {
     return { ...base, status: "BLOCKED", code: "STATE_DRIFT" };
   }
-  const operations = planned(product, targetPublicationId);
+  const operations = planned(product, approvedPublications);
   if (operations.length === 0) {
     if (mode === "EXECUTE" && storedEvidence?.status === "APPLIED") {
       await ledger.markVerified(expectedEvidence);
@@ -257,9 +346,11 @@ async function executeItem(
     await ledger.markApplied(expectedEvidence);
     applied.push("SET_ACTIVE");
   }
-  if (operations.includes("PUBLISH_ONLINE_STORE")) {
-    await client.publishProduct(item.shopifyProductId, targetPublicationId);
-    applied.push("PUBLISH_ONLINE_STORE");
+  for (const publication of approvedPublications) {
+    const operation = publicationOperation(publication);
+    if (!operations.includes(operation)) continue;
+    await client.publishProduct(item.shopifyProductId, publication.id);
+    applied.push(operation);
   }
   const after = await client.readProduct(item.shopifyProductId);
   if (!after || after.id !== product.id || invariantIssue(after, item)) {
@@ -276,13 +367,29 @@ async function executeItem(
     );
   }
   if (
+    !approvedScheduledTransitionAllowed(
+      product,
+      after,
+      approvedPublications,
+    )
+  ) {
+    throw new PublicationError(
+      "FIELD_ISOLATION_POSTCONDITION_FAILED",
+      "Publication schedulata estranea variata",
+      true,
+    );
+  }
+  if (
     after.status !== "ACTIVE" ||
-    !after.publicationIds.includes(targetPublicationId) ||
-    after.publicationIds.some((id) => id !== targetPublicationId)
+    approvedPublications.some(({ id }) => !after.publicationIds.includes(id)) ||
+    !sameIds(
+      extraPublicationIds(after, approvedPublications),
+      preExistingExtraPublicationIds,
+    )
   ) {
     throw new PublicationError(
       "PUBLICATION_POSTCONDITION_FAILED",
-      "Prodotto non visibile solo su Online Store",
+      "Publication set approvato non verificato",
     );
   }
   await ledger.markVerified(expectedEvidence);
@@ -300,19 +407,10 @@ export async function executePublicationBatch(
   manifest: PublicationManifest,
   mode: PublicationMode,
 ): Promise<PublicationReport> {
-  const publication = await client.readPublication(
-    manifest.targetPublication.id,
+  const resolvedPublications = await resolveApprovedPublications(
+    client,
+    manifest.approvedPublications,
   );
-  if (
-    !publication || publication.id !== manifest.targetPublication.id ||
-    publication.name !== "Online Store"
-  ) {
-    throw new PublicationError(
-      "ONLINE_STORE_PUBLICATION_MISMATCH",
-      "Canale Online Store non verificato",
-      true,
-    );
-  }
   const results: PublicationResult[] = [];
   let stopped = false;
   let stopCode: string | undefined;
@@ -324,6 +422,7 @@ export async function executePublicationBatch(
         status: "SKIPPED",
         plannedOperations: [],
         appliedOperations: [],
+        preExistingExtraPublicationIds: [],
         code: "BATCH_STOPPED",
       });
       continue;
@@ -335,7 +434,7 @@ export async function executePublicationBatch(
           ledger,
           manifest,
           item,
-          publication.id,
+          resolvedPublications,
           mode,
         ),
       );
@@ -347,6 +446,7 @@ export async function executePublicationBatch(
         status: "FAILED",
         plannedOperations: [],
         appliedOperations: [],
+        preExistingExtraPublicationIds: [],
         code: safe.code,
         message: safe.message,
       });
@@ -373,7 +473,8 @@ export async function executePublicationBatch(
     ok: !stopped && summary.BLOCKED === 0 && summary.FAILED === 0,
     mode,
     batchId: manifest.batchId,
-    targetPublication: manifest.targetPublication,
+    approvedPublications: manifest.approvedPublications,
+    resolvedPublications,
     stopped,
     ...(stopCode ? { stopCode } : {}),
     summary,

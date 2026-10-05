@@ -1,7 +1,7 @@
 # 3B.4 — Controlled Shopify publication
 
 Data: 4 ottobre 2026
-Stato: **CODE READY PER REVIEW · PUBBLICAZIONE PENDING · NESSUNA WRITE LIVE**
+Stato: **MULTI-CHANNEL CODE READY PER REVIEW · MANIFEST PRIVATI DA RIGENERARE · NESSUNA WRITE LIVE**
 
 ## Stato ricomputato dalle evidenze disponibili
 
@@ -19,7 +19,15 @@ Le 14 sono incluse nelle 903. Dopo remediation la platea massima teorica della c
 
 ## Modello di visibilità Shopify
 
-La visibilità richiede entrambe le condizioni: `Product.status=ACTIVE` e pubblicazione sulla publication identificata esattamente come `Online Store`. L'executor verifica ID/nome fissati nel manifest, invia `publishablePublish` solo a quell'ID e blocca publication inattese. Non pubblica su Headless/Hydrogen.
+Il canary `OG_111899` ha dimostrato che la vetrina richiede `Product.status=ACTIVE` e la presenza simultanea sulle tre publication approvate:
+
+| Target approvato | Identità vincolata |
+|---|---|
+| Online Store | nome esatto; ID risolto in modo univoco server-side |
+| Ecom Blueprint Gen 6ud1s Headless | `gid://shopify/Publication/338862113108` + nome esatto |
+| Lovable | `gid://shopify/Publication/328891826516` + nome esatto |
+
+`Point of Sale`, `Shop` e ogni altro canale non sono target del workflow. L'executor pubblica solo sui target approvati mancanti. Una publication storica estranea già presente viene conservata e segnalata come `PRE_EXISTING_EXTRA_PUBLICATION`: non viene aggiunta, rimossa o usata come causa di cleanup distruttivo. La postcondizione blocca invece qualsiasi publication estranea nuova comparsa durante l'esecuzione.
 
 ## Criteri esatti di eleggibilità
 
@@ -37,14 +45,18 @@ La visibilità richiede entrambe le condizioni: `Product.status=ACTIVE` e pubbli
 ## Architettura
 
 - Edge Function separata `shopify-publication-batch`;
-- indice privato `publication/index.json` (`3B.4-publication-index-v1`);
-- batch `publication/batches/<batchId>.json` (`3B.4-v1`), massimo 25 famiglie;
+- indice privato `publication/index.json` (`3B.4-publication-index-v2`);
+- batch `publication/batches/<batchId>.json` (`3B.4-v2`), massimo 25 famiglie;
 - bucket privato `shopify-create-manifests`, service-role, SHA e approval digest;
 - solo admin/tech_admin; DRY_RUN predefinito;
 - EXECUTE: `SHOPIFY_PUBLICATION_EXECUTE`, digest e gate `SHOPIFY_PUBLICATION_EXECUTE_ENABLED=true`;
 - runner `scripts/run-shopify-publication.mjs`, resume e stop globale;
-- mutation minime: `productUpdate(status: ACTIVE)` e `publishablePublish` solo se necessarie;
+- mutation minime: `productUpdate(status: ACTIVE)` e `publishablePublish` una volta per ciascun target approvato mancante;
 - già completo → `ALREADY_PUBLISHED`, zero mutation.
+
+Il manifest v2 incorpora `approvedPublications` con il set esatto sopra indicato, oltre a identità prodotto, `schemaVersion`, `batchId` e stato atteso completo. Il parser rifiuta target aggiuntivi, ID rinominati o set riordinati/manomessi; la request HTTP continua ad accettare solo `batchId`, modalità, conferma e `approvalDigest`, quindi il client non può fornire publication ID arbitrari. Ogni variazione del set modifica i byte del manifest, lo SHA-256 e di conseguenza l'`approvalDigest`.
+
+Gli indici e manifest v1 single-channel sono **superseded**. Loader e runner accettano esclusivamente v2: un digest ricavato dai vecchi file non può aprire una finestra EXECUTE sul nuovo codice.
 
 ### Prova durevole per replay ACTIVE
 
@@ -90,7 +102,7 @@ query PublicationPreflight($id: ID!, $locationId: ID!) {
 }
 ```
 
-La publication target va letta con `publications(first: 100) { nodes { id name } }` e deve essere univoca. Il report ha una riga per parent SKU: `classification`, `parentSku`, `shopifyProductId`, `variantCount`, `descriptionState`, `mediaState`, `inventoryState`, `publicationState`, `reason`. Classi: `CREATED_DRAFT`, `EXISTING_SAFE`, `BLOCKED_DESCRIPTION`, `STRUCTURAL_EXCLUDED`, `READY_TO_PUBLISH`, `PUBLISHED`, `FAILED`. I totali derivano dalle righe.
+Le publication vanno lette con `publications(first: 100) { nodes { id name } }`: Online Store deve essere univoca per nome, Headless e Lovable devono corrispondere simultaneamente per ID e nome. Il report ha una riga per parent SKU: `classification`, `parentSku`, `shopifyProductId`, `variantCount`, `descriptionState`, `mediaState`, `inventoryState`, `publicationState`, `reason`. Classi: `CREATED_DRAFT`, `EXISTING_SAFE`, `BLOCKED_DESCRIPTION`, `STRUCTURAL_EXCLUDED`, `READY_TO_PUBLISH`, `PUBLISHED`, `FAILED`; eventuali canali storici sono annotati separatamente come `PRE_EXISTING_EXTRA_PUBLICATION`. I totali derivano dalle righe.
 
 ## Canary e scale-out
 
@@ -109,7 +121,7 @@ node scripts/run-shopify-publication.mjs \
   --execute-window
 ```
 
-Drift, identity conflict, media/stock mismatch, varianti/publication inattese, blocked/failed o errore sistemico fermano globalmente. Il resume parte da un batch approvato; il replay non duplica mutation.
+Drift, identity conflict, media/stock mismatch, nuova publication estranea, blocked/failed o errore sistemico fermano globalmente. Il resume parte da un batch approvato; il replay non duplica mutation e pubblica soltanto i target approvati ancora mancanti.
 
 Anche `Shopify rate limit persistente` è classificato come errore sistemico dopo l'esaurimento dei retry 429: arresta immediatamente il batch e marca gli item successivi `BATCH_STOPPED`, senza ulteriori write Shopify.
 
@@ -138,3 +150,26 @@ Blocco sistemico rilevato prima di qualsiasi DRY_RUN/EXECUTE: i 36 manifest prep
 - Gate `SHOPIFY_PUBLICATION_EXECUTE_ENABLED`: OFF (mai aperto in questa fase).
 
 MASS SAFE PUBLICATION — STOPPED: executor e manifest supportano solo Online Store
+
+## Multi-channel publication fix — 5 ottobre 2026
+
+Il contratto applicativo è stato portato a v2 con i tre target approvati. I test coprono DRAFT, target parzialmente presenti, replay ACTIVE con prova ledger, canary già completo, publication storiche, rifiuto di un quarto canale, manomissione manifest, verifica dei tre target, isolamento dei campi e stop sistemico. `OG_111899`, già ACTIVE e presente sui tre canali, risulta `ALREADY_PUBLISHED` in DRY_RUN con zero mutation nella regressione locale.
+
+Il builder offline `scripts/build-shopify-publication-manifests.mjs`:
+
+1. legge soltanto `publication/index.json` v1 e i relativi batch privati;
+2. verifica lo SHA-256 di ogni sorgente prima del parsing;
+3. esclude `OG_111899` e rifiuta famiglie bloccate, strutturali, TEST o duplicate;
+4. richiede esattamente 886 famiglie;
+5. genera deterministicamente 36 batch v2 (`002–037`, massimo 25; ultimo lotto 11), nuovi SHA e nuovi input `approvalDigest`.
+
+Esecuzione locale prevista, senza upload:
+
+```bash
+node scripts/build-shopify-publication-manifests.mjs \
+  --source-root /private/source-v1 \
+  --output-root /private/generated-v2 \
+  --expected-items 886
+```
+
+La sessione Codex non dispone della copia privata dei manifest v1 né di credenziali Storage service-role. La rigenerazione sui dati reali non è quindi stata eseguita: 0 file cliente sono stati inventati, caricati o versionati. Il conteggio 36/886 è verificato deterministicamente dal test del builder, ma i nuovi manifest privati reali devono essere prodotti in ambiente Lovable con le sorgenti approvate prima di deploy, DRY_RUN o EXECUTE.

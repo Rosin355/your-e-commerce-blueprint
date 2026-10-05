@@ -1,4 +1,7 @@
 import {
+  APPROVED_PUBLICATIONS,
+  type ApprovedPublicationTarget,
+  PUBLICATION_MANIFEST_SCHEMA,
   PUBLICATION_MAX_ITEMS,
   type PublicationItem,
   type PublicationManifest,
@@ -159,18 +162,57 @@ function parseItem(value: unknown, index: number): PublicationItem {
 
 export function parsePublicationManifest(value: unknown): PublicationManifest {
   const input = record(value, "manifest");
-  if (input.schemaVersion !== "3B.4-v1" || input.sourceManifest !== "3B.2-v1") {
+  const manifestKeys = Object.keys(input).sort();
+  if (
+    JSON.stringify(manifestKeys) !==
+      JSON.stringify([
+        "approvedPublications",
+        "batchId",
+        "items",
+        "schemaVersion",
+        "sourceManifest",
+      ])
+  ) {
+    throw new Error("MANIFEST_INVALID: fields");
+  }
+  if (
+    input.schemaVersion !== PUBLICATION_MANIFEST_SCHEMA ||
+    input.sourceManifest !== "3B.2-v1"
+  ) {
     throw new Error("MANIFEST_INVALID: schemaVersion/sourceManifest");
   }
   const batchId = text(input.batchId, "batchId", BATCH_ID);
-  const target = record(input.targetPublication, "targetPublication");
-  if (target.name !== "Online Store") {
+  if (
+    !Array.isArray(input.approvedPublications) ||
+    input.approvedPublications.length !== APPROVED_PUBLICATIONS.length
+  ) {
     throw new Error("PUBLICATION_TARGET_BLOCKED");
   }
-  const targetPublication = {
-    id: text(target.id, "targetPublication.id", PUBLICATION_GID),
-    name: "Online Store" as const,
-  };
+  const approvedPublications = input.approvedPublications.map(
+    (value, index): ApprovedPublicationTarget => {
+      const target = record(value, `approvedPublications[${index}]`);
+      const approved = APPROVED_PUBLICATIONS[index];
+      const keys = Object.keys(target).sort();
+      const expectedKeys = ("id" in approved ? ["id", "name"] : ["name"])
+        .sort();
+      if (
+        JSON.stringify(keys) !== JSON.stringify(expectedKeys) ||
+        target.name !== approved.name ||
+        ("id" in approved &&
+          text(
+              target.id,
+              `approvedPublications[${index}].id`,
+              PUBLICATION_GID,
+            ) !==
+            approved.id)
+      ) {
+        throw new Error("PUBLICATION_TARGET_BLOCKED");
+      }
+      return "id" in approved
+        ? { id: approved.id, name: approved.name }
+        : { name: approved.name };
+    },
+  );
   if (
     !Array.isArray(input.items) || input.items.length === 0 ||
     input.items.length > PUBLICATION_MAX_ITEMS
@@ -185,10 +227,10 @@ export function parsePublicationManifest(value: unknown): PublicationManifest {
     throw new Error("MANIFEST_DUPLICATE_IDENTITY");
   }
   return {
-    schemaVersion: "3B.4-v1",
+    schemaVersion: PUBLICATION_MANIFEST_SCHEMA,
     sourceManifest: "3B.2-v1",
     batchId,
-    targetPublication,
+    approvedPublications,
     items,
   };
 }

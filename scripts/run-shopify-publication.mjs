@@ -7,8 +7,8 @@ import {
 } from "./lib/run-approved-shopify-batches.mjs";
 
 const CONFIG = {
-  indexSchema: "3B.4-publication-index-v1",
-  manifestSchema: "3B.4-v1",
+  indexSchema: "3B.4-publication-index-v2",
+  manifestSchema: "3B.4-v2",
   objectPrefix: "publication/batches",
   maxItems: 25,
   allowed: {
