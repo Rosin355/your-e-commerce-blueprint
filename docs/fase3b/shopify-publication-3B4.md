@@ -114,3 +114,18 @@ Drift, identity conflict, media/stock mismatch, varianti/publication inattese, b
 Anche `Shopify rate limit persistente` è classificato come errore sistemico dopo l'esaurimento dei retry 429: arresta immediatamente il batch e marca gli item successivi `BATCH_STOPPED`, senza ulteriori write Shopify.
 
 Rollback: gate OFF e stop runner. Nessun unpublish automatico. Le esclusioni strutturali restano backlog post-launch. Questa revisione non distribuisce funzioni, non carica manifest, non modifica secret, non chiama Shopify e non pubblica prodotti.
+
+## Esecuzione FAST TRACK — 5 ottobre 2026
+
+FAST-TRACK LAUNCH BASELINE: lo stato Shopify verificato oggi è accettato come riferimento per le famiglie SAFE già riconciliate.
+
+- Coorte 3B.2: 903 famiglie (mappatura ledger 1:1, 0 duplicati)
+- Preflight Admin in sola lettura: **READY_TO_PUBLISH = 887**, BLOCKED_DRIFT = 0
+- Escluse: 14 BLOCKED_DESCRIPTION; 2 per media ledger (OG_779932 = riga ATTACH_MEDIA effettivamente RESERVED; OG_461758 escluso per prudenza, il suo ledger risulta APPLIED)
+- Manifest privati: `publication/index.json` + 37 lotti (001 = canary, 002–037 = 886 famiglie, max 25)
+- Canary OG_111899: DRY_RUN → EXECUTE una volta (SET_ACTIVE + Online Store) → VERIFY `ALREADY_PUBLISHED`. Admin: ACTIVE, pubblicato solo su Online Store, nessun canale extra.
+- **Controllo vetrina non superato**: la Storefront API usata dal sito restituisce `product: null` (il token del sito è legato a un altro canale) e la vetrina Shopify risponde 401 (negozio protetto da password). Visibilità, prezzo e acquistabilità lato cliente non verificabili → STOP come da procedura.
+- Gate `SHOPIFY_PUBLICATION_EXECUTE_ENABLED` rimosso e verificato assente.
+- Pubblicati: 1 (canary). Già pubblicati: 0. Falliti: 0. Restano DRAFT: 902. Canali non previsti: 0.
+
+FAST TRACK SAFE PUBLICATION — STOPPED: verifica vetrina canary non eseguibile (canale del sito diverso da Online Store; negozio con password).
