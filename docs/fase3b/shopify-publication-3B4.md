@@ -129,3 +129,12 @@ FAST-TRACK LAUNCH BASELINE: lo stato Shopify verificato oggi è accettato come r
 - Pubblicati: 1 (canary). Già pubblicati: 0. Falliti: 0. Restano DRAFT: 902. Canali non previsti: 0.
 
 FAST TRACK SAFE PUBLICATION — STOPPED: verifica vetrina canary non eseguibile (canale del sito diverso da Online Store; negozio con password).
+
+## MASS PUBLICATION FINAL — 5 ottobre 2026
+
+Blocco sistemico rilevato prima di qualsiasi DRY_RUN/EXECUTE: i 36 manifest preparati (002–037) e `shopify-publication-batch` fissano un solo `targetPublication` = Online Store (`types.ts`, `manifest.ts`, `executor.ts`), e la verifica post-publish fallisce se il prodotto è su canali diversi da Online Store. Il publication set approvato (Online Store + Headless 338862113108 + Lovable 328891826516) non è eseguibile senza modificare codice, ridistribuire la funzione e rigenerare i manifest (nuovi SHA/approvalDigest): operazione fuori dall'ambito autorizzato.
+
+- Pubblicati in questa fase: 0. Già pubblicati: 1 (canary). Restano DRAFT: 902. Falliti: 0. Duplicati: 0. Canali non previsti: 0.
+- Gate `SHOPIFY_PUBLICATION_EXECUTE_ENABLED`: OFF (mai aperto in questa fase).
+
+MASS SAFE PUBLICATION — STOPPED: executor e manifest supportano solo Online Store

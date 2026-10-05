@@ -157,3 +157,6 @@ Stato: **FINAL PRODUCT WORKFLOW CODE READY / PUBLICATION PENDING / POST-LAUNCH R
 - Backlog strutturale/restructure
 - Catalogo non 3B.2
 - Decisione canale: pubblicare anche sul canale del sito (Lovable/Headless) e/o rimuovere la password del negozio, poi ripetere il controllo vetrina del canary
+
+## Prossimo passo 3B.4 (5 ottobre 2026)
+Estendere `shopify-publication-batch` a un publication set fisso (Online Store + Headless + Lovable), rigenerare i manifest 002–037 con nuovi SHA, ridistribuire solo quella funzione, poi DRY_RUN/EXECUTE/VERIFY per lotto. Richiede autorizzazione esplicita.
