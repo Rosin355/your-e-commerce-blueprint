@@ -173,3 +173,15 @@ node scripts/build-shopify-publication-manifests.mjs \
 ```
 
 La sessione Codex non dispone della copia privata dei manifest v1 né di credenziali Storage service-role. La rigenerazione sui dati reali non è quindi stata eseguita: 0 file cliente sono stati inventati, caricati o versionati. Il conteggio 36/886 è verificato deterministicamente dal test del builder, ma i nuovi manifest privati reali devono essere prodotti in ambiente Lovable con le sorgenti approvate prima di deploy, DRY_RUN o EXECUTE.
+
+## GO LIVE FAST TRACK v2 — 5 ottobre 2026 (SAFE PAUSE)
+
+- `shopify-publication-batch` distribuita da main `dbbeb4f` (PR #31). Builder: accettati i parentSku con suffisso numerico (`OG_475352-1…`, `OG_924853-n`), già SAFE in 3B.2.
+- 36 batch v2 (002–037, 886 famiglie) rigenerati dalle copie locali v1 verificate via SHA; nuovi SHA/approvalDigest e `publication/index.json` v2 caricati nel bucket privato.
+- DRY_RUN su tutti i 36: READY_TO_PUBLISH=886, BLOCKED=0.
+- EXECUTE+VERIFY 002–027: 650 famiglie `ALREADY_PUBLISHED` su Online Store + Headless + Lovable. Lotto 011: un replay ha mostrato 6 BLOCKED transitori (esecuzione precedente ancora in corso), verifica finale 25/25. Lotto 027: verificato in sola lettura dopo lo stop (25/25).
+- Stop richiesto dall'owner: gate `SHOPIFY_PUBLICATION_EXECUTE_ENABLED` rimosso, read-back assente. Lotto 028 in DRY_RUN: 25 READY, nessuna scrittura parziale.
+- Totali: pubblicati 651 (650 + canary), FAILED 0, BLOCKED/SKIPPED finali 0, ancora DRAFT 252 (236 della coorte + 16 esclusi).
+- Ripresa: `--start-batch shopify-publication-3b4-028` (replay idempotente via ledger, solo target mancanti).
+
+SAFE PAUSE — RESUME FROM BATCH 028
