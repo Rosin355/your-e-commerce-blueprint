@@ -1,6 +1,33 @@
 export const PUBLICATION_API_VERSION = "2026-01";
 export const PUBLICATION_MAX_ITEMS = 25;
 export const PUBLICATION_STOCK_TARGET = 20;
+export const PUBLICATION_MANIFEST_SCHEMA = "3B.4-v2" as const;
+export const PUBLICATION_INDEX_SCHEMA = "3B.4-publication-index-v2" as const;
+
+export const APPROVED_PUBLICATIONS = [
+  { name: "Online Store" },
+  {
+    id: "gid://shopify/Publication/338862113108",
+    name: "Ecom Blueprint Gen 6ud1s Headless",
+  },
+  {
+    id: "gid://shopify/Publication/328891826516",
+    name: "Lovable",
+  },
+] as const;
+
+export type ApprovedPublicationName =
+  (typeof APPROVED_PUBLICATIONS)[number]["name"];
+
+export interface ApprovedPublicationTarget {
+  id?: string;
+  name: ApprovedPublicationName;
+}
+
+export interface ResolvedPublicationTarget {
+  id: string;
+  name: ApprovedPublicationName;
+}
 
 export type PublicationMode = "DRY_RUN" | "EXECUTE";
 export type PublicationResultStatus =
@@ -53,10 +80,10 @@ export interface PublicationItem {
 }
 
 export interface PublicationManifest {
-  schemaVersion: "3B.4-v1";
+  schemaVersion: typeof PUBLICATION_MANIFEST_SCHEMA;
   sourceManifest: "3B.2-v1";
   batchId: string;
-  targetPublication: { id: string; name: "Online Store" };
+  approvedPublications: ApprovedPublicationTarget[];
   items: PublicationItem[];
 }
 
@@ -90,9 +117,7 @@ export interface PublicationLiveProduct {
 }
 
 export interface PublicationShopifyClient {
-  readPublication(
-    publicationId: string,
-  ): Promise<{ id: string; name: string } | null>;
+  listPublications(): Promise<Array<{ id: string; name: string }>>;
   readProduct(productId: string): Promise<PublicationLiveProduct | null>;
   activateProduct(productId: string): Promise<void>;
   publishProduct(productId: string, publicationId: string): Promise<void>;
@@ -130,17 +155,26 @@ export interface PublicationResult {
   parentSku: string;
   shopifyProductId: string;
   status: PublicationResultStatus;
-  plannedOperations: Array<"SET_ACTIVE" | "PUBLISH_ONLINE_STORE">;
-  appliedOperations: Array<"SET_ACTIVE" | "PUBLISH_ONLINE_STORE">;
+  plannedOperations: PublicationOperation[];
+  appliedOperations: PublicationOperation[];
+  preExistingExtraPublicationIds: string[];
+  warningCode?: "PRE_EXISTING_EXTRA_PUBLICATION";
   code?: string;
   message?: string;
 }
+
+export type PublicationOperation =
+  | "SET_ACTIVE"
+  | "PUBLISH_ONLINE_STORE"
+  | "PUBLISH_HEADLESS"
+  | "PUBLISH_LOVABLE";
 
 export interface PublicationReport {
   ok: boolean;
   mode: PublicationMode;
   batchId: string;
-  targetPublication: { id: string; name: "Online Store" };
+  approvedPublications: ApprovedPublicationTarget[];
+  resolvedPublications: ResolvedPublicationTarget[];
   stopped: boolean;
   stopCode?: string;
   summary: Record<PublicationResultStatus, number>;

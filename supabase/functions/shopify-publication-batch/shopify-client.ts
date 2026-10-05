@@ -6,9 +6,9 @@ import {
   type PublicationShopifyClient,
 } from "./types.ts";
 
-const READ_PUBLICATION = `
-query PublicationIdentity($id: ID!) {
-  publication(id: $id) { id name }
+const READ_PUBLICATIONS = `
+query ApprovedPublicationIdentities {
+  publications(first: 100) { nodes { id name } }
 }`;
 
 const READ_PRODUCT = `
@@ -44,8 +44,8 @@ mutation PublicationSetActive($product: ProductUpdateInput!) {
   }
 }`;
 
-const PUBLISH_ONLINE_STORE = `
-mutation PublicationOnlineStore(
+const PUBLISH_APPROVED_TARGET = `
+mutation PublicationApprovedTarget(
   $id: ID!,
   $input: [PublicationInput!]!,
   $publicationId: ID!
@@ -117,9 +117,12 @@ function productState(value: any): PublicationLiveProduct {
 export class AdminGraphqlPublicationClient implements PublicationShopifyClient {
   constructor(private locationId = "gid://shopify/Location/117678014804") {}
 
-  async readPublication(publicationId: string) {
-    const data = await graphql<any>(READ_PUBLICATION, { id: publicationId });
-    return data.publication ?? null;
+  async listPublications() {
+    const data = await graphql<any>(READ_PUBLICATIONS, {});
+    return (data.publications?.nodes ?? []).map((publication: any) => ({
+      id: publication.id,
+      name: publication.name,
+    }));
   }
 
   async readProduct(productId: string) {
@@ -144,7 +147,7 @@ export class AdminGraphqlPublicationClient implements PublicationShopifyClient {
   }
 
   async publishProduct(productId: string, publicationId: string) {
-    const data = await graphql<any>(PUBLISH_ONLINE_STORE, {
+    const data = await graphql<any>(PUBLISH_APPROVED_TARGET, {
       id: productId,
       input: [{ publicationId }],
       publicationId,

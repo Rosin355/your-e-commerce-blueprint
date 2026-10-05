@@ -3,6 +3,7 @@ import { assertEquals, assertRejects, assertThrows } from "jsr:@std/assert";
 import {
   assertApprovedDigest,
   loadApprovedManifest,
+  manifestApprovalDigest,
   sha256Hex,
 } from "../../supabase/functions/_shared/shopify-approved-manifest.ts";
 import { normalizeApprovedOriginalDescription } from "../../supabase/functions/shopify-description-remediation/description.ts";
@@ -21,6 +22,7 @@ import {
   PublicationError,
 } from "../../supabase/functions/shopify-publication-batch/executor.ts";
 import { parsePublicationManifest } from "../../supabase/functions/shopify-publication-batch/manifest.ts";
+import { parsePublicationRequest } from "../../supabase/functions/shopify-publication-batch/request.ts";
 import type {
   PublicationEvidence,
   PublicationEvidenceLedger,
@@ -266,16 +268,27 @@ function publicationExpected() {
   };
 }
 
+const ONLINE_STORE_ID = "gid://shopify/Publication/900";
+const HEADLESS_ID = "gid://shopify/Publication/338862113108";
+const LOVABLE_ID = "gid://shopify/Publication/328891826516";
+const POS_ID = "gid://shopify/Publication/901";
+const SHOP_ID = "gid://shopify/Publication/902";
+const APPROVED_PUBLICATION_IDS = [ONLINE_STORE_ID, HEADLESS_ID, LOVABLE_ID];
+
 function publicationManifest(itemOverride: Record<string, unknown> = {}) {
   const expected = publicationExpected();
   return parsePublicationManifest({
-    schemaVersion: "3B.4-v1",
+    schemaVersion: "3B.4-v2",
     sourceManifest: "3B.2-v1",
     batchId: "shopify-publication-3b4-001",
-    targetPublication: {
-      id: "gid://shopify/Publication/900",
-      name: "Online Store",
-    },
+    approvedPublications: [
+      { name: "Online Store" },
+      {
+        id: HEADLESS_ID,
+        name: "Ecom Blueprint Gen 6ud1s Headless",
+      },
+      { id: LOVABLE_ID, name: "Lovable" },
+    ],
     items: [{
       parentSku: "OG_111899",
       shopifyProductId: expected.id,
@@ -310,13 +323,22 @@ class FakePublicationClient implements PublicationShopifyClient {
   products = new Map<string, PublicationLiveProduct>();
   writes: string[] = [];
   persistentThrottleProductId: string | null = null;
+  mutateUnrelatedOnPublish = false;
+  mutateInventoryOnPublish = false;
+  addUnexpectedPublicationOnPublish = false;
 
   constructor(product = publicationLive()) {
     this.products.set(product.id, structuredClone(product));
   }
 
-  async readPublication(id: string) {
-    return { id, name: "Online Store" };
+  async listPublications() {
+    return [
+      { id: ONLINE_STORE_ID, name: "Online Store" },
+      { id: HEADLESS_ID, name: "Ecom Blueprint Gen 6ud1s Headless" },
+      { id: LOVABLE_ID, name: "Lovable" },
+      { id: POS_ID, name: "Point of Sale" },
+      { id: SHOP_ID, name: "Shop" },
+    ];
   }
 
   async readProduct(id: string) {
@@ -334,7 +356,18 @@ class FakePublicationClient implements PublicationShopifyClient {
 
   async publishProduct(id: string, publicationId: string) {
     this.writes.push(`PUBLISH:${id}:${publicationId}`);
-    this.products.get(id)!.publicationIds = [publicationId];
+    const product = this.products.get(id)!;
+    if (!product.publicationIds.includes(publicationId)) {
+      product.publicationIds.push(publicationId);
+    }
+    if (this.mutateUnrelatedOnPublish) product.title = "Titolo alterato";
+    if (this.mutateInventoryOnPublish) product.variants[0].available = 19;
+    if (
+      this.addUnexpectedPublicationOnPublish &&
+      !product.publicationIds.includes(POS_ID)
+    ) {
+      product.publicationIds.push(POS_ID);
+    }
   }
 }
 
@@ -387,7 +420,20 @@ function runPublication(
   return executePublicationBatch(client, ledger, manifest, mode);
 }
 
-Deno.test("3B.4 safe DRAFT pubblica con ACTIVE + solo Online Store", async () => {
+async function ledgerWithAppliedProof(
+  manifest = publicationManifest(),
+) {
+  const ledger = new FakePublicationLedger();
+  const proof = await buildPublicationEvidence(manifest, manifest.items[0]);
+  ledger.rows.set(ledger.key(proof.batchId, proof.parentSku), {
+    ...proof,
+    status: "APPLIED",
+    appliedAt: "2026-10-04T12:00:00.000Z",
+  });
+  return ledger;
+}
+
+Deno.test("3B.4 DRAFT pubblica esattamente sui tre target approvati", async () => {
   const client = new FakePublicationClient();
   const ledger = new FakePublicationLedger();
   const report = await runPublication(
@@ -399,8 +445,16 @@ Deno.test("3B.4 safe DRAFT pubblica con ACTIVE + solo Online Store", async () =>
   assertEquals(report.summary.PUBLISHED, 1);
   assertEquals(client.writes, [
     "ACTIVE:gid://shopify/Product/500",
-    "PUBLISH:gid://shopify/Product/500:gid://shopify/Publication/900",
+    `PUBLISH:gid://shopify/Product/500:${ONLINE_STORE_ID}`,
+    `PUBLISH:gid://shopify/Product/500:${HEADLESS_ID}`,
+    `PUBLISH:gid://shopify/Product/500:${LOVABLE_ID}`,
   ]);
+  assertEquals(
+    client.products.get("gid://shopify/Product/500")!.publicationIds.sort(),
+    [...APPROVED_PUBLICATION_IDS].sort(),
+  );
+  assertEquals(client.writes.some((write) => write.includes(POS_ID)), false);
+  assertEquals(client.writes.some((write) => write.includes(SHOP_ID)), false);
   const proof = await ledger.find(
     "shopify-publication-3b4-001",
     "OG_111899",
@@ -414,13 +468,7 @@ Deno.test("3B.4 ACTIVE con prova SET_ACTIVE valida consente il replay", async ()
   const client = new FakePublicationClient(publicationLive({
     status: "ACTIVE",
   }));
-  const ledger = new FakePublicationLedger();
-  const proof = await buildPublicationEvidence(manifest, manifest.items[0]);
-  ledger.rows.set(ledger.key(proof.batchId, proof.parentSku), {
-    ...proof,
-    status: "APPLIED",
-    appliedAt: "2026-10-04T12:00:00.000Z",
-  });
+  const ledger = await ledgerWithAppliedProof(manifest);
   const report = await runPublication(
     client,
     manifest,
@@ -429,8 +477,61 @@ Deno.test("3B.4 ACTIVE con prova SET_ACTIVE valida consente il replay", async ()
   );
   assertEquals(report.summary.PUBLISHED, 1);
   assertEquals(client.writes, [
-    "PUBLISH:gid://shopify/Product/500:gid://shopify/Publication/900",
+    `PUBLISH:gid://shopify/Product/500:${ONLINE_STORE_ID}`,
+    `PUBLISH:gid://shopify/Product/500:${HEADLESS_ID}`,
+    `PUBLISH:gid://shopify/Product/500:${LOVABLE_ID}`,
   ]);
+});
+
+Deno.test("3B.4 un target presente aggiunge soltanto i due mancanti", async () => {
+  const client = new FakePublicationClient(publicationLive({
+    status: "ACTIVE",
+    publicationIds: [ONLINE_STORE_ID],
+  }));
+  const report = await runPublication(
+    client,
+    publicationManifest(),
+    "EXECUTE",
+    await ledgerWithAppliedProof(),
+  );
+  assertEquals(report.summary.PUBLISHED, 1);
+  assertEquals(client.writes, [
+    `PUBLISH:gid://shopify/Product/500:${HEADLESS_ID}`,
+    `PUBLISH:gid://shopify/Product/500:${LOVABLE_ID}`,
+  ]);
+});
+
+Deno.test("3B.4 due target presenti aggiungono soltanto Lovable", async () => {
+  const client = new FakePublicationClient(publicationLive({
+    status: "ACTIVE",
+    publicationIds: [ONLINE_STORE_ID, HEADLESS_ID],
+  }));
+  const report = await runPublication(
+    client,
+    publicationManifest(),
+    "EXECUTE",
+    await ledgerWithAppliedProof(),
+  );
+  assertEquals(report.summary.PUBLISHED, 1);
+  assertEquals(client.writes, [
+    `PUBLISH:gid://shopify/Product/500:${LOVABLE_ID}`,
+  ]);
+});
+
+Deno.test("3B.4 OG_111899 sui tre target è ALREADY_PUBLISHED a zero mutation", async () => {
+  const client = new FakePublicationClient(publicationLive({
+    status: "ACTIVE",
+    publicationIds: [...APPROVED_PUBLICATION_IDS],
+  }));
+  const report = await runPublication(
+    client,
+    publicationManifest(),
+    "DRY_RUN",
+    await ledgerWithAppliedProof(),
+  );
+  assertEquals(report.summary.ALREADY_PUBLISHED, 1);
+  assertEquals(report.results[0].parentSku, "OG_111899");
+  assertEquals(client.writes.length, 0);
 });
 
 Deno.test("3B.4 ACTIVE senza prova SET_ACTIVE è STATE_DRIFT", async () => {
@@ -476,7 +577,7 @@ Deno.test("3B.4 replay completo è idempotente", async () => {
     replayLedger,
   );
   assertEquals(replay.summary.ALREADY_PUBLISHED, 1);
-  assertEquals(replayClient.writes.length, 2);
+  assertEquals(replayClient.writes.length, 4);
 });
 
 Deno.test("3B.4 DRY_RUN esegue zero mutation", async () => {
@@ -514,23 +615,52 @@ Deno.test("3B.4 blocca media mancante, stock errato e variante inattesa", async 
   }
 });
 
-Deno.test("3B.4 blocca publication inattese o schedulate", async () => {
-  for (
-    const product of [
-      publicationLive({ publicationIds: ["gid://shopify/Publication/901"] }),
-      publicationLive({
-        scheduledPublicationIds: ["gid://shopify/Publication/900"],
-      }),
-    ]
-  ) {
-    const client = new FakePublicationClient(product);
+Deno.test("3B.4 publication storiche restano invariate e sono segnalate", async () => {
+  const client = new FakePublicationClient(publicationLive({
+    publicationIds: [POS_ID, SHOP_ID],
+    scheduledPublicationIds: ["gid://shopify/Publication/999"],
+  }));
+  const report = await runPublication(
+    client,
+    publicationManifest(),
+    "EXECUTE",
+  );
+  assertEquals(report.summary.PUBLISHED, 1);
+  assertEquals(report.results[0].warningCode, "PRE_EXISTING_EXTRA_PUBLICATION");
+  assertEquals(report.results[0].preExistingExtraPublicationIds, [
+    POS_ID,
+    SHOP_ID,
+  ]);
+  assertEquals(
+    client.products.get("gid://shopify/Product/500")!.publicationIds.sort(),
+    [...APPROVED_PUBLICATION_IDS, POS_ID, SHOP_ID].sort(),
+  );
+  assertEquals(
+    client.products.get("gid://shopify/Product/500")!.scheduledPublicationIds,
+    ["gid://shopify/Publication/999"],
+  );
+  assertEquals(client.writes.some((write) => write.includes(POS_ID)), false);
+  assertEquals(client.writes.some((write) => write.includes(SHOP_ID)), false);
+});
+
+Deno.test("3B.4 blocca una publication extra aggiunta durante il workflow", async () => {
+  const client = new FakePublicationClient();
+  client.addUnexpectedPublicationOnPublish = true;
+  const report = await runPublication(client, publicationManifest(), "EXECUTE");
+  assertEquals(report.results[0].code, "PUBLICATION_POSTCONDITION_FAILED");
+});
+
+Deno.test("3B.4 rileva mutation estranee al contenuto e inventario", async () => {
+  for (const kind of ["content", "inventory"] as const) {
+    const client = new FakePublicationClient();
+    client.mutateUnrelatedOnPublish = kind === "content";
+    client.mutateInventoryOnPublish = kind === "inventory";
     const report = await runPublication(
       client,
       publicationManifest(),
       "EXECUTE",
     );
-    assertEquals(report.results[0].code, "UNEXPECTED_PUBLICATION");
-    assertEquals(client.writes.length, 0);
+    assertEquals(report.results[0].code, "PUBLICATION_POSTCONDITION_FAILED");
   }
 });
 
@@ -550,6 +680,44 @@ Deno.test("3B.4 manifest blocca structural, TEST e publishBlocked", () => {
     Error,
     "PUBLICATION_READINESS_BLOCKED",
   );
+});
+
+Deno.test("3B.4 manifest rifiuta un quarto target arbitrario", () => {
+  const raw = structuredClone(publicationManifest()) as any;
+  raw.approvedPublications.push({
+    id: "gid://shopify/Publication/999",
+    name: "Point of Sale",
+  });
+  assertThrows(
+    () => parsePublicationManifest(raw),
+    Error,
+    "PUBLICATION_TARGET_BLOCKED",
+  );
+});
+
+Deno.test("3B.4 request rifiuta publication ID forniti dal client", () => {
+  assertThrows(
+    () =>
+      parsePublicationRequest({
+        batchId: "shopify-publication-3b4-002",
+        mode: "DRY_RUN",
+        publicationIds: [POS_ID],
+      }),
+    Error,
+    "REQUEST_FIELD_FORBIDDEN: publicationIds",
+  );
+});
+
+Deno.test("3B.4 verifica post-publish richiede tutti i tre target", async () => {
+  const client = new FakePublicationClient();
+  client.publishProduct = async (id: string, publicationId: string) => {
+    client.writes.push(`PUBLISH:${id}:${publicationId}`);
+    if (publicationId !== LOVABLE_ID) {
+      client.products.get(id)!.publicationIds.push(publicationId);
+    }
+  };
+  const report = await runPublication(client, publicationManifest(), "EXECUTE");
+  assertEquals(report.results[0].code, "PUBLICATION_POSTCONDITION_FAILED");
 });
 
 Deno.test("3B.4 throttle persistente arresta gli item successivi", async () => {
@@ -589,15 +757,46 @@ Deno.test("3B.4 throttle persistente arresta gli item successivi", async () => {
   assertEquals(client.writes.length, 0);
 });
 
-Deno.test("3B.4 canale differente viene bloccato prima delle mutation", async () => {
+Deno.test("3B.4 identità publication non approvata blocca prima delle mutation", async () => {
   const client = new FakePublicationClient();
-  client.readPublication = async (id: string) => ({ id, name: "Headless" });
+  client.listPublications = async () => [
+    { id: ONLINE_STORE_ID, name: "Online Store" },
+    { id: HEADLESS_ID, name: "Headless rinominato" },
+    { id: LOVABLE_ID, name: "Lovable" },
+  ];
   await assertRejects(
     () => runPublication(client, publicationManifest(), "EXECUTE"),
     PublicationError,
-    "Canale Online Store non verificato",
+    "Publication approvata non verificata",
   );
   assertEquals(client.writes.length, 0);
+});
+
+Deno.test("3B.4 manomissione target cambia SHA e approvalDigest", async () => {
+  const manifest = publicationManifest();
+  const approvedBytes = new TextEncoder().encode(JSON.stringify(manifest));
+  const tampered = structuredClone(manifest) as any;
+  tampered.approvedPublications[2].id = "gid://shopify/Publication/999";
+  const tamperedBytes = new TextEncoder().encode(JSON.stringify(tampered));
+  const approvedSha = await sha256Hex(approvedBytes);
+  const tamperedSha = await sha256Hex(tamperedBytes);
+  const approvedDigest = await manifestApprovalDigest(
+    manifest.batchId,
+    approvedSha,
+    manifest.schemaVersion,
+  );
+  const tamperedDigest = await manifestApprovalDigest(
+    manifest.batchId,
+    tamperedSha,
+    manifest.schemaVersion,
+  );
+  assertEquals(approvedSha === tamperedSha, false);
+  assertEquals(approvedDigest === tamperedDigest, false);
+  assertThrows(
+    () => assertApprovedDigest("EXECUTE", approvedDigest, tamperedDigest),
+    Error,
+    "MANIFEST_APPROVAL_MISMATCH",
+  );
 });
 
 Deno.test("manifest privato: SHA e approvalDigest sono pinning obbligatori", async () => {
