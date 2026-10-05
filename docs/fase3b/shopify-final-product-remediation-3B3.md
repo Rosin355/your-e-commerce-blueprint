@@ -80,3 +80,10 @@ node scripts/run-shopify-remediation.mjs \
 Il comando è DRY_RUN. Solo dopo approvazione e apertura temporanea del gate si aggiunge `--execute-window`. Il gate va rimosso in `finally`. Criterio di uscita: VERIFY tutto `ALREADY_REMEDIATED`, zero blocked/failed/skipped. Solo allora le famiglie entrano in un nuovo preflight 3B.4.
 
 L'errore esatto `Shopify rate limit persistente`, emesso dopo l'esaurimento dei retry 429 del client condiviso, è sistemico: l'item corrente fallisce, tutti i successivi diventano `BATCH_STOPPED` e non vengono eseguite ulteriori write.
+
+## Esecuzione live 5 ottobre 2026 — STOP in Fase 3
+
+- Fase 1 PASS: migration `20261004120000_extend_shopify_ledger_publication.sql` applicata una sola volta (non era presente: vincoli senza `SET_ACTIVE`/`VERIFIED`, colonna `applied_at` assente). Dopo: 4569 righe ledger preservate (903 CREATE_PARENT, 903 CREATE_OPTIONS, 930 CREATE_VARIANT, 902 ATTACH_MEDIA APPLIED + 1 RESERVED, 930 CONFIGURE_INVENTORY), RLS attiva, anon/authenticated nessun privilegio, service_role solo SELECT/INSERT/UPDATE.
+- Fase 2 PASS: distribuite solo `shopify-description-remediation` e `shopify-publication-batch` da `main@62fceb1`.
+- Fase 3 STOP: i batch privati 3B.2 nel bucket sono leggibili solo con service_role (policy client-deny). La sessione operativa non dispone di service_role e le copie locali dei manifest non esistono più; non è quindi possibile estrarre gli ORIGINAL approvati con SHA verificato. Nessun manifest remediation/publication generato, nessuna write Shopify, gate EXECUTE mai aperti.
+- Nota: 1 riga ledger `ATTACH_MEDIA` in stato `RESERVED` da riconciliare prima della pubblicazione.
