@@ -18,3 +18,11 @@ verify_jwt = false
 # JWT e ruoli admin/tech_admin verificati dentro la funzione tramite Admin V2.
 [functions.shopify-create-batch]
 verify_jwt = false
+
+# JWT e ruoli admin/tech_admin verificati dentro la funzione tramite Admin V2.
+[functions.shopify-description-remediation]
+verify_jwt = false
+
+# JWT e ruoli admin/tech_admin verificati dentro la funzione tramite Admin V2.
+[functions.shopify-publication-batch]
+verify_jwt = false

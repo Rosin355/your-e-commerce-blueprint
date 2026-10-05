@@ -138,3 +138,15 @@ La PR #27 è stata integrata con merge `c6fc3b199e5e8dca21f0debb235677abb10e6be0
 Forward-fix code-first: bucket Supabase Storage privato `shopify-create-manifests`, indice metadata-only con SHA-256, batch massimo 10, loader server-side service-role, request senza manifest/path/SHA, pinning `approvalDigest` fra DRY_RUN, EXECUTE e VERIFY, builder deterministico e runner sequenziale con resume. 903 famiglie corrispondono a 91 batch; il conteggio varianti reale sarà stampato dagli input privati al rollout. Tutti i prodotti restano `DRAFT` e la pubblicazione è disabilitata.
 
 Stato: **STORAGE SCALE-OUT CODE READY / NON DEPLOYATO / NESSUNA WRITE LIVE**. Servono migration bucket, upload privato, deploy della sola Edge Function, DRY_RUN del primo batch e autorizzazione separata per la finestra EXECUTE. Dettagli in `shopify-create-scaleout-3B2.md`.
+
+## Aggiornamento 3B.2 completato e fast track 3B.3/3B.4 (4 ottobre 2026)
+
+Lo scale-out reale ha completato i batch 002–092: 903 famiglie e 930 varianti sono presenti in Shopify come `DRAFT`, con stock 20, tracking attivo, policy `DENY`, 0 failed, 0 media pending e nessun duplicato. Il gate create è OFF.
+
+La verifica finale ha distinto 889 famiglie riconciliate e 14 famiglie esistenti bloccate esclusivamente dal confronto descrizione: `OG_238559`, `OG_341476`, `OG_422411`, `OG_489489`, `OG_538594`, `OG_553492`, `OG_644838`, `OG_728356`, `OG_746747`, `OG_778338`, `OG_839472`, `OG_847151`, `OG_865363`, `OG_942831`.
+
+Sono stati predisposti due workflow isolati e non distribuiti: 3B.3 aggiorna solo `descriptionHtml` sul prodotto già mappato, con ORIGINAL approvato e stop `STATE_DRIFT`; 3B.4 pubblica solo prodotti che superano nuovamente tutti i gate, impostando `ACTIVE` e pubblicando esclusivamente su `Online Store`.
+
+Le esclusioni strutturali (`OG_152965`, `OG_891874`, `OG_758263`, `OG_393883`, TEST e `RESTRUCTURE_REQUIRED`) restano fuori. Il conteggio globale `READY_TO_PUBLISH` deve provenire dal nuovo export Admin read-only descritto nei documenti 3B.3/3B.4.
+
+Stato: **FINAL PRODUCT WORKFLOW CODE READY / PUBLICATION PENDING / POST-LAUNCH RESTRUCTURE DEFERRED**.
