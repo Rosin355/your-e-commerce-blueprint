@@ -64,6 +64,13 @@
       "when": 1791065906193,
       "tag": "0008_deny_client_shopify_create_manifests",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791202041987,
+      "tag": "0009_extend_shopify_ledger_publication",
+      "breakpoints": true
     }
   ]
 }

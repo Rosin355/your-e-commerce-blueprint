@@ -1422,6 +1422,7 @@ export type Database = {
       }
       shopify_creation_ledger: {
         Row: {
+          applied_at: string | null
           batch_id: string
           created_at: string
           id: string
@@ -1437,6 +1438,7 @@ export type Database = {
           verified_at: string | null
         }
         Insert: {
+          applied_at?: string | null
           batch_id: string
           created_at?: string
           id?: string
@@ -1452,6 +1454,7 @@ export type Database = {
           verified_at?: string | null
         }
         Update: {
+          applied_at?: string | null
           batch_id?: string
           created_at?: string
           id?: string
