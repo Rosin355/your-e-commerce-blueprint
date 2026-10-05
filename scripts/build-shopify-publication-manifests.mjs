@@ -48,7 +48,7 @@ function validateItem(value, label) {
   const item = record(value, label);
   const parentSku = String(item.parentSku ?? "").toUpperCase();
   if (
-    !/^OG_\d+$/.test(parentSku) || STRUCTURAL.has(parentSku) ||
+    !/^OG_\d+(?:-\d+)*$/.test(parentSku) || STRUCTURAL.has(parentSku) ||
     /TEST/i.test(parentSku)
   ) {
     throw new Error(`PUBLICATION_SOURCE_EXCLUDED:${parentSku || label}`);
