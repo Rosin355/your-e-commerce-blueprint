@@ -326,6 +326,8 @@ class FakePublicationClient implements PublicationShopifyClient {
   mutateUnrelatedOnPublish = false;
   mutateInventoryOnPublish = false;
   addUnexpectedPublicationOnPublish = false;
+  removeUnrelatedScheduledOnPublish = false;
+  addUnapprovedScheduledOnPublish = false;
 
   constructor(product = publicationLive()) {
     this.products.set(product.id, structuredClone(product));
@@ -360,6 +362,9 @@ class FakePublicationClient implements PublicationShopifyClient {
     if (!product.publicationIds.includes(publicationId)) {
       product.publicationIds.push(publicationId);
     }
+    product.scheduledPublicationIds = product.scheduledPublicationIds.filter(
+      (id) => id !== publicationId,
+    );
     if (this.mutateUnrelatedOnPublish) product.title = "Titolo alterato";
     if (this.mutateInventoryOnPublish) product.variants[0].available = 19;
     if (
@@ -367,6 +372,19 @@ class FakePublicationClient implements PublicationShopifyClient {
       !product.publicationIds.includes(POS_ID)
     ) {
       product.publicationIds.push(POS_ID);
+    }
+    if (this.removeUnrelatedScheduledOnPublish) {
+      product.scheduledPublicationIds = product.scheduledPublicationIds.filter(
+        (id) => id !== "gid://shopify/Publication/999",
+      );
+    }
+    if (
+      this.addUnapprovedScheduledOnPublish &&
+      !product.scheduledPublicationIds.includes(
+        "gid://shopify/Publication/998",
+      )
+    ) {
+      product.scheduledPublicationIds.push("gid://shopify/Publication/998");
     }
   }
 }
@@ -518,6 +536,35 @@ Deno.test("3B.4 due target presenti aggiungono soltanto Lovable", async () => {
   ]);
 });
 
+async function assertApprovedScheduledTransition(publicationId: string) {
+  const client = new FakePublicationClient(publicationLive({
+    scheduledPublicationIds: [publicationId],
+  }));
+  const report = await runPublication(client, publicationManifest(), "EXECUTE");
+  assertEquals(report.summary.PUBLISHED, 1);
+  assertEquals(report.results[0].code, undefined);
+  assertEquals(
+    client.products.get("gid://shopify/Product/500")!.publicationIds.sort(),
+    [...APPROVED_PUBLICATION_IDS].sort(),
+  );
+  assertEquals(
+    client.products.get("gid://shopify/Product/500")!.scheduledPublicationIds,
+    [],
+  );
+}
+
+Deno.test("3B.4 Online Store schedulato può diventare pubblicato", async () => {
+  await assertApprovedScheduledTransition(ONLINE_STORE_ID);
+});
+
+Deno.test("3B.4 Headless schedulato può diventare pubblicato", async () => {
+  await assertApprovedScheduledTransition(HEADLESS_ID);
+});
+
+Deno.test("3B.4 Lovable schedulato può diventare pubblicato", async () => {
+  await assertApprovedScheduledTransition(LOVABLE_ID);
+});
+
 Deno.test("3B.4 OG_111899 sui tre target è ALREADY_PUBLISHED a zero mutation", async () => {
   const client = new FakePublicationClient(publicationLive({
     status: "ACTIVE",
@@ -641,6 +688,28 @@ Deno.test("3B.4 publication storiche restano invariate e sono segnalate", async 
   );
   assertEquals(client.writes.some((write) => write.includes(POS_ID)), false);
   assertEquals(client.writes.some((write) => write.includes(SHOP_ID)), false);
+});
+
+Deno.test("3B.4 variazione di una publication schedulata estranea fallisce", async () => {
+  const client = new FakePublicationClient(publicationLive({
+    scheduledPublicationIds: ["gid://shopify/Publication/999"],
+  }));
+  client.removeUnrelatedScheduledOnPublish = true;
+  const report = await runPublication(client, publicationManifest(), "EXECUTE");
+  assertEquals(
+    report.results[0].code,
+    "FIELD_ISOLATION_POSTCONDITION_FAILED",
+  );
+});
+
+Deno.test("3B.4 nuova publication schedulata non approvata fallisce", async () => {
+  const client = new FakePublicationClient();
+  client.addUnapprovedScheduledOnPublish = true;
+  const report = await runPublication(client, publicationManifest(), "EXECUTE");
+  assertEquals(
+    report.results[0].code,
+    "FIELD_ISOLATION_POSTCONDITION_FAILED",
+  );
 });
 
 Deno.test("3B.4 blocca una publication extra aggiunta durante il workflow", async () => {

@@ -99,6 +99,7 @@ function unrelatedState(product: PublicationLiveProduct) {
     ...ordered,
     status: "__STATUS__",
     publicationIds: ["__PUBLICATIONS__"],
+    scheduledPublicationIds: ["__SCHEDULED_PUBLICATIONS__"],
   };
 }
 
@@ -140,6 +141,29 @@ function extraPublicationIds(
 ) {
   const approved = new Set(approvedPublications.map(({ id }) => id));
   return sortedUnique(product.publicationIds.filter((id) => !approved.has(id)));
+}
+
+function approvedScheduledTransitionAllowed(
+  before: PublicationLiveProduct,
+  after: PublicationLiveProduct,
+  approvedPublications: ResolvedPublicationTarget[],
+) {
+  const approved = new Set(approvedPublications.map(({ id }) => id));
+  const beforeUnrelated = before.scheduledPublicationIds.filter((id) =>
+    !approved.has(id)
+  );
+  const afterUnrelated = after.scheduledPublicationIds.filter((id) =>
+    !approved.has(id)
+  );
+  if (!sameIds(beforeUnrelated, afterUnrelated)) return false;
+
+  const expectedApprovedAfter = before.scheduledPublicationIds.filter((id) =>
+    approved.has(id) && !after.publicationIds.includes(id)
+  );
+  const actualApprovedAfter = after.scheduledPublicationIds.filter((id) =>
+    approved.has(id)
+  );
+  return sameIds(expectedApprovedAfter, actualApprovedAfter);
 }
 
 async function resolveApprovedPublications(
@@ -339,6 +363,19 @@ async function executeItem(
     throw new PublicationError(
       "FIELD_ISOLATION_POSTCONDITION_FAILED",
       "Campo non autorizzato variato",
+      true,
+    );
+  }
+  if (
+    !approvedScheduledTransitionAllowed(
+      product,
+      after,
+      approvedPublications,
+    )
+  ) {
+    throw new PublicationError(
+      "FIELD_ISOLATION_POSTCONDITION_FAILED",
+      "Publication schedulata estranea variata",
       true,
     );
   }
