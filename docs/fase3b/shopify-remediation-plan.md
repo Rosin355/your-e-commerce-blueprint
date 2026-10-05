@@ -150,3 +150,10 @@ Sono stati predisposti due workflow isolati e non distribuiti: 3B.3 aggiorna sol
 Le esclusioni strutturali (`OG_152965`, `OG_891874`, `OG_758263`, `OG_393883`, TEST e `RESTRUCTURE_REQUIRED`) restano fuori. Il conteggio globale `READY_TO_PUBLISH` deve provenire dal nuovo export Admin read-only descritto nei documenti 3B.3/3B.4.
 
 Stato: **FINAL PRODUCT WORKFLOW CODE READY / PUBLICATION PENDING / POST-LAUNCH RESTRUCTURE DEFERRED**.
+
+## Rimandato post-launch (fast track 5/10/2026)
+- 14 descrizioni bloccate (3B.3)
+- Riconciliazione media ledger OG_779932 (RESERVED) / OG_461758
+- Backlog strutturale/restructure
+- Catalogo non 3B.2
+- Decisione canale: pubblicare anche sul canale del sito (Lovable/Headless) e/o rimuovere la password del negozio, poi ripetere il controllo vetrina del canary
