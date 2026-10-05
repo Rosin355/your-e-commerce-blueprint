@@ -87,3 +87,12 @@ L'errore esatto `Shopify rate limit persistente`, emesso dopo l'esaurimento dei 
 - Fase 2 PASS: distribuite solo `shopify-description-remediation` e `shopify-publication-batch` da `main@62fceb1`.
 - Fase 3 STOP: i batch privati 3B.2 nel bucket sono leggibili solo con service_role (policy client-deny). La sessione operativa non dispone di service_role e le copie locali dei manifest non esistono più; non è quindi possibile estrarre gli ORIGINAL approvati con SHA verificato. Nessun manifest remediation/publication generato, nessuna write Shopify, gate EXECUTE mai aperti.
 - Nota: 1 riga ledger `ATTACH_MEDIA` in stato `RESERVED` da riconciliare prima della pubblicazione.
+
+## 3B.4 — Storefront publication canary (2026-10-05)
+
+- Publication set OG_111899 (gid://shopify/Product/15836694249812): Online Store, Ecom Blueprint Gen 6ud1s Headless (338862113108), Lovable (328891826516). Nessun POS/Shop.
+- Content/price/variant/media/inventory invariati (diff before/after = identico). Stock 20, DENY.
+- Storefront (token pubblico e privato Headless): prodotto visibile, 1 sola occorrenza su 462 nell'elenco del sito, PDP ok (titolo, 23,50 EUR, variante "Ø Vaso 24cm - Altezza Pianta 180cm", immagine), quantità numerica non mostrata, add to cart ok (variante 57407007981908, 23.5 EUR).
+- Checkout: cartCreate OK, URL generato; apertura reindirizza a /password del negozio — identico per prodotti già live (baseline Wigginsia). Limite preesistente, non del canary.
+- Gate SHOPIFY_PUBLICATION_EXECUTE_ENABLED: OFF. Altri 886 non pubblicati.
+- Publication set approvato per i restanti 886: Online Store + Headless + Lovable.
