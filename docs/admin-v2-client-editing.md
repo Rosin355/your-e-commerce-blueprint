@@ -80,3 +80,10 @@ i mesi corretti.
 - il recupero live è una vista di confronto e non effettua backfill nel DB;
 - l’abilitazione dell’ambiente e lo smoke con uno SKU approvato sono attività
   operative separate dalla merge della PR.
+
+## Live deploy Admin V2 client-safe sync — 2026-10-06 (main@889d6ce)
+- Migration `20261006143000_admin_client_safe_field_sync` applicata una volta: 4 colonne `shopify_*` presenti, periodi = multiselect/array (12 mesi), difficoltà = select Facile/Media/Difficile, trigger PENDING_SYNC e RPC `admin_complete_product_field_sync` (solo service_role). 24.467 valori invariati (hash identico prima/dopo). PASS.
+- Deploy della sola `product-admin-api`: PASS. `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED` assente = OFF.
+- Pubblicazione frontend richiesta dalla stessa revisione.
+- Smoke test autenticato e canary: NON eseguiti — serve un account admin per la sessione di test e un prodotto canary approvato esplicitamente. Nessuna scrittura Shopify effettuata.
+- Stato: STOPPED in attesa di account di test + prodotto canary.
