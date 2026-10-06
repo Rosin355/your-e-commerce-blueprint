@@ -185,3 +185,15 @@ La sessione Codex non dispone della copia privata dei manifest v1 né di credenz
 - Ripresa: `--start-batch shopify-publication-3b4-028` (replay idempotente via ledger, solo target mancanti).
 
 SAFE PAUSE — RESUME FROM BATCH 028
+
+## Ripresa finale 028–037 (2026-10-06)
+
+- DRY_RUN preliminare 028–037: 236 READY_TO_PUBLISH, 0 BLOCKED/FAILED, 0 canali extra.
+- Gate aperto temporaneamente; per ogni lotto DRY_RUN → EXECUTE (digest fissato) → VERIFY.
+- Esito: 10/10 lotti verificati, 236 PUBLISHED poi ALREADY_PUBLISHED alla verifica; BLOCKED=0, SKIPPED=0, FAILED=0.
+- Ledger `SET_ACTIVE`: 887 righe VERIFIED, 887 SKU distinti (nessun duplicato).
+- Totale online: 887 (canary + 886). Restano DRAFT 16 esclusi (14 descrizioni bloccate + OG_779932 + OG_461758).
+- Canali: solo Online Store, Headless, Lovable; nessun canale imprevisto.
+- Gate `SHOPIFY_PUBLICATION_EXECUTE_ENABLED` rimosso; read-back: secret assente e EXECUTE rifiutato con 409 `EXECUTE_DISABLED`.
+
+FINAL SAFE PUBLICATION — PASS
