@@ -581,6 +581,10 @@ export type Database = {
           review_status: string
           reviewed_at: string | null
           reviewed_by: string | null
+          shopify_sync_error_code: string | null
+          shopify_sync_error_message: string | null
+          shopify_verified_at: string | null
+          shopify_verified_value: Json | null
           sku: string
           source_batch_id: string | null
           source_snapshot_id: string | null
@@ -608,6 +612,10 @@ export type Database = {
           review_status?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
+          shopify_sync_error_code?: string | null
+          shopify_sync_error_message?: string | null
+          shopify_verified_at?: string | null
+          shopify_verified_value?: Json | null
           sku: string
           source_batch_id?: string | null
           source_snapshot_id?: string | null
@@ -635,6 +643,10 @@ export type Database = {
           review_status?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
+          shopify_sync_error_code?: string | null
+          shopify_sync_error_message?: string | null
+          shopify_verified_at?: string | null
+          shopify_verified_value?: Json | null
           sku?: string
           source_batch_id?: string | null
           source_snapshot_id?: string | null
