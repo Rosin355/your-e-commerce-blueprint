@@ -23,7 +23,8 @@ export type CommandAction =
   | "update_field"
   | "clear_field"
   | "confirm_legacy_value"
-  | "reject_legacy_value";
+  | "reject_legacy_value"
+  | "sync_field";
 
 export type ApiAction = ReadAction | CommandAction;
 
@@ -38,6 +39,10 @@ export type ApiErrorCode =
   | "REVIEW_STATE_INVALID"
   | "NO_CHANGE"
   | "WRITES_DISABLED"
+  | "BLOCK_SYNC"
+  | "STATE_DRIFT"
+  | "SYNC_VERIFY_FAILED"
+  | "SHOPIFY_WRITE_FAILED"
   | "INTERNAL_ERROR";
 
 export interface AuthContext {
@@ -62,6 +67,7 @@ export interface FieldDefinition {
   sort_order: number;
   help_text: string | null;
   validation_rules: Record<string, unknown>;
+  shopify_mapping?: Record<string, unknown>;
   review_policy: string;
 }
 
@@ -81,6 +87,11 @@ export interface CurrentValueRow {
   protected_on_reimport: boolean;
   source_snapshot_id: string | null;
   is_locked: boolean;
+  publish_state?: "draft" | "pending_publish" | "published" | "failed";
+  shopify_verified_value?: unknown | null;
+  shopify_verified_at?: string | null;
+  shopify_sync_error_code?: string | null;
+  shopify_sync_error_message?: string | null;
   version: number;
   updated_at: string;
 }

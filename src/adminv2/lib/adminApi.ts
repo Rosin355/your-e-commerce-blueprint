@@ -11,6 +11,8 @@ export interface AdminContext {
   writesEnabled: boolean;
   writeMode?: 'canary' | 'full';
   canWrite: boolean;
+  canSync: boolean;
+  shopifySyncEnabled: boolean;
   allowedActions?: string[];
   editableFieldKeys?: string[];
   canaryManualOnly?: boolean;
@@ -69,6 +71,14 @@ export interface AdminField {
   appliesTo: 'product' | 'variant' | 'both';
   validationRules: Record<string, unknown>;
   publishable: boolean;
+  shopifySyncSupported: boolean;
+  syncState: 'INTERNAL_ONLY' | 'PENDING_SYNC' | 'SYNCED' | 'SYNC_ERROR';
+  syncErrorCode: string | null;
+  syncErrorMessage: string | null;
+  shopifyVerifiedAt: string | null;
+  shopifyLiveValue: unknown;
+  storefrontPlacement: string;
+  formatHint: string;
   editable: boolean;
   locked: boolean;
   version: number | null;
@@ -129,6 +139,18 @@ export interface ProductDetail {
     updatedAt: string;
   };
   sections: AdminSection[];
+  shopifyLive: {
+    available: boolean;
+    mapped: boolean;
+    productId: string | null;
+    handle?: string | null;
+    publicationStatus?: string | null;
+    syncStatus?: string | null;
+    price?: string | number | null;
+    compareAtPrice?: string | number | null;
+    mappingSource?: string;
+    error?: string | null;
+  };
   history: HistoryEntry[];
 }
 
@@ -171,6 +193,10 @@ const MESSAGES: Record<string, string> = {
   AI_PROVIDER_ERROR: 'Il servizio AI non è disponibile. Riprova più tardi.',
   MALFORMED_AI_OUTPUT: 'La proposta ricevuta non è in un formato sicuro.',
   INTERNAL_ERROR: 'Si è verificato un problema. Riprova tra qualche istante.',
+  BLOCK_SYNC: 'Questo campo non può essere sincronizzato: verifica la mappatura e lo stato di approvazione.',
+  STATE_DRIFT: 'Il valore Shopify è cambiato esternamente. Ricarica e confronta prima di riprovare.',
+  SYNC_VERIFY_FAILED: 'Shopify non ha confermato il valore inviato. Il campo è stato marcato come errore.',
+  SHOPIFY_WRITE_FAILED: 'Shopify ha rifiutato o non ha completato la sincronizzazione.',
 };
 
 async function invokeWithAdminSession<T>(
@@ -273,5 +299,20 @@ export async function sendFieldCommand(input: {
     value: input.value ?? null,
     expectedVersion: input.expectedVersion,
     idempotencyKey: crypto.randomUUID(),
+  });
+}
+
+export async function sendFieldSyncCommand(input: {
+  productId: string;
+  fieldKey: string;
+  expectedVersion: number;
+  idempotencyKey?: string;
+}): Promise<{ ok: boolean; result?: Record<string, unknown> }> {
+  return callAdminApi({
+    action: 'sync_field',
+    productId: input.productId,
+    fieldKey: input.fieldKey,
+    expectedVersion: input.expectedVersion,
+    idempotencyKey: input.idempotencyKey ?? crypto.randomUUID(),
   });
 }

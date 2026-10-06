@@ -1,4 +1,8 @@
 import type { AdminField } from './adminApi';
+import {
+  normalizeMonths,
+  isSeasonalField,
+} from '../../../supabase/functions/_shared/admin-v2-field-policy.ts';
 
 export interface FaqItem {
   question: string;
@@ -81,17 +85,23 @@ export type EditorKind =
   | 'boolean'
   | 'select'
   | 'string_list'
+  | 'month_multiselect'
   | 'faq'
-  | 'unsupported_json';
+  | 'unsupported_json'
+  | 'unsupported_select';
 
 export function editorKind(field: EditableField): EditorKind {
   if (field.key === 'faq') return 'faq';
+  if (isSeasonalField(field.key)) return 'month_multiselect';
   if (field.dataType === 'number') return 'number';
   if (field.dataType === 'boolean') return 'boolean';
   if (field.dataType === 'array' || field.editorType === 'multiselect') return 'string_list';
   if (field.dataType === 'json') return 'unsupported_json';
   if (field.editorType === 'textarea' || field.editorType === 'richtext') return 'textarea';
-  if (field.editorType === 'select') return 'select';
+  if (field.editorType === 'select') {
+    const options = field.validationRules.enum;
+    return Array.isArray(options) && options.length ? 'select' : 'unsupported_select';
+  }
   return 'text';
 }
 
@@ -106,7 +116,10 @@ export function isEditorValueSupported(field: EditableField, value: unknown): bo
       return typeof value === 'boolean';
     case 'string_list':
       return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
+    case 'month_multiselect':
+      return typeof value === 'string' || (Array.isArray(value) && value.every((entry) => typeof entry === 'string'));
     case 'unsupported_json':
+    case 'unsupported_select':
       return false;
     default:
       return typeof value === 'string';
@@ -143,8 +156,16 @@ export function normalizeEditorValue(field: EditableField, value: unknown): Norm
       return Array.isArray(value) && value.every((entry) => typeof entry === 'string')
         ? { ok: true, value: value.map((entry) => entry.trim()).filter(Boolean) }
         : { ok: false, message: 'Il campo richiede una lista di testi.' };
+    case 'month_multiselect':
+      try {
+        return { ok: true, value: normalizeMonths(value) };
+      } catch (error) {
+        return { ok: false, message: error instanceof Error ? error.message : 'Seleziona mesi validi.' };
+      }
     case 'unsupported_json':
       return { ok: false, message: 'Questo formato JSON legacy non è modificabile in sicurezza.' };
+    case 'unsupported_select':
+      return { ok: false, message: 'Le opzioni di questo campo non sono ancora state validate.' };
     default: {
       if (typeof value !== 'string') return { ok: false, message: 'Il campo richiede testo.' };
       const normalized = value.trim();

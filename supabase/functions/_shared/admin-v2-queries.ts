@@ -30,7 +30,7 @@ export async function getFieldDefinitions(
   const { data, error } = await db
     .from("product_field_definitions")
     .select(
-      "key,label,field_group,editor_type,data_type,visible,editable,ai_allowed,manual_only,publishable,required,protected_on_reimport,applies_to,sort_order,help_text,validation_rules,review_policy",
+      "key,label,field_group,editor_type,data_type,visible,editable,ai_allowed,manual_only,publishable,required,protected_on_reimport,applies_to,sort_order,help_text,validation_rules,shopify_mapping,review_policy",
     )
     .order("field_group")
     .order("sort_order");
@@ -55,7 +55,7 @@ export async function getCurrentValues(
   let q = db
     .from("product_current_values")
     .select(
-      "id,product_id,sku,field_key,entity_type,value_text,value_number,value_json,value_origin,origin,review_status,publish_blocked,protected_on_reimport,source_snapshot_id,is_locked,version,updated_at",
+      "id,product_id,sku,field_key,entity_type,value_text,value_number,value_json,value_origin,origin,review_status,publish_blocked,protected_on_reimport,source_snapshot_id,is_locked,publish_state,shopify_verified_value,shopify_verified_at,shopify_sync_error_code,shopify_sync_error_message,version,updated_at",
     )
     .in("product_id", productIds);
   if (fieldKeys?.length) q = q.in("field_key", fieldKeys);
@@ -150,6 +150,27 @@ export async function getProduct(db: SupabaseClient, productId: string) {
     .maybeSingle();
   if (error) throw error;
   return data;
+}
+
+export async function getExactShopifyProductMapping(
+  db: SupabaseClient,
+  sku: string,
+) {
+  const { data, error } = await db
+    .from("product_sync_csv_products")
+    .select("sku,shopify_product_id,shopify_sync_status,shopify_synced_at,handle,price,compare_at_price")
+    .eq("sku", sku)
+    .maybeSingle();
+  if (error) throw error;
+  return data as {
+    sku: string;
+    shopify_product_id: string | null;
+    shopify_sync_status: string | null;
+    shopify_synced_at: string | null;
+    handle?: string | null;
+    price: number | null;
+    compare_at_price: number | null;
+  } | null;
 }
 
 /** Baseline immutabile (snapshot sorgente) in sola lettura. */

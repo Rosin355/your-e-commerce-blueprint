@@ -13,6 +13,10 @@ import {
   type ProductEntityType,
 } from "./capabilities.ts";
 import { currentValueOf, isFieldEditable } from "./validation.ts";
+import {
+  resolveShopifyTarget,
+  syncStateFromPublishState,
+} from "../_shared/admin-v2-field-policy.ts";
 
 export const HTTP_BY_CODE: Record<ApiErrorCode, number> = {
   UNAUTHENTICATED: 401,
@@ -25,6 +29,10 @@ export const HTTP_BY_CODE: Record<ApiErrorCode, number> = {
   REVIEW_STATE_INVALID: 409,
   NO_CHANGE: 200,
   WRITES_DISABLED: 503,
+  BLOCK_SYNC: 422,
+  STATE_DRIFT: 409,
+  SYNC_VERIFY_FAILED: 502,
+  SHOPIFY_WRITE_FAILED: 502,
   INTERNAL_ERROR: 500,
 };
 
@@ -68,6 +76,33 @@ export type SourceBaselineState = "linked_snapshot" | "unlinked_baseline" | "ori
 export interface SourceSerializationContext {
   fallbackSnapshot?: SourceSnapshotRow | null;
   linkedSnapshots?: SourceSnapshotRow[];
+  shopifyLiveValues?: Map<string, unknown>;
+}
+
+function storefrontPlacement(def: FieldDefinition): string {
+  if (!def.publishable) return "Solo Admin";
+  if (def.field_group === "seo") return "Risultati di ricerca";
+  if (def.key === "tags") return "Ricerca, filtri e automazioni Shopify";
+  if (["content", "botanical", "pricing", "images"].includes(def.field_group) || def.key === "title") {
+    return "Scheda prodotto";
+  }
+  return "Catalogo Shopify";
+}
+
+function formatHint(def: FieldDefinition): string {
+  if (def.key === "faq") return "Inserisci coppie separate di domanda e risposta.";
+  if (def.editor_type === "select") return "Scegli una delle opzioni disponibili.";
+  if (def.editor_type === "multiselect" && def.data_type === "array") {
+    return "Seleziona uno o più valori disponibili.";
+  }
+  if (def.editor_type === "multiselect") return "Aggiungi voci separate nell’elenco.";
+  if (def.data_type === "number") return "Inserisci un valore numerico.";
+  if (def.data_type === "boolean") return "Seleziona sì oppure no.";
+  if (def.editor_type === "textarea" || def.editor_type === "richtext") {
+    return "Inserisci un testo descrittivo.";
+  }
+  if (def.data_type === "json") return "Formato strutturato in sola lettura se non riconosciuto.";
+  return "Inserisci testo semplice.";
 }
 
 const READ_ONLY_CAPABILITY_CONTEXT: CapabilityContext = {
@@ -122,6 +157,7 @@ export function serializeField(
   const editable = isFieldEditable(def).ok;
   const { baselineValue, sourceState } = sourceForField(def, row, source);
   const capabilities = calculateFieldCapabilities(def, row, entityType, capabilityContext);
+  const shopifyTarget = resolveShopifyTarget(def);
   return {
     key: def.key,
     label: def.label,
@@ -142,11 +178,19 @@ export function serializeField(
     appliesTo: def.applies_to,
     validationRules: def.validation_rules ?? {},
     publishable: def.publishable,
+    shopifySyncSupported: shopifyTarget !== null,
+    syncState: syncStateFromPublishState(row?.publish_state, shopifyTarget !== null),
+    syncErrorCode: row?.shopify_sync_error_code ?? null,
+    syncErrorMessage: row?.shopify_sync_error_message ?? null,
+    shopifyVerifiedAt: row?.shopify_verified_at ?? null,
+    shopifyLiveValue: source.shopifyLiveValues?.get(def.key) ?? null,
+    storefrontPlacement: storefrontPlacement(def),
+    formatHint: formatHint(def),
     editable,
     locked: row?.is_locked ?? false,
     // La versione 0 è il token esplicito per creare atomicamente un valore mancante.
     version: row?.version ?? 0,
-    helpText: def.help_text,
+    helpText: def.help_text ?? `${def.label}: campo gestito nel catalogo Admin.`,
     sortOrder: def.sort_order,
     capabilities,
   };

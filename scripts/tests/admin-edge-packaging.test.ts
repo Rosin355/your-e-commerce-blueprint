@@ -59,14 +59,24 @@ test("2D.6: il contratto auth V2 resta JWT verificato, ruoli DB e AuthError tipi
   assert.match(facade, /export \* from "\.\.\/_shared\/admin-v2-auth\.ts"/);
 });
 
-test("2D.6: packaging non introduce dipendenze Shopify nei due runtime Admin", () => {
-  const sources = [
-    "supabase/functions/product-admin-api/index.ts",
+test("2D.6: Shopify resta isolato dalla AI e passa dalla facade field-sync", () => {
+  const aiSources = [
     "supabase/functions/product-admin-ai/index.ts",
     "supabase/functions/product-admin-ai/service.ts",
   ].map((path) => readFileSync(path, "utf8")).join("\n");
-  assert.doesNotMatch(
-    sources,
-    /shopify-admin|shopifyAdmin|publish_product|publishProduct/,
+  const adminSource = readFileSync(
+    "supabase/functions/product-admin-api/index.ts",
+    "utf8",
+  );
+  const facade = readFileSync(
+    "supabase/functions/product-admin-api/shopify-field-sync.ts",
+    "utf8",
+  );
+  assert.doesNotMatch(aiSources, /shopify-admin|shopifyAdmin|syncFieldToShopify/);
+  assert.match(adminSource, /action === "sync_field"/);
+  assert.match(adminSource, /shopifySyncEnabled\(\)/);
+  assert.match(
+    facade,
+    /export \* from "\.\.\/_shared\/admin-v2-shopify-field-sync\.ts"/,
   );
 });

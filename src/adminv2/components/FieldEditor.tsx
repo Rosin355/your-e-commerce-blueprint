@@ -2,6 +2,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -12,6 +13,7 @@ import {
 import type { AdminField } from '../lib/adminApi';
 import { editorKind, parseFaqValue } from '../lib/fieldValueCodecs';
 import FaqEditor from './FaqEditor';
+import { MONTHS } from '../../../supabase/functions/_shared/admin-v2-field-policy.ts';
 
 interface FieldEditorProps {
   field: AdminField;
@@ -98,6 +100,38 @@ export default function FieldEditor({ field, value, onChange, disabled = false }
     );
   }
 
+  if (kind === 'month_multiselect') {
+    const selected = Array.isArray(value)
+      ? value.filter((item): item is string => typeof item === 'string')
+      : [];
+    return (
+      <div className="space-y-2">
+        {typeof value === 'string' && value.trim() && (
+          <p className="rounded-md bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+            Il valore precedente non era strutturato. Seleziona i mesi corretti per sostituirlo in sicurezza.
+          </p>
+        )}
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {MONTHS.map((month) => (
+            <label key={month} className="flex items-center gap-2 rounded-md border p-2 text-sm">
+              <Checkbox
+                checked={selected.includes(month)}
+                onCheckedChange={(checked) => onChange(
+                  checked
+                    ? [...selected, month]
+                    : selected.filter((item) => item !== month),
+                )}
+                disabled={disabled}
+                aria-label={`${field.label}: ${month}`}
+              />
+              {month}
+            </label>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (kind === 'select') {
     const options = Array.isArray(field.validationRules.enum)
       ? field.validationRules.enum.filter((item): item is string => typeof item === 'string')
@@ -114,6 +148,10 @@ export default function FieldEditor({ field, value, onChange, disabled = false }
 
   if (kind === 'unsupported_json') {
     return <p className="text-xs text-destructive">Formato JSON non supportato dall’editor tipizzato.</p>;
+  }
+
+  if (kind === 'unsupported_select') {
+    return <p className="text-xs text-destructive">Campo in sola lettura: le opzioni di dominio non sono ancora validate.</p>;
   }
 
   if (kind === 'textarea') {
