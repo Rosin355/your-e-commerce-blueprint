@@ -71,6 +71,20 @@
       "when": 1791202041987,
       "tag": "0009_extend_shopify_ledger_publication",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791302955223,
+      "tag": "0010_admin_client_safe_field_sync",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791302992650,
+      "tag": "0011_admin_client_safe_field_sync_defs_and_functions",
+      "breakpoints": true
     }
   ]
 }

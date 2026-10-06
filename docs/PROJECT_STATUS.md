@@ -280,3 +280,10 @@ POST-PUBLISH SECURITY PASS (read-only), nessun P1/P2; suggestion OG_264361/seo_t
 
 ## 2D.9 — Controlled accept (2026-10-02)
 Accept live su OG_264361/seo_title v1→v2, history/command +1, replay idempotente e conflict 409 verificati, Shopify non toccato, provider 0, canary attivo, restore non eseguito. Dettagli: `docs/fase2d/ai-controlled-accept-2D9.md`.
+
+## Live deploy Admin V2 client-safe sync — 2026-10-06 (main@889d6ce)
+- Migration `20261006143000_admin_client_safe_field_sync` applicata una volta: 4 colonne `shopify_*` presenti, periodi = multiselect/array (12 mesi), difficoltà = select Facile/Media/Difficile, trigger PENDING_SYNC e RPC `admin_complete_product_field_sync` (solo service_role). 24.467 valori invariati (hash identico prima/dopo). PASS.
+- Deploy della sola `product-admin-api`: PASS. `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED` assente = OFF.
+- Pubblicazione frontend richiesta dalla stessa revisione.
+- Smoke test autenticato e canary: NON eseguiti — serve un account admin per la sessione di test e un prodotto canary approvato esplicitamente. Nessuna scrittura Shopify effettuata.
+- Stato: STOPPED in attesa di account di test + prodotto canary.

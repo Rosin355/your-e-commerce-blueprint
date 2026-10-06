@@ -85,3 +85,10 @@ fallback verso il bucket pubblico `sync`.
 Nessuna migration o modifica alle policy è inclusa nell'implementazione.
 Backup, deploy, smoke live ed eliminazione del vecchio oggetto pubblico sono
 gate operativi separati descritti nella documentazione STORAGE-003.
+
+## Live deploy Admin V2 client-safe sync — 2026-10-06 (main@889d6ce)
+- Migration `20261006143000_admin_client_safe_field_sync` applicata una volta: 4 colonne `shopify_*` presenti, periodi = multiselect/array (12 mesi), difficoltà = select Facile/Media/Difficile, trigger PENDING_SYNC e RPC `admin_complete_product_field_sync` (solo service_role). 24.467 valori invariati (hash identico prima/dopo). PASS.
+- Deploy della sola `product-admin-api`: PASS. `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED` assente = OFF.
+- Pubblicazione frontend richiesta dalla stessa revisione.
+- Smoke test autenticato e canary: NON eseguiti — serve un account admin per la sessione di test e un prodotto canary approvato esplicitamente. Nessuna scrittura Shopify effettuata.
+- Stato: STOPPED in attesa di account di test + prodotto canary.

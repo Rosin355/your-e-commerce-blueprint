@@ -581,6 +581,10 @@ export type Database = {
           review_status: string
           reviewed_at: string | null
           reviewed_by: string | null
+          shopify_sync_error_code: string | null
+          shopify_sync_error_message: string | null
+          shopify_verified_at: string | null
+          shopify_verified_value: Json | null
           sku: string
           source_batch_id: string | null
           source_snapshot_id: string | null
@@ -608,6 +612,10 @@ export type Database = {
           review_status?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
+          shopify_sync_error_code?: string | null
+          shopify_sync_error_message?: string | null
+          shopify_verified_at?: string | null
+          shopify_verified_value?: Json | null
           sku: string
           source_batch_id?: string | null
           source_snapshot_id?: string | null
@@ -635,6 +643,10 @@ export type Database = {
           review_status?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
+          shopify_sync_error_code?: string | null
+          shopify_sync_error_message?: string | null
+          shopify_verified_at?: string | null
+          shopify_verified_value?: Json | null
           sku?: string
           source_batch_id?: string | null
           source_snapshot_id?: string | null
@@ -1524,6 +1536,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_complete_product_field_sync: {
+        Args: {
+          p_actor: string
+          p_error_code?: string
+          p_error_message?: string
+          p_expected_version: number
+          p_field_key: string
+          p_idempotency_key: string
+          p_payload_hash: string
+          p_product_id: string
+          p_success: boolean
+          p_verified_value?: Json
+        }
+        Returns: Json
+      }
       admin_update_product_field: {
         Args: {
           p_action: string
