@@ -1536,6 +1536,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_complete_product_field_sync: {
+        Args: {
+          p_actor: string
+          p_error_code?: string
+          p_error_message?: string
+          p_expected_version: number
+          p_field_key: string
+          p_idempotency_key: string
+          p_payload_hash: string
+          p_product_id: string
+          p_success: boolean
+          p_verified_value?: Json
+        }
+        Returns: Json
+      }
       admin_update_product_field: {
         Args: {
           p_action: string
