@@ -1,10 +1,11 @@
 // F5 — Admin Product API (Online Garden).
-// Nessuna chiamata Shopify, nessuna AI, nessuna pubblicazione, nessun import.
+// Letture Shopify e sync esplicita a campo singolo; nessuna pubblicazione automatica.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { authenticate, AuthError, serviceClient } from "./auth.ts";
 import {
   authorizeAction,
   canManageLockedManualValues,
+  canSyncShopify,
   canWriteCanary,
   isCommandAction,
   isKnownAction,
@@ -14,6 +15,7 @@ import {
   getCurrentValues,
   getFieldDefinition,
   getFieldDefinitions,
+  getExactShopifyProductMapping,
   getProduct,
   getProductHistory,
   getSourceBaseline,
@@ -41,6 +43,22 @@ import {
 import type { ApiErrorCode, CommandAction } from "./types.ts";
 import type { CommandInput } from "./commands.ts";
 import { appliesToEntity, type ProductEntityType } from "./capabilities.ts";
+import {
+  lookupSyncReplay,
+  markSyncResult,
+  readExactMetafieldTarget,
+  readExactVariantTarget,
+  readProductCoreSnapshot,
+  readProductCoreTargetValue,
+  ShopifyFieldSyncError,
+  shopifySyncEnabled,
+  syncFieldToShopify,
+  type SyncFieldInput,
+} from "./shopify-field-sync.ts";
+import {
+  deserializeValueForAdminDisplay,
+  resolveShopifyTarget,
+} from "./field-policy.ts";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -99,6 +117,8 @@ Deno.serve(async (req) => {
         writesEnabled: enabled,
         writeMode: mode,
         canWrite: canWriteNow,
+        canSync: canSyncShopify(auth.roles) && shopifySyncEnabled(),
+        shopifySyncEnabled: shopifySyncEnabled(),
         allowedActions: canWriteNow ? CANARY_ACTIONS : [],
         editableFieldKeys:
           canWriteNow && mode === "canary"
@@ -172,12 +192,77 @@ Deno.serve(async (req) => {
         return json({ ok: true, baseline: await getSourceBaseline(db, productId) });
       }
 
-      const [defs, values, snapshot, history] = await Promise.all([
+      const [defs, values, snapshot, history, shopifyMapping] = await Promise.all([
         getFieldDefinitions(db),
         getCurrentValues(db, [productId]),
         getSourceBaseline(db, productId),
         getProductHistory(db, productId, 20),
+        getExactShopifyProductMapping(db, product.sku),
       ]);
+      let shopifyLive: Record<string, unknown> = {
+        available: false,
+        mapped: Boolean(shopifyMapping?.shopify_product_id),
+        productId: shopifyMapping?.shopify_product_id ?? null,
+        syncStatus: shopifyMapping?.shopify_sync_status ?? "never",
+        error: shopifyMapping?.shopify_product_id
+          ? "Valore live temporaneamente non disponibile."
+          : "Mappatura Shopify assente per questo SKU.",
+      };
+      const shopifyLiveValues = new Map<string, unknown>();
+      if (shopifyMapping?.shopify_product_id) {
+        try {
+          const live = await readProductCoreSnapshot(shopifyMapping.shopify_product_id);
+          let exactVariant: Awaited<ReturnType<typeof readExactVariantTarget>> | null = null;
+          try {
+            exactVariant = await readExactVariantTarget(
+              shopifyMapping.shopify_product_id,
+              product.sku,
+            );
+          } catch {
+            // Zero o più varianti: non mostrare mai il valore di un'altra variante.
+          }
+
+          for (const def of defs) {
+            const target = resolveShopifyTarget(def);
+            if (!target) continue;
+            try {
+              let liveValue: unknown;
+              if (target.kind === "product" || target.kind === "seo") {
+                liveValue = readProductCoreTargetValue(live, target);
+              } else if (target.kind === "variant") {
+                if (!exactVariant) continue;
+                liveValue = exactVariant[target.field];
+              } else {
+                const metafield = await readExactMetafieldTarget(
+                  shopifyMapping.shopify_product_id,
+                  target,
+                );
+                liveValue = metafield?.value ?? null;
+              }
+              shopifyLiveValues.set(
+                def.key,
+                deserializeValueForAdminDisplay(def, liveValue),
+              );
+            } catch {
+              // Un singolo target non disponibile non impedisce le altre letture esatte.
+            }
+          }
+          shopifyLive = {
+            available: true,
+            mapped: true,
+            productId: live.id,
+            handle: live.handle,
+            publicationStatus: live.status,
+            price: exactVariant?.price ?? null,
+            compareAtPrice: exactVariant?.compareAtPrice ?? null,
+            mappingSource: exactVariant ? "SKU esatto" : "SKU non risolto in modo univoco",
+            syncStatus: shopifyMapping.shopify_sync_status ?? "never",
+            error: null,
+          };
+        } catch {
+          // Il dettaglio resta utilizzabile anche senza credenziali/rete Shopify.
+        }
+      }
       const linkedSnapshots = await getSourceSnapshotsByIds(
         db,
         productId,
@@ -208,8 +293,9 @@ Deno.serve(async (req) => {
             writeMode: writeMode(),
             productActive: product.is_active,
           },
-          { fallbackSnapshot: snapshot, linkedSnapshots },
+          { fallbackSnapshot: snapshot, linkedSnapshots, shopifyLiveValues },
         ),
+        shopifyLive,
         history,
       });
     }
@@ -243,6 +329,99 @@ Deno.serve(async (req) => {
         return json({ ok: false, valid: false, code: editable.code, message: editable.message, currentVersion: null });
       }
       return fail("FIELD_NOT_EDITABLE", editable.message ?? "Campo non modificabile");
+    }
+
+    if (action === "sync_field") {
+      const expectedVersion = typeof payload.expectedVersion === "number" ? payload.expectedVersion : -1;
+      const idempotencyKey = typeof payload.idempotencyKey === "string" ? payload.idempotencyKey : "";
+      if (idempotencyKey.length < 8 || expectedVersion < 0) {
+        return fail("VALIDATION_ERROR", "expectedVersion o idempotencyKey mancante");
+      }
+      if (!shopifySyncEnabled()) {
+        return fail("WRITES_DISABLED", "La sincronizzazione Shopify non è abilitata in questo ambiente");
+      }
+      const command: SyncFieldInput = {
+        actor: auth.userId,
+        productId,
+        fieldKey,
+        expectedVersion,
+        idempotencyKey,
+      };
+      const replay = await lookupSyncReplay(db, command);
+      if (replay) {
+        if (replay.ok === false) {
+          return fail((replay.code as ApiErrorCode) ?? "INTERNAL_ERROR", "Sincronizzazione già conclusa con errore");
+        }
+        return json({ ok: true, result: replay });
+      }
+
+      const row = await getCurrentValue(db, productId, fieldKey);
+      if (!row) return fail("BLOCK_SYNC", "Valore Admin assente");
+      if (row.version !== expectedVersion) {
+        return fail("VERSION_CONFLICT", "Il valore è stato modificato da un altro utente", {
+          currentVersion: row.version,
+        });
+      }
+      const shopifyTarget = resolveShopifyTarget(def);
+      if (!def.publishable || !shopifyTarget) {
+        return fail("BLOCK_SYNC", "Campo non sincronizzabile");
+      }
+      if (commandProduct.entity_type === "variation" && shopifyTarget.kind !== "variant") {
+        return fail(
+          "BLOCK_SYNC",
+          "Una variante può sincronizzare soltanto campi variante con SKU univoco",
+        );
+      }
+      if (row.review_status !== "approved" || row.publish_blocked) {
+        return fail("BLOCK_SYNC", "Il valore deve essere approvato prima della sincronizzazione");
+      }
+
+      const mapping = await getExactShopifyProductMapping(db, commandProduct.sku);
+      if (!mapping?.shopify_product_id) {
+        await markSyncResult(db, {
+          ...command,
+          success: false,
+          errorCode: "BLOCK_SYNC",
+          errorMessage: "Mappatura Shopify assente per questo SKU.",
+        });
+        return fail("BLOCK_SYNC", "Mappatura Shopify assente per questo SKU");
+      }
+
+      try {
+        const result = await syncFieldToShopify({
+          db,
+          command,
+          definition: def,
+          row,
+          sku: commandProduct.sku,
+          shopifyProductId: mapping.shopify_product_id,
+        });
+        if (result.ok === false) {
+          const code = (result.code as ApiErrorCode) ?? "INTERNAL_ERROR";
+          return fail(code, "Sincronizzazione non completata", {
+            currentVersion: result.currentVersion as number | undefined,
+          });
+        }
+        console.log(redactedLog(action, actorId, "SYNCED"));
+        return json({ ok: true, result });
+      } catch (error) {
+        const syncError = error instanceof ShopifyFieldSyncError
+          ? error
+          : new ShopifyFieldSyncError("SHOPIFY_WRITE_FAILED", "Shopify non disponibile.");
+        const recorded = await markSyncResult(db, {
+          ...command,
+          success: false,
+          errorCode: syncError.code,
+          errorMessage: syncError.message,
+        });
+        if (recorded.code === "VERSION_CONFLICT") {
+          return fail("VERSION_CONFLICT", "Il valore è cambiato durante la sincronizzazione", {
+            currentVersion: recorded.currentVersion as number | undefined,
+          });
+        }
+        console.log(redactedLog(action, actorId, syncError.code));
+        return fail(syncError.code, syncError.message);
+      }
     }
 
     const targetAction: CommandAction =

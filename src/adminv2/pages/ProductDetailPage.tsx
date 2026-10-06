@@ -16,17 +16,26 @@ import {
   useAcceptAiSuggestion,
   useAiSuggestions,
   useFieldCommand,
+  useFieldSync,
   useGenerateAiSuggestion,
   useProductDetail,
   useRejectAiSuggestion,
 } from '../hooks/useAdminData';
 import { ENTITY_LABEL, formatDate, INVENTORY_NOTICE } from '../lib/labels';
 
+const SHOPIFY_SYNC_LABEL: Record<string, string> = {
+  synced: 'Sincronizzato',
+  pending: 'In attesa',
+  error: 'Errore',
+  never: 'Mai sincronizzato',
+};
+
 export default function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
   const { data, isLoading, isError, error, refetch } = useProductDetail(productId);
   const { data: context } = useAdminContext();
   const command = useFieldCommand(productId);
+  const fieldSync = useFieldSync(productId);
   const aiSuggestions = useAiSuggestions(productId);
   const generateAi = useGenerateAiSuggestion(productId);
   const rejectAi = useRejectAiSuggestion(productId);
@@ -54,7 +63,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const { product, sections, history } = data;
+  const { product, sections, history, shopifyLive } = data;
   const titleField = sections
     .flatMap((s) => s.fields)
     .find((f) => f.key === 'title' || f.key === 'name');
@@ -89,10 +98,29 @@ export default function ProductDetailPage() {
         </div>
         <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
           {context?.canWrite
-            ? 'Le capability sono calcolate dal server per ciascun campo. Le modifiche restano interne e non vengono inviate a Shopify.'
+            ? 'Il salvataggio aggiorna prima l’Admin. Shopify cambia soltanto dopo un’azione esplicita di sincronizzazione.'
             : (context?.readOnlyReason ?? 'Questa scheda è in sola lettura.')}
         </p>
       </header>
+
+      <section className="rounded-lg border bg-card p-4" aria-label="Valori Shopify live">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold">Valore Shopify live</h2>
+          <Badge variant={shopifyLive.available ? 'secondary' : 'outline'}>
+            {shopifyLive.available ? 'Connesso in sola lettura' : 'Non disponibile'}
+          </Badge>
+        </div>
+        {shopifyLive.available ? (
+          <dl className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-6">
+            <div><dt className="text-xs text-muted-foreground">Handle</dt><dd>{shopifyLive.handle ?? '—'}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">Stato pubblicazione</dt><dd>{shopifyLive.publicationStatus ?? '—'}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">ID Shopify</dt><dd className="break-all">{shopifyLive.productId ?? '—'}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">Prezzo</dt><dd>{shopifyLive.price ?? '—'}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">Prezzo barrato</dt><dd>{shopifyLive.compareAtPrice ?? '—'}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">Stato sync corrente</dt><dd>{SHOPIFY_SYNC_LABEL[shopifyLive.syncStatus ?? 'never'] ?? shopifyLive.syncStatus}</dd></div>
+          </dl>
+        ) : <p className="text-sm text-muted-foreground">{shopifyLive.error}</p>}
+      </section>
 
       <Accordion type="multiple" defaultValue={sections.slice(0, 2).map((s) => s.key)}>
         {sections.map((section) => (
@@ -120,6 +148,8 @@ export default function ProductDetailPage() {
                       key={field.key}
                       field={field}
                       onCommand={command.mutateAsync}
+                      onSync={fieldSync.mutateAsync}
+                      syncEnabled={context?.canSync === true}
                       onConflict={refetch}
                       aiSuggestion={aiSuggestions.data?.find((item) => item.fieldKey === field.key)}
                       onGenerateAi={async (input) => (await generateAi.mutateAsync(input)).suggestion}

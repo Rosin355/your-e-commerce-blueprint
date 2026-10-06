@@ -4,6 +4,11 @@ import type {
   CurrentValueRow,
   FieldDefinition,
 } from "./admin-v2-types.ts";
+import {
+  FieldPolicyError,
+  isSeasonalField,
+  validateConstrainedFieldValue,
+} from "./admin-v2-field-policy.ts";
 
 /** Gruppi mai modificabili in F5. */
 export const PROTECTED_GROUPS = [
@@ -64,6 +69,16 @@ export function isFieldEditable(def: FieldDefinition): ValidationResult {
       message: "campo di identità protetto",
     };
   }
+  if (
+    def.editor_type === "select" &&
+    (!Array.isArray(def.validation_rules?.enum) || def.validation_rules.enum.length === 0)
+  ) {
+    return {
+      ok: false,
+      code: "FIELD_NOT_EDITABLE",
+      message: "selezione priva di opzioni di dominio verificate",
+    };
+  }
   return { ok: true };
 }
 
@@ -80,6 +95,25 @@ export function validateValue(
   value: unknown,
 ): ValidationResult {
   const rules = def.validation_rules ?? {};
+
+  try {
+    const normalized = validateConstrainedFieldValue(def.key, value);
+    if (
+      isSeasonalField(def.key) &&
+      JSON.stringify(normalized) !== JSON.stringify(value)
+    ) {
+      return {
+        ok: false,
+        code: "VALIDATION_ERROR",
+        message: "i mesi devono essere unici e nell’ordine da gennaio a dicembre",
+      };
+    }
+  } catch (error) {
+    if (error instanceof FieldPolicyError) {
+      return { ok: false, code: "VALIDATION_ERROR", message: error.message };
+    }
+    throw error;
+  }
 
   switch (def.data_type) {
     case "number": {
@@ -112,10 +146,22 @@ export function validateValue(
       return typeof value === "boolean"
         ? { ok: true }
         : { ok: false, code: "VALIDATION_ERROR", message: "atteso vero/falso" };
-    case "array":
-      return Array.isArray(value)
-        ? { ok: true }
-        : { ok: false, code: "VALIDATION_ERROR", message: "attesa una lista" };
+    case "array": {
+      if (!Array.isArray(value)) {
+        return { ok: false, code: "VALIDATION_ERROR", message: "attesa una lista" };
+      }
+      const allowed = rules?.["enum"];
+      if (
+        Array.isArray(allowed) &&
+        value.some((entry) => typeof entry !== "string" || !allowed.includes(entry))
+      ) {
+        return { ok: false, code: "VALIDATION_ERROR", message: "uno o più valori non sono ammessi" };
+      }
+      if (new Set(value.map((entry) => JSON.stringify(entry))).size !== value.length) {
+        return { ok: false, code: "VALIDATION_ERROR", message: "valori duplicati non ammessi" };
+      }
+      return { ok: true };
+    }
     case "json":
       if (value === null || typeof value !== "object") {
         return {
@@ -223,6 +269,13 @@ export function validateCommand(
     allowLockedManual?: boolean;
   } = {},
 ): ValidationResult {
+  if (action === "sync_field") {
+    return {
+      ok: false,
+      code: "VALIDATION_ERROR",
+      message: "la sincronizzazione usa il flusso Shopify dedicato",
+    };
+  }
   const editable = isFieldEditable(def);
   if (!editable.ok) return editable;
 

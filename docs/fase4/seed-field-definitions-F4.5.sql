@@ -46,10 +46,10 @@ VALUES
 ('colore_foglia','Colore della foglia','botanical',ARRAY['colore_foglia'],'text','text','{"type":"metafield","namespace":"custom","key":"colore_foglia"}'::jsonb,true,true,false,true,true,false,true,'both',440,'Colore del fogliame. Campo compilato a mano.'),
 ('curiosita','Curiosità','botanical',ARRAY['curiosita'],'textarea','text','{"type":"metafield","namespace":"custom","key":"curiosita"}'::jsonb,true,true,false,true,true,false,true,'both',450,'Aneddoto o nota particolare. Campo compilato a mano.'),
 ('origini_e_habitat','Origini e habitat','botanical',ARRAY['origini_e_habitat'],'textarea','text','{"type":"metafield","namespace":"custom","key":"origini_e_habitat"}'::jsonb,true,true,true,false,true,false,true,'both',460,'Zona di provenienza e ambiente naturale.'),
-('periodo_di_fioritura','Periodo di fioritura','botanical',ARRAY['periodo_di_fioritura'],'text','text','{"type":"metafield","namespace":"custom","key":"periodo_di_fioritura"}'::jsonb,true,true,true,false,true,false,true,'both',470,'Mesi in cui la pianta fiorisce.'),
-('periodo_di_messa_a_dimora','Periodo di messa a dimora','botanical',ARRAY['periodo_di_messa_a_dimora'],'text','text','{"type":"metafield","namespace":"custom","key":"periodo_di_messa_a_dimora"}'::jsonb,true,true,true,false,true,false,true,'both',480,'Momento migliore per piantare.'),
-('periodo_di_raccolta','Periodo di raccolta','botanical',ARRAY['periodo_di_raccolta'],'text','text','{"type":"metafield","namespace":"custom","key":"periodo_di_raccolta"}'::jsonb,true,true,true,false,true,false,true,'both',490,'Mesi di raccolta dei frutti.'),
-('periodo_ottimale_di_potatura','Periodo di potatura','botanical',ARRAY['periodo_ottimale_di_potatura'],'text','text','{"type":"metafield","namespace":"custom","key":"periodo_ottimale_di_potatura"}'::jsonb,true,true,true,false,true,false,true,'both',500,'Momento consigliato per potare.'),
+('periodo_di_fioritura','Periodo di fioritura','botanical',ARRAY['periodo_di_fioritura'],'multiselect','array','{"type":"metafield","namespace":"custom","key":"periodo_di_fioritura"}'::jsonb,true,true,true,false,true,false,true,'both',470,'Seleziona uno o più mesi. Il sistema convertirà automaticamente il valore nel formato richiesto da Shopify.'),
+('periodo_di_messa_a_dimora','Periodo di messa a dimora','botanical',ARRAY['periodo_di_messa_a_dimora'],'multiselect','array','{"type":"metafield","namespace":"custom","key":"periodo_di_messa_a_dimora"}'::jsonb,true,true,true,false,true,false,true,'both',480,'Seleziona uno o più mesi. Il sistema convertirà automaticamente il valore nel formato richiesto da Shopify.'),
+('periodo_di_raccolta','Periodo di raccolta','botanical',ARRAY['periodo_di_raccolta'],'multiselect','array','{"type":"metafield","namespace":"custom","key":"periodo_di_raccolta"}'::jsonb,true,true,true,false,true,false,true,'both',490,'Seleziona uno o più mesi. Il sistema convertirà automaticamente il valore nel formato richiesto da Shopify.'),
+('periodo_ottimale_di_potatura','Periodo di potatura','botanical',ARRAY['periodo_ottimale_di_potatura'],'multiselect','array','{"type":"metafield","namespace":"custom","key":"periodo_ottimale_di_potatura"}'::jsonb,true,true,true,false,true,false,true,'both',500,'Seleziona uno o più mesi. Il sistema convertirà automaticamente il valore nel formato richiesto da Shopify.'),
 ('difficolta_di_coltivazione','Difficoltà di coltivazione','botanical',ARRAY['difficolta_di_coltivazione'],'select','text','{"type":"metafield","namespace":"custom","key":"difficolta_di_coltivazione"}'::jsonb,true,true,true,false,true,false,true,'both',510,'Quanto è impegnativa da coltivare.'),
 
 -- ---------------------------------------------------------- categories
@@ -100,6 +100,25 @@ VALUES
 ('ai_enriched_at','Data generazione AI','system',ARRAY['ai_enriched_at'],'text','text','{}'::jsonb,true,false,false,false,false,false,true,'both',1330,'Quando è stato generato il testo assistito.'),
 ('ai_seed_style','Stile di scrittura AI','system',ARRAY['ai_seed_style'],'text','text','{}'::jsonb,true,false,false,false,false,false,true,'both',1340,'Impostazione di tono usata dall''assistente.')
 ON CONFLICT (key) DO NOTHING;
+
+-- Opzioni di dominio verificate per gli editor vincolati.
+UPDATE public.product_field_definitions
+SET validation_rules = jsonb_build_object(
+  'enum', jsonb_build_array(
+    'Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+    'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'
+  )
+)
+WHERE key IN (
+  'periodo_di_fioritura','periodo_di_messa_a_dimora',
+  'periodo_di_raccolta','periodo_ottimale_di_potatura'
+);
+
+UPDATE public.product_field_definitions
+SET validation_rules = jsonb_build_object(
+  'enum', jsonb_build_array('Facile','Media','Difficile')
+)
+WHERE key = 'difficolta_di_coltivazione';
 
 -- Review policy dei tre campi editoriali legacy non verificati (idempotente)
 UPDATE public.product_field_definitions

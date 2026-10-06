@@ -1,5 +1,36 @@
 # Online Garden — stato consolidato del progetto
 
+## Aggiornamento 6 ottobre 2026 — Admin client-safe + field sync
+
+`CODEX VERIFIED / OFFLINE TESTED ONLY`: è stata preparata l’integrazione Admin
+V2 per editor stagionali vincolati, enum difficoltà, stati di sincronizzazione,
+confronto con valori Shopify live e sync esplicita a campo singolo. Il target
+Shopify è derivato dal registro server-side; permessi, `expectedVersion`, SKU
+esatto, idempotenza, drift e verifica post-write sono obbligatori.
+
+`NOT EXECUTED LIVE`: migration, deploy frontend/Edge, attivazione
+`PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED`, chiamate di scrittura Shopify e merge.
+La feature flag resta disabilitata per default. Prima del lancio servono review,
+applicazione migration, deploy coordinato e smoke controllato su uno SKU
+esplicitamente approvato. Dettagli in `docs/admin-v2-client-editing.md` e nella
+sezione Admin V2 di `docs/product-sync-architecture.md`.
+
+### Chiarimento migration Admin client-safe
+
+Il progetto live corrente dispone già dello schema base del catalogo Admin
+(`products`, registro dei campi, valori correnti, history e command log), creato
+dalla catena storica e già utilizzato dall'Admin V2. La migration
+`20261006143000_admin_client_safe_field_sync.sql` è intenzionalmente additiva:
+estende quello schema esistente con lo stato e le primitive necessarie alla
+sincronizzazione Shopify a campo singolo e non ricrea né sostituisce le tabelle
+base.
+
+Una catena bootstrap/clean-room autosufficiente che ricostruisca da zero tutto
+lo schema Admin storico resta debito tecnico esplicito. Questo limite riguarda
+la creazione di un ambiente nuovo e vuoto; non blocca l'ambiente live esistente,
+nel quale le dipendenze base sono già presenti. Non è stata introdotta una
+migration distruttiva o retroattiva per mascherare tale debito.
+
 Data di consolidamento: 2 ottobre 2026
 Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 Baseline Git 2D.4A: `origin/main@0959f95202824cb2a005a6f140282995579a3895`

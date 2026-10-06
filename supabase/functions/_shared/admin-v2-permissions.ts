@@ -17,6 +17,7 @@ export const COMMAND_ACTIONS: ApiAction[] = [
   "clear_field",
   "confirm_legacy_value",
   "reject_legacy_value",
+  "sync_field",
 ];
 
 export const ALL_ACTIONS: ApiAction[] = [...READ_ACTIONS, ...COMMAND_ACTIONS];
@@ -42,6 +43,10 @@ export function canRead(roles: AppRole[]): boolean {
 
 export function canWrite(roles: AppRole[]): boolean {
   return roles.some((r) => WRITE_ROLES.includes(r));
+}
+
+export function canSyncShopify(roles: AppRole[]): boolean {
+  return roles.some((r) => r === "admin" || r === "tech_admin");
 }
 
 /** F7 — in modalità canary scrivono soltanto Admin e Tech Admin. */
@@ -72,6 +77,9 @@ export function authorizeAction(action: ApiAction, roles: AppRole[]): {
   }
   if (isCommandAction(action) && !canWrite(roles)) {
     return { allowed: false, reason: "ruolo senza permesso di modifica" };
+  }
+  if (action === "sync_field" && !canSyncShopify(roles)) {
+    return { allowed: false, reason: "sincronizzazione Shopify riservata agli amministratori" };
   }
   return { allowed: true };
 }

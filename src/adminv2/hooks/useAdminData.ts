@@ -9,6 +9,7 @@ import {
   getAiSuggestions,
   rejectAiSuggestion,
   sendFieldCommand,
+  sendFieldSyncCommand,
   type AdminContext,
   type DashboardStats,
   type FieldCommandAction,
@@ -139,6 +140,18 @@ export function useFieldCommand(productId?: string) {
       value?: unknown;
       expectedVersion: number;
     }) => sendFieldCommand({ ...input, productId: productId! }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'product', productId] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
+    },
+  });
+}
+
+export function useFieldSync(productId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { fieldKey: string; expectedVersion: number; idempotencyKey?: string }) =>
+      sendFieldSyncCommand({ ...input, productId: productId! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'product', productId] });
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
