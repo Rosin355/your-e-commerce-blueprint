@@ -87,3 +87,8 @@ i mesi corretti.
 - Pubblicazione frontend richiesta dalla stessa revisione.
 - Smoke test autenticato e canary: NON eseguiti — serve un account admin per la sessione di test e un prodotto canary approvato esplicitamente. Nessuna scrittura Shopify effettuata.
 - Stato: STOPPED in attesa di account di test + prodotto canary.
+
+### Ripresa passaggio 4 — 2026-10-06 18:18
+- Sessione Admin dell'utente non disponibile all'agente (stato anteprima: non autenticato); nessuna credenziale letta o creata.
+- Pre-check DB in sola lettura: OG_111899 (variable) non ha una riga `periodo_di_fioritura`. La RPC `admin_update_product_field` crea righe nuove solo per campi `manual_only`; `periodo_di_fioritura` è `manual_only=false`, quindi il salvataggio canary risponderebbe FIELD_NOT_EDITABLE.
+- Nessuna scrittura DB/Shopify. `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED` assente = OFF.
