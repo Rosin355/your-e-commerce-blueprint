@@ -18,6 +18,7 @@ import {
 } from "../../supabase/functions/product-admin-api/capabilities.ts";
 import { serializeField } from "../../supabase/functions/product-admin-api/serializers.ts";
 import type {
+  CurrentValueRow,
   FieldDefinition,
 } from "../../supabase/functions/_shared/admin-v2-types.ts";
 import {
@@ -59,6 +60,28 @@ const writable = {
   writesEnabled: true,
   writeMode: "canary" as const,
 };
+
+function currentSeasonalValue(value: string[]): CurrentValueRow {
+  return {
+    id: "value-1",
+    product_id: "product-1",
+    sku: "OG_TEST",
+    field_key: "periodo_di_fioritura",
+    entity_type: "product",
+    value_text: null,
+    value_number: null,
+    value_json: value,
+    value_origin: "manual",
+    origin: "manual",
+    review_status: "approved",
+    publish_blocked: false,
+    protected_on_reimport: true,
+    source_snapshot_id: null,
+    is_locked: false,
+    version: 1,
+    updated_at: "2026-10-06T00:00:00Z",
+  };
+}
 
 test("allowlist missing-value contiene soltanto i cinque campi approvati", () => {
   assert.deepEqual([...CLIENT_CREATABLE_MISSING_FIELD_KEYS], [
@@ -111,6 +134,16 @@ test("missing periodo_di_fioritura accetta solo string[] canonico", () => {
     normalizeEditorValue(serializeField(def, undefined, "simple", writable), value),
     { ok: true, value },
   );
+  assert.equal(validateCommand("update_field", def, undefined, ["Marzo"], {
+    expectedVersion: 0,
+  }).ok, true);
+  assert.equal(validateCommand("update_field", def, undefined, [], {
+    expectedVersion: 0,
+  }).code, "VALIDATION_ERROR");
+  assert.deepEqual(
+    normalizeEditorValue(serializeField(def, undefined, "simple", writable), []),
+    { ok: false, message: "Seleziona almeno un mese." },
+  );
 
   assert.equal(validateCommand("update_field", def, undefined, "Marzo", {
     expectedVersion: 0,
@@ -124,6 +157,18 @@ test("missing periodo_di_fioritura accetta solo string[] canonico", () => {
   assert.equal(validateCommand("update_field", def, undefined, ["Aprile", "Marzo"], {
     expectedVersion: 0,
   }).code, "VALIDATION_ERROR");
+});
+
+test("periodo stagionale esistente non può essere svuotato tramite update_field", () => {
+  const result = validateCommand(
+    "update_field",
+    definition(),
+    currentSeasonalValue(["Marzo"]),
+    [],
+    { expectedVersion: 1 },
+  );
+  assert.equal(result.code, "VALIDATION_ERROR");
+  assert.equal(result.message, "Seleziona almeno un mese.");
 });
 
 test("difficolta mancante usa select ed enum chiuso", () => {
@@ -211,6 +256,9 @@ test("salvataggio interno resta separato dalla rete Shopify e dalla sync esplici
   assert.match(api, /if \(action === "sync_field"\)/);
   assert.match(api, /syncFieldToShopify/);
   assert.match(fieldCard, /field\.capabilities\.currentValueExists/);
+  assert.match(fieldCard, /seasonalDraftEmpty/);
+  assert.match(fieldCard, /Seleziona almeno un mese\./);
+  assert.match(fieldCard, /!dirty \|\| seasonalDraftEmpty/);
   assert.doesNotMatch(migration, /\b(?:fetch|curl|http_post|net\.http_)\b/i);
   assert.equal(drizzleMigration, migration);
   assert.match(migration, /'pending_publish'/);

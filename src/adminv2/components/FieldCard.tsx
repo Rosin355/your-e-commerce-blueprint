@@ -9,7 +9,7 @@ import ValueDisplay from './ValueDisplay';
 import FieldEditor from './FieldEditor';
 import AiSuggestionCard from './AiSuggestionCard';
 import { AdminApiError, type AdminAiSuggestion, type AdminField, type FieldCommandAction } from '../lib/adminApi';
-import { isEditorValueSupported, normalizeEditorValue, parseFaqValue } from '../lib/fieldValueCodecs';
+import { editorKind, isEditorValueSupported, normalizeEditorValue, parseFaqValue } from '../lib/fieldValueCodecs';
 import { ENTITY_LABEL, isLegacyAi, isManualField, LEGACY_AI_NOTICE, originLabel, reviewLabel } from '../lib/labels';
 
 function displayValue(field: AdminField): unknown {
@@ -111,6 +111,9 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
   };
 
   const dirty = JSON.stringify(draft ?? null) !== JSON.stringify(cloneValue(field.key === 'faq' && parseFaqValue(field.value).kind === 'supported' ? (parseFaqValue(field.value) as { items: unknown }).items : field.value) ?? null);
+  const seasonalDraftEmpty = editorKind(field) === 'month_multiselect' &&
+    Array.isArray(draft) && draft.length === 0;
+  const visibleValidationError = seasonalDraftEmpty ? 'Seleziona almeno un mese.' : validationError;
   const errorId = `field-error-${field.key}`;
 
   const save = async (syncAfterSave = false) => {
@@ -207,7 +210,7 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
       <div className={`mb-3 grid gap-3 ${field.shopifySyncSupported ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
         <section className="rounded-md border p-3">
           <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Valore corrente</h4>
-          {editing ? <div aria-describedby={validationError ? errorId : undefined}><FieldEditor field={field} value={draft} onChange={setDraft} disabled={busy !== null} /></div> : <ValueDisplay value={displayValue(field)} label={field.label} />}
+          {editing ? <div aria-describedby={visibleValidationError ? errorId : undefined}><FieldEditor field={field} value={draft} onChange={setDraft} disabled={busy !== null} /></div> : <ValueDisplay value={displayValue(field)} label={field.label} />}
         </section>
         <section className="rounded-md border bg-muted/30 p-3">
           <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Originale WordPress</h4>
@@ -224,7 +227,7 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
         )}
       </div>
 
-      {validationError && <p id={errorId} role="alert" className="mb-3 text-xs text-destructive">{validationError}</p>}
+      {visibleValidationError && <p id={errorId} role="alert" className="mb-3 text-xs text-destructive">{visibleValidationError}</p>}
       {conflictVersion !== null && (
         <Alert variant="destructive" className="mb-3">
           <AlertTitle>Versione modificata da un altro utente</AlertTitle>
@@ -262,9 +265,9 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
       <div className="flex flex-wrap gap-2 pt-3">
         {editing ? (
           <>
-            <Button size="sm" onClick={() => void save(false)} disabled={busy !== null || conflictVersion !== null || !dirty} title={!dirty ? 'Nessuna modifica da salvare' : undefined}>{busy === 'update_field' && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}Salva nell’Admin</Button>
+            <Button size="sm" onClick={() => void save(false)} disabled={busy !== null || conflictVersion !== null || !dirty || seasonalDraftEmpty} title={!dirty ? 'Nessuna modifica da salvare' : undefined}>{busy === 'update_field' && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}Salva nell’Admin</Button>
             {field.shopifySyncSupported && syncEnabled && (
-              <Button size="sm" variant="secondary" onClick={() => void save(true)} disabled={busy !== null || conflictVersion !== null || !dirty}>
+              <Button size="sm" variant="secondary" onClick={() => void save(true)} disabled={busy !== null || conflictVersion !== null || !dirty || seasonalDraftEmpty}>
                 {busy === 'save_and_sync' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <CloudUpload className="mr-1 h-3.5 w-3.5" />}
                 Salva e sincronizza su Shopify
               </Button>

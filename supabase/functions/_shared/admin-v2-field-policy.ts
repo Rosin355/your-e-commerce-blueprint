@@ -113,6 +113,9 @@ export function normalizeMonths(value: unknown): Month[] {
   if (!Array.isArray(value)) {
     throw new FieldPolicyError("Seleziona uno o più mesi dall’elenco disponibile.");
   }
+  if (value.length === 0) {
+    throw new FieldPolicyError("Seleziona almeno un mese.");
+  }
   const unique = new Set<Month>();
   for (const item of value) {
     if (typeof item !== "string" || !MONTH_INDEX.has(item)) {

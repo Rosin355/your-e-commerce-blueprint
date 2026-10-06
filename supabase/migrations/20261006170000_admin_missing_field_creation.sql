@@ -149,6 +149,10 @@ BEGIN
         RETURN jsonb_build_object('ok', false, 'code', 'VALIDATION_ERROR',
                                   'message', 'attesa una lista di mesi');
       END IF;
+      IF jsonb_array_length(p_value) < 1 THEN
+        RETURN jsonb_build_object('ok', false, 'code', 'VALIDATION_ERROR',
+                                  'message', 'seleziona almeno un mese');
+      END IF;
       IF EXISTS (
         SELECT 1
           FROM jsonb_array_elements(p_value) AS item(value)
@@ -325,6 +329,54 @@ BEGIN
   IF p_action = 'update_field' THEN
     IF p_value IS NULL OR jsonb_typeof(p_value) = 'null' THEN
       RETURN jsonb_build_object('ok', false, 'code', 'VALIDATION_ERROR', 'message', 'valore mancante');
+    END IF;
+    IF v_def.key = ANY (ARRAY[
+      'periodo_di_fioritura',
+      'periodo_di_messa_a_dimora',
+      'periodo_di_raccolta',
+      'periodo_ottimale_di_potatura'
+    ]) THEN
+      IF jsonb_typeof(p_value) <> 'array' THEN
+        RETURN jsonb_build_object('ok', false, 'code', 'VALIDATION_ERROR',
+                                  'message', 'attesa una lista di mesi');
+      END IF;
+      IF jsonb_array_length(p_value) < 1 THEN
+        RETURN jsonb_build_object('ok', false, 'code', 'VALIDATION_ERROR',
+                                  'message', 'seleziona almeno un mese');
+      END IF;
+      IF EXISTS (
+        SELECT 1
+          FROM jsonb_array_elements(p_value) AS item(value)
+         WHERE jsonb_typeof(item.value) <> 'string'
+            OR NOT ((item.value #>> '{}') = ANY (v_months))
+      ) THEN
+        RETURN jsonb_build_object('ok', false, 'code', 'VALIDATION_ERROR',
+                                  'message', 'mese non ammesso');
+      END IF;
+      IF jsonb_array_length(p_value) <> (
+        SELECT count(DISTINCT item.value #>> '{}')
+          FROM jsonb_array_elements(p_value) AS item(value)
+      ) THEN
+        RETURN jsonb_build_object('ok', false, 'code', 'VALIDATION_ERROR',
+                                  'message', 'mesi duplicati non ammessi');
+      END IF;
+      IF EXISTS (
+        SELECT 1
+          FROM (
+            SELECT
+              array_position(v_months, item.value #>> '{}') AS month_position,
+              lag(array_position(v_months, item.value #>> '{}')) OVER (
+                ORDER BY item.ordinality
+              ) AS previous_position
+              FROM jsonb_array_elements(p_value) WITH ORDINALITY
+                AS item(value, ordinality)
+          ) ordered_months
+         WHERE ordered_months.previous_position IS NOT NULL
+           AND ordered_months.month_position <= ordered_months.previous_position
+      ) THEN
+        RETURN jsonb_build_object('ok', false, 'code', 'VALIDATION_ERROR',
+                                  'message', 'mesi non in ordine canonico');
+      END IF;
     END IF;
     v_new_text := NULL; v_new_number := NULL; v_new_json := NULL;
     IF v_def.data_type = 'number' THEN

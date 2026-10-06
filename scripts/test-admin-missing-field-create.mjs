@@ -157,6 +157,8 @@ try {
   });
 
   test('mese non valido, duplicato, fuori ordine e sintassi Shopify raw sono rifiutati', () => {
+    assert.equal(rpc({ field: 'periodo_di_messa_a_dimora', value: [],
+      key: 'empty-month-create' }).code, 'VALIDATION_ERROR');
     assert.equal(rpc({ field: 'periodo_di_messa_a_dimora', value: ['Marzo', 'Primavera'],
       key: 'invalid-month-1' }).code, 'VALIDATION_ERROR');
     assert.equal(rpc({ field: 'periodo_di_messa_a_dimora', value: ['Marzo', 'Marzo'],
@@ -167,6 +169,14 @@ try {
       key: 'raw-shopify-month' }).code, 'VALIDATION_ERROR');
     assert.equal(sql(`SELECT count(*) FROM public.product_current_values
       WHERE field_key='periodo_di_messa_a_dimora';`), '0');
+  });
+
+  test('array stagionale vuoto è rifiutato anche su una riga esistente', () => {
+    const rejected = rpc({ field: 'periodo_di_fioritura', value: [], version: 1,
+      key: 'empty-month-update' });
+    assert.equal(rejected.code, 'VALIDATION_ERROR');
+    assert.equal(sql(`SELECT value_json::text||'|'||version FROM public.product_current_values
+      WHERE field_key='periodo_di_fioritura';`), '["Marzo", "Aprile"]|1');
   });
 
   test('difficolta mancante accetta solo Facile, Media o Difficile', () => {
