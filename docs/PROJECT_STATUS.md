@@ -1,5 +1,22 @@
 # Online Garden — stato consolidato del progetto
 
+## Aggiornamento 6 ottobre 2026 — creazione controllata valori mancanti
+
+`CODEX VERIFIED / OFFLINE TESTED ONLY`: l’Admin V2 può creare il primo valore
+soltanto per `periodo_di_fioritura`, `periodo_di_messa_a_dimora`,
+`periodo_di_raccolta`, `periodo_ottimale_di_potatura` e
+`difficolta_di_coltivazione`, oltre al percorso `manual_only` già esistente.
+La policy è server-side, usa `expectedVersion=0`, validazione tipizzata e RPC
+atomica; il risultato è versione 1 con history 0→1. Per campi pubblicabili con
+mapping supportato lo stato interno diventa `PENDING_SYNC`, senza chiamate
+Shopify automatiche.
+
+Se un campo stagionale è vuoto, puoi compilarlo normalmente. Non devi
+conoscere o inserire il formato tecnico Shopify.
+
+`NOT EXECUTED LIVE`: nessuna migration, deploy, scrittura DB live o scrittura
+Shopify è stata eseguita per questo follow-up.
+
 ## Aggiornamento 6 ottobre 2026 — Admin client-safe + field sync
 
 `CODEX VERIFIED / OFFLINE TESTED ONLY`: è stata preparata l’integrazione Admin

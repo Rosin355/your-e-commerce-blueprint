@@ -107,6 +107,7 @@ try {
       sort_order integer NOT NULL DEFAULT 0,
       help_text text,
       validation_rules jsonb NOT NULL DEFAULT '{}',
+      shopify_mapping jsonb NOT NULL DEFAULT '{}',
       review_policy text NOT NULL DEFAULT 'none'
     );
     CREATE TABLE public.product_current_values (

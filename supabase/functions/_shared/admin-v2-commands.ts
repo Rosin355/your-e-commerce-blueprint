@@ -1,6 +1,7 @@
 // F5 — Command layer: ogni scrittura passa dalla funzione atomica DB.
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 import type { CommandAction } from "./admin-v2-types.ts";
+import { isClientCreatableMissingFieldKey } from "./admin-v2-field-policy.ts";
 
 export function writesEnabled(): boolean {
   return (Deno.env.get("PRODUCT_ADMIN_WRITES_ENABLED") ?? "false")
@@ -37,7 +38,9 @@ export const CANARY_ACTIONS = [
 export function isCanaryField(
   def: { key: string; manual_only: boolean },
 ): boolean {
-  return CANARY_FIELD_KEYS.includes(def.key) || def.manual_only === true;
+  return CANARY_FIELD_KEYS.includes(def.key) ||
+    isClientCreatableMissingFieldKey(def.key) ||
+    def.manual_only === true;
 }
 
 /**

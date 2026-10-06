@@ -279,7 +279,8 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
             <TooltipContent>{editorSupported ? BLOCK_REASON[field.capabilities.updateBlockReason] : 'Il valore legacy non è interpretabile senza perdita.'}</TooltipContent>
           </Tooltip>
         )}
-        {!editing && field.shopifySyncSupported && syncEnabled && field.version !== null && (
+        {!editing && field.shopifySyncSupported && syncEnabled &&
+          field.capabilities.currentValueExists && field.version !== null && field.version > 0 && (
           <Button size="sm" variant="secondary" onClick={() => void syncCurrentValue()} disabled={busy !== null || legacyAi || field.publishBlocked}>
             {busy === 'sync_field' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <CloudUpload className="mr-1 h-3.5 w-3.5" />}
             Sincronizza su Shopify
