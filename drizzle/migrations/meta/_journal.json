@@ -85,6 +85,13 @@
       "when": 1791302992650,
       "tag": "0011_admin_client_safe_field_sync_defs_and_functions",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791304779000,
+      "tag": "0012_admin_missing_field_creation",
+      "breakpoints": true
     }
   ]
 }

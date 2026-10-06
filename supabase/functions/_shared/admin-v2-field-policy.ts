@@ -30,6 +30,15 @@ export const SEASONAL_FIELD_KEYS = Object.freeze([
   "periodo_ottimale_di_potatura",
 ] as const);
 
+/**
+ * Uniche chiavi non-manual_only per cui il client Admin può creare il primo
+ * valore. La policy è server-side e non viene derivata da input del browser.
+ */
+export const CLIENT_CREATABLE_MISSING_FIELD_KEYS = Object.freeze([
+  ...SEASONAL_FIELD_KEYS,
+  "difficolta_di_coltivazione",
+] as const);
+
 export type Month = (typeof MONTHS)[number];
 export type FieldSyncState =
   | "INTERNAL_ONLY"
@@ -65,6 +74,9 @@ const MONTH_INDEX = new Map<string, number>(
   MONTHS.map((month, index) => [month, index]),
 );
 const SEASONAL_KEYS = new Set<string>(SEASONAL_FIELD_KEYS);
+const CLIENT_CREATABLE_MISSING_KEYS = new Set<string>(
+  CLIENT_CREATABLE_MISSING_FIELD_KEYS,
+);
 
 const CORE_ALLOWLIST: Readonly<Record<string, "title" | "descriptionHtml" | "vendor" | "tags">> = {
   title: "title",
@@ -93,9 +105,16 @@ export function isSeasonalField(fieldKey: string): boolean {
   return SEASONAL_KEYS.has(fieldKey);
 }
 
+export function isClientCreatableMissingFieldKey(fieldKey: string): boolean {
+  return CLIENT_CREATABLE_MISSING_KEYS.has(fieldKey);
+}
+
 export function normalizeMonths(value: unknown): Month[] {
   if (!Array.isArray(value)) {
     throw new FieldPolicyError("Seleziona uno o più mesi dall’elenco disponibile.");
+  }
+  if (value.length === 0) {
+    throw new FieldPolicyError("Seleziona almeno un mese.");
   }
   const unique = new Set<Month>();
   for (const item of value) {

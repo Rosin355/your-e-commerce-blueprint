@@ -8,6 +8,7 @@ import { isCanaryField, type WriteMode } from "./commands.ts";
 import { isFieldEditable } from "./validation.ts";
 import type { AppRole, CurrentValueRow, FieldDefinition } from "./types.ts";
 import { aiValueEligibility } from "../_shared/admin-ai-core.ts";
+import { isClientCreatableMissingFieldKey } from "./field-policy.ts";
 
 export type ProductEntityType = "simple" | "variable" | "variation";
 
@@ -98,10 +99,12 @@ export function calculateFieldCapabilities(
   const legacyReview = row?.review_status === "legacy_unverified";
   const manualAdmin = def.manual_only &&
     canManageLockedManualValues(context.roles);
+  const clientMissingCreate = !def.manual_only &&
+    isClientCreatableMissingFieldKey(def.key);
 
   const updateReason = baseReason !== "allowed"
     ? baseReason
-    : !row && !manualAdmin
+    : !row && !manualAdmin && !clientMissingCreate
     ? "current_value_missing"
     : locked && !manualAdmin
     ? "current_value_locked"

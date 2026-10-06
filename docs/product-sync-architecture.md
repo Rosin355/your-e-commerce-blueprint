@@ -29,6 +29,22 @@ Il percorso Admin V2 è separato dallo Smart Sync CSV descritto più avanti:
 9. `product_field_history` e `product_admin_command_log` registrano esito e
    idempotenza senza incrementare la versione editoriale durante la sola sync.
 
+### Creazione controllata del primo valore
+
+L’assenza di una riga in `product_current_values` non abilita una creazione
+generica. Con `expectedVersion=0`, la RPC accetta soltanto `update_field` e una
+delle chiavi server-side `periodo_di_fioritura`,
+`periodo_di_messa_a_dimora`, `periodo_di_raccolta`,
+`periodo_ottimale_di_potatura`, `difficolta_di_coltivazione`; il percorso
+`manual_only` preesistente resta separato e riservato agli amministratori.
+
+Ruolo, definizione editabile/applicabile, tipo nativo, enum, unicità dei mesi e
+assenza della riga vengono ricontrollati nella transazione. L’insert usa il
+vincolo univoco prodotto/campo: in una race una sola richiesta crea versione 1
+e history 0→1, mentre le altre ricevono `VERSION_CONFLICT` senza overwrite.
+Il trigger di stato imposta `pending_publish` soltanto per un campo pubblicabile
+con mapping supportato; nessuna parte di questo salvataggio chiama Shopify.
+
 Le letture live di handle, stato, ID prodotto, prezzo e prezzo barrato sono
 best-effort: un errore Shopify non rende inutilizzabile la scheda Admin e non
 sovrascrive i dati interni.

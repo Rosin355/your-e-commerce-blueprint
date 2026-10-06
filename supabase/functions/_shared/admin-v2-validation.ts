@@ -6,6 +6,7 @@ import type {
 } from "./admin-v2-types.ts";
 import {
   FieldPolicyError,
+  isClientCreatableMissingFieldKey,
   isSeasonalField,
   validateConstrainedFieldValue,
 } from "./admin-v2-field-policy.ts";
@@ -295,9 +296,13 @@ export function validateCommand(
         message: "la creazione richiede expectedVersion=0",
       };
     }
+    const manualCreateAllowed = def.manual_only &&
+      opts.allowLockedManual === true;
+    const clientCreateAllowed = !def.manual_only &&
+      isClientCreatableMissingFieldKey(def.key);
     if (
-      action !== "update_field" || !def.manual_only ||
-      opts.allowLockedManual !== true
+      action !== "update_field" ||
+      (!manualCreateAllowed && !clientCreateAllowed)
     ) {
       return {
         ok: false,

@@ -18,6 +18,28 @@ Gli stati mostrati sono:
 - **Sincronizzato** (`SYNCED`): la rilettura Shopify coincide con il valore inviato;
 - **Errore sync** (`SYNC_ERROR`): mapping, drift, scrittura o verifica hanno bloccato l’operazione.
 
+## Primo valore mancante
+
+Se un campo stagionale è vuoto, puoi compilarlo normalmente. Non devi
+conoscere o inserire il formato tecnico Shopify.
+
+Il primo salvataggio usa internamente `expectedVersion=0`, crea una sola riga
+versione 1 tramite la stessa RPC atomica e, quando il mapping Shopify è
+supportato, mostra **Da sincronizzare** (`PENDING_SYNC`). Non viene eseguita
+alcuna scrittura Shopify: la sincronizzazione resta un’azione esplicita.
+
+La policy è definita esclusivamente sul server. L’allowlist iniziale è:
+
+- `periodo_di_fioritura`;
+- `periodo_di_messa_a_dimora`;
+- `periodo_di_raccolta`;
+- `periodo_ottimale_di_potatura`;
+- `difficolta_di_coltivazione`.
+
+Tutti gli altri campi non-`manual_only` senza una riga corrente restano in
+sola lettura. Il comportamento storico di creazione dei campi `manual_only`
+rimane invariato e riservato ad Admin/Tech Admin.
+
 ## Tabella cliente
 
 | Campo | Tipo editor | Dove appare | Modificabile | Sync Shopify | Note |
