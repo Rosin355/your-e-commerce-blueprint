@@ -17,7 +17,13 @@ import {
 } from "../../supabase/functions/_shared/admin-v2-field-policy.ts";
 import {
   buildShopifyWritePlan,
-  type ShopifyLiveSnapshot,
+  performVerifiedShopifyFieldWrite,
+  readExactMetafieldTarget,
+  readExactVariantTarget,
+  ShopifyFieldSyncError,
+  type ExactShopifyTargetRead,
+  type ShopifyGraphQL,
+  type ShopifyVariantSnapshot,
 } from "../../supabase/functions/_shared/admin-v2-shopify-field-sync.ts";
 import { validateValue } from "../../supabase/functions/_shared/admin-v2-validation.ts";
 import type { FieldDefinition } from "../../supabase/functions/_shared/admin-v2-types.ts";
@@ -51,24 +57,24 @@ function definition(overrides: Partial<FieldDefinition> = {}): FieldDefinition {
   };
 }
 
-const snapshot: ShopifyLiveSnapshot = {
-  id: "gid://shopify/Product/1",
-  handle: "rosa",
-  status: "ACTIVE",
-  title: "Rosa",
-  descriptionHtml: "<p>Rosa</p>",
-  vendor: "Online Garden",
-  tags: ["pianta"],
-  seo: { title: "Rosa", description: "Rosa da giardino" },
-  variants: [{
-    id: "gid://shopify/ProductVariant/2",
-    sku: "OG_1",
-    price: "12.00",
-    compareAtPrice: "15.00",
-    barcode: "123",
-  }],
-  metafields: [],
+const exactVariant: ShopifyVariantSnapshot = {
+  id: "gid://shopify/ProductVariant/2",
+  productId: "gid://shopify/Product/1",
+  sku: "OG_1",
+  price: "12.00",
+  compareAtPrice: "15.00",
+  barcode: "123",
 };
+
+function variantTargetRead(variant = exactVariant): ExactShopifyTargetRead {
+  return { value: variant.price, variant };
+}
+
+function expectBlockSync(error: unknown): boolean {
+  assert.ok(error instanceof ShopifyFieldSyncError);
+  assert.equal(error.code, "BLOCK_SYNC");
+  return true;
+}
 
 test("month multiselect accetta solo mesi validi e usa ordine canonico", () => {
   assert.deepEqual(normalizeMonths(["Maggio", "Marzo", "Maggio"]), ["Marzo", "Maggio"]);
@@ -143,10 +149,8 @@ test("mutation metafield contiene un solo campo e nessun target client arbitrari
   assert.ok(target);
   const plan = buildShopifyWritePlan({
     productId: "1",
-    sku: "OG_1",
     target,
     value: '["Marzo"]',
-    snapshot,
   });
   assert.equal(plan.operation, "metafieldsSet");
   if (plan.operation !== "metafieldsSet") return;
@@ -169,7 +173,7 @@ test("mutation core include solo id e singolo attributo", () => {
   });
   const target = resolveShopifyTarget(def);
   assert.ok(target);
-  const plan = buildShopifyWritePlan({ productId: "1", sku: "OG_1", target, value: "Nuovo", snapshot });
+  const plan = buildShopifyWritePlan({ productId: "1", target, value: "Nuovo" });
   assert.deepEqual(plan, {
     operation: "productUpdate",
     variables: { product: { id: "gid://shopify/Product/1", title: "Nuovo" } },
@@ -185,9 +189,203 @@ test("variant write richiede una corrispondenza SKU esatta e univoca", () => {
   });
   const target = resolveShopifyTarget(def);
   assert.ok(target);
-  const plan = buildShopifyWritePlan({ productId: "1", sku: "OG_1", target, value: "13", snapshot });
+  const plan = buildShopifyWritePlan({
+    productId: "1",
+    target,
+    value: "13",
+    resolvedTarget: variantTargetRead(),
+  });
   assert.equal(plan.operation, "productVariantsBulkUpdate");
-  assert.throws(() => buildShopifyWritePlan({ productId: "1", sku: "ALTRO", target, value: "13", snapshot }));
+  assert.throws(
+    () => buildShopifyWritePlan({ productId: "1", target, value: "13" }),
+    expectBlockSync,
+  );
+});
+
+test("metafield target oltre i primi 100 usa il lookup singolare esatto", async () => {
+  const target = resolveShopifyTarget(definition());
+  assert.ok(target);
+  let inspectedQuery = "";
+  let inspectedVariables: Record<string, unknown> | undefined;
+  const graphql: ShopifyGraphQL = async <T>(query: string, variables?: Record<string, unknown>) => {
+    inspectedQuery = query;
+    inspectedVariables = variables;
+    return {
+      product: {
+        id: "gid://shopify/Product/1",
+        metafield: {
+          namespace: "custom",
+          key: "periodo_di_fioritura",
+          type: "list.single_line_text_field",
+          value: '["Marzo"]',
+        },
+      },
+    } as T;
+  };
+
+  const result = await readExactMetafieldTarget("1", target, graphql);
+  assert.equal(result?.value, '["Marzo"]');
+  assert.match(inspectedQuery, /metafield\(namespace: \$namespace, key: \$key\)/);
+  assert.doesNotMatch(inspectedQuery, /metafields\s*\(\s*first:/);
+  assert.deepEqual(inspectedVariables, {
+    id: "gid://shopify/Product/1",
+    namespace: "custom",
+    key: "periodo_di_fioritura",
+  });
+});
+
+test("metafield esatto assente restituisce null", async () => {
+  const target = resolveShopifyTarget(definition());
+  assert.ok(target);
+  const graphql: ShopifyGraphQL = async <T>() => ({
+    product: { id: "gid://shopify/Product/1", metafield: null },
+  }) as T;
+  assert.equal(await readExactMetafieldTarget("1", target, graphql), null);
+});
+
+test("namespace e key client arbitrari non possono raggiungere la lettura Shopify", async () => {
+  const maliciousDefinition = definition({
+    shopify_mapping: { type: "metafield", namespace: "private", key: "admin_override" },
+  });
+  assert.equal(resolveShopifyTarget(maliciousDefinition), null);
+
+  const target = resolveShopifyTarget(definition());
+  assert.ok(target);
+  const variablesSeen: Record<string, unknown>[] = [];
+  const graphql: ShopifyGraphQL = async <T>(_query, variables) => {
+    variablesSeen.push(variables ?? {});
+    return { product: { id: "gid://shopify/Product/1", metafield: null } } as T;
+  };
+  await readExactMetafieldTarget("1", target, graphql);
+  assert.equal(variablesSeen[0].namespace, "custom");
+  assert.equal(variablesSeen[0].key, "periodo_di_fioritura");
+});
+
+test("SKU oltre la prima pagina di 100 varianti viene risolto esattamente", async () => {
+  let call = 0;
+  const graphql: ShopifyGraphQL = async <T>(_query, variables) => {
+    call += 1;
+    if (call === 1) {
+      assert.equal(variables?.after, null);
+      assert.equal(variables?.query, 'product_id:1 AND sku:"OG_1"');
+      return {
+        productVariants: {
+          pageInfo: { hasNextPage: true, endCursor: "cursor-100" },
+          nodes: Array.from({ length: 100 }, (_, index) => ({
+            id: `gid://shopify/ProductVariant/${index + 10}`,
+            sku: `ALTRO_${index}`,
+            price: "1.00",
+            compareAtPrice: null,
+            barcode: null,
+            product: { id: "gid://shopify/Product/1" },
+          })),
+        },
+      } as T;
+    }
+    assert.equal(variables?.after, "cursor-100");
+    return {
+      productVariants: {
+        pageInfo: { hasNextPage: false, endCursor: null },
+        nodes: [{
+          id: "gid://shopify/ProductVariant/999",
+          sku: "OG_1",
+          price: "12.00",
+          compareAtPrice: "15.00",
+          barcode: "123",
+          product: { id: "gid://shopify/Product/1" },
+        }],
+      },
+    } as T;
+  };
+  const result = await readExactVariantTarget("1", "OG_1", graphql);
+  assert.equal(result.id, "gid://shopify/ProductVariant/999");
+  assert.equal(call, 2);
+});
+
+test("SKU assente blocca la sync", async () => {
+  const graphql: ShopifyGraphQL = async <T>() => ({
+    productVariants: {
+      pageInfo: { hasNextPage: false, endCursor: null },
+      nodes: [],
+    },
+  }) as T;
+  await assert.rejects(() => readExactVariantTarget("1", "OG_1", graphql), expectBlockSync);
+});
+
+test("lookup variante non usa mai la prima variante come fallback", async () => {
+  const graphql: ShopifyGraphQL = async <T>() => ({
+    productVariants: {
+      pageInfo: { hasNextPage: false, endCursor: null },
+      nodes: [{
+        id: "gid://shopify/ProductVariant/first",
+        sku: "ALTRO",
+        price: "999.00",
+        compareAtPrice: null,
+        barcode: "wrong",
+        product: { id: "gid://shopify/Product/1" },
+      }],
+    },
+  }) as T;
+  await assert.rejects(() => readExactVariantTarget("1", "OG_1", graphql), expectBlockSync);
+});
+
+test("SKU duplicato blocca la sync", async () => {
+  const graphql: ShopifyGraphQL = async <T>() => ({
+    productVariants: {
+      pageInfo: { hasNextPage: false, endCursor: null },
+      nodes: [
+        { ...exactVariant, product: { id: exactVariant.productId }, productId: undefined },
+        {
+          ...exactVariant,
+          id: "gid://shopify/ProductVariant/3",
+          product: { id: exactVariant.productId },
+          productId: undefined,
+        },
+      ],
+    },
+  }) as T;
+  await assert.rejects(() => readExactVariantTarget("1", "OG_1", graphql), expectBlockSync);
+});
+
+test("verifica post-write rilegge lo stesso metafield esatto", async () => {
+  const target = resolveShopifyTarget(definition());
+  assert.ok(target);
+  let value = '["Febbraio"]';
+  let exactReads = 0;
+  const graphql: ShopifyGraphQL = async <T>(query, variables) => {
+    if (query.includes("AdminV2ExactMetafieldTarget")) {
+      exactReads += 1;
+      assert.equal(variables?.namespace, "custom");
+      assert.equal(variables?.key, "periodo_di_fioritura");
+      assert.doesNotMatch(query, /metafields\s*\(\s*first:/);
+      return {
+        product: {
+          id: "gid://shopify/Product/1",
+          metafield: {
+            namespace: "custom",
+            key: "periodo_di_fioritura",
+            type: "list.single_line_text_field",
+            value,
+          },
+        },
+      } as T;
+    }
+    assert.match(query, /metafieldsSet/);
+    value = String((variables?.metafields as Array<{ value: string }>)[0].value);
+    return { metafieldsSet: { userErrors: [] } } as T;
+  };
+
+  const result = await performVerifiedShopifyFieldWrite({
+    productId: "1",
+    sku: "OG_1",
+    target,
+    expected: '["Marzo"]',
+    previousVerifiedAt: null,
+    previousVerifiedValue: null,
+    graphql,
+  });
+  assert.deepEqual(result, { verifiedValue: '["Marzo"]', writePerformed: true });
+  assert.equal(exactReads, 2);
 });
 
 test("FAQ resta strutturata e JSON legacy opaco resta read-only", () => {

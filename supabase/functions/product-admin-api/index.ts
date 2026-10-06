@@ -46,8 +46,10 @@ import { appliesToEntity, type ProductEntityType } from "./capabilities.ts";
 import {
   lookupSyncReplay,
   markSyncResult,
-  readShopifyProductSnapshot,
-  readShopifyTargetValue,
+  readExactMetafieldTarget,
+  readExactVariantTarget,
+  readProductCoreSnapshot,
+  readProductCoreTargetValue,
   ShopifyFieldSyncError,
   shopifySyncEnabled,
   syncFieldToShopify,
@@ -209,32 +211,51 @@ Deno.serve(async (req) => {
       const shopifyLiveValues = new Map<string, unknown>();
       if (shopifyMapping?.shopify_product_id) {
         try {
-          const live = await readShopifyProductSnapshot(shopifyMapping.shopify_product_id);
+          const live = await readProductCoreSnapshot(shopifyMapping.shopify_product_id);
+          let exactVariant: Awaited<ReturnType<typeof readExactVariantTarget>> | null = null;
+          try {
+            exactVariant = await readExactVariantTarget(
+              shopifyMapping.shopify_product_id,
+              product.sku,
+            );
+          } catch {
+            // Zero o più varianti: non mostrare mai il valore di un'altra variante.
+          }
+
           for (const def of defs) {
             const target = resolveShopifyTarget(def);
             if (!target) continue;
             try {
-              const liveValue = readShopifyTargetValue(live, product.sku, target);
+              let liveValue: unknown;
+              if (target.kind === "product" || target.kind === "seo") {
+                liveValue = readProductCoreTargetValue(live, target);
+              } else if (target.kind === "variant") {
+                if (!exactVariant) continue;
+                liveValue = exactVariant[target.field];
+              } else {
+                const metafield = await readExactMetafieldTarget(
+                  shopifyMapping.shopify_product_id,
+                  target,
+                );
+                liveValue = metafield?.value ?? null;
+              }
               shopifyLiveValues.set(
                 def.key,
                 deserializeValueForAdminDisplay(def, liveValue),
               );
             } catch {
-              // Una variante non univoca non deve impedire la lettura degli altri campi.
+              // Un singolo target non disponibile non impedisce le altre letture esatte.
             }
           }
-          const exactVariant = live.variants.filter((variant) => variant.sku === product.sku);
           shopifyLive = {
             available: true,
             mapped: true,
             productId: live.id,
             handle: live.handle,
             publicationStatus: live.status,
-            price: exactVariant.length === 1 ? exactVariant[0].price : shopifyMapping.price,
-            compareAtPrice: exactVariant.length === 1
-              ? exactVariant[0].compareAtPrice
-              : shopifyMapping.compare_at_price,
-            mappingSource: "SKU esatto",
+            price: exactVariant?.price ?? null,
+            compareAtPrice: exactVariant?.compareAtPrice ?? null,
+            mappingSource: exactVariant ? "SKU esatto" : "SKU non risolto in modo univoco",
             syncStatus: shopifyMapping.shopify_sync_status ?? "never",
             error: null,
           };

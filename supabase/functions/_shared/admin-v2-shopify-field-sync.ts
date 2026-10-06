@@ -25,6 +25,7 @@ export class ShopifyFieldSyncError extends Error {
 
 export interface ShopifyVariantSnapshot {
   id: string;
+  productId: string;
   sku: string;
   price: string;
   compareAtPrice: string | null;
@@ -38,7 +39,7 @@ export interface ShopifyMetafieldSnapshot {
   value: string;
 }
 
-export interface ShopifyLiveSnapshot {
+export interface ShopifyProductCoreSnapshot {
   id: string;
   handle: string;
   status: string;
@@ -47,18 +48,43 @@ export interface ShopifyLiveSnapshot {
   vendor: string;
   tags: string[];
   seo: { title: string | null; description: string | null };
-  variants: ShopifyVariantSnapshot[];
-  metafields: ShopifyMetafieldSnapshot[];
 }
 
-const PRODUCT_FIELD_SNAPSHOT = `
-query AdminV2ProductFieldSnapshot($id: ID!) {
+export interface ShopifyGraphQL {
+  <T>(query: string, variables?: Record<string, unknown>): Promise<T>;
+}
+
+export interface ExactShopifyTargetRead {
+  value: unknown;
+  variant?: ShopifyVariantSnapshot;
+  metafield?: ShopifyMetafieldSnapshot | null;
+}
+
+const PRODUCT_CORE_SNAPSHOT = `
+query AdminV2ProductCoreSnapshot($id: ID!) {
   product(id: $id) {
     id handle status title descriptionHtml vendor tags
     seo { title description }
-    variants(first: 100) { nodes { id sku price compareAtPrice barcode } }
-    metafields(first: 100, namespace: "custom") {
-      nodes { namespace key type value }
+  }
+}`;
+
+const EXACT_METAFIELD_TARGET = `
+query AdminV2ExactMetafieldTarget($id: ID!, $namespace: String!, $key: String!) {
+  product(id: $id) {
+    id
+    metafield(namespace: $namespace, key: $key) {
+      namespace key type value
+    }
+  }
+}`;
+
+const EXACT_VARIANT_TARGET = `
+query AdminV2ExactVariantTarget($first: Int!, $after: String, $query: String!) {
+  productVariants(first: $first, after: $after, query: $query) {
+    pageInfo { hasNextPage endCursor }
+    nodes {
+      id sku price compareAtPrice barcode
+      product { id }
     }
   }
 }`;
@@ -101,48 +127,137 @@ function userErrorMessage(
   return messages.length ? messages.join(" | ") : null;
 }
 
-export async function readShopifyProductSnapshot(
+export async function readProductCoreSnapshot(
   shopifyProductId: string,
-): Promise<ShopifyLiveSnapshot> {
+  graphql: ShopifyGraphQL = shopifyAdminGraphQL,
+): Promise<ShopifyProductCoreSnapshot> {
   const id = toProductGid(shopifyProductId);
-  const data = await shopifyAdminGraphQL<{
-    product: null | Omit<ShopifyLiveSnapshot, "variants" | "metafields"> & {
-      variants: { nodes: ShopifyVariantSnapshot[] };
-      metafields: { nodes: ShopifyMetafieldSnapshot[] };
-    };
-  }>(PRODUCT_FIELD_SNAPSHOT, { id });
+  const data = await graphql<{ product: ShopifyProductCoreSnapshot | null }>(
+    PRODUCT_CORE_SNAPSHOT,
+    { id },
+  );
   if (!data.product) {
     throw new ShopifyFieldSyncError("BLOCK_SYNC", "Prodotto Shopify non trovato.");
   }
-  return {
-    ...data.product,
-    variants: data.product.variants.nodes,
-    metafields: data.product.metafields.nodes,
-  };
+  return data.product;
 }
 
-function exactVariant(snapshot: ShopifyLiveSnapshot, sku: string): ShopifyVariantSnapshot {
-  const matches = snapshot.variants.filter((variant) => variant.sku === sku);
-  if (matches.length !== 1) {
+function escapeShopifySearchValue(value: string): string {
+  return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+}
+
+export async function readExactVariantTarget(
+  shopifyProductId: string,
+  sku: string,
+  graphql: ShopifyGraphQL = shopifyAdminGraphQL,
+): Promise<ShopifyVariantSnapshot> {
+  const productId = toProductGid(shopifyProductId);
+  const numericProductId = productId.slice("gid://shopify/Product/".length);
+  const exactSku = sku.trim();
+  if (!exactSku) {
     throw new ShopifyFieldSyncError(
       "BLOCK_SYNC",
       "Variante Shopify non identificata in modo univoco tramite SKU.",
     );
   }
+
+  const matches: ShopifyVariantSnapshot[] = [];
+  let after: string | null = null;
+  let pages = 0;
+  do {
+    pages += 1;
+    const data: {
+      productVariants: {
+        pageInfo: { hasNextPage: boolean; endCursor: string | null };
+        nodes: Array<Omit<ShopifyVariantSnapshot, "productId"> & { product: { id: string } }>;
+      };
+    } = await graphql(EXACT_VARIANT_TARGET, {
+      first: 100,
+      after,
+      query: `product_id:${numericProductId} AND sku:"${escapeShopifySearchValue(exactSku)}"`,
+    });
+    for (const node of data.productVariants?.nodes ?? []) {
+      if (node.sku === exactSku && node.product?.id === productId) {
+        matches.push({
+          id: node.id,
+          productId: node.product.id,
+          sku: node.sku,
+          price: node.price,
+          compareAtPrice: node.compareAtPrice,
+          barcode: node.barcode,
+        });
+      }
+    }
+    if (matches.length > 1) break;
+    if (!data.productVariants?.pageInfo.hasNextPage) break;
+    after = data.productVariants.pageInfo.endCursor;
+    if (!after || pages >= 250) {
+      throw new ShopifyFieldSyncError(
+        "BLOCK_SYNC",
+        "Ricerca variante Shopify non conclusiva; sincronizzazione bloccata.",
+      );
+    }
+  } while (true);
+
+  if (matches.length !== 1) {
+    throw new ShopifyFieldSyncError(
+      "BLOCK_SYNC",
+      matches.length === 0
+        ? "Nessuna variante Shopify corrisponde esattamente allo SKU richiesto."
+        : "Più varianti Shopify corrispondono allo stesso SKU; sincronizzazione bloccata.",
+    );
+  }
   return matches[0];
 }
 
-export function readShopifyTargetValue(
-  snapshot: ShopifyLiveSnapshot,
-  sku: string,
+export async function readExactMetafieldTarget(
+  shopifyProductId: string,
+  target: ShopifyFieldTarget,
+  graphql: ShopifyGraphQL = shopifyAdminGraphQL,
+): Promise<ShopifyMetafieldSnapshot | null> {
+  if (target.kind !== "metafield") {
+    throw new ShopifyFieldSyncError("BLOCK_SYNC", "Target metafield non valido.");
+  }
+  const id = toProductGid(shopifyProductId);
+  const data = await graphql<{
+    product: null | { id: string; metafield: ShopifyMetafieldSnapshot | null };
+  }>(EXACT_METAFIELD_TARGET, {
+    id,
+    namespace: target.namespace,
+    key: target.key,
+  });
+  if (!data.product) {
+    throw new ShopifyFieldSyncError("BLOCK_SYNC", "Prodotto Shopify non trovato.");
+  }
+  return data.product.metafield;
+}
+
+export function readProductCoreTargetValue(
+  snapshot: ShopifyProductCoreSnapshot,
   target: ShopifyFieldTarget,
 ): unknown {
   if (target.kind === "product") return snapshot[target.field];
   if (target.kind === "seo") return snapshot.seo?.[target.field] ?? null;
-  if (target.kind === "variant") return exactVariant(snapshot, sku)[target.field];
-  return snapshot.metafields.find(
-    (item) => item.namespace === target.namespace && item.key === target.key,
-  )?.value ?? null;
+  throw new ShopifyFieldSyncError("BLOCK_SYNC", "Il target non è un campo prodotto core.");
+}
+
+export async function readExactShopifyTarget(input: {
+  productId: string;
+  sku: string;
+  target: ShopifyFieldTarget;
+  graphql?: ShopifyGraphQL;
+}): Promise<ExactShopifyTargetRead> {
+  const graphql = input.graphql ?? shopifyAdminGraphQL;
+  if (input.target.kind === "product" || input.target.kind === "seo") {
+    const core = await readProductCoreSnapshot(input.productId, graphql);
+    return { value: readProductCoreTargetValue(core, input.target) };
+  }
+  if (input.target.kind === "variant") {
+    const variant = await readExactVariantTarget(input.productId, input.sku, graphql);
+    return { value: variant[input.target.field], variant };
+  }
+  const metafield = await readExactMetafieldTarget(input.productId, input.target, graphql);
+  return { value: metafield?.value ?? null, metafield };
 }
 
 export type ShopifyWritePlan =
@@ -156,10 +271,9 @@ export type ShopifyWritePlan =
 /** Costruisce una mutation a campo singolo: nessun attributo non correlato viene incluso. */
 export function buildShopifyWritePlan(input: {
   productId: string;
-  sku: string;
   target: ShopifyFieldTarget;
   value: string | string[];
-  snapshot: ShopifyLiveSnapshot;
+  resolvedTarget?: ExactShopifyTargetRead;
 }): ShopifyWritePlan {
   const productId = toProductGid(input.productId);
   if (input.target.kind === "product") {
@@ -177,7 +291,13 @@ export function buildShopifyWritePlan(input: {
     };
   }
   if (input.target.kind === "variant") {
-    const variant = exactVariant(input.snapshot, input.sku);
+    const variant = input.resolvedTarget?.variant;
+    if (!variant || variant.productId !== productId) {
+      throw new ShopifyFieldSyncError(
+        "BLOCK_SYNC",
+        "Variante Shopify non identificata in modo univoco tramite SKU.",
+      );
+    }
     return {
       operation: "productVariantsBulkUpdate",
       variables: {
@@ -187,9 +307,6 @@ export function buildShopifyWritePlan(input: {
     };
   }
   const target = input.target;
-  const existing = input.snapshot.metafields.find(
-    (item) => item.namespace === target.namespace && item.key === target.key,
-  );
   return {
     operation: "metafieldsSet",
     variables: {
@@ -197,16 +314,19 @@ export function buildShopifyWritePlan(input: {
         ownerId: productId,
         namespace: target.namespace,
         key: target.key,
-        type: existing?.type ?? target.valueType,
+        type: input.resolvedTarget?.metafield?.type ?? target.valueType,
         value: input.value,
       }],
     },
   };
 }
 
-export async function executeShopifyWritePlan(plan: ShopifyWritePlan): Promise<void> {
+export async function executeShopifyWritePlan(
+  plan: ShopifyWritePlan,
+  graphql: ShopifyGraphQL = shopifyAdminGraphQL,
+): Promise<void> {
   if (plan.operation === "productUpdate") {
-    const data = await shopifyAdminGraphQL<{
+    const data = await graphql<{
       productUpdate: { userErrors: Array<{ message: string }> };
     }>(PRODUCT_FIELD_UPDATE, plan.variables);
     const error = userErrorMessage(data.productUpdate?.userErrors);
@@ -214,18 +334,79 @@ export async function executeShopifyWritePlan(plan: ShopifyWritePlan): Promise<v
     return;
   }
   if (plan.operation === "productVariantsBulkUpdate") {
-    const data = await shopifyAdminGraphQL<{
+    const data = await graphql<{
       productVariantsBulkUpdate: { userErrors: Array<{ message: string }> };
     }>(VARIANT_FIELD_UPDATE, plan.variables);
     const error = userErrorMessage(data.productVariantsBulkUpdate?.userErrors);
     if (error) throw new ShopifyFieldSyncError("SHOPIFY_WRITE_FAILED", error);
     return;
   }
-  const data = await shopifyAdminGraphQL<{
+  const data = await graphql<{
     metafieldsSet: { userErrors: Array<{ message: string }> };
   }>(METAFIELD_UPDATE, plan.variables);
   const error = userErrorMessage(data.metafieldsSet?.userErrors);
   if (error) throw new ShopifyFieldSyncError("SHOPIFY_WRITE_FAILED", error);
+}
+
+/**
+ * Esegue la sequenza read/compare/write/read usando sempre lo stesso target
+ * deterministico. La funzione è separata dal persistence layer per rendere
+ * verificabile che anche la lettura post-write sia esatta.
+ */
+export async function performVerifiedShopifyFieldWrite(input: {
+  productId: string;
+  sku: string;
+  target: ShopifyFieldTarget;
+  expected: string | string[];
+  previousVerifiedAt: string | null | undefined;
+  previousVerifiedValue: unknown;
+  graphql?: ShopifyGraphQL;
+}): Promise<{ verifiedValue: unknown; writePerformed: boolean }> {
+  const graphql = input.graphql ?? shopifyAdminGraphQL;
+  const before = await readExactShopifyTarget({
+    productId: input.productId,
+    sku: input.sku,
+    target: input.target,
+    graphql,
+  });
+
+  // Riconcilia un retry dopo timeout/verifica interrotta: se Shopify espone già
+  // il valore approvato non ripetiamo la mutation e registriamo la verifica.
+  if (sameShopifyValue(input.target, before.value, input.expected)) {
+    return { verifiedValue: before.value, writePerformed: false };
+  }
+
+  if (
+    input.previousVerifiedAt &&
+    !sameShopifyValue(input.target, before.value, input.previousVerifiedValue)
+  ) {
+    throw new ShopifyFieldSyncError(
+      "STATE_DRIFT",
+      "Il valore Shopify è cambiato dopo l’ultima verifica.",
+    );
+  }
+
+  const plan = buildShopifyWritePlan({
+    productId: input.productId,
+    target: input.target,
+    value: input.expected,
+    resolvedTarget: before,
+  });
+  await executeShopifyWritePlan(plan, graphql);
+
+  const after = await readExactShopifyTarget({
+    productId: input.productId,
+    sku: input.sku,
+    target: input.target,
+    graphql,
+  });
+  if (!sameShopifyValue(input.target, after.value, input.expected)) {
+    throw new ShopifyFieldSyncError(
+      "SYNC_VERIFY_FAILED",
+      "Shopify non restituisce il valore appena scritto.",
+    );
+  }
+  return { verifiedValue: after.value, writePerformed: true };
 }
 
 export interface SyncFieldInput {
@@ -306,50 +487,18 @@ export async function syncFieldToShopify(input: {
     input.definition,
     currentValueOf(input.row),
   );
-  const before = await readShopifyProductSnapshot(input.shopifyProductId);
-  const liveBefore = readShopifyTargetValue(before, input.sku, target);
-
-  // Riconcilia un retry dopo timeout/verifica interrotta: se Shopify espone già
-  // il valore approvato non ripetiamo la mutation e registriamo la verifica.
-  if (sameShopifyValue(target, liveBefore, expected)) {
-    return await markSyncResult(input.db, {
-      ...input.command,
-      success: true,
-      verifiedValue: liveBefore,
-    });
-  }
-
-  if (
-    input.row.shopify_verified_at &&
-    !sameShopifyValue(target, liveBefore, input.row.shopify_verified_value)
-  ) {
-    throw new ShopifyFieldSyncError(
-      "STATE_DRIFT",
-      "Il valore Shopify è cambiato dopo l’ultima verifica.",
-    );
-  }
-
-  const plan = buildShopifyWritePlan({
+  const result = await performVerifiedShopifyFieldWrite({
     productId: input.shopifyProductId,
     sku: input.sku,
     target,
-    value: expected,
-    snapshot: before,
+    expected,
+    previousVerifiedAt: input.row.shopify_verified_at,
+    previousVerifiedValue: input.row.shopify_verified_value,
   });
-  await executeShopifyWritePlan(plan);
-
-  const after = await readShopifyProductSnapshot(input.shopifyProductId);
-  const verified = readShopifyTargetValue(after, input.sku, target);
-  if (!sameShopifyValue(target, verified, expected)) {
-    throw new ShopifyFieldSyncError(
-      "SYNC_VERIFY_FAILED",
-      "Shopify non restituisce il valore appena scritto.",
-    );
-  }
   return await markSyncResult(input.db, {
     ...input.command,
     success: true,
-    verifiedValue: verified,
+    verifiedValue: result.verifiedValue,
   });
 }
 
