@@ -1,5 +1,35 @@
 # Online Garden — stato consolidato del progetto
 
+## Aggiornamento 7 ottobre 2026 — riconciliazione ID prodotto Shopify
+
+`CODEX VERIFIED / OFFLINE TESTED ONLY`: è disponibile il controlled script
+`scripts/admin-shopify-id-backfill.sql` per riconciliare in modo deterministico
+gli ID prodotto Shopify mancanti nel catalogo operativo Admin. La sorgente
+runtime canonica resta `product_sync_csv_products.shopify_product_id`; il
+ledger storico 3B.2/3B.4 viene letto esclusivamente durante la riconciliazione
+come evidenza privata e non è mai consultato come fallback da Admin V2.
+
+Il dry-run è obbligatorio e produce `TOTAL_MISSING`, `SAFE_BACKFILL`,
+`CONFLICT`, `UNMATCHED`, l'elenco esatto delle righe target e le anomalie. Una
+riga è `SAFE_BACKFILL` solo con SKU esatto, Product GID valido, prova verificata
+univoca e struttura parent/variation coerente. Per una variation sono richieste
+sia la prova `CREATE_VARIANT` sia la prova del parent sul medesimo Product GID.
+Gli ID Admin non null non vengono mai sovrascritti.
+
+Il percorso `execute` è esplicito, transazionale e idempotente. Prima e dopo
+confronta numero righe e hash di `product_current_values`, history e colonne
+catalogo non autorizzate; `updated_at` è l'unica colonna tecnica aggiuntiva
+aggiornata dal trigger storico della tabella. La seconda esecuzione deve avere
+zero write. Il gate finale richiede inoltre che `OG_111899` risolva esattamente
+`gid://shopify/Product/15836694249812`.
+
+`NOT EXECUTED LIVE`: Codex non ha eseguito né dry-run SQL privilegiato né
+execute sul database effettivo. Il project reference pubblico presente nel
+checkout non espone i dati operativi e il connettore disponibile non è
+autorizzato sul progetto; i conteggi reali restano pertanto da acquisire con il
+dry-run tramite un accesso DB approvato. Nessun deploy, write DB live o write
+Shopify è stato eseguito.
+
 ## Aggiornamento 6 ottobre 2026 — creazione controllata valori mancanti
 
 `CODEX VERIFIED / OFFLINE TESTED ONLY`: l’Admin V2 può creare il primo valore

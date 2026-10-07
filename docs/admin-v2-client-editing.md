@@ -18,6 +18,25 @@ Gli stati mostrati sono:
 - **Sincronizzato** (`SYNCED`): la rilettura Shopify coincide con il valore inviato;
 - **Errore sync** (`SYNC_ERROR`): mapping, drift, scrittura o verifica hanno bloccato l’operazione.
 
+## Identità prodotto Shopify
+
+Admin V2 usa come unica sorgente runtime
+`product_sync_csv_products.shopify_product_id`, risolta per SKU esatto. Il
+ledger privato delle fasi 3B.2/3B.4 conserva le prove storiche di creazione e
+pubblicazione, ma non è un fallback dell'API: se l'ID manca nel catalogo,
+l'operazione restituisce `BLOCK_SYNC`.
+
+Il recupero degli ID storici avviene esclusivamente tramite il controlled
+script `scripts/admin-shopify-id-backfill.sql`, prima in `dry-run` e poi, dopo
+approvazione del report, in `execute`. Sono eleggibili solo mapping verificati,
+validi, esatti e univoci; un ID già presente non viene mai sovrascritto. Le
+variation ricevono il Product GID del parent soltanto quando relazione
+canonica, SKU parent e prove ledger parent/variant coincidono. Non vengono mai
+usati titolo, handle o euristiche.
+
+Questa riconciliazione non chiama Shopify, non modifica valori editoriali e
+non cambia il comportamento di salvataggio o sincronizzazione esplicita.
+
 ## Primo valore mancante
 
 Se un campo stagionale è vuoto, puoi compilarlo normalmente. Non devi
