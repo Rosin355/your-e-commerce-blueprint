@@ -195,7 +195,7 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
   };
 
   return (
-    <article className="rounded-lg border bg-card p-4">
+    <article className="min-w-0 rounded-lg border bg-card p-4">
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold">{field.label}</h3>
         <div className="flex flex-wrap gap-1.5">
@@ -207,12 +207,12 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
         </div>
       </header>
 
-      <div className={`mb-3 grid gap-3 ${field.shopifySyncSupported ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
-        <section className="rounded-md border p-3">
+      <div className={`mb-3 grid gap-3 ${field.shopifySyncSupported ? 'xl:grid-cols-3' : 'lg:grid-cols-2'}`}>
+        <section className="min-w-0 rounded-md border p-3">
           <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Valore corrente</h4>
           {editing ? <div aria-describedby={visibleValidationError ? errorId : undefined}><FieldEditor field={field} value={draft} onChange={setDraft} disabled={busy !== null} /></div> : <ValueDisplay value={displayValue(field)} label={field.label} />}
         </section>
-        <section className="rounded-md border bg-muted/30 p-3">
+        <section className="min-w-0 rounded-md border bg-muted/30 p-3">
           <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Originale WordPress</h4>
           <p className="mb-2 text-xs text-muted-foreground">{SOURCE_LABEL[field.sourceState]}</p>
           {field.sourceState === 'original_absent'
@@ -220,7 +220,7 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
             : <ValueDisplay value={field.baselineValue} label={`${field.label} originale`} />}
         </section>
         {field.shopifySyncSupported && (
-          <section className="rounded-md border bg-blue-50/40 p-3 dark:bg-blue-950/20">
+          <section className="min-w-0 rounded-md border bg-blue-50/40 p-3 dark:bg-blue-950/20">
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Valore Shopify live</h4>
             <ValueDisplay value={field.shopifyLiveValue} label={`${field.label} Shopify`} />
           </section>

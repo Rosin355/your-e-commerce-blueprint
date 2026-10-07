@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 
 import { AdminApiError } from '../../src/adminv2/lib/AdminApiError.ts';
 import {
@@ -45,6 +46,33 @@ test('applies_to distingue simple, parent e variation', () => {
   assert.equal(appliesToEntity('variant', 'variable'), false);
   assert.equal(appliesToEntity('both', 'simple'), true);
   assert.equal(appliesToEntity('both', 'variation'), true);
+});
+
+test('month picker usa una griglia responsive senza larghezze fisse o overflow del testo', async () => {
+  const editor = await readFile(
+    new URL('../../src/adminv2/components/FieldEditor.tsx', import.meta.url),
+    'utf8',
+  );
+  const card = await readFile(
+    new URL('../../src/adminv2/components/FieldCard.tsx', import.meta.url),
+    'utf8',
+  );
+  const picker = editor.slice(
+    editor.indexOf("if (kind === 'month_multiselect')"),
+    editor.indexOf("if (kind === 'select')"),
+  );
+
+  assert.match(picker, /grid-cols-2[^"\n]*md:grid-cols-3[^"\n]*lg:grid-cols-4/);
+  assert.match(picker, /min-h-12 min-w-0/);
+  assert.match(picker, /className="shrink-0"/);
+  assert.match(picker, /whitespace-normal break-words leading-tight/);
+  assert.match(picker, /focus-within:ring-2/);
+  assert.match(picker, /MONTHS\.map/);
+  assert.match(picker, /checked=\{selected\.includes\(month\)\}/);
+  assert.doesNotMatch(picker, /\bw-\[[^\]]+\]/);
+  assert.match(card, /article className="min-w-0/);
+  assert.match(card, /field\.shopifySyncSupported \? 'xl:grid-cols-3'/);
+  assert.equal((card.match(/section className="min-w-0/g) ?? []).length, 3);
 });
 
 test('capability server-side consentono manual_only locked e creazione solo ad Admin', () => {
