@@ -14,9 +14,10 @@ Il percorso Admin V2 è separato dallo Smart Sync CSV descritto più avanti:
 3. la definizione viene caricata da `product_field_definitions`; il parser
    accetta soltanto target core, SEO, variant o namespace `custom` presenti
    nell’allowlist applicativa;
-4. il prodotto Shopify viene risolto dalla corrispondenza SKU esatta in
-   `product_sync_csv_products`; per un target variant serve inoltre una sola
-   variante Shopify con quello SKU;
+4. il prodotto Shopify viene risolto dalla corrispondenza SKU esatta nella
+   fonte runtime canonica `product_sync_csv_products.shopify_product_id`; non
+   esiste fallback runtime verso il ledger 3B.2/3B.4. Per un target variant
+   serve inoltre una sola variante Shopify con quello SKU;
 5. il valore corrente e `expectedVersion` vengono verificati prima della
    chiamata esterna; un salvataggio Admin di un campo pubblicabile imposta
    `publish_state=pending_publish` nella stessa transazione DB;
@@ -48,6 +49,30 @@ con mapping supportato; nessuna parte di questo salvataggio chiama Shopify.
 Le letture live di handle, stato, ID prodotto, prezzo e prezzo barrato sono
 best-effort: un errore Shopify non rende inutilizzabile la scheda Admin e non
 sovrascrive i dati interni.
+
+### Riconciliazione una tantum degli ID prodotto
+
+`scripts/admin-shopify-id-backfill.sql` separa nettamente i due ruoli:
+
+- `product_sync_csv_products.shopify_product_id` è la sorgente canonica usata
+  da Admin V2 durante ogni richiesta runtime;
+- `shopify_creation_ledger` è evidenza privata di creazione/pubblicazione e
+  viene consultato solo dal controlled backfill o per audit;
+- il browser, la API Admin e il percorso Shopify field sync non leggono il
+  ledger come fallback e non possono fornire SKU o Product GID sostitutivi.
+
+Il dry-run classifica ogni ID mancante in `SAFE_BACKFILL`, `CONFLICT` o
+`UNMATCHED`. Sono ammessi soltanto GID `gid://shopify/Product/<numero>` con
+prova verificata, SKU esatto e mapping univoco. Una variation deve avere
+relazione canonica col parent, `parent_sku` coerente, evidenza
+`CREATE_VARIANT` e un Product GID uguale a quello verificato del parent. Titolo,
+handle e somiglianze testuali non partecipano mai alla risoluzione.
+
+L'execute aggiorna esclusivamente ID nulli già classificati safe, non crea
+righe, non produce history e non sovrascrive ID esistenti. La transazione
+verifica hash e conteggi prima del commit; il replay non trova più target e
+deve concludersi con zero write. Il codice non effettua chiamate Shopify e non
+viene eseguito automaticamente da migration o deploy.
 
 ### Controlli operativi
 

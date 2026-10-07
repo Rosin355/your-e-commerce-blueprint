@@ -25,6 +25,7 @@
     "sync:customers:shopify": "node sync/customers-sync-shopify.mjs",
     "shopify:create-metafields": "tsx scripts/create-shopify-metafield-definitions.ts",
     "test:catalog": "node --import tsx --test scripts/tests/*.test.ts",
+    "test:admin-shopify-id-backfill": "node scripts/test-admin-shopify-id-backfill.mjs",
     "dryrun:import": "node --import tsx scripts/dry-run-import.mjs",
     "dryrun:lossless-golden": "node --import tsx scripts/lossless-catalog-golden-dry-run.mjs --dry-run --golden-only --offline",
     "backup:catalog": "node scripts/backup-catalog.mjs",
