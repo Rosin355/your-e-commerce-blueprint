@@ -8,7 +8,7 @@ const script = join(root, "scripts/admin-shopify-id-backfill.sql");
 const temp = mkdtempSync("/tmp/admin-shopify-id-backfill-");
 const dataDir = join(temp, "pgdata");
 const socketDir = join(temp, "socket");
-const port = "55447";
+const port = String(54000 + (process.pid % 1000));
 const psqlArgs = [
   "-X", "-h", socketDir, "-p", port, "-U", "postgres", "-d", "postgres",
   "-v", "ON_ERROR_STOP=1", "-A", "-t",
@@ -31,9 +31,11 @@ function sql(statement) {
   return command("psql", [...psqlArgs, "-c", statement]);
 }
 
-function runBackfill(mode) {
+function runBackfill(mode, user = "postgres") {
+  const args = [...psqlArgs];
+  args[args.indexOf("-U") + 1] = user;
   return command("psql", [
-    ...psqlArgs,
+    ...args,
     "-v", `backfill_mode=${mode}`,
     "-f", script,
   ]);
@@ -152,6 +154,13 @@ INSERT INTO public.product_current_values VALUES
   ('v-2', 'SAFE_1', 'price', null, null, 11);
 INSERT INTO public.product_field_history VALUES
   ('h-1', 'p-safe', 'title', '"Safe"');
+
+CREATE ROLE backfill_reader LOGIN;
+REVOKE TEMPORARY ON DATABASE postgres FROM PUBLIC;
+GRANT CONNECT ON DATABASE postgres TO backfill_reader;
+GRANT USAGE ON SCHEMA public TO backfill_reader;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO backfill_reader;
+ALTER ROLE backfill_reader SET default_transaction_read_only = on;
 `;
 
 let postgres;
@@ -195,9 +204,10 @@ try {
     SELECT updated_at::text FROM product_sync_csv_products WHERE sku='MATCH_1';
   `);
 
-  const dryRun = runBackfill("dry-run");
-  test("dry-run classifica TOTAL_MISSING=6, SAFE=4, CONFLICT=1, UNMATCHED=1", () => {
+  const dryRun = runBackfill("dry-run", "backfill_reader");
+  test("dry-run gira con ruolo read-only senza TEMP e conserva la classificazione", () => {
     assert.match(dryRun, /6\|4\|1\|1\|1\|1/);
+    assert.match(dryRun, /\|on\|0\|4\|/);
   });
   test("dry-run non scrive", () => {
     assert.equal(
