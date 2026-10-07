@@ -195,7 +195,7 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
   };
 
   return (
-    <article className="min-w-0 rounded-lg border bg-card p-4">
+    <article className="og-field-card-container min-w-0 rounded-lg border bg-card p-4">
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold">{field.label}</h3>
         <div className="flex flex-wrap gap-1.5">
@@ -207,7 +207,9 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
         </div>
       </header>
 
-      <div className={`mb-3 grid gap-3 ${field.shopifySyncSupported ? 'xl:grid-cols-3' : 'lg:grid-cols-2'}`}>
+      <div className={`og-field-comparison mb-3 grid gap-3 ${
+        field.shopifySyncSupported ? 'og-field-comparison--shopify' : ''
+      }`}>
         <section className="min-w-0 rounded-md border p-3">
           <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Valore corrente</h4>
           {editing ? <div aria-describedby={visibleValidationError ? errorId : undefined}><FieldEditor field={field} value={draft} onChange={setDraft} disabled={busy !== null} /></div> : <ValueDisplay value={displayValue(field)} label={field.label} />}

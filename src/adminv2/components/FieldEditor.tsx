@@ -105,13 +105,13 @@ export default function FieldEditor({ field, value, onChange, disabled = false }
       ? value.filter((item): item is string => typeof item === 'string')
       : [];
     return (
-      <div className="space-y-2">
+      <div className="og-month-picker-container space-y-2">
         {typeof value === 'string' && value.trim() && (
           <p className="rounded-md bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
             Il valore precedente non era strutturato. Seleziona i mesi corretti per sostituirlo in sicurezza.
           </p>
         )}
-        <div className="grid min-w-0 grid-cols-2 items-stretch gap-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="og-month-picker-grid grid min-w-0 items-stretch gap-2">
           {MONTHS.map((month) => (
             <label
               key={month}

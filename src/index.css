@@ -164,6 +164,51 @@ All colors MUST be HSL.
     backdrop-filter: blur(22px);
     -webkit-backdrop-filter: blur(22px);
   }
+
+  .og-field-card-container {
+    container-name: field-card;
+    container-type: inline-size;
+  }
+
+  .og-field-comparison,
+  .og-month-picker-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .og-month-picker-container {
+    container-name: month-picker;
+    container-type: inline-size;
+  }
+}
+
+@container month-picker (min-width: 20rem) {
+  .og-month-picker-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container month-picker (min-width: 32rem) {
+  .og-month-picker-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container month-picker (min-width: 42rem) {
+  .og-month-picker-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@container field-card (min-width: 48rem) {
+  .og-field-comparison {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container field-card (min-width: 72rem) {
+  .og-field-comparison--shopify {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -174,4 +219,3 @@ All colors MUST be HSL.
     animation: none;
   }
 }
-
