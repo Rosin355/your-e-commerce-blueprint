@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 
 import { AdminApiError } from '../../src/adminv2/lib/AdminApiError.ts';
 import {
@@ -45,6 +46,47 @@ test('applies_to distingue simple, parent e variation', () => {
   assert.equal(appliesToEntity('variant', 'variable'), false);
   assert.equal(appliesToEntity('both', 'simple'), true);
   assert.equal(appliesToEntity('both', 'variation'), true);
+});
+
+test('month picker e confronto reagiscono ai container reali, non al viewport', async () => {
+  const editor = await readFile(
+    new URL('../../src/adminv2/components/FieldEditor.tsx', import.meta.url),
+    'utf8',
+  );
+  const card = await readFile(
+    new URL('../../src/adminv2/components/FieldCard.tsx', import.meta.url),
+    'utf8',
+  );
+  const styles = await readFile(
+    new URL('../../src/index.css', import.meta.url),
+    'utf8',
+  );
+  const picker = editor.slice(
+    editor.indexOf("if (kind === 'month_multiselect')"),
+    editor.indexOf("if (kind === 'select')"),
+  );
+
+  assert.match(picker, /og-month-picker-container/);
+  assert.match(picker, /og-month-picker-grid/);
+  assert.doesNotMatch(picker, /(?:sm|md|lg|xl):grid-cols-[234]/);
+  assert.match(picker, /min-h-12 min-w-0/);
+  assert.match(picker, /className="shrink-0"/);
+  assert.match(picker, /whitespace-normal break-words leading-tight/);
+  assert.match(picker, /focus-within:ring-2/);
+  assert.match(picker, /MONTHS\.map/);
+  assert.match(picker, /checked=\{selected\.includes\(month\)\}/);
+  assert.doesNotMatch(picker, /\bw-\[[^\]]+\]/);
+  assert.match(card, /article className="og-field-card-container min-w-0/);
+  assert.match(card, /og-field-comparison--shopify/);
+  assert.doesNotMatch(card, /'(?:md|lg|xl):grid-cols-[23]'/);
+  assert.equal((card.match(/section className="min-w-0/g) ?? []).length, 3);
+  assert.match(styles, /container-name: month-picker/);
+  assert.match(styles, /@container month-picker \(min-width: 20rem\)/);
+  assert.match(styles, /@container month-picker \(min-width: 32rem\)/);
+  assert.match(styles, /@container month-picker \(min-width: 42rem\)/);
+  assert.match(styles, /container-name: field-card/);
+  assert.match(styles, /@container field-card \(min-width: 48rem\)/);
+  assert.match(styles, /@container field-card \(min-width: 72rem\)/);
 });
 
 test('capability server-side consentono manual_only locked e creazione solo ad Admin', () => {

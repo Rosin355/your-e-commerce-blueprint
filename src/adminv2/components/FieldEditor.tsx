@@ -105,16 +105,24 @@ export default function FieldEditor({ field, value, onChange, disabled = false }
       ? value.filter((item): item is string => typeof item === 'string')
       : [];
     return (
-      <div className="space-y-2">
+      <div className="og-month-picker-container space-y-2">
         {typeof value === 'string' && value.trim() && (
           <p className="rounded-md bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
             Il valore precedente non era strutturato. Seleziona i mesi corretti per sostituirlo in sicurezza.
           </p>
         )}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <div className="og-month-picker-grid grid min-w-0 items-stretch gap-2">
           {MONTHS.map((month) => (
-            <label key={month} className="flex items-center gap-2 rounded-md border p-2 text-sm">
+            <label
+              key={month}
+              className={`flex min-h-12 min-w-0 cursor-pointer select-none items-center gap-2 rounded-lg border px-2.5 py-2 text-sm transition-colors focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ${
+                selected.includes(month)
+                  ? 'border-primary/50 bg-primary/5'
+                  : 'bg-background hover:bg-muted/50'
+              }`}
+            >
               <Checkbox
+                className="shrink-0"
                 checked={selected.includes(month)}
                 onCheckedChange={(checked) => onChange(
                   checked
@@ -124,7 +132,7 @@ export default function FieldEditor({ field, value, onChange, disabled = false }
                 disabled={disabled}
                 aria-label={`${field.label}: ${month}`}
               />
-              {month}
+              <span className="min-w-0 whitespace-normal break-words leading-tight">{month}</span>
             </label>
           ))}
         </div>
