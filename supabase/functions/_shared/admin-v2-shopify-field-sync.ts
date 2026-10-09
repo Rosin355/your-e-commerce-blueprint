@@ -3,6 +3,7 @@ import { shopifyAdminGraphQL } from "./shopify-admin-client.ts";
 import { payloadHash } from "./admin-v2-commands.ts";
 import type { CurrentValueRow, FieldDefinition } from "./admin-v2-types.ts";
 import {
+  isSeasonalField,
   resolveShopifyTarget,
   sameShopifyValue,
   serializeValueForShopify,
@@ -307,6 +308,9 @@ export function buildShopifyWritePlan(input: {
     };
   }
   const target = input.target;
+  const metafieldType = isSeasonalField(target.key)
+    ? target.valueType
+    : input.resolvedTarget?.metafield?.type ?? target.valueType;
   return {
     operation: "metafieldsSet",
     variables: {
@@ -314,7 +318,7 @@ export function buildShopifyWritePlan(input: {
         ownerId: productId,
         namespace: target.namespace,
         key: target.key,
-        type: input.resolvedTarget?.metafield?.type ?? target.valueType,
+        type: metafieldType,
         value: input.value,
       }],
     },

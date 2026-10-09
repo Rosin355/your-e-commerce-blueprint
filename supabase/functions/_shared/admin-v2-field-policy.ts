@@ -128,22 +128,36 @@ export function normalizeMonths(value: unknown): Month[] {
   );
 }
 
-/** Shopify list metafield usa una stringa JSON; l'ordine è sempre Gennaio→Dicembre. */
+/** Il metafield Shopify scalare usa mesi separati da virgola, in ordine Gennaio→Dicembre. */
 export function serializeMonthsForShopify(value: unknown): string {
-  return JSON.stringify(normalizeMonths(value));
+  return normalizeMonths(value).join(", ");
 }
 
 export function deserializeMonthsFromShopify(value: unknown): Month[] {
   if (Array.isArray(value)) return normalizeMonths(value);
   if (typeof value !== "string" || value.trim() === "") return [];
-  try {
-    return normalizeMonths(JSON.parse(value));
-  } catch (error) {
-    if (error instanceof FieldPolicyError) throw error;
+
+  const serialized = value.trim();
+  // Compatibilità di sola lettura con valori verificati prima del passaggio al
+  // metafield scalare. Le nuove scritture usano sempre la forma CSV leggibile.
+  if (serialized.startsWith("[")) {
+    try {
+      return normalizeMonths(JSON.parse(serialized));
+    } catch (error) {
+      if (error instanceof FieldPolicyError) throw error;
+      throw new FieldPolicyError(
+        "Il valore stagionale Shopify non è in un formato supportato.",
+      );
+    }
+  }
+
+  const months = serialized.split(",").map((month) => month.trim());
+  if (months.some((month) => month === "")) {
     throw new FieldPolicyError(
       "Il valore stagionale Shopify non è in un formato supportato.",
     );
   }
+  return normalizeMonths(months);
 }
 
 export function validateConstrainedFieldValue(
@@ -170,7 +184,7 @@ function metafieldValueType(def: FieldDefinition): ShopifyFieldTarget & { kind: 
   const mapping = def.shopify_mapping as Record<string, unknown>;
   const key = String(mapping.key ?? "");
   if (isSeasonalField(def.key)) {
-    return { kind: "metafield", namespace: "custom", key, valueType: "list.single_line_text_field" };
+    return { kind: "metafield", namespace: "custom", key, valueType: "single_line_text_field" };
   }
   if (def.key === "faq") {
     return { kind: "metafield", namespace: "custom", key, valueType: "json" };
