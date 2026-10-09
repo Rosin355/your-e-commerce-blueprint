@@ -447,6 +447,128 @@ test("verifica post-write rilegge lo stesso metafield esatto", async () => {
   assert.equal(exactReads, 2);
 });
 
+async function runSeasonalRepresentationSync(input: {
+  beforeType: string;
+  beforeValue: string;
+  expected: string;
+}): Promise<{ writePerformed: boolean; writes: number }> {
+  const target = resolveShopifyTarget(definition());
+  assert.ok(target);
+  let type = input.beforeType;
+  let value = input.beforeValue;
+  let writes = 0;
+  const graphql: ShopifyGraphQL = async <T>(query, variables) => {
+    if (query.includes("AdminV2ExactMetafieldTarget")) {
+      return {
+        product: {
+          id: "gid://shopify/Product/1",
+          metafield: {
+            namespace: "custom",
+            key: "periodo_di_fioritura",
+            type,
+            value,
+          },
+        },
+      } as T;
+    }
+    writes += 1;
+    const metafield = (variables?.metafields as Array<{ type: string; value: string }>)[0];
+    type = metafield.type;
+    value = metafield.value;
+    return { metafieldsSet: { userErrors: [] } } as T;
+  };
+
+  const result = await performVerifiedShopifyFieldWrite({
+    productId: "1",
+    sku: "OG_1",
+    target,
+    expected: input.expected,
+    previousVerifiedAt: null,
+    previousVerifiedValue: null,
+    graphql,
+  });
+  return { writePerformed: result.writePerformed, writes };
+}
+
+test("JSON legacy stagionale richiede la riscrittura scalare canonica", async () => {
+  assert.deepEqual(await runSeasonalRepresentationSync({
+    beforeType: "single_line_text_field",
+    beforeValue: '["Marzo"]',
+    expected: "Marzo",
+  }), { writePerformed: true, writes: 1 });
+});
+
+test("vecchia rappresentazione list stagionale richiede la riscrittura scalare", async () => {
+  assert.deepEqual(await runSeasonalRepresentationSync({
+    beforeType: "list.single_line_text_field",
+    beforeValue: '["Marzo"]',
+    expected: "Marzo",
+  }), { writePerformed: true, writes: 1 });
+});
+
+test("scalare stagionale già canonico non esegue una seconda write", async () => {
+  assert.deepEqual(await runSeasonalRepresentationSync({
+    beforeType: "single_line_text_field",
+    beforeValue: "Marzo",
+    expected: "Marzo",
+  }), { writePerformed: false, writes: 0 });
+});
+
+test("confronto stagionale multi-mese richiede ordine e separatori canonici", async () => {
+  assert.deepEqual(await runSeasonalRepresentationSync({
+    beforeType: "single_line_text_field",
+    beforeValue: "Marzo, Aprile, Maggio",
+    expected: "Marzo, Aprile, Maggio",
+  }), { writePerformed: false, writes: 0 });
+  assert.deepEqual(await runSeasonalRepresentationSync({
+    beforeType: "single_line_text_field",
+    beforeValue: "Maggio, Marzo, Aprile",
+    expected: "Marzo, Aprile, Maggio",
+  }), { writePerformed: true, writes: 1 });
+});
+
+test("metafield non stagionali conservano il confronto pre-write esistente", async () => {
+  const def = definition({
+    key: "nome_comune",
+    label: "Nome comune",
+    data_type: "text",
+    editor_type: "text",
+    validation_rules: {},
+    shopify_mapping: { type: "metafield", namespace: "custom", key: "nome_comune" },
+  });
+  const target = resolveShopifyTarget(def);
+  assert.ok(target);
+  let writes = 0;
+  const graphql: ShopifyGraphQL = async <T>(query) => {
+    if (query.includes("AdminV2ExactMetafieldTarget")) {
+      return {
+        product: {
+          id: "gid://shopify/Product/1",
+          metafield: {
+            namespace: "custom",
+            key: "nome_comune",
+            type: "single_line_text_field",
+            value: "Rosa",
+          },
+        },
+      } as T;
+    }
+    writes += 1;
+    return { metafieldsSet: { userErrors: [] } } as T;
+  };
+  const result = await performVerifiedShopifyFieldWrite({
+    productId: "1",
+    sku: "OG_1",
+    target,
+    expected: "Rosa",
+    previousVerifiedAt: null,
+    previousVerifiedValue: null,
+    graphql,
+  });
+  assert.equal(result.writePerformed, false);
+  assert.equal(writes, 0);
+});
+
 test("FAQ resta strutturata e JSON legacy opaco resta read-only", () => {
   assert.equal(parseFaqValue([{ question: "Quando?", answer: "In primavera." }]).kind, "supported");
   assert.equal(parseFaqValue('{"struttura":"ignota"}').kind, "unsupported");
