@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { storefrontApiRequest, ShopifyProduct } from "@/lib/shopify";
+import { storefrontApiRequest, ShopifyProduct, isHiddenStorefrontProduct } from "@/lib/shopify";
 import { toast } from "sonner";
 
 const PRODUCT_BY_HANDLE_QUERY = `
