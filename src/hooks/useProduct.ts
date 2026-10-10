@@ -9,6 +9,16 @@ const PRODUCT_BY_HANDLE_QUERY = `
       title
       description
       handle
+      availableForSale
+      publishedAt
+      collections(first: 50) {
+        edges {
+          node {
+            handle
+            title
+          }
+        }
+      }
       priceRange {
         minVariantPrice {
           amount

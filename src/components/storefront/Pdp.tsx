@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useIsMobile } from "@/hooks/useMobile";
 import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
+import { selectRelatedProducts } from "@/lib/storefrontDiscovery";
 import { useCartStore } from "@/stores/cartStore";
 import pdpCalmaBg from "@/assets/pdp-calma-bg.png";
 import {
@@ -15,11 +16,9 @@ import {
   Link2,
   Loader2,
   Minus,
-  Package,
   Plus,
   Sprout,
   Twitter,
-  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -224,7 +223,6 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<ShopifyProduct[]>([]);
   const [relatedLoading, setRelatedLoading] = useState(true);
-  const [limitedOfferVisible, setLimitedOfferVisible] = useState(true);
 
   const { node } = product;
   const images = node.images.edges;
@@ -235,7 +233,6 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
   const resolvedSpecialBullets = parseMultilineMetafield(node.specialBullets, specialBulletsDefault);
   const resolvedKeyFeatures = parseMultilineMetafield(node.keyFeatures, keyFeaturesDefault);
-  const resolvedPromoText = node.promoText?.value?.trim() || null;
   const resolvedOriginsHabitat = parseMultilineMetafield(node.originsHabitat);
   const resolvedPlantKnowledge = parseMultilineMetafield(node.plantKnowledge);
   const resolvedCareGuide = parseMultilineMetafield(node.careGuide);
@@ -277,9 +274,12 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
     const load = async () => {
       setRelatedLoading(true);
       try {
-        const products = await fetchProducts(6);
+        const products = await fetchProducts(120, undefined, {
+          sortKey: "CREATED_AT",
+          reverse: true,
+        });
         if (!cancelled) {
-          setRelatedProducts(products.filter((item) => item.node.handle !== node.handle).slice(0, 4));
+          setRelatedProducts(selectRelatedProducts(product, products, 4));
         }
       } catch (error) {
         console.error("Errore caricamento prodotti correlati:", error);
@@ -292,7 +292,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
     return () => {
       cancelled = true;
     };
-  }, [node.handle]);
+  }, [node.handle, product]);
 
   const optionGroups = useMemo(() => {
     return node.options.map((option) => {
@@ -396,7 +396,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const stockPercentage = Math.min(100, (stockCount / 20) * 100);
 
   return (
-    <main className="bg-background pb-24 md:pb-0">
+    <main className="overflow-x-clip bg-background pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
       <a
         href="#product-info"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] bg-background/95 px-4 py-2 text-sm font-semibold text-foreground shadow-soft"
@@ -405,22 +405,22 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       </a>
 
       <div className="container mx-auto max-w-[1200px] px-4 pt-6 md:pt-8">
-        <nav className="flex items-center gap-2 text-xs text-muted-foreground">
-          <button type="button" onClick={() => navigate("/")} className="hover:text-foreground">
+        <nav className="flex min-w-0 items-center gap-2 overflow-hidden text-xs text-muted-foreground">
+          <button type="button" onClick={() => navigate("/")} className="shrink-0 hover:text-foreground">
             Home
           </button>
-          <ChevronRight className="h-3 w-3 opacity-60" />
-          <button type="button" onClick={() => navigate("/")} className="hover:text-foreground">
-            Tutti i prodotti
+          <ChevronRight className="h-3 w-3 shrink-0 opacity-60" />
+          <button type="button" onClick={() => navigate("/collections/all")} className="shrink-0 hover:text-foreground">
+            Prodotti
           </button>
-          <ChevronRight className="h-3 w-3 opacity-60" />
-          <span className="truncate text-foreground">{node.title}</span>
+          <ChevronRight className="hidden h-3 w-3 shrink-0 opacity-60 sm:block" />
+          <span className="hidden min-w-0 truncate text-foreground sm:block">{node.title}</span>
         </nav>
       </div>
 
       <section className="container mx-auto max-w-[1200px] px-4 py-5 md:py-7">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start lg:gap-14">
-          <div className="space-y-8">
+          <div className="min-w-0 max-w-full space-y-8 [overflow-wrap:anywhere]">
             <div className={hasMultipleImages ? "lg:grid lg:grid-cols-[80px_minmax(0,1fr)] lg:gap-3" : ""}>
               {hasMultipleImages && (
                 <div className="hidden lg:order-1 lg:flex lg:flex-col lg:gap-3">
@@ -440,19 +440,19 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 </div>
               )}
 
-              <div className="lg:order-2">
+              <div className="min-w-0 lg:order-2">
                 <div className="group relative w-full overflow-hidden border border-border/60 bg-muted">
                   <button
                     type="button"
                     onClick={() => setZoomOpen(true)}
-                    className="block aspect-[5/6] w-full"
+                    className="block h-[min(62svh,460px)] w-full sm:h-[min(68svh,560px)] lg:aspect-[5/6] lg:h-auto"
                     aria-label="Ingrandisci immagine"
                   >
                     {images[selectedImage] ? (
                       <img
                         src={images[selectedImage].node.url}
                         alt={images[selectedImage].node.altText || node.title}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain lg:object-cover"
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center text-muted-foreground">
@@ -503,7 +503,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             </div>
 
             {hasBotanicalCard && (
-              <div className="border border-border bg-card p-5 md:p-7">
+              <div className="min-w-0 max-w-full border border-border bg-card p-5 md:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-dark">
                   Scheda botanica
                 </p>
@@ -563,8 +563,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               <div className="border border-border bg-card p-5 md:p-7">
                 <h2 className="text-lg font-semibold text-foreground">Calendario stagionale</h2>
 
-                <div className="mt-5 overflow-x-auto">
-                  <div style={{ minWidth: 520 }}>
+                <div className="mt-5 max-w-full overflow-x-auto overscroll-x-contain pb-2 [scrollbar-gutter:stable]">
+                  <div className="min-w-[520px]">
                     <div className="grid grid-cols-12 gap-[2px] pl-[108px] mb-2">
                       {MONTH_LABELS.map((m) => (
                         <div
@@ -627,7 +627,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               </div>
             )}
 
-            <div className="border border-border bg-card p-5 md:p-7">
+            <div className="min-w-0 max-w-full border border-border bg-card p-5 md:p-7">
               <h2 className="text-lg font-semibold text-foreground">Cosa lo rende speciale</h2>
               <ul className="mt-4 space-y-2.5">
                 {resolvedSpecialBullets.map((b) => (
@@ -635,7 +635,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                     <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/40 text-[13px] leading-none text-primary-dark">
                       +
                     </span>
-                    <span>{b}</span>
+                    <span className="min-w-0 break-words">{b}</span>
                   </li>
                 ))}
               </ul>
@@ -850,33 +850,10 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               <p className="mt-2 text-xs text-muted-foreground">Gia nel carrello: {inCartQuantity}</p>
             )}
 
-            {false && resolvedPromoText && limitedOfferVisible && (
-              <div
-                className="relative mt-4 border p-4 pr-10"
-                style={{ borderColor: "rgba(180,72,60,0.3)", backgroundColor: "rgba(180,72,60,0.06)" }}
-              >
-                <div className="flex items-start gap-3">
-                  <Package className="mt-0.5 h-5 w-5 shrink-0" style={{ color: BuyNowColor }} />
-                  <div className="text-sm">
-                    <p className="font-semibold text-foreground">Offerta a tempo limitato</p>
-                    <p className="mt-1 text-foreground/80">{resolvedPromoText}</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  aria-label="Chiudi"
-                  onClick={() => setLimitedOfferVisible(false)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-
             <div className="mt-5">
-              <p className="text-sm font-semibold text-foreground">Categorie correlate</p>
+              <p className="text-sm font-semibold text-foreground">Potrebbero interessarti</p>
               <div className="mt-2.5 flex flex-wrap gap-2">
-                {relatedProducts.slice(0, 3).map((item) => (
+                {relatedProducts.map((item) => (
                   <button
                     key={item.node.id}
                     type="button"
@@ -1100,8 +1077,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       </section>
 
       {isMobile && (
-        <div className="fixed inset-x-0 bottom-4 z-50 px-4 backdrop-blur">
-          <div className="mx-auto flex max-w-2xl items-center gap-3 border border-border/70 bg-background/95 p-3 shadow-elevated">
+        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border/70 bg-background/95 px-3 pt-2 shadow-elevated backdrop-blur pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+          <div className="mx-auto flex max-w-2xl items-center gap-2.5">
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-foreground">{node.title}</p>
               <p className="text-sm font-bold text-foreground">€{parseFloat(price.amount).toFixed(2)}</p>
@@ -1110,7 +1087,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               type="button"
               onClick={handleAddToCart}
               disabled={!selectedVariant?.availableForSale}
-              className="h-10 bg-primary px-5 text-sm font-semibold uppercase tracking-[0.12em] text-primary-foreground disabled:opacity-50"
+              className="h-10 shrink-0 bg-primary px-4 text-sm font-semibold uppercase tracking-[0.1em] text-primary-foreground disabled:opacity-50"
             >
               Aggiungi
             </button>

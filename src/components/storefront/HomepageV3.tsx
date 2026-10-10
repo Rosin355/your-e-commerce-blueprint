@@ -12,6 +12,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
+import { selectHomepageProducts } from "@/lib/storefrontDiscovery";
 import { HomeHero } from "./HomeHero";
 
 const trustItems = [
@@ -29,8 +30,6 @@ type ProductGroup = {
   isLoading: boolean;
 };
 
-const withImages = (products: ShopifyProduct[]) => products.filter((p) => p.node.images.edges.length > 0);
-
 const sectionHeading = (label: string, title: string, actionLabel = "Scopri tutto") => (
   <div className="mb-7 flex items-end justify-between gap-5 border-b border-border/70 pb-4">
     <div>
@@ -45,56 +44,42 @@ const sectionHeading = (label: string, title: string, actionLabel = "Scopri tutt
 );
 
 export const HomepageV3 = () => {
-  const [bestSellers, setBestSellers] = useState<ShopifyProduct[]>([]);
-  const [easyCare, setEasyCare] = useState<ShopifyProduct[]>([]);
-  const [seasonal, setSeasonal] = useState<ShopifyProduct[]>([]);
-  const [loadingBest, setLoadingBest] = useState(true);
-  const [loadingEasy, setLoadingEasy] = useState(true);
-  const [loadingSeasonal, setLoadingSeasonal] = useState(true);
+  const [newestProducts, setNewestProducts] = useState<ShopifyProduct[]>([]);
+  const [outdoorProducts, setOutdoorProducts] = useState<ShopifyProduct[]>([]);
+  const [botanicalProducts, setBotanicalProducts] = useState<ShopifyProduct[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [newsletterParallax, setNewsletterParallax] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
   const newsletterSectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    // Each section loads independently. A Shopify failure must never leave a section
-    // spinning forever or crash the homepage — loading flags always reset in finally.
-    const loadBest = async () => {
+    let cancelled = false;
+    const loadProducts = async () => {
       try {
-        const p = await fetchProducts(20);
-        const valid = withImages(p).filter((pr) => parseFloat(pr.node.priceRange.minVariantPrice.amount) > 0);
-        setBestSellers(valid.slice(0, 4));
+        const products = await fetchProducts(120, undefined, {
+          sortKey: "CREATED_AT",
+          reverse: true,
+        });
+        if (cancelled) return;
+        const selection = selectHomepageProducts(products);
+        setNewestProducts(selection.newest);
+        setOutdoorProducts(selection.outdoor);
+        setBotanicalProducts(selection.botanical);
       } catch (error) {
-        console.error("Errore caricamento prodotti (best sellers):", error);
-        setBestSellers([]);
+        console.error("Errore caricamento selezioni homepage:", error);
+        if (!cancelled) {
+          setNewestProducts([]);
+          setOutdoorProducts([]);
+          setBotanicalProducts([]);
+        }
       } finally {
-        setLoadingBest(false);
+        if (!cancelled) setLoadingProducts(false);
       }
     };
-    const loadEasy = async () => {
-      try {
-        const p = await fetchProducts(8);
-        setEasyCare(withImages(p).slice(0, 4));
-      } catch (error) {
-        console.error("Errore caricamento prodotti (easy care):", error);
-        setEasyCare([]);
-      } finally {
-        setLoadingEasy(false);
-      }
+    loadProducts();
+    return () => {
+      cancelled = true;
     };
-    const loadSeasonal = async () => {
-      try {
-        const p = await fetchProducts(8, "product_type:variable");
-        setSeasonal(withImages(p).slice(0, 4));
-      } catch (error) {
-        console.error("Errore caricamento prodotti (stagionali):", error);
-        setSeasonal([]);
-      } finally {
-        setLoadingSeasonal(false);
-      }
-    };
-    loadBest();
-    loadEasy();
-    loadSeasonal();
   }, []);
 
   useEffect(() => {
@@ -142,32 +127,32 @@ export const HomepageV3 = () => {
   const productGroups: ProductGroup[] = [
     {
       label: "Catalogo",
-      title: "Novita di stagione",
-      subtitle: "Selezioni pensate per balconi, terrazze e giardini nel momento migliore della stagione.",
-      items: bestSellers,
-      isLoading: loadingBest,
+      title: "Novità",
+      subtitle: "Le pubblicazioni più recenti del vivaio, selezionate in ordine stabile.",
+      items: newestProducts,
+      isLoading: loadingProducts,
     },
     {
       label: "Selezione outdoor",
       title: "Scelte per i tuoi esterni",
       subtitle: "Varieta versatili e decorative per dare forma a spazi verdi eleganti e facili da vivere.",
-      items: easyCare,
-      isLoading: loadingEasy,
+      items: outdoorProducts,
+      isLoading: loadingProducts,
     },
     {
-      label: "Fioriture",
-      title: "Edit botanico outdoor",
-      subtitle: "Rose, bulbi e fioriture ornamentali selezionate per portare ritmo e colore all'aperto.",
-      items: seasonal,
-      isLoading: loadingSeasonal,
+      label: "Selezione botanica",
+      title: "Selezione botanica",
+      subtitle: "Rose, fruttiferi, conifere e bulbi scelti dalle collezioni canoniche del catalogo.",
+      items: botanicalProducts,
+      isLoading: loadingProducts,
     },
   ];
 
   const imagePool = useMemo(() => {
-    const fromProducts = [...bestSellers, ...easyCare, ...seasonal]
+    const fromProducts = [...newestProducts, ...outdoorProducts, ...botanicalProducts]
       .flatMap((p) => p.node.images.edges[0]?.node?.url ? [p.node.images.edges[0].node.url] : []);
     return fromProducts.length > 0 ? fromProducts : [heroBotanicalSpring];
-  }, [bestSellers, easyCare, seasonal]);
+  }, [newestProducts, outdoorProducts, botanicalProducts]);
 
   const getImage = (index: number) => imagePool[index % imagePool.length] ?? heroBotanicalSpring;
 

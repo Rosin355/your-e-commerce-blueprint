@@ -1,5 +1,30 @@
 # Online Garden — stato consolidato del progetto
 
+## FINAL MOBILE STOREFRONT QA — 10 ottobre 2026
+
+`CODEX VERIFIED / OFFLINE TESTED ONLY`: completato il pass finale sullo
+storefront senza modificare dati Shopify, Admin V2, schema Supabase, checkout o
+configurazione live.
+
+- Mobile: announcement compatto con copia breve dedicata, header ridotto ma con
+  ricerca sempre visibile, breadcrumb PDP contenuto, gallery con altezza massima
+  e `object-contain`, calendario con scroll interno isolato, contenuti lunghi
+  wrappabili e sticky add-to-cart ancorata al fondo con safe-area.
+- Ricerca: ranking deterministico per titolo, tassonomia canonica di
+  `src/config/categories.ts`, product type/tag/vendor e descrizione; supportati
+  accenti e variazioni singolare/plurale conservative.
+- Homepage: una sola lettura Storefront ordinata per creazione e tre selezioni
+  stabili (novità, outdoor, botanica), massimo quattro prodotti ciascuna e zero
+  duplicati tra sezioni.
+- PDP: prodotti suggeriti prima dalla stessa collezione canonica, poi da
+  collezioni sibling della stessa categoria e infine dal catalogo pubblico;
+  prodotto corrente, duplicati e record senza immagine sono esclusi.
+- Breakpoint verificati: 320x568, 375x812, 390x844, 430x932, 768px e 1440px.
+
+Non bloccante: le selezioni editoriali dipendono dalla copertura immagini e
+dalle associazioni alle collezioni già pubblicate nello Storefront API; in caso
+di set idoneo ridotto, la UI mostra meno prodotti senza introdurre duplicati.
+
 ## Aggiornamento 10 ottobre 2026 — Admin → Shopify sync canary chiuso
 
 `LOVABLE REPORTED / LIVE CANARY PASS`: il flusso Admin V2 → Shopify a campo singolo è stato validato end-to-end su `OG_111899`.

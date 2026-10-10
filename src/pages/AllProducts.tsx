@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/storefront/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { fetchAllProducts, ShopifyProduct } from "@/lib/shopify";
+import { searchCatalogProducts } from "@/lib/storefrontDiscovery";
 
 type SortKey =
   | "featured"
@@ -77,25 +78,6 @@ const productIsInStock = (product: ShopifyProduct) =>
 // supererà questo tetto, alzare il valore o passare alla ricerca server-side.
 const CATALOG_FETCH_LIMIT = 1000;
 
-/** Normalizza per la ricerca: minuscole + rimozione accenti (es. "Novità" → "novita"). */
-const normalizeText = (value: string) =>
-  value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-/** Match su titolo, handle, product type, tag, vendor e descrizione. */
-const productMatchesQuery = (product: ShopifyProduct, normalizedQuery: string) => {
-  const { node } = product;
-  const haystack = [
-    node.title,
-    node.handle,
-    node.productType ?? "",
-    ...(node.tags ?? []),
-    node.vendor ?? "",
-    node.description ?? "",
-  ]
-    .join(" ");
-  return normalizeText(haystack).includes(normalizedQuery);
-};
-
 const readProductOptionValues = (product: ShopifyProduct, matcher: RegExp) => {
   const option = product.node.options.find((opt) => matcher.test(opt.name));
   return option?.values ?? [];
@@ -121,9 +103,13 @@ const sortProducts = (products: ShopifyProduct[], sort: SortKey): ShopifyProduct
           parseFloat(a.node.priceRange.minVariantPrice.amount),
       );
     case "date-new":
-      return list.reverse();
+      return list.sort((a, b) =>
+        (Date.parse(b.node.publishedAt ?? "") || 0) - (Date.parse(a.node.publishedAt ?? "") || 0),
+      );
     case "date-old":
-      return list;
+      return list.sort((a, b) =>
+        (Date.parse(a.node.publishedAt ?? "") || 0) - (Date.parse(b.node.publishedAt ?? "") || 0),
+      );
     case "best":
     case "featured":
     default:
@@ -191,8 +177,7 @@ const AllProducts = () => {
   // La ricerca (q) restringe il set PRIMA dei filtri: stats e filtri lavorano sui risultati.
   const searchScoped = useMemo(() => {
     if (!searchQuery) return products;
-    const normalized = normalizeText(searchQuery);
-    return products.filter((product) => productMatchesQuery(product, normalized));
+    return searchCatalogProducts(products, searchQuery);
   }, [products, searchQuery]);
 
   const clearSearch = () => {

@@ -92,10 +92,10 @@ const AnimatedNavLabel = ({ label }: { label: string }) => {
 };
 
 const BrandMark = ({ compact = false }: { compact?: boolean }) => {
-  // compact: sotto `sm` il wordmark si riduce e l'emblema sparisce, così su 390px
+  // compact: sotto `sm` il wordmark si riduce e l'emblema sparisce, così su 320px
   // logo + hamburger + search/account/carrello stanno su una riga senza tagli.
   const wordClass = compact
-    ? "text-[0.95rem] tracking-[0.08em] sm:text-[1.1rem] sm:tracking-[0.12em]"
+    ? "text-[0.82rem] tracking-[0.05em] min-[360px]:text-[0.95rem] min-[360px]:tracking-[0.08em] sm:text-[1.1rem] sm:tracking-[0.12em]"
     : "text-[1.6rem] tracking-[0.12em]";
   return (
     <span className={`inline-flex items-center whitespace-nowrap ${compact ? "gap-1.5 sm:gap-2" : "gap-2"}`}>
@@ -150,8 +150,8 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
   return (
     <header
       className={[
-        // top-9 = altezza della HomeAnnouncementBar (h-9): l'header parte flush sotto la fascia promo
-        variant === "hero" ? "absolute inset-x-0 top-9 z-40" : "sticky inset-x-0 top-9 z-40",
+        // Offset allineato all'announcement: 32px mobile, 36px da sm in su.
+        variant === "hero" ? "absolute inset-x-0 top-8 z-40 sm:top-9" : "sticky inset-x-0 top-8 z-40 sm:top-9",
         // Glass crema: semi-trasparente + blur/saturate quando backdrop-filter è supportato,
         // fallback quasi-solido altrimenti. Testo verde scuro sempre leggibile.
         "bg-[hsl(var(--cream))]/95 supports-[backdrop-filter]:bg-[hsl(var(--cream))]/[0.82]",
@@ -367,17 +367,17 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
         </div>
 
         {/* MOBILE + TABLET (fino a 1279px: sotto xl il layout desktop sarebbe compresso) */}
-        <div className="py-3 xl:hidden">
+        <div className="py-2 xl:hidden">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
             <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-11 w-11 rounded-full border border-border bg-white text-primary-dark hover:bg-muted"
+                  className="h-9 w-9 rounded-full border border-border bg-white text-primary-dark hover:bg-muted sm:h-10 sm:w-10"
                   aria-label="Apri menu"
                 >
-                  <Menu className="h-6 w-6" strokeWidth={2.25} />
+                  <Menu className="h-5 w-5" strokeWidth={2.25} />
                 </Button>
               </SheetTrigger>
               {/* Drawer: header fisso + body scrollabile (flex-1 min-h-0) così tutte le
@@ -466,7 +466,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-11 w-11 rounded-full border border-border bg-white text-primary-dark hover:bg-muted"
+                className="h-9 w-9 rounded-full border border-border bg-white text-primary-dark hover:bg-muted sm:h-10 sm:w-10"
                 onClick={() => setIsMobileSearchOpen((prev) => !prev)}
                 aria-label={isMobileSearchOpen ? "Chiudi ricerca" : "Apri ricerca"}
                 aria-expanded={isMobileSearchOpen}
@@ -475,12 +475,12 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               </Button>
               <Link
                 to="/auth"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-primary-dark transition-colors hover:bg-muted"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-primary-dark transition-colors hover:bg-muted sm:h-10 sm:w-10"
                 aria-label="Area account"
               >
                 <User className="h-5 w-5" strokeWidth={2.25} />
               </Link>
-              <div className="[&_button>span]:hidden [&_button_svg]:h-5 [&_button_svg]:w-5 [&_button]:h-11 [&_button]:w-11 [&_button]:rounded-full [&_button]:border [&_button]:border-border [&_button]:bg-white [&_button]:text-primary-dark [&_button]:hover:bg-muted">
+              <div className="[&_button>span]:hidden [&_button_svg]:h-5 [&_button_svg]:w-5 [&_button]:h-9 [&_button]:w-9 [&_button]:rounded-full [&_button]:border [&_button]:border-border [&_button]:bg-white [&_button]:text-primary-dark [&_button]:hover:bg-muted sm:[&_button]:h-10 sm:[&_button]:w-10">
                 <CartDrawer />
               </div>
             </div>
@@ -491,7 +491,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
             <button
               type="button"
               onClick={() => setIsMobileSearchOpen(true)}
-              className="mt-3 flex w-full items-center gap-2.5 rounded-full border-2 border-primary/25 bg-white px-4 py-3 text-left text-sm font-medium text-muted-foreground shadow-soft"
+              className="mt-2 flex w-full items-center gap-2.5 rounded-full border-2 border-primary/25 bg-white px-4 py-2 text-left text-sm font-medium text-muted-foreground shadow-soft"
               aria-label="Apri ricerca prodotti"
             >
               <Search className="h-5 w-5 text-primary-dark" strokeWidth={2.25} />
@@ -501,7 +501,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
             <form
               role="search"
               onSubmit={(event) => { event.preventDefault(); submitSearch(); }}
-              className="mt-3 flex items-center gap-2 rounded-full border-2 border-primary/30 bg-white p-1.5 shadow-soft"
+              className="mt-2 flex items-center gap-2 rounded-full border-2 border-primary/30 bg-white p-1 shadow-soft"
             >
               <Search className="ml-2 h-5 w-5 text-primary-dark" aria-hidden="true" />
               <Input
@@ -510,9 +510,9 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                 onChange={(event) => setSearchValue(event.target.value)}
                 placeholder="Cerca piante, vasi, idee regalo"
                 aria-label="Cerca nel catalogo"
-                className="h-10 border-0 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus-visible:ring-0"
+                className="h-9 border-0 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus-visible:ring-0"
               />
-              <Button type="submit" className="h-10 rounded-full px-4 text-sm font-semibold">
+              <Button type="submit" className="h-9 rounded-full px-4 text-sm font-semibold">
                 Cerca
               </Button>
             </form>
