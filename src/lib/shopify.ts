@@ -237,6 +237,18 @@ export async function storefrontApiRequest(query: string, variables: Record<stri
   return data;
 }
 
+/**
+ * Prodotti di test nascosti dalla vetrina (stato Shopify invariato, reversibile).
+ * ID Shopify: 15357653156180 (TEST-001), 15357653188948 (TEST-002).
+ */
+export const HIDDEN_STOREFRONT_PRODUCT_IDS: ReadonlySet<string> = new Set([
+  "gid://shopify/Product/15357653156180",
+  "gid://shopify/Product/15357653188948",
+]);
+export const isHiddenStorefrontProduct = (p: { node?: { id?: string } } | null | undefined) =>
+  !!p?.node?.id && HIDDEN_STOREFRONT_PRODUCT_IDS.has(p.node.id);
+const visibleOnly = <T extends { node?: { id?: string } }>(list: T[]): T[] => list.filter((p) => !isHiddenStorefrontProduct(p));
+
 export async function fetchProducts(
   first: number = 20,
   query?: string,
@@ -249,7 +261,7 @@ export async function fetchProducts(
       sortKey: options.sortKey ?? "ID",
       reverse: options.reverse ?? false,
     });
-    return sfData?.data?.products?.edges || [];
+    return visibleOnly(sfData?.data?.products?.edges || []);
   } catch (error) {
     console.error('Errore nel recupero dei prodotti:', error);
     throw error;
@@ -286,7 +298,7 @@ export async function fetchAllProducts(maxTotal: number = 1000): Promise<Shopify
       });
       const conn = sfData?.data?.products;
       if (!conn) break;
-      all.push(...(conn.edges || []));
+      all.push(...visibleOnly(conn.edges || []));
       if (!conn.pageInfo?.hasNextPage || !conn.pageInfo?.endCursor) break;
       after = conn.pageInfo.endCursor;
     }
@@ -349,7 +361,7 @@ export async function fetchCollectionByHandle(handle: string, first: number = 60
     if (!col) return { collection: null, products: [] };
     return {
       collection: { title: col.title, description: col.description || '', handle: col.handle },
-      products: col.products?.edges || [],
+      products: visibleOnly(col.products?.edges || []),
     };
   } catch (error) {
     console.error('Errore nel recupero della collezione:', error);
