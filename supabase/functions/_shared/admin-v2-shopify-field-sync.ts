@@ -3,6 +3,7 @@ import { shopifyAdminGraphQL } from "./shopify-admin-client.ts";
 import { payloadHash } from "./admin-v2-commands.ts";
 import type { CurrentValueRow, FieldDefinition } from "./admin-v2-types.ts";
 import {
+  isSeasonalField,
   resolveShopifyTarget,
   sameShopifyValue,
   serializeValueForShopify,
@@ -307,6 +308,9 @@ export function buildShopifyWritePlan(input: {
     };
   }
   const target = input.target;
+  const metafieldType = isSeasonalField(target.key)
+    ? target.valueType
+    : input.resolvedTarget?.metafield?.type ?? target.valueType;
   return {
     operation: "metafieldsSet",
     variables: {
@@ -314,7 +318,7 @@ export function buildShopifyWritePlan(input: {
         ownerId: productId,
         namespace: target.namespace,
         key: target.key,
-        type: input.resolvedTarget?.metafield?.type ?? target.valueType,
+        type: metafieldType,
         value: input.value,
       }],
     },
@@ -370,9 +374,10 @@ export async function performVerifiedShopifyFieldWrite(input: {
     graphql,
   });
 
-  // Riconcilia un retry dopo timeout/verifica interrotta: se Shopify espone già
-  // il valore approvato non ripetiamo la mutation e registriamo la verifica.
-  if (sameShopifyValue(input.target, before.value, input.expected)) {
+  // Riconcilia un retry dopo timeout/verifica interrotta soltanto se Shopify
+  // espone già la rappresentazione canonica richiesta. I valori stagionali
+  // legacy restano leggibili, ma devono essere riscritti nel formato scalare.
+  if (matchesCanonicalShopifyRepresentation(input.target, before, input.expected)) {
     return { verifiedValue: before.value, writePerformed: false };
   }
 
@@ -400,13 +405,27 @@ export async function performVerifiedShopifyFieldWrite(input: {
     target: input.target,
     graphql,
   });
-  if (!sameShopifyValue(input.target, after.value, input.expected)) {
+  if (!matchesCanonicalShopifyRepresentation(input.target, after, input.expected)) {
     throw new ShopifyFieldSyncError(
       "SYNC_VERIFY_FAILED",
       "Shopify non restituisce il valore appena scritto.",
     );
   }
   return { verifiedValue: after.value, writePerformed: true };
+}
+
+function matchesCanonicalShopifyRepresentation(
+  target: ShopifyFieldTarget,
+  read: ExactShopifyTargetRead,
+  expected: string | string[],
+): boolean {
+  if (target.kind === "metafield" && isSeasonalField(target.key)) {
+    return read.metafield?.type === "single_line_text_field" &&
+      typeof read.value === "string" &&
+      typeof expected === "string" &&
+      read.value === expected;
+  }
+  return sameShopifyValue(target, read.value, expected);
 }
 
 export interface SyncFieldInput {

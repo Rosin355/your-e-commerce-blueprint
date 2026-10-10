@@ -6,6 +6,7 @@ import {
   deserializeValueForAdminDisplay,
   FieldPolicyError,
   MONTHS,
+  SEASONAL_FIELD_KEYS,
   deserializeMonthsFromShopify,
   normalizeMonths,
   resolveShopifyTarget,
@@ -84,9 +85,15 @@ test("month multiselect accetta solo mesi validi e usa ordine canonico", () => {
 
 test("serializer mesi e round-trip Shopify sono deterministici", () => {
   const serialized = serializeMonthsForShopify(["Maggio", "Marzo", "Aprile"]);
-  assert.equal(serialized, '["Marzo","Aprile","Maggio"]');
+  assert.equal(serialized, "Marzo, Aprile, Maggio");
   assert.deepEqual(deserializeMonthsFromShopify(serialized), ["Marzo", "Aprile", "Maggio"]);
   assert.equal(serializeMonthsForShopify(deserializeMonthsFromShopify(serialized)), serialized);
+  assert.equal(serializeMonthsForShopify(["Novembre"]), "Novembre");
+  assert.deepEqual(deserializeMonthsFromShopify("  Maggio,  Marzo , Aprile  "), [
+    "Marzo",
+    "Aprile",
+    "Maggio",
+  ]);
 });
 
 test("difficoltà usa l'enum verificato e il testo libero non aggira i vincoli", () => {
@@ -106,12 +113,17 @@ test("difficoltà usa l'enum verificato e il testo libero non aggira i vincoli",
 });
 
 test("mapping Shopify è derivato dalla definizione server-side e limitato", () => {
-  assert.deepEqual(resolveShopifyTarget(definition()), {
-    kind: "metafield",
-    namespace: "custom",
-    key: "periodo_di_fioritura",
-    valueType: "list.single_line_text_field",
-  });
+  for (const key of SEASONAL_FIELD_KEYS) {
+    assert.deepEqual(resolveShopifyTarget(definition({
+      key,
+      shopify_mapping: { type: "metafield", namespace: "custom", key },
+    })), {
+      kind: "metafield",
+      namespace: "custom",
+      key,
+      valueType: "single_line_text_field",
+    });
+  }
   assert.equal(resolveShopifyTarget(definition({
     shopify_mapping: { type: "metafield", namespace: "private", key: "admin_override" },
   })), null);
@@ -121,12 +133,50 @@ test("mapping Shopify è derivato dalla definizione server-side e limitato", () 
 test("serializer Shopify usa solo il target registrato", () => {
   assert.equal(
     serializeValueForShopify(definition(), ["Aprile", "Marzo"]),
-    '["Marzo","Aprile"]',
+    "Marzo, Aprile",
   );
   assert.deepEqual(
-    deserializeValueForAdminDisplay(definition(), '["Marzo","Aprile"]'),
+    deserializeValueForAdminDisplay(definition(), "Marzo, Aprile"),
     ["Marzo", "Aprile"],
   );
+});
+
+test("difficulty e metafield non stagionali mantengono mapping e serializzazione", () => {
+  const difficulty = definition({
+    key: "difficolta_di_coltivazione",
+    label: "Difficoltà di coltivazione",
+    editor_type: "select",
+    data_type: "text",
+    validation_rules: { enum: DIFFICULTY_OPTIONS },
+    shopify_mapping: {
+      type: "metafield",
+      namespace: "custom",
+      key: "difficolta_di_coltivazione",
+    },
+  });
+  assert.deepEqual(resolveShopifyTarget(difficulty), {
+    kind: "metafield",
+    namespace: "custom",
+    key: "difficolta_di_coltivazione",
+    valueType: "single_line_text_field",
+  });
+  assert.equal(serializeValueForShopify(difficulty, "Media"), "Media");
+
+  const unrelated = definition({
+    key: "nome_comune",
+    label: "Nome comune",
+    editor_type: "text",
+    data_type: "text",
+    validation_rules: {},
+    shopify_mapping: { type: "metafield", namespace: "custom", key: "nome_comune" },
+  });
+  assert.deepEqual(resolveShopifyTarget(unrelated), {
+    kind: "metafield",
+    namespace: "custom",
+    key: "nome_comune",
+    valueType: "single_line_text_field",
+  });
+  assert.equal(serializeValueForShopify(unrelated, "Rosa"), "Rosa");
 });
 
 test("stati publish_state hanno una rappresentazione Admin non ambigua", () => {
@@ -140,8 +190,8 @@ test("stati publish_state hanno una rappresentazione Admin non ambigua", () => {
 test("drift confronta valori canonici e rileva uno stato esterno diverso", () => {
   const target = resolveShopifyTarget(definition());
   assert.ok(target);
-  assert.equal(sameShopifyValue(target, '["Marzo","Aprile"]', '["Aprile","Marzo"]'), true);
-  assert.equal(sameShopifyValue(target, '["Marzo"]', '["Aprile"]'), false);
+  assert.equal(sameShopifyValue(target, "Marzo, Aprile", "Aprile, Marzo"), true);
+  assert.equal(sameShopifyValue(target, "Marzo", "Aprile"), false);
 });
 
 test("mutation metafield contiene un solo campo e nessun target client arbitrario", () => {
@@ -150,7 +200,16 @@ test("mutation metafield contiene un solo campo e nessun target client arbitrari
   const plan = buildShopifyWritePlan({
     productId: "1",
     target,
-    value: '["Marzo"]',
+    value: serializeValueForShopify(definition(), ["Maggio", "Marzo", "Aprile"]),
+    resolvedTarget: {
+      value: '["Marzo"]',
+      metafield: {
+        namespace: "custom",
+        key: "periodo_di_fioritura",
+        type: "list.single_line_text_field",
+        value: '["Marzo"]',
+      },
+    },
   });
   assert.equal(plan.operation, "metafieldsSet");
   if (plan.operation !== "metafieldsSet") return;
@@ -159,8 +218,8 @@ test("mutation metafield contiene un solo campo e nessun target client arbitrari
     ownerId: "gid://shopify/Product/1",
     namespace: "custom",
     key: "periodo_di_fioritura",
-    type: "list.single_line_text_field",
-    value: '["Marzo"]',
+    type: "single_line_text_field",
+    value: "Marzo, Aprile, Maggio",
   });
 });
 
@@ -216,15 +275,15 @@ test("metafield target oltre i primi 100 usa il lookup singolare esatto", async 
         metafield: {
           namespace: "custom",
           key: "periodo_di_fioritura",
-          type: "list.single_line_text_field",
-          value: '["Marzo"]',
+          type: "single_line_text_field",
+          value: "Marzo",
         },
       },
     } as T;
   };
 
   const result = await readExactMetafieldTarget("1", target, graphql);
-  assert.equal(result?.value, '["Marzo"]');
+  assert.equal(result?.value, "Marzo");
   assert.match(inspectedQuery, /metafield\(namespace: \$namespace, key: \$key\)/);
   assert.doesNotMatch(inspectedQuery, /metafields\s*\(\s*first:/);
   assert.deepEqual(inspectedVariables, {
@@ -350,7 +409,7 @@ test("SKU duplicato blocca la sync", async () => {
 test("verifica post-write rilegge lo stesso metafield esatto", async () => {
   const target = resolveShopifyTarget(definition());
   assert.ok(target);
-  let value = '["Febbraio"]';
+  let value = "Febbraio";
   let exactReads = 0;
   const graphql: ShopifyGraphQL = async <T>(query, variables) => {
     if (query.includes("AdminV2ExactMetafieldTarget")) {
@@ -364,7 +423,7 @@ test("verifica post-write rilegge lo stesso metafield esatto", async () => {
           metafield: {
             namespace: "custom",
             key: "periodo_di_fioritura",
-            type: "list.single_line_text_field",
+            type: "single_line_text_field",
             value,
           },
         },
@@ -379,13 +438,135 @@ test("verifica post-write rilegge lo stesso metafield esatto", async () => {
     productId: "1",
     sku: "OG_1",
     target,
-    expected: '["Marzo"]',
+    expected: "Marzo",
     previousVerifiedAt: null,
     previousVerifiedValue: null,
     graphql,
   });
-  assert.deepEqual(result, { verifiedValue: '["Marzo"]', writePerformed: true });
+  assert.deepEqual(result, { verifiedValue: "Marzo", writePerformed: true });
   assert.equal(exactReads, 2);
+});
+
+async function runSeasonalRepresentationSync(input: {
+  beforeType: string;
+  beforeValue: string;
+  expected: string;
+}): Promise<{ writePerformed: boolean; writes: number }> {
+  const target = resolveShopifyTarget(definition());
+  assert.ok(target);
+  let type = input.beforeType;
+  let value = input.beforeValue;
+  let writes = 0;
+  const graphql: ShopifyGraphQL = async <T>(query, variables) => {
+    if (query.includes("AdminV2ExactMetafieldTarget")) {
+      return {
+        product: {
+          id: "gid://shopify/Product/1",
+          metafield: {
+            namespace: "custom",
+            key: "periodo_di_fioritura",
+            type,
+            value,
+          },
+        },
+      } as T;
+    }
+    writes += 1;
+    const metafield = (variables?.metafields as Array<{ type: string; value: string }>)[0];
+    type = metafield.type;
+    value = metafield.value;
+    return { metafieldsSet: { userErrors: [] } } as T;
+  };
+
+  const result = await performVerifiedShopifyFieldWrite({
+    productId: "1",
+    sku: "OG_1",
+    target,
+    expected: input.expected,
+    previousVerifiedAt: null,
+    previousVerifiedValue: null,
+    graphql,
+  });
+  return { writePerformed: result.writePerformed, writes };
+}
+
+test("JSON legacy stagionale richiede la riscrittura scalare canonica", async () => {
+  assert.deepEqual(await runSeasonalRepresentationSync({
+    beforeType: "single_line_text_field",
+    beforeValue: '["Marzo"]',
+    expected: "Marzo",
+  }), { writePerformed: true, writes: 1 });
+});
+
+test("vecchia rappresentazione list stagionale richiede la riscrittura scalare", async () => {
+  assert.deepEqual(await runSeasonalRepresentationSync({
+    beforeType: "list.single_line_text_field",
+    beforeValue: '["Marzo"]',
+    expected: "Marzo",
+  }), { writePerformed: true, writes: 1 });
+});
+
+test("scalare stagionale già canonico non esegue una seconda write", async () => {
+  assert.deepEqual(await runSeasonalRepresentationSync({
+    beforeType: "single_line_text_field",
+    beforeValue: "Marzo",
+    expected: "Marzo",
+  }), { writePerformed: false, writes: 0 });
+});
+
+test("confronto stagionale multi-mese richiede ordine e separatori canonici", async () => {
+  assert.deepEqual(await runSeasonalRepresentationSync({
+    beforeType: "single_line_text_field",
+    beforeValue: "Marzo, Aprile, Maggio",
+    expected: "Marzo, Aprile, Maggio",
+  }), { writePerformed: false, writes: 0 });
+  assert.deepEqual(await runSeasonalRepresentationSync({
+    beforeType: "single_line_text_field",
+    beforeValue: "Maggio, Marzo, Aprile",
+    expected: "Marzo, Aprile, Maggio",
+  }), { writePerformed: true, writes: 1 });
+});
+
+test("metafield non stagionali conservano il confronto pre-write esistente", async () => {
+  const def = definition({
+    key: "nome_comune",
+    label: "Nome comune",
+    data_type: "text",
+    editor_type: "text",
+    validation_rules: {},
+    shopify_mapping: { type: "metafield", namespace: "custom", key: "nome_comune" },
+  });
+  const target = resolveShopifyTarget(def);
+  assert.ok(target);
+  let writes = 0;
+  const graphql: ShopifyGraphQL = async <T>(query) => {
+    if (query.includes("AdminV2ExactMetafieldTarget")) {
+      return {
+        product: {
+          id: "gid://shopify/Product/1",
+          metafield: {
+            namespace: "custom",
+            key: "nome_comune",
+            type: "single_line_text_field",
+            value: "Rosa",
+          },
+        },
+      } as T;
+    }
+    writes += 1;
+    return { metafieldsSet: { userErrors: [] } } as T;
+  };
+  const result = await performVerifiedShopifyFieldWrite({
+    productId: "1",
+    sku: "OG_1",
+    target,
+    expected: "Rosa",
+    previousVerifiedAt: null,
+    previousVerifiedValue: null,
+    graphql,
+  });
+  assert.equal(result.writePerformed, false);
+  assert.equal(writes, 0);
 });
 
 test("FAQ resta strutturata e JSON legacy opaco resta read-only", () => {
