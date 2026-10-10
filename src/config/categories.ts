@@ -95,18 +95,12 @@ export const CATEGORIES: CategoryNode[] = [
     label: "Rose",
     handle: "rose",
     description: "Collezioni romantiche e profumate per chi cerca eleganza senza tempo.",
-    links: [
-      { label: "Rose cespuglio", handle: "rose-cespuglio", image: "rose" },
-      { label: "Rose rampicanti", handle: "rose-rampicanti", image: "roseRampicanti" },
-      { label: "Rose profumate", handle: "rose-profumate", image: "rose" },
-      // Foto dedicata non ancora fornita → riuso temporaneo dello scatto generico "rose"
-      { label: "Rose paesaggistiche", handle: "rose-paesaggistiche", toCreate: true, image: "rose" },
-      { label: "Rose a fiore grande", handle: "rose-fiore-grande", toCreate: true, image: "rose" },
-    ],
+    // Sotto-categorie Rose (cespuglio, rampicanti, profumate, paesaggistiche, fiore grande)
+    // nascoste: le collection Shopify sono vuote e i dati legacy indicano solo "Rose".
+    // Ripristinarle solo dopo una classificazione reale dei prodotti.
+    links: [],
     previewCards: [
       { title: "Rose selezionate", description: "Una proposta pensata per roseti, ingressi e spazi esterni dal tono poetico.", imageKey: "rose", href: "/collections/rose" },
-      // "rose-profumate" non ha foto dedicata: riuso della foto rose rampicanti (coerente col tema)
-      { title: "Roseto profumato", description: "Composizioni eleganti dai profumi intensi.", imageKey: "roseRampicanti", href: "/collections/rose-profumate" },
     ],
   },
   {
@@ -125,10 +119,10 @@ export const CATEGORIES: CategoryNode[] = [
   {
     label: "Conifere",
     handle: "conifere",
-    description: "Sempreverdi strutturali per giardini di carattere — selezione in arrivo.",
+    description: "Sempreverdi strutturali per giardini di carattere.",
     links: [],
     previewCards: [
-      { title: "Conifere", description: "Collezione in arrivo, curata con Marco.", imageKey: "conifere", href: "/collections/conifere" },
+      { title: "Conifere", description: "Scopri la selezione di conifere disponibili.", imageKey: "conifere", href: "/collections/conifere" },
     ],
   },
   {
