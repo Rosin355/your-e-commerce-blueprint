@@ -1403,6 +1403,69 @@ serve(async (req) => {
         break;
       }
 
+      case "assign_canonical_collections": {
+        // WRITE LIMITATA (solo aggiunta): aggiunge prodotti esistenti a collection
+        // CUSTOM con handle canonico (src/config/categories.ts). Mai rimozioni,
+        // mai modifiche ai prodotti. Pubblica opzionalmente la collection su
+        // Online Store + Headless se non ancora pubblicata. dryRun supportato.
+        const CANONICAL = new Set([
+          "piante-da-esterno","arbusti","alberi","erbacee-perenni-graminacee","piante-da-siepe",
+          "piante-grasse-succulente","aromatiche","rampicanti-arbusti-spalliera","rampicanti",
+          "sempreverdi","rose","rose-cespuglio","rose-rampicanti","rose-profumate",
+          "rose-paesaggistiche","rose-fiore-grande","piante-da-frutto","alberi-da-frutto",
+          "piccoli-frutti","conifere","vasi-da-esterno","accessori","bulbi",
+        ]);
+        const items: Array<{ handle: string; productIds: string[]; publish?: boolean }> =
+          Array.isArray(data?.items) ? data.items : [];
+        const dryRun: boolean = data?.dryRun !== false;
+        const inspectQ = `query($handle: String!) { collectionByHandle(handle: $handle) { id handle ruleSet { appliedDisjunctively } } }`;
+        const productsQ = `query($id: ID!, $cursor: String) { collection(id: $id) { products(first: 250, after: $cursor) { edges { node { id } } pageInfo { hasNextPage endCursor } } } }`;
+        const addM = `mutation($id: ID!, $productIds: [ID!]!) { collectionAddProductsV2(id: $id, productIds: $productIds) { job { id done } userErrors { field message } } }`;
+        const publishM = `mutation($id: ID!, $input: [PublicationInput!]!) { publishablePublish(id: $id, input: $input) { userErrors { field message } } }`;
+        const pr: any = await shopifyAdminGraphQL(`query { publications(first: 25) { edges { node { id name } } } }`);
+        const pubs = (pr?.publications?.edges || []).map((e: any) => e.node);
+        const os = pubs.find((p: any) => /online store/i.test(p.name));
+        const hl = pubs.find((p: any) => /headless/i.test(p.name));
+        const report: any[] = [];
+        for (const it of items) {
+          const entry: any = { handle: it?.handle };
+          if (!CANONICAL.has(it?.handle)) { entry.status = "skipped_not_canonical"; report.push(entry); continue; }
+          const ids = (Array.isArray(it.productIds) ? it.productIds : []).filter((x) => /^gid:\/\/shopify\/Product\/\d+$/.test(x));
+          const c: any = (await shopifyAdminGraphQL(inspectQ, { handle: it.handle }))?.collectionByHandle;
+          if (!c || c.handle !== it.handle) { entry.status = "missing_collection"; report.push(entry); continue; }
+          if (c.ruleSet) { entry.status = "smart_collection_skip"; report.push(entry); continue; }
+          const existing = new Set<string>();
+          let cursor: string | null = null;
+          for (let i = 0; i < 100; i++) {
+            const r: any = await shopifyAdminGraphQL(productsQ, { id: c.id, cursor });
+            for (const ed of r?.collection?.products?.edges || []) existing.add(ed.node.id);
+            const pi = r?.collection?.products?.pageInfo;
+            if (!pi?.hasNextPage) break;
+            cursor = pi.endCursor;
+          }
+          const missing = [...new Set(ids)].filter((x) => !existing.has(x));
+          Object.assign(entry, { collectionId: c.id, before: existing.size, requested: ids.length, toAdd: missing.length });
+          if (dryRun) { entry.status = "dry_run"; report.push(entry); continue; }
+          const errs: any[] = [];
+          for (let i = 0; i < missing.length; i += 250) {
+            const ar: any = await shopifyAdminGraphQL(addM, { id: c.id, productIds: missing.slice(i, i + 250) });
+            const ue = ar?.collectionAddProductsV2?.userErrors || [];
+            if (ue.length) errs.push(ue);
+          }
+          if (it.publish && os && hl) {
+            const pu: any = await shopifyAdminGraphQL(publishM, { id: c.id, input: [{ publicationId: os.id }, { publicationId: hl.id }] });
+            const ue = pu?.publishablePublish?.userErrors || [];
+            if (ue.length) errs.push(ue);
+            entry.published = [os.name, hl.name];
+          }
+          entry.errors = errs;
+          entry.status = errs.length ? "partial" : "ok";
+          report.push(entry);
+        }
+        result = { dryRun, report };
+        break;
+      }
+
       default:
         return jsonResponse({ success: false, error: "Azione non valida" }, 400);
     }
