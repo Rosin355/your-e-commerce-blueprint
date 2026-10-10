@@ -176,7 +176,7 @@ export const useProduct = (handle: string | undefined): UseProductResult => {
       setError(null);
       try {
         const data = await storefrontApiRequest(PRODUCT_BY_HANDLE_QUERY, { handle });
-        if (data?.data?.productByHandle) {
+        if (data?.data?.productByHandle && !isHiddenStorefrontProduct({ node: data.data.productByHandle })) {
           const normalizedProduct = { node: data.data.productByHandle };
           setProduct(normalizedProduct);
           setSelectedVariant(normalizedProduct.node.variants.edges[0]?.node ?? null);
