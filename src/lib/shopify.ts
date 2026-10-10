@@ -298,7 +298,7 @@ export async function fetchAllProducts(maxTotal: number = 1000): Promise<Shopify
       });
       const conn = sfData?.data?.products;
       if (!conn) break;
-      all.push(...visibleOnly(conn.edges || []));
+      all.push(...visibleOnly((conn.edges || []) as ShopifyProduct[]));
       if (!conn.pageInfo?.hasNextPage || !conn.pageInfo?.endCursor) break;
       after = conn.pageInfo.endCursor;
     }
