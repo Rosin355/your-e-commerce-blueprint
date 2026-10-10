@@ -380,3 +380,8 @@ Accept live su OG_264361/seo_title v1→v2, history/command +1, replay idempoten
 - Catalogo: 887 prodotti pubblicati, 16 in bozza (14 descrizioni bloccate, 2 media), 0 prodotti in collection.
 - Negozio Shopify ancora protetto da password; Shopify Payments da attivare prima degli ordini reali.
 - Drift migration: `drizzle/migrations/0012` e `0013` identiche (stesso SHA-256); DB sicuro, solo contabilità del repository.
+
+## Final store cleanup + nav hotfix (2026-10-10)
+- Rose subcategories hidden from mega menu/mobile drawer until a real classification exists; only `/collections/rose` is linked.
+- Conifere confirmed live; "in arrivo" copy removed.
+- 2 test products (TEST-001, TEST-002) hidden from all storefront listings, search, homepage, related, collections and PDP via a frontend ID filter in `src/lib/shopify.ts`. Their Shopify status is still ACTIVE (the agent's tools cannot change status); set them to DRAFT in Shopify Admin for a full backend-level removal.
