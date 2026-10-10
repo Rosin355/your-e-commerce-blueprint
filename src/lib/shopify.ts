@@ -60,6 +60,17 @@ export interface ShopifyProduct {
     tags?: string[] | null;
     /** Vendor — usato dalla ricerca catalogo. */
     vendor?: string | null;
+    /** Metadati pubblici Storefront usati per ordinamento e discovery deterministica. */
+    availableForSale?: boolean;
+    publishedAt?: string | null;
+    collections?: {
+      edges: Array<{
+        node: {
+          handle: string;
+          title: string;
+        };
+      }>;
+    };
     shortIntro?: { value: string; type?: string } | null;
     specialBullets?: { value: string; type?: string } | null;
     keyFeatures?: { value: string; type?: string } | null;
@@ -90,8 +101,8 @@ export interface ShopifyProduct {
 }
 
 export const STOREFRONT_PRODUCTS_QUERY = `
-  query GetProducts($first: Int!, $query: String) {
-    products(first: $first, query: $query) {
+  query GetProducts($first: Int!, $query: String, $sortKey: ProductSortKeys, $reverse: Boolean) {
+    products(first: $first, query: $query, sortKey: $sortKey, reverse: $reverse) {
       edges {
         node {
           id
@@ -136,6 +147,16 @@ export const STOREFRONT_PRODUCTS_QUERY = `
           productType
           tags
           vendor
+          availableForSale
+          publishedAt
+          collections(first: 50) {
+            edges {
+              node {
+                handle
+                title
+              }
+            }
+          }
         }
       }
     }
@@ -186,7 +207,7 @@ export const CART_CREATE_MUTATION = `
   }
 `;
 
-export async function storefrontApiRequest(query: string, variables: any = {}) {
+export async function storefrontApiRequest(query: string, variables: Record<string, unknown> = {}) {
   const response = await fetch(SHOPIFY_STOREFRONT_URL, {
     method: 'POST',
     headers: {
@@ -210,15 +231,24 @@ export async function storefrontApiRequest(query: string, variables: any = {}) {
   const data = await response.json();
 
   if (data.errors) {
-    throw new Error(`Errore chiamata Shopify: ${data.errors.map((e: any) => e.message).join(', ')}`);
+    throw new Error(`Errore chiamata Shopify: ${data.errors.map((error: { message?: string }) => error.message ?? "Errore sconosciuto").join(', ')}`);
   }
 
   return data;
 }
 
-export async function fetchProducts(first: number = 20, _query?: string): Promise<ShopifyProduct[]> {
+export async function fetchProducts(
+  first: number = 20,
+  query?: string,
+  options: { sortKey?: "ID" | "CREATED_AT" | "UPDATED_AT" | "TITLE"; reverse?: boolean } = {},
+): Promise<ShopifyProduct[]> {
   try {
-    const sfData = await storefrontApiRequest(STOREFRONT_PRODUCTS_QUERY, { first, query: _query });
+    const sfData = await storefrontApiRequest(STOREFRONT_PRODUCTS_QUERY, {
+      first,
+      query,
+      sortKey: options.sortKey ?? "ID",
+      reverse: options.reverse ?? false,
+    });
     return sfData?.data?.products?.edges || [];
   } catch (error) {
     console.error('Errore nel recupero dei prodotti:', error);
@@ -228,8 +258,14 @@ export async function fetchProducts(first: number = 20, _query?: string): Promis
 
 // Variante paginata della query prodotti: stessa selezione campi, con cursore.
 const STOREFRONT_PRODUCTS_PAGE_QUERY = STOREFRONT_PRODUCTS_QUERY
-  .replace('query GetProducts($first: Int!, $query: String) {', 'query GetProductsPage($first: Int!, $query: String, $after: String) {')
-  .replace('products(first: $first, query: $query) {', 'products(first: $first, query: $query, after: $after) { pageInfo { hasNextPage endCursor }');
+  .replace(
+    'query GetProducts($first: Int!, $query: String, $sortKey: ProductSortKeys, $reverse: Boolean) {',
+    'query GetProductsPage($first: Int!, $query: String, $sortKey: ProductSortKeys, $reverse: Boolean, $after: String) {',
+  )
+  .replace(
+    'products(first: $first, query: $query, sortKey: $sortKey, reverse: $reverse) {',
+    'products(first: $first, query: $query, sortKey: $sortKey, reverse: $reverse, after: $after) { pageInfo { hasNextPage endCursor }',
+  );
 
 /**
  * Carica l'intero catalogo paginando a blocchi di 250 (limite Storefront API),
@@ -242,7 +278,12 @@ export async function fetchAllProducts(maxTotal: number = 1000): Promise<Shopify
   try {
     while (all.length < maxTotal) {
       const pageSize = Math.min(250, maxTotal - all.length);
-      const sfData = await storefrontApiRequest(STOREFRONT_PRODUCTS_PAGE_QUERY, { first: pageSize, after });
+      const sfData = await storefrontApiRequest(STOREFRONT_PRODUCTS_PAGE_QUERY, {
+        first: pageSize,
+        after,
+        sortKey: "ID",
+        reverse: false,
+      });
       const conn = sfData?.data?.products;
       if (!conn) break;
       all.push(...(conn.edges || []));
