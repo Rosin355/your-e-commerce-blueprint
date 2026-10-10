@@ -347,3 +347,11 @@ Accept live su OG_264361/seo_title v1→v2, history/command +1, replay idempoten
 - Pubblicazione frontend richiesta dalla stessa revisione.
 - Smoke test autenticato e canary: NON eseguiti — serve un account admin per la sessione di test e un prodotto canary approvato esplicitamente. Nessuna scrittura Shopify effettuata.
 - Stato: STOPPED in attesa di account di test + prodotto canary.
+
+## Handoff cliente (2026-10-10)
+
+- Admin V2 pronto; cliente con ruolo `editor` (istruzioni in `docs/admin-v2-client-editing.md`).
+- Sync Shopify da Admin: solo admin/tech_admin, flag `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED` OFF.
+- Catalogo: 887 prodotti pubblicati, 16 in bozza (14 descrizioni bloccate, 2 media), 0 prodotti in collection.
+- Negozio Shopify ancora protetto da password; Shopify Payments da attivare prima degli ordini reali.
+- Drift migration: `drizzle/migrations/0012` e `0013` identiche (stesso SHA-256); DB sicuro, solo contabilità del repository.

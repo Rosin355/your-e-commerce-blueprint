@@ -142,3 +142,15 @@ i mesi corretti.
 - Rilettura post-write dell'Admin: PASS; stato finale `SYNCED` / **Sincronizzato**, versione 1, una sola operazione di sync registrata e nessuna scrittura su altri prodotti/campi.
 - `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED` rimosso al termine del canary e verificato OFF.
 - L'Admin V2 è quindi pronto per l'uso cliente per la sync esplicita a campo singolo supportata. Il gate resta opt-in: nessuna sincronizzazione parte automaticamente.
+
+## Consegna al cliente (handoff)
+
+- **Accesso:** il cliente si registra/accede da `/auth` con email e password, poi apre `/admin`.
+- **Ruolo:** al cliente va assegnato solo `editor` (mai `admin` o `tech_admin`).
+  1. Cloud → Users: trovare l'account del cliente per email e copiarne l'ID.
+  2. Cloud → Database → `user_roles`: aggiungere una riga `user_id = <ID>`, `role = editor`.
+  3. Verifica: il cliente vede elenco e schede prodotto, può salvare campi consentiti, non vede "Strumenti tecnici" né il pulsante di sincronizzazione Shopify.
+- **Cosa può modificare:** contenuti editoriali consentiti (descrizioni, campi stagionali a mesi, difficoltà, FAQ strutturate, cura), inclusa la creazione dei campi stagionali mancanti.
+- **Cosa non può modificare:** SKU/handle/identità, prezzo, inventario, varianti, campi bloccati o JSON legacy non supportati, strumenti tecnici.
+- **"Salva nell'Admin" vs sync Shopify:** il salvataggio aggiorna solo l'Admin (stato *Da sincronizzare*); la scrittura su Shopify è un'azione separata riservata ad `admin`/`tech_admin` e richiede `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED=true` (di norma OFF).
+- **Prima degli ordini reali:** rimuovere la password del negozio Shopify e attivare Shopify Payments.
