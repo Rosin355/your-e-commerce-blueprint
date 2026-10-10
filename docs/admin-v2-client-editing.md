@@ -1,7 +1,6 @@
 # Admin V2 — guida editing cliente e sync Shopify
 
-Stato: implementazione in PR, **non distribuita**. La sincronizzazione è
-disabilitata per default e richiede `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED=true`.
+Stato: **LIVE / CANARY SHOPIFY PASS**. La sincronizzazione resta disabilitata per default e richiede `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED=true`.
 
 ## Regola operativa
 
@@ -133,3 +132,13 @@ i mesi corretti.
 - Sessione Admin dell'utente non disponibile all'agente (stato anteprima: non autenticato); nessuna credenziale letta o creata.
 - Pre-check DB in sola lettura: OG_111899 (variable) non ha una riga `periodo_di_fioritura`. La RPC `admin_update_product_field` crea righe nuove solo per campi `manual_only`; `periodo_di_fioritura` è `manual_only=false`, quindi il salvataggio canary risponderebbe FIELD_NOT_EDITABLE.
 - Nessuna scrittura DB/Shopify. `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED` assente = OFF.
+
+
+## Chiusura canary live — 2026-10-10
+
+- Backfill una tantum applicato con migration `0014_one_time_shopify_id_safe_backfill`: 1.833 ID Shopify mancanti compilati, da 421 a 2.254 ID presenti su 2.706 righe; 452 `UNMATCHED` lasciati invariati; nessun ID esistente sovrascritto.
+- Canary `OG_111899`: `shopify_product_id = gid://shopify/Product/15836694249812`.
+- `periodo_di_fioritura` salvato in Admin come `["Marzo","Aprile","Maggio"]` e sincronizzato su Shopify come `single_line_text_field` con valore scalare `Marzo, Aprile, Maggio`.
+- Rilettura post-write dell'Admin: PASS; stato finale `SYNCED` / **Sincronizzato**, versione 1, una sola operazione di sync registrata e nessuna scrittura su altri prodotti/campi.
+- `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED` rimosso al termine del canary e verificato OFF.
+- L'Admin V2 è quindi pronto per l'uso cliente per la sync esplicita a campo singolo supportata. Il gate resta opt-in: nessuna sincronizzazione parte automaticamente.
