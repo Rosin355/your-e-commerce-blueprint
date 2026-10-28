@@ -1,0 +1,35 @@
+{
+  "browser": "156.0.8078.49",
+  "syntheticData": true,
+  "checks": [
+    {
+      "name": "Ricerca client su 1.205 risultati, prodotto oltre 1.000 e sort globale",
+      "status": "PASS"
+    },
+    {
+      "name": "Errore seconda pagina catalogo, retry completo senza falso zero",
+      "status": "PASS"
+    },
+    {
+      "name": "205 varianti: prima disponibile oltre 10 e checkout ultima variante",
+      "status": "PASS"
+    },
+    {
+      "name": "Errore varianti successive: niente acquisto parziale, retry",
+      "status": "PASS"
+    },
+    {
+      "name": "SEO homepage, alias, ricerca, collezione, PDP e assenza dati residui",
+      "status": "PASS"
+    },
+    {
+      "name": "Card: disponibile se solo variante 11 è vendibile",
+      "status": "PASS"
+    }
+  ],
+  "pageErrors": [],
+  "summary": {
+    "passed": 6,
+    "failed": 0
+  }
+}

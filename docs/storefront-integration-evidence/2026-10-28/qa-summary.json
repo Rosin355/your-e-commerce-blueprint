@@ -1,0 +1,37 @@
+{
+  "base": "0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3",
+  "status": "PASS_OFFLINE_ONLY",
+  "main": {
+    "nodeTests": 320,
+    "denoTests": 92,
+    "typecheck": "PASS",
+    "productionBuild": "PASS",
+    "edgePackaging": "PASS"
+  },
+  "sourceCommitted7a7ed51": {
+    "nodeTests": 39,
+    "typecheck": "PASS",
+    "productionBuild": "PASS"
+  },
+  "integrated": {
+    "nodeTests": 336,
+    "denoTests": 92,
+    "typecheck": "PASS",
+    "productionBuild": "PASS",
+    "lintFrontendFiles": 24,
+    "lintFrontendWarnings": 0,
+    "lintNewDomainTsFiles": 3,
+    "edgePackaging": "PASS",
+    "browserUx": 15,
+    "browserScaleProduction": 6,
+    "browserSafeProduction": 4,
+    "browserIntegrationProduction": 3,
+    "pageErrors": 0
+  },
+  "knownBaselineCommandFailure": {
+    "command": "npm run test:catalog",
+    "reason": "4 Deno files selected by Node glob: jsr unsupported; all executed and passing with Deno native via domain.mjs"
+  },
+  "liveWrites": false,
+  "productionIndexingVerified": false
+}

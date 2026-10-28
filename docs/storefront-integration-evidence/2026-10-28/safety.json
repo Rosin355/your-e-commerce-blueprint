@@ -1,0 +1,31 @@
+{
+  "base": "0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3",
+  "sourceHead": "7a7ed51c037f335df4b8b215a3322a7683bbe007",
+  "originalFilesChecked": 39,
+  "protectedOriginalFiles": 18,
+  "originalHashesIdentical": true,
+  "originalStatusIdentical": true,
+  "protectedMainPaths": [
+    "src/admin",
+    "src/adminv2",
+    "src/catalog",
+    "supabase",
+    "sync",
+    "src/hooks/useAuth.tsx",
+    "src/integrations",
+    "src/App.tsx",
+    "package.json",
+    "package-lock.json",
+    "bun.lockb",
+    "pnpm-lock.yaml"
+  ],
+  "protectedMainDiff": [],
+  "cartCreateMutationIdentical": true,
+  "privateSecretPatternFindings": [],
+  "scanLimit": "Pattern mirati sui file cambiati; non certificazione completa di entropia/storia o validità credenziali. Token Storefront pubblico preesistente invariato.",
+  "verifiedApplicationHead": "624fc669f4eb560c14d6e6abc726ff3cc4cba0d4",
+  "originalHeadIdentical": true,
+  "mainProjectStatusHistoryIdentical": true,
+  "sourceCommitsConfirmedInOriginalAncestry": true,
+  "finalChangedFilesScanned": 70
+}

@@ -1,0 +1,248 @@
+
+> vite_react_shadcn_ts@0.0.0 test:catalog
+> node --import tsx --test scripts/tests/*.test.ts
+
+TAP version 13
+# Subtest: month multiselect accetta solo mesi validi, rimuove duplicati e usa ordine canonico
+ok 1 - month multiselect accetta solo mesi validi, rimuove duplicati e usa ordine canonico
+  ---
+  duration_ms: 0.848042
+  type: 'test'
+  ...
+# Subtest: un mese non valido viene rifiutato server-side
+ok 2 - un mese non valido viene rifiutato server-side
+  ---
+  duration_ms: 0.657792
+  type: 'test'
+  ...
+# Subtest: serializzazione stagionale deterministica e round-trip deterministico
+ok 3 - serializzazione stagionale deterministica e round-trip deterministico
+  ---
+  duration_ms: 0.41525
+  type: 'test'
+  ...
+# Subtest: difficoltà usa esclusivamente l'enum di dominio
+ok 4 - difficoltà usa esclusivamente l'enum di dominio
+  ---
+  duration_ms: 0.13275
+  type: 'test'
+  ...
+# Subtest: il testo libero non può aggirare un campo vincolato
+ok 5 - il testo libero non può aggirare un campo vincolato
+  ---
+  duration_ms: 0.212875
+  type: 'test'
+  ...
+# Subtest: mapping Shopify derivato dal registry e namespace/key client ignorabili
+ok 6 - mapping Shopify derivato dal registry e namespace/key client ignorabili
+  ---
+  duration_ms: 0.163791
+  type: 'test'
+  ...
+# Subtest: salvataggio interno di un campo pubblicabile produce PENDING_SYNC
+ok 7 - salvataggio interno di un campo pubblicabile produce PENDING_SYNC
+  ---
+  duration_ms: 0.567584
+  type: 'test'
+  ...
+# Subtest: sync verificato produce SYNCED e muta un solo target
+ok 8 - sync verificato produce SYNCED e muta un solo target
+  ---
+  duration_ms: 0.338375
+  type: 'test'
+  ...
+# Subtest: errore Shopify produce SYNC_ERROR
+ok 9 - errore Shopify produce SYNC_ERROR
+  ---
+  duration_ms: 0.420792
+  type: 'test'
+  ...
+# Subtest: expectedVersion obsoleto produce VERSION_CONFLICT
+ok 10 - expectedVersion obsoleto produce VERSION_CONFLICT
+  ---
+  duration_ms: 0.74625
+  type: 'test'
+  ...
+# Subtest: drift Shopify blocca la scrittura e produce STATE_DRIFT
+ok 11 - drift Shopify blocca la scrittura e produce STATE_DRIFT
+  ---
+  duration_ms: 0.1955
+  type: 'test'
+  ...
+# Subtest: verifica post-write inattesa produce SYNC_VERIFY_FAILED
+ok 12 - verifica post-write inattesa produce SYNC_VERIFY_FAILED
+  ---
+  duration_ms: 0.131458
+  type: 'test'
+  ...
+# Subtest: FAQ resta strutturata e il JSON legacy non supportato resta read-only
+ok 13 - FAQ resta strutturata e il JSON legacy non supportato resta read-only
+  ---
+  duration_ms: 0.15575
+  type: 'test'
+  ...
+# Subtest: mappatura prodotto mancante produce BLOCK_SYNC
+ok 14 - mappatura prodotto mancante produce BLOCK_SYNC
+  ---
+  duration_ms: 0.080125
+  type: 'test'
+  ...
+# Subtest: ogni campo visibile ha classificazione e help; i select senza tassonomia restano read-only
+ok 15 - ogni campo visibile ha classificazione e help; i select senza tassonomia restano read-only
+  ---
+  duration_ms: 1.395834
+  type: 'test'
+  ...
+# Subtest: TEST 1 — CSV senza metafield: l'oggetto metafields resta invariato
+ok 16 - TEST 1 — CSV senza metafield: l'oggetto metafields resta invariato
+  ---
+  duration_ms: 1.951708
+  type: 'test'
+  ...
+# Subtest: TEST 2 — title source-controlled: un valore reale nel CSV aggiorna il DB
+ok 17 - TEST 2 — title source-controlled: un valore reale nel CSV aggiorna il DB
+  ---
+  duration_ms: 0.446208
+  type: 'test'
+  ...
+# Subtest: TEST 3 — campo manuale 'curiosita' assente nel CSV: resta invariato
+ok 18 - TEST 3 — campo manuale 'curiosita' assente nel CSV: resta invariato
+  ---
+  duration_ms: 0.123041
+  type: 'test'
+  ...
+# Subtest: TEST 3b — il CSV non può sovrascrivere una chiave manuale nemmeno se la contiene
+ok 19 - TEST 3b — il CSV non può sovrascrivere una chiave manuale nemmeno se la contiene
+  ---
+  duration_ms: 0.131792
+  type: 'test'
+  ...
+# Subtest: TEST 4 — le colonne AI non sono mai nel payload dell'import
+ok 20 - TEST 4 — le colonne AI non sono mai nel payload dell'import
+  ---
+  duration_ms: 0.211708
+  type: 'test'
+  ...
+# Subtest: TEST 5 — fallback tecnici vuoti non azzerano i dati esistenti
+ok 21 - TEST 5 — fallback tecnici vuoti non azzerano i dati esistenti
+  ---
+  duration_ms: 0.133083
+  type: 'test'
+  ...
+# Subtest: TEST 6 — SKU mai esistito: creazione corretta
+ok 22 - TEST 6 — SKU mai esistito: creazione corretta
+  ---
+  duration_ms: 0.204667
+  type: 'test'
+  ...
+# Subtest: hasSourceValue distingue assenza di dato da valore reale
+ok 23 - hasSourceValue distingue assenza di dato da valore reale
+  ---
+  duration_ms: 0.084958
+  type: 'test'
+  ...
+# Subtest: mergeMetafields non rimuove mai chiavi esistenti
+ok 24 - mergeMetafields non rimuove mai chiavi esistenti
+  ---
+  duration_ms: 0.444958
+  type: 'test'
+  ...
+# Subtest: tutte le chiavi manuali dichiarate sono effettivamente protette
+ok 25 - tutte le chiavi manuali dichiarate sono effettivamente protette
+  ---
+  duration_ms: 0.40325
+  type: 'test'
+  ...
+# Subtest: payload catalogo separato da home, mantiene prezzo minimo/opzioni/disponibilità
+ok 26 - payload catalogo separato da home, mantiene prezzo minimo/opzioni/disponibilità
+  ---
+  duration_ms: 0.435417
+  type: 'test'
+  ...
+# Subtest: abort tra pagine non avvia richieste successive né restituisce un catalogo parziale
+ok 27 - abort tra pagine non avvia richieste successive né restituisce un catalogo parziale
+  ---
+  duration_ms: 17.684083
+  type: 'test'
+  ...
+# Subtest: disponibilità assente non diventa falso esaurito
+ok 28 - disponibilità assente non diventa falso esaurito
+  ---
+  duration_ms: 0.458375
+  type: 'test'
+  ...
+# Subtest: JSON-LD: Product descrittivo e breadcrumb effettivo, nessuna proprietà commerciale dedotta
+ok 29 - JSON-LD: Product descrittivo e breadcrumb effettivo, nessuna proprietà commerciale dedotta
+  ---
+  duration_ms: 0.549459
+  type: 'test'
+  ...
+# Subtest: JSON-LD: niente fallback inventati per immagini/descrizioni assenti o non valide
+ok 30 - JSON-LD: niente fallback inventati per immagini/descrizioni assenti o non valide
+  ---
+  duration_ms: 0.171042
+  type: 'test'
+  ...
+# Subtest: JSON-LD: serializzazione conserva testo ostile senza chiusura script in HTML
+ok 31 - JSON-LD: serializzazione conserva testo ostile senza chiusura script in HTML
+  ---
+  duration_ms: 0.118208
+  type: 'test'
+  ...
+# Subtest: catalogo: 1.205 prodotti, cursori, deduplica, query inoltrata senza tetti
+ok 32 - catalogo: 1.205 prodotti, cursori, deduplica, query inoltrata senza tetti
+  ---
+  duration_ms: 24.147834
+  type: 'test'
+  ...
+# Subtest: catalogo: errore pagina intermedia non restituisce risultati incompleti
+ok 33 - catalogo: errore pagina intermedia non restituisce risultati incompleti
+  ---
+  duration_ms: 0.412417
+  type: 'test'
+  ...
+# Subtest: cursori mancanti/ciclici e pageInfo assente falliscono esplicitamente
+ok 34 - cursori mancanti/ciclici e pageInfo assente falliscono esplicitamente
+  ---
+  duration_ms: 0.1245
+  type: 'test'
+  ...
+# Subtest: varianti: oltre 10 e oltre 100, ID selezionabili e disponibilità conservati
+ok 35 - varianti: oltre 10 e oltre 100, ID selezionabili e disponibilità conservati
+  ---
+  duration_ms: 0.602
+  type: 'test'
+  ...
+# Subtest: varianti: prodotto sparito o pagina errata impediscono acquisto parziale
+ok 36 - varianti: prodotto sparito o pagina errata impediscono acquisto parziale
+  ---
+  duration_ms: 0.252
+  type: 'test'
+  ...
+# Subtest: richieste: segnale cancellazione propagato al fetch
+ok 37 - richieste: segnale cancellazione propagato al fetch
+  ---
+  duration_ms: 1.091959
+  type: 'test'
+  ...
+# Subtest: query: token letterali, operatori cliente quotati, spazi e accenti preservati
+ok 38 - query: token letterali, operatori cliente quotati, spazi e accenti preservati
+  ---
+  duration_ms: 0.290292
+  type: 'test'
+  ...
+# Subtest: SEO: canonical senza query/hash e nessun dominio esterno; testo da dati
+ok 39 - SEO: canonical senza query/hash e nessun dominio esterno; testo da dati
+  ---
+  duration_ms: 0.24875
+  type: 'test'
+  ...
+1..39
+# tests 39
+# suites 0
+# pass 39
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 164.845458
