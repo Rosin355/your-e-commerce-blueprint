@@ -7,6 +7,8 @@ export interface HomepageProductSelection {
   botanical: ShopifyProduct[];
 }
 
+type SearchProduct = { node: Pick<ShopifyProduct['node'], 'title' | 'handle' | 'description' | 'collections' | 'productType' | 'tags' | 'vendor'> };
+
 interface CanonicalCollection {
   handle: string;
   label: string;
@@ -94,7 +96,7 @@ function matchedCanonicalCollections(query: string): CanonicalCollection[] {
   });
 }
 
-export function productCollectionHandles(product: ShopifyProduct): string[] {
+export function productCollectionHandles(product: Pick<SearchProduct, "node">): string[] {
   return product.node.collections?.edges.map((edge) => edge.node.handle) ?? [];
 }
 
@@ -102,7 +104,7 @@ function collectionScope(collection: CanonicalCollection): Set<string> {
   return new Set([collection.handle, ...collection.childHandles]);
 }
 
-function scoreProductSearch(product: ShopifyProduct, query: string): number | null {
+function scoreProductSearch(product: SearchProduct, query: string): number | null {
   const normalizedTitle = normalizeSearchText(product.node.title);
   if (normalizedTitle === query) return 0;
   if (normalizedTitle.includes(query)) return 10;
@@ -132,13 +134,13 @@ function scoreProductSearch(product: ShopifyProduct, query: string): number | nu
   return null;
 }
 
-export function searchCatalogProducts(products: ShopifyProduct[], query: string): ShopifyProduct[] {
+export function searchCatalogProducts<T extends SearchProduct>(products: T[], query: string): T[] {
   const normalizedQuery = normalizeSearchText(query);
   if (!normalizedQuery) return products;
 
   return products
     .map((product, index) => ({ product, index, score: scoreProductSearch(product, normalizedQuery) }))
-    .filter((entry): entry is { product: ShopifyProduct; index: number; score: number } => entry.score !== null)
+    .filter((entry): entry is { product: T; index: number; score: number } => entry.score !== null)
     .sort((left, right) => left.score - right.score || left.index - right.index)
     .map((entry) => entry.product);
 }

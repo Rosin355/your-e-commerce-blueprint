@@ -1,24 +1,17 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { storefrontApiRequest, ShopifyProduct, isHiddenStorefrontProduct } from "@/lib/shopify";
-import { toast } from "sonner";
+import { storefrontApiRequest, completeProductVariants, isHiddenStorefrontProduct, ShopifyProduct } from "@/lib/shopify";
 
 const PRODUCT_BY_HANDLE_QUERY = `
   query GetProductByHandle($handle: String!) {
     productByHandle(handle: $handle) {
       id
+      availableForSale
+      seo { title description }
+      publishedAt
+      collections(first: 50) { edges { node { handle title } } }
       title
       description
       handle
-      availableForSale
-      publishedAt
-      collections(first: 50) {
-        edges {
-          node {
-            handle
-            title
-          }
-        }
-      }
       priceRange {
         minVariantPrice {
           amount
@@ -33,7 +26,8 @@ const PRODUCT_BY_HANDLE_QUERY = `
           }
         }
       }
-      variants(first: 10) {
+      variants(first: 100) {
+        pageInfo { hasNextPage endCursor }
         edges {
           node {
             id
@@ -151,6 +145,7 @@ const PRODUCT_BY_HANDLE_QUERY = `
 interface UseProductResult {
   product: ShopifyProduct | null;
   loading: boolean;
+  retry: () => void;
   error: unknown;
   selectedVariant: ShopifyProduct["node"]["variants"]["edges"][number]["node"] | null;
   setSelectedVariant: Dispatch<SetStateAction<ShopifyProduct["node"]["variants"]["edges"][number]["node"] | null>>;
@@ -162,7 +157,13 @@ export const useProduct = (handle: string | undefined): UseProductResult => {
   const [error, setError] = useState<unknown>(null);
   const [selectedVariant, setSelectedVariant] = useState<ShopifyProduct["node"]["variants"]["edges"][number]["node"] | null>(null);
 
+  const [attempt, setAttempt] = useState(0);
+
   useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    setProduct(null);
+    setSelectedVariant(null);
     const loadProduct = async () => {
       if (!handle) {
         setProduct(null);
@@ -175,26 +176,29 @@ export const useProduct = (handle: string | undefined): UseProductResult => {
       setLoading(true);
       setError(null);
       try {
-        const data = await storefrontApiRequest(PRODUCT_BY_HANDLE_QUERY, { handle });
+        const data = await storefrontApiRequest(PRODUCT_BY_HANDLE_QUERY, { handle }, controller.signal);
+        if (!active) return;
         if (data?.data?.productByHandle && !isHiddenStorefrontProduct({ node: data.data.productByHandle })) {
-          const normalizedProduct = { node: data.data.productByHandle };
+          const normalizedProduct = await completeProductVariants({ node: data.data.productByHandle }, controller.signal);
+          if (!active) return;
           setProduct(normalizedProduct);
-          setSelectedVariant(normalizedProduct.node.variants.edges[0]?.node ?? null);
+          setSelectedVariant(normalizedProduct.node.variants.edges.find(({ node }) => node.availableForSale)?.node ?? normalizedProduct.node.variants.edges[0]?.node ?? null);
         } else {
           setProduct(null);
           setSelectedVariant(null);
         }
       } catch (error) {
+        if (!active) return;
         setError(error);
         console.error("Errore caricamento prodotto:", error);
-        toast.error("Errore nel caricamento del prodotto");
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
 
     loadProduct();
-  }, [handle]);
+    return () => { active = false; controller.abort(); };
+  }, [handle, attempt]);
 
-  return { product, loading, error, selectedVariant, setSelectedVariant };
+  return { product, loading, error, selectedVariant, setSelectedVariant, retry: () => setAttempt(value => value + 1) };
 };

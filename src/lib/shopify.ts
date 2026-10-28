@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 
 // Storefront config is env-driven via Vite (VITE_*). These are PUBLIC values by design:
 // the Storefront API token is a public access token meant to ship in the browser bundle.
@@ -6,12 +5,12 @@ import { toast } from "sonner";
 // NOTE: Shopify deprecates Storefront API versions ~12 months after release. Keep
 // VITE_SHOPIFY_STOREFRONT_API_VERSION current; verify GraphQL fields before bumping to 2026-04.
 export const SHOPIFY_API_VERSION =
-  import.meta.env.VITE_SHOPIFY_STOREFRONT_API_VERSION || '2025-07';
+  import.meta.env?.VITE_SHOPIFY_STOREFRONT_API_VERSION || '2025-07';
 export const SHOPIFY_STORE_PERMANENT_DOMAIN =
-  import.meta.env.VITE_SHOPIFY_STORE_PERMANENT_DOMAIN || 'ecom-blueprint-gen-6ud1s.myshopify.com';
+  import.meta.env?.VITE_SHOPIFY_STORE_PERMANENT_DOMAIN || 'ecom-blueprint-gen-6ud1s.myshopify.com';
 export const SHOPIFY_STOREFRONT_URL = `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
 export const SHOPIFY_STOREFRONT_TOKEN =
-  import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN || 'cb09ae53041b30962a9358fd3dac7a5d';
+  import.meta.env?.VITE_SHOPIFY_STOREFRONT_TOKEN || 'cb09ae53041b30962a9358fd3dac7a5d';
 
 export interface ShopifyProduct {
   node: {
@@ -33,7 +32,9 @@ export interface ShopifyProduct {
         };
       }>;
     };
+    seo?: { title: string | null; description: string | null };
     variants: {
+      pageInfo?: { hasNextPage: boolean; endCursor: string | null };
       edges: Array<{
         node: {
           id: string;
@@ -98,6 +99,11 @@ export interface ShopifyProduct {
     /** custom.curiosita — sostituisce "Spedizione e resi" quando valorizzato */
     curiosity?: { value: string; type?: string } | null;
   };
+}
+
+/** Complete discovery fields, one card image, no variant previews. Never purchasable directly. */
+export interface CatalogProduct {
+  node: Omit<ShopifyProduct['node'], 'variants'> & { availableForSale: boolean };
 }
 
 export const STOREFRONT_PRODUCTS_QUERY = `
@@ -207,7 +213,7 @@ export const CART_CREATE_MUTATION = `
   }
 `;
 
-export async function storefrontApiRequest(query: string, variables: Record<string, unknown> = {}) {
+export async function storefrontApiRequest(query: string, variables: Record<string, unknown> = {}, signal?: AbortSignal) {
   const response = await fetch(SHOPIFY_STOREFRONT_URL, {
     method: 'POST',
     headers: {
@@ -215,14 +221,8 @@ export async function storefrontApiRequest(query: string, variables: Record<stri
       'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_TOKEN
     },
     body: JSON.stringify({ query, variables }),
+    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(20000)]) : AbortSignal.timeout(20000),
   });
-
-  if (response.status === 402) {
-    toast.error("Shopify: Pagamento richiesto", {
-      description: "L'accesso alle API Shopify richiede un piano di fatturazione attivo. Visita il tuo admin Shopify per aggiornare.",
-    });
-    return;
-  }
 
   if (!response.ok) {
     throw new Error(`Errore HTTP! status: ${response.status}`);
@@ -231,7 +231,7 @@ export async function storefrontApiRequest(query: string, variables: Record<stri
   const data = await response.json();
 
   if (data.errors) {
-    throw new Error(`Errore chiamata Shopify: ${data.errors.map((error: { message?: string }) => error.message ?? "Errore sconosciuto").join(', ')}`);
+    throw new Error(`Errore chiamata Shopify: ${data.errors.map((e: { message: string }) => e.message).join(', ')}`);
   }
 
   return data;
@@ -268,74 +268,115 @@ export async function fetchProducts(
   }
 }
 
-// Variante paginata della query prodotti: stessa selezione campi, con cursore.
-const STOREFRONT_PRODUCTS_PAGE_QUERY = STOREFRONT_PRODUCTS_QUERY
-  .replace(
-    'query GetProducts($first: Int!, $query: String, $sortKey: ProductSortKeys, $reverse: Boolean) {',
-    'query GetProductsPage($first: Int!, $query: String, $sortKey: ProductSortKeys, $reverse: Boolean, $after: String) {',
-  )
-  .replace(
-    'products(first: $first, query: $query, sortKey: $sortKey, reverse: $reverse) {',
-    'products(first: $first, query: $query, sortKey: $sortKey, reverse: $reverse, after: $after) { pageInfo { hasNextPage endCursor }',
-  );
-
-/**
- * Carica l'intero catalogo paginando a blocchi di 250 (limite Storefront API),
- * fino a `maxTotal` come tetto di sicurezza. Usata dalla pagina "Tutti i prodotti"
- * così la ricerca client-side copre davvero tutto il catalogo (oggi ~460 prodotti).
- */
-export async function fetchAllProducts(maxTotal: number = 1000): Promise<ShopifyProduct[]> {
-  const all: ShopifyProduct[] = [];
-  let after: string | null = null;
-  try {
-    while (all.length < maxTotal) {
-      const pageSize = Math.min(250, maxTotal - all.length);
-      const sfData = await storefrontApiRequest(STOREFRONT_PRODUCTS_PAGE_QUERY, {
-        first: pageSize,
-        after,
-        sortKey: "ID",
-        reverse: false,
-      });
-      const conn = sfData?.data?.products;
-      if (!conn) break;
-      all.push(...visibleOnly((conn.edges || []) as ShopifyProduct[]));
-      if (!conn.pageInfo?.hasNextPage || !conn.pageInfo?.endCursor) break;
-      after = conn.pageInfo.endCursor;
+// Separate selection: homepage/related cards keep their existing richer query.
+export const STOREFRONT_CATALOG_PAGE_QUERY = `
+  query GetProductsPage($first: Int!, $query: String, $after: String) {
+    products(first: $first, query: $query, after: $after, sortKey: ID, reverse: false) {
+      pageInfo { hasNextPage endCursor }
+      edges { node {
+        id title description handle availableForSale
+        productType tags vendor publishedAt
+        collections(first: 50) { edges { node { handle title } } }
+        priceRange { minVariantPrice { amount currencyCode } }
+        images(first: 1) { edges { node { url altText } } }
+        options { name values }
+      } }
     }
-  } catch (error) {
-    console.error('Errore nel recupero del catalogo completo:', error);
-    if (all.length === 0) throw error; // fallimento totale → propaga; parziale → restituisci ciò che c'è
   }
-  return all;
+`;
+
+/** Reject malformed/repeated cursors rather than returning an incomplete connection. */
+export function nextPageCursor(pageInfo: { hasNextPage: boolean; endCursor: string | null }, seen: Set<string>): string | null {
+  if (!pageInfo || typeof pageInfo.hasNextPage !== 'boolean') throw new Error('Paginazione Shopify non valida');
+  if (!pageInfo.hasNextPage) return null;
+  const cursor = pageInfo.endCursor;
+  if (!cursor || seen.has(cursor)) throw new Error('Cursore Shopify mancante o ripetuto');
+  seen.add(cursor);
+  return cursor;
+}
+
+/** Exhaust the connection without an application result cap. Filters/sort are local
+ * over the COMPLETE response, never over a silently truncated first page.
+ */
+export async function fetchAllProducts(query?: string, signal?: AbortSignal): Promise<CatalogProduct[]> {
+  const products = new Map<string, CatalogProduct>();
+  const seen = new Set<string>();
+  let after: string | null = null;
+  do {
+    signal?.throwIfAborted();
+    const response = await storefrontApiRequest(STOREFRONT_CATALOG_PAGE_QUERY, { first: 100, after, query }, signal);
+    const connection = response?.data?.products;
+    if (!Array.isArray(connection?.edges)) throw new Error('Risposta catalogo non valida');
+    connection.edges.forEach((product: CatalogProduct) => {
+      if (typeof product.node?.availableForSale !== 'boolean') throw new Error('Disponibilità catalogo non valida');
+      products.set(product.node.id, product);
+    });
+    after = nextPageCursor(connection.pageInfo, seen);
+  } while (after);
+  signal?.throwIfAborted();
+  return visibleOnly([...products.values()]);
+}
+
+export const PRODUCT_VARIANTS_PAGE_QUERY = `
+  query GetProductVariants($id: ID!, $after: String) {
+    product(id: $id) {
+      id
+      variants(first: 100, after: $after) {
+        pageInfo { hasNextPage endCursor }
+        edges { node { id title price { amount currencyCode } availableForSale selectedOptions { name value } } }
+      }
+    }
+  }
+`;
+
+export async function completeProductVariants(product: ShopifyProduct, signal?: AbortSignal): Promise<ShopifyProduct> {
+  const seen = new Set<string>();
+  const variants = new Map(product.node.variants.edges.map(edge => [edge.node.id, edge]));
+  let after = nextPageCursor(product.node.variants.pageInfo, seen);
+  while (after) {
+    signal?.throwIfAborted();
+    const response = await storefrontApiRequest(PRODUCT_VARIANTS_PAGE_QUERY, { id: product.node.id, after }, signal);
+    const page = response?.data?.product;
+    if (page?.id !== product.node.id || !Array.isArray(page?.variants?.edges)) throw new Error('Risposta varianti non valida');
+    page.variants.edges.forEach((edge: ShopifyProduct['node']['variants']['edges'][number]) => variants.set(edge.node.id, edge));
+    after = nextPageCursor(page.variants.pageInfo, seen);
+  }
+  signal?.throwIfAborted();
+  return { node: { ...product.node, variants: { edges: [...variants.values()], pageInfo: { hasNextPage: false, endCursor: null } } } };
 }
 
 export interface ShopifyCollectionMeta {
   title: string;
   description: string;
   handle: string;
+  seo?: { title: string | null; description: string | null };
 }
 
 export interface CollectionResult {
   collection: ShopifyCollectionMeta | null;
   products: ShopifyProduct[];
+  nextCursor: string | null;
 }
 
 const COLLECTION_QUERY = `
-  query GetCollection($handle: String!, $first: Int!) {
+  query GetCollection($handle: String!, $first: Int!, $after: String) {
     collection(handle: $handle) {
       title
       description
       handle
-      products(first: $first) {
+      seo { title description }
+      products(first: $first, after: $after) {
+        pageInfo { hasNextPage endCursor }
         edges {
           node {
+            availableForSale
             id
             title
             description
             handle
             priceRange { minVariantPrice { amount currencyCode } }
-            images(first: 5) { edges { node { url altText } } }
-            variants(first: 10) {
+            images(first: 1) { edges { node { url altText } } }
+            variants(first: 1) {
               edges {
                 node {
                   id
@@ -354,14 +395,15 @@ const COLLECTION_QUERY = `
   }
 `;
 
-export async function fetchCollectionByHandle(handle: string, first: number = 60): Promise<CollectionResult> {
+export async function fetchCollectionByHandle(handle: string, first: number = 60, after: string | null = null, signal?: AbortSignal): Promise<CollectionResult> {
   try {
-    const data = await storefrontApiRequest(COLLECTION_QUERY, { handle, first });
+    const data = await storefrontApiRequest(COLLECTION_QUERY, { handle, first, after }, signal);
     const col = data?.data?.collection;
-    if (!col) return { collection: null, products: [] };
+    if (!col) return { collection: null, products: [], nextCursor: null };
     return {
-      collection: { title: col.title, description: col.description || '', handle: col.handle },
+      collection: { title: col.title, description: col.description || '', handle: col.handle, seo: col.seo },
       products: visibleOnly(col.products?.edges || []),
+      nextCursor: nextPageCursor(col.products?.pageInfo, new Set(after ? [after] : [])),
     };
   } catch (error) {
     console.error('Errore nel recupero della collezione:', error);
