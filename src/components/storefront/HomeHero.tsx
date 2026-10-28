@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import heroGiardinoCurato from "@/assets/hero/hero-giardino-curato.jpg";
 import heroTerrazziEsterni from "@/assets/hero/hero-terrazzi-esterni.jpg";
 import heroBalconeGiardino from "@/assets/hero/hero-balcone-giardino.jpg";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { SiteHeader } from "./SiteHeader";
 
 const EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -71,6 +71,7 @@ const slides = [
 ];
 
 export const HomeHero = () => {
+  const [paused, setPaused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [previousIndex, setPreviousIndex] = useState<number | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -105,21 +106,21 @@ export const HomeHero = () => {
   }, []);
 
   useEffect(() => {
-    if (isReducedMotion) return;
+    if (isReducedMotion || paused) return;
     const id = setInterval(
       () => navigate((activeIndexRef.current + 1) % slides.length),
       AUTOPLAY_MS,
     );
     return () => clearInterval(id);
-  }, [isReducedMotion, navigate]);
+  }, [isReducedMotion, paused, navigate]);
 
   useEffect(
     () => () => { if (cleanupRef.current) clearTimeout(cleanupRef.current); },
     [],
   );
 
-  const goPrev = () => navigate((activeIndexRef.current - 1 + slides.length) % slides.length);
-  const goNext = () => navigate((activeIndexRef.current + 1) % slides.length);
+  const goPrev = () => { setPaused(true); navigate((activeIndexRef.current - 1 + slides.length) % slides.length); };
+  const goNext = () => { setPaused(true); navigate((activeIndexRef.current + 1) % slides.length); };
 
   return (
     <section className="relative isolate min-h-[92svh] overflow-hidden text-white md:min-h-[96svh]">
@@ -160,6 +161,7 @@ export const HomeHero = () => {
             className="absolute inset-0 h-full w-full object-cover object-center"
             style={style}
             loading={index === 0 ? "eager" : "lazy"}
+            fetchPriority={index === 0 ? "high" : "auto"}
           />
         );
       })}
@@ -188,7 +190,7 @@ export const HomeHero = () => {
 
       {/* ── Content ──────────────────────────────────────────────── */}
       <div
-        className="pointer-events-none relative mx-auto flex min-h-[92svh] max-w-[1600px] flex-col justify-end px-4 pb-9 pt-28 md:min-h-[96svh] md:px-6 md:pb-12 md:pt-36 [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
+        className="pointer-events-none relative mx-auto flex min-h-[92svh] max-w-[1600px] flex-col justify-end px-4 pb-9 pt-60 md:min-h-[96svh] md:px-6 md:pb-12 md:pt-36 [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
         style={{ zIndex: 35 }}
       >
         {/* Text area — `relative` so the exiting overlay positions against it */}
@@ -247,10 +249,13 @@ export const HomeHero = () => {
             {String(activeIndex + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
           </span>
           <div className="flex items-center gap-1.5">
+            {!isReducedMotion && <button type="button" onClick={() => setPaused(value => !value)} aria-label={paused ? "Riprendi presentazione" : "Pausa presentazione"} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/50 bg-black/40 text-white">
+              {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+            </button>}
             <button
               type="button"
               onClick={goPrev}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/24 bg-black/16 text-white transition-colors hover:bg-white/14"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/24 bg-black/16 text-white transition-colors hover:bg-white/14"
               aria-label="Slide precedente"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -258,7 +263,7 @@ export const HomeHero = () => {
             <button
               type="button"
               onClick={goNext}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/24 bg-black/16 text-white transition-colors hover:bg-white/14"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/24 bg-black/16 text-white transition-colors hover:bg-white/14"
               aria-label="Slide successiva"
             >
               <ChevronRight className="h-4 w-4" />

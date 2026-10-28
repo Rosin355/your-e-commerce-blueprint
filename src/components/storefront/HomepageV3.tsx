@@ -16,8 +16,8 @@ import { selectHomepageProducts } from "@/lib/storefrontDiscovery";
 import { HomeHero } from "./HomeHero";
 
 const trustItems = [
-  { title: "Spedizione protetta", subtitle: "Consegna curata per piante e accessori oltre €50", icon: PackageCheck },
-  { title: "Reso semplice", subtitle: "30 giorni per gestire il reso con serenita", icon: CheckCircle2 },
+  { title: "Spedizione protetta", subtitle: "Consulta le opzioni di consegna al checkout", icon: PackageCheck },
+  { title: "Assistenza", subtitle: "Scrivici per informazioni prima e dopo l’acquisto", icon: CheckCircle2 },
   { title: "Pagamento sicuro", subtitle: "Checkout affidabile e acquisto senza pensieri", icon: ShieldCheck },
   { title: "Supporto vivaio", subtitle: "Assistenza prima e dopo l'ordine", icon: HeadphonesIcon },
 ];
@@ -47,6 +47,7 @@ export const HomepageV3 = () => {
   const [newestProducts, setNewestProducts] = useState<ShopifyProduct[]>([]);
   const [outdoorProducts, setOutdoorProducts] = useState<ShopifyProduct[]>([]);
   const [botanicalProducts, setBotanicalProducts] = useState<ShopifyProduct[]>([]);
+  const [loadError, setLoadError] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [newsletterParallax, setNewsletterParallax] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -68,6 +69,7 @@ export const HomepageV3 = () => {
       } catch (error) {
         console.error("Errore caricamento selezioni homepage:", error);
         if (!cancelled) {
+          setLoadError(true);
           setNewestProducts([]);
           setOutdoorProducts([]);
           setBotanicalProducts([]);
@@ -209,7 +211,7 @@ export const HomepageV3 = () => {
                 </div>
               ) : (
                 <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-                  Nessun prodotto disponibile al momento. Riprova più tardi.
+                  {loadError ? "Impossibile caricare questa selezione. Riprova dal catalogo." : "Nessun prodotto disponibile in questa selezione."}
                 </div>
               )}
             </div>
@@ -261,7 +263,7 @@ export const HomepageV3 = () => {
                 </div>
               ) : (
                 <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-                  Nessun prodotto disponibile al momento. Riprova più tardi.
+                  {loadError ? "Impossibile caricare questa selezione. Riprova dal catalogo." : "Nessun prodotto disponibile in questa selezione."}
                 </div>
               )}
             </div>
@@ -308,17 +310,8 @@ export const HomepageV3 = () => {
           <div className="relative z-10 mx-auto flex min-h-[460px] max-w-[1600px] items-center justify-center px-4 md:min-h-[560px] md:px-6">
             <div className="w-full max-w-[520px] bg-primary px-7 py-8 text-primary-foreground md:px-10 md:py-10">
               <h3 className="font-heading text-[2.8rem] font-medium leading-[0.98] md:text-[3.4rem]">Resta vicino alla stagione</h3>
-              <div className="mt-8 flex items-center border-b border-primary-foreground/55 pb-2">
-                <input
-                  type="email"
-                  placeholder="Inserisci la tua email"
-                  className="w-full bg-transparent text-sm text-primary-foreground placeholder:text-primary-foreground/72 focus:outline-none"
-                />
-                <ArrowRight className="h-4 w-4" />
-              </div>
-              <p className="mt-3 text-xs leading-5 text-primary-foreground/80">
-                Iscriviti per ricevere novita di stagione, idee per terrazzi e giardini e selezioni dedicate dal nostro vivaio online.
-              </p>
+              <p className="mt-6 text-sm leading-6">Le iscrizioni alla newsletter non sono ancora disponibili. Esplora il catalogo o scrivici per informazioni.</p>
+              <a href="mailto:info@onlinegarden.it" className="mt-4 inline-flex min-h-11 items-center underline underline-offset-4">Contatta il vivaio</a>
             </div>
           </div>
         </div>

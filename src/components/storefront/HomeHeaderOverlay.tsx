@@ -458,7 +458,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               </SheetContent>
             </Sheet>
 
-            <Link to="/" aria-label="Homepage di Online Garden" className="justify-self-center">
+            <Link to="/" aria-label="Homepage di Online Garden" className="min-w-0 justify-self-center">
               <BrandMark compact />
             </Link>
 

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShopifyProduct } from "@/lib/shopify";
 import { useCartStore } from "@/stores/cartStore";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 interface ProductCardProps {
@@ -19,7 +19,10 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
   const { node } = product;
   const image = node.images.edges[0]?.node;
   const price = node.priceRange.minVariantPrice;
-  const firstVariant = node.variants.edges[0]?.node;
+  const firstVariant = node.variants.edges.find(({ node }) => node.availableForSale)?.node ?? node.variants.edges[0]?.node;
+  const hasMultipleVariants = node.variants.edges.length > 1 || node.options.some(option => option.values.length > 1);
+  const inStock = node.availableForSale ?? !!firstVariant?.availableForSale;
+  const isCheckingOut = useCartStore(state => state.isLoading);
   const shortDescription = node.description?.trim();
 
   const surfaceClass = dark
@@ -35,7 +38,9 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (!firstVariant) {
+    if (useCartStore.getState().isLoading) return;
+    if (hasMultipleVariants) { navigate(`/products/${node.handle}`); return; }
+    if (!firstVariant?.availableForSale) {
       toast.error("Prodotto non disponibile");
       return;
     }
@@ -51,20 +56,15 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
 
     addItem(cartItem);
     toast.success("Prodotto aggiunto al carrello!", {
-      position: "top-center",
+      position: "top-center", id: "cart-added",
     });
-  };
-
-  const handleCardClick = () => {
-    navigate(`/products/${node.handle}`);
   };
 
   return (
     <Card
       className={`group cursor-pointer overflow-hidden rounded-none border transition-all duration-500 hover:-translate-y-1 hover:shadow-soft ${surfaceClass}`}
-      onClick={handleCardClick}
     >
-      <div className="relative aspect-[4/4.7] overflow-hidden bg-muted">
+      <Link to={`/products/${node.handle}`} aria-label={`Vedi ${node.title}`} className="relative block aspect-[4/4.7] overflow-hidden bg-muted">
         {image ? (
           <img
             src={image.url}
@@ -81,19 +81,19 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
           <Badge variant="secondary" className={`rounded-none border px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
             Selezione outdoor
           </Badge>
-          {!firstVariant?.availableForSale && (
+          {!inStock && (
             <Badge variant="secondary" className={`rounded-none border px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] backdrop-blur ${badgeClass}`}>
               Esaurito
             </Badge>
           )}
         </div>
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#f4efe6]/88 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
-      </div>
+      </Link>
 
       <div className="space-y-3.5 p-4 md:p-5">
         <div className="space-y-2">
           <h3 className="line-clamp-2 font-heading text-[1.2rem] font-semibold leading-[1.2] text-foreground transition-colors group-hover:text-primary-dark">
-            {node.title}
+            <Link to={`/products/${node.handle}`}>{node.title}</Link>
           </h3>
           {shortDescription && (
             <p className="line-clamp-2 text-[13px] leading-6 text-muted-foreground/90">
@@ -104,7 +104,7 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
 
         <div className="flex flex-wrap gap-2">
           <span className={`inline-flex items-center rounded-none px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.17em] ${metaChipClass}`}>
-            {firstVariant?.availableForSale ? "Disponibile ora" : "Da verificare"}
+            {inStock ? "Disponibile ora" : "Da verificare"}
           </span>
           {firstVariant?.selectedOptions?.[0]?.value && (
             <span className={`inline-flex items-center rounded-none px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.17em] text-muted-foreground ${dark ? "bg-background/75" : "bg-muted/75"}`}>
@@ -113,29 +113,28 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
           )}
         </div>
 
-        <div className="flex items-end justify-between gap-3 border-t border-border/65 pt-3.5">
+        <div className="flex flex-wrap items-end justify-between gap-3 border-t border-border/65 pt-3.5">
           <div>
             <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground">A partire da</p>
             <span className="text-[1.45rem] font-semibold leading-none text-primary-dark">€{parseFloat(price.amount).toFixed(2)}</span>
           </div>
           <Button
             onClick={handleAddToCart}
-            disabled={!firstVariant?.availableForSale}
+            disabled={!inStock || isCheckingOut}
             size="sm"
-            className="h-9 rounded-none px-3.5 text-[10px] uppercase font-semibold tracking-[0.16em]"
+            className="min-h-11 rounded-none px-3.5 text-[10px] uppercase font-semibold tracking-[0.16em]"
           >
             <CheckCircle2 className="h-4 w-4" />
-            Aggiungi
+            {hasMultipleVariants ? "Scegli formato" : "Aggiungi"}
           </Button>
         </div>
 
-        <button
-          type="button"
-          onClick={handleCardClick}
-          className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-primary-dark transition-colors hover:text-primary"
+        <Link
+          to={`/products/${node.handle}`}
+              className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-primary-dark transition-colors hover:text-primary"
         >
           Vedi dettagli <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-        </button>
+        </Link>
       </div>
     </Card>
   );

@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { PaymentInformation } from "./PaymentInformation";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useIsMobile } from "@/hooks/useMobile";
 import { fetchProducts, ShopifyProduct } from "@/lib/shopify";
@@ -41,23 +43,6 @@ interface PdpProps {
   careInfoContent: ReactNode;
 }
 
-const specialBulletsDefault = [
-  "Valorizza i tuoi spazi esterni con carattere e freschezza.",
-  "Favorisce un'esperienza piu vivida tra terrazzi, balconi e giardini.",
-  "Consegnato con cura dal vivaio, pronto da posizionare.",
-  "Basso mantenimento, ideale anche per chi inizia con il verde.",
-  "Coltivazione responsabile e imballaggio eco-attento.",
-];
-
-const keyFeaturesDefault = [
-  "Selezione outdoor premium scelta per durata e portamento.",
-  "Formati coerenti con vasi e composizioni da esterno.",
-  "Migliora l'estetica di terrazzi, balconi e aiuole.",
-  "Cura semplice, adatta sia a esperti sia a principianti.",
-  "Origine tracciata e packaging a basso impatto ambientale.",
-];
-
-
 const MONTH_LABELS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
 
 const MONTH_MAP: Record<string, number> = {
@@ -68,8 +53,14 @@ const MONTH_MAP: Record<string, number> = {
 };
 
 function parseMonthsFromValue(value: string): number[] {
-  return value
-    .split(/[,\n]/)
+  let months: string[];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    months = Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : value.split(/[,\n]/);
+  } catch {
+    months = value.split(/[,\n]/);
+  }
+  return months
     .map((m) => MONTH_MAP[m.trim().toLowerCase()])
     .filter((m): m is number => typeof m === "number");
 }
@@ -83,113 +74,6 @@ const SLOT_STYLES: Record<SeasonalCalendarSlot["id"], { bar: string; legend: str
 
 const BuyNowColor = "#B4483C";
 const BuyNowHoverColor = "#9A3A2F";
-
-const PaymentLogos = () => {
-  const base = "inline-flex h-7 items-center justify-center border border-border bg-white px-2.5";
-  return (
-    <>
-      <span className={base} aria-label="Visa">
-        <svg viewBox="0 0 64 20" className="h-3.5 w-10" xmlns="http://www.w3.org/2000/svg">
-          <text
-            x="32"
-            y="15"
-            textAnchor="middle"
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize="16"
-            fontWeight="900"
-            fontStyle="italic"
-            fill="#1A1F71"
-            letterSpacing="1"
-          >
-            VISA
-          </text>
-        </svg>
-      </span>
-      <span className={base} aria-label="Mastercard">
-        <svg viewBox="0 0 36 22" className="h-4 w-8" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="14" cy="11" r="9" fill="#EB001B" />
-          <circle cx="22" cy="11" r="9" fill="#F79E1B" fillOpacity="0.9" />
-          <path
-            d="M18 4.4a9 9 0 0 1 0 13.2 9 9 0 0 1 0-13.2Z"
-            fill="#FF5F00"
-          />
-        </svg>
-      </span>
-      <span className={base} aria-label="American Express">
-        <svg viewBox="0 0 64 20" className="h-4 w-10" xmlns="http://www.w3.org/2000/svg">
-          <rect width="64" height="20" fill="#1F72CD" rx="2" />
-          <text
-            x="32"
-            y="14"
-            textAnchor="middle"
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize="10"
-            fontWeight="900"
-            fill="#FFFFFF"
-            letterSpacing="0.5"
-          >
-            AMEX
-          </text>
-        </svg>
-      </span>
-      <span className={base} aria-label="PayPal">
-        <svg viewBox="0 0 80 20" className="h-4 w-14" xmlns="http://www.w3.org/2000/svg">
-          <text
-            x="4"
-            y="15"
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize="14"
-            fontWeight="900"
-            fontStyle="italic"
-            fill="#003087"
-          >
-            Pay
-          </text>
-          <text
-            x="40"
-            y="15"
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize="14"
-            fontWeight="900"
-            fontStyle="italic"
-            fill="#009CDE"
-          >
-            Pal
-          </text>
-        </svg>
-      </span>
-      <span className={base} aria-label="Apple Pay">
-        <svg viewBox="0 0 60 20" className="h-4 w-12" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M11.2 6.3c-.5.6-1.3 1-2.1 1-.1-.8.3-1.6.8-2.1.5-.6 1.3-1 2-1 .1.8-.2 1.5-.7 2.1Zm.7.8c-1.1-.1-2 .6-2.5.6-.5 0-1.3-.6-2.2-.6-1.1 0-2.2.7-2.8 1.7-1.2 2.1-.3 5.1.9 6.8.6.8 1.3 1.7 2.2 1.7.9 0 1.2-.5 2.3-.5 1.1 0 1.4.5 2.3.5.9 0 1.5-.8 2.1-1.6.7-1 .9-2 .9-2-1.3-.5-2-1.8-2-3.1 0-1.4 1.2-2.2 1.2-2.2-.7-1-1.7-1.3-2.4-1.3Z"
-            fill="#000"
-          />
-          <text
-            x="20"
-            y="14"
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize="11"
-            fontWeight="700"
-            fill="#000"
-          >
-            Pay
-          </text>
-        </svg>
-      </span>
-      <span className={base} aria-label="Google Pay">
-        <svg viewBox="0 0 70 20" className="h-4 w-12" xmlns="http://www.w3.org/2000/svg">
-          <text x="2" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#4285F4">G</text>
-          <text x="11" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#EA4335">o</text>
-          <text x="19" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#FBBC04">o</text>
-          <text x="27" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#4285F4">g</text>
-          <text x="35" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#34A853">l</text>
-          <text x="40" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#EA4335">e</text>
-          <text x="49" y="14" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="700" fill="#5F6368">Pay</text>
-        </svg>
-      </span>
-    </>
-  );
-};
 
 const colorSwatchMap: Record<string, string> = {
   verde: "#4a7a4a",
@@ -213,6 +97,9 @@ const colorSwatchMap: Record<string, string> = {
 export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoContent }: PdpProps) => {
   const navigate = useNavigate();
   const addItem = useCartStore((state) => state.addItem);
+  const isCheckingOut = useCartStore((state) => state.isLoading);
+  const buyAttempt = useRef<string | null>(null);
+  const zoomTrigger = useRef<HTMLButtonElement>(null);
   const cartItems = useCartStore((state) => state.items);
   const createCheckout = useCartStore((state) => state.createCheckout);
   const isMobile = useIsMobile();
@@ -227,12 +114,12 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const { node } = product;
   const images = node.images.edges;
   const hasMultipleImages = images.length > 1;
-  const variants = node.variants.edges.map((edge) => edge.node);
+  const variants = useMemo(() => node.variants.edges.map((edge) => edge.node), [node.variants.edges]);
   const price = selectedVariant?.price ?? node.priceRange.minVariantPrice;
   const inCartQuantity = selectedVariant ? cartItems.find((item) => item.variantId === selectedVariant.id)?.quantity ?? 0 : 0;
 
-  const resolvedSpecialBullets = parseMultilineMetafield(node.specialBullets, specialBulletsDefault);
-  const resolvedKeyFeatures = parseMultilineMetafield(node.keyFeatures, keyFeaturesDefault);
+  const resolvedSpecialBullets = parseMultilineMetafield(node.specialBullets);
+  const resolvedKeyFeatures = parseMultilineMetafield(node.keyFeatures);
   const resolvedOriginsHabitat = parseMultilineMetafield(node.originsHabitat);
   const resolvedPlantKnowledge = parseMultilineMetafield(node.plantKnowledge);
   const resolvedCareGuide = parseMultilineMetafield(node.careGuide);
@@ -274,10 +161,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
     const load = async () => {
       setRelatedLoading(true);
       try {
-        const products = await fetchProducts(120, undefined, {
-          sortKey: "CREATED_AT",
-          reverse: true,
-        });
+        const products = await fetchProducts(120, undefined, { sortKey: "CREATED_AT", reverse: true });
         if (!cancelled) {
           setRelatedProducts(selectRelatedProducts(product, products, 4));
         }
@@ -327,7 +211,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   };
 
   const handleAddToCart = () => {
-    if (!selectedVariant) {
+    if (useCartStore.getState().isLoading) return;
+    if (!selectedVariant?.availableForSale) {
       toast.error("Prodotto non disponibile");
       return;
     }
@@ -339,27 +224,34 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       quantity,
       selectedOptions: selectedVariant.selectedOptions || [],
     });
-    toast.success("Prodotto aggiunto al carrello!", { position: "top-center" });
+    toast.success("Prodotto aggiunto al carrello!", { position: "top-center", id: "cart-added" });
   };
 
   const handleBuyNow = async () => {
+    if (useCartStore.getState().isLoading) return;
     if (!selectedVariant || !selectedVariant.availableForSale) {
       toast.error("Prodotto non disponibile");
       return;
     }
-    addItem({
-      product,
-      variantId: selectedVariant.id,
-      variantTitle: selectedVariant.title,
-      price: selectedVariant.price,
-      quantity,
-      selectedOptions: selectedVariant.selectedOptions || [],
-    });
+    // Retrying the same failed attempt must not add the quantity a second time.
+    const attemptKey = `${selectedVariant.id}:${quantity}`;
+    const existingQuantity = useCartStore.getState().items.find(item => item.variantId === selectedVariant.id)?.quantity ?? 0;
+    if (buyAttempt.current !== attemptKey || existingQuantity < quantity) {
+      addItem({
+        product,
+        variantId: selectedVariant.id,
+        variantTitle: selectedVariant.title,
+        price: selectedVariant.price,
+        quantity,
+        selectedOptions: selectedVariant.selectedOptions || [],
+      });
+      buyAttempt.current = attemptKey;
+    }
     try {
       // Use the URL returned directly from createCheckout to avoid opening a stale URL.
       const checkoutUrl = await createCheckout();
       if (checkoutUrl) {
-        window.location.href = checkoutUrl;
+        window.location.assign(checkoutUrl);
       } else {
         toast.error("Errore durante il checkout");
       }
@@ -388,15 +280,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const hasLongDescription = descriptionText.length > 220;
   const shortDescription = hasLongDescription ? `${descriptionText.slice(0, 220).trim()}...` : descriptionText;
 
-  const stockCount = useMemo(() => {
-    if (!selectedVariant?.availableForSale) return 0;
-    const seed = (selectedVariant.id || node.handle).length;
-    return 6 + (seed % 10);
-  }, [selectedVariant?.availableForSale, selectedVariant?.id, node.handle]);
-  const stockPercentage = Math.min(100, (stockCount / 20) * 100);
-
   return (
-    <main className="overflow-x-clip bg-background pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
+    <main id="main-content" tabIndex={-1} className="bg-background pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">
       <a
         href="#product-info"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] bg-background/95 px-4 py-2 text-sm font-semibold text-foreground shadow-soft"
@@ -405,16 +290,16 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       </a>
 
       <div className="container mx-auto max-w-[1200px] px-4 pt-6 md:pt-8">
-        <nav className="flex min-w-0 items-center gap-2 overflow-hidden text-xs text-muted-foreground">
-          <button type="button" onClick={() => navigate("/")} className="shrink-0 hover:text-foreground">
+        <nav className="flex items-center gap-2 text-xs text-muted-foreground">
+          <button type="button" onClick={() => navigate("/")} className="hover:text-foreground">
             Home
           </button>
-          <ChevronRight className="h-3 w-3 shrink-0 opacity-60" />
-          <button type="button" onClick={() => navigate("/collections/all")} className="shrink-0 hover:text-foreground">
-            Prodotti
+          <ChevronRight className="h-3 w-3 opacity-60" />
+          <button type="button" onClick={() => navigate("/collections/all")} className="hover:text-foreground">
+            Tutti i prodotti
           </button>
-          <ChevronRight className="hidden h-3 w-3 shrink-0 opacity-60 sm:block" />
-          <span className="hidden min-w-0 truncate text-foreground sm:block">{node.title}</span>
+          <ChevronRight className="h-3 w-3 opacity-60" />
+          <span className="truncate text-foreground">{node.title}</span>
         </nav>
       </div>
 
@@ -434,7 +319,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                       }`}
                       aria-label={`Immagine ${idx + 1}`}
                     >
-                      <img src={img.node.url} alt={img.node.altText || ""} className="h-full w-full object-cover" />
+                      <img src={img.node.url} alt={img.node.altText || ""} className="h-full w-full object-contain lg:object-cover" />
                     </button>
                   ))}
                 </div>
@@ -444,6 +329,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 <div className="group relative w-full overflow-hidden border border-border/60 bg-muted">
                   <button
                     type="button"
+                    ref={zoomTrigger}
                     onClick={() => setZoomOpen(true)}
                     className="block h-[min(62svh,460px)] w-full sm:h-[min(68svh,560px)] lg:aspect-[5/6] lg:h-auto"
                     aria-label="Ingrandisci immagine"
@@ -452,7 +338,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                       <img
                         src={images[selectedImage].node.url}
                         alt={images[selectedImage].node.altText || node.title}
-                        className="h-full w-full object-contain lg:object-cover"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center text-muted-foreground">
@@ -503,7 +389,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             </div>
 
             {hasBotanicalCard && (
-              <div className="min-w-0 max-w-full border border-border bg-card p-5 md:p-7">
+              <div className="border border-border bg-card p-5 md:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-dark">
                   Scheda botanica
                 </p>
@@ -534,7 +420,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             {quickSpecs.length > 0 && (
               <div className="border border-border bg-card p-5 md:p-7">
                 <h2 className="text-lg font-semibold text-foreground">Specifiche rapide</h2>
-                <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
+                <div className="mt-4 grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 md:grid-cols-3">
                   {quickSpecs.map((attr) => (
                     <div
                       key={`${attr.key}-${attr.value}`}
@@ -543,7 +429,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                         {attr.key}
                       </p>
-                      <p className="mt-1 flex items-center gap-2 text-[14px] font-medium leading-tight text-foreground">
+                      <p className="mt-1 flex break-words items-center gap-2 text-[14px] font-medium leading-tight text-foreground">
                         {attr.swatch && (
                           <span
                             aria-hidden="true"
@@ -563,8 +449,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               <div className="border border-border bg-card p-5 md:p-7">
                 <h2 className="text-lg font-semibold text-foreground">Calendario stagionale</h2>
 
-                <div className="mt-5 max-w-full overflow-x-auto overscroll-x-contain pb-2 [scrollbar-gutter:stable]">
-                  <div className="min-w-[520px]">
+                <div className="mt-5 max-w-full overflow-x-auto overscroll-x-contain pb-2 [scrollbar-gutter:stable]" role="region" aria-label="Calendario stagionale: scorri per vedere tutti i mesi" tabIndex={0}>
+                  <div style={{ minWidth: 520 }}>
                     <div className="grid grid-cols-12 gap-[2px] pl-[108px] mb-2">
                       {MONTH_LABELS.map((m) => (
                         <div
@@ -583,7 +469,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                         return (
                           <div key={slot.id} className="flex items-center gap-3">
                             <span className="text-xs font-medium text-foreground w-[100px] shrink-0 text-right">
-                              {slot.label}
+                              {slot.label}<span className="sr-only">: {activeMonths.length ? activeMonths.map(month => MONTH_LABELS[month]).join(", ") : slot.value}</span>
                             </span>
                             <div className="grid grid-cols-12 flex-1 gap-[2px]">
                               {Array.from({ length: 12 }, (_, i) => {
@@ -627,7 +513,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               </div>
             )}
 
-            <div className="min-w-0 max-w-full border border-border bg-card p-5 md:p-7">
+            {resolvedSpecialBullets.length > 0 && <div className="border border-border bg-card p-5 md:p-7">
               <h2 className="text-lg font-semibold text-foreground">Cosa lo rende speciale</h2>
               <ul className="mt-4 space-y-2.5">
                 {resolvedSpecialBullets.map((b) => (
@@ -635,11 +521,11 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                     <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/40 text-[13px] leading-none text-primary-dark">
                       +
                     </span>
-                    <span className="min-w-0 break-words">{b}</span>
+                    <span>{b}</span>
                   </li>
                 ))}
               </ul>
-            </div>
+            </div>}
 
             {resolvedOriginsHabitat.length > 0 && (
               <div className="border border-border bg-card p-5 md:p-7">
@@ -684,17 +570,11 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
             <div className="bg-muted/40 p-5 md:p-7">
               <h2 className="text-lg font-semibold text-foreground">Pagamenti e sicurezza</h2>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <PaymentLogos />
-              </div>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                Le informazioni di pagamento vengono gestite in modo sicuro. Non conserviamo dati delle carte di credito ne
-                abbiamo accesso alle relative informazioni.
-              </p>
+              <div className="mt-3"><PaymentInformation /></div>
             </div>
           </div>
 
-          <aside id="product-info" className="lg:sticky lg:top-28 lg:self-start">
+          <aside id="product-info" tabIndex={-1} className="min-w-0 scroll-mt-48 lg:sticky lg:top-28 lg:self-start">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-dark">Online Garden</p>
             <h1 className="mt-2 text-[2rem] font-heading font-semibold leading-[1.1] text-foreground md:text-[2.25rem]">
               {node.title}
@@ -789,15 +669,10 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               <div className="flex items-center gap-2 text-sm">
                 <span className="inline-block h-2 w-2 rounded-full bg-primary" />
                 <span className="text-foreground">
-                  {stockCount > 0 ? `Disponibile (${stockCount})` : "Non disponibile"}
+                  {selectedVariant?.availableForSale ? "Disponibile" : "Non disponibile"}
                 </span>
               </div>
-              <div className="mt-1.5 h-1 w-full overflow-hidden bg-muted">
-                <div
-                  className="h-full bg-primary transition-all"
-                  style={{ width: `${Math.max(8, stockPercentage)}%` }}
-                />
-              </div>
+
             </div>
 
             <div className="mt-4 flex items-center gap-2.5">
@@ -806,6 +681,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                   type="button"
                   aria-label="Riduci quantita"
                   className="flex h-full items-center px-3 text-foreground"
+                  disabled={quantity <= 1 || isCheckingOut}
                   onClick={() => setQuantity((value) => Math.max(1, value - 1))}
                 >
                   <Minus className="h-4 w-4" />
@@ -815,6 +691,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                   type="button"
                   aria-label="Aumenta quantita"
                   className="flex h-full items-center px-3 text-foreground"
+                  disabled={isCheckingOut}
                   onClick={() => setQuantity((value) => value + 1)}
                 >
                   <Plus className="h-4 w-4" />
@@ -823,8 +700,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={!selectedVariant?.availableForSale}
-                className="h-11 flex-1 border border-foreground bg-background text-sm font-semibold text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!selectedVariant?.availableForSale || isCheckingOut}
+                className="min-h-11 flex-1 px-2 py-2 border border-foreground bg-background text-sm font-semibold text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Aggiungi al carrello
               </button>
@@ -833,7 +710,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             <button
               type="button"
               onClick={handleBuyNow}
-              disabled={!selectedVariant?.availableForSale}
+              disabled={!selectedVariant?.availableForSale || isCheckingOut}
               style={{ backgroundColor: BuyNowColor }}
               onMouseEnter={(event) => {
                 event.currentTarget.style.backgroundColor = BuyNowHoverColor;
@@ -843,7 +720,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               }}
               className="mt-2.5 h-11 w-full text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Acquista ora
+              {isCheckingOut ? "Preparazione checkout…" : "Acquista ora"}
             </button>
 
             {inCartQuantity > 0 && (
@@ -912,7 +789,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
       <section className="container mx-auto max-w-[1200px] px-4 py-10">
         <Accordion type="multiple" defaultValue={["features"]} className="w-full">
-          <AccordionItem value="features">
+          {resolvedKeyFeatures.length > 0 && <AccordionItem value="features">
             <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
               Caratteristiche principali
             </AccordionTrigger>
@@ -926,7 +803,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 ))}
               </ul>
             </AccordionContent>
-          </AccordionItem>
+          </AccordionItem>}
           <AccordionItem value="care">
             <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
               Cura e utilizzo
@@ -959,15 +836,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               </AccordionTrigger>
               <AccordionContent className="pb-6 text-[15px] leading-7 text-muted-foreground">
                 <div className="space-y-3">
-                  <p>
-                    Tutti gli ordini vengono preparati in vivaio con imballaggio protetto. La consegna standard richiede in media{" "}
-                    <strong className="font-semibold text-foreground">3-5 giorni lavorativi</strong> in Italia.
-                  </p>
-                  <p>
-                    Se il prodotto arriva danneggiato o non conforme, contattaci entro{" "}
-                    <strong className="font-semibold text-foreground">48 ore</strong> per una sostituzione o il rimborso
-                    completo.
-                  </p>
+                  <p>Costi e opzioni di spedizione vengono mostrati nel checkout prima della conferma.</p>
+                  <p>Per informazioni su consegna, resi o assistenza, <a href="mailto:info@onlinegarden.it" className="underline underline-offset-4">contatta il vivaio</a>.</p>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -1077,8 +947,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       </section>
 
       {isMobile && (
-        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border/70 bg-background/95 px-3 pt-2 shadow-elevated backdrop-blur pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-          <div className="mx-auto flex max-w-2xl items-center gap-2.5">
+        <div className="fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur">
+          <div className="mx-auto flex max-w-2xl items-center gap-3 border border-border/70 bg-background/95 p-3 shadow-elevated">
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-foreground">{node.title}</p>
               <p className="text-sm font-bold text-foreground">€{parseFloat(price.amount).toFixed(2)}</p>
@@ -1086,39 +956,21 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             <button
               type="button"
               onClick={handleAddToCart}
-              disabled={!selectedVariant?.availableForSale}
-              className="h-10 shrink-0 bg-primary px-4 text-sm font-semibold uppercase tracking-[0.1em] text-primary-foreground disabled:opacity-50"
+              disabled={!selectedVariant?.availableForSale || isCheckingOut}
+              className="h-11 shrink-0 bg-primary px-4 text-sm font-semibold uppercase tracking-[0.12em] text-primary-foreground disabled:opacity-50"
             >
-              Aggiungi
+              {selectedVariant?.availableForSale ? "Aggiungi" : "Esaurito"}
             </button>
           </div>
         </div>
       )}
 
-      {zoomOpen && images[selectedImage] && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/70 p-4"
-          onClick={() => setZoomOpen(false)}
-        >
-          <div
-            className="relative max-h-[90vh] max-w-5xl overflow-hidden border border-border bg-card"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setZoomOpen(false)}
-              className="absolute right-4 top-4 z-10 bg-card px-3 py-2 text-sm font-medium text-foreground shadow-soft"
-            >
-              Chiudi
-            </button>
-            <img
-              src={images[selectedImage].node.url}
-              alt={images[selectedImage].node.altText || node.title}
-              className="max-h-[90vh] w-full object-contain"
-            />
-          </div>
-        </div>
-      )}
+      <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
+        <DialogContent aria-describedby={undefined} onCloseAutoFocus={(event) => { event.preventDefault(); zoomTrigger.current?.focus(); }} className="max-w-5xl p-6">
+          <DialogTitle className="sr-only">Immagine di {node.title}</DialogTitle>
+          {images[selectedImage] && <img src={images[selectedImage].node.url} alt={images[selectedImage].node.altText || node.title} className="max-h-[80dvh] w-full object-contain" />}
+        </DialogContent>
+      </Dialog>
     </main>
   );
 };
