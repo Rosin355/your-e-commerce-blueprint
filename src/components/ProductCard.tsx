@@ -1,3 +1,4 @@
+import { formatProductPrice } from "@/lib/storefront-money";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,6 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
 
   const { node } = product;
   const image = node.images.edges[0]?.node;
-  const price = node.priceRange.minVariantPrice;
   const firstVariant = node.variants.edges.find(({ node }) => node.availableForSale)?.node ?? node.variants.edges[0]?.node;
   const hasMultipleVariants = node.variants.edges.length > 1 || node.options.some(option => option.values.length > 1);
   const inStock = node.availableForSale ?? !!firstVariant?.availableForSale;
@@ -115,8 +115,7 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
 
         <div className="flex flex-wrap items-end justify-between gap-3 border-t border-border/65 pt-3.5">
           <div>
-            <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground">A partire da</p>
-            <span className="text-[1.45rem] font-semibold leading-none text-primary-dark">€{parseFloat(price.amount).toFixed(2)}</span>
+            <span className="text-[1.45rem] font-semibold leading-none text-primary-dark">{formatProductPrice(node.priceRange)}</span>
           </div>
           <Button
             onClick={handleAddToCart}

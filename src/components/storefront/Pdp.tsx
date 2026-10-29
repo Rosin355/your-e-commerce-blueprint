@@ -1,3 +1,4 @@
+import { formatMoney, formatProductPrice } from "@/lib/storefront-money";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
@@ -584,7 +585,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             )}
 
             <p className="mt-2.5 text-[1.6rem] font-heading font-semibold text-foreground">
-              €{parseFloat(price.amount).toFixed(2)}
+              {formatMoney(price)}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">Tasse incluse.</p>
 
@@ -933,7 +934,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 <div className="w-full p-4">
                   <h3 className="text-base font-semibold text-foreground">{item.node.title}</h3>
                   <p className="mt-2 text-base font-semibold text-foreground">
-                    €{parseFloat(item.node.priceRange.minVariantPrice.amount).toFixed(2)}
+                    {formatProductPrice(item.node.priceRange)}
                   </p>
                 </div>
               </button>
@@ -951,7 +952,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
           <div className="mx-auto flex max-w-2xl items-center gap-3 border border-border/70 bg-background/95 p-3 shadow-elevated">
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-foreground">{node.title}</p>
-              <p className="text-sm font-bold text-foreground">€{parseFloat(price.amount).toFixed(2)}</p>
+              <p className="text-sm font-bold text-foreground">{formatMoney(price)}</p>
             </div>
             <button
               type="button"

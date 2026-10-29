@@ -13,7 +13,6 @@ import { searchCatalogProducts } from "@/lib/storefrontDiscovery";
 
 type SortKey =
   | "featured"
-  | "best"
   | "az"
   | "za"
   | "price-asc"
@@ -23,7 +22,6 @@ type SortKey =
 
 const sortOptions: Array<{ key: SortKey; label: string }> = [
   { key: "featured", label: "In evidenza" },
-  { key: "best", label: "Piu venduti" },
   { key: "az", label: "Ordine alfabetico, A-Z" },
   { key: "za", label: "Ordine alfabetico, Z-A" },
   { key: "price-asc", label: "Prezzo, dal piu basso" },
@@ -109,7 +107,6 @@ const sortProducts = (products: CatalogProduct[], sort: SortKey): CatalogProduct
       return list.sort((a, b) =>
         (Date.parse(a.node.publishedAt ?? "") || 0) - (Date.parse(b.node.publishedAt ?? "") || 0),
       );
-    case "best":
     case "featured":
     default:
       return list;

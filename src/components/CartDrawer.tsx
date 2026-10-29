@@ -1,3 +1,4 @@
+import { formatMoney, formatCartSubtotal } from "@/lib/storefront-money";
 import { Link } from "react-router-dom";
 import { PaymentInformation } from "./storefront/PaymentInformation";
 import { useState } from "react";
@@ -27,7 +28,7 @@ export const CartDrawer = () => {
   } = useCartStore();
   
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce((sum, item) => sum + (parseFloat(item.price.amount) * item.quantity), 0);
+  const subtotal = formatCartSubtotal(items);
 
   const handleCheckout = async () => {
     if (items.length === 0 || useCartStore.getState().isLoading) return;
@@ -60,7 +61,7 @@ export const CartDrawer = () => {
             </Badge>
           )}
           <span className="hidden md:inline">Carrello</span>
-          <span className="font-semibold">€{totalPrice.toFixed(2)}</span>
+          <span className="font-semibold">{subtotal}</span>
         </Button>
       </SheetTrigger>
       
@@ -105,7 +106,7 @@ export const CartDrawer = () => {
                           </p>
                         )}
                         <p className="font-semibold text-primary mt-1">
-                          €{parseFloat(item.price.amount).toFixed(2)}
+                          {formatMoney(item.price)}
                         </p>
                       </div>
                       
@@ -154,7 +155,7 @@ export const CartDrawer = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold">Subtotale</span>
                   <span className="text-xl font-bold text-primary">
-                    €{totalPrice.toFixed(2)}
+                    {subtotal}
                   </span>
                 </div>
                 

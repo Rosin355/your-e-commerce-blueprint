@@ -1,3 +1,4 @@
+import { formatProductPrice } from "@/lib/storefront-money";
 import { Link } from 'react-router-dom';
 import type { CatalogProduct, ShopifyProduct } from '@/lib/shopify';
 
@@ -14,7 +15,7 @@ export const CatalogProductCard = ({ product, eager = false }: { product: Catalo
           {!inStock && <span className="absolute left-2 top-2 border border-border bg-background/95 px-2 py-1 text-xs font-semibold">Esaurito</span>}
         </div>
         <h2 className="mt-3 break-words text-[15px] font-medium leading-6 text-foreground">{node.title}</h2>
-        <p className="mt-1 text-[15px] font-semibold text-foreground">{new Intl.NumberFormat('it-IT', { style: 'currency', currency: node.priceRange.minVariantPrice.currencyCode }).format(Number(node.priceRange.minVariantPrice.amount))}</p>
+        <p className="mt-1 text-[15px] font-semibold text-foreground">{formatProductPrice(node.priceRange)}</p>
         <span className="mt-2 inline-flex min-h-6 items-center text-xs font-semibold underline underline-offset-4">Vedi dettagli</span>
       </Link>
     </article>
