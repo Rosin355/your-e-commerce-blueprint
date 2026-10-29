@@ -4,7 +4,7 @@
 
 431 test di dominio e 42 scenari browser positivi. Nessun cambiamento applicativo ulteriore; amministrazione, dati e servizi restano invariati. Il toast errore esistente può coprire brevemente il fondo del carrello sui telefoni bassi: scompare automaticamente e il retry è verificato. Le conferme commerciali di Marco, i test live e l’audit accessibilità completo restano aperti.
 
-È ora autorizzata la pubblicazione del solo branch di sviluppo e una Draft PR separata, dipendente dalla PR #39. **Il negozio non viene distribuito online.** Esiti GitHub e URL saranno registrati dopo l’apertura; nessun merge o deploy. [Final review](CUSTOMER-EXPERIENCE-FINAL-REVIEW.md) · [Screenshot e nuove verifiche](customer-experience-final-review-evidence/2026-10-29/README.md). La cronologia precedente resta conservata.
+Pubblicato soltanto il branch di sviluppo e aperta la **[Draft PR #40](https://github.com/Rosin355/your-e-commerce-blueprint/pull/40)**, separata e dipendente dalla PR #39. **Il negozio non viene distribuito online.** Il controllo GitGuardian risulta positivo sul primo commit pubblicato; non equivale a una CI applicativa completa. Nessun merge o deploy. [Final review](CUSTOMER-EXPERIENCE-FINAL-REVIEW.md) · [Screenshot e nuove verifiche](customer-experience-final-review-evidence/2026-10-29/README.md). La cronologia precedente resta conservata.
 
 ---
 

@@ -1,6 +1,6 @@
 # Online Garden — Customer Experience Final Review, Fase 9
 
-29 ottobre 2026. **GATE LOCALI POSITIVI — READY FOR DRAFT PR.** Revisione di `codex/customer-experience-implementation` iniziata da HEAD atteso `de591a5059be75ff683a3b82e789b7eea116c5f5`, working tree pulito. Le nuove modifiche di questa fase riguardano documentazione, evidenze e harness QA; nessuna modifica al codice applicativo per preferenze estetiche.
+29 ottobre 2026. **DRAFT PR [#40](https://github.com/Rosin355/your-e-commerce-blueprint/pull/40) APERTA — GATE LOCALI POSITIVI.** Revisione di `codex/customer-experience-implementation` iniziata da HEAD atteso `de591a5059be75ff683a3b82e789b7eea116c5f5`, working tree pulito. Le nuove modifiche di questa fase riguardano documentazione, evidenze e harness QA; nessuna modifica al codice applicativo per preferenze estetiche.
 
 ## Git, base e integrità
 
@@ -59,8 +59,17 @@ Le richieste esterne sono intercettate: dati sintetici, foto locali, font/logo r
 - Conferme Marco su imposte (“Tasse incluse” preesistente), consegna, resi e metodi realmente abilitati restano gate di lancio. Nessuna informazione commerciale inventata dalla Fase 8/9.
 - WCAG completo, screen reader reale, Safari/dispositivi, font/immagini remoti e prestazioni su rete reale restano aperti.
 - Catalogo completo O(N), richieste sequenziali, dominio/HTTP/sitemap e altri gate SEO della PR #39 rimangono fuori da questo lotto.
-- La CI GitHub viene verificata sul commit remoto dopo la pubblicazione e l’apertura della Draft PR. I risultati locali non costituiscono prova di CI verde. Nell’istantanea applicativa non sono presenti workflow `.github/workflows` versionati.
+- Sul primo HEAD pubblicato `558ae11`, GitHub espone un check GitGuardian completato con successo; zero status commit e zero workflow run PR restituiti dal connettore. Non è prova di CI applicativa verde. Nell’istantanea applicativa non sono presenti workflow `.github/workflows` versionati. Il commit finale di sola documentazione viene ricontrollato dopo l’ultimo push.
 
 ## Pubblicazione autorizzata in Fase 9
 
-La Fase 8 era esclusivamente locale: le sue indicazioni “nessun push/PR” restano cronologia corretta. Il nuovo incarico autorizza il push del solo branch Customer Experience, senza force, e una Draft PR dipendente da #39. Prima di pubblicare verrà riconfermato l’HEAD remoto della base; nessun pull/rebase/merge o deploy viene eseguito. URL e stato GitHub effettivi verranno registrati dopo l’apertura, senza anticiparne l’esito.
+La Fase 8 era esclusivamente locale: le sue indicazioni “nessun push/PR” restano cronologia corretta. Il nuovo incarico autorizza il push del solo branch Customer Experience, senza force, e una Draft PR dipendente da #39. Prima della pubblicazione è stato riconfermato l’HEAD remoto della base; nessun pull/rebase/merge o deploy eseguito. URL e stato GitHub effettivi sono registrati nella sezione successiva.
+
+
+## Esito GitHub effettivo
+
+Draft PR **[#40](https://github.com/Rosin355/your-e-commerce-blueprint/pull/40)** aperta, base `codex/storefront-main-integration` (`aa7e6ae`), head `codex/customer-experience-implementation`. Pubblicato solo questo branch, senza force push o tag. I cinque commit originari sono conservati; i commit Fase 9 aggiungono review/harness/evidenze e stato della pubblicazione, senza cambiare l’applicazione verificata.
+
+Sul primo HEAD pubblicato `558ae11`, l’API GitHub riporta `mergeable: true`, `mergeable_state: clean` e [GitGuardian Security Checks: success](https://github.com/Rosin355/your-e-commerce-blueprint/runs/123628703884). Nessun workflow applicativo osservato: **CI applicativa non attestata**, distinta dai 431 test e 42 scenari locali positivi. La Draft resta dipendente dalla PR #39; nessuna delle due viene unita.
+
+[Snapshot della pubblicazione](customer-experience-final-review-evidence/2026-10-29/github-publication.json). Dopo questo aggiornamento documentale vengono ricontrollati HEAD remoto, base, check GitHub e pulizia del worktree; l’HEAD definitivo è riportato nella consegna e nella PR. Nessun merge, deploy o scrittura applicativa live.

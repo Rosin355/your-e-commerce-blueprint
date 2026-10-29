@@ -27,3 +27,7 @@ UX_BASE_URL=http://127.0.0.1:8099 node scripts/ux-audit/customer-experience-fina
 ```
 
 I log testuali conservati in Git hanno solo spazi finali e righe vuote a fine file normalizzati; risultati, messaggi e conteggi sono invariati.
+
+## Pubblicazione GitHub
+
+Aperta la [Draft PR #40](https://github.com/Rosin355/your-e-commerce-blueprint/pull/40), base `codex/storefront-main-integration` (`aa7e6ae`), dipendente da #39. [Snapshot GitHub del primo HEAD pubblicato](github-publication.json): GitGuardian success e mergeability clean; nessun workflow applicativo osservato. Il commit di stato successivo non modifica l’app ed è ricontrollato prima della consegna. Nessun merge o deploy.

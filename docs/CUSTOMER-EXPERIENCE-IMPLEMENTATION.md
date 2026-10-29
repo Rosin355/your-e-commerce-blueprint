@@ -1,4 +1,4 @@
-> **Aggiornamento Fase 9 — 29 ottobre 2026:** review finale e regression gate ripetuti con esito positivo (431 test dominio, 42 scenari browser). UI e contratti Fase 8 invariati. Push del solo branch e Draft PR verso `codex/storefront-main-integration` ora autorizzati; la [final review](CUSTOMER-EXPERIENCE-FINAL-REVIEW.md) registra preparazione e successivo esito GitHub. Le indicazioni sotto “nessun push/PR” descrivono correttamente la consegna Fase 8 precedente.
+> **Aggiornamento Fase 9 — 29 ottobre 2026:** review finale e regression gate ripetuti con esito positivo (431 test dominio, 42 scenari browser). UI e contratti Fase 8 invariati. Pubblicato il solo branch e aperta la [Draft PR #40](https://github.com/Rosin355/your-e-commerce-blueprint/pull/40) verso `codex/storefront-main-integration`, dipendente da #39; la [final review](CUSTOMER-EXPERIENCE-FINAL-REVIEW.md) registra verifiche e limiti GitHub/CI. Le indicazioni sotto “nessun push/PR” descrivono correttamente la consegna Fase 8 precedente.
 
 # Online Garden — Customer Experience 2.0, Fase 8
 

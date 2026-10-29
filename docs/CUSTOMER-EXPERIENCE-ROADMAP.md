@@ -2,7 +2,7 @@
 
 29 ottobre 2026. **Review visuale e gate locali positivi:** 431 test dominio, 42 scenari browser; UI e contratti Fase 8 invariati. Direzione approvata confermata, nessun nuovo gate progettuale. L’incarico attuale autorizza push senza force del solo branch Customer Experience e Draft PR con base `codex/storefront-main-integration`, dipendente da #39; merge, deploy e scritture live restano esclusi.
 
-[Final review](CUSTOMER-EXPERIENCE-FINAL-REVIEW.md) · [Evidenze nuove](customer-experience-final-review-evidence/2026-10-29/README.md). Prima del push verrà riconfermata la base remota; esiti GitHub/CI saranno distinti dalla QA locale. Restano aperti i gate live/commerciali/accessibilità completa e l’affinamento del toast errore sui viewport bassi. La matrice Fase 8 sotto documenta la precedente consegna esclusivamente locale.
+[Final review](CUSTOMER-EXPERIENCE-FINAL-REVIEW.md) · [Evidenze nuove](customer-experience-final-review-evidence/2026-10-29/README.md). Base remota riconfermata `aa7e6ae`; pubblicato il solo branch richiesto e aperta la [Draft PR #40](https://github.com/Rosin355/your-e-commerce-blueprint/pull/40). GitGuardian success sul primo HEAD, nessuna CI applicativa attestata; esiti GitHub distinti dalla QA locale. Restano aperti i gate live/commerciali/accessibilità completa e l’affinamento del toast errore sui viewport bassi. La matrice Fase 8 sotto documenta la precedente consegna esclusivamente locale.
 
 ---
 

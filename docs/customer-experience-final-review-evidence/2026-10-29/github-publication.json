@@ -1,0 +1,36 @@
+{
+  "pullRequest": 40,
+  "url": "https://github.com/Rosin355/your-e-commerce-blueprint/pull/40",
+  "state": "open",
+  "draft": true,
+  "merged": false,
+  "baseBranch": "codex/storefront-main-integration",
+  "baseSHA": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "firstPublishedReviewSHA": "558ae11be32cce8863f4eb8c38d76b51f9b238f3",
+  "applicationSnapshot": "de591a5059be75ff683a3b82e789b7eea116c5f5",
+  "originalFiveCommitsPreserved": true,
+  "push": {
+    "onlyBranch": "codex/customer-experience-implementation",
+    "force": false,
+    "tags": false
+  },
+  "githubSnapshot": {
+    "commitSHA": "558ae11be32cce8863f4eb8c38d76b51f9b238f3",
+    "mergeable": true,
+    "mergeableState": "clean",
+    "commitStatuses": [],
+    "pullRequestWorkflowRuns": [],
+    "checkRuns": [
+      {
+        "name": "GitGuardian Security Checks",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Rosin355/your-e-commerce-blueprint/runs/123628703884"
+      }
+    ]
+  },
+  "ciInterpretation": "GitGuardian check succeeded on the first published review SHA. No application CI workflow run observed; local QA is separate. Final metadata-only HEAD is rechecked after the last push.",
+  "mergeExecuted": false,
+  "deployExecuted": false,
+  "applicationLiveWrites": false
+}

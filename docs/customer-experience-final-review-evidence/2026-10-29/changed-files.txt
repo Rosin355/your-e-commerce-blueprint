@@ -88,6 +88,7 @@ docs/customer-experience-final-review-evidence/2026-10-29/compact/formato-390x84
 docs/customer-experience-final-review-evidence/2026-10-29/compact/formato-430x932.png
 docs/customer-experience-final-review-evidence/2026-10-29/compact/report.json
 docs/customer-experience-final-review-evidence/2026-10-29/git-preflight.json
+docs/customer-experience-final-review-evidence/2026-10-29/github-publication.json
 docs/customer-experience-final-review-evidence/2026-10-29/integrity.json
 docs/customer-experience-final-review-evidence/2026-10-29/logs/build.txt
 docs/customer-experience-final-review-evidence/2026-10-29/logs/domain.txt
