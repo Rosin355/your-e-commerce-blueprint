@@ -1,0 +1,114 @@
+[
+  {
+    "page": "home",
+    "width": 390,
+    "element": "title",
+    "beforeY": 465,
+    "afterY": 215,
+    "reductionPx": 250
+  },
+  {
+    "page": "home",
+    "width": 390,
+    "element": "firstProduct",
+    "beforeY": 1813,
+    "afterY": 785,
+    "reductionPx": 1028
+  },
+  {
+    "page": "catalogo",
+    "width": 390,
+    "element": "title",
+    "beforeY": 261,
+    "afterY": 213,
+    "reductionPx": 48
+  },
+  {
+    "page": "catalogo",
+    "width": 390,
+    "element": "firstProduct",
+    "beforeY": 625,
+    "afterY": 409,
+    "reductionPx": 216
+  },
+  {
+    "page": "pdp",
+    "width": 390,
+    "element": "title",
+    "beforeY": 1507,
+    "afterY": 193,
+    "reductionPx": 1314
+  },
+  {
+    "page": "pdp",
+    "width": 390,
+    "element": "format",
+    "beforeY": 1802,
+    "afterY": 773,
+    "reductionPx": 1029
+  },
+  {
+    "page": "pdp",
+    "width": 390,
+    "element": "cta",
+    "beforeY": 1896,
+    "afterY": 873,
+    "reductionPx": 1023
+  },
+  {
+    "page": "home",
+    "width": 1440,
+    "element": "title",
+    "beforeY": 410,
+    "afterY": 207,
+    "reductionPx": 203
+  },
+  {
+    "page": "home",
+    "width": 1440,
+    "element": "firstProduct",
+    "beforeY": 1414,
+    "afterY": 738,
+    "reductionPx": 676
+  },
+  {
+    "page": "catalogo",
+    "width": 1440,
+    "element": "title",
+    "beforeY": 235,
+    "afterY": 189,
+    "reductionPx": 46
+  },
+  {
+    "page": "catalogo",
+    "width": 1440,
+    "element": "firstProduct",
+    "beforeY": 551,
+    "afterY": 389,
+    "reductionPx": 162
+  },
+  {
+    "page": "pdp",
+    "width": 1440,
+    "element": "title",
+    "beforeY": 203,
+    "afterY": 169,
+    "reductionPx": 34
+  },
+  {
+    "page": "pdp",
+    "width": 1440,
+    "element": "format",
+    "beforeY": 508,
+    "afterY": 405,
+    "reductionPx": 103
+  },
+  {
+    "page": "pdp",
+    "width": 1440,
+    "element": "cta",
+    "beforeY": 602,
+    "afterY": 505,
+    "reductionPx": 97
+  }
+]

@@ -1,0 +1,207 @@
+{
+  "syntheticData": true,
+  "checks": [
+    {
+      "name": "Variant keyboard state, 44px targets, gallery geometry and zoom 320",
+      "status": "PASS"
+    },
+    {
+      "name": "Variant keyboard state, 44px targets, gallery geometry and zoom 375",
+      "status": "PASS"
+    },
+    {
+      "name": "Variant keyboard state, 44px targets, gallery geometry and zoom 390",
+      "status": "PASS"
+    },
+    {
+      "name": "Variant keyboard state, 44px targets, gallery geometry and zoom 430",
+      "status": "PASS"
+    },
+    {
+      "name": "Variant keyboard state, 44px targets, gallery geometry and zoom 768",
+      "status": "PASS"
+    },
+    {
+      "name": "Variant keyboard state, 44px targets, gallery geometry and zoom 1440",
+      "status": "PASS"
+    },
+    {
+      "name": "Real range, fixed price and equal-priced multiple formats on catalogue cards",
+      "status": "PASS"
+    },
+    {
+      "name": "Checkout error AA contrast on actual background, persistent alert and preserved cart",
+      "status": "PASS"
+    },
+    {
+      "name": "Desktop category disclosure announces current panel and closes with Escape",
+      "status": "PASS"
+    },
+    {
+      "name": "No unhandled JavaScript exceptions",
+      "status": "PASS"
+    }
+  ],
+  "measurements": [
+    {
+      "width": 320,
+      "galleryBefore": {
+        "x": 17,
+        "y": 383.984375,
+        "width": 286,
+        "height": 340
+      },
+      "galleryAfter": {
+        "x": 17,
+        "y": 383.984375,
+        "width": 286,
+        "height": 340
+      },
+      "variantTarget": {
+        "x": 130.890625,
+        "y": 788.984375,
+        "width": 106.890625,
+        "height": 44
+      },
+      "focus": {
+        "visible": true,
+        "outline": "2px"
+      }
+    },
+    {
+      "width": 375,
+      "galleryBefore": {
+        "x": 17,
+        "y": 383.984375,
+        "width": 341,
+        "height": 340
+      },
+      "galleryAfter": {
+        "x": 17,
+        "y": 383.984375,
+        "width": 341,
+        "height": 340
+      },
+      "variantTarget": {
+        "x": 130.890625,
+        "y": 788.984375,
+        "width": 106.890625,
+        "height": 44
+      },
+      "focus": {
+        "visible": true,
+        "outline": "2px"
+      }
+    },
+    {
+      "width": 390,
+      "galleryBefore": {
+        "x": 17,
+        "y": 367.984375,
+        "width": 356,
+        "height": 340
+      },
+      "galleryAfter": {
+        "x": 17,
+        "y": 367.984375,
+        "width": 356,
+        "height": 340
+      },
+      "variantTarget": {
+        "x": 130.890625,
+        "y": 772.984375,
+        "width": 106.890625,
+        "height": 44
+      },
+      "focus": {
+        "visible": true,
+        "outline": "2px"
+      }
+    },
+    {
+      "width": 430,
+      "galleryBefore": {
+        "x": 17,
+        "y": 367.984375,
+        "width": 396,
+        "height": 340
+      },
+      "galleryAfter": {
+        "x": 17,
+        "y": 367.984375,
+        "width": 396,
+        "height": 340
+      },
+      "variantTarget": {
+        "x": 130.890625,
+        "y": 772.984375,
+        "width": 106.890625,
+        "height": 44
+      },
+      "focus": {
+        "visible": true,
+        "outline": "2px"
+      }
+    },
+    {
+      "width": 768,
+      "galleryBefore": {
+        "x": 17,
+        "y": 365.984375,
+        "width": 734,
+        "height": 480
+      },
+      "galleryAfter": {
+        "x": 17,
+        "y": 365.984375,
+        "width": 734,
+        "height": 480
+      },
+      "variantTarget": {
+        "x": 130.890625,
+        "y": 910.984375,
+        "width": 106.890625,
+        "height": 44
+      },
+      "focus": {
+        "visible": true,
+        "outline": "2px"
+      }
+    },
+    {
+      "width": 1440,
+      "galleryBefore": {
+        "x": 137,
+        "y": 170,
+        "width": 690,
+        "height": 828
+      },
+      "galleryAfter": {
+        "x": 137,
+        "y": 170,
+        "width": 690,
+        "height": 828
+      },
+      "variantTarget": {
+        "x": 998.890625,
+        "y": 404.578125,
+        "width": 106.890625,
+        "height": 44
+      },
+      "focus": {
+        "visible": true,
+        "outline": "2px"
+      }
+    },
+    {
+      "checkoutErrorContrast": 8.132312808921869,
+      "color": "rgb(146, 32, 32)",
+      "bg": "rgb(250, 249, 244)"
+    }
+  ],
+  "errors": [],
+  "summary": {
+    "passed": 10,
+    "failed": 0
+  }
+}

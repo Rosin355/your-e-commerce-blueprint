@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-29",
+  "timezone": "Europe/Rome",
+  "status": "READY_FOR_VISUAL_REVIEW_PENDING_APPROVAL",
+  "branch": "codex/customer-experience-implementation",
+  "head": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "expectedBase": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "originalFilesHashed": 391,
+  "originalChangedFiles": [],
+  "originalAddedFiles": [],
+  "originalStatusUnchanged": true,
+  "previousPRWorktreeClean": true,
+  "referenceHashes": {
+    "plantella-pdp-reference.png": "0abee3d8b3821d66c6031bbc5ccf75cc122124db8ab74d6a3c60a5f2161d9d11",
+    "silver-garden-home-reference.png": "3ae15f3e9376a7640537d16fc6d3dae19b26aa8ce435be8ed2a9b46a47380760"
+  },
+  "trackedChanges": [
+    "docs/CLIENT-ECOMMERCE-STATUS.md",
+    "docs/PROJECT_STATUS.md"
+  ],
+  "nonDocumentationChanges": [],
+  "applicationAndConfigurationChanges": [],
+  "statusHistoryPreserved": {
+    "docs/CLIENT-ECOMMERCE-STATUS.md": true,
+    "docs/PROJECT_STATUS.md": true
+  },
+  "markdownLinksMissing": [],
+  "gitDiffCheckPassed": true,
+  "prototypeChecks": 32,
+  "prototypePageErrors": [],
+  "unexpectedNetworkRequests": [],
+  "rendererStaticAssets": [
+    "https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js",
+    "https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js"
+  ],
+  "currentScreenshotCopiesByteIdentical": true,
+  "previewBytes": 820619,
+  "previewSHA256": "85cfac0c34b8c1d29140ae6f5110cf251252255218036624d22103d3e5920dc4",
+  "newApplicationQA": false,
+  "newApplicationImplementation": false,
+  "visualDirectionApproved": false,
+  "newCommits": 0,
+  "pushMergePRDeploy": false,
+  "PASS": true
+}
