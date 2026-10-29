@@ -1,0 +1,118 @@
+{
+  "base": "http://127.0.0.1:8099",
+  "syntheticData": true,
+  "externalRequestsIntercepted": true,
+  "checks": [
+    {
+      "name": "Multi-format sticky purchase 320x568",
+      "status": "PASS"
+    },
+    {
+      "name": "Multi-format sticky purchase 375x812",
+      "status": "PASS"
+    },
+    {
+      "name": "Multi-format sticky purchase 390x844",
+      "status": "PASS"
+    },
+    {
+      "name": "Multi-format sticky purchase 430x932",
+      "status": "PASS"
+    }
+  ],
+  "measurements": [
+    {
+      "width": 320,
+      "height": 568,
+      "formatBox": {
+        "x": 130.890625,
+        "y": 261.578125,
+        "width": 106.890625,
+        "height": 44
+      },
+      "stickyBox": {
+        "x": 151.046875,
+        "y": 499,
+        "width": 143.953125,
+        "height": 44
+      },
+      "selectedVariantId": "gid://shopify/ProductVariant/1001",
+      "quantity": 2,
+      "unitPrice": "29.90 EUR",
+      "mockCheckoutCalls": 2,
+      "toastWaitMs": 4477,
+      "retryCheckout": "same tab, selected variant, quantity 2"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "formatBox": {
+        "x": 130.890625,
+        "y": 385.984375,
+        "width": 106.890625,
+        "height": 44
+      },
+      "stickyBox": {
+        "x": 206.046875,
+        "y": 743,
+        "width": 143.953125,
+        "height": 44
+      },
+      "selectedVariantId": "gid://shopify/ProductVariant/1001",
+      "quantity": 2,
+      "unitPrice": "29.90 EUR",
+      "mockCheckoutCalls": 2,
+      "toastWaitMs": 4493,
+      "retryCheckout": "same tab, selected variant, quantity 2"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "formatBox": {
+        "x": 130.890625,
+        "y": 399.984375,
+        "width": 106.890625,
+        "height": 44
+      },
+      "stickyBox": {
+        "x": 221.046875,
+        "y": 775,
+        "width": 143.953125,
+        "height": 44
+      },
+      "selectedVariantId": "gid://shopify/ProductVariant/1001",
+      "quantity": 2,
+      "unitPrice": "29.90 EUR",
+      "mockCheckoutCalls": 2,
+      "toastWaitMs": 4456,
+      "retryCheckout": "same tab, selected variant, quantity 2"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "formatBox": {
+        "x": 130.890625,
+        "y": 772.984375,
+        "width": 106.890625,
+        "height": 44
+      },
+      "stickyBox": {
+        "x": 261.046875,
+        "y": 863,
+        "width": 143.953125,
+        "height": 44
+      },
+      "selectedVariantId": "gid://shopify/ProductVariant/1001",
+      "quantity": 2,
+      "unitPrice": "29.90 EUR",
+      "mockCheckoutCalls": 2,
+      "toastWaitMs": 4477,
+      "retryCheckout": "same tab, selected variant, quantity 2"
+    }
+  ],
+  "pageErrors": [],
+  "summary": {
+    "passed": 4,
+    "failed": 0
+  }
+}

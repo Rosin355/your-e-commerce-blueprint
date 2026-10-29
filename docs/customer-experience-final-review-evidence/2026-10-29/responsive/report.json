@@ -1,0 +1,116 @@
+{
+  "browser": "156.0.8078.49",
+  "baseURL": "http://127.0.0.1:8099",
+  "syntheticData": true,
+  "checks": [
+    {
+      "name": "Responsive 320: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Responsive 375: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Responsive 390: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Responsive 430: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Responsive 768: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Responsive 1440: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Ricerca da header, filtri, ordinamento, carica altri e stato vuoto",
+      "status": "PASS"
+    },
+    {
+      "name": "Errori di rete distinti da assenza dati, retry catalogo/collezione/PDP",
+      "status": "PASS"
+    },
+    {
+      "name": "Checkout: doppio invio, errore, retry senza duplicare quantità e navigazione nella stessa scheda",
+      "status": "PASS"
+    },
+    {
+      "name": "Persistenza: caricamento e vecchio checkout ignorati dopo refresh; quantità non valide rifiutate",
+      "status": "PASS"
+    },
+    {
+      "name": "Varianti: selezione disponibile, sold out e scelta formato dalla homepage",
+      "status": "PASS"
+    },
+    {
+      "name": "Tastiera: skip link, menu, zoom Escape e ripristino focus, pausa hero",
+      "status": "PASS"
+    },
+    {
+      "name": "PDP: navigazione rapida non viene sovrascritta da risposta precedente",
+      "status": "PASS"
+    },
+    {
+      "name": "Collezioni: oltre 60 prodotti, errore pagina successiva, retry e cambio collezione",
+      "status": "PASS"
+    },
+    {
+      "name": "Nessuna eccezione JavaScript non gestita",
+      "status": "PASS"
+    }
+  ],
+  "screenshots": [
+    "home-320.png",
+    "catalogo-320.png",
+    "ricerca-320.png",
+    "collezione-320.png",
+    "pdp-320.png",
+    "carrello-320.png",
+    "home-375.png",
+    "catalogo-375.png",
+    "ricerca-375.png",
+    "collezione-375.png",
+    "pdp-375.png",
+    "carrello-375.png",
+    "home-390.png",
+    "catalogo-390.png",
+    "ricerca-390.png",
+    "collezione-390.png",
+    "pdp-390.png",
+    "carrello-390.png",
+    "home-430.png",
+    "catalogo-430.png",
+    "ricerca-430.png",
+    "collezione-430.png",
+    "pdp-430.png",
+    "carrello-430.png",
+    "home-768.png",
+    "catalogo-768.png",
+    "ricerca-768.png",
+    "collezione-768.png",
+    "pdp-768.png",
+    "carrello-768.png",
+    "home-1440.png",
+    "catalogo-1440.png",
+    "ricerca-1440.png",
+    "collezione-1440.png",
+    "pdp-1440.png",
+    "carrello-1440.png",
+    "errore-collections.png",
+    "errore-collections.png",
+    "errore-products.png"
+  ],
+  "blockedHosts": [
+    "fonts.googleapis.com"
+  ],
+  "pageErrors": [],
+  "summary": {
+    "passed": 15,
+    "failed": 0
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "phase": "before",
+  "browser": "156.0.8078.49",
+  "syntheticData": true,
+  "externalTrafficIntercepted": true,
+  "pages": [
+    {
+      "name": "home",
+      "width": 390,
+      "viewport": 390,
+      "scrollWidth": 390,
+      "title": {
+        "top": 465,
+        "width": 358,
+        "height": 71
+      },
+      "firstProduct": {
+        "top": 1813,
+        "width": 356,
+        "height": 418
+      },
+      "format": null,
+      "cta": null,
+      "gallery": null
+    },
+    {
+      "name": "catalogo",
+      "width": 390,
+      "viewport": 390,
+      "scrollWidth": 390,
+      "title": {
+        "top": 261,
+        "width": 358,
+        "height": 34
+      },
+      "firstProduct": {
+        "top": 625,
+        "width": 173,
+        "height": 335
+      },
+      "format": null,
+      "cta": null,
+      "gallery": null
+    },
+    {
+      "name": "pdp",
+      "width": 390,
+      "viewport": 390,
+      "scrollWidth": 390,
+      "title": {
+        "top": 1507,
+        "width": 358,
+        "height": 70
+      },
+      "firstProduct": null,
+      "format": {
+        "top": 1802,
+        "width": 107,
+        "height": 38
+      },
+      "cta": {
+        "top": 1896,
+        "width": 234,
+        "height": 44
+      },
+      "gallery": null
+    },
+    {
+      "name": "home",
+      "width": 1440,
+      "viewport": 1440,
+      "scrollWidth": 1440,
+      "title": {
+        "top": 410,
+        "width": 896,
+        "height": 170
+      },
+      "firstProduct": {
+        "top": 1414,
+        "width": 328,
+        "height": 385
+      },
+      "format": null,
+      "cta": null,
+      "gallery": null
+    },
+    {
+      "name": "catalogo",
+      "width": 1440,
+      "viewport": 1440,
+      "scrollWidth": 1440,
+      "title": {
+        "top": 235,
+        "width": 1248,
+        "height": 50
+      },
+      "firstProduct": {
+        "top": 551,
+        "width": 300,
+        "height": 470
+      },
+      "format": null,
+      "cta": null,
+      "gallery": null
+    },
+    {
+      "name": "pdp",
+      "width": 1440,
+      "viewport": 1440,
+      "scrollWidth": 1440,
+      "title": {
+        "top": 203,
+        "width": 420,
+        "height": 79
+      },
+      "firstProduct": null,
+      "format": {
+        "top": 508,
+        "width": 107,
+        "height": 38
+      },
+      "cta": {
+        "top": 602,
+        "width": 296,
+        "height": 44
+      },
+      "gallery": null
+    }
+  ],
+  "checks": [],
+  "pageErrors": []
+}

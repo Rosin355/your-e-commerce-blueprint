@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-28",
+  "timezone": "Europe/Rome",
+  "prUrl": "https://github.com/Rosin355/your-e-commerce-blueprint/pull/39",
+  "prState": "open",
+  "prDraft": true,
+  "prMerged": false,
+  "prHeadRef": "codex/storefront-main-integration",
+  "prHeadSha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "prBaseSha": "0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3",
+  "prUpdatedAt": "2026-10-28T12:56:03Z",
+  "prStatusSource": "GitHub connector, read-only, checked at beginning and end",
+  "localOriginMain": "0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3",
+  "fetchPerformed": false,
+  "originalWorktreeMutated": false,
+  "isolatedExportRoot": "/private/tmp/online-garden-cx-phase7"
+}

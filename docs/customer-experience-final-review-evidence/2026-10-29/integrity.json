@@ -1,0 +1,131 @@
+{
+  "base": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "applicationSnapshot": "de591a5059be75ff683a3b82e789b7eea116c5f5",
+  "sourceTreeSHA": "bd3dd9a9e99aac6990050f3f9ae8f3e8ad960019",
+  "allPassed": true,
+  "checks": {
+    "unchanged:src/admin": true,
+    "unchanged:src/adminv2": true,
+    "unchanged:src/integrations": true,
+    "unchanged:src/contexts": true,
+    "unchanged:src/hooks/useAuth.ts": true,
+    "unchanged:src/pages/Auth.tsx": true,
+    "unchanged:src/stores/cartStore.ts": true,
+    "unchanged:src/lib/storefrontDiscovery.ts": true,
+    "unchanged:src/config/categories.ts": true,
+    "unchanged:src/hooks/useStorefrontSeo.ts": true,
+    "unchanged:src/lib/storefrontSeo.ts": true,
+    "unchanged:src/components/ui": true,
+    "unchanged:supabase": true,
+    "unchanged:sync": true,
+    "unchanged:package.json": true,
+    "unchanged:package-lock.json": true,
+    "unchanged:vite.config.ts": true,
+    "unchanged:tailwind.config.ts": true,
+    "originalFiveCommitsExact": true,
+    "verifiedBaseIsAncestor": true,
+    "applicationUnchangedSincePhase8": true,
+    "allCheckoutContractsIdentical": true,
+    "allPreexistingWorktreesPreserved": true,
+    "onlyTwelveApprovedApplicationFiles": true
+  },
+  "contracts": {
+    "cartCreate": {
+      "identical": true,
+      "sha256": "b708d078627dbbf212c31b7503ed0e0289660e4a6f4965188a8e9eb97e918a78"
+    },
+    "PDP_add": {
+      "identical": true,
+      "sha256": "007f45792d924f50928050b67f52d90bb81b44966e98fa1e35daef4b60ce5162"
+    },
+    "PDP_buy": {
+      "identical": true,
+      "sha256": "95c8d107919cbc04e5a0292747e2eaa1a901bbd5f4b38a2c3e8015b3609a6183"
+    },
+    "cart_checkout": {
+      "identical": true,
+      "sha256": "1688790aa0940a9c4754c6146f344bdcbc4e43d18fae24bb57ba0b1a676b9f65"
+    },
+    "card_add": {
+      "identical": true,
+      "sha256": "720263cc999940a4a3edf59d1f5d7712111d8b48b8c97c53e69a17c3e88acdcf"
+    },
+    "ShopifyConfig": {
+      "identical": true,
+      "sha256": "57a9c4f23e32fd84740195697ca7dbfe34d5bdc3210666453d78bc1ab53abba0"
+    }
+  },
+  "worktrees": [
+    {
+      "worktree": "your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "filesVerified": 391,
+      "changedFiles": [],
+      "newOrRemovedFiles": []
+    },
+    {
+      "worktree": "online-garden-storefront-main-integration",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "filesVerified": 585,
+      "changedFiles": [],
+      "newOrRemovedFiles": []
+    },
+    {
+      "worktree": "your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "filesVerified": 529,
+      "changedFiles": [],
+      "newOrRemovedFiles": []
+    },
+    {
+      "worktree": "your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "filesVerified": 534,
+      "changedFiles": [],
+      "newOrRemovedFiles": []
+    },
+    {
+      "worktree": "your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "filesVerified": 509,
+      "changedFiles": [],
+      "newOrRemovedFiles": []
+    },
+    {
+      "worktree": "your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "filesVerified": 511,
+      "changedFiles": [],
+      "newOrRemovedFiles": []
+    },
+    {
+      "worktree": "your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "filesVerified": 537,
+      "changedFiles": [],
+      "newOrRemovedFiles": []
+    }
+  ],
+  "originalWorktreeFilesVerified": 3596,
+  "sourceChanges": [
+    "src/components/CartDrawer.tsx",
+    "src/components/ProductCard.tsx",
+    "src/components/storefront/CatalogProductCard.tsx",
+    "src/components/storefront/HomeHeaderOverlay.tsx",
+    "src/components/storefront/HomeHero.tsx",
+    "src/components/storefront/HomepageV3.tsx",
+    "src/components/storefront/Pdp.tsx",
+    "src/hooks/useProduct.ts",
+    "src/index.css",
+    "src/lib/shopify.ts",
+    "src/lib/storefront-money.ts",
+    "src/pages/AllProducts.tsx"
+  ]
+}

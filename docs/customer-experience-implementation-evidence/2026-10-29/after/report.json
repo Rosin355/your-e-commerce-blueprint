@@ -1,0 +1,141 @@
+{
+  "phase": "after",
+  "browser": "156.0.8078.49",
+  "syntheticData": true,
+  "externalTrafficIntercepted": true,
+  "pages": [
+    {
+      "name": "home",
+      "width": 390,
+      "viewport": 390,
+      "scrollWidth": 390,
+      "title": {
+        "top": 215,
+        "width": 318,
+        "height": 69
+      },
+      "firstProduct": {
+        "top": 785,
+        "width": 171,
+        "height": 201
+      },
+      "format": null,
+      "cta": null,
+      "gallery": null
+    },
+    {
+      "name": "catalogo",
+      "width": 390,
+      "viewport": 390,
+      "scrollWidth": 390,
+      "title": {
+        "top": 213,
+        "width": 358,
+        "height": 34
+      },
+      "firstProduct": {
+        "top": 409,
+        "width": 173,
+        "height": 355
+      },
+      "format": null,
+      "cta": null,
+      "gallery": null
+    },
+    {
+      "name": "pdp",
+      "width": 390,
+      "viewport": 390,
+      "scrollWidth": 390,
+      "title": {
+        "top": 193,
+        "width": 358,
+        "height": 62
+      },
+      "firstProduct": null,
+      "format": {
+        "top": 773,
+        "width": 107,
+        "height": 44
+      },
+      "cta": {
+        "top": 873,
+        "width": 226,
+        "height": 44
+      },
+      "gallery": null
+    },
+    {
+      "name": "home",
+      "width": 1440,
+      "viewport": 1440,
+      "scrollWidth": 1440,
+      "title": {
+        "top": 207,
+        "width": 896,
+        "height": 112
+      },
+      "firstProduct": {
+        "top": 738,
+        "width": 325,
+        "height": 382
+      },
+      "format": null,
+      "cta": null,
+      "gallery": null
+    },
+    {
+      "name": "catalogo",
+      "width": 1440,
+      "viewport": 1440,
+      "scrollWidth": 1440,
+      "title": {
+        "top": 189,
+        "width": 1248,
+        "height": 50
+      },
+      "firstProduct": {
+        "top": 389,
+        "width": 312,
+        "height": 505
+      },
+      "format": null,
+      "cta": null,
+      "gallery": null
+    },
+    {
+      "name": "pdp",
+      "width": 1440,
+      "viewport": 1440,
+      "scrollWidth": 1440,
+      "title": {
+        "top": 169,
+        "width": 420,
+        "height": 79
+      },
+      "firstProduct": null,
+      "format": {
+        "top": 405,
+        "width": 107,
+        "height": 44
+      },
+      "cta": {
+        "top": 505,
+        "width": 288,
+        "height": 44
+      },
+      "gallery": null
+    }
+  ],
+  "checks": [
+    {
+      "name": "Selected variant, price and cart 390",
+      "status": "PASS"
+    },
+    {
+      "name": "Selected variant, price and cart 1440",
+      "status": "PASS"
+    }
+  ],
+  "pageErrors": []
+}

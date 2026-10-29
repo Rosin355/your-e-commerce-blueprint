@@ -13,6 +13,7 @@ const PRODUCT_BY_HANDLE_QUERY = `
       description
       handle
       priceRange {
+        maxVariantPrice { amount currencyCode }
         minVariantPrice {
           amount
           currencyCode

@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-29",
+  "timezone": "Europe/Rome",
+  "phase": "Phase 8 preliminary preparation only",
+  "status": "BLOCKED_MISSING_REFERENCE_IMAGES_AND_VISUAL_APPROVAL",
+  "pr": {
+    "number": 39,
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "headRef": "codex/storefront-main-integration",
+    "headSha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+    "verifiedWith": "GitHub read-only connector"
+  },
+  "newWorktree": "/private/tmp/online-garden-customer-experience-implementation",
+  "newBranch": "codex/customer-experience-implementation",
+  "newHead": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "originalHead": "7a7ed51c037f335df4b8b215a3322a7683bbe007",
+  "originalFilesHashed": 389,
+  "originalChangedFiles": [],
+  "originalAddedFiles": [],
+  "originalStatusUnchanged": true,
+  "previousPRWorktreeStatusUnchanged": true,
+  "modifiedBaselineTrackedFiles": [
+    "docs/CLIENT-ECOMMERCE-STATUS.md",
+    "docs/PROJECT_STATUS.md"
+  ],
+  "onlyDocumentationChanges": true,
+  "baselineStatusHistoryPreserved": {
+    "docs/CLIENT-ECOMMERCE-STATUS.md": true,
+    "docs/PROJECT_STATUS.md": true
+  },
+  "missingMarkdownLinks": [],
+  "gitDiffCheckPassed": true,
+  "newImplementationCommits": 0,
+  "reactChanges": false,
+  "newApplicationQARun": false,
+  "historicalQAIsPhase8QA": false,
+  "referenceImageFilesFoundInLocalAttachments": 0,
+  "newVisualComparisonCompleted": false,
+  "newVisualDirectionApproved": false,
+  "liveWrites": false,
+  "pushMergePRDeploy": false,
+  "preflightIntegrityPassed": true
+}

@@ -1,0 +1,308 @@
+{
+  "baseline": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "syntheticData": true,
+  "externalRequestsIntercepted": true,
+  "observations": [
+    {
+      "name": "home",
+      "width": 390,
+      "geometry": {
+        "viewport": 390,
+        "scrollWidth": 390,
+        "h1": {
+          "top": 465,
+          "height": 71,
+          "width": 358
+        },
+        "firstProduct": {
+          "top": 1813,
+          "height": 418,
+          "width": 356
+        },
+        "buyBlock": null,
+        "variant": null,
+        "primaryAdd": null,
+        "hero": {
+          "top": 0,
+          "height": 828,
+          "width": 390
+        }
+      }
+    },
+    {
+      "name": "catalogo",
+      "width": 390,
+      "geometry": {
+        "viewport": 390,
+        "scrollWidth": 390,
+        "h1": {
+          "top": 261,
+          "height": 34,
+          "width": 358
+        },
+        "firstProduct": {
+          "top": 625,
+          "height": 335,
+          "width": 173
+        },
+        "buyBlock": null,
+        "variant": null,
+        "primaryAdd": null,
+        "hero": null
+      }
+    },
+    {
+      "name": "best-identico-default",
+      "width": 390,
+      "same": true,
+      "before": [
+        "Rosa di prova — balcone e giardino",
+        "Pianta di prova 2",
+        "Pianta di prova 3",
+        "Pianta di prova 4",
+        "Pianta di prova 5",
+        "Pianta di prova 6",
+        "Pianta di prova 7",
+        "Pianta di prova 8",
+        "Pianta di prova 9"
+      ],
+      "after": [
+        "Rosa di prova — balcone e giardino",
+        "Pianta di prova 2",
+        "Pianta di prova 3",
+        "Pianta di prova 4",
+        "Pianta di prova 5",
+        "Pianta di prova 6",
+        "Pianta di prova 7",
+        "Pianta di prova 8",
+        "Pianta di prova 9"
+      ]
+    },
+    {
+      "name": "collezione",
+      "width": 390,
+      "geometry": {
+        "viewport": 390,
+        "scrollWidth": 390,
+        "h1": {
+          "top": 269,
+          "height": 42,
+          "width": 358
+        },
+        "firstProduct": {
+          "top": 399,
+          "height": 335,
+          "width": 173
+        },
+        "buyBlock": null,
+        "variant": null,
+        "primaryAdd": null,
+        "hero": null
+      }
+    },
+    {
+      "name": "pdp",
+      "width": 390,
+      "geometry": {
+        "viewport": 390,
+        "scrollWidth": 390,
+        "h1": {
+          "top": 1507,
+          "height": 70,
+          "width": 358
+        },
+        "firstProduct": null,
+        "buyBlock": {
+          "top": 1483,
+          "height": 682,
+          "width": 358
+        },
+        "variant": {
+          "top": 1802,
+          "height": 38,
+          "width": 107
+        },
+        "primaryAdd": {
+          "top": 1896,
+          "height": 44,
+          "width": 234
+        },
+        "hero": {
+          "top": 173,
+          "height": 2011,
+          "width": 390
+        }
+      }
+    },
+    {
+      "name": "menu",
+      "width": 390,
+      "links": 21
+    },
+    {
+      "name": "home",
+      "width": 1440,
+      "geometry": {
+        "viewport": 1440,
+        "scrollWidth": 1440,
+        "h1": {
+          "top": 410,
+          "height": 170,
+          "width": 896
+        },
+        "firstProduct": {
+          "top": 1414,
+          "height": 385,
+          "width": 328
+        },
+        "buyBlock": null,
+        "variant": null,
+        "primaryAdd": null,
+        "hero": {
+          "top": 0,
+          "height": 864,
+          "width": 1440
+        }
+      }
+    },
+    {
+      "name": "catalogo",
+      "width": 1440,
+      "geometry": {
+        "viewport": 1440,
+        "scrollWidth": 1440,
+        "h1": {
+          "top": 235,
+          "height": 50,
+          "width": 1248
+        },
+        "firstProduct": {
+          "top": 551,
+          "height": 470,
+          "width": 300
+        },
+        "buyBlock": null,
+        "variant": null,
+        "primaryAdd": null,
+        "hero": null
+      }
+    },
+    {
+      "name": "best-identico-default",
+      "width": 1440,
+      "same": true,
+      "before": [
+        "Rosa di prova — balcone e giardino",
+        "Pianta di prova 2",
+        "Pianta di prova 3",
+        "Pianta di prova 4",
+        "Pianta di prova 5",
+        "Pianta di prova 6",
+        "Pianta di prova 7",
+        "Pianta di prova 8",
+        "Pianta di prova 9"
+      ],
+      "after": [
+        "Rosa di prova — balcone e giardino",
+        "Pianta di prova 2",
+        "Pianta di prova 3",
+        "Pianta di prova 4",
+        "Pianta di prova 5",
+        "Pianta di prova 6",
+        "Pianta di prova 7",
+        "Pianta di prova 8",
+        "Pianta di prova 9"
+      ]
+    },
+    {
+      "name": "collezione",
+      "width": 1440,
+      "geometry": {
+        "viewport": 1440,
+        "scrollWidth": 1440,
+        "h1": {
+          "top": 263,
+          "height": 50,
+          "width": 1248
+        },
+        "firstProduct": {
+          "top": 417,
+          "height": 466,
+          "width": 297
+        },
+        "buyBlock": null,
+        "variant": null,
+        "primaryAdd": null,
+        "hero": null
+      }
+    },
+    {
+      "name": "pdp",
+      "width": 1440,
+      "geometry": {
+        "viewport": 1440,
+        "scrollWidth": 1440,
+        "h1": {
+          "top": 203,
+          "height": 79,
+          "width": 420
+        },
+        "firstProduct": null,
+        "buyBlock": {
+          "top": 179,
+          "height": 691,
+          "width": 420
+        },
+        "variant": {
+          "top": 508,
+          "height": 38,
+          "width": 107
+        },
+        "primaryAdd": {
+          "top": 602,
+          "height": 44,
+          "width": 296
+        },
+        "hero": {
+          "top": 151,
+          "height": 1680,
+          "width": 1200
+        }
+      }
+    },
+    {
+      "name": "variant-semantics",
+      "buttons": [
+        {
+          "text": "Vaso 14 cm",
+          "role": null,
+          "ariaPressed": null,
+          "ariaChecked": null,
+          "disabled": false
+        },
+        {
+          "text": "Vaso 20 cm",
+          "role": null,
+          "ariaPressed": null,
+          "ariaChecked": null,
+          "disabled": false
+        }
+      ],
+      "sticky": "Rosa di prova — balcone e giardino€19.90Aggiungi"
+    },
+    {
+      "name": "min-price-card",
+      "text": "Rosa di prova — balcone e giardino19,90 €Vedi dettagli"
+    },
+    {
+      "name": "checkout-error-style",
+      "style": {
+        "color": "rgb(239, 67, 67)",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "background": "rgb(250, 249, 244)"
+      }
+    }
+  ],
+  "pageErrors": []
+}

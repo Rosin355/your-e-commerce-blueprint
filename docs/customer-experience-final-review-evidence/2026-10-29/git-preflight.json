@@ -1,0 +1,17 @@
+{
+  "checkedPR": 39,
+  "url": "https://github.com/Rosin355/your-e-commerce-blueprint/pull/39",
+  "state": "open",
+  "draft": true,
+  "merged": false,
+  "head": "codex/storefront-main-integration",
+  "head_sha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "localReviewedHEAD": "de591a5059be75ff683a3b82e789b7eea116c5f5",
+  "expectedBase": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "fetchVerified": true,
+  "initialWorkingTreeClean": true,
+  "originalFiveCommitsPresent": true,
+  "initialAhead": 5,
+  "initialBehind": 0,
+  "remoteCustomerExperienceBranchInitiallyAbsent": true
+}

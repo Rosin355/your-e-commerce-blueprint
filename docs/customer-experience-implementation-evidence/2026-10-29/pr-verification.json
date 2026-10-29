@@ -1,0 +1,12 @@
+{
+  "url": "https://github.com/Rosin355/your-e-commerce-blueprint/pull/39",
+  "state": "open",
+  "draft": true,
+  "merged": false,
+  "head": "codex/storefront-main-integration",
+  "head_sha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "base": "main",
+  "base_sha": "0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3",
+  "verifiedOn": "2026-10-29",
+  "access": "read-only GitHub connector"
+}

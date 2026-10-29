@@ -1,3 +1,63 @@
+## 29 ottobre 2026 — Fase 9, Draft PR #40 aperta
+
+HEAD iniziale verificato `de591a5`, cinque commit Fase 8 presenti, worktree inizialmente pulito e base remota della PR #39 invariata `aa7e6ae` dopo fetch. Review dei sei confronti desktop/mobile e delle reference completata; nessuna modifica applicativa richiesta per preferenze estetiche.
+
+Gate ripetuti: typecheck, lint mirato e build PASS; 339 Node + 92 Deno; 42 scenari browser positivi, compresa nuova prova formato/sticky/quantità/errore-retry nei quattro viewport compatti. 24 controlli di integrità: mutation e handler invariati, 3.596 file dei sette worktree preesistenti preservati. [Report finale](CUSTOMER-EXPERIENCE-FINAL-REVIEW.md).
+
+Pubblicato soltanto il branch Customer Experience senza force o tag; aperta la [Draft PR #40](https://github.com/Rosin355/your-e-commerce-blueprint/pull/40) verso `codex/storefront-main-integration`, dipendente da #39. Prima pubblicazione `558ae11`, base `aa7e6ae` invariata. GitHub riporta mergeability clean e check GitGuardian success sul primo HEAD; nessuna CI applicativa attestata. Il successivo commit è di sola documentazione e il suo HEAD viene ricontrollato dopo il push. Nessun merge, deploy o modifica ai servizi live. La cronologia Fase 8 è conservata sotto.
+
+---
+
+## 29 ottobre 2026 — Fase 8 implementata, READY FOR REVIEW locale
+
+**Customer Experience Task 1–5 completati sul branch isolato `codex/customer-experience-implementation`, derivato dall’HEAD verificato `aa7e6ae` della Draft PR #39.** Direzione approvata: sans attuali, crema/verde, fotografie Online Garden; Silver Garden per home/catalogo e Plantella per la gerarchia PDP. Hero compatta, card arrotondate, categorie/pillole reali, acquisto PDP anticipato e sticky coerente con la variante.
+
+Prezzi centralizzati con importo/valuta Shopify; massimo aggiunto alle query per “Da” solo su intervallo reale. Rimossa la voce “Più venduti” priva di dati; sort e filtri globali preservati. Varianti con stato esplicito, focus e annunci; target principali 44px, errore checkout a 8,13:1. Testo lungo catalogo conservato dopo i prodotti; moduli inattivi home ridotti.
+
+QA finale: typecheck, lint mirato e build PASS; **339 Node + 92 Deno**, **38 scenari browser** tra dev e build production. Sei larghezze 320–1440px, viewport compatti, catalogo da 10.000 prodotti, varianti complete, SEO e checkout simulato. A 390×900: primo prodotto catalogo 625→409, titolo PDP 1507→193. Nessuna regressione rilevata; non è una certificazione WCAG completa o un test live.
+
+Quattro commit applicativi locali più consegna documentale. Store/handler/mutation checkout e configurazione Shopify invariati; nessun diff Admin/auth/RLS/Supabase/Edge/sync/package. 391 file originali e worktree PR preservati. Nessun push, merge, PR nuova, deploy o modifica live. PR #39 ancora Draft/aperta alla medesima revisione.
+
+[Report implementazione](CUSTOMER-EXPERIENCE-IMPLEMENTATION.md) · [Confronti React prima/dopo](customer-experience-implementation-evidence/2026-10-29/README.md) · [Design system](CUSTOMER-EXPERIENCE-DESIGN-SYSTEM.md) · [Roadmap e gate aperti](CUSTOMER-EXPERIENCE-ROADMAP.md). Approvazione visuale completata; i gate commerciali/Shopify live/SEO/AA completo restano separati. Le sezioni seguenti sono cronologia e non descrivono lo stato attuale.
+
+---
+
+## Fase 8 — proposta visuale dopo ricezione reference — 29 ottobre 2026
+
+**READY FOR VISUAL REVIEW; SVILUPPO APPLICATIVO NON AVVIATO.** Letti dal worktree originale `docs/design/references/silver-garden-home-reference.png` e `plantella-pdp-reference.png`, senza modificarli. PR #39 riconfermata Draft/aperta/non unita, HEAD `aa7e6aeb9aa0eafc01f655976f342733562bb824` invariato. Nuovo branch `codex/customer-experience-implementation` ancora a tale HEAD.
+
+Completata l'[analisi visuale](CUSTOMER-EXPERIENCE-VISUAL-DIRECTION.md): sintesi originale, elementi da mantenere, token/layout/tipografia/responsive, sei viste home/catalogo/PDP desktop/mobile e sei confronti con gli screenshot PR. [Indice delle immagini e QA prototipo](design/proposals/2026-10-29/README.md). Nessuna fotografia o identità delle reference usata come asset applicativo; niente dati commerciali o botanici generati.
+
+Aggiornati design system, roadmap, stato cliente e [documento implementazione](CUSTOMER-EXPERIENCE-IMPLEMENTATION.md), distinguendo proposta e interventi realizzati. Il solo prototipo è stato controllato in Chrome; i risultati applicativi Fase 7 restano storici. Non eseguiti nuovi typecheck/lint/build/test React/checkout perché nessun codice applicativo è stato modificato.
+
+Approvazione della direzione ancora pendente, come richiesto dall'addendum e dall'ultimo messaggio utente. Nessun commit implementativo, push, merge, nuova PR, deploy o scrittura live; servizi, dipendenze, token dell'app e contratti storefront invariati. [Integrità finale](design/proposals/2026-10-29/visual-review-integrity.json). La cronologia preliminare sotto rimane conservata: la mancanza iniziale delle immagini è ora risolta.
+
+---
+
+## Fase 8 — Customer Experience — 29 ottobre 2026
+
+**PREPARAZIONE COMPLETATA / IMPLEMENTAZIONE BLOCKED DAL GATE VISUALE.** PR #39 riletta via GitHub: aperta, Draft, non unita; branch `codex/storefront-main-integration`, HEAD invariato `aa7e6aeb9aa0eafc01f655976f342733562bb824`. Creato nuovo worktree `/private/tmp/online-garden-customer-experience-implementation` e branch `codex/customer-experience-implementation` dalla revisione esatta.
+
+Importati selettivamente audit/design system/roadmap/stati ed evidenze direttamente collegate della consegna Fase 7. Letti i documenti e consultati gli screenshot e l'anteprima precedenti. Nessuna delle due immagini Silver Garden/Plantella è disponibile negli input locali: l'analisi e il confronto visuale specifici non sono stati inventati. L'addendum richiede presentazione e approvazione della nuova direzione prima dell'implementazione React.
+
+[Brief visuale preliminare](CUSTOMER-EXPERIENCE-VISUAL-DIRECTION.md), [piano e stato implementazione](CUSTOMER-EXPERIENCE-IMPLEMENTATION.md) e [roadmap aggiornata](CUSTOMER-EXPERIENCE-ROADMAP.md). Chiarita regola prezzi: “Da” solo con intervallo min/max reale, non per il solo prezzo minimo o numero di opzioni. Nessun task applicativo risolto ancora; nessun nuovo risultato di typecheck/lint/build/test/browser dichiarato. Gli esiti Fase 7 sotto rimangono storici.
+
+Codice applicativo identico alla PR; niente Admin V2, auth/RLS, Supabase/migration, Edge, sync, checkout o configurazioni live modificati. Nessuna dipendenza installata, nessun commit implementativo, push, merge, nuova PR o deploy. File e stato del workspace originale preservati; verifica in [preflight](customer-experience-phase8-evidence/2026-10-29/preflight.json). La cronologia Fase 7 e PR seguente è conservata.
+
+---
+
+## Fase 7 — Premium Customer Experience 2.0 — 28 ottobre 2026
+
+**AUDIT E PROGETTAZIONE COMPLETATI; IMPLEMENTAZIONE IN ATTESA DI SUCCESSIVA APPROVAZIONE.** Verifica GitHub read-only: Draft PR #39 aperta, non unita, branch `codex/storefront-main-integration`, HEAD `aa7e6aeb9aa0eafc01f655976f342733562bb824`, base `main` `0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3`. Il workspace originale resta sul ramo `codex/storefront-performance-seo-safe-fixes` a `7a7ed51`, con lavoro locale preesistente. Audit su esportazione isolata della revisione PR, senza spostare o aggiornare i worktree originali.
+
+Consegna: [audit UX e benchmark](CUSTOMER-EXPERIENCE-AUDIT.md), [design system e proposte desktop/mobile](CUSTOMER-EXPERIENCE-DESIGN-SYSTEM.md), [roadmap P0/P1/P2/P3](CUSTOMER-EXPERIENCE-ROADMAP.md), anteprima concettuale di home/catalogo/PDP. Priorità: sequenza PDP mobile, chiarezza prezzo minimo/valuta/sort, semantica variante/menu, contrasto errore checkout; mantenere ricerca globale, paginazione, esclusione prodotti test e `cartCreate → checkoutUrl`.
+
+Ripetuta esclusivamente la suite browser UX esistente: **15/15 scenari PASS offline**, sei larghezze 320–1440; sonda dedicata con misure, screenshot e 0 eccezioni JS. Dati sintetici e traffico applicativo esterno intercettato; nessun test live né nuova certificazione di accessibilità/prestazioni/SEO. Test di dominio/build/lint/benchmark precedenti non rieseguiti e conservati come cronologia. Campi botanici PDP presenti non provano copertura globale: nuovi filtri subordinati a censimento e Marco. Pagamenti, policy, imposte e promesse commerciali ancora da confermare.
+
+Aggiornati solo documenti/evidenze nella copia isolata, cronologia seguente preservata integralmente dalla PR. Stato Git e SHA-256 dell'originale verificati in [evidenze finali](customer-experience-evidence/2026-10-28/safety.json). Nessuna modifica a codice applicativo, PR #39, Shopify, Supabase, Admin V2, Edge Functions, auth/RLS o sync; nessuna dipendenza aggiunta, commit, push, merge o deploy. Gli stati “READY FOR PR” e “nessuna PR creata” riportati sotto descrivono la fase precedente e sono superati dalla verifica PR qui sopra.
+
+---
+
 ## Safe storefront integration — 28 ottobre 2026
 
 **READY FOR PR locale, non rilascio.** Nuovo worktree/branch `codex/storefront-main-integration` da `origin/main` esatto `0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3`; port selettivo dei tre commit storefront, senza vecchio Admin/backend. Contratti main per discovery/home/correlati/date e filtro prodotti test conservati. Catalogo senza cap 1.000, varianti complete, errori/checkout protetti, payload adattato, a11y e SEO/JSON-LD DOM.

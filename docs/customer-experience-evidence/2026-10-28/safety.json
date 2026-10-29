@@ -1,0 +1,27 @@
+{
+  "baseline": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "originalHead": "7a7ed51c037f335df4b8b215a3322a7683bbe007",
+  "originalBranch": "codex/storefront-performance-seo-safe-fixes",
+  "originalFilesHashed": 389,
+  "originalChangedFiles": [],
+  "originalAddedFiles": [],
+  "originalStatusIdentical": true,
+  "isolatedModifiedTrackedFiles": [
+    "docs/CLIENT-ECOMMERCE-STATUS.md",
+    "docs/PROJECT_STATUS.md"
+  ],
+  "isolatedNewFileCount": 65,
+  "isolatedOnlyDocumentationAndEvidence": true,
+  "statusHistoryPreservedByteForByte": {
+    "docs/CLIENT-ECOMMERCE-STATUS.md": true,
+    "docs/PROJECT_STATUS.md": true
+  },
+  "newDependencies": false,
+  "applicationSourceChanged": false,
+  "pushMergeDeploy": false,
+  "liveApplicationRequests": false,
+  "PASS": true,
+  "markdownLinksChecked": true,
+  "missingDocumentationLinks": [],
+  "isolatedNewFileCountAtFinalization": 67
+}

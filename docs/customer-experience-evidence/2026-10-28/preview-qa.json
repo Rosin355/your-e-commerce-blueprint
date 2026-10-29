@@ -1,0 +1,204 @@
+{
+  "kind": "proposal-only",
+  "checks": [
+    {
+      "hostWidth": 1024,
+      "surface": "home",
+      "device": "desktop",
+      "viewport": 992,
+      "width": 992,
+      "page": "home",
+      "surfaceWidth": 992,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 1024,
+      "surface": "catalog",
+      "device": "desktop",
+      "viewport": 992,
+      "width": 992,
+      "page": "catalog",
+      "surfaceWidth": 992,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 1024,
+      "surface": "pdp",
+      "device": "desktop",
+      "viewport": 992,
+      "width": 992,
+      "page": "pdp",
+      "surfaceWidth": 992,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 1024,
+      "surface": "home",
+      "device": "mobile",
+      "viewport": 992,
+      "width": 992,
+      "page": "home",
+      "surfaceWidth": 390,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 1024,
+      "surface": "catalog",
+      "device": "mobile",
+      "viewport": 992,
+      "width": 992,
+      "page": "catalog",
+      "surfaceWidth": 390,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 1024,
+      "surface": "pdp",
+      "device": "mobile",
+      "viewport": 992,
+      "width": 992,
+      "page": "pdp",
+      "surfaceWidth": 390,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 390,
+      "surface": "home",
+      "device": "desktop",
+      "viewport": 358,
+      "width": 358,
+      "page": "home",
+      "surfaceWidth": 358,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 390,
+      "surface": "catalog",
+      "device": "desktop",
+      "viewport": 358,
+      "width": 358,
+      "page": "catalog",
+      "surfaceWidth": 358,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 390,
+      "surface": "pdp",
+      "device": "desktop",
+      "viewport": 358,
+      "width": 358,
+      "page": "pdp",
+      "surfaceWidth": 358,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 390,
+      "surface": "home",
+      "device": "mobile",
+      "viewport": 358,
+      "width": 358,
+      "page": "home",
+      "surfaceWidth": 358,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 390,
+      "surface": "catalog",
+      "device": "mobile",
+      "viewport": 358,
+      "width": 358,
+      "page": "catalog",
+      "surfaceWidth": 358,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 390,
+      "surface": "pdp",
+      "device": "mobile",
+      "viewport": 358,
+      "width": 358,
+      "page": "pdp",
+      "surfaceWidth": 358,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 320,
+      "surface": "home",
+      "device": "desktop",
+      "viewport": 288,
+      "width": 288,
+      "page": "home",
+      "surfaceWidth": 288,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 320,
+      "surface": "catalog",
+      "device": "desktop",
+      "viewport": 288,
+      "width": 288,
+      "page": "catalog",
+      "surfaceWidth": 288,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 320,
+      "surface": "pdp",
+      "device": "desktop",
+      "viewport": 288,
+      "width": 288,
+      "page": "pdp",
+      "surfaceWidth": 288,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 320,
+      "surface": "home",
+      "device": "mobile",
+      "viewport": 288,
+      "width": 288,
+      "page": "home",
+      "surfaceWidth": 288,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 320,
+      "surface": "catalog",
+      "device": "mobile",
+      "viewport": 288,
+      "width": 288,
+      "page": "catalog",
+      "surfaceWidth": 288,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    },
+    {
+      "hostWidth": 320,
+      "surface": "pdp",
+      "device": "mobile",
+      "viewport": 288,
+      "width": 288,
+      "page": "pdp",
+      "surfaceWidth": 288,
+      "unresolvedImages": 0,
+      "enabledPurchaseButtons": 0
+    }
+  ],
+  "errors": []
+}
