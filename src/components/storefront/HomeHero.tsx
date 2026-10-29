@@ -123,11 +123,12 @@ export const HomeHero = () => {
   const goNext = () => { setPaused(true); navigate((activeIndexRef.current + 1) % slides.length); };
 
   return (
-    <section className="relative isolate min-h-[92svh] overflow-hidden text-white md:min-h-[96svh]">
+    <>
+      <SiteHeader variant="page" />
+    <section className="og-home-hero relative isolate mx-4 mt-4 overflow-hidden rounded-[14px] text-white md:mx-6 md:rounded-[20px]">
       {/* SSR-safe keyframe injection — no external deps, no window access */}
       <style dangerouslySetInnerHTML={{ __html: KEYFRAMES }} />
 
-      <SiteHeader variant="hero" />
 
       {/* ── Slide images ─────────────────────────────────────────── */}
       {slides.map((slide, index) => {
@@ -184,17 +185,17 @@ export const HomeHero = () => {
       {/* ── Permanent gradient scrim ─────────────────────────────── */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(18,24,20,0.08)_0%,rgba(18,24,20,0.2)_44%,rgba(18,24,20,0.52)_100%)]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,24,20,0.76)_0%,rgba(18,24,20,0.55)_55%,rgba(18,24,20,0.36)_100%)]"
         style={{ zIndex: 30 }}
       />
 
       {/* ── Content ──────────────────────────────────────────────── */}
       <div
-        className="pointer-events-none relative mx-auto flex min-h-[92svh] max-w-[1600px] flex-col justify-end px-4 pb-9 pt-60 md:min-h-[96svh] md:px-6 md:pb-12 md:pt-36 [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
+        className="pointer-events-none relative mx-auto flex min-h-[390px] max-w-[1440px] flex-col justify-end px-5 pb-5 pt-7 md:min-h-[420px] md:px-10 md:pb-6 md:pt-10 [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
         style={{ zIndex: 35 }}
       >
         {/* Text area — `relative` so the exiting overlay positions against it */}
-        <div className="relative max-w-4xl">
+        <div className="relative min-h-[260px] max-w-4xl md:min-h-[250px]">
           {/* Entering text — key remounts on every slide change so the animation
               always replays from `from`. The `both` fill keeps opacity:0 until
               TEXT_DELAY_MS, then holds opacity:1 after the animation ends. */}
@@ -206,15 +207,15 @@ export const HomeHero = () => {
                 : undefined
             }
           >
-            <h1 className="whitespace-pre-line font-heading text-[2.35rem] font-semibold leading-[0.95] tracking-[-0.028em] text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.45)] md:text-[4.35rem] lg:text-[5.6rem]">
+            <h1 className="whitespace-pre-line font-heading text-[2rem] font-semibold leading-[1.08] tracking-[-0.028em] text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.45)] md:text-[3.25rem]">
               {slides[activeIndex].title}
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-7 text-white drop-shadow-[0_1px_10px_rgba(0,0,0,0.5)] md:text-[1.08rem]">
+            <p className="mt-3 max-w-xl text-sm leading-6 text-white drop-shadow-[0_1px_10px_rgba(0,0,0,0.5)] md:text-base">
               {slides[activeIndex].subtitle}
             </p>
             <a
               href="/collections/all"
-              className="mt-7 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-[13px] font-semibold uppercase tracking-[0.16em] text-primary-foreground shadow-lg transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary min-h-11 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground shadow-lg transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
               Scopri il catalogo outdoor
               <ChevronRight className="h-4 w-4" />
@@ -244,7 +245,7 @@ export const HomeHero = () => {
         </div>
 
         {/* Slide counter + nav buttons */}
-        <div className="mt-8 flex items-center justify-end gap-4 md:mt-10">
+        <div className="mt-3 flex items-center justify-end gap-4 md:mt-4">
           <span className="text-[10px] font-medium uppercase tracking-[0.28em] text-white/76">
             {String(activeIndex + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
           </span>
@@ -272,5 +273,6 @@ export const HomeHero = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };

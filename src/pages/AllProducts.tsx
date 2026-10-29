@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/storefront-money";
 import { useStorefrontSeo } from "@/hooks/useStorefrontSeo";
 import { CatalogProductCard } from "@/components/storefront/CatalogProductCard";
 import { Button } from "@/components/ui/button";
@@ -199,7 +200,9 @@ const AllProducts = () => {
     const priceMinValue = priceList.length ? priceList.reduce((min, price) => Math.min(min, price), Infinity) : 0;
     const priceMaxValue = priceList.length ? priceList.reduce((max, price) => Math.max(max, price), -Infinity) : 0;
 
+    const currencies = [...new Set(searchScoped.map(product => product.node.priceRange.minVariantPrice.currencyCode))];
     return {
+      currencyCode: currencies.length === 1 ? currencies[0] : null,
       inStock,
       outOfStock,
       sizeOptions: Array.from(sizeOptions.entries()).map(([value, count]) => ({ value, count })),
@@ -399,11 +402,11 @@ const AllProducts = () => {
   const renderPriceGroup = (state: FilterState, setState: (value: FilterState) => void) => (
     <div>
       <p className="text-xs text-muted-foreground">
-        Il prezzo massimo e €{stats.priceMaxValue.toFixed(2)}
+        {stats.currencyCode ? `Il prezzo massimo in elenco è ${formatMoney({amount: String(stats.priceMaxValue), currencyCode: stats.currencyCode})}` : "Prezzi nella valuta indicata sui prodotti"}
       </p>
       <div className="mt-3 flex items-center gap-2">
-        <div className="flex h-10 min-w-0 flex-1 items-center border border-border bg-background px-3">
-          <span className="mr-2 text-sm text-muted-foreground">€</span>
+        <div className="flex h-11 min-w-0 flex-1 items-center rounded-lg border border-border bg-background px-3">
+          <span className="mr-2 text-xs text-muted-foreground">{stats.currencyCode}</span>
           <input
             type="number"
             inputMode="decimal"
@@ -415,8 +418,8 @@ const AllProducts = () => {
             className="w-full min-w-0 bg-transparent text-sm text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           />
         </div>
-        <div className="flex h-10 min-w-0 flex-1 items-center border border-border bg-background px-3">
-          <span className="mr-2 text-sm text-muted-foreground">€</span>
+        <div className="flex h-11 min-w-0 flex-1 items-center rounded-lg border border-border bg-background px-3">
+          <span className="mr-2 text-xs text-muted-foreground">{stats.currencyCode}</span>
           <input
             type="number"
             inputMode="decimal"
@@ -443,7 +446,7 @@ const AllProducts = () => {
         type="button"
         aria-expanded={openSections[id]}
         onClick={() => toggleSection(id)}
-        className="flex w-full items-center justify-between text-left"
+        className="flex min-h-11 w-full items-center justify-between gap-3 rounded-full border border-border bg-background px-4 text-left"
       >
         <span className="text-sm font-semibold text-foreground">{title}</span>
         {openSections[id] ? (
@@ -468,7 +471,7 @@ const AllProducts = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="og-storefront min-h-screen flex flex-col bg-background">
       <SiteHeader variant="page" />
 
       <main id="main-content" tabIndex={-1} className="flex-1 pt-4 md:pt-6">
@@ -481,8 +484,7 @@ const AllProducts = () => {
             <span className="text-foreground">{searchQuery ? "Ricerca" : "Tutti i prodotti"}</span>
           </nav>
 
-          <header className="py-10 md:py-14">
-            <p className="text-sm text-muted-foreground">Esplora il catalogo e affina la selezione con filtri e ordinamento.</p>
+          <header className="py-5 md:py-7">
             <h1 className="font-heading break-words text-[2rem] sm:text-[2.5rem] font-semibold leading-[1.05] text-foreground md:text-[3rem]">
               {searchQuery ? (
                 <>Risultati per «{searchQuery}»</>
@@ -490,6 +492,7 @@ const AllProducts = () => {
                 "Tutti i prodotti"
               )}
             </h1>
+            <p className="mt-3 text-sm text-muted-foreground">Esplora il catalogo e affina la selezione con filtri e ordinamento.</p>
             {searchQuery && (
               <div className="mt-4 flex flex-wrap items-center gap-4" aria-live="polite">
                 <p className="text-[15px] text-muted-foreground">
@@ -507,30 +510,9 @@ const AllProducts = () => {
                 </button>
               </div>
             )}
-            <div className="mt-5 max-w-3xl text-[15px] leading-7 text-muted-foreground">
-              <p>
-                Scopri il mondo Online Garden — piante da esterno, rose, piante da frutto e accessori scelti per dare
-                carattere a terrazzi, balconi e giardini.
-                {introExpanded ? (
-                  <>
-                    {" "}Ogni selezione e pensata per accompagnarti durante tutta la stagione con soluzioni verdi curate,
-                    resistenti e semplici da mantenere. Dalle fioriture ornamentali alle essenze da raccolto, dal verde
-                    strutturale ai bulbi stagionali, ogni proposta e seguita direttamente dal vivaio per arrivare a
-                    destinazione in condizioni ottimali, pronta da posizionare nel tuo spazio esterno.
-                  </>
-                ) : null}
-              </p>
-              <button
-                type="button"
-                onClick={() => setIntroExpanded((prev) => !prev)}
-                className="mt-2 text-sm font-semibold text-foreground underline underline-offset-4"
-              >
-                {introExpanded ? "Mostra meno" : "Leggi di piu"}
-              </button>
-            </div>
           </header>
 
-          <div className="flex flex-col gap-3 border-y border-border/60 py-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center justify-between gap-3 border-y border-border/60 py-3">
             <div className="flex items-center gap-3">
               <Sheet open={filterDrawerOpen} onOpenChange={(open) => {
                 setFilterDrawerOpen(open);
@@ -539,7 +521,7 @@ const AllProducts = () => {
                 <SheetTrigger asChild>
                   <button
                     type="button"
-                    className="inline-flex h-10 items-center gap-2 border border-border bg-background px-4 text-sm font-semibold text-foreground lg:hidden"
+                    className="inline-flex h-11 items-center gap-2 rounded-full border border-border bg-background px-3 text-sm font-semibold text-foreground lg:hidden"
                   >
                     <SlidersHorizontal className="h-4 w-4" />
                     Filtra e ordina {activeFilterCount > 0 ? `(${activeFilterCount})` : ""}
@@ -563,7 +545,7 @@ const AllProducts = () => {
                     <button
                       type="button"
                       onClick={applyPendingFilters}
-                      className="h-10 flex-1 bg-foreground text-sm font-semibold text-background"
+                      className="h-11 flex-1 rounded-lg bg-primary text-sm font-semibold text-primary-foreground"
                     >
                       Applica
                     </button>
@@ -576,8 +558,8 @@ const AllProducts = () => {
               </span>
             </div>
 
-            <div className="relative flex items-center gap-3">
-              <label htmlFor="pdp-sort" className="text-sm text-muted-foreground">
+            <div className="relative flex min-w-0 flex-1 items-center gap-3 md:flex-initial">
+              <label htmlFor="pdp-sort" className="sr-only text-sm text-muted-foreground md:not-sr-only">
                 Ordina per
               </label>
               <select id="pdp-sort" value={sort} onChange={event => setSort(event.target.value as SortKey)} className="h-11 min-w-0 flex-1 border border-border bg-background px-3 text-sm text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
@@ -586,7 +568,7 @@ const AllProducts = () => {
             </div>
           </div>
 
-          <div className="grid gap-10 py-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-12">
+          <div className="grid gap-6 py-5 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8">
             <aside className="hidden lg:block lg:sticky lg:top-28 lg:self-start">
               {activeFilterCount > 0 && (
                 <button
@@ -674,6 +656,27 @@ const AllProducts = () => {
           </div>
 
           <section className="border-t border-border/60 py-12 md:py-16">
+            <div className="mt-5 max-w-3xl text-[15px] leading-7 text-muted-foreground mb-6 mx-auto">
+              <p>
+                Scopri il mondo Online Garden — piante da esterno, rose, piante da frutto e accessori scelti per dare
+                carattere a terrazzi, balconi e giardini.
+                {introExpanded ? (
+                  <>
+                    {" "}Ogni selezione e pensata per accompagnarti durante tutta la stagione con soluzioni verdi curate,
+                    resistenti e semplici da mantenere. Dalle fioriture ornamentali alle essenze da raccolto, dal verde
+                    strutturale ai bulbi stagionali, ogni proposta e seguita direttamente dal vivaio per arrivare a
+                    destinazione in condizioni ottimali, pronta da posizionare nel tuo spazio esterno.
+                  </>
+                ) : null}
+              </p>
+              <button
+                type="button"
+                onClick={() => setIntroExpanded((prev) => !prev)}
+                className="mt-2 text-sm font-semibold text-foreground underline underline-offset-4"
+              >
+                {introExpanded ? "Mostra meno" : "Leggi di piu"}
+              </button>
+            </div>
             <div className="mx-auto max-w-3xl space-y-4 text-[15px] leading-7 text-muted-foreground">
               <p>
                 La collezione Online Garden riunisce <strong className="font-semibold text-foreground">piante da esterno,

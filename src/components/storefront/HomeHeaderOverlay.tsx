@@ -181,7 +181,10 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                   type="button"
                   onMouseEnter={() => !item.isComingSoon && setActiveItem(item)}
                   onFocus={() => !item.isComingSoon && setActiveItem(item)}
-                  className={`group relative inline-flex min-h-[42px] items-center gap-1.5 rounded-md px-2.5 py-1 text-left text-[14.5px] font-semibold leading-[1.2] tracking-[0.01em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 after:absolute after:inset-x-2.5 after:bottom-0.5 after:h-[2px] after:rounded-full after:bg-primary after:transition-transform after:duration-300 motion-reduce:after:transition-none ${
+                  onClick={() => !item.isComingSoon && setActiveItem(item)}
+                  aria-expanded={item.isComingSoon ? undefined : activeItem?.label === item.label}
+                  aria-controls={activeItem?.label === item.label ? "storefront-category-panel" : undefined}
+                  className={`group relative inline-flex min-h-11 items-center gap-1.5 rounded-md px-2.5 py-1 text-left text-[14.5px] font-semibold leading-[1.2] tracking-[0.01em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 after:absolute after:inset-x-2.5 after:bottom-0.5 after:h-[2px] after:rounded-full after:bg-primary after:transition-transform after:duration-300 motion-reduce:after:transition-none ${
                     item.isComingSoon
                       ? "cursor-default text-muted-foreground after:hidden"
                       : activeItem?.label === item.label
@@ -278,7 +281,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                max-h = viewport dinamica − announcement (36px) − header (~68px) − margine:
                il pannello scrolla al suo interno (overscroll-contain evita lo scroll pagina)
                così ultime voci e "Vai al catalogo" restano sempre raggiungibili. */
-            <div className="absolute inset-x-0 top-full">
+            <div id="storefront-category-panel" role="region" aria-label={activeItem.label} className="absolute inset-x-0 top-full">
               <div className="mx-auto max-w-[1600px] px-6">
                 <div className="grid max-h-[calc(100dvh-9.5rem)] grid-cols-[0.92fr_1.08fr] gap-10 overflow-y-auto overscroll-contain rounded-b-2xl border border-border bg-white px-8 py-8 pb-10 shadow-lg">
                   <div className="flex flex-col justify-between gap-8">
