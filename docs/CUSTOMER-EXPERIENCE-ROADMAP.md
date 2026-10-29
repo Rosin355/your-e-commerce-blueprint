@@ -1,3 +1,11 @@
+## Fase 9 — review finale e preparazione Draft PR
+
+29 ottobre 2026. **Review visuale e gate locali positivi:** 431 test dominio, 42 scenari browser; UI e contratti Fase 8 invariati. Direzione approvata confermata, nessun nuovo gate progettuale. L’incarico attuale autorizza push senza force del solo branch Customer Experience e Draft PR con base `codex/storefront-main-integration`, dipendente da #39; merge, deploy e scritture live restano esclusi.
+
+[Final review](CUSTOMER-EXPERIENCE-FINAL-REVIEW.md) · [Evidenze nuove](customer-experience-final-review-evidence/2026-10-29/README.md). Prima del push verrà riconfermata la base remota; esiti GitHub/CI saranno distinti dalla QA locale. Restano aperti i gate live/commerciali/accessibilità completa e l’affinamento del toast errore sui viewport bassi. La matrice Fase 8 sotto documenta la precedente consegna esclusivamente locale.
+
+---
+
 # Customer Experience 2.0 — roadmap aggiornata
 
 29 ottobre 2026. **Task 1–5 implementati, QA offline positiva, READY FOR REVIEW.** Direzione approvata dall’utente: sans attuali, crema/verde, Silver Garden per home/catalogo, Plantella per gerarchia PDP. Base verificata PR #39 `aa7e6ae`; nessun cambiamento della PR o dei servizi live. [Report](CUSTOMER-EXPERIENCE-IMPLEMENTATION.md) · [Design system effettivo](CUSTOMER-EXPERIENCE-DESIGN-SYSTEM.md).

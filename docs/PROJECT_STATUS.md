@@ -1,3 +1,13 @@
+## 29 ottobre 2026 — Fase 9, final review positiva
+
+HEAD iniziale verificato `de591a5`, cinque commit Fase 8 presenti, worktree inizialmente pulito e base remota della PR #39 invariata `aa7e6ae` dopo fetch. Review dei sei confronti desktop/mobile e delle reference completata; nessuna modifica applicativa richiesta per preferenze estetiche.
+
+Gate ripetuti: typecheck, lint mirato e build PASS; 339 Node + 92 Deno; 42 scenari browser positivi, compresa nuova prova formato/sticky/quantità/errore-retry nei quattro viewport compatti. 24 controlli di integrità: mutation e handler invariati, 3.596 file dei sette worktree preesistenti preservati. [Report finale](CUSTOMER-EXPERIENCE-FINAL-REVIEW.md).
+
+Autorizzati in questa fase soltanto push del branch Customer Experience senza force e Draft PR verso `codex/storefront-main-integration`, dipendente da #39. L’esito della pubblicazione e le verifiche GitHub saranno registrati dopo le operazioni; nessuna CI dichiarata verde in base ai soli test locali. Nessun merge, deploy o modifica ai servizi live. La cronologia Fase 8 è conservata sotto.
+
+---
+
 ## 29 ottobre 2026 — Fase 8 implementata, READY FOR REVIEW locale
 
 **Customer Experience Task 1–5 completati sul branch isolato `codex/customer-experience-implementation`, derivato dall’HEAD verificato `aa7e6ae` della Draft PR #39.** Direzione approvata: sans attuali, crema/verde, fotografie Online Garden; Silver Garden per home/catalogo e Plantella per la gerarchia PDP. Hero compatta, card arrotondate, categorie/pillole reali, acquisto PDP anticipato e sticky coerente con la variante.

@@ -1,3 +1,5 @@
+> **Aggiornamento Fase 9 — 29 ottobre 2026:** review finale e regression gate ripetuti con esito positivo (431 test dominio, 42 scenari browser). UI e contratti Fase 8 invariati. Push del solo branch e Draft PR verso `codex/storefront-main-integration` ora autorizzati; la [final review](CUSTOMER-EXPERIENCE-FINAL-REVIEW.md) registra preparazione e successivo esito GitHub. Le indicazioni sotto “nessun push/PR” descrivono correttamente la consegna Fase 8 precedente.
+
 # Online Garden — Customer Experience 2.0, Fase 8
 
 29 ottobre 2026, Europe/Rome. **READY FOR REVIEW: Task 1–5 implementati e verificati localmente.** Nessun push, merge, nuova PR, deploy o modifica ai servizi live. Questa è una consegna per la review; non dichiara pronto il lancio del negozio.

@@ -29,3 +29,5 @@ Stesso dataset sintetico, browser Chrome 156, viewport, reduced motion e traffic
 Le misure y indicano distanza dall’inizio del documento; nella home `firstProduct` è il link immagine e nel catalogo è l’articolo. La CTA riportata è quella nel flusso, distinta dalla barra fixed. L’altezza di 900px non è una misura del fold su tutti i dispositivi. Il valore `gallery: null` della sonda comparativa non viene usato: le dimensioni della gallery sono misurate separatamente nella suite accessibilità.
 
 Le prove non certificano WCAG completa, esperienza con un lettore di schermo reale, Safari, stock/valuta live, webfont remoti, velocità Shopify, SEO pubblicata o pagamenti. Nessuna stima di aumento conversioni.
+
+I log testuali conservati in Git hanno solo spazi finali e righe vuote a fine file normalizzati; risultati, messaggi e conteggi sono invariati.

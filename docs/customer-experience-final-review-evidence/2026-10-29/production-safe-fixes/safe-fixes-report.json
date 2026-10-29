@@ -1,0 +1,27 @@
+{
+  "browser": "156.0.8078.49",
+  "synthetic": true,
+  "checks": [
+    {
+      "name": "NotFound diretto e navigazione: noindex, canonical, niente residui PDP e ripristino home",
+      "status": "PASS"
+    },
+    {
+      "name": "JSON-LD descrittivo, cleanup al loading/missing/error, nessun dato commerciale",
+      "status": "PASS"
+    },
+    {
+      "name": "Uscita dal catalogo cancella la richiesta; cambio query locale riusa il set completo",
+      "status": "PASS"
+    },
+    {
+      "name": "Catalogo leggero: sort e filtri globali, homepage con descrizione invariata",
+      "status": "PASS"
+    }
+  ],
+  "pageErrors": [],
+  "summary": {
+    "passed": 4,
+    "failed": 0
+  }
+}

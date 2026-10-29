@@ -91,7 +91,9 @@ Controllati solo prototipo e immagini: sei catture complete; reflow a 320/375/39
 
 Non eseguiti nuovi typecheck/build/lint/test React, prove checkout, screen reader reale, performance live o pagamenti. Nessun audit completo WCAG. Gli esiti Fase 7 rimangono storici.
 
-## 9. Decisione richiesta
+## 9. Decisione richiesta nella proposta — archivio pre-approvazione
+
+**Stato attuale:** direzione successivamente approvata dall’utente con font sans attuali e implementata nella Fase 8. La review Fase 9 conferma le sei viste. I paragrafi seguenti registrano la richiesta precedente; non sono un gate ancora pendente.
 
 Approvare o correggere: hero contenuta e card morbide, pillole funzionali, PDP con acquisto anticipato, CTA verde primaria e secondaria con bordo, font sans esistenti come default. L'eventuale titolo serif può essere approvato separatamente senza nuovi font.
 

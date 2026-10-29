@@ -1,0 +1,37 @@
+{
+  "applicationSnapshot": "de591a5059be75ff683a3b82e789b7eea116c5f5",
+  "base": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+  "typecheck": "PASS",
+  "lint": "PASS: 11 frontend TS/TSX + new domain test --no-ignore",
+  "build": "PASS with pre-existing warnings",
+  "nodePassed": 339,
+  "denoPassed": 92,
+  "packaging": "PASS:21/12",
+  "browser": {
+    "responsive": {
+      "passed": 15,
+      "failed": 0
+    },
+    "accessibility": {
+      "passed": 10,
+      "failed": 0
+    },
+    "production-scalability": {
+      "passed": 6,
+      "failed": 0
+    },
+    "production-safe-fixes": {
+      "passed": 4,
+      "failed": 0
+    },
+    "production-integration": {
+      "passed": 3,
+      "failed": 0
+    },
+    "compact": {
+      "passed": 4,
+      "failed": 0
+    }
+  },
+  "browserPassed": 42
+}

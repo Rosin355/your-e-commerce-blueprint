@@ -43,3 +43,14 @@ Impostare `PLAYWRIGHT_MODULE` se il runtime è esterno e `UX_OUTPUT_DIR` per cia
 Il primo produce sei coppie di screenshot viewport/interi, coordinate e controlli variante/prezzo/cart. Il secondo verifica sei larghezze, stato/tastiera/focus, target 44px inclusi header e chiusura zoom (a transizione conclusa), gallery prima/dopo il caricamento ritardato, prezzo fisso/range, formati allo stesso prezzo, indisponibilità, contrasto alert checkout e stato menu. Il controllo ARIA non sostituisce un test con lettore di schermo reale.
 
 [Report e confronti del lotto](../../docs/customer-experience-implementation-evidence/2026-10-29/README.md). `storefront-money.test.ts` viene eseguito dal runner dominio con Node; lint esplicito con `npx eslint --no-ignore scripts/tests/storefront-money.test.ts`.
+
+
+## Final review Fase 9 — viewport mobili compatti
+
+`customer-experience-final-review.mjs` usa le stesse fixture isolate e richiede dev per leggere il cartStore. Esegue 320×568, 375×812, 390×844 e 430×932: selezione formato/prezzo, touch target e occlusione effettiva, quantità nella sticky, riga cart/subtotale, errore e retry del checkout nella stessa scheda, zoom/focus e indisponibilità. Attende le transizioni dei dialog e la scomparsa automatica del toast di errore esistente; cattura entrambi gli stati. Nessun ordine o pagamento reale.
+
+```sh
+UX_BASE_URL=http://127.0.0.1:8099 node scripts/ux-audit/customer-experience-final-review.mjs
+```
+
+Definire `PLAYWRIGHT_MODULE` e `UX_OUTPUT_DIR` come per gli altri harness. [Esiti Fase 9](../../docs/customer-experience-final-review-evidence/2026-10-29/README.md).

@@ -1,3 +1,13 @@
+## 29 ottobre 2026 — Review finale Customer Experience completata
+
+**Valutazione visuale e verifiche locali positive.** Homepage, catalogo e scheda prodotto rispettano la direzione approvata; mantenuti font, crema/verde, fotografie e identità Online Garden. Verificati anche formato, prezzo e barra acquisto su telefoni compatti, con carrello e checkout simulato.
+
+431 test di dominio e 42 scenari browser positivi. Nessun cambiamento applicativo ulteriore; amministrazione, dati e servizi restano invariati. Il toast errore esistente può coprire brevemente il fondo del carrello sui telefoni bassi: scompare automaticamente e il retry è verificato. Le conferme commerciali di Marco, i test live e l’audit accessibilità completo restano aperti.
+
+È ora autorizzata la pubblicazione del solo branch di sviluppo e una Draft PR separata, dipendente dalla PR #39. **Il negozio non viene distribuito online.** Esiti GitHub e URL saranno registrati dopo l’apertura; nessun merge o deploy. [Final review](CUSTOMER-EXPERIENCE-FINAL-REVIEW.md) · [Screenshot e nuove verifiche](customer-experience-final-review-evidence/2026-10-29/README.md). La cronologia precedente resta conservata.
+
+---
+
 ## 29 ottobre 2026 — Nuova esperienza implementata e pronta per review
 
 **La direzione approvata è ora applicata in una copia di lavoro separata; il negozio online non è stato pubblicato o modificato.** Restano font, colori crema/verde, marchio e fotografie Online Garden. Homepage e catalogo hanno hero più compatta, card arrotondate e accessi diretti alle categorie. La scheda prodotto porta prima nome, prezzo e scelta del formato; il pulsante principale è verde e la barra mobile segue la variante selezionata.
