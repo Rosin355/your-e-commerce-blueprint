@@ -527,7 +527,7 @@ const AllProducts = () => {
                     Filtra e ordina {activeFilterCount > 0 ? `(${activeFilterCount})` : ""}
                   </button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[92%] max-w-sm overflow-y-auto border-border bg-background">
+                <SheetContent side="left" className="og-storefront-dialog w-[92%] max-w-sm overflow-y-auto border-border bg-background">
                   <SheetHeader>
                     <SheetTitle className="font-heading text-xl text-foreground">Filtri</SheetTitle>
                   </SheetHeader>

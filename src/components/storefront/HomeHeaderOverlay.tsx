@@ -98,7 +98,7 @@ const BrandMark = ({ compact = false }: { compact?: boolean }) => {
     ? "text-[0.82rem] tracking-[0.05em] min-[360px]:text-[0.95rem] min-[360px]:tracking-[0.08em] sm:text-[1.1rem] sm:tracking-[0.12em]"
     : "text-[1.6rem] tracking-[0.12em]";
   return (
-    <span className={`inline-flex items-center whitespace-nowrap ${compact ? "gap-1.5 sm:gap-2" : "gap-2"}`}>
+    <span className={`inline-flex items-center whitespace-nowrap ${compact ? "gap-1.5 max-[359px]:flex-col max-[359px]:gap-0.5 sm:gap-2" : "gap-2"}`}>
       <span className={`${wordClass} font-['Playfair_Display'] font-semibold leading-none text-primary-dark`}>
         ONLINE
       </span>
@@ -169,7 +169,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
             <Link
               to="/"
               aria-label="Homepage di Online Garden"
-              className="shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+              className="shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark"
             >
               <BrandMark compact />
             </Link>
@@ -184,7 +184,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                   onClick={() => !item.isComingSoon && setActiveItem(item)}
                   aria-expanded={item.isComingSoon ? undefined : activeItem?.label === item.label}
                   aria-controls={activeItem?.label === item.label ? "storefront-category-panel" : undefined}
-                  className={`group relative inline-flex min-h-11 items-center gap-1.5 rounded-md px-2.5 py-1 text-left text-[14.5px] font-semibold leading-[1.2] tracking-[0.01em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 after:absolute after:inset-x-2.5 after:bottom-0.5 after:h-[2px] after:rounded-full after:bg-primary after:transition-transform after:duration-300 motion-reduce:after:transition-none ${
+                  className={`group relative inline-flex min-h-11 items-center gap-1.5 rounded-md px-2.5 py-1 text-left text-[14.5px] font-semibold leading-[1.2] tracking-[0.01em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark after:absolute after:inset-x-2.5 after:bottom-0.5 after:h-[2px] after:rounded-full after:bg-primary after:transition-transform after:duration-300 motion-reduce:after:transition-none ${
                     item.isComingSoon
                       ? "cursor-default text-muted-foreground after:hidden"
                       : activeItem?.label === item.label
@@ -213,7 +213,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                 onClick={() => setIsDesktopSearchOpen((v) => !v)}
                 aria-label="Cerca piante"
                 aria-expanded={isDesktopSearchOpen}
-                className="inline-flex h-10 min-w-[160px] items-center gap-2 rounded-full border border-primary/30 bg-white pl-3.5 pr-4 text-left text-[14.5px] font-medium text-foreground/70 shadow-soft transition-colors hover:border-primary/55 hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 min-[1440px]:min-w-[200px]"
+                className="inline-flex h-10 min-w-[160px] items-center gap-2 rounded-full border border-primary/30 bg-white pl-3.5 pr-4 text-left text-[14.5px] font-medium text-foreground/70 shadow-soft transition-colors hover:border-primary/55 hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark min-[1440px]:min-w-[200px]"
               >
                 <Search className="h-[18px] w-[18px] shrink-0 text-primary-dark" strokeWidth={2.25} />
                 <span className="min-[1440px]:hidden">Cerca</span>
@@ -222,7 +222,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
 
               <a
                 href="mailto:info@onlinegarden.it"
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-white text-primary-dark transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-white text-primary-dark transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark"
                 aria-label="Contattaci via email"
               >
                 <Mail className="h-[18px] w-[18px]" strokeWidth={2.25} />
@@ -296,7 +296,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                           key={link.label}
                           to={link.href}
                           onClick={() => setActiveItem(null)}
-                          className="group flex items-center gap-3 rounded-lg border-b border-border/50 py-2.5 pr-2 text-[15px] font-medium text-foreground transition-colors hover:bg-muted/60 hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                          className="group flex items-center gap-3 rounded-lg border-b border-border/50 py-2.5 pr-2 text-[15px] font-medium text-foreground transition-colors hover:bg-muted/60 hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark"
                         >
                           {link.image ? (
                             <img
@@ -323,7 +323,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                     <Link
                       to={activeItem.catalogHref}
                       onClick={() => setActiveItem(null)}
-                      className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-5 py-2.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-primary-foreground shadow-sm transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                      className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-5 py-2.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-primary-foreground shadow-sm transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark"
                     >
                       Vai al catalogo
                       <ChevronRight className="h-4 w-4" />
@@ -336,7 +336,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                         key={card.title}
                         to={card.href}
                         onClick={() => setActiveItem(null)}
-                        className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-500 hover:shadow-lg hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                        className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-500 hover:shadow-lg hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark"
                       >
                         <div className="relative aspect-[4/5] w-full overflow-hidden">
                           {card.image ? (
@@ -371,13 +371,13 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
 
         {/* MOBILE + TABLET (fino a 1279px: sotto xl il layout desktop sarebbe compresso) */}
         <div className="py-2 xl:hidden">
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-1 sm:gap-3">
             <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-full border border-border bg-white text-primary-dark hover:bg-muted sm:h-10 sm:w-10"
+                  className="h-11 w-11 rounded-full border border-border bg-white text-primary-dark hover:bg-muted"
                   aria-label="Apri menu"
                 >
                   <Menu className="h-5 w-5" strokeWidth={2.25} />
@@ -385,7 +385,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               </SheetTrigger>
               {/* Drawer: header fisso + body scrollabile (flex-1 min-h-0) così tutte le
                   categorie e il contatto email in fondo restano raggiungibili. */}
-              <SheetContent side="left" className="flex h-full w-[92%] max-w-sm flex-col overflow-hidden border-border bg-background">
+              <SheetContent side="left" className="og-storefront-dialog flex h-full w-[92%] max-w-sm flex-col overflow-hidden border-border bg-background">
                 <SheetHeader className="shrink-0">
                   <SheetTitle className="font-heading text-2xl text-primary-dark">Online Garden</SheetTitle>
                 </SheetHeader>
@@ -465,11 +465,11 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               <BrandMark compact />
             </Link>
 
-            <div className="flex items-center gap-1 sm:gap-1.5">
+            <div className="flex items-center gap-0.5 sm:gap-1.5">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 rounded-full border border-border bg-white text-primary-dark hover:bg-muted sm:h-10 sm:w-10"
+                className="h-11 w-11 rounded-full border border-border bg-white text-primary-dark hover:bg-muted"
                 onClick={() => setIsMobileSearchOpen((prev) => !prev)}
                 aria-label={isMobileSearchOpen ? "Chiudi ricerca" : "Apri ricerca"}
                 aria-expanded={isMobileSearchOpen}
@@ -478,12 +478,12 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
               </Button>
               <Link
                 to="/auth"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-primary-dark transition-colors hover:bg-muted sm:h-10 sm:w-10"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-primary-dark transition-colors hover:bg-muted"
                 aria-label="Area account"
               >
                 <User className="h-5 w-5" strokeWidth={2.25} />
               </Link>
-              <div className="[&_button>span]:hidden [&_button_svg]:h-5 [&_button_svg]:w-5 [&_button]:h-9 [&_button]:w-9 [&_button]:rounded-full [&_button]:border [&_button]:border-border [&_button]:bg-white [&_button]:text-primary-dark [&_button]:hover:bg-muted sm:[&_button]:h-10 sm:[&_button]:w-10">
+              <div className="[&_button>span]:hidden [&_button_svg]:h-5 [&_button_svg]:w-5 [&_button]:h-11 [&_button]:w-11 [&_button]:rounded-full [&_button]:border [&_button]:border-border [&_button]:bg-white [&_button]:text-primary-dark [&_button]:hover:bg-muted">
                 <CartDrawer />
               </div>
             </div>
@@ -494,7 +494,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
             <button
               type="button"
               onClick={() => setIsMobileSearchOpen(true)}
-              className="mt-2 flex w-full items-center gap-2.5 rounded-full border-2 border-primary/25 bg-white px-4 py-2 text-left text-sm font-medium text-muted-foreground shadow-soft"
+              className="mt-2 flex min-h-11 w-full items-center gap-2.5 rounded-full border-2 border-primary/25 bg-white px-4 py-2 text-left text-sm font-medium text-muted-foreground shadow-soft"
               aria-label="Apri ricerca prodotti"
             >
               <Search className="h-5 w-5 text-primary-dark" strokeWidth={2.25} />

@@ -942,7 +942,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       )}
 
       <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
-        <DialogContent aria-describedby={undefined} onCloseAutoFocus={(event) => { event.preventDefault(); zoomTrigger.current?.focus(); }} className="max-w-5xl p-6">
+        <DialogContent aria-describedby={undefined} onCloseAutoFocus={(event) => { event.preventDefault(); zoomTrigger.current?.focus(); }} className="og-storefront-dialog max-w-5xl p-6">
           <DialogTitle className="sr-only">Immagine di {node.title}</DialogTitle>
           {images[selectedImage] && <img src={images[selectedImage].node.url} alt={images[selectedImage].node.altText || node.title} className="max-h-[80dvh] w-full object-contain" />}
         </DialogContent>

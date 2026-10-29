@@ -59,7 +59,7 @@ export const ProductCard = ({ product, dark = false }: ProductCardProps) => {
       <div className="space-y-3 p-3 md:p-4">
         <h3 className="line-clamp-2 break-words font-heading text-base font-semibold leading-6 text-foreground md:text-lg"><Link to={`/products/${node.handle}`}>{node.title}</Link></h3>
         {shortDescription && <p className="line-clamp-2 text-xs leading-5 text-muted-foreground">{shortDescription}</p>}
-        {firstVariant?.selectedOptions?.[0]?.value && <p className="text-xs text-muted-foreground">{hasMultipleVariants ? "Più formati" : firstVariant.selectedOptions[0].value}</p>}
+        {firstVariant?.selectedOptions?.[0]?.value && <p className="text-xs text-muted-foreground">{hasMultipleVariants ? "Più varianti" : firstVariant.selectedOptions[0].value}</p>}
         <p className="text-lg font-semibold text-primary-dark">{formatProductPrice(node.priceRange)}</p>
         <Button onClick={handleAddToCart} disabled={!inStock || isCheckingOut} size="sm" className="min-h-11 w-full gap-1.5 rounded-lg px-2 text-[11px] font-semibold">
           <CheckCircle2 className="h-4 w-4 shrink-0" />{hasMultipleVariants ? "Scegli formato" : "Aggiungi"}

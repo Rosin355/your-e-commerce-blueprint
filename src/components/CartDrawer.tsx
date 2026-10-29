@@ -65,7 +65,7 @@ export const CartDrawer = () => {
         </Button>
       </SheetTrigger>
       
-      <SheetContent className="w-full sm:max-w-lg flex flex-col h-full pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <SheetContent className="og-storefront-dialog w-full sm:max-w-lg flex flex-col h-full pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         <SheetHeader className="flex-shrink-0">
           <SheetTitle>Carrello</SheetTitle>
           <SheetDescription>

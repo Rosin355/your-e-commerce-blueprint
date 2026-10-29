@@ -259,3 +259,19 @@ All colors MUST be HSL.
     .og-pdp-editorial { padding-top: 2rem; }
   }
 }
+
+@layer components {
+  .og-storefront-dialog > button {
+    min-width: 44px;
+    min-height: 44px;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .og-storefront-dialog > button:focus-visible {
+    outline: 2px solid hsl(var(--primary-dark));
+    outline-offset: 2px;
+  }
+}
