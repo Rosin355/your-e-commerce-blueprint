@@ -229,3 +229,33 @@ All colors MUST be HSL.
     scroll-margin-block: 12rem 7rem;
   }
 }
+
+/* Customer Experience 2.0: scoped storefront additions, no Admin token overrides. */
+@layer components {
+  .og-storefront, .og-product-card, .og-catalog-card {
+    --og-radius-card: 0.875rem;
+  }
+  .og-storefront-error { color: hsl(0 64% 35%); }
+  .og-storefront :is(button, a):focus-visible {
+    outline: 2px solid hsl(var(--primary-dark));
+    outline-offset: 4px;
+  }
+  .og-pdp-layout {
+    display: grid;
+    grid-template-areas: "identity" "gallery" "buy" "editorial";
+    gap: 1.25rem;
+  }
+  .og-pdp-identity { grid-area: identity; }
+  .og-pdp-gallery { grid-area: gallery; }
+  .og-pdp-buy { grid-area: buy; }
+  .og-pdp-editorial { grid-area: editorial; padding-top: 1rem; }
+  @media (min-width: 1024px) {
+    .og-pdp-layout {
+      grid-template-areas: "gallery identity" "gallery buy" "editorial editorial";
+      grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+      grid-template-rows: auto 1fr auto;
+      column-gap: 3.5rem;
+    }
+    .og-pdp-editorial { padding-top: 2rem; }
+  }
+}

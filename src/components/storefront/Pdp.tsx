@@ -73,9 +73,6 @@ const SLOT_STYLES: Record<SeasonalCalendarSlot["id"], { bar: string; legend: str
   harvest:   { bar: "bg-[#e8c87a]", legend: "bg-[#e8c87a]" },
 };
 
-const BuyNowColor = "#B4483C";
-const BuyNowHoverColor = "#9A3A2F";
-
 const colorSwatchMap: Record<string, string> = {
   verde: "#4a7a4a",
   "verde chiaro": "#7ba77b",
@@ -275,14 +272,12 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const descriptionParagraphs = node.description
     ? node.description.split(/\n+/).map((item) => item.trim()).filter(Boolean)
     : [];
-  const descriptionText =
-    descriptionParagraphs.join(" ") ||
-    "Una selezione outdoor pensata per valorizzare terrazzi, balconi e giardini con eleganza naturale.";
+  const descriptionText = descriptionParagraphs.join(" ");
   const hasLongDescription = descriptionText.length > 220;
   const shortDescription = hasLongDescription ? `${descriptionText.slice(0, 220).trim()}...` : descriptionText;
 
   return (
-    <main id="main-content" tabIndex={-1} className="bg-background pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">
+    <main id="main-content" tabIndex={-1} className="og-storefront bg-background pb-[calc(7rem+env(safe-area-inset-bottom))] md:pb-0">
       <a
         href="#product-info"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] bg-background/95 px-4 py-2 text-sm font-semibold text-foreground shadow-soft"
@@ -290,7 +285,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
         Salta alle informazioni del prodotto
       </a>
 
-      <div className="container mx-auto max-w-[1200px] px-4 pt-6 md:pt-8">
+      <div className="container mx-auto max-w-[1200px] px-4 pt-3 md:pt-5">
         <nav className="flex items-center gap-2 text-xs text-muted-foreground">
           <button type="button" onClick={() => navigate("/")} className="hover:text-foreground">
             Home
@@ -305,8 +300,22 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       </div>
 
       <section className="container mx-auto max-w-[1200px] px-4 py-5 md:py-7">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start lg:gap-14">
-          <div className="min-w-0 max-w-full space-y-8 [overflow-wrap:anywhere]">
+        <div className="og-pdp-layout">
+          <div className="og-pdp-identity min-w-0">
+            <h1 className="text-[1.75rem] font-heading font-semibold leading-[1.1] text-foreground md:text-[2.25rem]">
+              {node.title}
+            </h1>
+            {botanical.botanicalName && (
+              <p className="mt-1.5 text-sm italic text-muted-foreground">{botanical.botanicalName}</p>
+            )}
+
+            <p className="mt-2.5 text-[1.6rem] font-heading font-semibold text-foreground">
+              {formatMoney(price)}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Tasse incluse.</p>
+
+          </div>
+          <div className="og-pdp-gallery min-w-0">
             <div className={hasMultipleImages ? "lg:grid lg:grid-cols-[80px_minmax(0,1fr)] lg:gap-3" : ""}>
               {hasMultipleImages && (
                 <div className="hidden lg:order-1 lg:flex lg:flex-col lg:gap-3">
@@ -319,6 +328,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                         selectedImage === idx ? "border-primary ring-2 ring-primary ring-offset-2" : "border-border/60"
                       }`}
                       aria-label={`Immagine ${idx + 1}`}
+                      aria-pressed={selectedImage === idx}
                     >
                       <img src={img.node.url} alt={img.node.altText || ""} className="h-full w-full object-contain lg:object-cover" />
                     </button>
@@ -327,12 +337,12 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               )}
 
               <div className="min-w-0 lg:order-2">
-                <div className="group relative w-full overflow-hidden border border-border/60 bg-muted">
+                <div className="group relative w-full overflow-hidden rounded-[var(--og-radius-card)] border border-border/60 bg-muted">
                   <button
                     type="button"
                     ref={zoomTrigger}
                     onClick={() => setZoomOpen(true)}
-                    className="block h-[min(62svh,460px)] w-full sm:h-[min(68svh,560px)] lg:aspect-[5/6] lg:h-auto"
+                    className="block h-[min(45svh,340px)] w-full sm:h-[min(55svh,480px)] lg:aspect-[5/6] lg:h-auto"
                     aria-label="Ingrandisci immagine"
                   >
                     {images[selectedImage] ? (
@@ -352,7 +362,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                       <button
                         type="button"
                         onClick={() => setSelectedImage((i) => (i - 1 + images.length) % images.length)}
-                        className="absolute left-4 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 text-foreground shadow-soft hover:bg-background"
+                        className="absolute left-4 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 text-foreground shadow-soft hover:bg-background"
                         aria-label="Immagine precedente"
                       >
                         <ChevronLeft className="h-4 w-4" />
@@ -360,7 +370,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                       <button
                         type="button"
                         onClick={() => setSelectedImage((i) => (i + 1) % images.length)}
-                        className="absolute right-4 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 text-foreground shadow-soft hover:bg-background"
+                        className="absolute right-4 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 text-foreground shadow-soft hover:bg-background"
                         aria-label="Immagine successiva"
                       >
                         <ChevronRight className="h-4 w-4" />
@@ -381,6 +391,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                         selectedImage === idx ? "border-primary ring-2 ring-primary ring-offset-2" : "border-border/60"
                       }`}
                       aria-label={`Immagine ${idx + 1}`}
+                      aria-pressed={selectedImage === idx}
                     >
                       <img src={img.node.url} alt={img.node.altText || ""} className="h-full w-full object-cover" />
                     </button>
@@ -389,6 +400,180 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               )}
             </div>
 
+          </div>
+          <aside id="product-info" tabIndex={-1} className="og-pdp-buy min-w-0 scroll-mt-48">
+            <p role="status" aria-atomic="true" className="sr-only">
+              {selectedVariant ? `${selectedVariant.title}, ${formatMoney(price)}, ${selectedVariant.availableForSale ? "disponibile" : "non disponibile"}` : "Nessuna variante selezionata"}
+            </p>
+            {optionGroups.map((group) => {
+              // Nascondi l'opzione "Title / Default Title" di Shopify per prodotti senza varianti reali
+              const isDefaultTitleOnly =
+                group.values.length <= 1 &&
+                (/^title$/i.test(group.name) || /^default title$/i.test(group.selectedValue));
+              if (isDefaultTitleOnly) return null;
+              const isColorGroup = /color|colore|tonalit/i.test(group.name);
+              return (
+                <div key={group.name} role="group" aria-label={group.name} className="mt-4 first:mt-0">
+                  <p className="text-sm text-foreground">
+                    <span className="font-semibold">{group.name}:</span>{" "}
+                    <span className="text-muted-foreground">{group.selectedValue}</span>
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {group.values.map(({ value, available }) => {
+                      const isActive = group.selectedValue === value;
+
+                      if (isColorGroup) {
+                        const swatch = colorSwatchMap[value.toLowerCase()] || "#e2ded4";
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => handleOptionChange(group.name, value)}
+                            title={value}
+                            className={`relative h-11 w-11 overflow-hidden border transition-all ${
+                              isActive ? "border-primary ring-2 ring-primary ring-offset-2" : "border-border"
+                            } ${!available ? "opacity-60" : ""}`}
+                            style={{ backgroundColor: swatch }}
+                            aria-label={value}
+                            aria-pressed={isActive}
+                            disabled={!available}
+                          >
+                            {!available && (
+                              <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top_right,transparent_47%,rgba(0,0,0,0.55)_48%,rgba(0,0,0,0.55)_52%,transparent_53%)]" />
+                            )}
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => available && handleOptionChange(group.name, value)}
+                          disabled={!available}
+                          aria-pressed={isActive}
+                          className={`relative min-h-11 min-w-[76px] rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                            isActive
+                              ? "border-primary bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2"
+                              : "border-border bg-background text-foreground hover:border-foreground/60"
+                          } ${!available ? "cursor-not-allowed text-muted-foreground" : ""}`}
+                        >
+                          {value}
+                          {!available && (
+                            <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top_right,transparent_47%,rgba(0,0,0,0.2)_48%,rgba(0,0,0,0.2)_52%,transparent_53%)]" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+
+            <div className="mt-5">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="inline-block h-2 w-2 rounded-full bg-primary" />
+                <span className="text-foreground">
+                  {selectedVariant?.availableForSale ? "Disponibile" : "Non disponibile"}
+                </span>
+              </div>
+
+            </div>
+
+            <div className="mt-4 flex items-center gap-2.5">
+              <div className="inline-flex h-11 items-center rounded-lg border border-border bg-background">
+                <button
+                  type="button"
+                  aria-label="Riduci quantita"
+                  className="flex h-full w-11 shrink-0 items-center justify-center text-foreground"
+                  disabled={quantity <= 1 || isCheckingOut}
+                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="min-w-8 px-1 text-center text-sm font-semibold text-foreground">{quantity}</span>
+                <button
+                  type="button"
+                  aria-label="Aumenta quantita"
+                  className="flex h-full w-11 shrink-0 items-center justify-center text-foreground"
+                  disabled={isCheckingOut}
+                  onClick={() => setQuantity((value) => value + 1)}
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={!selectedVariant?.availableForSale || isCheckingOut}
+                className="min-h-11 flex-1 rounded-lg border border-primary bg-primary px-2 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Aggiungi al carrello
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleBuyNow}
+              disabled={!selectedVariant?.availableForSale || isCheckingOut}
+              className="mt-2.5 h-11 w-full rounded-lg border border-primary bg-background text-sm font-semibold text-primary-dark transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isCheckingOut ? "Preparazione checkout…" : "Acquista ora"}
+            </button>
+
+            {inCartQuantity > 0 && (
+              <p className="mt-2 text-xs text-muted-foreground">Gia nel carrello: {inCartQuantity}</p>
+            )}
+
+            <div className="mt-4 flex items-center gap-3">
+              <p className="text-sm font-semibold text-foreground">Condividi:</p>
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <a
+                  href={`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full hover:text-foreground"
+                  aria-label="Condividi su Facebook"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full hover:text-foreground"
+                  aria-label="Condividi su Twitter"
+                >
+                  <Twitter className="h-4 w-4" />
+                </a>
+                <button
+                  type="button"
+                  onClick={handleShareCopy}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full hover:text-foreground"
+                  aria-label="Copia link"
+                >
+                  <Link2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </aside>
+          <div className="og-pdp-editorial min-w-0 max-w-full space-y-6 [overflow-wrap:anywhere]">
+            {descriptionText && <section aria-label="Descrizione prodotto" className="rounded-[var(--og-radius-card)] border border-border bg-card p-5 md:p-7">
+              <h2 className="text-lg font-semibold text-foreground">Descrizione</h2>
+            <p className="mt-4 text-[15px] leading-7 text-foreground/85">
+              {descriptionExpanded ? descriptionText : shortDescription}
+            </p>
+            {hasLongDescription && (
+              <button
+                type="button"
+                onClick={() => setDescriptionExpanded((prev) => !prev)}
+                className="mt-2 text-sm font-semibold text-foreground underline underline-offset-4"
+              >
+                {descriptionExpanded ? "Leggi meno" : "Leggi di piu"}
+              </button>
+            )}
+
+            </section>}
             {hasBotanicalCard && (
               <div className="border border-border bg-card p-5 md:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-dark">
@@ -574,217 +759,6 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               <div className="mt-3"><PaymentInformation /></div>
             </div>
           </div>
-
-          <aside id="product-info" tabIndex={-1} className="min-w-0 scroll-mt-48 lg:sticky lg:top-28 lg:self-start">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-dark">Online Garden</p>
-            <h1 className="mt-2 text-[2rem] font-heading font-semibold leading-[1.1] text-foreground md:text-[2.25rem]">
-              {node.title}
-            </h1>
-            {botanical.botanicalName && (
-              <p className="mt-1.5 text-sm italic text-muted-foreground">{botanical.botanicalName}</p>
-            )}
-
-            <p className="mt-2.5 text-[1.6rem] font-heading font-semibold text-foreground">
-              {formatMoney(price)}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">Tasse incluse.</p>
-
-            <hr className="mt-4 border-border/70" />
-
-            <p className="mt-4 text-[15px] leading-7 text-foreground/85">
-              {descriptionExpanded ? descriptionText : shortDescription}
-            </p>
-            {hasLongDescription && (
-              <button
-                type="button"
-                onClick={() => setDescriptionExpanded((prev) => !prev)}
-                className="mt-2 text-sm font-semibold text-foreground underline underline-offset-4"
-              >
-                {descriptionExpanded ? "Leggi meno" : "Leggi di piu"}
-              </button>
-            )}
-
-            {optionGroups.map((group) => {
-              // Nascondi l'opzione "Title / Default Title" di Shopify per prodotti senza varianti reali
-              const isDefaultTitleOnly =
-                group.values.length <= 1 &&
-                (/^title$/i.test(group.name) || /^default title$/i.test(group.selectedValue));
-              if (isDefaultTitleOnly) return null;
-              const isColorGroup = /color|colore|tonalit/i.test(group.name);
-              return (
-                <div key={group.name} className="mt-4">
-                  <p className="text-sm text-foreground">
-                    <span className="font-semibold">{group.name}:</span>{" "}
-                    <span className="text-muted-foreground">{group.selectedValue}</span>
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {group.values.map(({ value, available }) => {
-                      const isActive = group.selectedValue === value;
-
-                      if (isColorGroup) {
-                        const swatch = colorSwatchMap[value.toLowerCase()] || "#e2ded4";
-                        return (
-                          <button
-                            key={value}
-                            type="button"
-                            onClick={() => handleOptionChange(group.name, value)}
-                            title={value}
-                            className={`relative h-10 w-10 overflow-hidden border transition-all ${
-                              isActive ? "border-primary ring-2 ring-primary ring-offset-2" : "border-border"
-                            } ${!available ? "opacity-60" : ""}`}
-                            style={{ backgroundColor: swatch }}
-                            aria-label={value}
-                          >
-                            {!available && (
-                              <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top_right,transparent_47%,rgba(0,0,0,0.55)_48%,rgba(0,0,0,0.55)_52%,transparent_53%)]" />
-                            )}
-                          </button>
-                        );
-                      }
-
-                      return (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => available && handleOptionChange(group.name, value)}
-                          disabled={!available}
-                          className={`relative min-w-[76px] border px-4 py-2 text-sm font-medium transition-colors ${
-                            isActive
-                              ? "border-primary text-foreground"
-                              : "border-border bg-background text-foreground hover:border-foreground/60"
-                          } ${!available ? "cursor-not-allowed text-muted-foreground" : ""}`}
-                        >
-                          {value}
-                          {!available && (
-                            <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top_right,transparent_47%,rgba(0,0,0,0.2)_48%,rgba(0,0,0,0.2)_52%,transparent_53%)]" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-
-            <div className="mt-5">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="inline-block h-2 w-2 rounded-full bg-primary" />
-                <span className="text-foreground">
-                  {selectedVariant?.availableForSale ? "Disponibile" : "Non disponibile"}
-                </span>
-              </div>
-
-            </div>
-
-            <div className="mt-4 flex items-center gap-2.5">
-              <div className="inline-flex h-11 items-center border border-border bg-background">
-                <button
-                  type="button"
-                  aria-label="Riduci quantita"
-                  className="flex h-full items-center px-3 text-foreground"
-                  disabled={quantity <= 1 || isCheckingOut}
-                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="min-w-8 px-1 text-center text-sm font-semibold text-foreground">{quantity}</span>
-                <button
-                  type="button"
-                  aria-label="Aumenta quantita"
-                  className="flex h-full items-center px-3 text-foreground"
-                  disabled={isCheckingOut}
-                  onClick={() => setQuantity((value) => value + 1)}
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={!selectedVariant?.availableForSale || isCheckingOut}
-                className="min-h-11 flex-1 px-2 py-2 border border-foreground bg-background text-sm font-semibold text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Aggiungi al carrello
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleBuyNow}
-              disabled={!selectedVariant?.availableForSale || isCheckingOut}
-              style={{ backgroundColor: BuyNowColor }}
-              onMouseEnter={(event) => {
-                event.currentTarget.style.backgroundColor = BuyNowHoverColor;
-              }}
-              onMouseLeave={(event) => {
-                event.currentTarget.style.backgroundColor = BuyNowColor;
-              }}
-              className="mt-2.5 h-11 w-full text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isCheckingOut ? "Preparazione checkout…" : "Acquista ora"}
-            </button>
-
-            {inCartQuantity > 0 && (
-              <p className="mt-2 text-xs text-muted-foreground">Gia nel carrello: {inCartQuantity}</p>
-            )}
-
-            <div className="mt-5">
-              <p className="text-sm font-semibold text-foreground">Potrebbero interessarti</p>
-              <div className="mt-2.5 flex flex-wrap gap-2">
-                {relatedProducts.map((item) => (
-                  <button
-                    key={item.node.id}
-                    type="button"
-                    onClick={() => navigate(`/products/${item.node.handle}`)}
-                    className="inline-flex items-center gap-2 border border-border bg-background px-3 py-1.5 text-xs text-foreground/85 hover:border-foreground/60"
-                  >
-                    {item.node.images.edges[0]?.node?.url ? (
-                      <img
-                        src={item.node.images.edges[0].node.url}
-                        alt=""
-                        className="h-6 w-6 rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="h-6 w-6 rounded-full bg-muted" />
-                    )}
-                    <span className="truncate max-w-[140px]">{item.node.title}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-4 flex items-center gap-3">
-              <p className="text-sm font-semibold text-foreground">Condividi:</p>
-              <div className="flex items-center gap-3 text-muted-foreground">
-                <a
-                  href={`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-foreground"
-                  aria-label="Condividi su Facebook"
-                >
-                  <Facebook className="h-4 w-4" />
-                </a>
-                <a
-                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-foreground"
-                  aria-label="Condividi su Twitter"
-                >
-                  <Twitter className="h-4 w-4" />
-                </a>
-                <button
-                  type="button"
-                  onClick={handleShareCopy}
-                  className="hover:text-foreground"
-                  aria-label="Copia link"
-                >
-                  <Link2 className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </aside>
         </div>
       </section>
 
@@ -918,7 +892,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 key={item.node.id}
                 type="button"
                 onClick={() => navigate(`/products/${item.node.handle}`)}
-                className="group h-auto overflow-hidden border border-border bg-card p-0 text-left shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated"
+                className="group h-auto overflow-hidden rounded-[var(--og-radius-card)] border border-border bg-card p-0 text-left shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated"
               >
                 <div className="aspect-square w-full overflow-hidden bg-muted">
                   {item.node.images.edges[0]?.node ? (
@@ -947,20 +921,21 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
         )}
       </section>
 
-      {isMobile && (
-        <div className="fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur">
-          <div className="mx-auto flex max-w-2xl items-center gap-3 border border-border/70 bg-background/95 p-3 shadow-elevated">
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-foreground">{node.title}</p>
+      {isMobile && !zoomOpen && (
+        <div data-testid="sticky-add-to-cart" className="fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur">
+          <div className="mx-auto flex max-w-2xl items-center gap-3 rounded-[var(--og-radius-card)] border border-border/70 bg-background/95 p-3 shadow-elevated">
+            <div id="sticky-selected-variant" className="min-w-0 flex-1">
+              <p className="truncate text-xs font-medium text-foreground">{selectedVariant?.title && selectedVariant.title !== "Default Title" ? selectedVariant.title : node.title}</p>
               <p className="text-sm font-bold text-foreground">{formatMoney(price)}</p>
             </div>
             <button
               type="button"
               onClick={handleAddToCart}
               disabled={!selectedVariant?.availableForSale || isCheckingOut}
-              className="h-11 shrink-0 bg-primary px-4 text-sm font-semibold uppercase tracking-[0.12em] text-primary-foreground disabled:opacity-50"
+              aria-describedby="sticky-selected-variant"
+              className="h-11 shrink-0 rounded-lg bg-primary px-4 text-sm font-semibold uppercase tracking-[0.12em] text-primary-foreground disabled:opacity-50"
             >
-              {selectedVariant?.availableForSale ? "Aggiungi" : "Esaurito"}
+              {selectedVariant?.availableForSale ? (quantity > 1 ? `Aggiungi (${quantity})` : "Aggiungi") : "Esaurito"}
             </button>
           </div>
         </div>

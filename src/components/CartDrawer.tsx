@@ -161,7 +161,7 @@ export const CartDrawer = () => {
                 
                 <p className="text-xs text-muted-foreground">Spedizione ed eventuali aggiornamenti di prezzo e disponibilità saranno verificati al checkout.</p>
                 <PaymentInformation />
-                {checkoutError && <p role="alert" className="text-sm text-destructive">{checkoutError}</p>}
+                {checkoutError && <p role="alert" className="og-storefront-error text-sm">{checkoutError}</p>}
                 <Button 
                   onClick={handleCheckout}
                   className="w-full" 
