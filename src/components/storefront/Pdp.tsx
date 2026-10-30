@@ -1,3 +1,4 @@
+import { formatMoney, formatProductPrice } from "@/lib/storefront-money";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
@@ -274,14 +275,12 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const descriptionParagraphs = node.description
     ? node.description.split(/\n+/).map((item) => item.trim()).filter(Boolean)
     : [];
-  const descriptionText =
-    descriptionParagraphs.join(" ") ||
-    "Una selezione outdoor pensata per valorizzare terrazzi, balconi e giardini con eleganza naturale.";
+  const descriptionText = descriptionParagraphs.join(" ");
   const hasLongDescription = descriptionText.length > 220;
   const shortDescription = hasLongDescription ? `${descriptionText.slice(0, 220).trim()}...` : descriptionText;
 
   return (
-    <main id="main-content" tabIndex={-1} className="bg-background pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">
+    <main id="main-content" tabIndex={-1} className="og-storefront bg-background pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">
       <a
         href="#product-info"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] bg-background/95 px-4 py-2 text-sm font-semibold text-foreground shadow-soft"
@@ -318,6 +317,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                         selectedImage === idx ? "border-primary ring-2 ring-primary ring-offset-2" : "border-border/60"
                       }`}
                       aria-label={`Immagine ${idx + 1}`}
+                      aria-pressed={selectedImage === idx}
                     >
                       <img src={img.node.url} alt={img.node.altText || ""} className="h-full w-full object-contain lg:object-cover" />
                     </button>
@@ -380,6 +380,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                         selectedImage === idx ? "border-primary ring-2 ring-primary ring-offset-2" : "border-border/60"
                       }`}
                       aria-label={`Immagine ${idx + 1}`}
+                      aria-pressed={selectedImage === idx}
                     >
                       <img src={img.node.url} alt={img.node.altText || ""} className="h-full w-full object-cover" />
                     </button>
@@ -575,6 +576,9 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
           </div>
 
           <aside id="product-info" tabIndex={-1} className="min-w-0 scroll-mt-48 lg:sticky lg:top-28 lg:self-start">
+            <p id="selected-variant-status" role="status" aria-atomic="true" className="sr-only">
+              {selectedVariant ? `${selectedVariant.title}, ${formatMoney(price)}, ${selectedVariant.availableForSale ? "disponibile" : "non disponibile"}, quantità ${quantity}` : "Nessuna variante selezionata"}
+            </p>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-dark">Online Garden</p>
             <h1 className="mt-2 text-[2rem] font-heading font-semibold leading-[1.1] text-foreground md:text-[2.25rem]">
               {node.title}
@@ -584,7 +588,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             )}
 
             <p className="mt-2.5 text-[1.6rem] font-heading font-semibold text-foreground">
-              €{parseFloat(price.amount).toFixed(2)}
+              {formatMoney(price)}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">Tasse incluse.</p>
 
@@ -611,7 +615,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               if (isDefaultTitleOnly) return null;
               const isColorGroup = /color|colore|tonalit/i.test(group.name);
               return (
-                <div key={group.name} className="mt-4">
+                <div key={group.name} role="group" aria-label={group.name} className="mt-4">
                   <p className="text-sm text-foreground">
                     <span className="font-semibold">{group.name}:</span>{" "}
                     <span className="text-muted-foreground">{group.selectedValue}</span>
@@ -628,11 +632,13 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                             type="button"
                             onClick={() => handleOptionChange(group.name, value)}
                             title={value}
-                            className={`relative h-10 w-10 overflow-hidden border transition-all ${
+                            className={`relative h-11 w-11 overflow-hidden border transition-all ${
                               isActive ? "border-primary ring-2 ring-primary ring-offset-2" : "border-border"
                             } ${!available ? "opacity-60" : ""}`}
                             style={{ backgroundColor: swatch }}
                             aria-label={value}
+                            aria-pressed={isActive}
+                            disabled={!available}
                           >
                             {!available && (
                               <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top_right,transparent_47%,rgba(0,0,0,0.55)_48%,rgba(0,0,0,0.55)_52%,transparent_53%)]" />
@@ -647,7 +653,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                           type="button"
                           onClick={() => available && handleOptionChange(group.name, value)}
                           disabled={!available}
-                          className={`relative min-w-[76px] border px-4 py-2 text-sm font-medium transition-colors ${
+                          aria-pressed={isActive}
+                          className={`relative min-h-11 min-w-[76px] border px-4 py-2 text-sm font-medium transition-colors ${
                             isActive
                               ? "border-primary text-foreground"
                               : "border-border bg-background text-foreground hover:border-foreground/60"
@@ -680,7 +687,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 <button
                   type="button"
                   aria-label="Riduci quantita"
-                  className="flex h-full items-center px-3 text-foreground"
+                  className="flex h-full min-w-11 items-center justify-center px-3 text-foreground"
                   disabled={quantity <= 1 || isCheckingOut}
                   onClick={() => setQuantity((value) => Math.max(1, value - 1))}
                 >
@@ -690,7 +697,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 <button
                   type="button"
                   aria-label="Aumenta quantita"
-                  className="flex h-full items-center px-3 text-foreground"
+                  className="flex h-full min-w-11 items-center justify-center px-3 text-foreground"
                   disabled={isCheckingOut}
                   onClick={() => setQuantity((value) => value + 1)}
                 >
@@ -933,7 +940,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 <div className="w-full p-4">
                   <h3 className="text-base font-semibold text-foreground">{item.node.title}</h3>
                   <p className="mt-2 text-base font-semibold text-foreground">
-                    €{parseFloat(item.node.priceRange.minVariantPrice.amount).toFixed(2)}
+                    {formatProductPrice(item.node.priceRange)}
                   </p>
                 </div>
               </button>
@@ -946,17 +953,18 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
         )}
       </section>
 
-      {isMobile && (
-        <div className="fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur">
+      {isMobile && !zoomOpen && (
+        <div data-testid="sticky-add-to-cart" className="fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur">
           <div className="mx-auto flex max-w-2xl items-center gap-3 border border-border/70 bg-background/95 p-3 shadow-elevated">
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-foreground">{node.title}</p>
-              <p className="text-sm font-bold text-foreground">€{parseFloat(price.amount).toFixed(2)}</p>
+              <p className="text-sm font-bold text-foreground">{formatMoney(price)}</p>
             </div>
             <button
               type="button"
               onClick={handleAddToCart}
               disabled={!selectedVariant?.availableForSale || isCheckingOut}
+              aria-describedby="selected-variant-status"
               className="h-11 shrink-0 bg-primary px-4 text-sm font-semibold uppercase tracking-[0.12em] text-primary-foreground disabled:opacity-50"
             >
               {selectedVariant?.availableForSale ? "Aggiungi" : "Esaurito"}
@@ -966,7 +974,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
       )}
 
       <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
-        <DialogContent aria-describedby={undefined} onCloseAutoFocus={(event) => { event.preventDefault(); zoomTrigger.current?.focus(); }} className="max-w-5xl p-6">
+        <DialogContent aria-describedby={undefined} onCloseAutoFocus={(event) => { event.preventDefault(); zoomTrigger.current?.focus(); }} className="og-storefront-dialog max-w-5xl p-6">
           <DialogTitle className="sr-only">Immagine di {node.title}</DialogTitle>
           {images[selectedImage] && <img src={images[selectedImage].node.url} alt={images[selectedImage].node.altText || node.title} className="max-h-[80dvh] w-full object-contain" />}
         </DialogContent>

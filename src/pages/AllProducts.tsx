@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/storefront-money";
 import { useStorefrontSeo } from "@/hooks/useStorefrontSeo";
 import { CatalogProductCard } from "@/components/storefront/CatalogProductCard";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,6 @@ import { searchCatalogProducts } from "@/lib/storefrontDiscovery";
 
 type SortKey =
   | "featured"
-  | "best"
   | "az"
   | "za"
   | "price-asc"
@@ -23,7 +23,6 @@ type SortKey =
 
 const sortOptions: Array<{ key: SortKey; label: string }> = [
   { key: "featured", label: "In evidenza" },
-  { key: "best", label: "Piu venduti" },
   { key: "az", label: "Ordine alfabetico, A-Z" },
   { key: "za", label: "Ordine alfabetico, Z-A" },
   { key: "price-asc", label: "Prezzo, dal piu basso" },
@@ -109,7 +108,6 @@ const sortProducts = (products: CatalogProduct[], sort: SortKey): CatalogProduct
       return list.sort((a, b) =>
         (Date.parse(a.node.publishedAt ?? "") || 0) - (Date.parse(b.node.publishedAt ?? "") || 0),
       );
-    case "best":
     case "featured":
     default:
       return list;
@@ -202,7 +200,9 @@ const AllProducts = () => {
     const priceMinValue = priceList.length ? priceList.reduce((min, price) => Math.min(min, price), Infinity) : 0;
     const priceMaxValue = priceList.length ? priceList.reduce((max, price) => Math.max(max, price), -Infinity) : 0;
 
+    const currencies = [...new Set(searchScoped.map(product => product.node.priceRange.minVariantPrice.currencyCode))];
     return {
+      currencyCode: currencies.length === 1 ? currencies[0] : null,
       inStock,
       outOfStock,
       sizeOptions: Array.from(sizeOptions.entries()).map(([value, count]) => ({ value, count })),
@@ -402,11 +402,11 @@ const AllProducts = () => {
   const renderPriceGroup = (state: FilterState, setState: (value: FilterState) => void) => (
     <div>
       <p className="text-xs text-muted-foreground">
-        Il prezzo massimo e €{stats.priceMaxValue.toFixed(2)}
+        {stats.currencyCode ? `Il prezzo massimo in elenco è ${formatMoney({ amount: String(stats.priceMaxValue), currencyCode: stats.currencyCode })}` : "Prezzi nella valuta indicata sui prodotti"}
       </p>
       <div className="mt-3 flex items-center gap-2">
-        <div className="flex h-10 min-w-0 flex-1 items-center border border-border bg-background px-3">
-          <span className="mr-2 text-sm text-muted-foreground">€</span>
+        <div className="flex h-11 min-w-0 flex-1 items-center border border-border bg-background px-3">
+          <span className="mr-2 text-xs text-muted-foreground">{stats.currencyCode}</span>
           <input
             type="number"
             inputMode="decimal"
@@ -418,8 +418,8 @@ const AllProducts = () => {
             className="w-full min-w-0 bg-transparent text-sm text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           />
         </div>
-        <div className="flex h-10 min-w-0 flex-1 items-center border border-border bg-background px-3">
-          <span className="mr-2 text-sm text-muted-foreground">€</span>
+        <div className="flex h-11 min-w-0 flex-1 items-center border border-border bg-background px-3">
+          <span className="mr-2 text-xs text-muted-foreground">{stats.currencyCode}</span>
           <input
             type="number"
             inputMode="decimal"
@@ -471,7 +471,7 @@ const AllProducts = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="og-storefront min-h-screen flex flex-col bg-background">
       <SiteHeader variant="page" />
 
       <main id="main-content" tabIndex={-1} className="flex-1 pt-4 md:pt-6">
@@ -542,13 +542,13 @@ const AllProducts = () => {
                 <SheetTrigger asChild>
                   <button
                     type="button"
-                    className="inline-flex h-10 items-center gap-2 border border-border bg-background px-4 text-sm font-semibold text-foreground lg:hidden"
+                    className="inline-flex h-11 items-center gap-2 border border-border bg-background px-4 text-sm font-semibold text-foreground lg:hidden"
                   >
                     <SlidersHorizontal className="h-4 w-4" />
                     Filtra e ordina {activeFilterCount > 0 ? `(${activeFilterCount})` : ""}
                   </button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[92%] max-w-sm overflow-y-auto border-border bg-background">
+                <SheetContent side="left" className="og-storefront-dialog w-[92%] max-w-sm overflow-y-auto border-border bg-background">
                   <SheetHeader>
                     <SheetTitle className="font-heading text-xl text-foreground">Filtri</SheetTitle>
                   </SheetHeader>
@@ -566,7 +566,7 @@ const AllProducts = () => {
                     <button
                       type="button"
                       onClick={applyPendingFilters}
-                      className="h-10 flex-1 bg-foreground text-sm font-semibold text-background"
+                      className="h-11 flex-1 bg-foreground text-sm font-semibold text-background"
                     >
                       Applica
                     </button>

@@ -229,3 +229,28 @@ All colors MUST be HSL.
     scroll-margin-block: 12rem 7rem;
   }
 }
+
+/* Accessibilità storefront preservata nel rollback grafico: nessun token visuale CX. */
+@layer components {
+  .og-storefront-error { color: hsl(0 64% 35%); }
+  .og-storefront :is(button, a):focus-visible {
+    outline: 2px solid hsl(var(--primary-dark));
+    outline-offset: 4px;
+  }
+}
+
+@layer components {
+  .og-storefront-dialog > button {
+    min-width: 44px;
+    min-height: 44px;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .og-storefront-dialog > button:focus-visible {
+    outline: 2px solid hsl(var(--primary-dark));
+    outline-offset: 2px;
+  }
+}

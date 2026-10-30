@@ -1,3 +1,4 @@
+import { formatMoney, formatCartSubtotal } from "@/lib/storefront-money";
 import { Link } from "react-router-dom";
 import { PaymentInformation } from "./storefront/PaymentInformation";
 import { useState } from "react";
@@ -27,7 +28,7 @@ export const CartDrawer = () => {
   } = useCartStore();
   
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce((sum, item) => sum + (parseFloat(item.price.amount) * item.quantity), 0);
+  const subtotal = formatCartSubtotal(items);
 
   const handleCheckout = async () => {
     if (items.length === 0 || useCartStore.getState().isLoading) return;
@@ -60,11 +61,11 @@ export const CartDrawer = () => {
             </Badge>
           )}
           <span className="hidden md:inline">Carrello</span>
-          <span className="font-semibold">€{totalPrice.toFixed(2)}</span>
+          <span className="font-semibold">{subtotal}</span>
         </Button>
       </SheetTrigger>
       
-      <SheetContent className="w-full sm:max-w-lg flex flex-col h-full pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <SheetContent className="og-storefront-dialog w-full sm:max-w-lg flex flex-col h-full pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         <SheetHeader className="flex-shrink-0">
           <SheetTitle>Carrello</SheetTitle>
           <SheetDescription>
@@ -105,7 +106,7 @@ export const CartDrawer = () => {
                           </p>
                         )}
                         <p className="font-semibold text-primary mt-1">
-                          €{parseFloat(item.price.amount).toFixed(2)}
+                          {formatMoney(item.price)}
                         </p>
                       </div>
                       
@@ -154,13 +155,13 @@ export const CartDrawer = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold">Subtotale</span>
                   <span className="text-xl font-bold text-primary">
-                    €{totalPrice.toFixed(2)}
+                    {subtotal}
                   </span>
                 </div>
                 
                 <p className="text-xs text-muted-foreground">Spedizione ed eventuali aggiornamenti di prezzo e disponibilità saranno verificati al checkout.</p>
                 <PaymentInformation />
-                {checkoutError && <p role="alert" className="text-sm text-destructive">{checkoutError}</p>}
+                {checkoutError && <p role="alert" className="og-storefront-error text-sm">{checkoutError}</p>}
                 <Button 
                   onClick={handleCheckout}
                   className="w-full" 
