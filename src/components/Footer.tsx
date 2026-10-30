@@ -1,4 +1,4 @@
-import { Facebook, Instagram, MessageCircle } from "lucide-react";
+import { PaymentInformation } from "./storefront/PaymentInformation";
 import { FOOTER_CATEGORIES, collectionHref } from "@/config/categories";
 
 export const Footer = () => {
@@ -8,7 +8,7 @@ export const Footer = () => {
     legal: ["Privacy Policy", "Resi e rimborsi", "Termini di servizio"],
   };
 
-  const paymentMethods = ["Visa", "Mastercard", "Amex", "PayPal", "Diners", "Discover"];
+
 
   return (
     <footer className="border-t border-border/70 bg-background">
@@ -41,9 +41,7 @@ export const Footer = () => {
             <ul className="mt-4 space-y-2.5">
               {links.explore.map((item) => (
                 <li key={item}>
-                  <a href="#" className="text-sm text-foreground/90 transition-colors hover:text-primary">
-                    {item}
-                  </a>
+                  <span className="text-sm text-muted-foreground">{item} <span className="text-xs">(in preparazione)</span></span>
                 </li>
               ))}
             </ul>
@@ -54,9 +52,7 @@ export const Footer = () => {
             <ul className="mt-4 space-y-2.5">
               {links.legal.map((item) => (
                 <li key={item}>
-                  <a href="#" className="text-sm text-foreground/90 transition-colors hover:text-primary">
-                    {item}
-                  </a>
+                  <span className="text-sm text-muted-foreground">{item} <span className="text-xs">(in preparazione)</span></span>
                 </li>
               ))}
             </ul>
@@ -64,47 +60,21 @@ export const Footer = () => {
 
           <div>
             <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Seguici</h3>
-            <div className="mt-4 flex items-center gap-3">
-              <a href="#" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/80 text-foreground/85 hover:border-primary hover:text-primary">
-                <Instagram className="h-4 w-4" />
-              </a>
-              <a href="#" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/80 text-foreground/85 hover:border-primary hover:text-primary">
-                <Facebook className="h-4 w-4" />
-              </a>
-              <a href="#" className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/80 text-foreground/85 hover:border-primary hover:text-primary">
-                <MessageCircle className="h-4 w-4" />
-              </a>
-            </div>
+            <p className="mt-4 text-sm text-muted-foreground">Canali social in preparazione.</p>
+            <a href="mailto:info@onlinegarden.it" className="mt-3 inline-flex min-h-11 items-center text-sm underline">Scrivici</a>
           </div>
 
           <div>
             <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Newsletter stagionale</h3>
-            <div className="mt-4 border-b border-border/80 pb-2">
-              <div className="flex items-center justify-between gap-3">
-                <input
-                  type="email"
-                  placeholder="Inserisci la tua email"
-                  className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                />
-                <span className="text-lg text-primary">→</span>
-              </div>
-            </div>
-            <p className="mt-3 text-xs leading-5 text-muted-foreground">
-              Iscriviti per ricevere novita dal vivaio, idee per terrazzi e giardini e selezioni dedicate alla stagione.
-            </p>
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">Le iscrizioni alla newsletter non sono ancora disponibili.</p>
+            <a href="mailto:info@onlinegarden.it" className="mt-3 inline-flex min-h-11 items-center text-sm underline underline-offset-4">Contatta il vivaio</a>
           </div>
         </div>
 
         <div className="mt-8 border-t border-border/65 pt-5">
           <div className="flex flex-col items-start justify-between gap-4 text-xs text-muted-foreground md:flex-row md:items-center">
             <p>© 2026 Online Garden. Vivaio online per esterni, terrazzi e giardini.</p>
-            <div className="flex flex-wrap items-center gap-2">
-              {paymentMethods.map((method) => (
-                <span key={method} className="rounded border border-border/70 px-2 py-1 text-[10px] uppercase tracking-[0.08em] text-foreground/70">
-                  {method}
-                </span>
-              ))}
-            </div>
+            <PaymentInformation />
           </div>
         </div>
       </div>

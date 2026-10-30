@@ -1,0 +1,2 @@
+PASS product-admin-api: 21 moduli locali risolvibili; zero import sibling.
+PASS product-admin-ai: 12 moduli locali risolvibili; zero import sibling.

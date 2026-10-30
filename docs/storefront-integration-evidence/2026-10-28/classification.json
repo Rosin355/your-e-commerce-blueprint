@@ -1,0 +1,834 @@
+{
+  "files": [
+    {
+      "file": ".env.example",
+      "sourceCommits": [
+        "0d028eb"
+      ],
+      "classification": "ADAPT",
+      "reason": "Port selettivo preservando contratti main e protezioni aggiornate."
+    },
+    {
+      "file": "docs/CLIENT-ECOMMERCE-STATUS.md",
+      "sourceCommits": [
+        "e6da421",
+        "7a7ed51"
+      ],
+      "classification": "ADAPT",
+      "reason": "Stato aggiornato nel nuovo contesto, preservando cronologia."
+    },
+    {
+      "file": "docs/ECOMMERCE-UX-ROADMAP.md",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb",
+        "7a7ed51"
+      ],
+      "classification": "ADAPT",
+      "reason": "Stato aggiornato nel nuovo contesto, preservando cronologia."
+    },
+    {
+      "file": "docs/PROJECT_STATUS.md",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb",
+        "7a7ed51"
+      ],
+      "classification": "ADAPT",
+      "reason": "Stato aggiornato nel nuovo contesto, preservando cronologia."
+    },
+    {
+      "file": "docs/SEARCH-SEO-READINESS.md",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/STOREFRONT-PERFORMANCE-SEO-SAFE-FIXES.md",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/STOREFRONT-SCALABILITY-AUDIT.md",
+      "sourceCommits": [
+        "0d028eb"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/UX-ECOMMERCE-AUDIT.md",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/README.md",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/build-after.txt",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/build-before.txt",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/domain-tests.txt",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/git-safety.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/lint.txt",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/performance-compare.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/performance-summary.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/safe-fixes-production-report.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/safe-fixes-report.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/scalability-report.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/shopify-version.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/typecheck.txt",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/phase4-evidence/2026-10-28/ux-report.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/prelaunch-checklist.md",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Checklist main mantenuta, aggiornamenti nel report di integrazione."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/README.md",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/benchmark-summary.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/benchmark.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/benchmark.mjs",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/build.txt",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/domain-tests.txt",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/git-initial.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/git-safety-final.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/http-probe.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/http-probe.mjs",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/lint.txt",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/lovable-metadata.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/probe.mjs",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/scalability-report.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/seo-dom.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/seo-dom.mjs",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/shopify-version.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/typecheck.txt",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/readiness-evidence/2026-10-28/ux-report.json",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/README.md",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/browser.txt",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/build.txt",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/carrello-320.png",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/catalog-tests.txt",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/catalogo-320.png",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/errore-products.png",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/home-1440.png",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/home-320.png",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/lint-baseline.txt",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/lint-global.txt",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/lint-targeted.txt",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/pdp-1440.png",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/pdp-320.png",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/report.json",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-23/typecheck.txt",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-27/README.md",
+      "sourceCommits": [
+        "0d028eb"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-27/build.txt",
+      "sourceCommits": [
+        "0d028eb"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-27/domain-tests.txt",
+      "sourceCommits": [
+        "0d028eb"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-27/ricerca-oltre-1000.png",
+      "sourceCommits": [
+        "0d028eb"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-27/scalability-report.json",
+      "sourceCommits": [
+        "0d028eb"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "docs/ux-evidence/2026-10-27/ux-report.json",
+      "sourceCommits": [
+        "0d028eb"
+      ],
+      "classification": "SKIP",
+      "reason": "Audit/evidenze storici restano nella catena sorgente; nessun risultato storico presentato come QA di main."
+    },
+    {
+      "file": "index.html",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb"
+      ],
+      "classification": "ADAPT",
+      "reason": "Port selettivo preservando contratti main e protezioni aggiornate."
+    },
+    {
+      "file": "scripts/tests/storefront-safe-fixes.test.ts",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "ADAPT",
+      "reason": "Fixture e aspettative adattate alla discovery di main; nuovi controlli riproducibili."
+    },
+    {
+      "file": "scripts/tests/storefront-scalability.test.ts",
+      "sourceCommits": [
+        "0d028eb",
+        "7a7ed51"
+      ],
+      "classification": "ADAPT",
+      "reason": "Fixture e aspettative adattate alla discovery di main; nuovi controlli riproducibili."
+    },
+    {
+      "file": "scripts/ux-audit/README.md",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb",
+        "7a7ed51"
+      ],
+      "classification": "ADAPT",
+      "reason": "Fixture e aspettative adattate alla discovery di main; nuovi controlli riproducibili."
+    },
+    {
+      "file": "scripts/ux-audit/fixtures.mjs",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb",
+        "7a7ed51"
+      ],
+      "classification": "ADAPT",
+      "reason": "Fixture e aspettative adattate alla discovery di main; nuovi controlli riproducibili."
+    },
+    {
+      "file": "scripts/ux-audit/performance-compare.mjs",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "ADAPT",
+      "reason": "Sostituito da scripts/ux-audit/compare-main.mjs: confronto tre build e copertura non equivalente esplicita.",
+      "adaptedTo": "scripts/ux-audit/compare-main.mjs"
+    },
+    {
+      "file": "scripts/ux-audit/run.mjs",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "ADAPT",
+      "reason": "Fixture e aspettative adattate alla discovery di main; nuovi controlli riproducibili."
+    },
+    {
+      "file": "scripts/ux-audit/safe-fixes.mjs",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "ADAPT",
+      "reason": "Fixture e aspettative adattate alla discovery di main; nuovi controlli riproducibili."
+    },
+    {
+      "file": "scripts/ux-audit/scalability.mjs",
+      "sourceCommits": [
+        "0d028eb"
+      ],
+      "classification": "ADAPT",
+      "reason": "Fixture e aspettative adattate alla discovery di main; nuovi controlli riproducibili."
+    },
+    {
+      "file": "src/components/CartDrawer.tsx",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/components/ProductCard.tsx",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/components/storefront/CatalogProductCard.tsx",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb",
+        "7a7ed51"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/components/storefront/HomeAnnouncementBar.tsx",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "ALREADY PRESENT",
+      "reason": "Versione main mantenuta; design compatto già evoluto."
+    },
+    {
+      "file": "src/components/storefront/HomeHeaderOverlay.tsx",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "ADAPT",
+      "reason": "Port selettivo preservando contratti main e protezioni aggiornate."
+    },
+    {
+      "file": "src/components/storefront/HomeHero.tsx",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/components/storefront/HomepageV3.tsx",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "ADAPT",
+      "reason": "Port selettivo preservando contratti main e protezioni aggiornate."
+    },
+    {
+      "file": "src/components/storefront/PaymentInformation.tsx",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/components/storefront/Pdp.tsx",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "ADAPT",
+      "reason": "Port selettivo preservando contratti main e protezioni aggiornate."
+    },
+    {
+      "file": "src/components/storefront/SiteHeader.tsx",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/hooks/useProduct.ts",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb"
+      ],
+      "classification": "ADAPT",
+      "reason": "Port selettivo preservando contratti main e protezioni aggiornate."
+    },
+    {
+      "file": "src/hooks/useProductStructuredData.ts",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/hooks/useStorefrontSeo.ts",
+      "sourceCommits": [
+        "0d028eb"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/index.css",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "ADAPT",
+      "reason": "Port selettivo preservando contratti main e protezioni aggiornate."
+    },
+    {
+      "file": "src/lib/shopify-checkout.ts",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/lib/shopify.ts",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb",
+        "7a7ed51"
+      ],
+      "classification": "ADAPT",
+      "reason": "Port selettivo preservando contratti main e protezioni aggiornate."
+    },
+    {
+      "file": "src/lib/storefront-seo.ts",
+      "sourceCommits": [
+        "0d028eb"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/lib/storefront-structured-data.ts",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/pages/AllProducts.tsx",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb",
+        "7a7ed51"
+      ],
+      "classification": "ADAPT",
+      "reason": "Port selettivo preservando contratti main e protezioni aggiornate."
+    },
+    {
+      "file": "src/pages/CollectionPage.tsx",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb"
+      ],
+      "classification": "ADAPT",
+      "reason": "Port selettivo preservando contratti main e protezioni aggiornate."
+    },
+    {
+      "file": "src/pages/Index.tsx",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/pages/NotFound.tsx",
+      "sourceCommits": [
+        "7a7ed51"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/pages/ProductDetail.tsx",
+      "sourceCommits": [
+        "e6da421",
+        "0d028eb",
+        "7a7ed51"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    },
+    {
+      "file": "src/stores/cartStore.ts",
+      "sourceCommits": [
+        "e6da421"
+      ],
+      "classification": "PORT",
+      "reason": "Correzione storefront compatibile, senza dipendenza dal backend locale."
+    }
+  ],
+  "decisions": [
+    {
+      "functionality": "Discovery canonica, selezioni homepage/correlati, date e ordinamenti",
+      "classification": "ALREADY PRESENT",
+      "reason": "Algoritmi di main conservati, soltanto adattamento strutturale dei tipi per ricerca."
+    },
+    {
+      "functionality": "Query server-side buildCatalogQuery del branch sorgente",
+      "classification": "SKIP",
+      "reason": "Perderebbe ricerca main su descrizione, handle e tassonomia; ricerca locale sul set completo conservata."
+    },
+    {
+      "functionality": "Admin parallelo admin-product-field e migration antecedente 87727f0",
+      "classification": "SKIP",
+      "reason": "Fuori perimetro, main conserva product-admin-api e gate scritture esistenti."
+    },
+    {
+      "functionality": "Sitemap, Organization, HTTP 404 e SSR",
+      "classification": "BLOCKED",
+      "reason": "Dominio, identità, regole di pubblicazione e decisione hosting non approvati; nessun workaround client presentato come HTTP."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "browser": "156.0.8078.49",
+  "checks": [
+    {
+      "name": "10.000 prodotti completi, ultima card ricercabile, descrizione/handle/vendor/tag/tipo e categorie canoniche preservati",
+      "status": "PASS"
+    },
+    {
+      "name": "Viewport mobili compatti: overflow, sticky acquisto e dialog carrello a 320×568, 375×812, 390×844 e 430×932",
+      "status": "PASS"
+    },
+    {
+      "name": "Prodotti test nascosti in catalogo, collezione, home e accesso diretto PDP; nessun JSON-LD o acquisto",
+      "status": "PASS"
+    }
+  ],
+  "pageErrors": [],
+  "summary": {
+    "passed": 3,
+    "failed": 0
+  }
+}

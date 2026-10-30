@@ -1,3 +1,13 @@
+## Safe storefront integration — 28 ottobre 2026
+
+**READY FOR PR locale, non rilascio.** Nuovo worktree/branch `codex/storefront-main-integration` da `origin/main` esatto `0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3`; port selettivo dei tre commit storefront, senza vecchio Admin/backend. Contratti main per discovery/home/correlati/date e filtro prodotti test conservati. Catalogo senza cap 1.000, varianti complete, errori/checkout protetti, payload adattato, a11y e SEO/JSON-LD DOM.
+
+QA: typecheck/build/lint mirato, **336 test Node + 92 Deno**, 15 scenari UX, 6 scala/SEO production, 4 safe production e 3 integrazione production; checker Edge main PASS. Lo script npm principale include file Deno incompatibili con Node già nella baseline: runner separato fornito, tutti i test eseguiti nel runtime corretto. Fixture 10k complete, JSON per prodotto circa −60,2% rispetto a main, senza equivalenza della latenza sul main troncato a 1k. Nessuna prova live o di indicizzazione.
+
+Admin/auth/RLS/Supabase/Edge/sync/package e lockfile invariati; mutation cartCreate identica. Tutti i 39 file dirty/untracked originali e i 18 protetti verificati via SHA-256. Nessun push/merge/PR/deploy. [Report, matrice e gate](STOREFRONT-MAIN-INTEGRATION.md). La cronologia main seguente è preservata.
+
+---
+
 # Online Garden — stato consolidato del progetto
 
 ## FINAL MOBILE STOREFRONT QA — 10 ottobre 2026

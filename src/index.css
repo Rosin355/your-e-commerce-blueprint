@@ -219,3 +219,13 @@ All colors MUST be HSL.
     animation: none;
   }
 }
+/* Storefront keyboard navigation: visible focus and clearance below sticky headers. */
+@layer base {
+  body:has(#main-content) :where(a, button, input, select, textarea):focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 3px;
+  }
+  body:has(#main-content) :where(a, button, input, select, textarea, [tabindex]):focus {
+    scroll-margin-block: 12rem 7rem;
+  }
+}

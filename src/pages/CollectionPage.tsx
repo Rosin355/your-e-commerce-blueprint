@@ -1,4 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useStorefrontSeo } from "@/hooks/useStorefrontSeo";
+import { CatalogProductCard } from "@/components/storefront/CatalogProductCard";
+import { Button } from "@/components/ui/button";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ChevronRight, Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/storefront/SiteHeader";
@@ -9,24 +12,30 @@ import {
   ShopifyProduct,
 } from "@/lib/shopify";
 
-const productIsInStock = (product: ShopifyProduct) =>
-  product.node.variants.edges.some((v) => v.node.availableForSale);
-
 const CollectionPage = () => {
   const navigate = useNavigate();
   const { handle = "" } = useParams<{ handle: string }>();
   const [collection, setCollection] = useState<ShopifyCollectionMeta | null>(null);
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pageCursor, setPageCursor] = useState<{ handle: string; after: string | null }>({ handle, after: null });
+  const cursor = pageCursor.handle === handle ? pageCursor.after : null;
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const pagination = useRef({ handle, seen: new Set<string>() });
   const [notFound, setNotFound] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
+    setPageCursor(current => current.handle === handle ? current : { handle, after: null });
     setLoading(true);
+    if (pagination.current.handle !== handle || !cursor) pagination.current = { handle, seen: new Set<string>() };
+    if (!cursor) { setProducts([]); setCollection(null); setNextCursor(null); }
     setNotFound(false);
     setApiError(null);
-    fetchCollectionByHandle(handle, 60)
+    fetchCollectionByHandle(handle, 60, cursor, controller.signal)
       .then((res) => {
         if (!active) return;
         if (!res.collection) {
@@ -34,31 +43,43 @@ const CollectionPage = () => {
           setCollection(null);
           setProducts([]);
         } else {
+          if (res.nextCursor) {
+            if (pagination.current.seen.has(res.nextCursor)) throw new Error('Cursore collezione ripetuto');
+            pagination.current.seen.add(res.nextCursor);
+          }
           setCollection(res.collection);
-          setProducts(res.products);
+          setProducts(previous => cursor ? [...previous, ...res.products.filter(product => !previous.some(item => item.node.id === product.node.id))] : res.products);
+          setNextCursor(res.nextCursor);
         }
       })
       .catch((err) => {
         console.error(err);
         if (active) {
-          setNotFound(true);
           setApiError(err instanceof Error ? err.message : String(err));
         }
       })
       .finally(() => active && setLoading(false));
     return () => {
       active = false;
+      controller.abort();
     };
-  }, [handle]);
+  }, [handle, cursor, attempt]);
 
   const title = collection?.title || handle.replace(/-/g, " ");
   const description = collection?.description || "";
+
+  useStorefrontSeo({
+    title: `${collection?.seo?.title || title} | Online Garden`,
+    description: collection?.seo?.description || description,
+    path: `/collections/${encodeURIComponent(handle)}`,
+    noindex: notFound || !!apiError || !collection,
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SiteHeader variant="page" />
 
-      <main className="flex-1 pt-24 md:pt-28">
+      <main id="main-content" tabIndex={-1} className="flex-1 pt-4 md:pt-6">
         <div className="container mx-auto max-w-[1280px] px-4">
           {/* Diagnostica visibile SOLO in sviluppo (mai al cliente in produzione) */}
           {import.meta.env.DEV && !loading && (
@@ -91,9 +112,15 @@ const CollectionPage = () => {
             )}
           </header>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-20">
+          {loading && !collection ? (
+            <div role="status" className="flex items-center justify-center py-20"><span className="sr-only">Caricamento collezione</span>
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : apiError && !collection ? (
+            <div role="alert" className="border border-border bg-card p-6 text-center">
+              <h2 className="text-lg font-semibold">Impossibile caricare la collezione</h2>
+              <p className="my-3 text-muted-foreground">Controlla la connessione e riprova.</p>
+              <Button onClick={() => setAttempt(value => value + 1)}>Riprova</Button>
             </div>
           ) : notFound ? (
             <div className="border border-border bg-card p-10 text-center">
@@ -127,50 +154,19 @@ const CollectionPage = () => {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-x-5 gap-y-10 pb-20 md:grid-cols-3 lg:grid-cols-4">
-              {products.map((product, index) => {
-                const image = product.node.images.edges[0]?.node;
-                const price = product.node.priceRange.minVariantPrice;
-                const inStock = productIsInStock(product);
-                return (
-                  <article key={product.node.id} className="group">
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/products/${product.node.handle}`)}
-                      className="block w-full text-left"
-                    >
-                      <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted">
-                        {image ? (
-                          <img
-                            src={image.url}
-                            alt={image.altText || product.node.title}
-                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                            loading={index < 8 ? "eager" : "lazy"}
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-muted-foreground">
-                            Nessuna immagine
-                          </div>
-                        )}
-                        {!inStock && (
-                          <span className="absolute left-3 top-3 inline-flex h-6 items-center border border-border bg-background/95 px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground">
-                            Esaurito
-                          </span>
-                        )}
-                      </div>
-                      <div className="mt-3">
-                        <h3 className="text-[15px] font-medium leading-6 text-foreground">
-                          {product.node.title}
-                        </h3>
-                        <p className="mt-1 text-[15px] font-semibold text-foreground">
-                          €{parseFloat(price.amount).toFixed(2)}
-                        </p>
-                      </div>
-                    </button>
-                  </article>
-                );
-              })}
+            <>
+            <div className="grid grid-cols-2 gap-x-3 sm:gap-x-5 gap-y-8 pb-8 md:grid-cols-3 lg:grid-cols-4">
+              {products.map((product, index) => <CatalogProductCard key={product.node.id} product={product} eager={index < 4} />)}
             </div>
+            <div className="flex flex-col items-center gap-3 pb-16">
+              <p role="status" className="text-sm text-muted-foreground">{products.length} prodotti caricati</p>
+              {apiError && <p role="alert" className="text-sm text-destructive">Impossibile caricare altri prodotti. La selezione già caricata è ancora disponibile.</p>}
+              {nextCursor && <Button variant="outline" disabled={loading} onClick={() => {
+                if (apiError) setAttempt(value => value + 1);
+                else setPageCursor({ handle, after: nextCursor });
+              }}>{loading ? "Caricamento…" : apiError ? "Riprova" : "Carica altri prodotti"}</Button>}
+            </div>
+            </>
           )}
         </div>
       </main>

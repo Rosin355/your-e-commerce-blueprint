@@ -1,10 +1,14 @@
+import { useStorefrontSeo } from "@/hooks/useStorefrontSeo";
+import { CatalogProductCard } from "@/components/storefront/CatalogProductCard";
+import { Button } from "@/components/ui/button";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronDown, ChevronRight, ChevronUp, Loader2, SlidersHorizontal, X } from "lucide-react";
 import { SiteHeader } from "@/components/storefront/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { fetchAllProducts, ShopifyProduct } from "@/lib/shopify";
+import { fetchAllProducts, CatalogProduct } from "@/lib/shopify";
+
 import { searchCatalogProducts } from "@/lib/storefrontDiscovery";
 
 type SortKey =
@@ -70,20 +74,15 @@ const defaultFilters: FilterState = {
   priceMax: "",
 };
 
-const productIsInStock = (product: ShopifyProduct) =>
-  product.node.variants.edges.some((variant) => variant.node.availableForSale);
+const productIsInStock = (product: CatalogProduct) =>
+  product.node.availableForSale;
 
-// Tetto di sicurezza per il caricamento paginato del catalogo (blocchi da 250).
-// Il catalogo attuale è ~460 prodotti: la ricerca copre tutto. Se il catalogo
-// supererà questo tetto, alzare il valore o passare alla ricerca server-side.
-const CATALOG_FETCH_LIMIT = 1000;
-
-const readProductOptionValues = (product: ShopifyProduct, matcher: RegExp) => {
+const readProductOptionValues = (product: CatalogProduct, matcher: RegExp) => {
   const option = product.node.options.find((opt) => matcher.test(opt.name));
   return option?.values ?? [];
 };
 
-const sortProducts = (products: ShopifyProduct[], sort: SortKey): ShopifyProduct[] => {
+const sortProducts = (products: CatalogProduct[], sort: SortKey): CatalogProduct[] => {
   const list = [...products];
   switch (sort) {
     case "az":
@@ -117,21 +116,17 @@ const sortProducts = (products: ShopifyProduct[], sort: SortKey): ShopifyProduct
   }
 };
 
-const countBy = <T,>(items: T[], key: (item: T) => string) => {
-  const map = new Map<string, number>();
-  items.forEach((item) => {
-    const value = key(item);
-    if (!value) return;
-    map.set(value, (map.get(value) || 0) + 1);
-  });
-  return map;
-};
-
 const AllProducts = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = (searchParams.get("q") ?? "").trim();
-  const [products, setProducts] = useState<ShopifyProduct[]>([]);
+  useStorefrontSeo({
+    title: searchQuery ? `Ricerca: ${searchQuery} | Online Garden` : 'Tutti i prodotti | Online Garden',
+    description: 'Esplora il catalogo Online Garden e filtra i prodotti per disponibilità, formato, colore e prezzo.',
+    path: '/collections/all',
+    noindex: !!searchQuery,
+  });
+  const [products, setProducts] = useState<CatalogProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [pendingFilters, setPendingFilters] = useState<FilterState>(defaultFilters);
@@ -140,7 +135,8 @@ const AllProducts = () => {
   const [introExpanded, setIntroExpanded] = useState(false);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [colorShowMore, setColorShowMore] = useState(false);
-  const [sortOpen, setSortOpen] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     availability: true,
     size: true,
@@ -150,35 +146,31 @@ const AllProducts = () => {
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
+    setProducts([]);
+    setLoading(true);
+    setLoadError(false);
     const load = async () => {
       setLoading(true);
+      setLoadError(false);
       try {
-        const list = await fetchAllProducts(CATALOG_FETCH_LIMIT);
-        if (active) {
-          setProducts(list);
-          if (import.meta.env.DEV && list.length === CATALOG_FETCH_LIMIT) {
-            console.warn(
-              `[AllProducts] raggiunto il tetto di ${CATALOG_FETCH_LIMIT} prodotti: il catalogo potrebbe essere più grande — alzare il tetto o passare a ricerca server-side.`,
-            );
-          }
-        }
+        const list = await fetchAllProducts(undefined, controller.signal);
+        if (active) setProducts(list);
       } catch (error) {
-        console.error(error);
+        if (active) { setLoadError(true); console.error(error); }
       } finally {
         if (active) setLoading(false);
       }
     };
-    load();
+    const timer = window.setTimeout(load, 250);
     return () => {
       active = false;
+      window.clearTimeout(timer);
+      controller.abort();
     };
-  }, []);
+  }, [attempt]);
 
-  // La ricerca (q) restringe il set PRIMA dei filtri: stats e filtri lavorano sui risultati.
-  const searchScoped = useMemo(() => {
-    if (!searchQuery) return products;
-    return searchCatalogProducts(products, searchQuery);
-  }, [products, searchQuery]);
+  const searchScoped = useMemo(() => searchCatalogProducts(products, searchQuery), [products, searchQuery]);
 
   const clearSearch = () => {
     searchParams.delete("q");
@@ -207,8 +199,8 @@ const AllProducts = () => {
       priceList.push(parseFloat(product.node.priceRange.minVariantPrice.amount));
     });
 
-    const priceMinValue = priceList.length ? Math.min(...priceList) : 0;
-    const priceMaxValue = priceList.length ? Math.max(...priceList) : 0;
+    const priceMinValue = priceList.length ? priceList.reduce((min, price) => Math.min(min, price), Infinity) : 0;
+    const priceMaxValue = priceList.length ? priceList.reduce((max, price) => Math.max(max, price), -Infinity) : 0;
 
     return {
       inStock,
@@ -413,28 +405,30 @@ const AllProducts = () => {
         Il prezzo massimo e €{stats.priceMaxValue.toFixed(2)}
       </p>
       <div className="mt-3 flex items-center gap-2">
-        <div className="flex h-10 flex-1 items-center border border-border bg-background px-3">
+        <div className="flex h-10 min-w-0 flex-1 items-center border border-border bg-background px-3">
           <span className="mr-2 text-sm text-muted-foreground">€</span>
           <input
             type="number"
             inputMode="decimal"
             min={0}
+            aria-label="Prezzo minimo"
             placeholder="Da"
             value={state.priceMin}
             onChange={(event) => setState({ ...state, priceMin: event.target.value })}
-            className="w-full bg-transparent text-sm text-foreground outline-none"
+            className="w-full min-w-0 bg-transparent text-sm text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           />
         </div>
-        <div className="flex h-10 flex-1 items-center border border-border bg-background px-3">
+        <div className="flex h-10 min-w-0 flex-1 items-center border border-border bg-background px-3">
           <span className="mr-2 text-sm text-muted-foreground">€</span>
           <input
             type="number"
             inputMode="decimal"
             min={0}
+            aria-label="Prezzo massimo"
             placeholder="A"
             value={state.priceMax}
             onChange={(event) => setState({ ...state, priceMax: event.target.value })}
-            className="w-full bg-transparent text-sm text-foreground outline-none"
+            className="w-full min-w-0 bg-transparent text-sm text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           />
         </div>
       </div>
@@ -450,6 +444,7 @@ const AllProducts = () => {
     <div key={id} className={options.noBorderTop ? "" : "border-t border-border/60 pt-5 mt-5"}>
       <button
         type="button"
+        aria-expanded={openSections[id]}
         onClick={() => toggleSection(id)}
         className="flex w-full items-center justify-between text-left"
       >
@@ -479,7 +474,7 @@ const AllProducts = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <SiteHeader variant="page" />
 
-      <main className="flex-1 pt-24 md:pt-28">
+      <main id="main-content" tabIndex={-1} className="flex-1 pt-4 md:pt-6">
         <div className="container mx-auto max-w-[1280px] px-4">
           <nav className="flex items-center gap-2 text-xs text-muted-foreground pt-4">
             <button type="button" onClick={() => navigate("/")} className="hover:text-foreground">
@@ -490,7 +485,8 @@ const AllProducts = () => {
           </nav>
 
           <header className="py-10 md:py-14">
-            <h1 className="font-heading text-[2.5rem] font-semibold leading-[1.05] text-foreground md:text-[3rem]">
+            <p className="text-sm text-muted-foreground">Esplora il catalogo e affina la selezione con filtri e ordinamento.</p>
+            <h1 className="font-heading break-words text-[2rem] sm:text-[2.5rem] font-semibold leading-[1.05] text-foreground md:text-[3rem]">
               {searchQuery ? (
                 <>Risultati per «{searchQuery}»</>
               ) : (
@@ -502,7 +498,7 @@ const AllProducts = () => {
                 <p className="text-[15px] text-muted-foreground">
                   {loading
                     ? "Ricerca in corso…"
-                    : `${searchScoped.length} prodott${searchScoped.length === 1 ? "o" : "i"} trovat${searchScoped.length === 1 ? "o" : "i"}`}
+                    : loadError ? "Ricerca non disponibile: riprova." : `${searchScoped.length} prodott${searchScoped.length === 1 ? "o" : "i"} trovat${searchScoped.length === 1 ? "o" : "i"}`}
                 </p>
                 <button
                   type="button"
@@ -587,42 +583,9 @@ const AllProducts = () => {
               <label htmlFor="pdp-sort" className="text-sm text-muted-foreground">
                 Ordina per
               </label>
-              <button
-                type="button"
-                id="pdp-sort"
-                onClick={() => setSortOpen((prev) => !prev)}
-                className="inline-flex h-10 items-center gap-2 border border-border bg-background px-3 text-sm font-medium text-foreground"
-              >
-                {sortOptions.find((opt) => opt.key === sort)?.label}
-                <ChevronDown className="h-4 w-4" />
-              </button>
-              {sortOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-30"
-                    onClick={() => setSortOpen(false)}
-                    aria-hidden
-                  />
-                  <ul className="absolute right-0 top-full z-40 mt-2 w-64 border border-border bg-background py-1 shadow-elevated">
-                    {sortOptions.map((opt) => (
-                      <li key={opt.key}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSort(opt.key);
-                            setSortOpen(false);
-                          }}
-                          className={`flex w-full items-center justify-between px-4 py-2 text-left text-sm ${
-                            sort === opt.key ? "bg-muted text-foreground" : "text-foreground/85 hover:bg-muted/50"
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
+              <select id="pdp-sort" value={sort} onChange={event => setSort(event.target.value as SortKey)} className="h-11 min-w-0 flex-1 border border-border bg-background px-3 text-sm text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                {sortOptions.map(option => <option key={option.key} value={option.key}>{option.label}</option>)}
+              </select>
             </div>
           </div>
 
@@ -643,8 +606,14 @@ const AllProducts = () => {
 
             <div>
               {loading ? (
-                <div className="flex items-center justify-center py-20">
+                <div role="status" className="flex items-center justify-center py-20"><span className="sr-only">Caricamento catalogo</span>
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : loadError ? (
+                <div role="alert" className="border border-border bg-card p-6 text-center">
+                  <h2 className="text-lg font-semibold">Impossibile caricare il catalogo</h2>
+                  <p className="my-3 text-muted-foreground">Controlla la connessione e riprova. La ricerca non è stata completata.</p>
+                  <Button onClick={() => setAttempt(value => value + 1)}>Riprova</Button>
                 </div>
               ) : sortedProducts.length === 0 ? (
                 <div className="border border-border bg-card p-10 text-center">
@@ -676,56 +645,8 @@ const AllProducts = () => {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3">
-                    {visibleProducts.map((product, index) => {
-                      const image = product.node.images.edges[0]?.node;
-                      const price = product.node.priceRange.minVariantPrice;
-                      const inStock = productIsInStock(product);
-                      return (
-                        <article key={product.node.id} className="group">
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/products/${product.node.handle}`)}
-                            className="block w-full text-left"
-                          >
-                            <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted">
-                              {image ? (
-                                <img
-                                  src={image.url}
-                                  alt={image.altText || product.node.title}
-                                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                                  loading={index < 6 ? "eager" : "lazy"}
-                                />
-                              ) : (
-                                <div className="flex h-full items-center justify-center text-muted-foreground">
-                                  Nessuna immagine
-                                </div>
-                              )}
-                              {!inStock && (
-                                <span className="absolute left-3 top-3 inline-flex h-6 items-center border border-border bg-background/95 px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground">
-                                  Esaurito
-                                </span>
-                              )}
-                            </div>
-                            <div className="mt-3">
-                              <h3 className="text-[15px] font-medium leading-6 text-foreground">
-                                {product.node.title}
-                              </h3>
-                              <p className="mt-1 text-[15px] font-semibold text-foreground">
-                                €{parseFloat(price.amount).toFixed(2)}
-                              </p>
-                            </div>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/products/${product.node.handle}`)}
-                            className="mt-2 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground underline underline-offset-4 hover:text-primary-dark"
-                          >
-                            Vedi dettagli
-                          </button>
-                        </article>
-                      );
-                    })}
+                  <div className="grid grid-cols-2 gap-x-3 sm:gap-x-5 gap-y-8 md:grid-cols-3">
+                    {visibleProducts.map((product, index) => <CatalogProductCard key={product.node.id} product={product} eager={index < 4} />)}
                   </div>
 
                   <div className="mt-14 flex flex-col items-center gap-4">

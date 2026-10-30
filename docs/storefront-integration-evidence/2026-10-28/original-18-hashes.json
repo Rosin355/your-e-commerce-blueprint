@@ -1,0 +1,20 @@
+{
+  "package.json": "5af992f0ac5d6d95cc545b86d5096138317ea1411a60ad9f270bd0d730a3102c",
+  "sync/lib/csv-utils.mjs": "618a3b458ee28bbb2901c5bb10823ac64356b0f051e34f090b0bf3fa3fc5ca56",
+  "docs/phase1a1-readonly-validation.sql": "f32ca49c60ad5d07aff3ea730d8ec0d73422e91deff034c11b278d3695b983dc",
+  "docs/phase1a1-validation-report.md": "0f1c9d850448876b4cade34ac93ea1074bd975f4936f54f978c896778d9abb7e",
+  "docs/phase1a3-live-schema-readonly.sql": "212c6be6ebf79fc7b89256dfa5bd24eb8f59a96d08250f7e6952191467916227",
+  "docs/phase1a3-reconciliation-report.md": "e262ed1ae56ef0ff1ce70ff26a0c0a0367b92d3ccc750b4a1a53f4f2364c3cbb",
+  "docs/phase1a5-additive-differential-proposal.sql": "c346d541aee7b9c70a3dad1f405f0846359fa6bc31124608dc56cc755dc94060",
+  "docs/phase1a5-schema-differential-report.md": "a11003d957aa729090d53223f8edcdb6f9b40ccc5356126a3d39e63d7e872da0",
+  "docs/phase1a6-finalization-report.md": "e6669cf279a5634d892afd415e5a9761e16fc95654261bfd74f097e0944952be",
+  "docs/phase1a6-source-snapshot-backfill-dry-run.sql": "226ca58362a0cab5713f4e220167a5cfaf49a6fc0dffb1c6a78ccefff3c608c6",
+  "docs/wordpress-golden-foundation-dry-run.json": "bb870f9e19cd1f864ae85750edb0ac544b5224429ee7881c389b2a1bb8c85051",
+  "scripts/lossless-catalog-golden-dry-run.mjs": "b5acc3f8877864bd9771e1f2d0b1e446f170a88f48cb0f10f8139bfcf094f263",
+  "scripts/snapshot-shopify-manual-metafields.mjs": "9fc04a854928a66a028f5a3b9a10a40ae018fe1724040e020397fe8018b23554",
+  "scripts/tests/lossless-catalog-foundation.test.ts": "1a126601cc225dd353f9206967d06fdd06d4a716bc84b748b61e4825505f0be0",
+  "src/catalog/lossless/adminContract.ts": "12dc07d5e5ab4e6118842894f5cbe48fa8e5b20f0ff44225753a4cb2e09323e1",
+  "src/catalog/lossless/sourceResolver.ts": "8874a55d51b5ce297e0cedd3fcf362140be5c734b058b66929646a2113d04993",
+  "src/catalog/lossless/types.ts": "ea2e325e65b251cd1c01e8dfecff0d30e60b9cd2b9a778d59e72aceb03e47d51",
+  "supabase/migrations/20260923155153_add_lossless_lineage_and_ai_versions.sql": "6c2f3e4068c34a8515b048dbe77d709a8bde0c68645fd3bc8d58b781fca376fd"
+}
