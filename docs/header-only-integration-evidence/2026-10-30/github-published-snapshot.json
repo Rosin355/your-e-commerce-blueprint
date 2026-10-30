@@ -1,0 +1,348 @@
+{
+  "observedAt": "2026-10-30T14:01:51.913557+00:00",
+  "prs": [
+    {
+      "number": 39,
+      "url": "https://github.com/Rosin355/your-e-commerce-blueprint/pull/39",
+      "state": "open",
+      "draft": true,
+      "base": "main",
+      "baseSha": "0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3",
+      "head": "codex/storefront-main-integration",
+      "headSha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+      "mergeable": true,
+      "mergeableState": "clean",
+      "changedFiles": 70,
+      "checks": [
+        {
+          "name": "GitGuardian Security Checks",
+          "id": 124043005202,
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/Rosin355/your-e-commerce-blueprint/runs/124043005202"
+        }
+      ],
+      "reviewStates": []
+    },
+    {
+      "number": 40,
+      "url": "https://github.com/Rosin355/your-e-commerce-blueprint/pull/40",
+      "state": "open",
+      "draft": true,
+      "base": "codex/storefront-main-integration",
+      "baseSha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+      "head": "codex/customer-experience-implementation",
+      "headSha": "2e07293aa3edab382fb470108df6317ef573b23a",
+      "mergeable": true,
+      "mergeableState": "clean",
+      "changedFiles": 269,
+      "checks": [
+        {
+          "name": "GitGuardian Security Checks",
+          "id": 123630901861,
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/Rosin355/your-e-commerce-blueprint/runs/123630901861"
+        }
+      ],
+      "reviewStates": []
+    },
+    {
+      "number": 41,
+      "url": "https://github.com/Rosin355/your-e-commerce-blueprint/pull/41",
+      "state": "open",
+      "draft": true,
+      "base": "codex/storefront-main-integration",
+      "baseSha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+      "head": "codex/customer-experience-header-final",
+      "headSha": "f4164ed5bdcb1cc273c930fe959459103e707208",
+      "mergeable": true,
+      "mergeableState": "clean",
+      "changedFiles": 45,
+      "checks": [
+        {
+          "name": "GitGuardian Security Checks",
+          "id": 124105016597,
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/Rosin355/your-e-commerce-blueprint/runs/124105016597"
+        }
+      ],
+      "reviewStates": []
+    }
+  ],
+  "diffScopeMatchesLocalApprovedManifest": true,
+  "files": [
+    {
+      "path": "docs/CLIENT-ECOMMERCE-STATUS.md",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0
+    },
+    {
+      "path": "docs/CUSTOMER-EXPERIENCE-DESIGN-SYSTEM.md",
+      "status": "added",
+      "additions": 21,
+      "deletions": 0
+    },
+    {
+      "path": "docs/CUSTOMER-EXPERIENCE-ROADMAP.md",
+      "status": "added",
+      "additions": 19,
+      "deletions": 0
+    },
+    {
+      "path": "docs/HEADER-ONLY-FINAL-INTEGRATION.md",
+      "status": "added",
+      "additions": 76,
+      "deletions": 0
+    },
+    {
+      "path": "docs/PROJECT_STATUS.md",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/README.md",
+      "status": "added",
+      "additions": 7,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/browser-qa.json",
+      "status": "added",
+      "additions": 572,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/build.txt",
+      "status": "added",
+      "additions": 76,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/checkout-simulated.txt",
+      "status": "added",
+      "additions": 38,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/comparison.html",
+      "status": "added",
+      "additions": 29,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/contracts.json",
+      "status": "added",
+      "additions": 98,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/domain-tests.txt",
+      "status": "added",
+      "additions": 2159,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/github-reference-checks.json",
+      "status": "added",
+      "additions": 29,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/integrity.json",
+      "status": "added",
+      "additions": 121,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/lint-money-test.txt",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/lint.txt",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/remote-before.json",
+      "status": "added",
+      "additions": 41,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/base-catalogo-1440.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/base-catalogo-390.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/base-home-1440.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/base-home-390.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/base-pdp-1440.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/base-pdp-390.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/final-catalogo-1440.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/final-catalogo-390.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/final-home-1440.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/final-home-390.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/final-navbar-1440.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/final-navbar-390.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/final-pdp-1440.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/screenshots/final-pdp-390.png",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/security-scan.json",
+      "status": "added",
+      "additions": 13,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/source-comparison.json",
+      "status": "added",
+      "additions": 42,
+      "deletions": 0
+    },
+    {
+      "path": "docs/header-only-integration-evidence/2026-10-30/typecheck.txt",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0
+    },
+    {
+      "path": "scripts/tests/storefront-money.test.ts",
+      "status": "added",
+      "additions": 27,
+      "deletions": 0
+    },
+    {
+      "path": "src/components/CartDrawer.tsx",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 6
+    },
+    {
+      "path": "src/components/ProductCard.tsx",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 4
+    },
+    {
+      "path": "src/components/storefront/CatalogProductCard.tsx",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1
+    },
+    {
+      "path": "src/components/storefront/HomeHeaderOverlay.tsx",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 17
+    },
+    {
+      "path": "src/components/storefront/Pdp.tsx",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 15
+    },
+    {
+      "path": "src/hooks/useProduct.ts",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0
+    },
+    {
+      "path": "src/index.css",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0
+    },
+    {
+      "path": "src/lib/shopify.ts",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2
+    },
+    {
+      "path": "src/lib/storefront-money.ts",
+      "status": "added",
+      "additions": 58,
+      "deletions": 0
+    },
+    {
+      "path": "src/pages/AllProducts.tsx",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 12
+    }
+  ],
+  "workflowCount": 0
+}

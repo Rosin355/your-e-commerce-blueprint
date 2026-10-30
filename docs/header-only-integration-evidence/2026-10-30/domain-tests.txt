@@ -1,0 +1,2159 @@
+TAP version 13
+# Subtest: 1. ai_allowed=true espone la capability solo per un valore supportato
+ok 1 - 1. ai_allowed=true espone la capability solo per un valore supportato
+  ---
+  duration_ms: 0.833792
+  type: 'test'
+  ...
+# Subtest: 2. ai_allowed=false nega la suggestion
+ok 2 - 2. ai_allowed=false nega la suggestion
+  ---
+  duration_ms: 0.063375
+  type: 'test'
+  ...
+# Subtest: 3. manual_only=true nega la suggestion, inclusi i cinque campi protetti
+ok 3 - 3. manual_only=true nega la suggestion, inclusi i cinque campi protetti
+  ---
+  duration_ms: 0.049917
+  type: 'test'
+  ...
+# Subtest: 4. campi strutturali sono negati anche se il registry fosse errato
+ok 4 - 4. campi strutturali sono negati anche se il registry fosse errato
+  ---
+  duration_ms: 0.043
+  type: 'test'
+  ...
+# Subtest: 5-6. generate salva base_version senza modificare il current value
+ok 5 - 5-6. generate salva base_version senza modificare il current value
+  ---
+  duration_ms: 1.067542
+  type: 'test'
+  ...
+# Subtest: 7. accept usa update_field con expectedVersion della suggestion
+ok 6 - 7. accept usa update_field con expectedVersion della suggestion
+  ---
+  duration_ms: 0.293958
+  type: 'test'
+  ...
+# Subtest: 8. una modifica concorrente rende la proposta stale senza write
+ok 7 - 8. una modifica concorrente rende la proposta stale senza write
+  ---
+  duration_ms: 0.340667
+  type: 'test'
+  ...
+# Subtest: 9. reject risolve solo la suggestion e non chiama il comando prodotto
+ok 8 - 9. reject risolve solo la suggestion e non chiama il comando prodotto
+  ---
+  duration_ms: 0.109375
+  type: 'test'
+  ...
+# Subtest: 10. una proposta modificata dall’Admin può essere accettata
+ok 9 - 10. una proposta modificata dall’Admin può essere accettata
+  ---
+  duration_ms: 0.275792
+  type: 'test'
+  ...
+# Subtest: 11-12. il nuovo endpoint non importa Shopify né i publish legacy
+ok 10 - 11-12. il nuovo endpoint non importa Shopify né i publish legacy
+  ---
+  duration_ms: 0.568125
+  type: 'test'
+  ...
+# Subtest: 13. il nuovo endpoint autentica prima di costruire il repository privilegiato
+ok 11 - 13. il nuovo endpoint autentica prima di costruire il repository privilegiato
+  ---
+  duration_ms: 0.1265
+  type: 'test'
+  ...
+# Subtest: 14. ruolo non Admin/editor è respinto sulle azioni AI di scrittura
+ok 12 - 14. ruolo non Admin/editor è respinto sulle azioni AI di scrittura
+  ---
+  duration_ms: 0.100333
+  type: 'test'
+  ...
+# Subtest: 15. output AI malformato viene rifiutato
+ok 13 - 15. output AI malformato viene rifiutato
+  ---
+  duration_ms: 18.105083
+  type: 'test'
+  ...
+# Subtest: 16. errore provider non produce suggestion
+ok 14 - 16. errore provider non produce suggestion
+  ---
+  duration_ms: 0.286375
+  type: 'test'
+  ...
+# Subtest: 17. valore corrente vuoto non è inviato al provider
+ok 15 - 17. valore corrente vuoto non è inviato al provider
+  ---
+  duration_ms: 0.048667
+  type: 'test'
+  ...
+# Subtest: 18. source_snapshot_id NULL resta NULL nel contesto attendibile
+ok 16 - 18. source_snapshot_id NULL resta NULL nel contesto attendibile
+  ---
+  duration_ms: 0.223708
+  type: 'test'
+  ...
+# Subtest: 19. replay esatto restituisce il risultato precedente senza seconda write
+ok 17 - 19. replay esatto restituisce il risultato precedente senza seconda write
+  ---
+  duration_ms: 0.074916
+  type: 'test'
+  ...
+# Subtest: 20. FAQ è ammessa solo nel formato canonico e conserva l’ordine
+ok 18 - 20. FAQ è ammessa solo nel formato canonico e conserva l’ordine
+  ---
+  duration_ms: 0.111042
+  type: 'test'
+  ...
+# Subtest: 21. pending sulla stessa versione evita una seconda call provider
+ok 19 - 21. pending sulla stessa versione evita una seconda call provider
+  ---
+  duration_ms: 0.079125
+  type: 'test'
+  ...
+# Subtest: 22. stessa idempotency key con payload diverso non richiama la write
+ok 20 - 22. stessa idempotency key con payload diverso non richiama la write
+  ---
+  duration_ms: 0.072667
+  type: 'test'
+  ...
+# Subtest: 23. UX contiene stati responsive/accessibili senza JSON grezzo
+ok 21 - 23. UX contiene stati responsive/accessibili senza JSON grezzo
+  ---
+  duration_ms: 1.127792
+  type: 'test'
+  ...
+# Subtest: 24. output con markup attivo viene rifiutato prima del salvataggio
+ok 22 - 24. output con markup attivo viene rifiutato prima del salvataggio
+  ---
+  duration_ms: 0.25925
+  type: 'test'
+  ...
+# Subtest: 25. lo slot atomico è riservato prima della call provider
+ok 23 - 25. lo slot atomico è riservato prima della call provider
+  ---
+  duration_ms: 0.332042
+  type: 'test'
+  ...
+# Subtest: 26. una reservation equivalente in corso non duplica la call provider
+ok 24 - 26. una reservation equivalente in corso non duplica la call provider
+  ---
+  duration_ms: 0.3675
+  type: 'test'
+  ...
+# Subtest: 27. exact replay FAQ precede il gate mutabile sul valore ormai vuoto
+ok 25 - 27. exact replay FAQ precede il gate mutabile sul valore ormai vuoto
+  ---
+  duration_ms: 0.114875
+  type: 'test'
+  ...
+# Subtest: 28. un accept concorrente non degrada accepted a superseded
+ok 26 - 28. un accept concorrente non degrada accepted a superseded
+  ---
+  duration_ms: 0.624625
+  type: 'test'
+  ...
+# Subtest: 29. due accept concorrenti applicano una sola history e preservano accepted
+ok 27 - 29. due accept concorrenti applicano una sola history e preservano accepted
+  ---
+  duration_ms: 1.414708
+  type: 'test'
+  ...
+# Subtest: 30. tutte le transizioni di stato DB sono condizionate a pending
+ok 28 - 30. tutte le transizioni di stato DB sono condizionate a pending
+  ---
+  duration_ms: 0.146458
+  type: 'test'
+  ...
+# Subtest: 31. prodotto inattivo non espone Migliora con AI
+ok 29 - 31. prodotto inattivo non espone Migliora con AI
+  ---
+  duration_ms: 0.060083
+  type: 'test'
+  ...
+# Subtest: 32. prodotto inattivo è respinto server-side prima del provider
+ok 30 - 32. prodotto inattivo è respinto server-side prima del provider
+  ---
+  duration_ms: 0.114916
+  type: 'test'
+  ...
+# Subtest: 33. forward migration 2D.4A restringe solo la reservation e non riscrive la 2D.2
+ok 31 - 33. forward migration 2D.4A restringe solo la reservation e non riscrive la 2D.2
+  ---
+  duration_ms: 0.653917
+  type: 'test'
+  ...
+# Subtest: 34. preflight 2D.4A è read-only e termina con rollback
+ok 32 - 34. preflight 2D.4A è read-only e termina con rollback
+  ---
+  duration_ms: 0.513667
+  type: 'test'
+  ...
+# Subtest: 35. forward migration 2D.4B restringe product_ai_suggestions senza riscrivere la 2D.2
+ok 33 - 35. forward migration 2D.4B restringe product_ai_suggestions senza riscrivere la 2D.2
+  ---
+  duration_ms: 0.507667
+  type: 'test'
+  ...
+# Subtest: 36. product-admin-ai usa product_ai_suggestions soltanto con SELECT, INSERT e UPDATE
+ok 34 - 36. product-admin-ai usa product_ai_suggestions soltanto con SELECT, INSERT e UPDATE
+  ---
+  duration_ms: 0.2055
+  type: 'test'
+  ...
+# Subtest: start-product-sync POST: anon negato prima dei repository
+ok 35 - start-product-sync POST: anon negato prima dei repository
+  ---
+  duration_ms: 88.595834
+  type: 'test'
+  ...
+# Subtest: start-product-sync POST: invalid negato prima dei repository
+ok 36 - start-product-sync POST: invalid negato prima dei repository
+  ---
+  duration_ms: 13.342667
+  type: 'test'
+  ...
+# Subtest: start-product-sync POST: non-admin negato prima dei repository
+ok 37 - start-product-sync POST: non-admin negato prima dei repository
+  ---
+  duration_ms: 19.3375
+  type: 'test'
+  ...
+# Subtest: start-product-sync POST: rejected negato prima dei repository
+ok 38 - start-product-sync POST: rejected negato prima dei repository
+  ---
+  duration_ms: 17.495791
+  type: 'test'
+  ...
+# Subtest: start-product-sync POST: role-rejected negato prima dei repository
+ok 39 - start-product-sync POST: role-rejected negato prima dei repository
+  ---
+  duration_ms: 39.773833
+  type: 'test'
+  ...
+# Subtest: start-product-sync POST: Admin ammesso, identità risolta
+ok 40 - start-product-sync POST: Admin ammesso, identità risolta
+  ---
+  duration_ms: 28.969084
+  type: 'test'
+  ...
+# Subtest: start-product-sync POST: attende la Promise admin
+ok 41 - start-product-sync POST: attende la Promise admin
+  ---
+  duration_ms: 66.664125
+  type: 'test'
+  ...
+# Subtest: start-product-sync POST: attende la Promise non-admin
+ok 42 - start-product-sync POST: attende la Promise non-admin
+  ---
+  duration_ms: 11.175625
+  type: 'test'
+  ...
+# Subtest: start-product-sync POST: il test rileva la regressione senza await
+ok 43 - start-product-sync POST: il test rileva la regressione senza await
+  ---
+  duration_ms: 31.510208
+  type: 'test'
+  ...
+# Subtest: process-product-sync GET: anon negato prima dei repository
+ok 44 - process-product-sync GET: anon negato prima dei repository
+  ---
+  duration_ms: 19.32475
+  type: 'test'
+  ...
+# Subtest: process-product-sync GET: invalid negato prima dei repository
+ok 45 - process-product-sync GET: invalid negato prima dei repository
+  ---
+  duration_ms: 15.701167
+  type: 'test'
+  ...
+# Subtest: process-product-sync GET: non-admin negato prima dei repository
+ok 46 - process-product-sync GET: non-admin negato prima dei repository
+  ---
+  duration_ms: 14.980917
+  type: 'test'
+  ...
+# Subtest: process-product-sync GET: rejected negato prima dei repository
+ok 47 - process-product-sync GET: rejected negato prima dei repository
+  ---
+  duration_ms: 27.386583
+  type: 'test'
+  ...
+# Subtest: process-product-sync GET: role-rejected negato prima dei repository
+ok 48 - process-product-sync GET: role-rejected negato prima dei repository
+  ---
+  duration_ms: 29.811208
+  type: 'test'
+  ...
+# Subtest: process-product-sync GET: Admin ammesso, identità risolta
+ok 49 - process-product-sync GET: Admin ammesso, identità risolta
+  ---
+  duration_ms: 36.242625
+  type: 'test'
+  ...
+# Subtest: process-product-sync GET: attende la Promise admin
+ok 50 - process-product-sync GET: attende la Promise admin
+  ---
+  duration_ms: 32.895917
+  type: 'test'
+  ...
+# Subtest: process-product-sync GET: attende la Promise non-admin
+ok 51 - process-product-sync GET: attende la Promise non-admin
+  ---
+  duration_ms: 26.954917
+  type: 'test'
+  ...
+# Subtest: process-product-sync GET: il test rileva la regressione senza await
+ok 52 - process-product-sync GET: il test rileva la regressione senza await
+  ---
+  duration_ms: 76.499667
+  type: 'test'
+  ...
+# Subtest: process-product-sync POST: anon negato prima dei repository
+ok 53 - process-product-sync POST: anon negato prima dei repository
+  ---
+  duration_ms: 18.32375
+  type: 'test'
+  ...
+# Subtest: process-product-sync POST: invalid negato prima dei repository
+ok 54 - process-product-sync POST: invalid negato prima dei repository
+  ---
+  duration_ms: 32.090833
+  type: 'test'
+  ...
+# Subtest: process-product-sync POST: non-admin negato prima dei repository
+ok 55 - process-product-sync POST: non-admin negato prima dei repository
+  ---
+  duration_ms: 19.666583
+  type: 'test'
+  ...
+# Subtest: process-product-sync POST: rejected negato prima dei repository
+ok 56 - process-product-sync POST: rejected negato prima dei repository
+  ---
+  duration_ms: 10.868208
+  type: 'test'
+  ...
+# Subtest: process-product-sync POST: role-rejected negato prima dei repository
+ok 57 - process-product-sync POST: role-rejected negato prima dei repository
+  ---
+  duration_ms: 19.754125
+  type: 'test'
+  ...
+# Subtest: process-product-sync POST: Admin ammesso, identità risolta
+ok 58 - process-product-sync POST: Admin ammesso, identità risolta
+  ---
+  duration_ms: 15.736417
+  type: 'test'
+  ...
+# Subtest: process-product-sync POST: attende la Promise admin
+ok 59 - process-product-sync POST: attende la Promise admin
+  ---
+  duration_ms: 18.102542
+  type: 'test'
+  ...
+# Subtest: process-product-sync POST: attende la Promise non-admin
+ok 60 - process-product-sync POST: attende la Promise non-admin
+  ---
+  duration_ms: 10.390667
+  type: 'test'
+  ...
+# Subtest: process-product-sync POST: il test rileva la regressione senza await
+ok 61 - process-product-sync POST: il test rileva la regressione senza await
+  ---
+  duration_ms: 8.713542
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard GET: anon negato prima dei repository
+ok 62 - get-product-sync-dashboard GET: anon negato prima dei repository
+  ---
+  duration_ms: 11.714083
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard GET: invalid negato prima dei repository
+ok 63 - get-product-sync-dashboard GET: invalid negato prima dei repository
+  ---
+  duration_ms: 7.13275
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard GET: non-admin negato prima dei repository
+ok 64 - get-product-sync-dashboard GET: non-admin negato prima dei repository
+  ---
+  duration_ms: 10.261792
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard GET: rejected negato prima dei repository
+ok 65 - get-product-sync-dashboard GET: rejected negato prima dei repository
+  ---
+  duration_ms: 6.820709
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard GET: role-rejected negato prima dei repository
+ok 66 - get-product-sync-dashboard GET: role-rejected negato prima dei repository
+  ---
+  duration_ms: 7.904708
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard GET: Admin ammesso, identità risolta
+ok 67 - get-product-sync-dashboard GET: Admin ammesso, identità risolta
+  ---
+  duration_ms: 8.056917
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard GET: attende la Promise admin
+ok 68 - get-product-sync-dashboard GET: attende la Promise admin
+  ---
+  duration_ms: 10.933583
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard GET: attende la Promise non-admin
+ok 69 - get-product-sync-dashboard GET: attende la Promise non-admin
+  ---
+  duration_ms: 9.468584
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard GET: il test rileva la regressione senza await
+ok 70 - get-product-sync-dashboard GET: il test rileva la regressione senza await
+  ---
+  duration_ms: 6.9705
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard POST: anon negato prima dei repository
+ok 71 - get-product-sync-dashboard POST: anon negato prima dei repository
+  ---
+  duration_ms: 16.173709
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard POST: invalid negato prima dei repository
+ok 72 - get-product-sync-dashboard POST: invalid negato prima dei repository
+  ---
+  duration_ms: 6.826542
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard POST: non-admin negato prima dei repository
+ok 73 - get-product-sync-dashboard POST: non-admin negato prima dei repository
+  ---
+  duration_ms: 5.484458
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard POST: rejected negato prima dei repository
+ok 74 - get-product-sync-dashboard POST: rejected negato prima dei repository
+  ---
+  duration_ms: 4.599458
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard POST: role-rejected negato prima dei repository
+ok 75 - get-product-sync-dashboard POST: role-rejected negato prima dei repository
+  ---
+  duration_ms: 6.753208
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard POST: Admin ammesso, identità risolta
+ok 76 - get-product-sync-dashboard POST: Admin ammesso, identità risolta
+  ---
+  duration_ms: 6.55225
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard POST: attende la Promise admin
+ok 77 - get-product-sync-dashboard POST: attende la Promise admin
+  ---
+  duration_ms: 5.295875
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard POST: attende la Promise non-admin
+ok 78 - get-product-sync-dashboard POST: attende la Promise non-admin
+  ---
+  duration_ms: 14.140458
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard POST: il test rileva la regressione senza await
+ok 79 - get-product-sync-dashboard POST: il test rileva la regressione senza await
+  ---
+  duration_ms: 5.48775
+  type: 'test'
+  ...
+# Subtest: start-product-sync: OPTIONS resta privo di side effect
+ok 80 - start-product-sync: OPTIONS resta privo di side effect
+  ---
+  duration_ms: 5.162166
+  type: 'test'
+  ...
+# Subtest: process-product-sync: OPTIONS resta privo di side effect
+ok 81 - process-product-sync: OPTIONS resta privo di side effect
+  ---
+  duration_ms: 10.1905
+  type: 'test'
+  ...
+# Subtest: get-product-sync-dashboard: OPTIONS resta privo di side effect
+ok 82 - get-product-sync-dashboard: OPTIONS resta privo di side effect
+  ---
+  duration_ms: 12.144541
+  type: 'test'
+  ...
+# Subtest: month multiselect accetta solo mesi validi e usa ordine canonico
+ok 83 - month multiselect accetta solo mesi validi e usa ordine canonico
+  ---
+  duration_ms: 1.080333
+  type: 'test'
+  ...
+# Subtest: serializer mesi e round-trip Shopify sono deterministici
+ok 84 - serializer mesi e round-trip Shopify sono deterministici
+  ---
+  duration_ms: 0.1765
+  type: 'test'
+  ...
+# Subtest: difficoltà usa l'enum verificato e il testo libero non aggira i vincoli
+ok 85 - difficoltà usa l'enum verificato e il testo libero non aggira i vincoli
+  ---
+  duration_ms: 0.228083
+  type: 'test'
+  ...
+# Subtest: mapping Shopify è derivato dalla definizione server-side e limitato
+ok 86 - mapping Shopify è derivato dalla definizione server-side e limitato
+  ---
+  duration_ms: 0.257208
+  type: 'test'
+  ...
+# Subtest: serializer Shopify usa solo il target registrato
+ok 87 - serializer Shopify usa solo il target registrato
+  ---
+  duration_ms: 0.167584
+  type: 'test'
+  ...
+# Subtest: difficulty e metafield non stagionali mantengono mapping e serializzazione
+ok 88 - difficulty e metafield non stagionali mantengono mapping e serializzazione
+  ---
+  duration_ms: 0.140708
+  type: 'test'
+  ...
+# Subtest: stati publish_state hanno una rappresentazione Admin non ambigua
+ok 89 - stati publish_state hanno una rappresentazione Admin non ambigua
+  ---
+  duration_ms: 0.051584
+  type: 'test'
+  ...
+# Subtest: drift confronta valori canonici e rileva uno stato esterno diverso
+ok 90 - drift confronta valori canonici e rileva uno stato esterno diverso
+  ---
+  duration_ms: 0.094542
+  type: 'test'
+  ...
+# Subtest: mutation metafield contiene un solo campo e nessun target client arbitrario
+ok 91 - mutation metafield contiene un solo campo e nessun target client arbitrario
+  ---
+  duration_ms: 0.293375
+  type: 'test'
+  ...
+# Subtest: mutation core include solo id e singolo attributo
+ok 92 - mutation core include solo id e singolo attributo
+  ---
+  duration_ms: 0.346375
+  type: 'test'
+  ...
+# Subtest: variant write richiede una corrispondenza SKU esatta e univoca
+ok 93 - variant write richiede una corrispondenza SKU esatta e univoca
+  ---
+  duration_ms: 0.114208
+  type: 'test'
+  ...
+# Subtest: metafield target oltre i primi 100 usa il lookup singolare esatto
+ok 94 - metafield target oltre i primi 100 usa il lookup singolare esatto
+  ---
+  duration_ms: 0.172834
+  type: 'test'
+  ...
+# Subtest: metafield esatto assente restituisce null
+ok 95 - metafield esatto assente restituisce null
+  ---
+  duration_ms: 0.05675
+  type: 'test'
+  ...
+# Subtest: namespace e key client arbitrari non possono raggiungere la lettura Shopify
+ok 96 - namespace e key client arbitrari non possono raggiungere la lettura Shopify
+  ---
+  duration_ms: 0.063708
+  type: 'test'
+  ...
+# Subtest: SKU oltre la prima pagina di 100 varianti viene risolto esattamente
+ok 97 - SKU oltre la prima pagina di 100 varianti viene risolto esattamente
+  ---
+  duration_ms: 0.247459
+  type: 'test'
+  ...
+# Subtest: SKU assente blocca la sync
+ok 98 - SKU assente blocca la sync
+  ---
+  duration_ms: 0.106792
+  type: 'test'
+  ...
+# Subtest: lookup variante non usa mai la prima variante come fallback
+ok 99 - lookup variante non usa mai la prima variante come fallback
+  ---
+  duration_ms: 0.071625
+  type: 'test'
+  ...
+# Subtest: SKU duplicato blocca la sync
+ok 100 - SKU duplicato blocca la sync
+  ---
+  duration_ms: 0.0805
+  type: 'test'
+  ...
+# Subtest: verifica post-write rilegge lo stesso metafield esatto
+ok 101 - verifica post-write rilegge lo stesso metafield esatto
+  ---
+  duration_ms: 0.24825
+  type: 'test'
+  ...
+# Subtest: JSON legacy stagionale richiede la riscrittura scalare canonica
+ok 102 - JSON legacy stagionale richiede la riscrittura scalare canonica
+  ---
+  duration_ms: 0.113459
+  type: 'test'
+  ...
+# Subtest: vecchia rappresentazione list stagionale richiede la riscrittura scalare
+ok 103 - vecchia rappresentazione list stagionale richiede la riscrittura scalare
+  ---
+  duration_ms: 0.116583
+  type: 'test'
+  ...
+# Subtest: scalare stagionale già canonico non esegue una seconda write
+ok 104 - scalare stagionale già canonico non esegue una seconda write
+  ---
+  duration_ms: 0.057833
+  type: 'test'
+  ...
+# Subtest: confronto stagionale multi-mese richiede ordine e separatori canonici
+ok 105 - confronto stagionale multi-mese richiede ordine e separatori canonici
+  ---
+  duration_ms: 0.085708
+  type: 'test'
+  ...
+# Subtest: metafield non stagionali conservano il confronto pre-write esistente
+ok 106 - metafield non stagionali conservano il confronto pre-write esistente
+  ---
+  duration_ms: 0.076667
+  type: 'test'
+  ...
+# Subtest: FAQ resta strutturata e JSON legacy opaco resta read-only
+ok 107 - FAQ resta strutturata e JSON legacy opaco resta read-only
+  ---
+  duration_ms: 0.137667
+  type: 'test'
+  ...
+# Subtest: select senza tassonomia verificata è read-only, non input libero
+ok 108 - select senza tassonomia verificata è read-only, non input libero
+  ---
+  duration_ms: 0.031583
+  type: 'test'
+  ...
+# Subtest: migration rende il save PENDING_SYNC e la completion verifica la versione
+ok 109 - migration rende il save PENDING_SYNC e la completion verifica la versione
+  ---
+  duration_ms: 11.806417
+  type: 'test'
+  ...
+# Subtest: 2D.6: ogni Edge Function risolve solo moduli propri, _shared o dipendenze esterne
+ok 110 - 2D.6: ogni Edge Function risolve solo moduli propri, _shared o dipendenze esterne
+  ---
+  duration_ms: 6.906167
+  type: 'test'
+  ...
+# Subtest: 2D.6: le facade Admin V2 esportano esattamente le implementazioni shared
+ok 111 - 2D.6: le facade Admin V2 esportano esattamente le implementazioni shared
+  ---
+  duration_ms: 0.119292
+  type: 'test'
+  ...
+# Subtest: 2D.6: admin, tech_admin e canary conservano la matrice autorizzativa
+ok 112 - 2D.6: admin, tech_admin e canary conservano la matrice autorizzativa
+  ---
+  duration_ms: 0.141667
+  type: 'test'
+  ...
+# Subtest: 2D.6: il contratto auth V2 resta JWT verificato, ruoli DB e AuthError tipizzato
+ok 113 - 2D.6: il contratto auth V2 resta JWT verificato, ruoli DB e AuthError tipizzato
+  ---
+  duration_ms: 0.238667
+  type: 'test'
+  ...
+# Subtest: 2D.6: Shopify resta isolato dalla AI e passa dalla facade field-sync
+ok 114 - 2D.6: Shopify resta isolato dalla AI e passa dalla facade field-sync
+  ---
+  duration_ms: 1.097125
+  type: 'test'
+  ...
+# Subtest: allowlist missing-value contiene soltanto i cinque campi approvati
+ok 115 - allowlist missing-value contiene soltanto i cinque campi approvati
+  ---
+  duration_ms: 0.826666
+  type: 'test'
+  ...
+# Subtest: campo stagionale mancante espone versione zero, capability e multiselect
+ok 116 - campo stagionale mancante espone versione zero, capability e multiselect
+  ---
+  duration_ms: 0.467083
+  type: 'test'
+  ...
+# Subtest: missing periodo_di_fioritura accetta solo string[] canonico
+ok 117 - missing periodo_di_fioritura accetta solo string[] canonico
+  ---
+  duration_ms: 0.483416
+  type: 'test'
+  ...
+# Subtest: periodo stagionale esistente non può essere svuotato tramite update_field
+ok 118 - periodo stagionale esistente non può essere svuotato tramite update_field
+  ---
+  duration_ms: 0.081542
+  type: 'test'
+  ...
+# Subtest: difficolta mancante usa select ed enum chiuso
+ok 119 - difficolta mancante usa select ed enum chiuso
+  ---
+  duration_ms: 0.110708
+  type: 'test'
+  ...
+# Subtest: campo mancante non allowlisted resta FIELD_NOT_EDITABLE
+ok 120 - campo mancante non allowlisted resta FIELD_NOT_EDITABLE
+  ---
+  duration_ms: 0.052375
+  type: 'test'
+  ...
+# Subtest: creazione manual_only esistente resta riservata al canale Admin
+ok 121 - creazione manual_only esistente resta riservata al canale Admin
+  ---
+  duration_ms: 0.125042
+  type: 'test'
+  ...
+# Subtest: salvataggio interno resta separato dalla rete Shopify e dalla sync esplicita
+ok 122 - salvataggio interno resta separato dalla rete Shopify e dalla sync esplicita
+  ---
+  duration_ms: 33.109041
+  type: 'test'
+  ...
+# Subtest: runtime Admin usa il catalogo e non introduce fallback ledger
+ok 123 - runtime Admin usa il catalogo e non introduce fallback ledger
+  ---
+  duration_ms: 6.004
+  type: 'test'
+  ...
+# Subtest: controlled script e' dry-run per default e richiede execute esplicito
+ok 124 - controlled script e' dry-run per default e richiede execute esplicito
+  ---
+  duration_ms: 4.44675
+  type: 'test'
+  ...
+# Subtest: dry-run usa REPEATABLE READ READ ONLY senza LOCK o TEMP
+ok 125 - dry-run usa REPEATABLE READ READ ONLY senza LOCK o TEMP
+  ---
+  duration_ms: 8.896667
+  type: 'test'
+  ...
+# Subtest: execute conserva REPEATABLE READ, lock forte e guardia anti-overwrite
+ok 126 - execute conserva REPEATABLE READ, lock forte e guardia anti-overwrite
+  ---
+  duration_ms: 15.680667
+  type: 'test'
+  ...
+# Subtest: execute e dry-run mantengono identica la CASE di classificazione
+ok 127 - execute e dry-run mantengono identica la CASE di classificazione
+  ---
+  duration_ms: 6.723917
+  type: 'test'
+  ...
+# Subtest: dry-run conserva candidato e classificazione OG_111899
+ok 128 - dry-run conserva candidato e classificazione OG_111899
+  ---
+  duration_ms: 6.598333
+  type: 'test'
+  ...
+# Subtest: backfill accetta solo Product GID verificati ed esatti
+ok 129 - backfill accetta solo Product GID verificati ed esatti
+  ---
+  duration_ms: 4.687333
+  type: 'test'
+  ...
+# Subtest: variation richiede prova variant e stesso Product GID del parent
+ok 130 - variation richiede prova variant e stesso Product GID del parent
+  ---
+  duration_ms: 2.151708
+  type: 'test'
+  ...
+# Subtest: update non sovrascrive ID e verifica superfici non correlate
+ok 131 - update non sovrascrive ID e verifica superfici non correlate
+  ---
+  duration_ms: 8.6265
+  type: 'test'
+  ...
+# Subtest: applies_to distingue simple, parent e variation
+ok 132 - applies_to distingue simple, parent e variation
+  ---
+  duration_ms: 0.553875
+  type: 'test'
+  ...
+# Subtest: month picker e confronto reagiscono ai container reali, non al viewport
+ok 133 - month picker e confronto reagiscono ai container reali, non al viewport
+  ---
+  duration_ms: 13.812083
+  type: 'test'
+  ...
+# Subtest: capability server-side consentono manual_only locked e creazione solo ad Admin
+ok 134 - capability server-side consentono manual_only locked e creazione solo ad Admin
+  ---
+  duration_ms: 0.391125
+  type: 'test'
+  ...
+# Subtest: i cinque campi manuali golden restano protetti e senza capability AI
+ok 135 - i cinque campi manuali golden restano protetti e senza capability AI
+  ---
+  duration_ms: 0.249834
+  type: 'test'
+  ...
+# Subtest: validazione command supera il lock solo per manual_only Admin
+ok 136 - validazione command supera il lock solo per manual_only Admin
+  ---
+  duration_ms: 0.261125
+  type: 'test'
+  ...
+# Subtest: campo manuale assente espone version zero e capability di creazione
+ok 137 - campo manuale assente espone version zero e capability di creazione
+  ---
+  duration_ms: 0.282541
+  type: 'test'
+  ...
+# Subtest: snapshot collegato, baseline non collegata e originale assente sono distinti
+ok 138 - snapshot collegato, baseline non collegata e originale assente sono distinti
+  ---
+  duration_ms: 0.225083
+  type: 'test'
+  ...
+# Subtest: editor tipizzati conservano number, boolean e array
+ok 139 - editor tipizzati conservano number, boolean e array
+  ---
+  duration_ms: 0.466792
+  type: 'test'
+  ...
+# Subtest: FAQ canonicali e alias q/a sono editabili, legacy opaco resta invariato
+ok 140 - FAQ canonicali e alias q/a sono editabili, legacy opaco resta invariato
+  ---
+  duration_ms: 0.355583
+  type: 'test'
+  ...
+# Subtest: FAQ inviate al server richiedono domanda/risposta canoniche complete
+ok 141 - FAQ inviate al server richiedono domanda/risposta canoniche complete
+  ---
+  duration_ms: 0.325
+  type: 'test'
+  ...
+# Subtest: il conflitto versione conserva i dettagli server per una ricarica esplicita
+ok 142 - il conflitto versione conserva i dettagli server per una ricarica esplicita
+  ---
+  duration_ms: 0.065583
+  type: 'test'
+  ...
+# Subtest: TEST 1 — CSV senza metafield: l'oggetto metafields resta invariato
+ok 143 - TEST 1 — CSV senza metafield: l'oggetto metafields resta invariato
+  ---
+  duration_ms: 1.175083
+  type: 'test'
+  ...
+# Subtest: TEST 2 — title source-controlled: un valore reale nel CSV aggiorna il DB
+ok 144 - TEST 2 — title source-controlled: un valore reale nel CSV aggiorna il DB
+  ---
+  duration_ms: 0.175291
+  type: 'test'
+  ...
+# Subtest: TEST 3 — campo manuale 'curiosita' assente nel CSV: resta invariato
+ok 145 - TEST 3 — campo manuale 'curiosita' assente nel CSV: resta invariato
+  ---
+  duration_ms: 0.092333
+  type: 'test'
+  ...
+# Subtest: TEST 3b — il CSV non può sovrascrivere una chiave manuale nemmeno se la contiene
+ok 146 - TEST 3b — il CSV non può sovrascrivere una chiave manuale nemmeno se la contiene
+  ---
+  duration_ms: 0.059709
+  type: 'test'
+  ...
+# Subtest: TEST 4 — le colonne AI non sono mai nel payload dell'import
+ok 147 - TEST 4 — le colonne AI non sono mai nel payload dell'import
+  ---
+  duration_ms: 0.079375
+  type: 'test'
+  ...
+# Subtest: TEST 5 — fallback tecnici vuoti non azzerano i dati esistenti
+ok 148 - TEST 5 — fallback tecnici vuoti non azzerano i dati esistenti
+  ---
+  duration_ms: 0.088042
+  type: 'test'
+  ...
+# Subtest: TEST 6 — SKU mai esistito: creazione corretta
+ok 149 - TEST 6 — SKU mai esistito: creazione corretta
+  ---
+  duration_ms: 0.103542
+  type: 'test'
+  ...
+# Subtest: hasSourceValue distingue assenza di dato da valore reale
+ok 150 - hasSourceValue distingue assenza di dato da valore reale
+  ---
+  duration_ms: 0.073125
+  type: 'test'
+  ...
+# Subtest: mergeMetafields non rimuove mai chiavi esistenti
+ok 151 - mergeMetafields non rimuove mai chiavi esistenti
+  ---
+  duration_ms: 0.297625
+  type: 'test'
+  ...
+# Subtest: tutte le chiavi manuali dichiarate sono effettivamente protette
+ok 152 - tutte le chiavi manuali dichiarate sono effettivamente protette
+  ---
+  duration_ms: 0.38025
+  type: 'test'
+  ...
+# Subtest: enrichment-run start: client database service separato dopo auth
+ok 153 - enrichment-run start: client database service separato dopo auth
+  ---
+  duration_ms: 52.186333
+  type: 'test'
+  ...
+# Subtest: enrichment-run update_item: client database service separato dopo auth
+ok 154 - enrichment-run update_item: client database service separato dopo auth
+  ---
+  duration_ms: 0.850959
+  type: 'test'
+  ...
+# Subtest: enrichment-run finish: client database service separato dopo auth
+ok 155 - enrichment-run finish: client database service separato dopo auth
+  ---
+  duration_ms: 0.579625
+  type: 'test'
+  ...
+# Subtest: enrichment-run get_open_run: client database service separato dopo auth
+ok 156 - enrichment-run get_open_run: client database service separato dopo auth
+  ---
+  duration_ms: 0.54
+  type: 'test'
+  ...
+# Subtest: enrichment-run get_run: client database service separato dopo auth
+ok 157 - enrichment-run get_run: client database service separato dopo auth
+  ---
+  duration_ms: 0.890667
+  type: 'test'
+  ...
+# Subtest: enrichment-run get_catalog_status: client database service separato dopo auth
+ok 158 - enrichment-run get_catalog_status: client database service separato dopo auth
+  ---
+  duration_ms: 0.533166
+  type: 'test'
+  ...
+# Subtest: enrichment-run: Forbidden: admin role required non crea client DB
+ok 159 - enrichment-run: Forbidden: admin role required non crea client DB
+  ---
+  duration_ms: 0.540167
+  type: 'test'
+  ...
+# Subtest: enrichment-run: synthetic auth failure non crea client DB
+ok 160 - enrichment-run: synthetic auth failure non crea client DB
+  ---
+  duration_ms: 0.360792
+  type: 'test'
+  ...
+# Subtest: enrichment-run: auth pendente blocca la costruzione del client service
+ok 161 - enrichment-run: auth pendente blocca la costruzione del client service
+  ---
+  duration_ms: 28.814542
+  type: 'test'
+  ...
+# Subtest: 1. raw_row conserva la riga completa senza rinominare colonne
+ok 162 - 1. raw_row conserva la riga completa senza rinominare colonne
+  ---
+  duration_ms: 3.301542
+  type: 'test'
+  ...
+# Subtest: 2. le 46 colonne del master sono tutte registrate
+ok 163 - 2. le 46 colonne del master sono tutte registrate
+  ---
+  duration_ms: 0.112458
+  type: 'test'
+  ...
+# Subtest: 3. una colonna sconosciuta usa il namespace raw_source e resta protetta
+ok 164 - 3. una colonna sconosciuta usa il namespace raw_source e resta protetta
+  ---
+  duration_ms: 0.07225
+  type: 'test'
+  ...
+# Subtest: 4. master wins quando la verticale è vuota
+ok 165 - 4. master wins quando la verticale è vuota
+  ---
+  duration_ms: 0.181375
+  type: 'test'
+  ...
+# Subtest: 5. vertical fill riempie solo un master vuoto
+ok 166 - 5. vertical fill riempie solo un master vuoto
+  ---
+  duration_ms: 0.130666
+  type: 'test'
+  ...
+# Subtest: 6. source conflict non viene risolto automaticamente
+ok 167 - 6. source conflict non viene risolto automaticamente
+  ---
+  duration_ms: 0.06275
+  type: 'test'
+  ...
+# Subtest: 7. un valore vuoto non cancella un valore non vuoto
+ok 168 - 7. un valore vuoto non cancella un valore non vuoto
+  ---
+  duration_ms: 0.115833
+  type: 'test'
+  ...
+# Subtest: 8. parent mantiene identità e tipo parent
+ok 169 - 8. parent mantiene identità e tipo parent
+  ---
+  duration_ms: 0.343916
+  type: 'test'
+  ...
+# Subtest: 9. variation conserva la relazione sorgente senza correggerla
+ok 170 - 9. variation conserva la relazione sorgente senza correggerla
+  ---
+  duration_ms: 0.306666
+  type: 'test'
+  ...
+# Subtest: 10. SKU mancante richiede review e non crea entità canonica
+ok 171 - 10. SKU mancante richiede review e non crea entità canonica
+  ---
+  duration_ms: 0.323375
+  type: 'test'
+  ...
+# Subtest: 11. i campi manuali noti sono protetti
+ok 172 - 11. i campi manuali noti sono protetti
+  ---
+  duration_ms: 0.062375
+  type: 'test'
+  ...
+# Subtest: 12. il resolver non contiene né importa un invocatore AI
+ok 173 - 12. il resolver non contiene né importa un invocatore AI
+  ---
+  duration_ms: 0.200459
+  type: 'test'
+  ...
+# Subtest: 13. un valore legacy non vuoto e diverso è preservato
+ok 174 - 13. un valore legacy non vuoto e diverso è preservato
+  ---
+  duration_ms: 22.147959
+  type: 'test'
+  ...
+# Subtest: 13b. prezzo regolare confronta price senza offerta e compare_at_price con offerta
+ok 175 - 13b. prezzo regolare confronta price senza offerta e compare_at_price con offerta
+  ---
+  duration_ms: 0.973458
+  type: 'test'
+  ...
+# Subtest: 14. baseline WordPress e current legacy restano distinti
+ok 176 - 14. baseline WordPress e current legacy restano distinti
+  ---
+  duration_ms: 0.24975
+  type: 'test'
+  ...
+# Subtest: 15. provenance conserva file e riga della sorgente selezionata
+ok 177 - 15. provenance conserva file e riga della sorgente selezionata
+  ---
+  duration_ms: 0.105292
+  type: 'test'
+  ...
+# Subtest: 16. round-trip CSV lossless su otto fixture sintetiche
+ok 178 - 16. round-trip CSV lossless su otto fixture sintetiche
+  ---
+  duration_ms: 8.272958
+  type: 'test'
+  ...
+# Subtest: 17. il confronto legacy usa tutte le classificazioni richieste
+ok 179 - 17. il confronto legacy usa tutte le classificazioni richieste
+  ---
+  duration_ms: 0.194541
+  type: 'test'
+  ...
+# Subtest: 18. il dry-run golden non carica client DB né file ambiente
+ok 180 - 18. il dry-run golden non carica client DB né file ambiente
+  ---
+  duration_ms: 0.448791
+  type: 'test'
+  ...
+# Subtest: azioni: whitelist e classificazione
+ok 181 - azioni: whitelist e classificazione
+  ---
+  duration_ms: 0.709583
+  type: 'test'
+  ...
+# Subtest: permessi: anon e ruoli
+ok 182 - permessi: anon e ruoli
+  ---
+  duration_ms: 0.422125
+  type: 'test'
+  ...
+# Subtest: campi protetti non modificabili
+ok 183 - campi protetti non modificabili
+  ---
+  duration_ms: 0.466292
+  type: 'test'
+  ...
+# Subtest: tipizzazione valori
+ok 184 - tipizzazione valori
+  ---
+  duration_ms: 0.270125
+  type: 'test'
+  ...
+# Subtest: stringa vuota rifiutata: serve clear_field
+ok 185 - stringa vuota rifiutata: serve clear_field
+  ---
+  duration_ms: 0.143333
+  type: 'test'
+  ...
+# Subtest: no-op non genera modifica
+ok 186 - no-op non genera modifica
+  ---
+  duration_ms: 0.074334
+  type: 'test'
+  ...
+# Subtest: expectedVersion obbligatorio
+ok 187 - expectedVersion obbligatorio
+  ---
+  duration_ms: 0.128583
+  type: 'test'
+  ...
+# Subtest: creazione manual_only richiede Admin e expectedVersion zero
+ok 188 - creazione manual_only richiede Admin e expectedVersion zero
+  ---
+  duration_ms: 0.067833
+  type: 'test'
+  ...
+# Subtest: manual_only locked è modificabile solo dal canale Admin esplicito
+ok 189 - manual_only locked è modificabile solo dal canale Admin esplicito
+  ---
+  duration_ms: 0.272833
+  type: 'test'
+  ...
+# Subtest: hash idempotente canonicalizza ricorsivamente gli oggetti
+ok 190 - hash idempotente canonicalizza ricorsivamente gli oggetti
+  ---
+  duration_ms: 21.131125
+  type: 'test'
+  ...
+# Subtest: replay applicato restituisce l'esito precedente prima del version check
+ok 191 - replay applicato restituisce l'esito precedente prima del version check
+  ---
+  duration_ms: 3.463125
+  type: 'test'
+  ...
+# Subtest: stessa key con payload diverso è conflitto; una nuova key prosegue
+ok 192 - stessa key con payload diverso è conflitto; una nuova key prosegue
+  ---
+  duration_ms: 1.4685
+  type: 'test'
+  ...
+# Subtest: ordine FAQ resta semantico nell'hash idempotente
+ok 193 - ordine FAQ resta semantico nell'hash idempotente
+  ---
+  duration_ms: 3.190584
+  type: 'test'
+  ...
+# Subtest: VERSION_CONFLICT concorrente viene riconciliato con un solo lookup e nessun retry write
+ok 194 - VERSION_CONFLICT concorrente viene riconciliato con un solo lookup e nessun retry write
+  ---
+  duration_ms: 2.921541
+  type: 'test'
+  ...
+# Subtest: post-conflict distingue key riusata e command realmente stale
+ok 195 - post-conflict distingue key riusata e command realmente stale
+  ---
+  duration_ms: 0.447708
+  type: 'test'
+  ...
+# Subtest: un esito RPC diverso da VERSION_CONFLICT non attiva il secondo lookup
+ok 196 - un esito RPC diverso da VERSION_CONFLICT non attiva il secondo lookup
+  ---
+  duration_ms: 0.226417
+  type: 'test'
+  ...
+# Subtest: clear esplicito: conferma e campi required
+ok 197 - clear esplicito: conferma e campi required
+  ---
+  duration_ms: 0.067459
+  type: 'test'
+  ...
+# Subtest: review legacy: solo su legacy_unverified
+ok 198 - review legacy: solo su legacy_unverified
+  ---
+  duration_ms: 0.12
+  type: 'test'
+  ...
+# Subtest: serializzazione errori: codici e HTTP
+ok 199 - serializzazione errori: codici e HTTP
+  ---
+  duration_ms: 0.064
+  type: 'test'
+  ...
+# Subtest: serializzazione sezioni e riepilogo
+ok 200 - serializzazione sezioni e riepilogo
+  ---
+  duration_ms: 0.613041
+  type: 'test'
+  ...
+# Subtest: page size limitata
+ok 201 - page size limitata
+  ---
+  duration_ms: 0.045084
+  type: 'test'
+  ...
+# Subtest: canary: solo admin e tech_admin possono scrivere
+ok 202 - canary: solo admin e tech_admin possono scrivere
+  ---
+  duration_ms: 0.051
+  type: 'test'
+  ...
+# Subtest: canary: allowlist campi testuali e manual_only
+ok 203 - canary: allowlist campi testuali e manual_only
+  ---
+  duration_ms: 0.042333
+  type: 'test'
+  ...
+# Subtest: canary: clear_field non è tra le azioni consentite
+ok 204 - canary: clear_field non è tra le azioni consentite
+  ---
+  duration_ms: 0.029333
+  type: 'test'
+  ...
+# Subtest: manifest: massimo 25, denylist, duplicati, location e struttura sono fail-fast
+ok 205 - manifest: massimo 25, denylist, duplicati, location e struttura sono fail-fast
+  ---
+  duration_ms: 1.29
+  type: 'test'
+  ...
+# Subtest: importer: seleziona solo simple UPDATE_EXISTING con contenuto e prezzo validi
+ok 206 - importer: seleziona solo simple UPDATE_EXISTING con contenuto e prezzo validi
+  ---
+  duration_ms: 0.62325
+  type: 'test'
+  ...
+# Subtest: auth: solo admin e tech_admin superano il gate canary
+ok 207 - auth: solo admin e tech_admin superano il gate canary
+  ---
+  duration_ms: 0.065042
+  type: 'test'
+  ...
+# Subtest: DRY_RUN è default-safe: legge e pianifica senza mutation
+ok 208 - DRY_RUN è default-safe: legge e pianifica senza mutation
+  ---
+  duration_ms: 0.356459
+  type: 'test'
+  ...
+# Subtest: EXECUTE imposta available assoluto 0→20 e il retry resta 20
+ok 209 - EXECUTE imposta available assoluto 0→20 e il retry resta 20
+  ---
+  duration_ms: 0.187666
+  type: 'test'
+  ...
+# Subtest: EXECUTE imposta available assoluto 5→20 e il retry resta 20
+ok 210 - EXECUTE imposta available assoluto 5→20 e il retry resta 20
+  ---
+  duration_ms: 0.183291
+  type: 'test'
+  ...
+# Subtest: available=20, tracked e DENY non produce write
+ok 211 - available=20, tracked e DENY non produce write
+  ---
+  duration_ms: 0.080708
+  type: 'test'
+  ...
+# Subtest: drift rispetto al manifest blocca la write prima di ogni mutation
+ok 212 - drift rispetto al manifest blocca la write prima di ogni mutation
+  ---
+  duration_ms: 0.217667
+  type: 'test'
+  ...
+# Subtest: tracking false→true e CONTINUE→DENY senza altri cambiamenti
+ok 213 - tracking false→true e CONTINUE→DENY senza altri cambiamenti
+  ---
+  duration_ms: 0.335667
+  type: 'test'
+  ...
+# Subtest: errore elemento isolato; errore sistemico arresta i successivi
+ok 214 - errore elemento isolato; errore sistemico arresta i successivi
+  ---
+  duration_ms: 0.507833
+  type: 'test'
+  ...
+# Subtest: retry concorrente viene riconciliato con una sola rilettura e nessun secondo set
+ok 215 - retry concorrente viene riconciliato con una sola rilettura e nessun secondo set
+  ---
+  duration_ms: 0.108
+  type: 'test'
+  ...
+# Subtest: P1-A: tracking confermato resta nel report se policy fallisce
+ok 216 - P1-A: tracking confermato resta nel report se policy fallisce
+  ---
+  duration_ms: 0.21375
+  type: 'test'
+  ...
+# Subtest: P1-B: tracking e policy restano nel report se quantity fallisce
+ok 217 - P1-B: tracking e policy restano nel report se quantity fallisce
+  ---
+  duration_ms: 0.204542
+  type: 'test'
+  ...
+# Subtest: P1-C: quantity confermata resta nel report se la postcondition fallisce
+ok 218 - P1-C: quantity confermata resta nel report se la postcondition fallisce
+  ---
+  duration_ms: 0.104208
+  type: 'test'
+  ...
+# Subtest: P1-D: fallimento prima della prima mutation riporta applied vuoto
+ok 219 - P1-D: fallimento prima della prima mutation riporta applied vuoto
+  ---
+  duration_ms: 0.07825
+  type: 'test'
+  ...
+# Subtest: P2-A: previous attempt già a 20 viene riconciliato senza recovery write
+ok 220 - P2-A: previous attempt già a 20 viene riconciliato senza recovery write
+  ---
+  duration_ms: 0.080291
+  type: 'test'
+  ...
+# Subtest: P2-B: previous attempt fallito usa una sola recovery-1 deterministica
+ok 221 - P2-B: previous attempt fallito usa una sola recovery-1 deterministica
+  ---
+  duration_ms: 0.101541
+  type: 'test'
+  ...
+# Subtest: P2-C: errore anche su recovery-1 fallisce senza loop
+ok 222 - P2-C: errore anche su recovery-1 fallisce senza loop
+  ---
+  duration_ms: 0.167375
+  type: 'test'
+  ...
+# Subtest: P2-D: altri item error non attivano recovery speciale
+ok 223 - P2-D: altri item error non attivano recovery speciale
+  ---
+  duration_ms: 0.126833
+  type: 'test'
+  ...
+# Subtest: chiave stabile e output/log non includono segreti
+ok 224 - chiave stabile e output/log non includono segreti
+  ---
+  duration_ms: 1.189875
+  type: 'test'
+  ...
+# Subtest: Smart Sync costruisce esclusivamente il path privato job-scoped
+ok 225 - Smart Sync costruisce esclusivamente il path privato job-scoped
+  ---
+  duration_ms: 0.746542
+  type: 'test'
+  ...
+# Subtest: Smart Sync esegue job, upload e registrazione nell’ordine richiesto
+ok 226 - Smart Sync esegue job, upload e registrazione nell’ordine richiesto
+  ---
+  duration_ms: 0.439208
+  type: 'test'
+  ...
+# Subtest: fallimento upload interrompe prima di registrazione e import
+ok 227 - fallimento upload interrompe prima di registrazione e import
+  ---
+  duration_ms: 0.155542
+  type: 'test'
+  ...
+# Subtest: runtime non contiene più il CSV nel bucket pubblico né il downloader legacy
+ok 228 - runtime non contiene più il CSV nel bucket pubblico né il downloader legacy
+  ---
+  duration_ms: 0.388166
+  type: 'test'
+  ...
+# Subtest: registrazione server-side accetta solo path esatto, è idempotente e blocca batch prematuri
+ok 229 - registrazione server-side accetta solo path esatto, è idempotente e blocca batch prematuri
+  ---
+  duration_ms: 0.188667
+  type: 'test'
+  ...
+# Subtest: process-product-sync usa il gate testato e mantiene fallback legacy
+ok 230 - process-product-sync usa il gate testato e mantiene fallback legacy
+  ---
+  duration_ms: 0.294333
+  type: 'test'
+  ...
+# Subtest: csv-upload-url: OPTIONS non autentica e non usa service_role
+ok 231 - csv-upload-url: OPTIONS non autentica e non usa service_role
+  ---
+  duration_ms: 240.032833
+  type: 'test'
+  ...
+# Subtest: csv-upload-url: anon negato prima di DB o Storage
+ok 232 - csv-upload-url: anon negato prima di DB o Storage
+  ---
+  duration_ms: 38.627375
+  type: 'test'
+  ...
+# Subtest: csv-upload-url: non-admin negato prima di DB o Storage
+ok 233 - csv-upload-url: non-admin negato prima di DB o Storage
+  ---
+  duration_ms: 24.351291
+  type: 'test'
+  ...
+# Subtest: csv-upload-url: rejected negato prima di DB o Storage
+ok 234 - csv-upload-url: rejected negato prima di DB o Storage
+  ---
+  duration_ms: 21.643166
+  type: 'test'
+  ...
+# Subtest: csv-upload-url: Admin ammesso al percorso applicativo esistente
+ok 235 - csv-upload-url: Admin ammesso al percorso applicativo esistente
+  ---
+  duration_ms: 14.271
+  type: 'test'
+  ...
+# Subtest: csv-upload-url: Promise Auth pendente blocca ogni accesso privilegiato
+ok 236 - csv-upload-url: Promise Auth pendente blocca ogni accesso privilegiato
+  ---
+  duration_ms: 17.841875
+  type: 'test'
+  ...
+# Subtest: woo-enrichment-pipeline: OPTIONS non autentica e non usa service_role
+ok 237 - woo-enrichment-pipeline: OPTIONS non autentica e non usa service_role
+  ---
+  duration_ms: 17.550583
+  type: 'test'
+  ...
+# Subtest: woo-enrichment-pipeline: anon negato prima di DB o Storage
+ok 238 - woo-enrichment-pipeline: anon negato prima di DB o Storage
+  ---
+  duration_ms: 21.46125
+  type: 'test'
+  ...
+# Subtest: woo-enrichment-pipeline: non-admin negato prima di DB o Storage
+ok 239 - woo-enrichment-pipeline: non-admin negato prima di DB o Storage
+  ---
+  duration_ms: 11.927667
+  type: 'test'
+  ...
+# Subtest: woo-enrichment-pipeline: rejected negato prima di DB o Storage
+ok 240 - woo-enrichment-pipeline: rejected negato prima di DB o Storage
+  ---
+  duration_ms: 14.408292
+  type: 'test'
+  ...
+# Subtest: woo-enrichment-pipeline: Admin ammesso al percorso applicativo esistente
+ok 241 - woo-enrichment-pipeline: Admin ammesso al percorso applicativo esistente
+  ---
+  duration_ms: 11.640083
+  type: 'test'
+  ...
+# Subtest: woo-enrichment-pipeline: Promise Auth pendente blocca ogni accesso privilegiato
+ok 242 - woo-enrichment-pipeline: Promise Auth pendente blocca ogni accesso privilegiato
+  ---
+  duration_ms: 18.467125
+  type: 'test'
+  ...
+# Subtest: process-woo-job: OPTIONS non autentica e non usa service_role
+ok 243 - process-woo-job: OPTIONS non autentica e non usa service_role
+  ---
+  duration_ms: 34.347083
+  type: 'test'
+  ...
+# Subtest: process-woo-job: anon negato prima di DB o Storage
+ok 244 - process-woo-job: anon negato prima di DB o Storage
+  ---
+  duration_ms: 34.741708
+  type: 'test'
+  ...
+# Subtest: process-woo-job: non-admin negato prima di DB o Storage
+ok 245 - process-woo-job: non-admin negato prima di DB o Storage
+  ---
+  duration_ms: 21.960458
+  type: 'test'
+  ...
+# Subtest: process-woo-job: rejected negato prima di DB o Storage
+ok 246 - process-woo-job: rejected negato prima di DB o Storage
+  ---
+  duration_ms: 21.349166
+  type: 'test'
+  ...
+# Subtest: process-woo-job: Admin ammesso al percorso applicativo esistente
+ok 247 - process-woo-job: Admin ammesso al percorso applicativo esistente
+  ---
+  duration_ms: 17.716292
+  type: 'test'
+  ...
+# Subtest: process-woo-job: Promise Auth pendente blocca ogni accesso privilegiato
+ok 248 - process-woo-job: Promise Auth pendente blocca ogni accesso privilegiato
+  ---
+  duration_ms: 20.774875
+  type: 'test'
+  ...
+# Subtest: csv-upload-url: sync consente solo product-images e non crea capability per CSV
+ok 249 - csv-upload-url: sync consente solo product-images e non crea capability per CSV
+  ---
+  duration_ms: 28.019584
+  type: 'test'
+  ...
+# Subtest: storage signed URL: missing/invalid authentication null denied
+ok 250 - storage signed URL: missing/invalid authentication null denied
+  ---
+  duration_ms: 4.894541
+  type: 'test'
+  ...
+# Subtest: storage signed URL: missing/invalid authentication  denied
+ok 251 - storage signed URL: missing/invalid authentication  denied
+  ---
+  duration_ms: 1.582875
+  type: 'test'
+  ...
+# Subtest: storage signed URL: missing/invalid authentication synthetic-invalid denied
+ok 252 - storage signed URL: missing/invalid authentication synthetic-invalid denied
+  ---
+  duration_ms: 0.825417
+  type: 'test'
+  ...
+# Subtest: storage signed URL: OPTIONS does not authenticate or sign
+ok 253 - storage signed URL: OPTIONS does not authenticate or sign
+  ---
+  duration_ms: 0.415083
+  type: 'test'
+  ...
+# Subtest: storage signed URL: unsupported method does not authenticate or sign
+ok 254 - storage signed URL: unsupported method does not authenticate or sign
+  ---
+  duration_ms: 0.550084
+  type: 'test'
+  ...
+# Subtest: storage signed URL: Admin via RLS succeeds without service credentials
+ok 255 - storage signed URL: Admin via RLS succeeds without service credentials
+  ---
+  duration_ms: 3.950916
+  type: 'test'
+  ...
+# Subtest: storage signed URL: non-Admin permitted image policy is preserved
+ok 256 - storage signed URL: non-Admin permitted image policy is preserved
+  ---
+  duration_ms: 1.065584
+  type: 'test'
+  ...
+# Subtest: storage signed URL: non-Admin denied by policy for csv-pipeline/jobs/user-a/input.csv
+ok 257 - storage signed URL: non-Admin denied by policy for csv-pipeline/jobs/user-a/input.csv
+  ---
+  duration_ms: 0.948
+  type: 'test'
+  ...
+# Subtest: storage signed URL: non-Admin denied by policy for csv-pipeline/jobs/user-b/input.csv
+ok 258 - storage signed URL: non-Admin denied by policy for csv-pipeline/jobs/user-b/input.csv
+  ---
+  duration_ms: 3.055958
+  type: 'test'
+  ...
+# Subtest: storage signed URL: sync path outside product-images denied before Storage: shopify-ready.csv
+ok 259 - storage signed URL: sync path outside product-images denied before Storage: shopify-ready.csv
+  ---
+  duration_ms: 2.999125
+  type: 'test'
+  ...
+# Subtest: storage signed URL: sync path outside product-images denied before Storage: jobs/fixture/input.csv
+ok 260 - storage signed URL: sync path outside product-images denied before Storage: jobs/fixture/input.csv
+  ---
+  duration_ms: 1.038459
+  type: 'test'
+  ...
+# Subtest: storage signed URL: sync path outside product-images denied before Storage: product-images
+ok 261 - storage signed URL: sync path outside product-images denied before Storage: product-images
+  ---
+  duration_ms: 0.672458
+  type: 'test'
+  ...
+# Subtest: storage signed URL: sync path outside product-images denied before Storage: product-images/../private.csv
+ok 262 - storage signed URL: sync path outside product-images denied before Storage: product-images/../private.csv
+  ---
+  duration_ms: 0.519042
+  type: 'test'
+  ...
+# Subtest: storage signed URL: editable metadata cannot grant Admin privileges
+ok 263 - storage signed URL: editable metadata cannot grant Admin privileges
+  ---
+  duration_ms: 0.533958
+  type: 'test'
+  ...
+# Subtest: storage signed URL: no fallback if policy denies even an Admin
+ok 264 - storage signed URL: no fallback if policy denies even an Admin
+  ---
+  duration_ms: 0.45525
+  type: 'test'
+  ...
+# Subtest: storage signed URL: concurrent users never share a privileged client
+ok 265 - storage signed URL: concurrent users never share a privileged client
+  ---
+  duration_ms: 0.573084
+  type: 'test'
+  ...
+# Subtest: storage signed URL: missing object is indistinguishable from policy denial
+ok 266 - storage signed URL: missing object is indistinguishable from policy denial
+  ---
+  duration_ms: 0.666291
+  type: 'test'
+  ...
+# Subtest: storage signed URL: forbidden bucket other-private-bucket
+ok 267 - storage signed URL: forbidden bucket other-private-bucket
+  ---
+  duration_ms: 0.413792
+  type: 'test'
+  ...
+# Subtest: storage signed URL: forbidden bucket csv-pipeline/../sync
+ok 268 - storage signed URL: forbidden bucket csv-pipeline/../sync
+  ---
+  duration_ms: 0.333625
+  type: 'test'
+  ...
+# Subtest: storage signed URL: forbidden bucket 
+ok 269 - storage signed URL: forbidden bucket 
+  ---
+  duration_ms: 0.346334
+  type: 'test'
+  ...
+# Subtest: storage signed URL: forbidden bucket null
+ok 270 - storage signed URL: forbidden bucket null
+  ---
+  duration_ms: 1.844833
+  type: 'test'
+  ...
+# Subtest: storage signed URL: forbidden bucket 12
+ok 271 - storage signed URL: forbidden bucket 12
+  ---
+  duration_ms: 0.455834
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case ""
+ok 272 - storage signed URL: rejects invalid path case ""
+  ---
+  duration_ms: 0.791125
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "/input.csv"
+ok 273 - storage signed URL: rejects invalid path case "/input.csv"
+  ---
+  duration_ms: 1.022833
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "a//b"
+ok 274 - storage signed URL: rejects invalid path case "a//b"
+  ---
+  duration_ms: 0.532584
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "a/../b"
+ok 275 - storage signed URL: rejects invalid path case "a/../b"
+  ---
+  duration_ms: 0.725208
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "./a"
+ok 276 - storage signed URL: rejects invalid path case "./a"
+  ---
+  duration_ms: 0.396125
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "a/."
+ok 277 - storage signed URL: rejects invalid path case "a/."
+  ---
+  duration_ms: 0.398958
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "a/"
+ok 278 - storage signed URL: rejects invalid path case "a/"
+  ---
+  duration_ms: 0.349375
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "a\\\\b"
+ok 279 - storage signed URL: rejects invalid path case "a\\\\b"
+  ---
+  duration_ms: 0.376333
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "a/%2e%2e/b"
+ok 280 - storage signed URL: rejects invalid path case "a/%2e%2e/b"
+  ---
+  duration_ms: 0.348417
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "a/%252f/b"
+ok 281 - storage signed URL: rejects invalid path case "a/%252f/b"
+  ---
+  duration_ms: 0.336625
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "a?b"
+ok 282 - storage signed URL: rejects invalid path case "a?b"
+  ---
+  duration_ms: 0.377792
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "a\#b"
+ok 283 - storage signed URL: rejects invalid path case "a\#b"
+  ---
+  duration_ms: 0.348834
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "a\\u0000b"
+ok 284 - storage signed URL: rejects invalid path case "a\\u0000b"
+  ---
+  duration_ms: 0.525041
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "a\\nb"
+ok 285 - storage signed URL: rejects invalid path case "a\\nb"
+  ---
+  duration_ms: 0.880417
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case " a"
+ok 286 - storage signed URL: rejects invalid path case " a"
+  ---
+  duration_ms: 0.457125
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case null
+ok 287 - storage signed URL: rejects invalid path case null
+  ---
+  duration_ms: 0.592708
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case 42
+ok 288 - storage signed URL: rejects invalid path case 42
+  ---
+  duration_ms: 0.38575
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid path case "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+ok 289 - storage signed URL: rejects invalid path case "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  ---
+  duration_ms: 0.381083
+  type: 'test'
+  ...
+# Subtest: storage signed URL: TTL undefined bounded to 3600
+ok 290 - storage signed URL: TTL undefined bounded to 3600
+  ---
+  duration_ms: 0.420417
+  type: 'test'
+  ...
+# Subtest: storage signed URL: TTL 1 bounded to 60
+ok 291 - storage signed URL: TTL 1 bounded to 60
+  ---
+  duration_ms: 0.374666
+  type: 'test'
+  ...
+# Subtest: storage signed URL: TTL 60 bounded to 60
+ok 292 - storage signed URL: TTL 60 bounded to 60
+  ---
+  duration_ms: 0.32725
+  type: 'test'
+  ...
+# Subtest: storage signed URL: TTL 600 bounded to 600
+ok 293 - storage signed URL: TTL 600 bounded to 600
+  ---
+  duration_ms: 0.420667
+  type: 'test'
+  ...
+# Subtest: storage signed URL: TTL 3600 bounded to 3600
+ok 294 - storage signed URL: TTL 3600 bounded to 3600
+  ---
+  duration_ms: 0.352958
+  type: 'test'
+  ...
+# Subtest: storage signed URL: TTL 86400 bounded to 3600
+ok 295 - storage signed URL: TTL 86400 bounded to 3600
+  ---
+  duration_ms: 0.32975
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid TTL "3600"
+ok 296 - storage signed URL: rejects invalid TTL "3600"
+  ---
+  duration_ms: 1.244125
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid TTL null
+ok 297 - storage signed URL: rejects invalid TTL null
+  ---
+  duration_ms: 0.5125
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid TTL 0
+ok 298 - storage signed URL: rejects invalid TTL 0
+  ---
+  duration_ms: 0.438166
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid TTL -1
+ok 299 - storage signed URL: rejects invalid TTL -1
+  ---
+  duration_ms: 0.595875
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid TTL 1.5
+ok 300 - storage signed URL: rejects invalid TTL 1.5
+  ---
+  duration_ms: 0.351375
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid TTL {}
+ok 301 - storage signed URL: rejects invalid TTL {}
+  ---
+  duration_ms: 0.388
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejects invalid TTL 9007199254740992
+ok 302 - storage signed URL: rejects invalid TTL 9007199254740992
+  ---
+  duration_ms: 0.349208
+  type: 'test'
+  ...
+# Subtest: storage signed URL: malformed body {broken
+ok 303 - storage signed URL: malformed body {broken
+  ---
+  duration_ms: 3.793917
+  type: 'test'
+  ...
+# Subtest: storage signed URL: malformed body null
+ok 304 - storage signed URL: malformed body null
+  ---
+  duration_ms: 0.509291
+  type: 'test'
+  ...
+# Subtest: storage signed URL: malformed body []
+ok 305 - storage signed URL: malformed body []
+  ---
+  duration_ms: 0.379333
+  type: 'test'
+  ...
+# Subtest: storage signed URL: malformed body 42
+ok 306 - storage signed URL: malformed body 42
+  ---
+  duration_ms: 0.377292
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejected authentication promise fails closed and redacts error
+ok 307 - storage signed URL: rejected authentication promise fails closed and redacts error
+  ---
+  duration_ms: 0.629
+  type: 'test'
+  ...
+# Subtest: storage signed URL: pending auth (true) cannot reach storage
+ok 308 - storage signed URL: pending auth (true) cannot reach storage
+  ---
+  duration_ms: 21.363
+  type: 'test'
+  ...
+# Subtest: storage signed URL: pending auth (false) cannot reach storage
+ok 309 - storage signed URL: pending auth (false) cannot reach storage
+  ---
+  duration_ms: 1.51025
+  type: 'test'
+  ...
+# Subtest: storage signed URL: waits for asynchronous object authorization/signing
+ok 310 - storage signed URL: waits for asynchronous object authorization/signing
+  ---
+  duration_ms: 7.65225
+  type: 'test'
+  ...
+# Subtest: storage signed URL: rejected Storage promise is sanitized and never logged
+ok 311 - storage signed URL: rejected Storage promise is sanitized and never logged
+  ---
+  duration_ms: 0.712542
+  type: 'test'
+  ...
+# Subtest: storage signed URL: empty SDK result never exposes a capability
+ok 312 - storage signed URL: empty SDK result never exposes a capability
+  ---
+  duration_ms: 0.406375
+  type: 'test'
+  ...
+# Subtest: storage signed URL: publishable key fallback retains user JWT
+ok 313 - storage signed URL: publishable key fallback retains user JWT
+  ---
+  duration_ms: 0.400833
+  type: 'test'
+  ...
+# Subtest: storage signed URL: missing configuration fails closed without signing
+ok 314 - storage signed URL: missing configuration fails closed without signing
+  ---
+  duration_ms: 0.290208
+  type: 'test'
+  ...
+# Subtest: ricerca normalizza accenti e conserva la priorità del titolo
+ok 315 - ricerca normalizza accenti e conserva la priorità del titolo
+  ---
+  duration_ms: 4.328167
+  type: 'test'
+  ...
+# Subtest: ricerca riconosce categorie canoniche, sottocategorie e singolare/plurale
+ok 316 - ricerca riconosce categorie canoniche, sottocategorie e singolare/plurale
+  ---
+  duration_ms: 14.728916
+  type: 'test'
+  ...
+# Subtest: ricerca parziale del titolo riconosce termini separati e singolare/plurale
+ok 317 - ricerca parziale del titolo riconosce termini separati e singolare/plurale
+  ---
+  duration_ms: 0.2385
+  type: 'test'
+  ...
+# Subtest: ricerca mantiene fallback su product type, tag e descrizione
+ok 318 - ricerca mantiene fallback su product type, tag e descrizione
+  ---
+  duration_ms: 7.242167
+  type: 'test'
+  ...
+# Subtest: homepage seleziona tre sezioni stabili senza duplicati
+ok 319 - homepage seleziona tre sezioni stabili senza duplicati
+  ---
+  duration_ms: 0.851916
+  type: 'test'
+  ...
+# Subtest: raccomandazioni privilegiano collezione, sibling e disponibilità senza duplicati
+ok 320 - raccomandazioni privilegiano collezione, sibling e disponibilità senza duplicati
+  ---
+  duration_ms: 0.232084
+  type: 'test'
+  ...
+# Errore creazione checkout: Error: Controlla le quantità nel carrello prima di continuare.
+#     at createStorefrontCheckout (/private/tmp/online-garden-header-final/src/lib/shopify-checkout.ts:7:13)
+#     at TestContext.<anonymous> (/private/tmp/online-garden-header-final/scripts/tests/storefront-integration.test.ts:37:26)
+#     at Test.runInAsyncScope (node:async_hooks:214:14)
+#     at Test.run (node:internal/test_runner/test:1047:25)
+#     at Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+#     at Test.postRun (node:internal/test_runner/test:1173:19)
+#     at Test.run (node:internal/test_runner/test:1101:12)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# Errore creazione checkout: Error: Creazione carrello fallita: Fixture: quantità non disponibile
+#     at createStorefrontCheckout (/private/tmp/online-garden-header-final/src/lib/shopify-checkout.ts:26:13)
+#     at async waitForActual (node:assert:644:5)
+#     at async Function.rejects (node:assert:767:25)
+#     at async TestContext.<anonymous> (/private/tmp/online-garden-header-final/scripts/tests/storefront-integration.test.ts:38:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+# Subtest: prodotti test esclusi da catalogo completo, homepage e collezioni, senza mutare Shopify
+ok 321 - prodotti test esclusi da catalogo completo, homepage e collezioni, senza mutare Shopify
+  ---
+  duration_ms: 20.8745
+  type: 'test'
+  ...
+# Subtest: checkout: quantità invalida non invia richieste; errore Shopify non restituisce URL; cartCreate conserva variante e quantità
+ok 322 - checkout: quantità invalida non invia richieste; errore Shopify non restituisce URL; cartCreate conserva variante e quantità
+  ---
+  duration_ms: 2.8395
+  type: 'test'
+  ...
+# Subtest: Shopify currency drives EUR, USD and JPY formatting and fraction digits
+ok 323 - Shopify currency drives EUR, USD and JPY formatting and fraction digits
+  ---
+  duration_ms: 21.525834
+  type: 'test'
+  ...
+# Subtest: Da requires a verified same-currency minimum/maximum interval, not variant counts
+ok 324 - Da requires a verified same-currency minimum/maximum interval, not variant counts
+  ---
+  duration_ms: 0.475125
+  type: 'test'
+  ...
+# Subtest: Cart subtotal uses exact decimal sums, quantities and separate currencies
+ok 325 - Cart subtotal uses exact decimal sums, quantities and separate currencies
+  ---
+  duration_ms: 0.244584
+  type: 'test'
+  ...
+# Subtest: payload catalogo separato da home, mantiene prezzo minimo/opzioni/disponibilità
+ok 326 - payload catalogo separato da home, mantiene prezzo minimo/opzioni/disponibilità
+  ---
+  duration_ms: 0.611125
+  type: 'test'
+  ...
+# Subtest: abort tra pagine non avvia richieste successive né restituisce un catalogo parziale
+ok 327 - abort tra pagine non avvia richieste successive né restituisce un catalogo parziale
+  ---
+  duration_ms: 27.124917
+  type: 'test'
+  ...
+# Subtest: disponibilità assente non diventa falso esaurito
+ok 328 - disponibilità assente non diventa falso esaurito
+  ---
+  duration_ms: 0.395375
+  type: 'test'
+  ...
+# Subtest: JSON-LD: Product descrittivo e breadcrumb effettivo, nessuna proprietà commerciale dedotta
+ok 329 - JSON-LD: Product descrittivo e breadcrumb effettivo, nessuna proprietà commerciale dedotta
+  ---
+  duration_ms: 0.4805
+  type: 'test'
+  ...
+# Subtest: JSON-LD: niente fallback inventati per immagini/descrizioni assenti o non valide
+ok 330 - JSON-LD: niente fallback inventati per immagini/descrizioni assenti o non valide
+  ---
+  duration_ms: 0.199125
+  type: 'test'
+  ...
+# Subtest: JSON-LD: serializzazione conserva testo ostile senza chiusura script in HTML
+ok 331 - JSON-LD: serializzazione conserva testo ostile senza chiusura script in HTML
+  ---
+  duration_ms: 0.115666
+  type: 'test'
+  ...
+# Subtest: catalogo: 1.205 prodotti, cursori, deduplica, query inoltrata senza tetti
+ok 332 - catalogo: 1.205 prodotti, cursori, deduplica, query inoltrata senza tetti
+  ---
+  duration_ms: 21.508292
+  type: 'test'
+  ...
+# Subtest: catalogo: errore pagina intermedia non restituisce risultati incompleti
+ok 333 - catalogo: errore pagina intermedia non restituisce risultati incompleti
+  ---
+  duration_ms: 0.425042
+  type: 'test'
+  ...
+# Subtest: cursori mancanti/ciclici e pageInfo assente falliscono esplicitamente
+ok 334 - cursori mancanti/ciclici e pageInfo assente falliscono esplicitamente
+  ---
+  duration_ms: 1.134958
+  type: 'test'
+  ...
+# Subtest: varianti: oltre 10 e oltre 100, ID selezionabili e disponibilità conservati
+ok 335 - varianti: oltre 10 e oltre 100, ID selezionabili e disponibilità conservati
+  ---
+  duration_ms: 0.567209
+  type: 'test'
+  ...
+# Subtest: varianti: prodotto sparito o pagina errata impediscono acquisto parziale
+ok 336 - varianti: prodotto sparito o pagina errata impediscono acquisto parziale
+  ---
+  duration_ms: 0.147959
+  type: 'test'
+  ...
+# Subtest: richieste: segnale cancellazione propagato al fetch
+ok 337 - richieste: segnale cancellazione propagato al fetch
+  ---
+  duration_ms: 0.26425
+  type: 'test'
+  ...
+# Subtest: SEO: canonical senza query/hash e nessun dominio esterno; testo da dati
+ok 338 - SEO: canonical senza query/hash e nessun dominio esterno; testo da dati
+  ---
+  duration_ms: 0.171208
+  type: 'test'
+  ...
+# Subtest: catalogo: tutti i 10.000 prodotti sono raggiungibili, senza cap e con disponibilità conservata
+ok 339 - catalogo: tutti i 10.000 prodotti sono raggiungibili, senza cap e con disponibilità conservata
+  ---
+  duration_ms: 12.739875
+  type: 'test'
+  ...
+1..339
+# tests 339
+# suites 0
+# pass 339
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2131.312916
+running 33 tests from ./scripts/tests/shopify-create-batch.test.ts
+manifest: denylist, TEST, duplicate SKU e publish-blocked sono fail-fast ... ok (21ms)
+builder: riconta CREATE e seleziona solo famiglie safe ... ok (2ms)
+builder: scarta il canary se manca un media reale approvato ... ok (610µs)
+DRY_RUN legge identità e pianifica con zero write e zero ledger ... ok (2ms)
+EXECUTE crea parent, opzioni, variante e media in stato draft ... ok (37ms)
+variante creata usa stock assoluto 20, tracked e DENY ... ok (3ms)
+replay dello stesso batch non duplica parent, variant o media ... ok (4ms)
+parent completo già esistente viene riconciliato senza write ... ok (1ms)
+reconciliation completa: prezzo errato blocca ALREADY_EXISTS ... ok (1ms)
+reconciliation completa: variante extra inattesa blocca ALREADY_EXISTS ... ok (1ms)
+reconciliation completa: descrizione errata blocca ALREADY_EXISTS ... ok (334µs)
+reconciliation completa: stato ACTIVE invece di DRAFT blocca ALREADY_EXISTS ... ok (747µs)
+reconciliation completa: tracking disattivato blocca ALREADY_EXISTS ... ok (1ms)
+reconciliation completa: inventory policy CONTINUE blocca ALREADY_EXISTS ... ok (443µs)
+reconciliation completa: available diverso da 20 blocca ALREADY_EXISTS ... ok (689µs)
+reconciliation completa: media approvato mancante blocca ALREADY_EXISTS ... ok (244µs)
+parent parziale senza ledger viene bloccato ... ok (3ms)
+identità ambigua blocca prima di qualsiasi write ... ok (598µs)
+SKU già presente sotto altro parent blocca la creazione ... ok (3ms)
+successo parent + fallimento varianti conserva reporting parziale ... ok (3ms)
+errore sistemico arresta le famiglie successive ... ok (4ms)
+immagine approvata mancante viene riportata, mai sostituita ... ok (286µs)
+media polling: READY immediato completa senza duplicati ... ok (711µs)
+media polling: PROCESSING poi READY completa senza duplicati ... ok (1ms)
+media polling: UPLOADED poi PROCESSING poi READY completa senza duplicati ... ok (1ms)
+media polling: PROCESSING poi FAILED non viene marcato APPLIED ... ok (1ms)
+media polling: timeout resta MEDIA_PENDING e ledger RESERVED ... ok (617µs)
+retry media PROCESSING riusa gli ID e non ripete l'upload ... ok (1ms)
+payload hash è canonico e distingue payload differenti ... ok (964µs)
+nessun segreto, Storefront write o pubblicazione automatica nel runtime ... ok (7ms)
+idempotency conflict nel ledger blocca payload differente ... ok (1ms)
+reservation parent concorrente impedisce un secondo productCreate ... ok (321µs)
+example manifest è sintatticamente valido e dichiaratamente non live ... ok (2ms)
+running 23 tests from ./scripts/tests/shopify-create-storage-scaleout.test.ts
+private index approva il batch e SHA match carica il manifest ... ok (8ms)
+unknown batchId è bloccato prima del download del batch ... ok (1ms)
+SHA mismatch blocca senza parse o write ... ok (706µs)
+index accetta solo path deterministico e metadata server-side ... ok (450µs)
+request non può fornire manifest, object path, SHA o payload ... ok (1ms)
+A: manifest stabile mantiene approval digest fra DRY_RUN ed EXECUTE ... ok (3ms)
+B: sostituzione prima di EXECUTE blocca con zero write ... ok (4ms)
+C: sostituzione prima di VERIFY è rilevata dal digest approvato ... ok (1ms)
+D: digest sconosciuto è bloccato ... ok (395µs)
+E: EXECUTE senza digest è bloccato ... ok (365µs)
+F: DRY_RUN iniziale non richiede digest ... ok (248µs)
+G: sha256 raw non può sostituire approvalDigest ... ok (744µs)
+batch e index applicano il massimo di 10 famiglie ... ok (5ms)
+builder divide deterministicamente in batch da massimo 10 e crea index SHA ... ok (9ms)
+903 SAFE_CREATE producono 91 batch e il conteggio atteso è fail-fast ... ok (50ms)
+runner gate disabilitato esegue solo DRY_RUN sequenziali a zero write ... ok (2ms)
+runner esegue DRY_RUN, EXECUTE, verify e supporta resume/replay ... ok (530µs)
+runner arresta globalmente un digest cambiato fra DRY_RUN ed EXECUTE ... ok (542µs)
+runner arresta globalmente un digest cambiato prima del VERIFY ... ok (266µs)
+handler verifica approval digest prima di costruire il client Shopify ... ok (634µs)
+runner ferma tutti i batch su errore sistemico o integrità ... ok (384µs)
+migration crea bucket privato e deny RLS client; runtime non usa secret manifest ... ok (2ms)
+runner index contiene solo batchId utilizzati dal workflow ... ok (253µs)
+running 34 tests from ./scripts/tests/shopify-final-product-workflow.test.ts
+3B.3 normalizza solo newline e BR deterministico ... ok (4ms)
+3B.3 blocca ORIGINAL corrotto o ambiguo ... ok (3ms)
+3B.3 aggiorna solo descriptionHtml sull'identità esatta ... ok (2ms)
+3B.3 DRY_RUN e drift concorrente producono zero write ... ok (1ms)
+3B.3 blocca snapshot varianti o media troncato ... ok (1ms)
+3B.3 throttle persistente arresta il batch ... ok (1ms)
+3B.3 rileva cambi estranei e il retry non ripete la mutation ... ok (4ms)
+3B.3 non espone alcuna operazione di creazione o duplicazione ... ok (152µs)
+3B.4 DRAFT pubblica esattamente sui tre target approvati ... ok (4ms)
+3B.4 ACTIVE con prova SET_ACTIVE valida consente il replay ... ok (2ms)
+3B.4 un target presente aggiunge soltanto i due mancanti ... ok (1ms)
+3B.4 due target presenti aggiungono soltanto Lovable ... ok (3ms)
+3B.4 Online Store schedulato può diventare pubblicato ... ok (1ms)
+3B.4 Headless schedulato può diventare pubblicato ... ok (2ms)
+3B.4 Lovable schedulato può diventare pubblicato ... ok (771µs)
+3B.4 OG_111899 sui tre target è ALREADY_PUBLISHED a zero mutation ... ok (977µs)
+3B.4 ACTIVE senza prova SET_ACTIVE è STATE_DRIFT ... ok (371µs)
+3B.4 ACTIVE con prova conflittuale è IDEMPOTENCY_CONFLICT ... ok (353µs)
+3B.4 replay completo è idempotente ... ok (495µs)
+3B.4 DRY_RUN esegue zero mutation ... ok (463µs)
+3B.4 blocca media mancante, stock errato e variante inattesa ... ok (281µs)
+3B.4 publication storiche restano invariate e sono segnalate ... ok (389µs)
+3B.4 variazione di una publication schedulata estranea fallisce ... ok (1ms)
+3B.4 nuova publication schedulata non approvata fallisce ... ok (260µs)
+3B.4 blocca una publication extra aggiunta durante il workflow ... ok (1ms)
+3B.4 rileva mutation estranee al contenuto e inventario ... ok (522µs)
+3B.4 manifest blocca structural, TEST e publishBlocked ... ok (434µs)
+3B.4 manifest rifiuta un quarto target arbitrario ... ok (136µs)
+3B.4 request rifiuta publication ID forniti dal client ... ok (358µs)
+3B.4 verifica post-publish richiede tutti i tre target ... ok (458µs)
+3B.4 throttle persistente arresta gli item successivi ... ok (1ms)
+3B.4 identità publication non approvata blocca prima delle mutation ... ok (593µs)
+3B.4 manomissione target cambia SHA e approvalDigest ... ok (2ms)
+manifest privato: SHA e approvalDigest sono pinning obbligatori ... ok (1ms)
+running 2 tests from ./scripts/tests/shopify-publication-manifest-builder.test.ts
+builder 3B.4 rigenera 886 famiglie in 36 batch v2 ... ok (74ms)
+runner 3B.4 rifiuta l'indice single-channel v1 superseded ... ok (444µs)
+
+ok | 92 passed | 0 failed (697ms)
+

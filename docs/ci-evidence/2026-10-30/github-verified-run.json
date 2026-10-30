@@ -1,0 +1,285 @@
+{
+  "id": 41072668699,
+  "event": "pull_request",
+  "head_sha": "6957184c5c4a1368202f924059dd8b09a2e2dff9",
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41072668699",
+  "created_at": "2026-10-30T14:33:51Z",
+  "updated_at": "2026-10-30T14:34:45Z",
+  "jobs": [
+    {
+      "id": 124120522348,
+      "name": "Storefront / pull-request",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41072668699/job/124120522348",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout CI tooling from this workflow revision",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout exact source revision",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Setup Node",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Setup Deno",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Record source and verify runtimes",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install deterministic dependencies without lifecycle scripts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Typecheck",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Lint storefront scope",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build without private credentials",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify Node offline guard",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Node domain tests offline",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Deno domain tests with frozen lock and no runtime network permission",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify package and Deno locks unchanged",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Setup Deno",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Setup Node",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout exact source revision",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout CI tooling from this workflow revision",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "expectedSourceSha": "6957184c5c4a1368202f924059dd8b09a2e2dff9",
+      "expectedSourceShaPresentInLog": true,
+      "nodeTestCounts": [
+        339
+      ],
+      "nodePassCounts": [
+        339
+      ],
+      "nodeFailCounts": [
+        0
+      ],
+      "nodeSkippedCounts": [
+        0
+      ],
+      "denoSummaries": [
+        [
+          "92",
+          "0",
+          ""
+        ]
+      ]
+    },
+    {
+      "id": 124120522477,
+      "name": "Storefront / technical-base",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41072668699/job/124120522477",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout CI tooling from this workflow revision",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout exact source revision",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Setup Node",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Setup Deno",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Record source and verify runtimes",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install deterministic dependencies without lifecycle scripts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Typecheck",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Lint storefront scope",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build without private credentials",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify Node offline guard",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Node domain tests offline",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Deno domain tests with frozen lock and no runtime network permission",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify package and Deno locks unchanged",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Setup Deno",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Setup Node",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout exact source revision",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout CI tooling from this workflow revision",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "expectedSourceSha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+      "expectedSourceShaPresentInLog": true,
+      "nodeTestCounts": [
+        336
+      ],
+      "nodePassCounts": [
+        336
+      ],
+      "nodeFailCounts": [
+        0
+      ],
+      "nodeSkippedCounts": [
+        0
+      ],
+      "denoSummaries": [
+        [
+          "92",
+          "0",
+          ""
+        ]
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": 124120522477,
+      "name": "Storefront / technical-base",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41072668699/job/124120522477"
+    },
+    {
+      "id": 124120522348,
+      "name": "Storefront / pull-request",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41072668699/job/124120522348"
+    },
+    {
+      "id": 124120496518,
+      "name": "GitGuardian Security Checks",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Rosin355/your-e-commerce-blueprint/runs/124120496518"
+    }
+  ]
+}

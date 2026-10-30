@@ -1,0 +1,121 @@
+{
+  "preservedOriginalWorktrees": [
+    {
+      "path": "/Users/romesh/Desktop/Cose belle/your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 391
+    },
+    {
+      "path": "/private/tmp/online-garden-customer-experience-implementation",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 840
+    },
+    {
+      "path": "/private/tmp/online-garden-header-only",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 878
+    },
+    {
+      "path": "/private/tmp/online-garden-public-token-review",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 878
+    },
+    {
+      "path": "/private/tmp/online-garden-release-readiness",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 867
+    },
+    {
+      "path": "/private/tmp/online-garden-security-gate-pr39",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 871
+    },
+    {
+      "path": "/private/tmp/online-garden-storefront-main-integration",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 585
+    },
+    {
+      "path": "/private/tmp/online-garden-storefront-scope-audit",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 891
+    },
+    {
+      "path": "/Users/romesh/.codex/worktrees/admin-missing-field-create/your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 529
+    },
+    {
+      "path": "/Users/romesh/.codex/worktrees/admin-shopify-id-backfill/your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 534
+    },
+    {
+      "path": "/Users/romesh/.codex/worktrees/shopify-final-product-launch/your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 509
+    },
+    {
+      "path": "/Users/romesh/.codex/worktrees/shopify-multichannel-publication/your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 511
+    },
+    {
+      "path": "/Users/romesh/.codex/worktrees/storefront-final-qa/your-e-commerce-blueprint",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "fileHashesUnchanged": true,
+      "filesChecked": 537
+    }
+  ],
+  "filesChecked": 8821,
+  "allowedApplicationAndTestPaths": [
+    "src/components/CartDrawer.tsx",
+    "src/components/ProductCard.tsx",
+    "src/components/storefront/CatalogProductCard.tsx",
+    "src/components/storefront/HomeHeaderOverlay.tsx",
+    "src/components/storefront/Pdp.tsx",
+    "src/hooks/useProduct.ts",
+    "src/index.css",
+    "src/lib/shopify.ts",
+    "src/lib/storefront-money.ts",
+    "src/pages/AllProducts.tsx",
+    "scripts/tests/storefront-money.test.ts"
+  ],
+  "allSrcExactVsApproved99fb008": true,
+  "pr39Ancestor": true,
+  "pr40Ancestor": false,
+  "historicalBaseDocsPreserved": true,
+  "jsonLinksAndGallery": "PASS",
+  "newDocsContainToken": false,
+  "newSrcDiffAddsInheritedToken": false,
+  "layoutChecks": 18,
+  "interactionGroups": 8,
+  "screenshots": 14,
+  "screenshotBytes": 1491285,
+  "checkoutSimulation": "Existing Node fetch-stub contract tests; no live checkout mutation"
+}

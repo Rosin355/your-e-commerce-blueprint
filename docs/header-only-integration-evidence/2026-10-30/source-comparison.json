@@ -1,0 +1,42 @@
+{
+  "base": "aa7e6ae",
+  "approved": "99fb008",
+  "sourceComparison": [
+    {
+      "reference": "aa7e6ae",
+      "differentFiles": [
+        "src/components/CartDrawer.tsx",
+        "src/components/ProductCard.tsx",
+        "src/components/storefront/CatalogProductCard.tsx",
+        "src/components/storefront/HomeHeaderOverlay.tsx",
+        "src/components/storefront/Pdp.tsx",
+        "src/hooks/useProduct.ts",
+        "src/index.css",
+        "src/lib/shopify.ts",
+        "src/lib/storefront-money.ts",
+        "src/pages/AllProducts.tsx"
+      ]
+    },
+    {
+      "reference": "2e07293",
+      "differentFiles": [
+        "src/components/ProductCard.tsx",
+        "src/components/storefront/CatalogProductCard.tsx",
+        "src/components/storefront/HomeHero.tsx",
+        "src/components/storefront/HomepageV3.tsx",
+        "src/components/storefront/Pdp.tsx",
+        "src/index.css",
+        "src/pages/AllProducts.tsx"
+      ]
+    },
+    {
+      "reference": "99fb008",
+      "differentFiles": []
+    }
+  ],
+  "allSrcExactVsApproved": true,
+  "pr40AncestorOfFinal": false,
+  "pr39AncestorOfFinal": true,
+  "cartCreateMutationExactVsBase": true,
+  "checkoutHelperExactVsBase": true
+}

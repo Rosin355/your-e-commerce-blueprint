@@ -1,0 +1,572 @@
+{
+  "baseUrl": "http://127.0.0.1:5176",
+  "source": "Live Shopify public Storefront reads; no mock used in browser",
+  "layoutChecks": [
+    {
+      "name": "catalogo",
+      "width": 320,
+      "status": "PASS",
+      "articles": 9,
+      "h1": "Tutti i prodotti",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 9,
+      "scrollWidth": 320
+    },
+    {
+      "name": "catalogo",
+      "width": 375,
+      "status": "PASS",
+      "articles": 9,
+      "h1": "Tutti i prodotti",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 9,
+      "scrollWidth": 375
+    },
+    {
+      "name": "catalogo",
+      "width": 390,
+      "status": "PASS",
+      "articles": 9,
+      "h1": "Tutti i prodotti",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 9,
+      "scrollWidth": 390
+    },
+    {
+      "name": "catalogo",
+      "width": 430,
+      "status": "PASS",
+      "articles": 9,
+      "h1": "Tutti i prodotti",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 9,
+      "scrollWidth": 430
+    },
+    {
+      "name": "catalogo",
+      "width": 768,
+      "status": "PASS",
+      "articles": 9,
+      "h1": "Tutti i prodotti",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 9,
+      "scrollWidth": 768
+    },
+    {
+      "name": "catalogo",
+      "width": 1440,
+      "status": "PASS",
+      "articles": 9,
+      "h1": "Tutti i prodotti",
+      "headerTargets": [
+        {
+          "height": 40,
+          "label": "Carrello, 0 articoli",
+          "width": 40
+        }
+      ],
+      "productLinks": 9,
+      "scrollWidth": 1440
+    },
+    {
+      "name": "home",
+      "width": 320,
+      "status": "PASS",
+      "articles": 4,
+      "h1": "Trasforma il tuo balcone\nin un giardino",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 36,
+      "scrollWidth": 320
+    },
+    {
+      "name": "home",
+      "width": 375,
+      "status": "PASS",
+      "articles": 4,
+      "h1": "Trasforma il tuo balcone\nin un giardino",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 36,
+      "scrollWidth": 375
+    },
+    {
+      "name": "home",
+      "width": 390,
+      "status": "PASS",
+      "articles": 4,
+      "h1": "Trasforma il tuo balcone\nin un giardino",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 36,
+      "scrollWidth": 390
+    },
+    {
+      "name": "home",
+      "width": 430,
+      "status": "PASS",
+      "articles": 4,
+      "h1": "Trasforma il tuo balcone\nin un giardino",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 36,
+      "scrollWidth": 430
+    },
+    {
+      "name": "home",
+      "width": 768,
+      "status": "PASS",
+      "articles": 4,
+      "h1": "Trasforma il tuo balcone\nin un giardino",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 36,
+      "scrollWidth": 768
+    },
+    {
+      "name": "home",
+      "width": 1440,
+      "status": "PASS",
+      "articles": 4,
+      "h1": "Trasforma il tuo balcone\nin un giardino",
+      "headerTargets": [
+        {
+          "height": 40,
+          "label": "Carrello, 0 articoli",
+          "width": 40
+        }
+      ],
+      "productLinks": 36,
+      "scrollWidth": 1440
+    },
+    {
+      "name": "pdp",
+      "width": 320,
+      "status": "PASS",
+      "articles": 0,
+      "h1": "Chaenomeles Superba Jet Trail - Fior di Pesco - Cydonia",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 0,
+      "scrollWidth": 320
+    },
+    {
+      "name": "pdp",
+      "width": 375,
+      "status": "PASS",
+      "articles": 0,
+      "h1": "Chaenomeles Superba Jet Trail - Fior di Pesco - Cydonia",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 0,
+      "scrollWidth": 375
+    },
+    {
+      "name": "pdp",
+      "width": 390,
+      "status": "PASS",
+      "articles": 0,
+      "h1": "Chaenomeles Superba Jet Trail - Fior di Pesco - Cydonia",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 0,
+      "scrollWidth": 390
+    },
+    {
+      "name": "pdp",
+      "width": 430,
+      "status": "PASS",
+      "articles": 0,
+      "h1": "Chaenomeles Superba Jet Trail - Fior di Pesco - Cydonia",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 0,
+      "scrollWidth": 430
+    },
+    {
+      "name": "pdp",
+      "width": 768,
+      "status": "PASS",
+      "articles": 0,
+      "h1": "Chaenomeles Superba Jet Trail - Fior di Pesco - Cydonia",
+      "headerTargets": [
+        {
+          "height": 44,
+          "label": "Apri menu",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Apri ricerca",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Area account",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Carrello, 0 articoli",
+          "width": 44
+        }
+      ],
+      "productLinks": 0,
+      "scrollWidth": 768
+    },
+    {
+      "name": "pdp",
+      "width": 1440,
+      "status": "PASS",
+      "articles": 0,
+      "h1": "Chaenomeles Superba Jet Trail - Fior di Pesco - Cydonia",
+      "headerTargets": [
+        {
+          "height": 40,
+          "label": "Carrello, 0 articoli",
+          "width": 40
+        }
+      ],
+      "productLinks": 0,
+      "scrollWidth": 1440
+    }
+  ],
+  "screenshots": [
+    "final-home-1440.png",
+    "final-catalogo-1440.png",
+    "final-pdp-1440.png",
+    "final-home-390.png",
+    "final-catalogo-390.png",
+    "final-pdp-390.png",
+    "final-navbar-1440.png",
+    "final-navbar-390.png"
+  ],
+  "interactions": [
+    {
+      "name": "Desktop category keyboard/focus/ARIA and Escape",
+      "status": "PASS"
+    },
+    {
+      "name": "Desktop and mobile search to q=rosa",
+      "status": "PASS"
+    },
+    {
+      "name": "Mobile category navigates to /collections/rose and closes menu",
+      "status": "PASS"
+    },
+    {
+      "name": "Desktop and mobile account reach /auth form; no login submitted",
+      "status": "PASS"
+    },
+    {
+      "name": "Desktop and mobile empty cart opens with catalogue link; no checkout clicked",
+      "status": "PASS"
+    },
+    {
+      "name": "PDP variant selected by keyboard, quantity 2 announced, sticky price matches selection",
+      "status": "PASS"
+    },
+    {
+      "name": "Zoom hides sticky, Escape closes and restores focus after animation",
+      "status": "PASS"
+    },
+    {
+      "name": "Unavailable live product add-to-cart disabled",
+      "status": "PASS"
+    }
+  ],
+  "browserErrorLogCount": 0,
+  "checkoutSimulation": "Separate existing Node transport-stub test, not a browser checkout or Shopify sandbox order",
+  "liveMutationsExecuted": 0,
+  "limits": [
+    "Chrome only; no Safari/real-device coverage",
+    "Screenshots include six selected previous-base images from approved committed evidence; current final images captured anew",
+    "No checkout, purchase, login or customer-data action in browser"
+  ],
+  "layoutMeasurementPolicy": "All routes measured after products/PDP data rendered; catalog fully loaded before resizing six widths; no loading-shell screenshots retained"
+}

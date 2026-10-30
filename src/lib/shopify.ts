@@ -19,6 +19,7 @@ export interface ShopifyProduct {
     description: string;
     handle: string;
     priceRange: {
+      maxVariantPrice?: { amount: string; currencyCode: string };
       minVariantPrice: {
         amount: string;
         currencyCode: string;
@@ -116,6 +117,7 @@ export const STOREFRONT_PRODUCTS_QUERY = `
           description
           handle
           priceRange {
+            maxVariantPrice { amount currencyCode }
             minVariantPrice {
               amount
               currencyCode
@@ -277,7 +279,7 @@ export const STOREFRONT_CATALOG_PAGE_QUERY = `
         id title description handle availableForSale
         productType tags vendor publishedAt
         collections(first: 50) { edges { node { handle title } } }
-        priceRange { minVariantPrice { amount currencyCode } }
+        priceRange { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } }
         images(first: 1) { edges { node { url altText } } }
         options { name values }
       } }
@@ -374,7 +376,7 @@ const COLLECTION_QUERY = `
             title
             description
             handle
-            priceRange { minVariantPrice { amount currencyCode } }
+            priceRange { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } }
             images(first: 1) { edges { node { url altText } } }
             variants(first: 1) {
               edges {

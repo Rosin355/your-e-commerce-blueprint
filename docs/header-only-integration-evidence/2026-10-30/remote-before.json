@@ -1,0 +1,41 @@
+{
+  "observedAt": "2026-10-30T13:44:38.206873+00:00",
+  "prs": [
+    {
+      "number": 39,
+      "state": "open",
+      "draft": true,
+      "base": "main",
+      "baseSha": "0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3",
+      "head": "codex/storefront-main-integration",
+      "headSha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+      "mergeable": true,
+      "mergeableState": "clean"
+    },
+    {
+      "number": 40,
+      "state": "open",
+      "draft": true,
+      "base": "codex/storefront-main-integration",
+      "baseSha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+      "head": "codex/customer-experience-implementation",
+      "headSha": "2e07293aa3edab382fb470108df6317ef573b23a",
+      "mergeable": true,
+      "mergeableState": "clean"
+    }
+  ],
+  "remoteRefs": [
+    {
+      "sha": "2e07293aa3edab382fb470108df6317ef573b23a",
+      "ref": "refs/heads/codex/customer-experience-implementation"
+    },
+    {
+      "sha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+      "ref": "refs/heads/codex/storefront-main-integration"
+    },
+    {
+      "sha": "0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3",
+      "ref": "refs/heads/main"
+    }
+  ]
+}
