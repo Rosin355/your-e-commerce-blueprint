@@ -1,0 +1,55 @@
+{
+  "runtime": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "deno": "2.9.5"
+  },
+  "platform": "macOS local; Ubuntu GitHub execution pending",
+  "freshNpmInstallIgnoreScripts": true,
+  "snapshots": [
+    {
+      "source": "head",
+      "sha": "416dd960563d1f53f70a3fab43f81f541515fa48",
+      "nodeTests": 339,
+      "denoTests": 92,
+      "typecheck": "PASS",
+      "lint": "PASS",
+      "build": "PASS",
+      "runtimeNetwork": "Node guarded; Deno no allow-net/run/write",
+      "failedTests": 0,
+      "skippedTests": 0
+    },
+    {
+      "source": "base",
+      "sha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+      "nodeTests": 336,
+      "denoTests": 92,
+      "typecheck": "PASS",
+      "lint": "PASS",
+      "build": "PASS",
+      "runtimeNetwork": "Node guarded; Deno no allow-net/run/write",
+      "failedTests": 0,
+      "skippedTests": 0
+    }
+  ],
+  "frozenDenoLockUnchanged": true,
+  "nodeNetworkGuardSelfCheck": "PASS",
+  "lockHashes": {
+    "package-lock.json": "7622facee827406f669a5df357730e749c86cd2b55e3cb9989ded98f8a14ad1e",
+    "ci/deno-ci.lock": "ed7d0b62e05053ea68c0f3dc5a1a506254f73a67421f02ac34d200c6e8d828f4"
+  },
+  "yamlSecurityStaticChecks": "PASS",
+  "buildWithMinimalProcessEnvironment": true,
+  "repositoryEnvFilePresent": true,
+  "repositoryEnvTracked": true,
+  "repositoryEnvKeys": [
+    "VITE_SUPABASE_PROJECT_ID",
+    "VITE_SUPABASE_PUBLISHABLE_KEY",
+    "VITE_SUPABASE_URL"
+  ],
+  "publicJwtRoles": [
+    "anon"
+  ],
+  "privateCredentialsRequiredForBuild": false,
+  "repositoryEnvValuesFoundInLocalLogs": 0
+}

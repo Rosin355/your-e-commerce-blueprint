@@ -1,0 +1,85 @@
+name: Storefront application checks
+
+on:
+  pull_request:
+    branches: [main, codex/storefront-main-integration]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: storefront-checks-${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  application:
+    name: Storefront / ${{ matrix.revision }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      DENO_NO_UPDATE_CHECK: "1"
+    strategy:
+      fail-fast: false
+      matrix:
+        # Stacked PRs also validate their exact technical-base SHA without moving it.
+        revision: ${{ fromJSON(github.base_ref == 'codex/storefront-main-integration' && '["pull-request","technical-base"]' || '["pull-request"]') }}
+    defaults:
+      run:
+        working-directory: source
+        shell: bash
+    steps:
+      - name: Checkout CI tooling from this workflow revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: tooling
+          sparse-checkout: ci
+          persist-credentials: false
+      - name: Checkout exact source revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ matrix.revision == 'technical-base' && github.event.pull_request.base.sha || github.event.pull_request.head.sha }}
+          path: source
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22.22.3
+          package-manager-cache: false
+      - name: Setup Deno
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.9.5
+      - name: Record source and verify runtimes
+        run: |
+          git rev-parse HEAD
+          git -C ../tooling rev-parse HEAD
+          test "$(node --version)" = "v22.22.3"
+          test "$(npm --version)" = "10.9.8"
+          test "$(deno --version | awk 'NR == 1 {print $2}')" = "2.9.5"
+      - name: Install deterministic dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint storefront scope
+        run: |
+          npx --no-install eslint src/components/CartDrawer.tsx src/components/ProductCard.tsx src/components/storefront/CatalogProductCard.tsx src/components/storefront/HomeHeaderOverlay.tsx src/components/storefront/HomeHero.tsx src/components/storefront/HomepageV3.tsx src/components/storefront/Pdp.tsx src/hooks/useProduct.ts src/lib/shopify.ts src/pages/AllProducts.tsx
+          if test -f src/lib/storefront-money.ts; then npx --no-install eslint src/lib/storefront-money.ts; fi
+          if test -f scripts/tests/storefront-money.test.ts; then npx --no-install eslint --no-ignore scripts/tests/storefront-money.test.ts; fi
+      - name: Build without private credentials
+        run: npm run build
+      - name: Verify Node offline guard
+        run: |
+          node --require ../tooling/ci/offline-network.cjs --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { get } from 'node:https';
+          await assert.rejects(fetch('https://example.invalid'), /CI_NETWORK_DISABLED/);
+          assert.throws(() => get('https://example.invalid'), /CI_NETWORK_DISABLED/);
+          JS
+      - name: Node domain tests offline
+        run: node ../tooling/ci/run-domain.mjs node
+      - name: Deno domain tests with frozen lock and no runtime network permission
+        run: node ../tooling/ci/run-domain.mjs deno ../tooling/ci/deno-ci.lock
+      - name: Verify package and Deno locks unchanged
+        run: |
+          git diff --exit-code -- package.json package-lock.json
+          git -C ../tooling diff --exit-code -- ci/deno-ci.lock

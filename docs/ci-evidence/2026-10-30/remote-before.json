@@ -1,0 +1,29 @@
+{
+  "observedAt": "2026-10-30T14:18:43.845556+00:00",
+  "prs": [
+    {
+      "number": 39,
+      "head": "codex/storefront-main-integration",
+      "headSha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+      "base": "main",
+      "baseSha": "0d1bf639d7fb0c8cd5c47b2dc222ea86c5b1bab3",
+      "draft": true,
+      "state": "open"
+    },
+    {
+      "number": 41,
+      "head": "codex/customer-experience-header-final",
+      "headSha": "416dd960563d1f53f70a3fab43f81f541515fa48",
+      "base": "codex/storefront-main-integration",
+      "baseSha": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+      "draft": true,
+      "state": "open"
+    }
+  ],
+  "actionsPermissions": {
+    "enabled": true,
+    "allowed_actions": "all",
+    "sha_pinning_required": false
+  },
+  "workflows": 0
+}

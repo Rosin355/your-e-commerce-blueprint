@@ -1,0 +1,79 @@
+{
+  "originalWorktreesVerified": 14,
+  "originalHeadsStatusAndFilesUnchanged": true,
+  "applicationAndDomainSourceUnchanged": true,
+  "base39Ancestor": true,
+  "inheritedValuesAbsentFromNewFiles": true,
+  "worktrees": [
+    {
+      "path": "/Users/romesh/Desktop/Cose belle/your-e-commerce-blueprint",
+      "head": "7a7ed51c037f335df4b8b215a3322a7683bbe007",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/online-garden-customer-experience-implementation",
+      "head": "2e07293aa3edab382fb470108df6317ef573b23a",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/online-garden-header-final",
+      "head": "416dd960563d1f53f70a3fab43f81f541515fa48",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/online-garden-header-only",
+      "head": "99fb008f8173a599b6ab28b21e6e30d98859d494",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/online-garden-public-token-review",
+      "head": "a67c99e4e36f1153edeb8c0b19d3709afd26c01c",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/online-garden-release-readiness",
+      "head": "34f8b848e0dc8956e0c16d6741dd687ca815c0b4",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/online-garden-security-gate-pr39",
+      "head": "376302b3cca2c1068f591e590b89360d0584ed80",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/online-garden-storefront-main-integration",
+      "head": "aa7e6aeb9aa0eafc01f655976f342733562bb824",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/online-garden-storefront-scope-audit",
+      "head": "11a9a037d684c57e88436c6a9f0fac23c1c3b12b",
+      "preserved": true
+    },
+    {
+      "path": "/Users/romesh/.codex/worktrees/admin-missing-field-create/your-e-commerce-blueprint",
+      "head": "a75056a9491943127a39ba8d7fc595d3481bf187",
+      "preserved": true
+    },
+    {
+      "path": "/Users/romesh/.codex/worktrees/admin-shopify-id-backfill/your-e-commerce-blueprint",
+      "head": "4fe0a14905fe2ab63d1ba194a8af9f5cac2b90f7",
+      "preserved": true
+    },
+    {
+      "path": "/Users/romesh/.codex/worktrees/shopify-final-product-launch/your-e-commerce-blueprint",
+      "head": "a447140ef1a0909143c6867474238ad037abda41",
+      "preserved": true
+    },
+    {
+      "path": "/Users/romesh/.codex/worktrees/shopify-multichannel-publication/your-e-commerce-blueprint",
+      "head": "fbd2035a7949da6e33effd52a4666f8ddf007a7a",
+      "preserved": true
+    },
+    {
+      "path": "/Users/romesh/.codex/worktrees/storefront-final-qa/your-e-commerce-blueprint",
+      "head": "86d5d1eb69bf53711260bad32a6d3f0574c706e7",
+      "preserved": true
+    }
+  ]
+}
