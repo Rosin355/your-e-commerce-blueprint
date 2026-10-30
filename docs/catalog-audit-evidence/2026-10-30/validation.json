@@ -1,0 +1,61 @@
+{
+  "node": {
+    "runtime": "Node 22.22.3, guard offline",
+    "files": [
+      "scripts/tests/product-admin-api.test.ts",
+      "scripts/tests/admin-v2-field-editing.test.ts",
+      "scripts/tests/admin-client-safe-sync.test.ts",
+      "scripts/tests/admin-missing-field-create.test.ts",
+      "scripts/tests/admin-async-auth.test.ts",
+      "scripts/tests/admin-ai-field-suggestions.test.ts",
+      "scripts/tests/admin-shopify-id-backfill.test.ts",
+      "scripts/tests/lossless-catalog-foundation.test.ts",
+      "scripts/tests/catalog-merge.test.ts",
+      "scripts/tests/admin-edge-packaging.test.ts"
+    ],
+    "exitCode": 0,
+    "tests": [
+      "195"
+    ],
+    "pass": [
+      "195"
+    ],
+    "fail": [
+      "0"
+    ],
+    "skipped": [
+      "0"
+    ]
+  },
+  "deno": {
+    "runner": "ci/run-domain.mjs deno ci/deno-ci.lock",
+    "exitCode": 0,
+    "summary": [
+      [
+        "92",
+        "0",
+        ""
+      ]
+    ],
+    "permissions": "read/env; no runtime net/run/write; frozen lock"
+  },
+  "interpretation": "Offline contract tests only; no deployment, role or commercial validation",
+  "applicationCodeChanged": false,
+  "liveMutationOrEdgeAiCalls": 0,
+  "readOnlyStorefrontRequestsIncludingProbe": 75,
+  "fullCohortLiveVerification": "DEFERRED: authorized Admin/DB access and historical cohort IDs unavailable",
+  "documentationIntegrity": {
+    "csvRows": {
+      "products": 1348,
+      "variants": 1376,
+      "collections": 55
+    },
+    "csvSha256Verified": true,
+    "localMarkdownLinks": "PASS",
+    "originalWorktreesHeadsStatusAndFileHashesPreserved": 16,
+    "previousStatusDocumentHistoryPreserved": true,
+    "knownConfigurationValuesInNewDocumentsOrLocalTestLogs": 0,
+    "diffCheck": "PASS",
+    "sourceComparedWith": "d4029b56da33cc0aeecfd45bac43c82d79b67b08"
+  }
+}

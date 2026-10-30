@@ -1,3 +1,17 @@
+## 30 ottobre 2026 — audit catalogo e autonomia Marco (documentazione separata)
+
+Verificati i riferimenti remoti #39 `aa7e6ae` e #41 `d4029b5`, invariati. Audit statico e lettura LIVE Storefront completati in `codex/catalog-autonomy-audit`, senza codice applicativo o scritture Shopify/Supabase. Evidenza pubblica: 1.348 Product GID / 1.376 varianti; dopo il filtro dei due prodotti test dell’app, 1.346 / 1.374. SKU visibili presenti e univoci; 191 prodotti senza collezioni esposte, 364 senza collezioni canoniche esposte, 697 multi-collezione. Sono osservazioni sul perimetro pubblico, non conteggi della coorte 903 o prova di classificazione corretta.
+
+Storico del 10 ottobre conservato: 903 famiglie, 821 assegnate, 82 NEEDS_REVIEW. **Gli 82 sono oggi da riconciliare/verificare; aperti e risolti non determinabili.** L’utente conferma indisponibili connessione Shopify Admin read-only ed export storico; il connettore Supabase nega il progetto atteso. Il piano di chiusura live è documentato e non blocca attività indipendenti.
+
+Menu: tutti i 18 handle reali risolvibili; `/collections/all` virtuale. Vuote Accessori e Piante grasse/succulente. I 23 handle canonici sono esposti, ma la correttezza delle membership richiede sorgenti e mapping. Nessuna deduzione di categorie da testi, SKU o handle.
+
+Autonomia cliente: editing V2 e AI per campo riutilizzabili, con abilitazione live/ruoli da verificare. Creazione manuale V2 assente; NewProductAIPanel collegato soltanto nel legacy, crea DRAFT senza SKU/identità/mapping Supabase o assegnazioni canoniche. Categorie e Pubblicazioni V2 restano segnaposto. Definito il flusso unico con AI opzionale, idempotenza e pubblicazione separata: **proposta, non implementazione**. Test offline pertinenti: 195 Node + 92 Deno PASS; non sono prova commerciale/live.
+
+Per sviluppatore: identità, mapping e criteri di accettazione; per designer: stati chiari senza redesign; per cliente: percorso unico proposto e nessuna autonomia completa dichiarata oggi. [Audit e conteggi](CATALOG-ALIGNMENT-AUDIT.md) · [Piano Admin V2](ADMIN-V2-NEW-PRODUCT-PLAN.md) · [Matrice completa](catalog-audit-evidence/2026-10-30/README.md). Nessuna modifica a PR #39/#41, permessi, dati o servizi; nessun merge/deploy. I paragrafi seguenti conservano la cronologia e i relativi perimetri.
+
+---
+
 ## 30 ottobre 2026 — CI minima reale, preservando la base #39
 
 Introdotto workflow pull_request verso main e codex/storefront-main-integration con runtime e Action fissati, npm ci senza lifecycle script, typecheck, lint pertinente, build e test Node/Deno con lock frozen. Solo contents:read, nessun segreto applicativo o permesso di scrittura, nessun sync/import/backup/deploy; test Node con blocco rete e Deno senza permessi runtime rete/run/write. Codice dello storefront e test esistenti invariati.

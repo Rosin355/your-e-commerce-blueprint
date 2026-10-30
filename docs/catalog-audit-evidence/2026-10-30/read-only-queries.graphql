@@ -1,0 +1,31 @@
+# Query pubbliche del censimento; token e header NON conservati.
+# Default request context, nessuna mutation o query cliente.
+# Ripetere after=endCursor finché hasNextPage=false.
+query CatalogAudit($cursor: String) {
+  products(first: 100, after: $cursor, sortKey: ID) {
+    nodes {
+      id handle publishedAt
+      variants(first: 20) { nodes { id sku } pageInfo { hasNextPage endCursor } }
+      collections(first: 30) { nodes { id handle } pageInfo { hasNextPage endCursor } }
+    }
+    pageInfo { hasNextPage endCursor }
+  }
+}
+query Collections($cursor: String) {
+  collections(first: 250, after: $cursor) {
+    nodes { id handle }
+    pageInfo { hasNextPage endCursor }
+  }
+}
+query CollectionMembers($handle: String!, $cursor: String) {
+  collection(handle: $handle) {
+    id handle
+    products(first: 250, after: $cursor) {
+      nodes { id }
+      pageInfo { hasNextPage endCursor }
+    }
+  }
+}
+# Il collector prevede inoltre letture Product node per pagine aggiuntive
+# di variants/collections, se le connection annidate dichiarano hasNextPage.
+# Non sostituire queste query con endpoint legacy diagnose/import/DRY_RUN.
