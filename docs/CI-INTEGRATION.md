@@ -1,6 +1,6 @@
 # CI minima dello storefront — implementazione e bootstrap
 
-30 ottobre 2026. Workflow implementato e verificato localmente; esecuzione GitHub da verificare dopo pubblicazione. L’incarico autorizza l’aggiornamento CI della PR #41. La scelta esplicita dell’utente preserva la catena Git: **non aggiornare la #39, validarne lo SHA esatto nella CI della #41**.
+30 ottobre 2026. Workflow implementato e verificato localmente e su Ubuntu GitHub: [run 41072668699](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41072668699) SUCCESS sul commit 6957184. L’incarico autorizza l’aggiornamento CI della PR #41. La scelta esplicita dell’utente preserva la catena Git: **non aggiornare la #39, validarne lo SHA esatto nella CI della #41**.
 
 ## File introdotti
 
@@ -45,7 +45,7 @@ Per PR verso main viene eseguito il job pull-request. Il tooling CI è letto sep
 
 I check appartengono alla **PR #41**, che ospita il workflow; il job technical-base fornisce evidenza riferita allo SHA esatto della #39. **Non si dichiara un check applicativo collegato alla #39**: il suo HEAD rimane aa7e6ae, senza workflow, e nessun evento/configurazione è stato modificato su quella PR. Non vengono creati check verdi retroattivi via API.
 
-Il modo meno invasivo di proseguire ora è usare e revisionare le due evidenze della #41, come approvato. Per avere in futuro check diretti sulla #39 senza divergere i suoi HEAD occorre pianificare un bootstrap CI separato sulla base/default branch e verificarne gli eventi, ad esempio tramite PR CI-only sottoposta a review; nessun merge viene effettuato qui. Nessuna branch protection o required check viene imposto prima di verifica e decisione del responsabile.
+Il modo meno invasivo di proseguire ora è usare e revisionare le due evidenze della #41, come approvato. Non esiste una run applicativa precedente della #39 da rieseguire: quel commit non contiene il workflow e non è stato aggiornato. Una futura associazione diretta di check applicativi alla #39 richiede un piano separato e revisionato (aggiornamento coordinato dei branch oppure tooling di validazione esterno con autorizzazioni dedicate). Nessuna soluzione alternativa viene applicata qui. Nessuna branch protection o required check viene imposto prima di verifica e decisione del responsabile.
 
 ## Risultati locali prima della pubblicazione
 
@@ -58,8 +58,21 @@ Installazione nuova npm ci --ignore-scripts: PASS. Toolchain Node/npm/Deno e YAM
 
 La differenza di tre test è la suite money presente soltanto nella #41. I comandi runtime non avviano il comando npm misto che tenta di eseguire Deno in Node. Nessun test disabilitato. Warning di build Tailwind/chunk preesistenti conservati e da non confondere con errori.
 
-[Evidenze locali](ci-evidence/2026-10-30/local-summary.json) · [Pin Action](ci-evidence/2026-10-30/action-pins.json) · [Riferimenti iniziali](ci-evidence/2026-10-30/remote-before.json). Log locali completi conservati fuori dal diff in `/private/tmp/og-ci-local-logs/`; i risultati GitHub e i link delle esecuzioni verranno registrati dopo il controllo effettivo. Nessuna CI GitHub verde dichiarata in questa fase preparatoria.
+[Evidenze locali](ci-evidence/2026-10-30/local-summary.json) · [Pin Action](ci-evidence/2026-10-30/action-pins.json) · [Riferimenti iniziali](ci-evidence/2026-10-30/remote-before.json). Log locali completi conservati fuori dal diff in `/private/tmp/og-ci-local-logs/`; i risultati GitHub verificati sono nel [record sanificato](ci-evidence/2026-10-30/github-verified-run.json).
+
+## Risultati GitHub verificati
+
+[Run 41072668699](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41072668699), evento pull_request, commit **6957184c5c4a1368202f924059dd8b09a2e2dff9**, conclusione SUCCESS. Gli SHA sorgente sono stati verificati nei log, senza esportare configurazioni o valori di token.
+
+| Job | SHA sorgente | Node / Deno | Esito |
+| --- | --- | --- | --- |
+| [pull-request](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41072668699/job/124120522348) | 6957184 | 339 / 92 | SUCCESS, 0 fail/skip |
+| [technical-base](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41072668699/job/124120522477) | aa7e6ae | 336 / 92 | SUCCESS, 0 fail/skip |
+
+Tutti i passi di installazione, controllo runtime, typecheck, lint, build, guard offline e integrità lock sono SUCCESS in entrambi i job. [GitGuardian](https://github.com/Rosin355/your-e-commerce-blueprint/runs/124120496518) SUCCESS sullo stesso HEAD. Nessun fallimento del workflow o test disabilitato; i warning di build preesistenti rimangono visibili nei log.
+
+Questo aggiornamento delle evidenze è un successivo commit di sola documentazione: genera una nuova run sul suo SHA. La run sopra certifica esclusivamente il commit indicato; il risultato dell’HEAD finale viene controllato separatamente e riportato nella consegna, senza presumere che erediti automaticamente il verde precedente.
 
 ## Gate residui
 
-Review adeguate, approvazione del modello di copertura della #39, validazione staging/checkout sandbox autorizzato, Safari/device/screen reader e conferme commerciali rimangono separati. GitGuardian resta un controllo distinto. Nessun merge, deploy, ordine o modifica a impostazioni live/credenziali/branch protection.
+Review adeguate di codice e CI, conferma del processo di integrazione delle PR dipendenti, validazione staging/checkout sandbox autorizzato, Safari/device/screen reader e conferme commerciali rimangono separati. GitGuardian resta un controllo distinto. Nessun merge, deploy, ordine o modifica a impostazioni live/credenziali/branch protection.
