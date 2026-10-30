@@ -56,6 +56,7 @@
     "previousStatusDocumentHistoryPreserved": true,
     "knownConfigurationValuesInNewDocumentsOrLocalTestLogs": 0,
     "diffCheck": "PASS",
-    "sourceComparedWith": "d4029b56da33cc0aeecfd45bac43c82d79b67b08"
+    "sourceComparedWith": "d4029b56da33cc0aeecfd45bac43c82d79b67b08",
+    "csvLineEndings": "LF; normalized from csv.writer CRLF without changing parsed fields"
   }
 }

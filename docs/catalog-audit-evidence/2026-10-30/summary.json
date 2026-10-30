@@ -104,9 +104,9 @@
     "No changed source/application/dependencies; no live writes"
   ],
   "filesSha256": {
-    "collections.csv": "6283af343b712ec18fc5c4e8836f22110af0bc2170573f6b0906b6b589d85302",
-    "variants-sku.csv": "7fcc2e467351c2e8fac63154226c20e16fd2469d837e256e884b4d9b4d9981b1",
-    "products-collections.csv": "58cdb53d5617af7b94fe346e36d7ecc0202bf95abc57467b1e59b83a64b634c3"
+    "collections.csv": "9de03165053807d54fc124ad8f795326d19a8dcebfd200011c9d59ce29e54997",
+    "variants-sku.csv": "eb93b2bf32d26afc8c4f044a74d34128b32edc0ee1cde19a7017becc8cce5d2d",
+    "products-collections.csv": "71ae163f5cc3c33bdf38c588fade861fb67cbc41c46ab69aed6ea0491468d2dc"
   },
   "shopDomain": "ecom-blueprint-gen-6ud1s.myshopify.com",
   "context": "Default Storefront request context; no country/language override or authenticated customer",
