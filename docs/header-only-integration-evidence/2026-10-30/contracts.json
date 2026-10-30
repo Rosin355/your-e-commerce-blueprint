@@ -1,0 +1,98 @@
+{
+  "base": "aa7e6ae",
+  "source": "2e07293",
+  "checks": [
+    {
+      "name": "Unchanged versus PR40: src/lib/shopify.ts",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: src/lib/shopify-checkout.ts",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: src/lib/storefront-money.ts",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: src/lib/storefrontDiscovery.ts",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: src/hooks/useProduct.ts",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: src/stores/cartStore.ts",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: src/components/CartDrawer.tsx",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: src/components/storefront/HomeHeaderOverlay.tsx",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: src/components/storefront/SiteHeader.tsx",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: src/components/storefront/HomeAnnouncementBar.tsx",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: src/App.tsx",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: package.json",
+      "pass": true
+    },
+    {
+      "name": "Unchanged versus PR40: package-lock.json",
+      "pass": true
+    },
+    {
+      "name": "Exact previous graphic source aa7e6ae: src/components/storefront/HomepageV3.tsx",
+      "pass": true
+    },
+    {
+      "name": "Exact previous graphic source aa7e6ae: src/components/storefront/HomeHero.tsx",
+      "pass": true
+    },
+    {
+      "name": "Identical handler/data logic src/components/storefront/Pdp.tsx handleAddToCart",
+      "pass": true
+    },
+    {
+      "name": "Identical handler/data logic src/components/storefront/Pdp.tsx handleBuyNow",
+      "pass": true
+    },
+    {
+      "name": "Identical handler/data logic src/components/storefront/Pdp.tsx handleOptionChange",
+      "pass": true
+    },
+    {
+      "name": "Identical handler/data logic src/components/storefront/Pdp.tsx optionGroups",
+      "pass": true
+    },
+    {
+      "name": "Identical handler/data logic src/components/ProductCard.tsx handleAddToCart",
+      "pass": true
+    },
+    {
+      "name": "No changes to admin/auth/Supabase/edge/sync",
+      "pass": true
+    },
+    {
+      "name": "False best-selling option remains absent",
+      "pass": true
+    },
+    {
+      "name": "No rounded CX token or Plantella grid remains",
+      "pass": true
+    }
+  ]
+}

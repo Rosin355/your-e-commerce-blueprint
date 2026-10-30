@@ -1,0 +1,13 @@
+{
+  "frontendFilesScanned": 160,
+  "findings": [],
+  "inheritedPublicFallbackUnchangedVsBase": true,
+  "publicTokenFinding": 33905767,
+  "classificationProvenance": "User verified Public Storefront issuance and manually ignored as Low risk secret; previous local audit preserved separately",
+  "limits": [
+    "Static known-prefix/header/JWT/PEM scan, not an exhaustive secret-history audit",
+    "No credential values, fragments or token fingerprints exported",
+    "External GitGuardian result on new PR must be checked after publication"
+  ],
+  "privateCredentialsRead": false
+}

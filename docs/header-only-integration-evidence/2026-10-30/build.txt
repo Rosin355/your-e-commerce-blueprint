@@ -1,0 +1,76 @@
+
+> vite_react_shadcn_ts@0.0.0 build
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+
+warn - The class `duration-[900ms]` is ambiguous and matches multiple utilities.
+warn - If this is content and not a class, replace it with `duration-&lsqb;900ms&rsqb;` to silence this warning.
+
+warn - The class `ease-[cubic-bezier(0.22,1,0.36,1)]` is ambiguous and matches multiple utilities.
+warn - If this is content and not a class, replace it with `ease-&lsqb;cubic-bezier(0.22,1,0.36,1)&rsqb;` to silence this warning.
+✓ 1910 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                   2.10 kB │ gzip:   0.74 kB
+dist/assets/rose-gift-D8jqbZpc.jpg               33.54 kB
+dist/assets/bulbs-seasonal-Bkx0WwRx.jpg          51.94 kB
+dist/assets/rose-selection-BS9tSuBF.jpg          52.07 kB
+dist/assets/berries-CWZIShUZ.jpg                 55.65 kB
+dist/assets/citrus-Skj1QgSs.jpg                  64.94 kB
+dist/assets/pots-accessories-As3aOdtu.jpg        94.96 kB
+dist/assets/outdoor-living-BVL25f59.jpg          95.18 kB
+dist/assets/evergreen-garden-Bg5EBhhU.jpg       102.19 kB
+dist/assets/pdp-calma-bg-BVrmO9sT.png           122.22 kB
+dist/assets/hero-botanical-spring-BpiSp3TC.jpg  234.93 kB
+dist/assets/alberi-da-frutto-u5V6HZxe.jpg       269.81 kB
+dist/assets/rose-C0q0uc8j.jpg                   285.59 kB
+dist/assets/rose-rampicanti-nwITQdSA.jpg        319.63 kB
+dist/assets/piante-grasse-C89576Tj.jpg          368.20 kB
+dist/assets/arbusti-BwGWytOi.jpg                388.27 kB
+dist/assets/piccoli-frutti-vTPMnSFF.jpg         393.14 kB
+dist/assets/erbacee-graminacee-CYs_ceW8.jpg     440.41 kB
+dist/assets/piante-palustri-GWpzKpaI.jpg        460.94 kB
+dist/assets/rampicanti-mzLbdTzQ.jpg             471.05 kB
+dist/assets/aromatiche-HbF8TYBf.jpg             512.83 kB
+dist/assets/hero-giardino-curato-CtcMhLV0.jpg   607.18 kB
+dist/assets/conifere-CB5xHVWf.jpg               607.48 kB
+dist/assets/alberi-BR7PzIOQ.jpg                 665.02 kB
+dist/assets/siepi-CuEh-h-I.jpg                  673.29 kB
+dist/assets/hero-terrazzi-esterni-DC2fHSRD.jpg  775.38 kB
+dist/assets/hero-balcone-giardino-Dl3BricE.jpg  860.56 kB
+dist/assets/index-BHpYYq5c.css                  101.70 kB │ gzip:  17.66 kB
+dist/assets/chevron-up-ugXjq-FB.js                0.30 kB │ gzip:   0.25 kB
+dist/assets/database-BQ60Pqfk.js                  0.41 kB │ gzip:   0.30 kB
+dist/assets/log-out-Di7juMr_.js                   0.43 kB │ gzip:   0.32 kB
+dist/assets/triangle-alert-DCFUVdht.js            0.43 kB │ gzip:   0.31 kB
+dist/assets/flags-BWx9YgMH.js                     0.49 kB │ gzip:   0.40 kB
+dist/assets/label-CYlSeokZ.js                     0.62 kB │ gzip:   0.42 kB
+dist/assets/alert-NEN4Sogx.js                     0.91 kB │ gzip:   0.46 kB
+dist/assets/textarea-aDxV0GPP.js                  1.29 kB │ gzip:   0.65 kB
+dist/assets/CatalogProductCard-C6rZDOE1.js        1.44 kB │ gzip:   0.75 kB
+dist/assets/labels-CzCM9QaC.js                    1.81 kB │ gzip:   0.92 kB
+dist/assets/PlaceholderPages-BKEJmcrJ.js          2.92 kB │ gzip:   1.21 kB
+dist/assets/ResetPassword-kkBUdVgN.js             3.11 kB │ gzip:   1.35 kB
+dist/assets/AdminLogin-CArkXi_w.js                3.46 kB │ gzip:   1.45 kB
+dist/assets/AccountCallback-CNXilnNv.js           4.49 kB │ gzip:   1.83 kB
+dist/assets/DashboardPage-BJx2ouyL.js             4.85 kB │ gzip:   1.76 kB
+dist/assets/Auth-CeFnbgTN.js                      4.94 kB │ gzip:   1.64 kB
+dist/assets/CollectionPage-MbdVJR-f.js            5.01 kB │ gzip:   1.89 kB
+dist/assets/Account-BLlm39eD.js                   5.09 kB │ gzip:   1.77 kB
+dist/assets/AdminV2Guard-DI51GoSR.js              6.59 kB │ gzip:   2.40 kB
+dist/assets/ProductsPage-DlR5M3hg.js              7.85 kB │ gzip:   2.56 kB
+dist/assets/tabs-C_mI0mp7.js                      7.93 kB │ gzip:   3.25 kB
+dist/assets/useAdminData-DAotrti_.js             17.47 kB │ gzip:   5.94 kB
+dist/assets/AllProducts-BDPIquU3.js              17.94 kB │ gzip:   5.73 kB
+dist/assets/checkbox-CL0Xr5CX.js                 26.96 kB │ gzip:   9.06 kB
+dist/assets/ProductDetailPage-G6lai8fR.js        34.04 kB │ gzip:   9.98 kB
+dist/assets/AdminGuard-C4ZVdc64.js              199.05 kB │ gzip:  54.27 kB
+dist/assets/index-CyCbnvj_.js                   720.77 kB │ gzip: 211.97 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 8.64s
