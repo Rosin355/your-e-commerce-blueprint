@@ -1,6 +1,6 @@
 # Online Garden — design system attivo Header Only
 
-30 ottobre 2026. **Specifica attiva approvata:** veste precedente della PR #39 aa7e6ae, navbar della Customer Experience 2.0 conservata da 99fb008. Le reference Silver Garden/Plantella non sono autorizzazione ad altri redesign.
+30 ottobre 2026. Implementazione proposta nella [Draft PR #41](https://github.com/Rosin355/your-e-commerce-blueprint/pull/41), dipendente dalla #39; la #40 resta aperta. **Specifica attiva approvata:** veste precedente della PR #39 aa7e6ae, navbar della Customer Experience 2.0 conservata da 99fb008. Le reference Silver Garden/Plantella non sono autorizzazione ad altri redesign.
 
 | Elemento | Decisione implementata |
 | --- | --- |

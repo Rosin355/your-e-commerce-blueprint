@@ -9,7 +9,7 @@
 | Homepage/hero | Identici byte per byte a #39, con header condiviso recente |
 | Catalogo/card/PDP | Veste precedente; formattazione, ordinamento e accessibilità compatibili conservati |
 | QA locale | Typecheck, lint mirato, build, 339 Node + 92 Deno; browser sei larghezze, checkout simulato nel test di trasporto |
-| Sostituzione #40 | Nuova Draft PR verso il branch #39; #40 resta aperta/invariata, verifica della sostituzione separata |
+| Sostituzione #40 | [Draft PR #41](https://github.com/Rosin355/your-e-commerce-blueprint/pull/41) aperta verso il branch #39; #40 resta aperta/invariata. Diff verificato e GitGuardian positivo sul primo HEAD; CI/review ancora mancanti |
 | Gate merge | CI applicativa e review adeguate obbligatorie; no READY FOR MERGE in loro assenza |
 | Staging | Ambiente isolato, autorizzazione checkout sandbox, Safari/device/screen reader e conferme commerciali ancora aperti |
 | Produzione | Nessun via libera; nessun ordine reale, merge o deploy in questo incarico |
