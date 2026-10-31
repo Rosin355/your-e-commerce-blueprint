@@ -19,6 +19,7 @@ export interface CategoryCatalogue {
   missingCanonicalHandles: string[];
   canSaveDraft: boolean;
   canSendDraft: boolean;
+  approvedOperationId: string | null;
   canAssign: boolean;
 }
 export function useCategoryCatalogue() {

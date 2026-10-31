@@ -121,6 +121,14 @@ BEGIN
   VALUES(op.product_id,cid,'approved','manual_override',p_actor,p_actor,now())
   ON CONFLICT(product_id,category_id) DO UPDATE SET status='approved',origin='manual_override',approved_by=p_actor,approved_at=now();
  END LOOP;
+ -- If the former primary was removed, retain a deterministic primary among the approved selection.
+ IF jsonb_array_length(op.payload->'categoryIds')>0 AND NOT EXISTS(
+  SELECT 1 FROM public.product_category_assignments
+  WHERE product_id=op.product_id AND status='approved' AND is_primary
+ ) THEN
+  UPDATE public.product_category_assignments SET is_primary=true
+  WHERE product_id=op.product_id AND category_id=(op.payload->'categoryIds'->>0)::uuid;
+ END IF;
  UPDATE public.admin_category_operations SET state='VERIFIED',verified_at=now() WHERE id=p_id;
 END $$;
 REVOKE ALL ON FUNCTION public.admin_finish_categories(uuid,uuid,uuid[]) FROM PUBLIC,anon,authenticated;

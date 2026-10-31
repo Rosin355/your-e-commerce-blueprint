@@ -11,6 +11,7 @@ export default function ProductOperations({ productId }: { productId: string }) 
       callAdminApi<
         {
           canSendDraft: boolean;
+          approvedOperationId: string | null;
           operations: {
             id: string;
             state: string;
@@ -42,7 +43,8 @@ export default function ProductOperations({ productId }: { productId: string }) 
         <div key={op.id} className='space-y-2'>
           <p>{OPERATION_LABELS[op.state] ?? 'Stato da verificare'}</p>
           <p className='text-sm'>{new Date(op.created_at).toLocaleString('it-IT')}</p>
-          {op.state === 'LOCAL_DRAFT' && query.data.canSendDraft && (
+          {op.state === 'LOCAL_DRAFT' && query.data.canSendDraft &&
+            query.data.approvedOperationId === op.id && (
             <Button
               disabled={command.isPending}
               onClick={() => {

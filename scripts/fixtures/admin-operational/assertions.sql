@@ -28,6 +28,8 @@ SET ROLE authenticated;
 DO $$ DECLARE blocked boolean:=false; BEGIN
  BEGIN PERFORM * FROM public.admin_product_operations; EXCEPTION WHEN insufficient_privilege THEN blocked:=true; END; ASSERT blocked,'Authenticated read journal';
  ASSERT NOT has_function_privilege(current_user,'public.admin_claim_draft(uuid,uuid)','execute'),'Authenticated RPC privilege';
+ ASSERT NOT has_function_privilege(current_user,'public.admin_finish_categories(uuid,uuid,uuid[])','execute'),'Authenticated category RPC privilege';
+ ASSERT NOT has_table_privilege(current_user,'public.admin_category_operations','select'),'Authenticated category journal exposed';
  RAISE NOTICE 'PASS: authenticated direct table/RPC denied';
 END $$;
 RESET ROLE;
@@ -36,6 +38,7 @@ DO $$ BEGIN ASSERT NOT has_table_privilege(current_user,'public.admin_product_sh
 RESET ROLE;
 SET ROLE service_role;
 INSERT INTO public.product_categories(id,stable_key,display_name,slug) VALUES('20000000-0000-4000-8000-000000000001','qa-category','Categoria simulata','qa-category');
+INSERT INTO public.product_categories(id,stable_key,display_name,slug) VALUES('20000000-0000-4000-8000-000000000002','qa-category-2','Categoria due','qa-category-2');
 DO $$ DECLARE opid uuid; pid uuid; blocked boolean:=false; BEGIN
  SELECT id INTO pid FROM public.products WHERE sku='TEST-LOCAL';
  INSERT INTO public.admin_category_operations(actor,request_key,product_id,payload_hash,payload)
@@ -48,6 +51,12 @@ DO $$ DECLARE opid uuid; pid uuid; blocked boolean:=false; BEGIN
  PERFORM public.admin_finish_categories('00000000-0000-4000-8000-000000000001',opid,ARRAY['20000000-0000-4000-8000-000000000001'::uuid]);
  ASSERT (SELECT state FROM public.admin_category_operations WHERE id=opid)='VERIFIED','Category state not verified';
  ASSERT (SELECT count(*) FROM public.product_category_assignments WHERE product_id=pid AND status='approved')=1,'Internal category approval missing';
+ ASSERT (SELECT count(*) FROM public.product_category_assignments WHERE product_id=pid AND status='approved' AND is_primary)=1,'Primary category missing';
+ INSERT INTO public.admin_category_operations(actor,request_key,product_id,payload_hash,payload)
+ VALUES('00000000-0000-4000-8000-000000000001',gen_random_uuid(),pid,repeat('d',64),'{"categoryIds":["20000000-0000-4000-8000-000000000002"]}') RETURNING id INTO opid;
+ PERFORM public.admin_finish_categories('00000000-0000-4000-8000-000000000001',opid,ARRAY['20000000-0000-4000-8000-000000000001'::uuid,'20000000-0000-4000-8000-000000000002'::uuid]);
+ ASSERT (SELECT count(*) FROM public.product_category_assignments WHERE product_id=pid AND status='approved' AND is_primary)=1,'Primary lost on category replacement';
+ ASSERT (SELECT category_id FROM public.product_category_assignments WHERE product_id=pid AND status='approved' AND is_primary)='20000000-0000-4000-8000-000000000002'::uuid,'Wrong primary after replacement';
  RAISE NOTICE 'PASS: category concurrency guard, role and verified assignment';
 END $$;
 RESET ROLE;

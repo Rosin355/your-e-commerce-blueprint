@@ -1,13 +1,16 @@
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
 import type { AuthContext, FieldDefinition } from './admin-v2-types.ts';
 import {
+  approvalMatches,
   CANONICAL_HANDLES,
+  canonicalMembershipAligned,
   categoryDiff,
   demand,
   DRAFT_BOTANICAL_KEYS,
   escapeHtml,
   operationalAccess,
   OperationalError,
+  parseOperationalApproval,
   type ProductDraft,
   UUID,
   validateDraft,
@@ -22,9 +25,10 @@ const graphql = <T>(q: string, v: Record<string, unknown> = {}) =>
   shopifyAdminGraphQLAtVersion<T>('2026-01', q, v);
 export const operationalFlags = () => ({
   drafts: writesEnabled() && Deno.env.get('PRODUCT_ADMIN_DRAFTS_ENABLED') === 'true',
-  shopify: Deno.env.get('PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED') === 'true',
-  approval: Boolean(Deno.env.get('PRODUCT_ADMIN_OPERATIONAL_APPROVAL')?.trim()),
+  shopify: writesEnabled() && Deno.env.get('PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED') === 'true',
+  approval: parseOperationalApproval(Deno.env.get('PRODUCT_ADMIN_OPERATIONAL_APPROVAL')) !== null,
 });
+const currentApproval = () => parseOperationalApproval(Deno.env.get('PRODUCT_ADMIN_OPERATIONAL_APPROVAL'));
 // All pages read; never turn a PostgREST page limit into a catalogue count.
 async function allRows(db: SupabaseClient, table: string, columns: string) {
   const rows: Record<string, unknown>[] = [];
@@ -87,6 +91,9 @@ export async function catalogCategories(db: SupabaseClient) {
       id: String(p.id),
       sku: String(p.sku),
       categoryIds: approved.filter((a) => a.product_id === p.id).map((a) => a.category_id),
+      unmanagedApprovedCategoryIds: assignments.filter((a) =>
+        a.product_id === p.id && a.status === 'approved' && !categoryIds.has(a.category_id)
+      ).map((a) => a.category_id),
     })),
     source: 'SUPABASE_INTERNAL',
     observedAt: new Date().toISOString(),
@@ -191,8 +198,12 @@ export async function handleOperational(
           r === 'admin' || r === 'tech_admin' || (r === 'editor' && writeMode() === 'full')
         ),
       canSendDraft: flags.shopify && flags.approval &&
+        currentApproval()?.action === 'create_shopify_draft' &&
         auth.roles.some((r) => r === 'admin' || r === 'tech_admin'),
-      canAssign: Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true' && flags.approval &&
+      approvedOperationId: currentApproval()?.action === 'create_shopify_draft'
+        ? currentApproval()?.target : null,
+      canAssign: writesEnabled() && Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true' &&
+        currentApproval()?.action === 'apply_categories' &&
         auth.roles.some((r) => r === 'admin' || r === 'tech_admin'),
     };
   }
@@ -205,6 +216,8 @@ export async function handleOperational(
     const catalog = await catalogCategories(db);
     const product = catalog.products.find((x) => x.id === p.productId);
     demand(product, 'Prodotto non disponibile.');
+    demand(!product.unmanagedApprovedCategoryIds.length,
+      'Assegnazioni non canoniche presenti: riconciliazione tecnica prima di modificare Shopify.');
     const eligible = catalog.categories.filter((c) =>
       c.is_active && c.maps.length > 0 &&
       c.maps.every((m) => m.map_status === 'verified' && m.shopify_collection_gid)
@@ -266,6 +279,21 @@ export async function handleOperational(
       ),
     ].sort();
     const beforeGids = before.map((c) => c.id).sort();
+    const internalGids = eligible.filter((c) =>
+      (product.categoryIds as string[]).includes(c.id)
+    ).flatMap((c) => c.maps.map((m) => String(m.shopify_collection_gid)));
+    if (!canonicalMembershipAligned(internalGids, beforeGids, approvedGids)) {
+      if (action === 'apply_categories') {
+        throw new OperationalError('NEEDS_RECONCILIATION',
+          'Le collezioni Shopify e le categorie interne non coincidono: nessuna scrittura eseguita.');
+      }
+      return {
+        ok: true,
+        diff,
+        executable: false,
+        reason: 'Le collezioni Shopify e le categorie interne non coincidono: riconciliazione tecnica necessaria.',
+      };
+    }
     const add = desiredGids.filter((id) => !beforeGids.includes(id));
     const remove = beforeGids.filter((id) =>
       approvedGids.includes(id) && !desiredGids.includes(id)
@@ -276,7 +304,8 @@ export async function handleOperational(
       beforeGids,
       desiredGids,
     });
-    const enabled = Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true' && flags.approval &&
+    const enabled = writesEnabled() && Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true' &&
+      approvalMatches(currentApproval(), 'apply_categories', hash) &&
       auth.roles.some((r) => r === 'admin' || r === 'tech_admin');
     if (action === 'preview_categories') {
       return {
@@ -342,14 +371,28 @@ export async function handleOperational(
         demand(!r.collectionAddProducts.userErrors.length, 'Assegnazione Shopify rifiutata.');
       }
       for (const id of remove) {
-        const r = await shopify<{ collectionRemoveProducts: { userErrors: unknown[] } }>(
-          'mutation UnassignCollection($id:ID!,$products:[ID!]!){collectionRemoveProducts(id:$id,productIds:$products){userErrors{message}}}',
+        const r = await shopify<{ collectionRemoveProducts: {
+          job: { id: string; done: boolean } | null; userErrors: unknown[];
+        } }>(
+          'mutation UnassignCollection($id:ID!,$products:[ID!]!){collectionRemoveProducts(id:$id,productIds:$products){job{id done} userErrors{message}}}',
           { id, products: [mapping.shopify_product_id] },
         );
         demand(
           !r.collectionRemoveProducts.userErrors.length,
           'Rimozione associazione Shopify rifiutata.',
         );
+        const job = r.collectionRemoveProducts.job;
+        demand(job?.id, 'Rimozione Shopify priva di conferma: riconciliazione necessaria.');
+        let done = job.done;
+        for (let attempt = 0; !done && attempt < 5; attempt++) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          const status = await shopify<{ job: { id: string; done: boolean } | null }>(
+            'query RemovalJob($id:ID!){job(id:$id){id done}}', { id: job.id },
+          );
+          demand(status.job?.id === job.id, 'Job Shopify non verificabile.');
+          done = status.job.done;
+        }
+        demand(done, 'Rimozione Shopify ancora in corso: riconciliazione necessaria.');
       }
       const after = (await read()).map((c) => c.id).sort();
       const expected = [...new Set([...beforeGids.filter((id) => !remove.includes(id)), ...add])]
@@ -438,8 +481,12 @@ export async function handleOperational(
     return {
       ok: true,
       operations: data,
-      canSendDraft: flags.shopify && flags.approval &&
+      canSendDraft: flags.shopify && data?.some((op) =>
+        approvalMatches(currentApproval(), 'create_shopify_draft', op.id)
+      ) &&
         auth.roles.some((r) => r === 'admin' || r === 'tech_admin'),
+      approvedOperationId: currentApproval()?.action === 'create_shopify_draft'
+        ? currentApproval()?.target : null,
     };
   }
   demand(typeof p.operationId === 'string' && UUID.test(p.operationId), 'Operazione non valida.');
@@ -473,6 +520,8 @@ export async function handleOperational(
       action === 'create_shopify_draft' && op.state === 'LOCAL_DRAFT',
       'Invio già iniziato: usare Recupera stato, senza creare un altro prodotto.',
     );
+    demand(approvalMatches(currentApproval(), 'create_shopify_draft', op.id),
+      'Approvazione operativa non valida per questa specifica bozza.');
     // The saved request is immutable; refuse later editorial edits rather than silently overwriting them.
     const { data: values, error: valuesError } = await db.from('product_current_values').select(
       'updated_at',
@@ -485,17 +534,18 @@ export async function handleOperational(
       'query DraftCurrency{shop{currencyCode}}',
     );
     demand(shop.shop.currencyCode === draft.currency, 'Valuta diversa dalla valuta base Shopify.');
-    for (const variant of draft.variants) {
+    // A variable product's family SKU must not collide with another Shopify variant.
+    for (const sku of new Set([draft.sku, ...draft.variants.map((v) => v.sku)])) {
       const found = await shopify<
         { productVariants: { nodes: { sku: string }[]; pageInfo: { hasNextPage: boolean } } }
       >(
         'query DraftSku($query:String!){productVariants(first:100,query:$query){nodes{sku} pageInfo{hasNextPage}}}',
-        { query: `sku:"${variant.sku}"` },
+        { query: `sku:"${sku}"` },
       );
       demand(
         !found.productVariants.pageInfo.hasNextPage &&
           !found.productVariants.nodes.some((v) =>
-            v.sku.toLowerCase() === variant.sku.toLowerCase()
+            v.sku.toLowerCase() === sku.toLowerCase()
           ),
         'SKU già presente o ricerca Shopify non univoca.',
       );

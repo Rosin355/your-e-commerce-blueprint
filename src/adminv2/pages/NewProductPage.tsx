@@ -397,7 +397,8 @@ export default function NewProductPage() {
             Pubblicazione non abilitata. Prezzi, inventario e canali richiedono la verifica
             operativa.
           </p>
-          {catalogue.data?.canSendDraft && (
+          {catalogue.data?.canSendDraft &&
+            catalogue.data.approvedOperationId === save.data.result.operationId && (
             <Button
               disabled={send.isPending || Boolean(send.data)}
               onClick={() => {

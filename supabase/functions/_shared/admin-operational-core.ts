@@ -53,6 +53,39 @@ export class OperationalError extends Error {
 export function demand(value: unknown, message: string): asserts value {
   if (!value) throw new OperationalError('VALIDATION_ERROR', message);
 }
+export interface OperationalApproval {
+  action: 'create_shopify_draft' | 'apply_categories';
+  target: string;
+  expiresAt: string;
+}
+/** Approval is server configuration, scoped to one saved draft or one category snapshot. */
+export function parseOperationalApproval(raw: string | undefined, now = Date.now()): OperationalApproval | null {
+  if (!raw) return null;
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const approval = value as Record<string, unknown>;
+    if (Object.keys(approval).sort().join(',') !== 'action,expiresAt,target') return null;
+    if (approval.action !== 'create_shopify_draft' && approval.action !== 'apply_categories') return null;
+    if (typeof approval.target !== 'string' || !(approval.action === 'create_shopify_draft'
+      ? UUID.test(approval.target)
+      : /^[a-f0-9]{64}$/i.test(approval.target))) return null;
+    if (typeof approval.expiresAt !== 'string' ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(approval.expiresAt)) return null;
+    const expiry = Date.parse(approval.expiresAt);
+    if (!Number.isFinite(expiry) || expiry <= now || expiry > now + 24 * 60 * 60 * 1000) return null;
+    return approval as unknown as OperationalApproval;
+  } catch {
+    return null;
+  }
+}
+export function approvalMatches(
+  approval: OperationalApproval | null,
+  action: OperationalApproval['action'],
+  target: string,
+) {
+  return approval?.action === action && approval.target === target;
+}
 export function operationalAccess(
   action: string,
   roles: string[],
@@ -207,11 +240,22 @@ export function categoryDiff(current: string[], proposed: string[], allowed: str
     new Set(proposed).size === proposed.length && proposed.every((id) => allowed.includes(id)),
     'Categoria sconosciuta o non approvata.',
   );
+  demand(current.every((id) => allowed.includes(id)),
+    'Assegnazione interna non riconciliata: una categoria corrente non ha un mapping verificato.');
   return {
     add: proposed.filter((id) => !current.includes(id)).sort(),
     remove: current.filter((id) => !proposed.includes(id)).sort(),
     keep: proposed.filter((id) => current.includes(id)).sort(),
   };
+}
+export function canonicalMembershipAligned(
+  internalGids: string[],
+  shopifyGids: string[],
+  canonicalGids: string[],
+) {
+  const ordered = (ids: string[]) => [...new Set(ids)].sort();
+  return JSON.stringify(ordered(internalGids)) ===
+    JSON.stringify(ordered(shopifyGids.filter((id) => canonicalGids.includes(id))));
 }
 export function verifyCreatedMapping(
   draft: ProductDraft,

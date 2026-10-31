@@ -2,10 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
+  approvalMatches,
   CANONICAL_HANDLES,
+  canonicalMembershipAligned,
   categoryDiff,
   escapeHtml,
   operationalAccess,
+  parseOperationalApproval,
   type ProductDraft,
   validateDraft,
   verifyCreatedMapping,
@@ -68,6 +71,21 @@ test('invio richiede ruolo amministrativo, flag, approvazione operativa e confer
   assert.throws(() => operationalAccess('create_shopify_draft', ['admin'], on, false));
   operationalAccess('create_shopify_draft', ['admin'], on, true);
 });
+test('approvazione operativa limitata a una richiesta e a 24 ore; false non abilita scritture', () => {
+  const now = Date.parse('2026-10-31T12:00:00.000Z');
+  const expiresAt = new Date(now + 60_000).toISOString();
+  const draft = parseOperationalApproval(JSON.stringify({
+    action: 'create_shopify_draft', target: '40000000-0000-4000-8000-000000000001', expiresAt,
+  }), now);
+  assert.ok(draft);
+  assert.equal(approvalMatches(draft, 'create_shopify_draft', draft.target), true);
+  assert.equal(approvalMatches(draft, 'create_shopify_draft', '40000000-0000-4000-8000-000000000002'), false);
+  assert.equal(approvalMatches(draft, 'apply_categories', 'a'.repeat(64)), false);
+  assert.equal(parseOperationalApproval('false', now), null);
+  assert.equal(parseOperationalApproval('LOCAL-QA-ONLY', now), null);
+  assert.equal(parseOperationalApproval(JSON.stringify({ ...draft, expiresAt: new Date(now - 1).toISOString() }), now), null);
+  assert.equal(parseOperationalApproval(JSON.stringify({ ...draft, expiresAt: new Date(now + 25 * 60 * 60_000).toISOString() }), now), null);
+});
 for (
   const [name, change] of Object.entries({
     negative: { price: '-1' },
@@ -113,7 +131,15 @@ test('categorie: differenze esatte, nessuna classificazione dal titolo', () => {
   });
   assert.throws(() => categoryDiff([], ['unknown'], ['a']));
   assert.throws(() => categoryDiff([], ['a', 'a'], ['a']));
+  assert.throws(() => categoryDiff(['stale'], [], ['a']), /riconciliata/);
   assert.deepEqual(categoryDiff([], [], []), { add: [], remove: [], keep: [] });
+});
+test('drift Shopify/Supabase blocca rimozioni non mostrate in anteprima', () => {
+  assert.equal(canonicalMembershipAligned([], ['gid://shopify/Collection/1'], ['gid://shopify/Collection/1']), false);
+  assert.equal(canonicalMembershipAligned(['gid://shopify/Collection/1'], [], ['gid://shopify/Collection/1']), false);
+  assert.equal(canonicalMembershipAligned(['gid://shopify/Collection/1'],
+    ['gid://shopify/Collection/1', 'gid://shopify/Collection/other'],
+    ['gid://shopify/Collection/1']), true);
 });
 test('mapping richiede DRAFT e corrispondenza SKU/variant GID esatta', () => {
   const p = {
