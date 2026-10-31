@@ -1,3 +1,4 @@
+import ProductOperations from '../components/ProductOperations';
 // F6 — Scheda prodotto in sola lettura, organizzata per sezioni.
 import { Link, useParams } from 'react-router-dom';
 import { AlertTriangle, ArrowLeft } from 'lucide-react';
@@ -78,6 +79,7 @@ export default function ProductDetailPage() {
         <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Torna ai prodotti
       </Link>
 
+      <ProductOperations productId={product.productId} />
       <header className="space-y-2">
         <h1 className="text-xl font-semibold">{title}</h1>
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">

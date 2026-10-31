@@ -20,13 +20,14 @@ const CollectionPage = lazy(() => import("./pages/CollectionPage"));
 // Admin v2 (sola lettura, alimentato da product-admin-api)
 const AdminV2Guard = lazy(() => import("./adminv2/AdminV2Guard"));
 const AdminDashboard = lazy(() => import("./adminv2/pages/DashboardPage"));
+const AdminNewProduct = lazy(() => import("./adminv2/pages/NewProductPage"));
 const AdminProducts = lazy(() => import("./adminv2/pages/ProductsPage"));
 const AdminProductDetail = lazy(() => import("./adminv2/pages/ProductDetailPage"));
 const AdminImportsPage = lazy(() =>
   import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.ImportsPage })),
 );
 const AdminCategoriesPage = lazy(() =>
-  import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.CategoriesPage })),
+  import("./adminv2/pages/CategoriesPage"),
 );
 const AdminPublicationsPage = lazy(() =>
   import("./adminv2/pages/PlaceholderPages").then((m) => ({ default: m.PublicationsPage })),
@@ -84,6 +85,7 @@ const App = () => (
             <Route path="/admin" element={<SuspenseLoader><AdminV2Guard /></SuspenseLoader>}>
               <Route index element={<SuspenseLoader><AdminDashboard /></SuspenseLoader>} />
               <Route path="products" element={<SuspenseLoader><AdminProducts /></SuspenseLoader>} />
+              <Route path="products/new" element={<SuspenseLoader><AdminNewProduct /></SuspenseLoader>} />
               <Route path="products/:productId" element={<SuspenseLoader><AdminProductDetail /></SuspenseLoader>} />
               <Route path="imports" element={<SuspenseLoader><AdminImportsPage /></SuspenseLoader>} />
               <Route path="categories" element={<SuspenseLoader><AdminCategoriesPage /></SuspenseLoader>} />

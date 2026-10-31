@@ -93,7 +93,8 @@ export default function ProductsPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-xl font-semibold">Prodotti</h1>
-        <p className="text-sm text-muted-foreground">Consultazione del catalogo. Nessuna modifica disponibile.</p>
+        <Button asChild className="my-2 min-h-11"><Link to="/admin/products/new">Nuovo prodotto</Link></Button>
+        <p className="text-sm text-muted-foreground">Catalogo interno e modifiche secondo le autorizzazioni del tuo account.</p>
       </div>
 
       <section aria-label="Filtri" className="space-y-4 rounded-lg border bg-card p-4">

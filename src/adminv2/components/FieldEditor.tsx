@@ -16,7 +16,7 @@ import FaqEditor from './FaqEditor';
 import { MONTHS } from '../../../supabase/functions/_shared/admin-v2-field-policy.ts';
 
 interface FieldEditorProps {
-  field: AdminField;
+  field: Pick<AdminField, 'key' | 'label' | 'editorType' | 'dataType' | 'validationRules' | 'required'>;
   value: unknown;
   onChange: (value: unknown) => void;
   disabled?: boolean;
