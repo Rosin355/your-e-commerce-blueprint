@@ -20,6 +20,8 @@ Baseline verificata: Draft PR #42 su `main@b5cbe57`, HEAD iniziale `829eeb0`, wo
 
 **Evidenza GitHub successiva:** sul commit corretto `d6a89bb` [workflow 41236000206](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236000206) SUCCESS: typecheck, lint storefront/Admin, Deno check, build e test Node/Deno; GitGuardian SUCCESS nella PR. Il commit che registra questa evidenza è solo documentale e richiede il proprio check. La PR resta Draft e senza `reviewDecision` positivo; nessuna verifica sul Supabase reale o canary Shopify.
 
+**Smoke browser ripetuto dopo le correzioni:** [risultato JSON simulato](admin-v2-evidence/2026-10-31/browser-qa-review.json) PASS su 320/375/390/430/768/1440 px, navigazione Admin V2, anteprima categorie, bozza senza AI, stato vuoto/errore e focus; zero page error, 23 richieste esterne bloccate. Runner copiato in `/private/tmp` per non sovrascrivere le evidenze visuali originarie. Questa prova non valida un account Marco né il backend live.
+
 Report precedente alla review indipendente: 31 ottobre 2026. Branch `codex/admin-v2-operational`, base `main@b5cbe57`. Nessun deploy o write live. I conteggi di test e i riferimenti HEAD sottostanti descrivono l'esecuzione precedente su `829eeb0`; l'addendum sopra riporta le verifiche successive.
 
 ## Matrice evidenze

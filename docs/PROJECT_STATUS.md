@@ -6,6 +6,8 @@ QA locale dopo le correzioni: typecheck frontend+Edge, lint mirato, build PASS; 
 
 Aggiornamento GitHub: il commit di review `d6a89bb` ha [CI applicativa SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236000206) e GitGuardian SUCCESS. Il nuovo commit documentale che registra questa prova richiede un check separato. La PR è ancora Draft, priva di review approvata; il gate schema reale e il canary restano aperti.
 
+Smoke browser finale con sole API simulate: sei viewport 320–1440 px, percorsi Admin V2 e stati vuoto/errore PASS, senza page error; [evidenza](admin-v2-evidence/2026-10-31/browser-qa-review.json). Nessuna connessione a servizi live.
+
 ---
 
 ## 30 ottobre 2026 — CI minima reale, preservando la base #39
