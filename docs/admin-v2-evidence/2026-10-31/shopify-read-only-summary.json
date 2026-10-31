@@ -1,0 +1,51 @@
+{
+  "observedAtUTC": "2026-10-31 19:15:03 UTC",
+  "mode": "LIVE_READ_ONLY",
+  "storeDomain": "ecom-blueprint-gen-6ud1s.myshopify.com",
+  "data": {
+    "shop": {
+      "name": "Online Garden",
+      "currencyCode": "EUR",
+      "customerAccounts": "OPTIONAL",
+      "customerAccountsV2": {
+        "customerAccountsVersion": "NEW_CUSTOMER_ACCOUNTS",
+        "loginLinksVisibleOnStorefrontAndCheckout": true,
+        "loginRequiredAtCheckout": false
+      }
+    },
+    "shopLocales": [
+      {
+        "locale": "it",
+        "primary": true,
+        "published": true
+      }
+    ],
+    "active": {
+      "count": 1348,
+      "precision": "EXACT"
+    },
+    "draft": {
+      "count": 16,
+      "precision": "EXACT"
+    },
+    "archived": {
+      "count": 0,
+      "precision": "EXACT"
+    },
+    "unlisted": {
+      "count": 0,
+      "precision": "EXACT"
+    },
+    "collectionsCount": {
+      "count": 55,
+      "precision": "EXACT"
+    }
+  },
+  "query": "query OperationalReadOnlyAudit {\n shop { name currencyCode customerAccounts customerAccountsV2 { customerAccountsVersion loginLinksVisibleOnStorefrontAndCheckout loginRequiredAtCheckout } }\n shopLocales { locale primary published }\n active:productsCount(limit:null,query:\"status:active\"){count precision}\n draft:productsCount(limit:null,query:\"status:draft\"){count precision}\n archived:productsCount(limit:null,query:\"status:archived\"){count precision}\n unlisted:productsCount(limit:null,query:\"status:unlisted\"){count precision}\n collectionsCount(limit:null){count precision}\n}",
+  "limits": [
+    "No product/variant ID census or historical reconciliation",
+    "No Supabase live verification",
+    "No notification templates, sender authentication, staff recipients or email delivery verified",
+    "No mutations performed"
+  ]
+}

@@ -1,6 +1,6 @@
 # Audit notifiche email Shopify — 31 ottobre 2026
 
-**STATO: DOCUMENTATO; configurazione e consegna NON LIVE VERIFIED.** In questa sessione non è disponibile una connessione autorizzata alle impostazioni Shopify. Nessuna email, ordine, modifica mittente, DNS o dominio effettuata. Il trasferimento del dominio resta un vincolo operativo.
+**STATO: DOCUMENTATO; configurazione e consegna NON LIVE VERIFIED.** A fine sessione si è resa disponibile una connessione Admin autorizzata: confermati store, valuta, lingua principale e modello account. Il pannello delle notifiche, i template, il mittente autenticato e i destinatari staff non sono stati verificati. Nessuna email, ordine, modifica mittente, DNS o dominio effettuata. Il trasferimento del dominio resta un vincolo operativo.
 
 Il checkout rimane Shopify nativo. Shopify fornisce notifiche cliente e staff basate sugli eventi; non è stato introdotto alcun servizio email duplicato in React/Supabase. [Documentazione ufficiale notifiche](https://help.shopify.com/en/manual/fulfillment/setup/notifications).
 
@@ -16,7 +16,7 @@ Aprire **Shopify Admin → Impostazioni → Notifiche**. Registrare stato e anom
 | Aggiornamento tracking | Notifiche cliente → aggiornamento spedizione | Corriere, link e variabili; dipende dall'evento effettivo | Non verificato |
 | Annullamento / rimborso | Notifiche cliente → ordine annullato / rimborso ordine | Oggetto, importi, lingua e condizioni della notifica | Non verificato |
 | Nuovo ordine staff | Notifiche → Notifiche staff → destinatari e ambito | Destinatario previsto attivo e ambito canale/località; consultare senza salvare | Non verificato |
-| Account cliente | Impostazioni → Account cliente; quindi template account in Notifiche | Identificare modello account nuovo/legacy e notifiche applicabili | Non verificato |
+| Account cliente | Impostazioni → Account cliente; quindi template account in Notifiche | Nuovi account confermati via API; verificare template applicabili | Configurazione account verificata, email no |
 | Mittente | Notifiche → Email mittente | Stato verificato/autenticato, warning, coerenza marchio; nessuna modifica | Non verificato |
 | Lingua e branding | Anteprima dei singoli template, personalizzazione comune | Italiano in oggetto e corpo, logo e colori approvati, testi non obsoleti | Non verificato |
 | Stato ordine | Anteprima conferma e successivamente email di test autorizzata | Destinazione corretta e visualizzazione Safari/mobile; non pubblicare il link firmato | Non verificato |
@@ -41,3 +41,10 @@ Durante il trasferimento dominio annotare solamente gli avvisi sul mittente. Un'
 6. Il responsabile verifica il ritorno alla configurazione operativa e firma l'esito. Finché manca una ricevuta effettiva correlata agli eventi, mantenere il gate email aperto.
 
 **Criterio PASS:** cliente e staff ricevono gli eventi concordati, contenuti e link corretti, nessun duplicato e nessun addebito reale. Un'anteprima o un test template isolato non è prova end-to-end.
+
+
+## Addendum live read-only, fine sessione
+
+Store corretto confermato: Online Garden, `ecom-blueprint-gen-6ud1s.myshopify.com`, valuta EUR. `shopLocales`: italiano principale e pubblicato. Account Shopify: `NEW_CUSTOMER_ACCOUNTS`, facoltativi; link login visibili, login al checkout non obbligatorio. Questo verifica il modello account e la lingua dello store, **non** lingua effettiva dei template personalizzati, mittente, destinatari staff o recapito dei codici/email. Lo schema GraphQL consultato non ha fornito un percorso di lettura dei template delle notifiche native; resta necessaria la checklist nel pannello.
+
+[Evidenza sanificata e query](admin-v2-evidence/2026-10-31/shopify-read-only-summary.json). Nessuna query a clienti/ordini, nessun valore di credenziale conservato, nessuna mutation.

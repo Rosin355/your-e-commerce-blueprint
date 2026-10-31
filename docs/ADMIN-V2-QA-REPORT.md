@@ -19,7 +19,7 @@
 | Browser Chromium | PASS simulato: 320, 375, 390, 430, 768, 1440 px; nessun overflow o pageerror; vuoti/errori, filtro non classificati, anteprima e salvataggio senza AI |
 | Accessibilità mirata | Etichette, focus tastiera, checkbox mesi, errori/status e controlli primari; corretto nome accessibile del filtro Mostra. Nessuna attestazione WCAG completa |
 | Safari/iOS e lettore schermo reale | NON ESEGUITI; gate staging |
-| Configurazione Shopify/Supabase/Marco live | NON LIVE VERIFIED |
+| Configurazione live | Shopify: store/EUR/lingua/account e conteggi limitati verificati a fine sessione; Supabase/Marco/flag non verificati |
 | Email e ordine sandbox | NON ESEGUITI; procedura pronta, autorizzazione necessaria |
 
 Il primo browser test ha fallito sul nome accessibile ambiguo del filtro categorie: corretto con etichetta esplicita e ripetuto con successo. Il primo controllo Deno ha rilevato tipi incompleti nei read model, corretti prima del commit. Il lint esplicito ha rilevato quattro `any` preesistenti nei conteggi della query modificata: sostituiti con il tipo derivato del query builder. Nessun test disabilitato.
@@ -52,3 +52,6 @@ Le assegnazioni Shopify asincrone non ancora confermate restano da riconciliare.
 Sul codice `38b6324ecdcb705979e5b3a62b4fd3dbc7c71cfd`: **CI SUCCESS** nel [run 41232830219](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41232830219), tutti gli step completati, inclusi lint Admin e typecheck server frozen; **GitGuardian SUCCESS**, verificato nei check della PR. Il commit successivo registra queste evidenze documentali: il suo check deve essere verificato separatamente, senza attribuirgli automaticamente l'esito precedente.
 
 Valutazione: **pronto per review tecnica come Draft; attivazione live BLOCKED dai gate descritti**. Non è un'autorizzazione al merge o al soft launch. I 17 worktree preesistenti risultano invariati nel confronto HEAD/status/hash delle modifiche originali. Scan mirato sulle nuove righe: nessun riscontro di token Shopify privati, JWT letterali o chiavi private; non sostituisce l'audit integrale della cronologia.
+
+
+Addendum: [lettura Shopify Admin sanificata](admin-v2-evidence/2026-10-31/shopify-read-only-summary.json) disponibile a fine sessione. Nessuna write, email o verifica di mapping/categorie individuali. CI e GitGuardian verificati SUCCESS anche su `5d43b41`: [run 41232967229](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41232967229). L’ulteriore commit documentale registra questa nuova evidenza live limitata.

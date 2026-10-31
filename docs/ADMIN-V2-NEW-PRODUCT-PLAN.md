@@ -7,7 +7,7 @@ Aggiornamento 31 ottobre 2026. Base `main@b5cbe57` (PR #39 e #41 integrate; #40 
 | Perimetro | Stato |
 | --- | --- |
 | Categorie interne, mapping, ricerca, associati/non classificati/multi-associati | IMPLEMENTED; TESTED con API simulate |
-| Anteprima assegnazioni interne e confronto Shopify se disponibile | IMPLEMENTED; backend e autorizzazioni testati localmente; letture Admin live non effettuate |
+| Anteprima assegnazioni interne e confronto Shopify se disponibile | IMPLEMENTED; backend e autorizzazioni testati localmente; membership per prodotto non verificate live; lettura finale limitata a metadati/conteggi |
 | Assegnazione Shopify, rilettura, approvazione interna e registro operazione | IMPLEMENTED, NOT YET ENABLED; serve canary autorizzato |
 | Nuovo prodotto manuale, validazione, anteprima, salvataggio canonico | IMPLEMENTED; TESTED in PostgreSQL locale e browser simulato |
 | Invio DRAFT Shopify e recupero dopo timeout/fallimento DB | IMPLEMENTED; TESTED con adapter Shopify simulato; NOT YET ENABLED |
@@ -72,3 +72,6 @@ Dopo approvazione separata: un'unica transazione idempotente può riservare iden
 ## Gate prima del cliente
 
 Review backend/SQL; verifica schema reale e registro campi; migrazione autorizzata; deploy separatamente autorizzato; conferma valuta/scopes e sessione test; canary DRAFT su SKU concordato; canary assegnazioni su prodotto concordato; rollback operativo e recupero dei timeout; ruolo Marco senza escalation automatica; decisione su chi può inviare e pubblicare. Vedere [QA](ADMIN-V2-QA-REPORT.md) e [notifiche](SHOPIFY-EMAIL-NOTIFICATIONS-AUDIT.md).
+
+
+Addendum live: connessione Shopify Admin disponibile a fine sessione, store corretto e valuta EUR confermati; italiano principale e nuovi account facoltativi confermati. Conteggi 1.348 ACTIVE / 16 DRAFT / 55 collezioni. Nessun canary o test delle scritture: [audit aggiornato](CATALOG-ALIGNMENT-AUDIT.md).

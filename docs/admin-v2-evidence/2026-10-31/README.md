@@ -10,3 +10,6 @@ Base visiva precedente: PR #41 `d4029b5`, equivalente all'Admin integrato in `ma
 | Nuovo prodotto: anteprima/salvataggio simulato | [1440](new-product-preview-1440.png) | [390](new-product-preview-390.png) |
 
 Sono conservate otto immagini mirate, circa 750 KiB complessivi. Nessuna duplicazione degli screenshot storefront o dei CSV storici. Le schermate non attestano l'accesso di Marco, il salvataggio live o la configurazione Shopify.
+
+
+[Addendum Shopify Admin read-only](shopify-read-only-summary.json): questa evidenza è live, distinta dalle schermate simulate; riguarda soltanto metadati e conteggi per stato, senza dati cliente o credenziali.
