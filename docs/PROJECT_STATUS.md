@@ -422,3 +422,5 @@ Accept live su OG_264361/seo_title v1→v2, history/command +1, replay idempoten
 Base verificata `main@b5cbe57` con PR #39/#41 integrate; #40 esclusa. Implementati in branch isolato: categorie reali interne, anteprima/assegnazione controllata, nuovo prodotto manuale, journal idempotente, mapping e recupero DRAFT. QA locale e simulata positiva; nuove mutation OFF per default. Nessuna migrazione/deploy/live write. Il collaudo live di schema, ruoli, scope, canary e ricezione email resta aperto.
 
 Riferimenti: [Piano Admin](./ADMIN-V2-NEW-PRODUCT-PLAN.md), [QA](./ADMIN-V2-QA-REPORT.md), [Notifiche Shopify](./SHOPIFY-EMAIL-NOTIFICATIONS-AUDIT.md).
+
+Draft PR [#42](https://github.com/Rosin355/your-e-commerce-blueprint/pull/42) pubblicata. CI applicativa e GitGuardian verificati SUCCESS sul codice `38b6324`; [esecuzione](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41232830219). Esito tecnico distinto dai gate live ancora aperti: nessuna attivazione del negozio.
