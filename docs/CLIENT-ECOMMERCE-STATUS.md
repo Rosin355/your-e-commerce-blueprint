@@ -53,3 +53,9 @@ Draft PR [#42](https://github.com/Rosin355/your-e-commerce-blueprint/pull/42) pu
 
 
 **Addendum finale, connessione Shopify resa disponibile:** sola lettura sullo store corretto conferma EUR, italiano principale pubblicato, nuovi account cliente facoltativi, 1.348 prodotti ACTIVE, 16 DRAFT e 55 collezioni. Nessuna scrittura effettuata. Mapping Supabase, riconciliazione storica, autorizzazioni Marco, template/mittente/staff e recapito email restano non verificati. I gate di attivazione non cambiano.
+
+## Review indipendente PR #42 — 31 ottobre 2026
+
+Una seconda revisione ha trovato casi in cui un’approvazione generica o categorie non allineate avrebbero potuto autorizzare modifiche diverse da quelle previste. Il branch della PR è stato corretto: ogni approvazione riguarda ora una sola bozza o una proposta categorie esatta e ha una scadenza; il comando generale OFF blocca le nuove scritture; una differenza fra categorie interne e collezioni Shopify blocca l’operazione. Sono stati corretti anche il controllo dello SKU famiglia e la gestione della categoria primaria. La rimozione da collezioni attende il completamento del job Shopify prima di segnare il lavoro come verificato.
+
+I test locali aggiornati passano, ma non è stato possibile confrontare lo schema con il database Supabase reale né collaudare le nuove operazioni su prodotti veri. Nessun prodotto, prezzo, giacenza, categoria, account o flag live è stato modificato. La PR resta **CHANGES REQUIRED** finché il nuovo commit non supera la CI/GitGuardian e la review del diff; l’eventuale integrazione del codice non autorizza di per sé la migration, l’attivazione per Marco o il rilascio commerciale. [Report tecnico e gate](./ADMIN-V2-QA-REPORT.md).

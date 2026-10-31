@@ -1,3 +1,11 @@
+## 31 ottobre 2026 — review indipendente sicurezza e integrità PR #42
+
+Draft PR #42 verificata sulla base `main@b5cbe57`, HEAD iniziale `829eeb0`. Il diff tocca Admin V2, API Admin, migration, test, CI e documentazione; storefront/checkout non sono stati modificati. La review ha individuato cinque difetti nelle autorizzazioni operative e nella coerenza delle categorie/SKU; corretti sul branch della PR con regressioni Node, Deno e PostgreSQL locale. In particolare l’approvazione è ora legata a una sola bozza o all’hash esatto di una proposta categorie, scade entro 24 ore e il flag generale OFF prevale sulle nuove scritture. Drift Shopify/Supabase blocca le mutation; rimozioni Shopify asincrone richiedono job completato e rilettura prima della finalizzazione interna.
+
+QA locale dopo le correzioni: typecheck frontend+Edge, lint mirato, build PASS; 360 Node e 102 Deno PASS; PostgreSQL 16 locale PASS. Warning bundle Vite già noto. Il Supabase effettivo non è accessibile con la connessione corrente: compatibilità con schema/registro reali e migrazione live non sono attestati. Nessuna scrittura Shopify/Supabase o attivazione flag. La CI e GitGuardian precedenti riguardano `829eeb0`; nuovo HEAD da verificare separatamente. **CHANGES REQUIRED fino alla verifica remota delle correzioni e review del nuovo diff; staging e produzione restano bloccati da gate autonomi.** [Finding, scenari e prove](ADMIN-V2-QA-REPORT.md) · [Contratto di approvazione aggiornato](ADMIN-V2-NEW-PRODUCT-PLAN.md).
+
+---
+
 ## 30 ottobre 2026 — CI minima reale, preservando la base #39
 
 Introdotto workflow pull_request verso main e codex/storefront-main-integration con runtime e Action fissati, npm ci senza lifecycle script, typecheck, lint pertinente, build e test Node/Deno con lock frozen. Solo contents:read, nessun segreto applicativo o permesso di scrittura, nessun sync/import/backup/deploy; test Node con blocco rete e Deno senza permessi runtime rete/run/write. Codice dello storefront e test esistenti invariati.

@@ -50,8 +50,9 @@ Il reader esistente `getExactShopifyProductMapping` riconosce i nuovi link verif
 
 - Letture: ruoli V2 già ammessi; viewer/user/moderator senza accesso. Nessun nuovo ruolo assegnato.
 - Bozza interna: editor/admin/tech_admin; in canary solo admin/tech_admin. Richiede `PRODUCT_ADMIN_WRITES_ENABLED` e `PRODUCT_ADMIN_DRAFTS_ENABLED`.
-- Invio Shopify: admin/tech_admin, `PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED` e `PRODUCT_ADMIN_OPERATIONAL_APPROVAL` valorizzato con riferimento alla change approvata.
-- Assegnazioni Shopify: admin/tech_admin, `PRODUCT_ADMIN_CATEGORIES_ENABLED`, stessa approvazione, conferma e hash della proposta riletta.
+- Invio Shopify: admin/tech_admin, `PRODUCT_ADMIN_WRITES_ENABLED=true`, `PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED=true` e approvazione operativa per **uno specifico** `operationId`, oltre alla conferma. Il recupero di un invio già iniziato resta possibile anche dopo la disattivazione dei flag: verifica una bozza esistente e completa solo il mapping.
+- Assegnazioni Shopify: admin/tech_admin, `PRODUCT_ADMIN_WRITES_ENABLED=true`, `PRODUCT_ADMIN_CATEGORIES_ENABLED=true`, approvazione per l’`expectedHash` esatto della proposta, conferma e rilettura. Se il catalogo interno e le membership canoniche Shopify divergono, non si esegue alcuna mutation.
+- `PRODUCT_ADMIN_OPERATIONAL_APPROVAL` è un JSON server-side, non un token: `{ "action": "create_shopify_draft", "target": "<operationId UUID>", "expiresAt": "<ISO UTC entro 24 ore>" }` oppure `{ "action": "apply_categories", "target": "<expectedHash SHA-256>", "expiresAt": "<ISO UTC entro 24 ore>" }`. Una stringa generica, `false`, un target diverso o un’approvazione scaduta sono rifiutati. Configurarlo solo per il canary autorizzato, poi rimuoverlo; non inserirvi credenziali.
 - Recupero bozza già inviata: admin/tech_admin, query Shopify e mapping interno; non crea un nuovo prodotto anche se il flag di invio è stato disattivato.
 - Tabelle nuove con RLS e privilegi diretti revocati ad anon/authenticated; RPC SECURITY INVOKER, execute solo service_role, ruoli dell'attore riletti anche in SQL.
 
