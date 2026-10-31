@@ -162,6 +162,20 @@ export async function getExactShopifyProductMapping(
     .eq("sku", sku)
     .maybeSingle();
   if (error) throw error;
+  // New canonical drafts have an explicit verified link. Legacy mappings remain authoritative
+  // for older products; conflicting identities are never silently preferred.
+  const { data: canonical, error: canonicalError } = await db.from("products").select("id").eq("sku", sku).maybeSingle();
+  if (canonicalError) throw canonicalError;
+  if (canonical) {
+    const { data: link, error: linkError } = await db.from("admin_product_shopify_links")
+      .select("shopify_product_gid,verified_at").eq("product_id", canonical.id).maybeSingle();
+    // Additive migration may not yet be deployed. Other errors fail closed.
+    if (linkError && !["42P01", "PGRST205"].includes(linkError.code)) throw linkError;
+    if (link) {
+      if (data?.shopify_product_id && data.shopify_product_id !== link.shopify_product_gid) throw new Error("MAPPING_CONFLICT");
+      return { sku, shopify_product_id: link.shopify_product_gid as string, shopify_sync_status: "verified_draft", shopify_synced_at: link.verified_at as string, handle: null, price: null, compare_at_price: null };
+    }
+  }
   return data as {
     sku: string;
     shopify_product_id: string | null;
@@ -223,14 +237,16 @@ export async function getProductHistory(
 
 /** Conteggi aggregati per la Dashboard: solo `count`, mai righe complete. */
 export async function getDashboardStats(db: SupabaseClient) {
-  const countProducts = async (filter?: (q: any) => any) => {
+  const queryType = () => db.from("products").select("id", { count: "exact", head: true });
+  type CountQuery = ReturnType<typeof queryType>;
+  const countProducts = async (filter?: (q: CountQuery) => CountQuery) => {
     let q = db.from("products").select("id", { count: "exact", head: true });
     if (filter) q = filter(q);
     const { count, error } = await q;
     if (error) throw error;
     return count ?? 0;
   };
-  const countValues = async (filter: (q: any) => any) => {
+  const countValues = async (filter: (q: CountQuery) => CountQuery) => {
     const { count, error } = await filter(
       db.from("product_current_values").select("id", {
         count: "exact",
