@@ -4,6 +4,8 @@ Draft PR #42 verificata sulla base `main@b5cbe57`, HEAD iniziale `829eeb0`. Il d
 
 QA locale dopo le correzioni: typecheck frontend+Edge, lint mirato, build PASS; 360 Node e 102 Deno PASS; PostgreSQL 16 locale PASS. Warning bundle Vite già noto. Il Supabase effettivo non è accessibile con la connessione corrente: compatibilità con schema/registro reali e migrazione live non sono attestati. Nessuna scrittura Shopify/Supabase o attivazione flag. La CI e GitGuardian precedenti riguardano `829eeb0`; nuovo HEAD da verificare separatamente. **CHANGES REQUIRED fino alla verifica remota delle correzioni e review del nuovo diff; staging e produzione restano bloccati da gate autonomi.** [Finding, scenari e prove](ADMIN-V2-QA-REPORT.md) · [Contratto di approvazione aggiornato](ADMIN-V2-NEW-PRODUCT-PLAN.md).
 
+Aggiornamento GitHub: il commit di review `d6a89bb` ha [CI applicativa SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236000206) e GitGuardian SUCCESS. Il nuovo commit documentale che registra questa prova richiede un check separato. La PR è ancora Draft, priva di review approvata; il gate schema reale e il canary restano aperti.
+
 ---
 
 ## 30 ottobre 2026 — CI minima reale, preservando la base #39

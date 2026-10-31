@@ -18,6 +18,8 @@ Baseline verificata: Draft PR #42 su `main@b5cbe57`, HEAD iniziale `829eeb0`, wo
 
 **Esito locale della review:** typecheck frontend e Deno, lint mirato e build PASS (warning bundle preesistente); 360 test Node e 102 test Deno PASS; PostgreSQL 16 isolato PASS con test ACL/RLS, mapping, concorrenza e categoria primaria. La CI e GitGuardian su `829eeb0` erano SUCCESS prima delle correzioni; gli esiti del nuovo HEAD vanno verificati su GitHub e non sono dedotti dai test locali. Stato di integrazione: **CHANGES REQUIRED finché il nuovo HEAD non è pubblicato, verificato in CI/GitGuardian e sottoposto a review del diff corretto**. Attivazione live separata e ancora bloccata.
 
+**Evidenza GitHub successiva:** sul commit corretto `d6a89bb` [workflow 41236000206](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236000206) SUCCESS: typecheck, lint storefront/Admin, Deno check, build e test Node/Deno; GitGuardian SUCCESS nella PR. Il commit che registra questa evidenza è solo documentale e richiede il proprio check. La PR resta Draft e senza `reviewDecision` positivo; nessuna verifica sul Supabase reale o canary Shopify.
+
 Report precedente alla review indipendente: 31 ottobre 2026. Branch `codex/admin-v2-operational`, base `main@b5cbe57`. Nessun deploy o write live. I conteggi di test e i riferimenti HEAD sottostanti descrivono l'esecuzione precedente su `829eeb0`; l'addendum sopra riporta le verifiche successive.
 
 ## Matrice evidenze
