@@ -415,3 +415,10 @@ Accept live su OG_264361/seo_title v1→v2, history/command +1, replay idempoten
 - Rose subcategories hidden from mega menu/mobile drawer until a real classification exists; only `/collections/rose` is linked.
 - Conifere confirmed live; "in arrivo" copy removed.
 - 2 test products (TEST-001, TEST-002) hidden from all storefront listings, search, homepage, related, collections and PDP via a frontend ID filter in `src/lib/shopify.ts`. Their Shopify status is still ACTIVE (the agent's tools cannot change status); set them to DRAFT in Shopify Admin for a full backend-level removal.
+
+
+## Admin V2 operativo + notifiche — 31 ottobre 2026
+
+Base verificata `main@b5cbe57` con PR #39/#41 integrate; #40 esclusa. Implementati in branch isolato: categorie reali interne, anteprima/assegnazione controllata, nuovo prodotto manuale, journal idempotente, mapping e recupero DRAFT. QA locale e simulata positiva; nuove mutation OFF per default. Nessuna migrazione/deploy/live write. Il collaudo live di schema, ruoli, scope, canary e ricezione email resta aperto.
+
+Riferimenti: [Piano Admin](./ADMIN-V2-NEW-PRODUCT-PLAN.md), [QA](./ADMIN-V2-QA-REPORT.md), [Notifiche Shopify](./SHOPIFY-EMAIL-NOTIFICATIONS-AUDIT.md).

@@ -122,7 +122,7 @@ await context.route('**/*', async (route) => {
     if (p.action === 'preview_categories') {
       return json({
         ok: true,
-        diff: { add: [], remove: [id], keep: [] },
+        diff: { add: p.categoryIds.filter(x => !(p.productId === pid ? [id] : []).includes(x)), remove: (p.productId === pid ? [id] : []).filter(x => !p.categoryIds.includes(x)), keep: p.categoryIds.filter(x => (p.productId === pid ? [id] : []).includes(x)) },
         executable: false,
         reason: 'Anteprima simulata: nessuna scrittura.',
       });

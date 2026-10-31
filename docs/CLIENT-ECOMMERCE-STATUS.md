@@ -41,3 +41,10 @@ Confermare dominio pubblico, indicizzazione e pagine mancanti sul sito effettiva
 L'amministrazione, le sincronizzazioni e i dati del negozio restano quelli della versione recente. Non sono stati modificati dati, prezzi, giacenze, utenti o configurazioni live. Nessuna pubblicazione automatica o nuova Pull Request creata.
 
 Questo documento descrive lo stato cliente. Dettagli tecnici e prove sono nel [report di integrazione](STOREFRONT-MAIN-INTEGRATION.md).
+
+
+## Autonomia Marco — aggiornamento 31 ottobre 2026
+
+La veste grafica approvata rimane invariata. È pronto per review un percorso Admin per consultare categorie e compilare un nuovo prodotto senza AI. Salvare una bozza interna, inviarla come bozza Shopify e pubblicarla sono operazioni distinte. Le nuove funzioni non sono ancora attivate nel negozio; non sono stati modificati account, privilegi, inventario, prodotti o dominio. Email cliente/staff: checklist predisposta, ricezione effettiva ancora da verificare con un ordine test autorizzato.
+
+Riferimenti: [Piano Admin](./ADMIN-V2-NEW-PRODUCT-PLAN.md), [QA](./ADMIN-V2-QA-REPORT.md), [Notifiche Shopify](./SHOPIFY-EMAIL-NOTIFICATIONS-AUDIT.md).
