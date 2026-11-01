@@ -2,6 +2,26 @@
 
 **Preparato il 1 novembre 2026; nessuna fase eseguita con questo documento.** La PR #42 può essere integrata come codice soltanto dopo i gate di review; l'integrazione non autorizza migration, deploy, scritture, pubblicazione o modifica del catalogo. Baseline tecnica: [compatibilità Supabase](ADMIN-V2-LIVE-SUPABASE-COMPATIBILITY.md) e [matrice categorie](ADMIN-V2-CATEGORY-RECONCILIATION-PLAN.md). Registrare per ogni gate operatore, approvatore, ambiente, SHA, UTC, esito ed evidenze in un ticket di change.
 
+## Verifica operativa pre-merge — 1 novembre 2026
+
+**GitHub.** Sul controllo di `99d2f1c` la PR #42 è Draft verso `main@b5cbe57`, CI e GitGuardian PASS, senza review inviate o richieste. `main` risulta non protetto; endpoint di branch protection: 404 «Branch not protected»; ruleset: elenco vuoto. Pertanto GitHub non impone automaticamente check o review. L'inventario collaboratori accessibile mostra soltanto l'autore `Rosin355`: nessun reviewer indipendente con autorizzazione verificata. Preparare una richiesta di review a un tecnico indipendente **dopo** che il proprietario gli avrà concesso l'accesso appropriato; non usare auto-review né trattare i check come approvazione. La richiesta deve includere migration/RLS/RPC, kill switch, idempotenza, categorie e fallback con migration assente.
+
+**Ambiente destinatario.** Progetto Lovable Online Garden `95cad199-55fd-4870-9d5c-a2653edf88f5`, backend `iekwvvihjwghosqdxrdi`, repository `Rosin355/your-e-commerce-blueprint`, branch attivo `main`, stato «In sync with GitHub» su `b5cbe57`; sito pubblicato collegato a `onlinegarden.it`. La tabella **Project secrets** del progetto elenca i nomi ma non i valori. Lovable documenta che i secret backend sono iniettati nelle Edge Functions e che i valori salvati sono write-only: [Secrets](https://docs.lovable.dev/features/secrets).
+
+| Variabile | Inventario Project secrets | Effetto del codice se assente | Rischio/azione prima di deploy read-only |
+| --- | --- | --- | --- |
+| `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED` | Assente | OFF: `shopifySyncEnabled()` confronta con `true` | Rileggere inventario nel change; la sync preesistente è indipendente dal master. |
+| `PRODUCT_ADMIN_DRAFTS_ENABLED` | Assente | OFF: bozza interna rifiutata | Conservare OFF fino al canary autorizzato. |
+| `PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED` | Assente | OFF: invio DRAFT rifiutato | Conservare OFF fino al canary autorizzato. |
+| `PRODUCT_ADMIN_CATEGORIES_ENABLED` | Assente | OFF: assegnazione rifiutata | Conservare OFF fino a mapping approvato. |
+| `PRODUCT_ADMIN_OPERATIONAL_APPROVAL` | Assente | Nessuna approvazione valida | Non creare un'approvazione generica o persistente. |
+| `PRODUCT_ADMIN_WRITES_ENABLED` | **Presente; valore non verificabile** | OFF solo **se** assente o diverso da `true` | **Gate aperto:** attestare tramite contesto Admin autenticato o procedura operatore sanificata che sia effettivamente OFF; non dedurlo dalla presenza del secret. |
+| `PRODUCT_ADMIN_WRITE_MODE` | **Presente; valore non verificabile** | `canary` solo **se** assente o diverso da `full` | Attestare il modo effettivo; se master fosse ON e modo `full`, le scritture Admin preesistenti potrebbero essere più ampie. |
+
+**Separazione merge/deploy.** Nel repository l'unico workflow GitHub Actions è `pull_request` con permesso `contents:read`; non esiste trigger `push` o job di deploy. Il progetto Lovable sincronizza automaticamente il codice di `main` nell'editor/anteprima, ma la [documentazione Git sync](https://docs.lovable.dev/integrations/git-sync-overview) specifica che un commit sincronizzato non pubblica il sito, non distribuisce una Edge Function modificata e non applica migration SQL. Una pubblicazione o distribuzione backend richiede un'azione separata autorizzata. Prima del deploy va comunque ripetuta la verifica dei flag e dei fallback per le tabelle nuove assenti.
+
+**Coordinamento PR #43.** Anche la Draft #43 nasce da `main@b5cbe57`. Il confronto a tre vie delle due HEAD trova conflitti reali in `docs/PROJECT_STATUS.md` e `docs/CLIENT-ECOMMERCE-STATUS.md`; `src/App.tsx`, `.github/workflows/storefront-checks.yml` e `docs/release/FINAL-RELEASE-READINESS.md` sono modificati da entrambe ma il merge-tree li combina senza marker. Ordine proposto: review e, solo dopo autorizzazione, merge #42; aggiornare poi il branch #43 alla nuova `main`, risolvere i due documenti mantenendo entrambe le cronologie e rieseguire CI/GitGuardian e review del diff combinato. Non aggiornare automaticamente nessuna delle PR in questo gate.
+
 ## Gate 1 — merge del solo codice, scritture OFF
 
 - **Prerequisiti:** PR #42 su base corretta, CI/GitGuardian verdi sul suo HEAD finale, review GitHub adeguata, diff finale limitato ad Admin V2/migration/documenti. Verificare che `PRODUCT_ADMIN_WRITES_ENABLED`, `PRODUCT_ADMIN_DRAFTS_ENABLED`, `PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED` e `PRODUCT_ADMIN_CATEGORIES_ENABLED` siano assenti o `false` nell'ambiente di destinazione. Nessuna configurazione di approvazione operativa attiva. Per dichiarare *tutto* l'Admin read-only verificare separatamente anche `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED=false`: la sync a campo singolo preesistente ha un interruttore indipendente, che questo merge non cambia.
