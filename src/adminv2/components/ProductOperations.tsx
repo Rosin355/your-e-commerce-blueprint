@@ -2,15 +2,14 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { callAdminApi } from '../lib/adminApi';
 import { OPERATION_LABELS } from '../lib/operationalApi';
-import { useAdminContext } from '../hooks/useAdminData';
 export default function ProductOperations({ productId }: { productId: string }) {
-  const context = useAdminContext();
   const query = useQuery({
     queryKey: ['admin', 'operations', productId],
     queryFn: () =>
       callAdminApi<
         {
           canSendDraft: boolean;
+          canRecover: boolean;
           approvedOperationId: string | null;
           operations: {
             id: string;
@@ -35,7 +34,7 @@ export default function ProductOperations({ productId }: { productId: string }) 
     );
   }
   if (!query.data?.operations.length) return null;
-  const canRecover = context.data?.roles.some((r) => r === 'admin' || r === 'tech_admin');
+  const canRecover = query.data.canRecover;
   return (
     <section className='space-y-3 rounded-lg border p-4'>
       <h2 className='font-semibold'>Creazione e sincronizzazione</h2>

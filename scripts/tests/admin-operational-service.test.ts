@@ -1,6 +1,6 @@
 import { assertEquals, assertRejects } from 'jsr:@std/assert';
 import { handleOperational } from '../../supabase/functions/_shared/admin-operational-service.ts';
-import type { ProductDraft } from '../../supabase/functions/_shared/admin-operational-core.ts';
+import { OperationalError, type ProductDraft } from '../../supabase/functions/_shared/admin-operational-core.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
 const id = '40000000-0000-4000-8000-000000000001',
   actor = { userId: '00000000-0000-4000-8000-000000000001', roles: ['admin'] as ['admin'] };
@@ -199,6 +199,18 @@ Deno.test('interruttore generale OFF blocca invio anche con flag specifico e app
     }, s.shopify));
     assertEquals(s.mutations, 0);
     assertEquals(s.op.state, 'LOCAL_DRAFT');
+  }));
+Deno.test('interruttore generale OFF blocca anche il recupero che scriverebbe il mapping', () =>
+  withFlags(async () => {
+    const s = simulation();
+    s.op.state = 'NEEDS_RECONCILIATION';
+    Deno.env.set('PRODUCT_ADMIN_WRITES_ENABLED', 'false');
+    const error = await assertRejects(() => handleOperational(s.db, actor, {
+      action: 'recover_shopify_draft', operationId: id,
+    }, s.shopify), OperationalError, 'Recupero della bozza non abilitato.');
+    assertEquals(error.code, 'WRITES_DISABLED');
+    assertEquals(s.op.state, 'NEEDS_RECONCILIATION');
+    assertEquals(s.mutations, 0);
   }));
 Deno.test('timeout dopo creazione Shopify: retry non ricrea; recupero solo query', () =>
   withFlags(async () => {

@@ -185,6 +185,10 @@ export async function handleOperational(
   const action = String(p.action);
   const flags = operationalFlags();
   operationalAccess(action, auth.roles, flags, p.confirm === true);
+  // Recovery may complete the internal mapping; the global write switch must stop it too.
+  if (action === 'recover_shopify_draft' && !writesEnabled()) {
+    throw new OperationalError('WRITES_DISABLED', 'Recupero della bozza non abilitato.');
+  }
   if (
     action === 'save_new_product' && writeMode() === 'canary' &&
     !auth.roles.some((r) => r === 'admin' || r === 'tech_admin')
@@ -487,6 +491,8 @@ export async function handleOperational(
         auth.roles.some((r) => r === 'admin' || r === 'tech_admin'),
       approvedOperationId: currentApproval()?.action === 'create_shopify_draft'
         ? currentApproval()?.target : null,
+      canRecover: writesEnabled() &&
+        auth.roles.some((r) => r === 'admin' || r === 'tech_admin'),
     };
   }
   demand(typeof p.operationId === 'string' && UUID.test(p.operationId), 'Operazione non valida.');
