@@ -1,3 +1,15 @@
+## 1 novembre 2026 — footer, privacy e contatti (Draft separata)
+
+Da main aggiornato `b5cbe57`, worktree indipendente e branch `codex/storefront-footer-legal`; #40 e #42 escluse. Footer senza placeholder, catalogo pubblico verificato, contatti con email confermata via Shopify, Privacy Policy ufficiale verificata HTTP 200 e collegata senza copia HTML. Registro route legali: quattro policy assenti restano disattive e senza link; fallback noindex client-side, limiti HTTP/SEO espliciti. Contatti e alias privacy verificati nella build, non già pubblicati online.
+
+Build/typecheck/lint mirato PASS; 339 Node + 92 Deno e 15 scenari UX esistenti PASS. Lint globale: 43 errori/11 warning identici a main, zero nuovi. Evidenze desktop/mobile e QA dedicata nel report. **Pubblicazione completa BLOCKED**: cookie/termini/spedizioni/resi senza testi approvati, dati societari da confermare; hosting inietta telemetria e tenta POST eventi prima del consenso, non validata come correttamente subordinata alle preferenze. Nessuna CMP introdotta.
+
+Nessuna modifica a Admin V2/API/backend/migration, Shopify o Supabase live; nessun merge/deploy/Lovable. Solo branch e Draft PR separata verso main. Le sezioni seguenti sono cronologia precedente e non sostituiscono questo stato.
+
+[Report e matrice policy](legal/FOOTER-AND-POLICY-INTEGRATION.md) · [Checklist Marco](legal/CLIENT-LEGAL-PUBLICATION-CHECKLIST.md) · [Readiness corrente](release/FINAL-RELEASE-READINESS.md).
+
+---
+
 ## 30 ottobre 2026 — CI minima reale, preservando la base #39
 
 Introdotto workflow pull_request verso main e codex/storefront-main-integration con runtime e Action fissati, npm ci senza lifecycle script, typecheck, lint pertinente, build e test Node/Deno con lock frozen. Solo contents:read, nessun segreto applicativo o permesso di scrittura, nessun sync/import/backup/deploy; test Node con blocco rete e Deno senza permessi runtime rete/run/write. Codice dello storefront e test esistenti invariati.

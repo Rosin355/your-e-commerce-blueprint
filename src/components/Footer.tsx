@@ -1,14 +1,10 @@
 import { PaymentInformation } from "./storefront/PaymentInformation";
 import { FOOTER_CATEGORIES, collectionHref } from "@/config/categories";
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, CONTACT_PATH, PUBLIC_LEGAL_LINKS } from "@/config/legal";
+import { Link } from "react-router-dom";
 
 export const Footer = () => {
   const categories = FOOTER_CATEGORIES;
-  const links = {
-    explore: ["Chi siamo", "Ispirazioni", "FAQ", "Assistenza clienti"],
-    legal: ["Privacy Policy", "Resi e rimborsi", "Termini di servizio"],
-  };
-
-
 
   return (
     <footer className="border-t border-border/70 bg-background">
@@ -22,53 +18,48 @@ export const Footer = () => {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-8 border-t border-border/65 pt-8 md:grid-cols-2 lg:grid-cols-5">
-          <div>
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Catalogo</h3>
+        <div className="mt-10 grid gap-8 border-t border-border/65 pt-8 md:grid-cols-2 lg:grid-cols-3">
+          <nav aria-labelledby="footer-catalog-heading">
+            <h3 id="footer-catalog-heading" className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Catalogo</h3>
             <ul className="mt-4 space-y-2.5">
               {categories.map((item) => (
                 <li key={item.handle}>
-                  <a href={collectionHref(item.handle)} className="text-sm text-foreground/90 transition-colors hover:text-primary">
+                  <Link to={collectionHref(item.handle)} className="inline-flex min-h-6 items-center text-sm text-foreground/90 transition-colors hover:text-primary">
                     {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav aria-labelledby="footer-info-heading">
+            <h3 id="footer-info-heading" className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Informazioni</h3>
+            <ul className="mt-4 space-y-2.5">
+              <li>
+                <Link to={CONTACT_PATH} className="inline-flex min-h-6 items-center text-sm text-foreground/90 transition-colors hover:text-primary">
+                  Contatti e assistenza
+                </Link>
+              </li>
+              <li>
+                <a href={CONTACT_EMAIL_HREF} className="inline-flex min-h-6 items-center break-all text-sm text-foreground/90 underline underline-offset-4 transition-colors hover:text-primary">
+                  {CONTACT_EMAIL}
+                </a>
+              </li>
+            </ul>
+          </nav>
+
+          <nav aria-labelledby="footer-legal-heading">
+            <h3 id="footer-legal-heading" className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Legale</h3>
+            <ul className="mt-4 space-y-2.5">
+              {PUBLIC_LEGAL_LINKS.map((policy) => (
+                <li key={policy.path}>
+                  <a href={policy.href} className="inline-flex min-h-6 items-center text-sm text-foreground/90 transition-colors hover:text-primary">
+                    {policy.label}
                   </a>
                 </li>
               ))}
             </ul>
-          </div>
-
-          <div>
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Esplora</h3>
-            <ul className="mt-4 space-y-2.5">
-              {links.explore.map((item) => (
-                <li key={item}>
-                  <span className="text-sm text-muted-foreground">{item} <span className="text-xs">(in preparazione)</span></span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Informazioni</h3>
-            <ul className="mt-4 space-y-2.5">
-              {links.legal.map((item) => (
-                <li key={item}>
-                  <span className="text-sm text-muted-foreground">{item} <span className="text-xs">(in preparazione)</span></span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Seguici</h3>
-            <p className="mt-4 text-sm text-muted-foreground">Canali social in preparazione.</p>
-            <a href="mailto:info@onlinegarden.it" className="mt-3 inline-flex min-h-11 items-center text-sm underline">Scrivici</a>
-          </div>
-
-          <div>
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Newsletter stagionale</h3>
-            <p className="mt-4 text-sm leading-6 text-muted-foreground">Le iscrizioni alla newsletter non sono ancora disponibili.</p>
-            <a href="mailto:info@onlinegarden.it" className="mt-3 inline-flex min-h-11 items-center text-sm underline underline-offset-4">Contatta il vivaio</a>
-          </div>
+          </nav>
         </div>
 
         <div className="mt-8 border-t border-border/65 pt-5">

@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
+import { CONTACT_PATH, PRIVACY_POLICY } from "@/config/legal";
 
 const AdminGuard = lazy(() => import("./admin/AdminGuard"));
 const AccountCallback = lazy(() => import("./pages/AccountCallback"));
@@ -16,6 +17,8 @@ const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AllProducts = lazy(() => import("./pages/AllProducts"));
 const CollectionPage = lazy(() => import("./pages/CollectionPage"));
+const Contacts = lazy(() => import("./pages/Contacts"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 
 // Admin v2 (sola lettura, alimentato da product-admin-api)
 const AdminV2Guard = lazy(() => import("./adminv2/AdminV2Guard"));
@@ -71,6 +74,9 @@ const App = () => (
             <Route path="/collections/:handle" element={<SuspenseLoader><CollectionPage /></SuspenseLoader>} />
             <Route path="/products" element={<SuspenseLoader><AllProducts /></SuspenseLoader>} />
             <Route path="/products/:handle" element={<ProductDetail />} />
+            <Route path={CONTACT_PATH} element={<SuspenseLoader><Contacts /></SuspenseLoader>} />
+            <Route path={PRIVACY_POLICY.path} element={<SuspenseLoader><PrivacyPolicy /></SuspenseLoader>} />
+            {/* Unavailable policies in config/legal.ts intentionally use the noindex catch-all. */}
             <Route path="/auth" element={<SuspenseLoader><Auth /></SuspenseLoader>} />
             <Route path="/reset-password" element={<SuspenseLoader><ResetPassword /></SuspenseLoader>} />
             <Route path="/account/callback" element={<SuspenseLoader><AccountCallback /></SuspenseLoader>} />

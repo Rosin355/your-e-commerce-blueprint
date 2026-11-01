@@ -1,3 +1,15 @@
+## 1 novembre 2026 — footer e informazioni al cliente
+
+Preparato su branch separato il footer senza voci “in preparazione”, social non verificati o newsletter inattiva. Le categorie portano a pagine reali; la Privacy Policy italiana già pubblicata su Shopify è ora collegata nella nuova versione. La pagina Contatti usa soltanto `info@onlinegarden.it`, confermata dal negozio. Colori, font e grafica approvata delle pagine commerciali sono conservati.
+
+**La nuova versione non è ancora pubblicata sul sito.** Termini, spedizioni, resi e Cookie Policy non risultano disponibili o approvati: non sono stati inventati o pubblicati. Non sono state reperite bozze legali WordPress. Servono a Marco i testi definitivi e i dati societari da esporre.
+
+Rilevata anche telemetria inserita dall'hosting con tentativi di invio prima di una scelta di consenso: la gestione va verificata con il fornitore prima di dichiarare il sito pronto. Nessuna CMP installata. Test tecnici, navigazione mobile e checkout simulato positivi; Safari/iOS reale e footer checkout Shopify restano da confermare. Nessuna modifica al negozio live, Admin o database; nessun merge o deploy.
+
+[Checklist semplice per le approvazioni](legal/CLIENT-LEGAL-PUBLICATION-CHECKLIST.md) · [Screenshot e prove](legal/evidence/2026-11-01/README.md). Il testo seguente conserva lo storico precedente.
+
+---
+
 ## 30 ottobre 2026 — CI minima reale, preservando la base #39
 
 Introdotto workflow pull_request verso main e codex/storefront-main-integration con runtime e Action fissati, npm ci senza lifecycle script, typecheck, lint pertinente, build e test Node/Deno con lock frozen. Solo contents:read, nessun segreto applicativo o permesso di scrittura, nessun sync/import/backup/deploy; test Node con blocco rete e Deno senza permessi runtime rete/run/write. Codice dello storefront e test esistenti invariati.

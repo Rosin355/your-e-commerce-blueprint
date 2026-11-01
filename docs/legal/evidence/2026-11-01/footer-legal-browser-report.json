@@ -1,0 +1,167 @@
+{
+  "synthetic": true,
+  "browser": "156.0.8078.74",
+  "checks": [
+    {
+      "name": "Homepage, catalogo e PDP: confronto grafico sopra il footer, desktop/mobile",
+      "status": "PASS"
+    },
+    {
+      "name": "Footer: link reali, nessun placeholder, nessun form/social non verificato",
+      "status": "PASS"
+    },
+    {
+      "name": "Contatti: sei larghezze, mailto, focus all’ingresso, menu mobile e accessibilità",
+      "status": "PASS"
+    },
+    {
+      "name": "Footer: ordine di tabulazione, focus visibile e navigazione Contatti con Invio",
+      "status": "PASS"
+    },
+    {
+      "name": "Policy assenti: nessun link/footer/testo pubblicato, fallback noindex; ripristino SEO",
+      "status": "PASS"
+    },
+    {
+      "name": "Alias privacy: reindirizzamento esatto alla fonte Shopify senza copia HTML",
+      "status": "PASS"
+    }
+  ],
+  "pageErrors": [],
+  "comparisons": [
+    {
+      "name": "home",
+      "width": 1440,
+      "before": "69ad5eac81a806f0bba386e4c764abfa3237a02c740c1bac4a075da0483432c8",
+      "after": "6a7ce240c632e302b839e5dffc346adb5596701d2bde903e4e089a4ddbf77cb7",
+      "byteIdentical": false,
+      "significantPixels": 0,
+      "totalPixels": 1296000,
+      "ratio": 0,
+      "meanChannelDelta": [
+        0.19934876543209876,
+        0.14357021604938272,
+        0.30079398148148145
+      ]
+    },
+    {
+      "name": "catalog",
+      "width": 1440,
+      "before": "9b872683ce8e257329950cc94263b416dc4f271f36e309dad12af18932fde90c",
+      "after": "9b872683ce8e257329950cc94263b416dc4f271f36e309dad12af18932fde90c",
+      "byteIdentical": true,
+      "significantPixels": 0,
+      "totalPixels": 1296000,
+      "ratio": 0,
+      "meanChannelDelta": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "pdp",
+      "width": 1440,
+      "before": "fd8c3fe8d2f9e7f404bb736a1d4fa352725ec97f985b1e2d0199167110f8bcc2",
+      "after": "fd8c3fe8d2f9e7f404bb736a1d4fa352725ec97f985b1e2d0199167110f8bcc2",
+      "byteIdentical": true,
+      "significantPixels": 0,
+      "totalPixels": 1296000,
+      "ratio": 0,
+      "meanChannelDelta": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "home",
+      "width": 390,
+      "before": "f705497f63b65d37f14ab426db34e25358fa328ab4aeb91ed2c6281351a3d14e",
+      "after": "f705497f63b65d37f14ab426db34e25358fa328ab4aeb91ed2c6281351a3d14e",
+      "byteIdentical": true,
+      "significantPixels": 0,
+      "totalPixels": 351000,
+      "ratio": 0,
+      "meanChannelDelta": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "catalog",
+      "width": 390,
+      "before": "992405dfba2055964224117da9b670e0c99ac0ef89a1e99c17c4795d8e70db86",
+      "after": "992405dfba2055964224117da9b670e0c99ac0ef89a1e99c17c4795d8e70db86",
+      "byteIdentical": true,
+      "significantPixels": 0,
+      "totalPixels": 351000,
+      "ratio": 0,
+      "meanChannelDelta": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "pdp",
+      "width": 390,
+      "before": "518c25ec1becd2533c53fa308f04503a97cb6a97b5cc35428bacecccb2ba7aec",
+      "after": "2717833d4098797bb9aced2a44fec583825e4ce5dad9dd1f9bc8dfae5d786ac7",
+      "byteIdentical": false,
+      "significantPixels": 0,
+      "totalPixels": 351000,
+      "ratio": 0,
+      "meanChannelDelta": [
+        0.000014245014245014244,
+        0.00004558404558404558,
+        0.00005413105413105413
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "width": 390,
+      "violations": []
+    },
+    {
+      "width": 1440,
+      "violations": []
+    }
+  ],
+  "screenshots": [
+    "before-home-1440.png",
+    "before-footer-1440.png",
+    "after-home-1440.png",
+    "after-footer-1440.png",
+    "before-catalog-1440.png",
+    "after-catalog-1440.png",
+    "before-pdp-1440.png",
+    "after-pdp-1440.png",
+    "before-home-390.png",
+    "before-footer-390.png",
+    "after-home-390.png",
+    "after-footer-390.png",
+    "before-catalog-390.png",
+    "after-catalog-390.png",
+    "before-pdp-390.png",
+    "after-pdp-390.png",
+    "after-contacts-390.png",
+    "after-contacts-1440.png"
+  ],
+  "keyboardDestinations": [
+    "/collections/piante-da-esterno",
+    "/collections/rose",
+    "/collections/piante-da-frutto",
+    "/collections/conifere",
+    "/collections/all",
+    "/contatti",
+    "mailto:info@onlinegarden.it",
+    "https://checkout.shopify.com/102600966484/policies/56892817748.html?locale=it"
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0
+  }
+}
