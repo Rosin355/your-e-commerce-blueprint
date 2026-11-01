@@ -1,0 +1,18 @@
+{
+  "verifiedAt": "2026-11-01",
+  "source": "Shopify Admin API via connected read-only graphql_query",
+  "shop": "ecom-blueprint-gen-6ud1s.myshopify.com",
+  "contactEmail": "info@onlinegarden.it",
+  "policyCount": 1,
+  "policies": [
+    {
+      "type": "PRIVACY_POLICY",
+      "url": "https://checkout.shopify.com/102600966484/policies/56892817748.html?locale=it",
+      "updatedAt": "2026-10-30T15:02:23Z",
+      "bodyPresent": true,
+      "bodyCharacters": 17946,
+      "italianLastUpdated": "30 ottobre 2026"
+    }
+  ],
+  "approvalBasis": "User explicitly authorized linking the existing published privacy policy. Publication is not an independent legal compliance approval."
+}

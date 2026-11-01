@@ -26,3 +26,7 @@ UX_BASE_URL=http://127.0.0.1:8082 node scripts/ux-audit/integration.mjs
 `compare-main.mjs`: avviare separatamente le build production **committate** di main base (4176), sorgente (4178) e integrato (4177), senza includere file locali dirty. Variabili: `MAIN_BASE_URL`, `SOURCE_BASE_URL`, `UX_BASE_URL`, `UX_OUTPUT_DIR`. Misura 18 run (3 ripetizioni × 2 volumi × 3 build), prima card DOM, richieste, JSON e stima gzip. La baseline main restituisce solo 1.000: confrontare la copertura e byte/prodotto, non presentare le latenze come SLA a parità di risultato. Le immagini/font esterni sono bloccati e non misurati.
 
 Le fixture proiettano i campi GraphQL selezionati, ma non validano lo schema remoto, tokenizzazione Shopify, throttle o prestazioni live. Ricerca main rimane locale; il piccolo evaluator delle query presenti nella fixture serve solo ai confronti del ramo storico.
+
+## Footer e policy
+
+La suite `footer-legal.mjs` confronta main e branch in build production, verifica link, policy assenti/noindex, contatti, tastiera, menu mobile e axe, con traffico esterno intercettato. Richiede Playwright, `@axe-core/playwright` esterni al package e Python/Pillow per confrontare i PNG. Comandi e prove: [evidenze footer](../../docs/legal/evidence/2026-11-01/README.md). I test non attestano consenso hosting, checkout live o indicizzazione server-side.

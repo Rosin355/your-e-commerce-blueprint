@@ -1,0 +1,74 @@
+{
+  "browser": "156.0.8078.74",
+  "syntheticData": true,
+  "checks": [
+    {
+      "name": "Responsive 320: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Responsive 375: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Responsive 390: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Responsive 430: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Responsive 768: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Responsive 1440: homepage, catalogo, ricerca, collezione, PDP e carrello",
+      "status": "PASS"
+    },
+    {
+      "name": "Ricerca da header, filtri, ordinamento, carica altri e stato vuoto",
+      "status": "PASS"
+    },
+    {
+      "name": "Errori di rete distinti da assenza dati, retry catalogo/collezione/PDP",
+      "status": "PASS"
+    },
+    {
+      "name": "Checkout: doppio invio, errore, retry senza duplicare quantità e navigazione nella stessa scheda",
+      "status": "PASS"
+    },
+    {
+      "name": "Persistenza: caricamento e vecchio checkout ignorati dopo refresh; quantità non valide rifiutate",
+      "status": "PASS"
+    },
+    {
+      "name": "Varianti: selezione disponibile, sold out e scelta formato dalla homepage",
+      "status": "PASS"
+    },
+    {
+      "name": "Tastiera: skip link, menu, zoom Escape e ripristino focus, pausa hero",
+      "status": "PASS"
+    },
+    {
+      "name": "PDP: navigazione rapida non viene sovrascritta da risposta precedente",
+      "status": "PASS"
+    },
+    {
+      "name": "Collezioni: oltre 60 prodotti, errore pagina successiva, retry e cambio collezione",
+      "status": "PASS"
+    },
+    {
+      "name": "Nessuna eccezione JavaScript non gestita",
+      "status": "PASS"
+    }
+  ],
+  "blockedHosts": [
+    "fonts.googleapis.com"
+  ],
+  "pageErrors": [],
+  "summary": {
+    "passed": 15,
+    "failed": 0
+  }
+}
