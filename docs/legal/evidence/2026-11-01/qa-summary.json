@@ -1,0 +1,62 @@
+{
+  "base": "b5cbe57aa1f7e674ce7caca106d359f8977c800a",
+  "protectedPathsUnchanged": [
+    "src/admin",
+    "src/adminv2",
+    "supabase",
+    "drizzle",
+    "sync",
+    "src/lib",
+    "src/stores",
+    "src/hooks",
+    "src/components/storefront",
+    "src/pages/AllProducts.tsx",
+    "src/pages/CollectionPage.tsx",
+    "src/pages/ProductDetail.tsx",
+    "src/config/categories.ts",
+    "src/index.css",
+    "package.json",
+    "package-lock.json"
+  ],
+  "typecheck": "PASS",
+  "targetedLint": "PASS",
+  "productionBuild": "PASS; existing large-chunk/Tailwind warnings remain",
+  "globalLint": {
+    "errors": 43,
+    "warnings": 11,
+    "newFindingsVsMain": 0
+  },
+  "nodeTests": {
+    "passed": 339,
+    "failed": 0
+  },
+  "denoTests": {
+    "passed": 92,
+    "failed": 0
+  },
+  "browser": {
+    "existingUxGroups": 15,
+    "footerLegalGroups": 6,
+    "failed": 0,
+    "axeViolations": 0,
+    "viewportWidths": [
+      320,
+      375,
+      390,
+      430,
+      768,
+      1440
+    ]
+  },
+  "limitations": [
+    "Safari/iOS and screen reader real devices unavailable",
+    "SPA noindex is client-side; true HTTP status/headers require hosting validation",
+    "No live checkout/cart/order created; checkout legal footer not certified",
+    "Missing legal texts and hosting-consent gate block complete publication"
+  ],
+  "runtimes": {
+    "node": "v22.22.3",
+    "npm": "10.9.8",
+    "deno": "deno 2.9.5 (stable, release, x86_64-apple-darwin)"
+  }
+}

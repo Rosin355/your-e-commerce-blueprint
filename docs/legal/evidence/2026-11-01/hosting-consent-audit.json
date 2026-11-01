@@ -1,0 +1,90 @@
+{
+  "at": "2026-11-01T15:36:59.931Z",
+  "newVisitor": true,
+  "noConsentInteraction": true,
+  "initial": {
+    "scripts": [
+      {
+        "src": "https://onlinegarden.it/~flock.js",
+        "attributes": [
+          {
+            "name": "data-consent",
+            "value": null
+          },
+          {
+            "name": "data-autocapture",
+            "value": null
+          },
+          {
+            "name": "data-replay",
+            "value": null
+          },
+          {
+            "name": "data-host",
+            "value": null
+          },
+          {
+            "name": "data-proxy",
+            "value": null
+          },
+          {
+            "name": "data-respect-dnt",
+            "value": null
+          }
+        ]
+      },
+      {
+        "src": "https://onlinegarden.it/__l5e/events.270c78a44fc53e7b.js",
+        "attributes": [
+          {
+            "name": "data-consent",
+            "value": null
+          },
+          {
+            "name": "data-autocapture",
+            "value": null
+          },
+          {
+            "name": "data-replay",
+            "value": null
+          },
+          {
+            "name": "data-host",
+            "value": null
+          },
+          {
+            "name": "data-proxy",
+            "value": null
+          },
+          {
+            "name": "data-respect-dnt",
+            "value": null
+          }
+        ]
+      }
+    ],
+    "bannerCount": 0,
+    "localStorageKeys": [],
+    "sessionStorageKeys": [],
+    "doNotTrack": null,
+    "globalPrivacyControl": null
+  },
+  "attempts": [
+    {
+      "host": "onlinegarden.it",
+      "path": "/__l5e/trackevents",
+      "method": "POST",
+      "payloadKeys": [
+        "envelope_schema_version",
+        "batch_id",
+        "sent_at",
+        "sdk",
+        "automated",
+        "artifact",
+        "events"
+      ],
+      "blockedByAuditGuard": true
+    }
+  ],
+  "note": "All non-read POSTs blocked by audit guard; records prove attempted telemetry before consent, not successful ingestion. No request values, visitor IDs or tokens saved."
+}

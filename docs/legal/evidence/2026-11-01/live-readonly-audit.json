@@ -1,0 +1,803 @@
+{
+  "at": "2026-11-01T15:29:22.240Z",
+  "status": 200,
+  "policy": {
+    "status": 200,
+    "url": "https://checkout.shopify.com/102600966484/policies/56892817748.html?locale=it",
+    "title": "Privacy policy",
+    "italian": true
+  },
+  "dom": {
+    "title": "Online Garden — Piante online",
+    "scripts": [
+      {
+        "src": "https://onlinegarden.it/assets/index-C4DnW0V3.js",
+        "type": "module",
+        "inlineBytes": 0
+      },
+      {
+        "src": "https://onlinegarden.it/~flock.js",
+        "type": "",
+        "inlineBytes": 0
+      },
+      {
+        "src": "https://onlinegarden.it/__l5e/events.270c78a44fc53e7b.js",
+        "type": "",
+        "inlineBytes": 0
+      }
+    ],
+    "links": [
+      {
+        "label": "Piante da esterno",
+        "href": "https://onlinegarden.it/collections/piante-da-esterno"
+      },
+      {
+        "label": "Rose",
+        "href": "https://onlinegarden.it/collections/rose"
+      },
+      {
+        "label": "Piante da frutto",
+        "href": "https://onlinegarden.it/collections/piante-da-frutto"
+      },
+      {
+        "label": "Conifere",
+        "href": "https://onlinegarden.it/collections/conifere"
+      },
+      {
+        "label": "Altre categorie",
+        "href": "https://onlinegarden.it/collections/all"
+      },
+      {
+        "label": "Scrivici",
+        "href": "mailto:info@onlinegarden.it"
+      },
+      {
+        "label": "Contatta il vivaio",
+        "href": "mailto:info@onlinegarden.it"
+      }
+    ],
+    "footer": "Online Garden\n\nPiante da esterno, rose, bulbi stagionali e accessori pensati per dare carattere a giardini, terrazzi e balconi.\n\nCATALOGO\nPiante da esterno\nRose\nPiante da frutto\nConifere\nAltre categorie\nESPLORA\nChi siamo (in preparazione)\nIspirazioni (in preparazione)\nFAQ (in preparazione)\nAssistenza clienti (in preparazione)\nINFORMAZIONI\nPrivacy Policy (in preparazione)\nResi e rimborsi (in preparazione)\nTermini di servizio (in preparazione)\nSEGUICI\n\nCanali social in preparazione.\n\nScrivici\nNEWSLETTER STAGIONALE\n\nLe iscrizioni alla newsletter non sono ancora disponibili.\n\nContatta il vivaio\n\n© 2026 Online Garden. Vivaio online per esterni, terrazzi e giardini.\n\nPagamento nel checkout Shopify. I metodi disponibili sono indicati al momento del pagamento.",
+    "banners": [],
+    "localStorageKeys": [],
+    "sessionStorageKeys": []
+  },
+  "categories": [
+    {
+      "handle": "piante-da-esterno",
+      "title": "Piante da esterno | Online Garden",
+      "heading": [
+        "Piante da esterno"
+      ],
+      "notFound": 0,
+      "alert": [],
+      "cards": 60
+    },
+    {
+      "handle": "rose",
+      "title": "Rose | Online Garden",
+      "heading": [
+        "Rose"
+      ],
+      "notFound": 0,
+      "alert": [],
+      "cards": 60
+    },
+    {
+      "handle": "piante-da-frutto",
+      "title": "Piante da frutto | Online Garden",
+      "heading": [
+        "Piante da frutto"
+      ],
+      "notFound": 0,
+      "alert": [],
+      "cards": 60
+    },
+    {
+      "handle": "conifere",
+      "title": "Conifere | Online Garden",
+      "heading": [
+        "Conifere"
+      ],
+      "notFound": 0,
+      "alert": [],
+      "cards": 57
+    },
+    {
+      "handle": "all",
+      "title": "Tutti i prodotti | Online Garden",
+      "heading": [
+        "Tutti i prodotti"
+      ],
+      "notFound": 0,
+      "alert": [],
+      "cards": 9
+    }
+  ],
+  "cookies": [
+    {
+      "name": "_shopify_essential",
+      "domain": "checkout.shopify.com",
+      "path": "/102600966484",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__cf_bm",
+      "domain": ".onlinegarden.it",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "__dpl",
+      "domain": "onlinegarden.it",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "network": [
+    {
+      "host": "onlinegarden.it",
+      "path": "/",
+      "type": "document",
+      "method": "GET"
+    },
+    {
+      "host": "fonts.googleapis.com",
+      "path": "/css2",
+      "type": "stylesheet",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/assets/index-C4DnW0V3.js",
+      "type": "script",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/assets/index-BHpYYq5c.css",
+      "type": "stylesheet",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/~flock.js",
+      "type": "script",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/__l5e/events.270c78a44fc53e7b.js",
+      "type": "script",
+      "method": "GET"
+    },
+    {
+      "host": "ecom-blueprint-gen-6ud1s.myshopify.com",
+      "path": "/api/2025-07/graphql.json",
+      "type": "fetch",
+      "method": "POST"
+    },
+    {
+      "host": "fonts.gstatic.com",
+      "path": "/s/figtree/v9/_Xms-HUzqDCFdgfMm4S9DaRvzig.woff2",
+      "type": "font",
+      "method": "GET"
+    },
+    {
+      "host": "fonts.gstatic.com",
+      "path": "/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTzYgEM86xQ.woff2",
+      "type": "font",
+      "method": "GET"
+    },
+    {
+      "host": "fonts.gstatic.com",
+      "path": "/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+      "type": "font",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/__l5e/assets-v1/45c9cf24-50d1-491b-9b97-1a76fee7bf09/logo-online-garden-v2.png",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/assets/hero-giardino-curato-CtcMhLV0.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/assets/hero-botanical-spring-BpiSp3TC.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/assets/alberi-BR7PzIOQ.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/assets/hero-terrazzi-esterni-DC2fHSRD.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/assets/hero-balcone-giardino-Dl3BricE.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/__l5e/trackevents",
+      "type": "fetch",
+      "method": "POST"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/physocarpus-opulifolius-andre-spirea-americana.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/chaenomeles-superba-jet-trail-fior-di-pesco-cydonia-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/fagus-sylvatica-faggio-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-maizner-fastnacht.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/osmanthus-armatus-osmanto-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/hydrangea-macrophylla-king-george-ortensia-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/prunus-subhirtella-autumnalis-rosea-ciliegio-da-fiore-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/collections/piante-da-esterno",
+      "type": "document",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/assets/CollectionPage-B6ERwFnc.js",
+      "type": "script",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/assets/CatalogProductCard-CAij7YCu.js",
+      "type": "script",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/euonymus-japonica-benkomasaki-evonimo-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/hydrangea-macrophylla-alpengluhen-ortensia-2.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/philadelphus-coronarius-virginalis-filadelfo-1-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/hydrangea-macrophylla-hot-red-ortensia-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/berberis-thunbergii-coronita.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/carex-morrowii-ice-dance-carice.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/lonicera-nitida-maigrun-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/agapanthus-umbellatus-bianco-agapanto-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/liriope-muscari-gold-banded-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/nandina-domestica-obsessed-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/acer-palmatum-atroporpureo-fg3.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/collections/rose",
+      "type": "document",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-florentina-rampicante-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-rugosa-passion-rokoko-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-alchemist-rampicante-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-mutabilis-sanguinea-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-uetersener-klosterrose-rampicante-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-rugosa-emotion-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-bobbie-james-rampicante-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-sea-foam-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-rugosa-pinky-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-moonlight-rampicante-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/kerria-japonica-pleniflora-rosa-del-giappone-3.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-pallida-alberello-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-botero-rampicante.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-laguna-rampicante-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rosa-alberello-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/collections/piante-da-frutto",
+      "type": "document",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/prunus-avium-giorgia-ciliegio-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/fico-brogiotto-nero-certificato-frutcert-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/vaccinium-corymbosum-top-hat-mirtillo-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/fico-brogiotto-bianco-certificato-frutcert-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/arbutus-unedo-compacta-corbezzolo.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/prunus-armeniaca-tyrinthos-albicocco.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/prunus-persica-nettarina-big-top-pesco-noce-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/prunus-persica-nettarina-maria-aurelia-pesco-noce-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/prunus-avium-grace-star-ciliegio-2.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/morus-nigra-wellington-5.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/rubus-idaeus-himbotop-albicocco.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/pyrus-communis-decana-pero-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/vaccinium-corymbosum-legacy-mirtillo-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/nocciolo-tondo-hallesche-riesen-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/malus-domestica-golden-delicious-melo-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/mespilus-germanica-nespolo-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/collections/conifere",
+      "type": "document",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/ceratostigma-wilmottianum.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/juniperus-media-pfitzeriana-compacta-ginepro-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/chamaecyparis-pisifera-filifera-aurea-nana-2.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/cupressus-arizonica-cipresso-dellarizona-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/juniperus-communis-greenmantle-ginepro-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/chamaecyparis-pisifera-boulevard-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/juniperus-horizontalis-glauca-wiltoni-ginepro-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/juniperus-squamata-meyeri-ginepro-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/juniperus-media-pfitzeriana-glauca-ginepro-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/chamaecyparis-obtusa-fernspray-gold.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/juniperus-squamata-loderi-ginepro-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/cedrus-atlantica-glauca-pendula-cedro-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/juniperus-horizontalis-andorra-compatta-ginepro-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/juniperus-media-golden-saucer-ginepro-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/chamaecyparis-obtusa-tsatsumi-gold.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/chamaecyparis-obtusa-aurora.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/collections/all",
+      "type": "document",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/assets/AllProducts-HLHoBpIu.js",
+      "type": "script",
+      "method": "GET"
+    },
+    {
+      "host": "onlinegarden.it",
+      "path": "/assets/chevron-up-Bo7OMM7h.js",
+      "type": "script",
+      "method": "GET"
+    },
+    {
+      "host": "fonts.gstatic.com",
+      "path": "/l/font",
+      "type": "font",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/wigginsia.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/dalia-purple-queen-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/echinopsis-subdenudata.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/iris-germanica-rifiorente-picasso-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/dalia-glory-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/lagerstroemia-indica-pocomoke-lagestroemia-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/hibiscus-syriacus-woodbridge-ibisco-2.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/hibiscus-syriacus-woodbridge-ibisco-1.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/s/files/1/1026/0096/6484/files/hibiscus-syriacus-woodbridge-ibisco.jpg",
+      "type": "image",
+      "method": "GET"
+    },
+    {
+      "host": "checkout.shopify.com",
+      "path": "/102600966484/policies/56892817748.html",
+      "type": "document",
+      "method": "GET"
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/shopifycloud/shopify/assets/checkout/standalone-dfb65dca3b130340ce121985031c6a5511d52eb90543c2a728b7f48667ab05ca.css",
+      "type": "stylesheet",
+      "method": "GET"
+    }
+  ],
+  "scriptResponses": [
+    {
+      "url": "https://onlinegarden.it/__l5e/events.270c78a44fc53e7b.js",
+      "status": 200
+    },
+    {
+      "url": "https://onlinegarden.it/~flock.js",
+      "status": 200
+    },
+    {
+      "url": "https://onlinegarden.it/assets/index-C4DnW0V3.js",
+      "status": 200
+    },
+    {
+      "url": "https://onlinegarden.it/assets/CollectionPage-B6ERwFnc.js",
+      "status": 200
+    },
+    {
+      "url": "https://onlinegarden.it/assets/CatalogProductCard-CAij7YCu.js",
+      "status": 200
+    },
+    {
+      "url": "https://onlinegarden.it/assets/chevron-up-Bo7OMM7h.js",
+      "status": 200
+    },
+    {
+      "url": "https://onlinegarden.it/assets/AllProducts-HLHoBpIu.js",
+      "status": 200
+    }
+  ],
+  "failures": [
+    {
+      "url": "https://onlinegarden.it/__l5e/trackevents",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://onlinegarden.it/assets/hero-botanical-spring-BpiSp3TC.jpg",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "note": "Read-only browser; no cartCreate, login or configuration mutations. Cookie/storage values intentionally excluded. All non-read POSTs, including telemetry, were blocked by the audit guard: failed POSTs prove attempts, not successful ingestion."
+}

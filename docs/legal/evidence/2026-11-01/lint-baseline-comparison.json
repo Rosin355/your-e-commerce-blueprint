@@ -1,0 +1,9 @@
+{
+  "globalLint": {
+    "errors": 43,
+    "warnings": 11,
+    "identicalToMain": true,
+    "newFindings": 0
+  },
+  "main": "b5cbe57aa1f7e674ce7caca106d359f8977c800a"
+}

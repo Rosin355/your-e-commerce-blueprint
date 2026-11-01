@@ -27,6 +27,27 @@ Il database Supabase di Online Garden è stato verificato in sola lettura tramit
 | Ready for code merge | BLOCKED: CI positiva sulla revisione indicata, review adeguate e verifica del successivo HEAD ancora necessarie |
 | Ready for staging / produzione | Non attestati; autorizzazione sandbox e validazione commerciale ancora separate |
 
+## Stato corrente — footer PR #43 online, 1 novembre 2026
+
+**Footer pubblicato e verificato su https://onlinegarden.it.** PR [#43](https://github.com/Rosin355/your-e-commerce-blueprint/pull/43) unita senza bypass. HEAD sorgente `e617c05ad9afcaf2c22ad5faac0da06e8bd9ad1d`; merge e commit effettivamente servito in produzione `8d2a160917895735658e34a37d6b337733a32649`. Deploy Lovable esplicito `0ae71161-a4cc-407e-ae36-b2202f381981`, confermato dal DOM del footer e dal `data-commit-sha` dell'HTML pubblico, non dal solo merge.
+
+| Gate | Esito corrente del solo footer |
+| --- | --- |
+| GitHub | Review tecnica completata, nessun gate obbligatorio aggirato; CI/GitGuardian SUCCESS sull'HEAD sorgente; PR #43 MERGED |
+| Produzione frontend | ONLINE, verificata realmente su dominio principale; codice applicativo uguale alla revisione validata |
+| Footer / privacy / contatti | Pubblicati e verificati desktop/mobile, mailto e URL privacy esatti; nessun placeholder nel footer |
+| QA post-deploy | 16 controlli browser PASS; 16 URL e 5 risorse HTTP verificati; zero errori inattesi |
+| Policy commerciali e cookie | Mancanti/non approvate, non pubblicate; NO-GO all'approvazione commerciale completa |
+| Telemetria/consenso | Visitor analytics ON confermato nel pannello, script hosting invariati. Nessuna modifica privacy autorizzata; conformità non attestata |
+| Shopify/Supabase/Admin V2/DNS | Nessuna modifica o attivazione eseguita; #42 e #40 escluse dal rilascio |
+| Limiti non bloccanti del footer | Warning descrizione drawer Radix preesistente; soft-404 SPA e noindex JS; Safari/iOS reale non provato |
+| Checkout end-to-end | Non certificato: handler invariati e regressione simulata precedente PASS; carrello vuoto reale PASS, nessun cartCreate/ordine live |
+| Rollback | Base `b5cbe57` disponibile; revert del merge e ripubblicazione controllata, senza force push o ripristino dati |
+
+[Evidenze e screenshot reali](../legal/release-evidence/2026-11-01/README.md) · [Report aggiornato](../legal/FOOTER-AND-POLICY-INTEGRATION.md) · [Checklist Marco](../legal/CLIENT-LEGAL-PUBLICATION-CHECKLIST.md).
+
+Le altre sezioni di questo documento conservano lo storico CI della base. I loro gate non descrivono un blocco attuale del footer già pubblicato e non autorizzano l'Admin V2 o l'abilitazione commerciale.
+
 La #39 non viene aggiornata e non avrà un nuovo check collegato al suo HEAD tramite questo intervento. La prova del codice aa7e6ae è un job distinto nella run della #41; non è equivalente a un check automatico direttamente sulla #39. La scelta preserva ancestry e PR non coinvolte. Nessun merge, deploy o scrittura live.
 
 Il commit delle evidenze non modifica workflow o sorgenti e attiva comunque la CI completa. Il suo SHA e la run finale verificata sono riportati nella consegna; nessuna esecuzione precedente viene presentata come prova automatica di un HEAD diverso. Non sono stati osservati fallimenti applicativi nella prima run.

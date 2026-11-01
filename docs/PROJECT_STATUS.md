@@ -54,6 +54,22 @@ Admin/auth/RLS/Supabase/Edge/sync/package e lockfile invariati; mutation cartCre
 
 # Online Garden — stato consolidato del progetto
 
+## 1 novembre 2026 — stato corrente del rilascio footer PR #43
+
+**Footer pubblicato e verificato su https://onlinegarden.it.** PR [#43](https://github.com/Rosin355/your-e-commerce-blueprint/pull/43) unita senza bypass. HEAD sorgente `e617c05ad9afcaf2c22ad5faac0da06e8bd9ad1d`; merge e commit effettivamente servito in produzione `8d2a160917895735658e34a37d6b337733a32649`. Deploy Lovable esplicito `0ae71161-a4cc-407e-ae36-b2202f381981`, confermato dal DOM del footer e dal `data-commit-sha` dell'HTML pubblico, non dal solo merge.
+
+Footer senza placeholder/social/newsletter inattivi; cinque destinazioni catalogo reali, `/contatti` con `mailto:info@onlinegarden.it`, privacy collegata al documento Shopify ufficiale italiano. Le quattro policy assenti non sono pubblicate: fallback 404 UI/noindex client-side, HTTP 200 SPA ancora da migliorare. Nessun dato societario storico riutilizzato.
+
+Preflight: main senza review/protezioni obbligatorie, CI e GitGuardian SUCCESS sull'HEAD sorgente, review tecnica COMMENT registrata; main → Lovable → dominio primario confermati. Nessuna parte delle PR #40/#42 integrata. Typecheck/lint mirato/build ripetuti PASS; precedente CI 339 Node + 92 Deno e QA offline preservata, codice applicativo del merge identico all'HEAD validato. Post-deploy: **16 controlli browser PASS**, categorie/Contatti/PDP desktop-mobile, tastiera/focus e carrello vuoto; 16 URL HTTP e 5 risorse iniziali verificati. Zero errori console inattesi; warning Radix della descrizione del drawer mobile preesistente, non bloccante. Nessun cartCreate o ordine live.
+
+**Rilascio tecnico footer: ONLINE. Abilitazione commerciale/conformità privacy: NON approvate né certificate.** Mancano Cookie Policy, termini, spedizioni/resi e dati societari approvati. Visitor analytics Lovable ancora ON, script hosting invariati; disattivazione disponibile nelle impostazioni ma non autorizzata/eseguita. Safari/iOS reale, checkout completo e strategia HTTP/SEO restano da verificare.
+
+Rollback disponibile a `b5cbe57`: revert del merge tramite processo di review, sincronizzazione e ripubblicazione; nessun force push o rollback dati. Nessuna modifica Shopify/Supabase/DNS, Admin V2 o flag. Le note footer sono collocate in questa sezione autonoma per non sovrapporsi agli aggiornamenti di apertura/chiusura documenti della PR #42, che resta separata.
+
+[Report corrente](legal/FOOTER-AND-POLICY-INTEGRATION.md) · [QA e screenshot reali](legal/release-evidence/2026-11-01/README.md) · [Checklist approvazioni](legal/CLIENT-LEGAL-PUBLICATION-CHECKLIST.md).
+
+### Storico precedente alla pubblicazione del footer
+
 ## FINAL MOBILE STOREFRONT QA — 10 ottobre 2026
 
 `CODEX VERIFIED / OFFLINE TESTED ONLY`: completato il pass finale sullo

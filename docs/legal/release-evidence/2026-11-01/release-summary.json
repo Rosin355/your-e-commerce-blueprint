@@ -1,0 +1,37 @@
+{
+  "pr": 43,
+  "prState": "MERGED",
+  "sourceHead": "e617c05ad9afcaf2c22ad5faac0da06e8bd9ad1d",
+  "mergeCommit": "8d2a160917895735658e34a37d6b337733a32649",
+  "productionCommit": "8d2a160917895735658e34a37d6b337733a32649",
+  "previousProductionCommit": "b5cbe57aa1f7e674ce7caca106d359f8977c800a",
+  "deploymentId": "0ae71161-a4cc-407e-ae36-b2202f381981",
+  "deployRequestStatus": "pending when accepted by Lovable connector",
+  "deployVerificationStatus": "VERIFIED_ON_CUSTOM_DOMAIN",
+  "domain": "https://onlinegarden.it",
+  "lovableUrl": "https://ecom-blueprint-gen.lovable.app",
+  "proof": "Public HTML data-commit-sha matches merge SHA; browser renders new footer, Contact route, exact official privacy link.",
+  "githubReviewId": 5729808997,
+  "bypassUsed": false,
+  "postdeploy": {
+    "browser": {
+      "passed": 16,
+      "failed": 0
+    },
+    "httpPages": 16,
+    "entryAssets": 5,
+    "unexpectedConsoleErrors": 0
+  },
+  "liveWrites": {
+    "shopify": false,
+    "supabase": false,
+    "dns": false,
+    "privacyConfiguration": false,
+    "adminV2Flags": false,
+    "cartCreate": false,
+    "orders": false
+  },
+  "commercialGoLive": "NOT_AUTHORIZED_OR_CERTIFIED",
+  "visitorAnalyticsEnabled": true,
+  "verifiedAt": "2026-11-01T19:29:54.903Z"
+}
