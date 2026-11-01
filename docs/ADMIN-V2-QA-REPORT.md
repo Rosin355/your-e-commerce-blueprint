@@ -1,5 +1,13 @@
 # Admin V2 operativo — report QA
 
+## Addendum gate Supabase live — 1 novembre 2026
+
+La lettura **SELECT/cataloghi PostgreSQL** sul backend Supabase collegato al progetto Lovable Online Garden ha chiuso il precedente limite «schema reale non verificato». Il project reference `iekwvvihjwghosqdxrdi` è coerente con repository, ambiente frontend, `supabase/config.toml` del progetto Lovable e commit di base `b5cbe57`; il connettore Supabase Management API resta non autorizzato, ma il database del progetto Lovable è stato interrogato in sola lettura. [Evidenza strutturale, RLS, aggregati e limiti](ADMIN-V2-LIVE-SUPABASE-COMPATIBILITY.md).
+
+La migration è **compatibile per struttura** con tabelle, tipi, vincoli e trigger live; non è stata applicata. `sku_norm` è una colonna generata e UNIQUE, quindi non richiede un valore esplicito nella RPC. Le nuove tabelle/RPC non esistono ancora e non presentano collisioni. I 68 field key live comprendono quelli necessari al form. RLS è attiva sulle sette tabelle esistenti esaminate; le ACL delle nuove tabelle/RPC sono verificate sul SQL e nel test PostgreSQL locale, e richiederanno verifica post-migration live. Il diff correttivo `829eeb0..d9f0d39` è stato riesaminato sui sei meccanismi di approvazione, drift, SKU, primaria, job asincrono e recupero; nessun nuovo blocco di codice rilevato. CI GitHub sul commit `d9f0d39` [SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236633321); GitGuardian SUCCESS già verificato sulla PR prima di questo addendum. Il successivo commit documentale va controllato separatamente.
+
+**Gate operativo:** 22 categorie interne attive ma zero mapping `product_category_shopify_map` e zero assegnazioni; 194 delle 1.518 famiglie interne non hanno Product GID nel mapping legacy. Il canary categorie, la riconciliazione catalogo, account Marco, migration/deploy, Safari/email e validazione commerciale rimangono chiusi. Nessuna scrittura live o flag attivato. Le affermazioni datate 31 ottobre più sotto descrivono lo stato precedente al presente addendum e restano come cronologia.
+
 ## Review indipendente PR #42 — 31 ottobre 2026
 
 Baseline verificata: Draft PR #42 su `main@b5cbe57`, HEAD iniziale `829eeb0`, worktree pulito prima della review. Il diff della PR è circoscritto ad Admin V2, API Admin, migration, test, CI e documenti; storefront pubblico, checkout, inventory e sincronizzazioni storiche non sono stati modificati. Le correzioni sotto sono solo sul branch della PR e non sono state applicate a servizi live.

@@ -1,5 +1,11 @@
 # Online Garden — release readiness dopo introduzione CI minima
 
+## Gate PR #42 aggiornato — 1 novembre 2026
+
+Il database Supabase di Online Garden è stato verificato in sola lettura tramite il backend del progetto Lovable corrispondente alla base `main@b5cbe57`. Project reference configurato `iekwvvihjwghosqdxrdi`; [report di compatibilità](../ADMIN-V2-LIVE-SUPABASE-COMPATIBILITY.md). La migration Admin V2 è **compatibile per struttura** con schema, vincoli, enum, trigger e registro campi live; non è stata applicata. Le nuove ACL/RLS potranno essere confermate sul progetto reale soltanto dopo migration autorizzata. La review limitata al diff corretto `829eeb0..d9f0d39` non ha rilevato nuovi blocchi. [CI sull'HEAD applicativo `d9f0d39` SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236633321); la CI del successivo commit documentale va verificata sul suo SHA.
+
+**Ready for code merge:** subordinato a CI/GitGuardian sull'HEAD finale e review/decisione GitHub adeguate; la PR resta Draft fino a tale decisione. **Ready for staging operativo:** NO-GO finché migration e deploy non sono autorizzati e verificati, e finché le categorie non hanno mapping approvati (22 categorie interne attive, zero mappe/assegnazioni). **Ready for production:** NO-GO; 194 famiglie senza Product GID nel mapping legacy, 82 casi storici non riconciliati, canary DRAFT/categorie, account Marco, Safari/mobile, email e validazione commerciale ancora da chiudere. Nessuna scrittura o modifica di servizi live in questo audit.
+
 30 ottobre 2026. Documento corrente del branch Header Only; non importa il report storico della proposta Fase 10 come se fosse già eseguita.
 
 **CI locale e GitHub positiva sul commit 6957184 ([run](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41072668699)); merge ancora BLOCKED per review adeguate e decisione di integrazione.** [Implementazione CI](../CI-INTEGRATION.md) · [Integrazione Header Only](../HEADER-ONLY-FINAL-INTEGRATION.md).

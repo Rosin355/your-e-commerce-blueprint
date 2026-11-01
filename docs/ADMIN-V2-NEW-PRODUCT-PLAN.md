@@ -1,5 +1,7 @@
 # Admin V2 — nuovo prodotto, implementazione controllata
 
+**Addendum 1 novembre 2026:** [verifica read-only dello schema Supabase reale](ADMIN-V2-LIVE-SUPABASE-COMPATIBILITY.md) completata. La migration è strutturalmente compatibile e non applicata; le nuove RPC/tabelle sono quindi ancora assenti live. Il registro campi contiene le chiavi usate dal form, ma `product_category_shopify_map` e `product_category_assignments` hanno zero righe: l'Admin V2 non può oggi scegliere categorie canoniche verificabili. Prima del canary occorre riconciliare 22 categorie interne con i 23 handle dell'allowlist e le collezioni reali, con approvazione esplicita. Le 194 famiglie senza Product GID nel mapping legacy richiedono verifica separata. L'attivazione dei flag resta OFF. Le sezioni datate 31 ottobre sotto descrivono la situazione precedente al controllo live.
+
 Aggiornamento 31 ottobre 2026. Base `main@b5cbe57` (PR #39 e #41 integrate; #40 esclusa). Il [piano originale del 30 ottobre](https://github.com/Rosin355/your-e-commerce-blueprint/blob/243406976f8a8fe70879103460bc23772b7dc227/docs/ADMIN-V2-NEW-PRODUCT-PLAN.md) rimane conservato sul branch di audit. Questo documento descrive il codice nuovo, non un'attivazione live.
 
 ## Stato verificabile

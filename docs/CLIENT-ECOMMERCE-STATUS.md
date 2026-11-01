@@ -1,3 +1,9 @@
+## 1 novembre 2026 — verifica database Online Garden per PR #42
+
+Abbiamo controllato **in sola lettura** il database Supabase collegato al progetto Online Garden e confrontato la nuova migration con lo schema reale. La compatibilità tecnica risulta positiva; nessuna migration è stata applicata e nessun prodotto Shopify è stato modificato. I test automatici sull'ultimo commit applicativo `d9f0d39` sono [passati su GitHub](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236633321). Un eventuale commit solo documentale richiede il proprio controllo CI.
+
+L'Admin V2 di Marco **non è ancora attivabile per nuove categorie o prodotti commerciali**: nel database sono presenti 22 categorie interne, ma manca il collegamento verificato con le collezioni Shopify; inoltre 194 famiglie interne non hanno ancora un Product GID nel mapping legacy. Questo non significa che siano prodotti assenti da Shopify: serve riconciliazione puntuale. Le 903 famiglie dell'importazione e gli 82 casi storici in revisione restano un'altra popolazione, da verificare separatamente. Migration, ruoli/flag, canary DRAFT, pubblicazione, email e validazione commerciale richiedono autorizzazioni e QA dedicati. [Dettaglio tecnico e gate](ADMIN-V2-LIVE-SUPABASE-COMPATIBILITY.md).
+
 ## 30 ottobre 2026 — CI minima reale, preservando la base #39
 
 Introdotto workflow pull_request verso main e codex/storefront-main-integration con runtime e Action fissati, npm ci senza lifecycle script, typecheck, lint pertinente, build e test Node/Deno con lock frozen. Solo contents:read, nessun segreto applicativo o permesso di scrittura, nessun sync/import/backup/deploy; test Node con blocco rete e Deno senza permessi runtime rete/run/write. Codice dello storefront e test esistenti invariati.
