@@ -1,5 +1,13 @@
 # Admin V2 PR #42 — runbook di integrazione e attivazione
 
+## Aggiornamento post-PR #43 — 1 novembre 2026
+
+La PR #43 è stata integrata in `main@04ae6d4` e il footer è già online tramite deploy Lovable separato. Il merge locale conservativo `a00a800` porta quel `main` nel branch Admin V2: footer, Contatti, Privacy, header, workflow e funzionalità Admin sono presenti; la #40 non è importata. QA locale sull'albero integrato PASS (361 Node, 103 Deno, typecheck, lint, build, compilazione Edge e smoke browser pubblico desktop/mobile). CI/GitGuardian devono riferirsi al nuovo HEAD pubblicato della PR #42. La PR resta Draft; nessuna migration o Edge Function della #42 è stata distribuita.
+
+**Attestazione runtime necessaria, senza credenziali:** il proprietario accede con il proprio account autorizzato a `https://onlinegarden.it/admin`, apre gli strumenti sviluppatore del browser nella scheda Network/Rete, filtra la richiesta `product-admin-api` con azione `get_admin_context`, ricarica la pagina e legge solo tre campi della risposta JSON: `writesEnabled`, `writeMode`, `shopifySyncEnabled`. Deve riferire esclusivamente quei tre valori, ambiente, data/ora e account/ruolo usato. Non esportare HAR, non usare «Copy as cURL», non condividere header, cookie, token, request completa o screenshot che li contengano. `writeMode` è `canary` oppure `full`, non un interruttore OFF: per il gate read-only devono risultare `writesEnabled=false` e `shopifySyncEnabled=false`, mentre il modo va registrato. Se la funzione live non espone i campi o non è disponibile, il gate resta bloccato; non modificare secret per ottenere un esito.
+
+**Stato attuale:** i tre campi sono NON VERIFICATI per conferma del proprietario. I secret `PRODUCT_ADMIN_WRITES_ENABLED` e `PRODUCT_ADMIN_WRITE_MODE` sono presenti ma write-only; i cinque flag operativi assenti restano OFF/null solo per il comportamento statico del codice. Nessun reviewer indipendente è disponibile; `main` non impone una review distinta dall'autore secondo branch metadata/ruleset accessibili. I check automatici non equivalgono ad approvazione GitHub. Nessun merge o deploy prima della decisione esplicita successiva al gate runtime.
+
 **Preparato il 1 novembre 2026; nessuna fase eseguita con questo documento.** La PR #42 può essere integrata come codice soltanto dopo i gate di review; l'integrazione non autorizza migration, deploy, scritture, pubblicazione o modifica del catalogo. Baseline tecnica: [compatibilità Supabase](ADMIN-V2-LIVE-SUPABASE-COMPATIBILITY.md) e [matrice categorie](ADMIN-V2-CATEGORY-RECONCILIATION-PLAN.md). Registrare per ogni gate operatore, approvatore, ambiente, SHA, UTC, esito ed evidenze in un ticket di change.
 
 ## Verifica operativa pre-merge — 1 novembre 2026

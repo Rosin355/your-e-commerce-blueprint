@@ -1,5 +1,20 @@
 # Online Garden — release readiness dopo introduzione CI minima
 
+## PR #42 post-footer — gate di integrazione, 1 novembre 2026
+
+Base aggiornata `main@04ae6d4` dopo PR #43; merge locale `a00a800` nel branch Admin V2. Il footer live, Contatti e Privacy sono preservati e non sono parte di un nuovo deploy. QA locale: typecheck/lint/build, 361 Node, 103 Deno, Edge check, browser pubblico desktop/mobile e [browser Admin simulato a sei larghezze](../admin-v2-evidence/2026-11-01-post-footer/browser-qa.json) PASS; checkout soltanto simulato. CI e GitGuardian del nuovo HEAD PR #42 devono essere confermati dopo push.
+
+| Gate | Stato |
+| --- | --- |
+| Merge del solo codice | **BLOCKED** finché `writesEnabled` e `shopifySyncEnabled` runtime non sono attestati `false` e il proprietario non decide esplicitamente; PR resta Draft |
+| Review GitHub | Nessuna review formale o reviewer indipendente disponibile; `main` non ha requisito obbligatorio osservabile, ma check automatici e review tecnica non sono approvazione GitHub |
+| Deploy read-only | **BLOCKED**: nessun Admin autenticato ha confermato i tre campi `get_admin_context`; `writeMode` va registrato, non interpretato come OFF |
+| Migration | NON APPLICATA; richiede backup, autorizzazione separata e verifica ACL/RLS/RPC post-migration |
+| Canary Shopify/categorie | NON AUTORIZZATI: mapping approvato e approvazione mirata ancora mancanti |
+| Produzione commerciale | NO-GO: validazione Marco, Safari/iOS, checkout sandbox e policy restano gate separati |
+
+Il merge su `main` sincronizza codice nell'editor/preview Lovable, ma non applica migration, non distribuisce Edge Function e non pubblica il sito automaticamente secondo la [documentazione Git Sync](https://docs.lovable.dev/integrations/git-sync-overview). Il footer già pubblicato richiede un rollback separato solo se un futuro deploy lo altera; non usare force push o ripristini dati. [Runbook Admin](../ADMIN-V2-ACTIVATION-RUNBOOK.md) · [Report QA](../ADMIN-V2-QA-REPORT.md).
+
 ## PR #42 — review finale e gate di attivazione, 1 novembre 2026
 
 Review mirata sul codice della PR con base `main@b5cbe57`: corretto R42-6 nel commit `c9329ca`, bypass del master write OFF nel recupero di una bozza incerta. Backend e UI impediscono ora la finalizzazione del mapping interno con master OFF; recovery successivo richiede riabilitazione esplicita per un'operazione autorizzata. QA locale PASS: 360 Node, 103 Deno, typecheck, lint mirato, Deno check e build. Sul commit `c9329ca`, [CI applicativa SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41321729729) e GitGuardian PASS; l'HEAD documentale finale richiede check propri. PR Draft, nessuna review GitHub formale al momento del controllo.

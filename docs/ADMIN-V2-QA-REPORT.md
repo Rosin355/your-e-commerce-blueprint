@@ -1,5 +1,24 @@
 # Admin V2 operativo — report QA
 
+## Integrazione main post-footer e gate runtime — 1 novembre 2026
+
+`main@04ae6d4` incorporato nel branch PR #42 con merge conservativo locale `a00a800`. Risoluzione automatica senza marker o file unmerged; `src/App.tsx` contiene entrambe le rotte Admin V2 e Contatti/Privacy. I file del footer e delle pagine legali coincidono con `main`; i moduli Admin sono invariati dal merge. Nessun cambio al contratto checkout.
+
+| Verifica sull'albero integrato | Esito |
+| --- | --- |
+| Typecheck, lint mirato, build | PASS; warning Vite/Tailwind/Browserslist già noti |
+| Node offline / Deno senza rete runtime | 361 / 103 PASS |
+| Compilazione Edge | PASS per `admin-operational-service` con lock CI; PASS per entrypoint `product-admin-api` con `deno check --no-config --no-lock --node-modules-dir=manual` (l'import `npm:` rende improprio `--no-npm` per l'entrypoint) |
+| Browser locale 1440/390 px | Homepage, catalogo Storefront read-only, PDP reale, Contatti, footer e login Admin non autenticato navigabili, zero overflow; menu mobile aperto/chiuso con tastiera |
+| Browser Admin simulato post-merge | PASS su 320/375/390/430/768/1440 px: categorie, filtro non classificati, anteprima, nuovo prodotto manuale, storico, stati vuoto/errore e focus; 23 richieste esterne bloccate, zero page error. [JSON](admin-v2-evidence/2026-11-01-post-footer/browser-qa.json) |
+| Checkout | Test di contratto con `cartCreate` simulato PASS; nessun carrello o ordine reale |
+| Backend Admin autenticato e flag runtime | NON VERIFICATI: nessuna sessione Admin propria disponibile; nessuna prova di scrittura eseguita live |
+| Migration | Non applicata; prova PostgreSQL locale precedente resta riferita al SQL invariato |
+
+**Lacuna concreta e regressione:** `NewProductPage` mostrava il pulsante «Recupera stato» dopo un errore anche se il master write era OFF; il server rifiutava già il recupero. La UI ora richiede `writesEnabled`, ruolo `admin`/`tech_admin` e operazione salvata. Il retry del salvataggio è mostrato solo se `canSaveDraft` è attivo. Test Node aggiunto per stato OFF, ruolo insufficiente, operazione assente ed esito senza errore. Il backend resta l'autorità: `recover_shopify_draft` rifiuta con master OFF prima del mapping; `sync_field` usa il flag indipendente Shopify e deve essere verificato separatamente. Le nuove tabelle assenti producono lo stato gestito «Storico nuove bozze non disponibile» nella UI, non un crash.
+
+**Limite di conclusione:** non è una prova runtime read-only sull'ambiente Lovable. `writesEnabled`, `writeMode` e `shopifySyncEnabled` sono NON VERIFICATI; CI/GitGuardian del nuovo HEAD vanno controllati dopo push. PR Draft, verdict operativo BLOCKED.
+
 ## Review finale e riconciliazione — 1 novembre 2026
 
 Su HEAD iniziale `7b92a5e` CI e GitGuardian erano SUCCESS; PR #42 ancora Draft e senza review GitHub formali. La review mirata ha rilevato **R42-6 (Alta, kill switch):** `recover_shopify_draft` poteva completare il mapping Supabase anche con `PRODUCT_ADMIN_WRITES_ENABLED=false`. Scenario: dopo un timeout Shopify, un admin usa la CTA o una richiesta manuale mentre il master è OFF; nessuna seconda mutation Shopify, ma una scrittura interna contraria al gate read-only. Correzione minima sul branch: la funzione rifiuta il recupero prima di leggere l'operazione quando il master è OFF e la UI nasconde la CTA; il recupero successivo richiede riabilitazione esplicita e temporanea. Test Deno di regressione: stato `NEEDS_RECONCILIATION` invariato e zero mutation. Nessun flag live cambiato.

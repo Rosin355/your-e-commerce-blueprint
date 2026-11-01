@@ -1,3 +1,9 @@
+## 1 novembre 2026 — Admin V2 aggiornato dopo il footer, non ancora attivabile
+
+Il branch della PR #42 ora include il nuovo `main@04ae6d4` dopo la pubblicazione della PR #43: il footer online, Contatti e Privacy Policy sono conservati. I controlli locali su homepage, catalogo, scheda prodotto e pagine legali sono positivi; 361 test Node e 103 Deno, typecheck, lint e build passano. Abbiamo inoltre nascosto una CTA di recupero quando l'Admin non è autorizzato a scrivere. La PR resta Draft e il nuovo HEAD richiede CI e GitGuardian propri.
+
+**Non è ancora stata dimostrata la modalità di sola lettura dell'Admin nell'ambiente reale.** Due impostazioni già presenti in Lovable hanno valori non leggibili e non è disponibile una sessione Admin autorizzata per controllare i tre indicatori runtime. Il proprietario deve confermare soltanto `writesEnabled`, `writeMode` e `shopifySyncEnabled` tramite la [procedura senza credenziali](ADMIN-V2-ACTIVATION-RUNBOOK.md). Fino ad allora il gate rimane BLOCCATO: nessun merge, deploy, migration, attivazione di flag o cambiamento del catalogo è stato eseguito. Il footer pubblicato resta indipendente e invariato.
+
 ## 1 novembre 2026 — Admin V2: sicurezza e prossimi passaggi
 
 Nella review finale della PR #42 è stato chiuso un ultimo varco del comando generale di sicurezza: prima, il recupero di una bozza Shopify poteva aggiornare il registro interno anche quando le scritture erano disabilitate. Ora il comando OFF blocca anche quel recupero e l'interfaccia nasconde il pulsante. I test locali passano; sul commit correttivo `c9329ca`, [CI applicativa SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41321729729) e GitGuardian PASS. L'HEAD documentale finale richiede i propri check. La PR rimane Draft e attende una review GitHub adeguata.
