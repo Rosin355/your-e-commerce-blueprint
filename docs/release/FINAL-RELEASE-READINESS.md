@@ -1,5 +1,11 @@
 # Online Garden — release readiness dopo introduzione CI minima
 
+## PR #42 — review finale e gate di attivazione, 1 novembre 2026
+
+Review mirata sul codice della PR con base `main@b5cbe57`: corretto R42-6 nel commit `c9329ca`, bypass del master write OFF nel recupero di una bozza incerta. Backend e UI impediscono ora la finalizzazione del mapping interno con master OFF; recovery successivo richiede riabilitazione esplicita per un'operazione autorizzata. QA locale PASS: 360 Node, 103 Deno, typecheck, lint mirato, Deno check e build. Sul commit `c9329ca`, [CI applicativa SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41321729729) e GitGuardian PASS; l'HEAD documentale finale richiede check propri. PR Draft, nessuna review GitHub formale al momento del controllo.
+
+**Code merge:** candidato tecnico solo dopo check sull'HEAD finale e review GitHub adeguata, con tutte le scritture OFF. **Staging:** NO-GO fino a backup, migration autorizzata e verifica post-migration; [matrice read-only](../ADMIN-V2-CATEGORY-RECONCILIATION-PLAN.md) mostra 13 handle identici, 3 plausibili, 2 ambigui, 4 senza match fra 22 categorie interne e 55 collezioni Shopify, con zero mapping attuale. **Produzione:** NO-GO finché 194 famiglie senza GID legacy, canary DRAFT, account Marco, Safari/iOS, email e decisioni commerciali non sono verificati. [Runbook](../ADMIN-V2-ACTIVATION-RUNBOOK.md). Nessun merge, migration, deploy o write live.
+
 ## Gate PR #42 aggiornato — 1 novembre 2026
 
 Il database Supabase di Online Garden è stato verificato in sola lettura tramite il backend del progetto Lovable corrispondente alla base `main@b5cbe57`. Project reference configurato `iekwvvihjwghosqdxrdi`; [report di compatibilità](../ADMIN-V2-LIVE-SUPABASE-COMPATIBILITY.md). La migration Admin V2 è **compatibile per struttura** con schema, vincoli, enum, trigger e registro campi live; non è stata applicata. Le nuove ACL/RLS potranno essere confermate sul progetto reale soltanto dopo migration autorizzata. La review limitata al diff corretto `829eeb0..d9f0d39` non ha rilevato nuovi blocchi. [CI sull'HEAD applicativo `d9f0d39` SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236633321); la CI del successivo commit documentale va verificata sul suo SHA.

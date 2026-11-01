@@ -1,3 +1,9 @@
+## 1 novembre 2026 — Admin V2: sicurezza e prossimi passaggi
+
+Nella review finale della PR #42 è stato chiuso un ultimo varco del comando generale di sicurezza: prima, il recupero di una bozza Shopify poteva aggiornare il registro interno anche quando le scritture erano disabilitate. Ora il comando OFF blocca anche quel recupero e l'interfaccia nasconde il pulsante. I test locali passano; sul commit correttivo `c9329ca`, [CI applicativa SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41321729729) e GitGuardian PASS. L'HEAD documentale finale richiede i propri check. La PR rimane Draft e attende una review GitHub adeguata.
+
+Abbiamo confrontato in sola lettura le 22 categorie interne con tutte le 55 collezioni Shopify: 13 handle coincidono, altri casi richiedono scelta o non hanno un match. **Nessun collegamento è stato applicato.** Le 194 famiglie senza Product GID nel mapping interno non sono automaticamente prodotti assenti da Shopify; serve confronto SKU/GID autorizzato. Per Marco, il percorso proposto è graduale: prima codice con scritture OFF, poi migration in staging autorizzata, approvazione delle categorie, un solo prodotto DRAFT di prova e test con il suo account/Safari; la pubblicazione resta una decisione separata. [Matrice](ADMIN-V2-CATEGORY-RECONCILIATION-PLAN.md) · [Piano operativo](ADMIN-V2-ACTIVATION-RUNBOOK.md).
+
 ## 1 novembre 2026 — verifica database Online Garden per PR #42
 
 Abbiamo controllato **in sola lettura** il database Supabase collegato al progetto Online Garden e confrontato la nuova migration con lo schema reale. La compatibilità tecnica risulta positiva; nessuna migration è stata applicata e nessun prodotto Shopify è stato modificato. I test automatici sull'ultimo commit applicativo `d9f0d39` sono [passati su GitHub](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236633321). Un eventuale commit solo documentale richiede il proprio controllo CI.

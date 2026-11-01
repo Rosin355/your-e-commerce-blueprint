@@ -52,10 +52,10 @@ Il reader esistente `getExactShopifyProductMapping` riconosce i nuovi link verif
 
 - Letture: ruoli V2 già ammessi; viewer/user/moderator senza accesso. Nessun nuovo ruolo assegnato.
 - Bozza interna: editor/admin/tech_admin; in canary solo admin/tech_admin. Richiede `PRODUCT_ADMIN_WRITES_ENABLED` e `PRODUCT_ADMIN_DRAFTS_ENABLED`.
-- Invio Shopify: admin/tech_admin, `PRODUCT_ADMIN_WRITES_ENABLED=true`, `PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED=true` e approvazione operativa per **uno specifico** `operationId`, oltre alla conferma. Il recupero di un invio già iniziato resta possibile anche dopo la disattivazione dei flag: verifica una bozza esistente e completa solo il mapping.
+- Invio Shopify: admin/tech_admin, `PRODUCT_ADMIN_WRITES_ENABLED=true`, `PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED=true` e approvazione operativa per **uno specifico** `operationId`, oltre alla conferma. Il recupero di un invio già iniziato non ripete la mutation Shopify, ma può scrivere il mapping interno: richiede quindi `PRODUCT_ADMIN_WRITES_ENABLED=true`. Con master OFF è bloccato fino a riabilitazione esplicita e temporanea autorizzata.
 - Assegnazioni Shopify: admin/tech_admin, `PRODUCT_ADMIN_WRITES_ENABLED=true`, `PRODUCT_ADMIN_CATEGORIES_ENABLED=true`, approvazione per l’`expectedHash` esatto della proposta, conferma e rilettura. Se il catalogo interno e le membership canoniche Shopify divergono, non si esegue alcuna mutation.
 - `PRODUCT_ADMIN_OPERATIONAL_APPROVAL` è un JSON server-side, non un token: `{ "action": "create_shopify_draft", "target": "<operationId UUID>", "expiresAt": "<ISO UTC entro 24 ore>" }` oppure `{ "action": "apply_categories", "target": "<expectedHash SHA-256>", "expiresAt": "<ISO UTC entro 24 ore>" }`. Una stringa generica, `false`, un target diverso o un’approvazione scaduta sono rifiutati. Configurarlo solo per il canary autorizzato, poi rimuoverlo; non inserirvi credenziali.
-- Recupero bozza già inviata: admin/tech_admin, query Shopify e mapping interno; non crea un nuovo prodotto anche se il flag di invio è stato disattivato.
+- Recupero bozza già inviata: admin/tech_admin e master write ON; query Shopify e mapping interno; non crea un nuovo prodotto anche se il flag specifico di invio è stato disattivato.
 - Tabelle nuove con RLS e privilegi diretti revocati ad anon/authenticated; RPC SECURITY INVOKER, execute solo service_role, ruoli dell'attore riletti anche in SQL.
 
 Tutti i flag nuovi sono OFF se assenti. Nessun valore live è stato cambiato. Migrazione preparata ma non applicata live.
