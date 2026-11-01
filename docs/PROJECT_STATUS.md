@@ -1,15 +1,3 @@
-## 1 novembre 2026 — footer, privacy e contatti (Draft separata)
-
-Da main aggiornato `b5cbe57`, worktree indipendente e branch `codex/storefront-footer-legal`; #40 e #42 escluse. Footer senza placeholder, catalogo pubblico verificato, contatti con email confermata via Shopify, Privacy Policy ufficiale verificata HTTP 200 e collegata senza copia HTML. Registro route legali: quattro policy assenti restano disattive e senza link; fallback noindex client-side, limiti HTTP/SEO espliciti. Contatti e alias privacy verificati nella build, non già pubblicati online.
-
-Build/typecheck/lint mirato PASS; 339 Node + 92 Deno e 15 scenari UX esistenti PASS. Lint globale: 43 errori/11 warning identici a main, zero nuovi. Evidenze desktop/mobile e QA dedicata nel report. **Pubblicazione completa BLOCKED**: cookie/termini/spedizioni/resi senza testi approvati, dati societari da confermare; hosting inietta telemetria e tenta POST eventi prima del consenso, non validata come correttamente subordinata alle preferenze. Nessuna CMP introdotta.
-
-Nessuna modifica a Admin V2/API/backend/migration, Shopify o Supabase live; nessun merge/deploy/Lovable. Solo branch e Draft PR separata verso main. Le sezioni seguenti sono cronologia precedente e non sostituiscono questo stato.
-
-[Report e matrice policy](legal/FOOTER-AND-POLICY-INTEGRATION.md) · [Checklist Marco](legal/CLIENT-LEGAL-PUBLICATION-CHECKLIST.md) · [Readiness corrente](release/FINAL-RELEASE-READINESS.md).
-
----
-
 ## 30 ottobre 2026 — CI minima reale, preservando la base #39
 
 Introdotto workflow pull_request verso main e codex/storefront-main-integration con runtime e Action fissati, npm ci senza lifecycle script, typecheck, lint pertinente, build e test Node/Deno con lock frozen. Solo contents:read, nessun segreto applicativo o permesso di scrittura, nessun sync/import/backup/deploy; test Node con blocco rete e Deno senza permessi runtime rete/run/write. Codice dello storefront e test esistenti invariati.
@@ -41,6 +29,22 @@ Admin/auth/RLS/Supabase/Edge/sync/package e lockfile invariati; mutation cartCre
 ---
 
 # Online Garden — stato consolidato del progetto
+
+## 1 novembre 2026 — stato corrente del rilascio footer PR #43
+
+**Footer pubblicato e verificato su https://onlinegarden.it.** PR [#43](https://github.com/Rosin355/your-e-commerce-blueprint/pull/43) unita senza bypass. HEAD sorgente `e617c05ad9afcaf2c22ad5faac0da06e8bd9ad1d`; merge e commit effettivamente servito in produzione `8d2a160917895735658e34a37d6b337733a32649`. Deploy Lovable esplicito `0ae71161-a4cc-407e-ae36-b2202f381981`, confermato dal DOM del footer e dal `data-commit-sha` dell'HTML pubblico, non dal solo merge.
+
+Footer senza placeholder/social/newsletter inattivi; cinque destinazioni catalogo reali, `/contatti` con `mailto:info@onlinegarden.it`, privacy collegata al documento Shopify ufficiale italiano. Le quattro policy assenti non sono pubblicate: fallback 404 UI/noindex client-side, HTTP 200 SPA ancora da migliorare. Nessun dato societario storico riutilizzato.
+
+Preflight: main senza review/protezioni obbligatorie, CI e GitGuardian SUCCESS sull'HEAD sorgente, review tecnica COMMENT registrata; main → Lovable → dominio primario confermati. Nessuna parte delle PR #40/#42 integrata. Typecheck/lint mirato/build ripetuti PASS; precedente CI 339 Node + 92 Deno e QA offline preservata, codice applicativo del merge identico all'HEAD validato. Post-deploy: **16 controlli browser PASS**, categorie/Contatti/PDP desktop-mobile, tastiera/focus e carrello vuoto; 16 URL HTTP e 5 risorse iniziali verificati. Zero errori console inattesi; warning Radix della descrizione del drawer mobile preesistente, non bloccante. Nessun cartCreate o ordine live.
+
+**Rilascio tecnico footer: ONLINE. Abilitazione commerciale/conformità privacy: NON approvate né certificate.** Mancano Cookie Policy, termini, spedizioni/resi e dati societari approvati. Visitor analytics Lovable ancora ON, script hosting invariati; disattivazione disponibile nelle impostazioni ma non autorizzata/eseguita. Safari/iOS reale, checkout completo e strategia HTTP/SEO restano da verificare.
+
+Rollback disponibile a `b5cbe57`: revert del merge tramite processo di review, sincronizzazione e ripubblicazione; nessun force push o rollback dati. Nessuna modifica Shopify/Supabase/DNS, Admin V2 o flag. Le note footer sono collocate in questa sezione autonoma per non sovrapporsi agli aggiornamenti di apertura/chiusura documenti della PR #42, che resta separata.
+
+[Report corrente](legal/FOOTER-AND-POLICY-INTEGRATION.md) · [QA e screenshot reali](legal/release-evidence/2026-11-01/README.md) · [Checklist approvazioni](legal/CLIENT-LEGAL-PUBLICATION-CHECKLIST.md).
+
+### Storico precedente alla pubblicazione del footer
 
 ## FINAL MOBILE STOREFRONT QA — 10 ottobre 2026
 

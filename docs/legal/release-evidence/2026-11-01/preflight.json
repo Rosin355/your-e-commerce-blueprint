@@ -1,0 +1,57 @@
+{
+  "verifiedAt": "2026-11-01T19:15:35.757679+00:00",
+  "pr": 43,
+  "head": "e617c05ad9afcaf2c22ad5faac0da06e8bd9ad1d",
+  "mainBeforeMerge": "b5cbe57aa1f7e674ce7caca106d359f8977c800a",
+  "checks": {
+    "Storefront / pull-request": "SUCCESS",
+    "GitGuardian Security Checks": "SUCCESS"
+  },
+  "github": {
+    "mergeable": true,
+    "branchProtected": false,
+    "branchRules": [],
+    "reviews": 0,
+    "requiredReviews": 0,
+    "bypassUsed": false
+  },
+  "lovable": {
+    "projectId": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+    "repository": "Rosin355/your-e-commerce-blueprint",
+    "syncedBranch": "main",
+    "syncState": "In sync with GitHub",
+    "mainDomain": "onlinegarden.it",
+    "domainState": "Live, primary, www included",
+    "visitorAnalyticsEnabled": true,
+    "securityPanel": "Nessun problema di sicurezza rilevato",
+    "explicitPublishRequired": true
+  },
+  "liveBefore": {
+    "scripts": [
+      {
+        "type": "module",
+        "src": "/assets/index-C4DnW0V3.js"
+      },
+      {
+        "src": "/~flock.js",
+        "data-proxy-url": "/~api/analytics"
+      },
+      {
+        "src": "/__l5e/events.270c78a44fc53e7b.js",
+        "data-artifact-kind": "dwl_content_hash",
+        "data-artifact-id": "e7d6465a1044522bd4e97d5860f57253e2fbcafda9c4b86fd7cd1b9cffbd42b4",
+        "data-commit-sha": "b5cbe57aa1f7e674ce7caca106d359f8977c800a"
+      }
+    ]
+  },
+  "privacyChangesAuthorized": false,
+  "commercialEnablementAuthorized": false,
+  "rollback": {
+    "sourceCommit": "b5cbe57aa1f7e674ce7caca106d359f8977c800a",
+    "method": "Revert merge commit on main via a reviewed change, wait for Lovable sync, republish; no reset/force push or data rollback."
+  },
+  "telemetryScriptHashes": {
+    "flock": "a86e084b4f82709814be6c15fd6305daa783fda87ad95402da9a4d3a1dd6d748",
+    "events": "9005204863a3d003ce0c18bbbe50df0f4d246587e4d19a0d18de980479c61238"
+  }
+}

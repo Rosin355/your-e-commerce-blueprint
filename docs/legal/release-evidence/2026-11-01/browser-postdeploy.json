@@ -1,0 +1,339 @@
+{
+  "mergeSha": "8d2a160917895735658e34a37d6b337733a32649",
+  "deploymentId": "0ae71161-a4cc-407e-ae36-b2202f381981",
+  "pages": [
+    {
+      "footer": "Online Garden\n\nPiante da esterno, rose, bulbi stagionali e accessori pensati per dare carattere a giardini, terrazzi e balconi.\n\nCATALOGO\nPiante da esterno\nRose\nPiante da frutto\nConifere\nAltre categorie\nINFORMAZIONI\nContatti e assistenza\ninfo@onlinegarden.it\nLEGALE\nPrivacy Policy\n\n© 2026 Online Garden. Vivaio online per esterni, terrazzi e giardini.\n\nPagamento nel checkout Shopify. I metodi disponibili sono indicati al momento del pagamento.",
+      "heading": "Trasforma il tuo balcone\nin un giardino",
+      "links": [
+        {
+          "href": "https://onlinegarden.it/collections/piante-da-esterno",
+          "label": "Piante da esterno"
+        },
+        {
+          "href": "https://onlinegarden.it/collections/rose",
+          "label": "Rose"
+        },
+        {
+          "href": "https://onlinegarden.it/collections/piante-da-frutto",
+          "label": "Piante da frutto"
+        },
+        {
+          "href": "https://onlinegarden.it/collections/conifere",
+          "label": "Conifere"
+        },
+        {
+          "href": "https://onlinegarden.it/collections/all",
+          "label": "Altre categorie"
+        },
+        {
+          "href": "https://onlinegarden.it/contatti",
+          "label": "Contatti e assistenza"
+        },
+        {
+          "href": "mailto:info@onlinegarden.it",
+          "label": "info@onlinegarden.it"
+        },
+        {
+          "href": "https://checkout.shopify.com/102600966484/policies/56892817748.html?locale=it",
+          "label": "Privacy Policy"
+        }
+      ],
+      "overflow": false,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649",
+      "scripts": [
+        {
+          "consent": null,
+          "src": "https://onlinegarden.it/assets/index-DTwbWTRZ.js"
+        },
+        {
+          "consent": null,
+          "src": "https://onlinegarden.it/~flock.js"
+        },
+        {
+          "consent": null,
+          "src": "https://onlinegarden.it/__l5e/events.270c78a44fc53e7b.js"
+        }
+      ],
+      "title": "Online Garden — Piante online",
+      "url": "https://onlinegarden.it/",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      }
+    },
+    {
+      "canonical": "https://onlinegarden.it/contatti",
+      "email": "mailto:info@onlinegarden.it",
+      "focusedId": "main-content",
+      "heading": "Contatti e assistenza",
+      "overflow": false,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649",
+      "robots": "index,follow",
+      "title": "Contatti e assistenza | Online Garden",
+      "url": "https://onlinegarden.it/contatti"
+    },
+    {
+      "alerts": [],
+      "cards": 60,
+      "footerPlaceholder": false,
+      "heading": "Piante da esterno",
+      "missing": false,
+      "overflow": false,
+      "title": "Piante da esterno | Online Garden",
+      "url": "https://onlinegarden.it/collections/piante-da-esterno"
+    },
+    {
+      "alerts": [],
+      "cards": 60,
+      "footerPlaceholder": false,
+      "heading": "Rose",
+      "missing": false,
+      "overflow": false,
+      "title": "Rose | Online Garden",
+      "url": "https://onlinegarden.it/collections/rose"
+    },
+    {
+      "alerts": [],
+      "cards": 60,
+      "footerPlaceholder": false,
+      "heading": "Piante da frutto",
+      "missing": false,
+      "overflow": false,
+      "title": "Piante da frutto | Online Garden",
+      "url": "https://onlinegarden.it/collections/piante-da-frutto"
+    },
+    {
+      "alerts": [],
+      "cards": 57,
+      "footerPlaceholder": false,
+      "heading": "Conifere",
+      "missing": false,
+      "overflow": false,
+      "title": "Conifere | Online Garden",
+      "url": "https://onlinegarden.it/collections/conifere"
+    },
+    {
+      "alerts": [],
+      "cards": 9,
+      "overflow": false,
+      "title": "Tutti i prodotti | Online Garden",
+      "url": "https://onlinegarden.it/collections/all"
+    },
+    {
+      "alerts": [],
+      "brokenImages": 0,
+      "heading": "Rosa Maizner Fastnacht",
+      "overflow": false,
+      "purchaseButtons": [
+        {
+          "disabled": false,
+          "label": "Aggiungi al carrello"
+        },
+        {
+          "disabled": false,
+          "label": "Acquista ora"
+        }
+      ],
+      "title": "Rosa Maizner Fastnacht | Online Garden",
+      "url": "https://onlinegarden.it/products/rosa-maizner-fastnacht"
+    },
+    {
+      "heading": "Rosa Maizner Fastnacht",
+      "overflow": false,
+      "url": "https://onlinegarden.it/products/rosa-maizner-fastnacht",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    {
+      "cards": 60,
+      "dialogs": 0,
+      "heading": "Rose",
+      "overflow": false,
+      "url": "https://onlinegarden.it/collections/rose",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    {
+      "lastUpdated": "Ultimo aggiornamento: 30 ottobre 2026",
+      "title": "Privacy policy",
+      "url": "https://checkout.shopify.com/102600966484/policies/56892817748.html?locale=it"
+    },
+    {
+      "heading": "404",
+      "policyTextPublished": false,
+      "robots": "noindex,follow",
+      "url": "https://onlinegarden.it/cookie-policy"
+    },
+    {
+      "heading": "404",
+      "policyTextPublished": false,
+      "robots": "noindex,follow",
+      "url": "https://onlinegarden.it/termini-e-condizioni"
+    },
+    {
+      "heading": "404",
+      "policyTextPublished": false,
+      "robots": "noindex,follow",
+      "url": "https://onlinegarden.it/spedizioni"
+    },
+    {
+      "heading": "404",
+      "policyTextPublished": false,
+      "robots": "noindex,follow",
+      "url": "https://onlinegarden.it/resi-e-rimborsi"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Footer realmente pubblicato desktop 1440x1000",
+      "status": "PASS",
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "name": "Cinque categorie pubbliche desktop con footer nuovo",
+      "status": "PASS"
+    },
+    {
+      "name": "Menu mobile apre e naviga a Rose chiudendo il drawer",
+      "status": "PASS"
+    },
+    {
+      "name": "Footer mobile reale senza placeholder né overflow",
+      "status": "PASS",
+      "viewport": {
+        "width": 390,
+        "height": 932
+      }
+    },
+    {
+      "name": "Tab inverso Privacy → email → Contatti con focus visibile",
+      "status": "PASS",
+      "keyboardEmail": {
+        "href": "mailto:info@onlinegarden.it",
+        "outlineStyle": "solid",
+        "outlineWidth": "2px"
+      },
+      "keyboardContact": {
+        "href": "/contatti",
+        "outlineWidth": "2px"
+      }
+    },
+    {
+      "name": "Invio su Contatti e focus nel contenuto principale",
+      "status": "PASS",
+      "focusedId": "main-content",
+      "url": "https://onlinegarden.it/contatti"
+    },
+    {
+      "name": "Contatti responsive 320",
+      "status": "PASS",
+      "height": 932,
+      "overflow": false,
+      "width": 320
+    },
+    {
+      "name": "Contatti responsive 390",
+      "status": "PASS",
+      "height": 932,
+      "overflow": false,
+      "width": 390
+    },
+    {
+      "name": "Contatti responsive 768",
+      "status": "PASS",
+      "height": 932,
+      "overflow": false,
+      "width": 768
+    },
+    {
+      "name": "Contatti responsive 1440",
+      "status": "PASS",
+      "height": 932,
+      "overflow": false,
+      "width": 1440
+    },
+    {
+      "name": "Alias privacy porta al documento Shopify italiano ufficiale",
+      "status": "PASS"
+    },
+    {
+      "name": "Policy non approvata non pubblicata: /cookie-policy",
+      "status": "PASS"
+    },
+    {
+      "name": "Policy non approvata non pubblicata: /termini-e-condizioni",
+      "status": "PASS"
+    },
+    {
+      "name": "Policy non approvata non pubblicata: /spedizioni",
+      "status": "PASS"
+    },
+    {
+      "name": "Policy non approvata non pubblicata: /resi-e-rimborsi",
+      "status": "PASS"
+    },
+    {
+      "name": "Carrello vuoto apre/chiude con Escape, nessuna creazione Shopify",
+      "status": "PASS",
+      "dialogs": 0,
+      "focusLabel": "Carrello, 0 articoli",
+      "note": "Verificato dopo la conclusione dell’animazione di chiusura, non durante il frame intermedio."
+    }
+  ],
+  "console": [
+    {
+      "level": "warn",
+      "message": "Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.",
+      "timestamp": "2026-11-01T19:25:17.590Z",
+      "url": "https://onlinegarden.it/assets/index-DTwbWTRZ.js"
+    },
+    {
+      "level": "error",
+      "message": "404 Error: User attempted to access non-existent route: /cookie-policy",
+      "timestamp": "2026-11-01T19:27:04.752Z",
+      "url": "https://onlinegarden.it/assets/index-DTwbWTRZ.js"
+    },
+    {
+      "level": "error",
+      "message": "404 Error: User attempted to access non-existent route: /termini-e-condizioni",
+      "timestamp": "2026-11-01T19:27:05.116Z",
+      "url": "https://onlinegarden.it/assets/index-DTwbWTRZ.js"
+    },
+    {
+      "level": "error",
+      "message": "404 Error: User attempted to access non-existent route: /spedizioni",
+      "timestamp": "2026-11-01T19:27:05.420Z",
+      "url": "https://onlinegarden.it/assets/index-DTwbWTRZ.js"
+    },
+    {
+      "level": "error",
+      "message": "404 Error: User attempted to access non-existent route: /resi-e-rimborsi",
+      "timestamp": "2026-11-01T19:27:05.773Z",
+      "url": "https://onlinegarden.it/assets/index-DTwbWTRZ.js"
+    }
+  ],
+  "finalDom": {
+    "footerPlaceholder": false,
+    "nonessentialConsentMarker": null,
+    "productionCommit": "8d2a160917895735658e34a37d6b337733a32649",
+    "unapprovedPolicyLinks": 0,
+    "url": "https://onlinegarden.it/",
+    "visibleConsentDialogs": 0
+  },
+  "verifiedAt": "2026-11-01T19:29:54.903Z",
+  "summary": {
+    "passed": 16,
+    "failed": 0
+  },
+  "unexpectedErrors": [],
+  "limitations": [
+    "Nessun cartCreate/ordine/pagamento live; checkout verificato con regressione precedente e carrello vuoto reale",
+    "Browser responsive, non dispositivo Safari/iOS reale",
+    "Nuova verifica script/configurazione; tentativi POST documentati dall’audit precedente, non nuova intercettazione della rete in questa sessione"
+  ]
+}

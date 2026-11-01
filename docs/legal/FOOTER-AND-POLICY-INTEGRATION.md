@@ -1,10 +1,20 @@
 # Online Garden — footer, contatti e integrazione policy
 
-1 novembre 2026. Branch `codex/storefront-footer-legal`, worktree indipendente da `main` `b5cbe57aa1f7e674ce7caca106d359f8977c800a`. Implementazione pronta alla review; **pubblicazione del sito bloccata dai gate legali e consenso sotto indicati**. Nessun merge o deploy autorizzato da questa consegna.
+1 novembre 2026. **FOOTER PUBBLICATO E VERIFICATO** su https://onlinegarden.it. PR #43 unita, merge/produzione `8d2a160917895735658e34a37d6b337733a32649`, sorgente validata `e617c05ad9afcaf2c22ad5faac0da06e8bd9ad1d`. Il nuovo incarico autorizza il solo rilascio tecnico del footer: requisiti legali/commerciali e configurazioni privacy restano separati.
+
+## Esito del rilascio controllato
+
+Preflight GitHub senza conflitti o gate obbligatori mancanti: CI/GitGuardian SUCCESS e review tecnica COMMENT registrata sull'HEAD sorgente. Nessuna approvazione indipendente inventata e nessun bypass. PR portata fuori da Draft e unita con merge commit a due genitori `b5cbe57` e `e617c05`; nessun commit #40/#42 integrato. Rollback disponibile al precedente `b5cbe57`, tramite revert del merge e nuova pubblicazione controllata; non eseguito.
+
+Confermati in sola lettura nel pannello Lovable: repository corretto, branch `main` in sync, `onlinegarden.it` dominio principale attivo e `www` incluso. La sync Git non pubblica automaticamente: effettuato deploy esplicito `0ae71161-a4cc-407e-ae36-b2202f381981`. Il connettore ha inizialmente restituito `pending`; la verifica successiva del dominio ha confermato il nuovo footer e `data-commit-sha=8d2a160917895735658e34a37d6b337733a32649`. Il dato `is_published` da solo non è stato considerato prova di rilascio.
+
+QA reale post-deploy: **16 controlli browser PASS**, cinque categorie, Contatti, alias privacy italiano, policy assenti/noindex, PDP, menu mobile, focus/tastiera, carrello vuoto con chiusura Escape e ripristino focus. HTTP/HTTPS: 16 URL e 5 risorse iniziali verificati; redirect HTTP e www alla versione HTTPS principale. Nessun errore console inatteso o risorsa iniziale bloccante. Warning preesistente Radix per `Description` del drawer mobile, non bloccante; i quattro log 404 provengono dai test intenzionali dei percorsi legali non pubblicati. Non eseguiti cartCreate, ordini o pagamenti live; checkout end-to-end commerciale non certificato. Safari/iOS reale resta da verificare.
+
+[Evidenze reali e screenshot](release-evidence/2026-11-01/README.md) · [Riepilogo rilascio](release-evidence/2026-11-01/release-summary.json). Il commit documentale successivo registra l'esito senza cambiare il codice applicativo né richiedere un secondo deploy.
 
 ## Isolamento e fonti
 
-Fetch iniziale completato; PR aperte verificate con GitHub e CLI: #40 (redesign non approvato) e #42 (Admin V2). Nessun branch/worktree footer/legal preesistente. Il checkout originale e i suoi file dirty non sono stati usati come base né modificati. Nessun commit della #40 importato. Nessun intervento a Admin V2, API, backend, migration, Supabase, configurazione Shopify o Lovable live.
+Fetch iniziale completato; PR aperte verificate con GitHub e CLI: #40 (redesign non approvato) e #42 (Admin V2). Nessun branch/worktree footer/legal preesistente. Il checkout originale e i suoi file dirty non sono stati usati come base né modificati. Nessun commit della #40 importato. Nessun intervento a Admin V2, API, backend, migration, Supabase o configurazione Shopify. Il successivo deploy frontend Lovable è descritto nella sezione di rilascio, senza scritture ai dati o attivazioni di flag.
 
 `docs/legal/` non esisteva in main. Nessun documento legale approvato o bozza legale del vecchio WordPress disponibile nel repository: il recupero storico resta **non attestato**, non completato per deduzione. Le sole fonti utilizzabili sono la policy Shopify già pubblicata, la verifica Admin read-only e l'istruzione esplicita del cliente di collegarla. La pubblicazione esistente non viene presentata come nuova approvazione legale di conformità.
 
@@ -23,12 +33,12 @@ L'audit usa `shop { contactEmail shopPolicies { type url body updatedAt } }`, co
 
 | Pagina | Disponibilità / bozza / approvazione | Pubblicabilità | Stato effettivo |
 | --- | --- | --- | --- |
-| Privacy Policy | Disponibile in italiano; aggiornamento Shopify `2026-10-30T15:02:23Z`. Collegamento esplicitamente autorizzato nella richiesta; nessuna nuova revisione legale autonoma | Link ufficiale utilizzabile | **Pubblicata e verificata su Shopify**, HTTP 200, testo italiano; integrazione footer e alias soltanto sul branch |
+| Privacy Policy | Disponibile in italiano; aggiornamento Shopify `2026-10-30T15:02:23Z`. Collegamento esplicitamente autorizzato nella richiesta; nessuna nuova revisione legale autonoma | Link ufficiale utilizzabile | **Pubblicata e verificata su Shopify**, HTTP 200, testo italiano; integrazione footer e alias **pubblicati e verificati su onlinegarden.it** |
 | `/cookie-policy` | Non disponibile; nessuna bozza reperita; da redigere e approvare | **Non pubblicabile** | Route riservata e disattiva; nessun link |
 | `/termini-e-condizioni` | Assente nell'elenco policy Shopify; nessuna bozza reperita; da approvare | **Non pubblicabile** | Route riservata e disattiva; nessun link |
 | `/spedizioni` | Assente nell'elenco policy Shopify; nessuna bozza reperita; da approvare | **Non pubblicabile** | Route riservata e disattiva; nessun link |
 | `/resi-e-rimborsi` | Assente nell'elenco policy Shopify; nessuna bozza reperita; da approvare | **Non pubblicabile** | Route riservata e disattiva; nessun link |
-| `/contatti` | Email disponibile e verificata via Shopify; contenuto tecnico limitato al recapito autorizzato | Implementazione disponibile per review | Verificata nella build locale; **non pubblicata sul sito** |
+| `/contatti` | Email disponibile e verificata via Shopify; contenuto tecnico limitato al recapito autorizzato | Pubblicata | **Pubblicata e verificata sul sito**, email corretta e focus nel contenuto principale |
 | Chi siamo / FAQ | Nessuna pagina reale reperita | Nessun collegamento previsto | Non pubblicate da questo intervento |
 
 Non sono state create bozze di testi legali. I documenti di questa cartella sono documentazione tecnica e checklist, non policy del negozio.
@@ -47,9 +57,13 @@ Categorie pubbliche verificate nel browser, senza creare carrelli o ordini:
 | <https://onlinegarden.it/collections/conifere> | Titolo corretto, 57 card, nessun errore |
 | <https://onlinegarden.it/collections/all> | Catalogo funzionante, 9 card iniziali; non è un conteggio totale prodotti |
 
-Contatto: `mailto:info@onlinegarden.it`. `/contatti` e l'alias locale privacy sono funzionanti nella build del branch; non vanno indicati come già online. I conteggi card descrivono il caricamento osservato, non giacenze o consistenza dell'intero catalogo.
+Contatto: `mailto:info@onlinegarden.it`. `/contatti` e l'alias locale privacy sono ora **funzionanti online**, verificati realmente dopo il deploy. I conteggi card descrivono il caricamento osservato, non giacenze o consistenza dell'intero catalogo.
 
 ## Cookie, script e consenso: blocco di validazione
+
+Nuova verifica durante il rilascio: gli script pubblici hanno gli stessi SHA-256 dell'audit precedente e l'HTML li carica ancora senza `data-consent`. Nel pannello è stato confermato **Visitor analytics ON**. [Documentazione Lovable Analytics](https://docs.lovable.dev/features/analytics): la funzione misura visite e pagine, e può essere disabilitata da Impostazioni progetto → Generali → Pubblicazione → Visitor analytics. Nessuna modifica applicata; dopo un'eventuale decisione specifica occorrerà verificare quali script/invii vengono effettivamente disattivati. La documentazione del provider descrive analytics senza cookie, ma non sostituisce la valutazione dei trattamenti reali. Il vecchio script `~flock.js` include anche codice per identificativi sessione: non si deduce automaticamente che tale ramo sia attivo.
+
+Il tentativo POST `/__l5e/trackevents` è provato dall'audit precedente. In questa chiusura sono stati riconfermati sorgenti, caricamento e impostazione piattaforma; **non è stata ripetuta l'intercettazione di rete** e non si presenta una nuova prova di ingestione eventi. Il rilascio del solo footer è stato esplicitamente autorizzato mantenendo questo punto aperto.
 
 Audit statico: nessun GA/GTM, Meta Pixel, SDK marketing o CMP nel codice applicativo; nessun loader condizionato da consenso. Presenti Google Fonts in `index.html`, immagini Shopify, API Storefront, autenticazione Supabase esistente e collegamenti di condivisione esterni nella PDP. I link social di condivisione non certificano canali ufficiali e non sono widget SDK caricati in anticipo.
 
@@ -68,7 +82,7 @@ Audit browser live, nuovo visitatore senza interazioni di consenso:
 
 La query/cartCreate, la validazione URL e gli handler d'acquisto sono invariati. La suite UX esistente verifica con API simulate doppio invio, errore/retry, quantità e navigazione nella stessa scheda. Non è stato creato un checkout live: presenza e completezza dei link legali nel footer del checkout Shopify devono essere confermate nel pannello e in un checkout sandbox autorizzato dopo l'approvazione delle altre policy. La pagina privacy ufficiale checkout è invece stata aperta e verificata direttamente.
 
-`noindex` è applicato dall'hook SEO dopo il caricamento JavaScript. Non è un vero HTTP 404 o un header `X-Robots-Tag`: il fallback SPA dell'hosting può rispondere 200 anche per una route non pubblicata. Nessun contenuto di bozza esiste nel bundle e nessun link/sitemap viene aggiunto ai percorsi assenti. Prima del rilascio va approvata la strategia hosting HTTP 404/noindex e redirect server-side dell'alias, soprattutto per crawler senza JavaScript; nessuna modifica a hosting/backend fatta qui.
+`noindex` è applicato dall'hook SEO dopo il caricamento JavaScript. Non è un vero HTTP 404 o un header `X-Robots-Tag`: il fallback SPA dell'hosting può rispondere 200 anche per una route non pubblicata. Nessun contenuto di bozza esiste nel bundle e nessun link/sitemap viene aggiunto ai percorsi assenti. Prima di dichiarare completata la readiness SEO va approvata la strategia hosting HTTP 404/noindex e redirect server-side dell'alias, soprattutto per crawler senza JavaScript; nessuna modifica a hosting/backend fatta qui.
 
 ## QA ed evidenze
 
@@ -87,4 +101,4 @@ Lint globale: 43 errori e 11 warning, **identici alla base main**, zero nuove se
 5. Hosting/Shopify → impostazioni privacy/analytics/customer events: censire script e app, stabilire consenso/rifiuto/revoca e blocco preventivo dove necessario; sottoporre una proposta CMP a Marco prima di installarla.
 6. Collaudo finale in ambiente autorizzato: nuovi visitatori, rifiuto, accettazione, revoca, account/carrello, footer checkout e link policy, Safari/iOS, comportamento HTTP/SEO.
 
-[Checklist cliente](CLIENT-LEGAL-PUBLICATION-CHECKLIST.md). Stato release: **non pubblicabile come storefront legalmente completo finché i gate restano aperti**.
+[Checklist cliente](CLIENT-LEGAL-PUBLICATION-CHECKLIST.md). Stato corrente: **footer ONLINE; storefront commercialmente/legalmente completo NON approvato finché i gate restano aperti**.

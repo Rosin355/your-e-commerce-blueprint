@@ -1,0 +1,316 @@
+{
+  "verifiedAt": "2026-11-01T19:22:06.329516+00:00",
+  "pages": [
+    {
+      "chain": [
+        {
+          "url": "http://onlinegarden.it",
+          "status": 301,
+          "location": "https://onlinegarden.it/",
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        },
+        {
+          "url": "https://onlinegarden.it/",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://www.onlinegarden.it",
+          "status": 302,
+          "location": "https://onlinegarden.it/",
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        },
+        {
+          "url": "https://onlinegarden.it/",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/contatti",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/contatti",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/privacy-policy",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/privacy-policy",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/collections/piante-da-esterno",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/collections/piante-da-esterno",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/collections/rose",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/collections/rose",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/collections/piante-da-frutto",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/collections/piante-da-frutto",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/collections/conifere",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/collections/conifere",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/collections/all",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/collections/all",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/products/rosa-maizner-fastnacht",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/products/rosa-maizner-fastnacht",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/cookie-policy",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/cookie-policy",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/termini-e-condizioni",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/termini-e-condizioni",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/spedizioni",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/spedizioni",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/resi-e-rimborsi",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/resi-e-rimborsi",
+      "status": 200,
+      "productionCommit": "8d2a160917895735658e34a37d6b337733a32649"
+    },
+    {
+      "chain": [
+        {
+          "url": "https://checkout.shopify.com/102600966484/policies/56892817748.html?locale=it",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=315569520; includeSubdomains",
+          "xRobotsTag": "none"
+        }
+      ],
+      "finalUrl": "https://checkout.shopify.com/102600966484/policies/56892817748.html?locale=it",
+      "status": 200,
+      "productionCommit": null
+    }
+  ],
+  "entryAssets": [
+    {
+      "chain": [
+        {
+          "url": "https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap",
+          "status": 200,
+          "location": null,
+          "hsts": null,
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap",
+      "status": 200,
+      "productionCommit": null
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/assets/index-DTwbWTRZ.js",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/assets/index-DTwbWTRZ.js",
+      "status": 200,
+      "productionCommit": null
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/assets/index-BHpYYq5c.css",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/assets/index-BHpYYq5c.css",
+      "status": 200,
+      "productionCommit": null
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/~flock.js",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/~flock.js",
+      "status": 200,
+      "productionCommit": null
+    },
+    {
+      "chain": [
+        {
+          "url": "https://onlinegarden.it/__l5e/events.270c78a44fc53e7b.js",
+          "status": 200,
+          "location": null,
+          "hsts": "max-age=31536000; includeSubDomains",
+          "xRobotsTag": null
+        }
+      ],
+      "finalUrl": "https://onlinegarden.it/__l5e/events.270c78a44fc53e7b.js",
+      "status": 200,
+      "productionCommit": null
+    }
+  ],
+  "note": "HTTP GET only. SPA alias redirect/noindex require JS and are separately checked in browser. No cart, order, account or configuration mutations."
+}

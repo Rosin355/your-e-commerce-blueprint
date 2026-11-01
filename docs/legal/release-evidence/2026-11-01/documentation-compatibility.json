@@ -1,0 +1,23 @@
+[
+  {
+    "path": "docs/PROJECT_STATUS.md",
+    "base": "b5cbe57aa1f7e674ce7caca106d359f8977c800a",
+    "otherHead": "0e01a53c1a7ee6d7d06b6b5e1a9fe0a4b080d6f5",
+    "threeWayMerge": "CLEAN",
+    "adminContentImported": false
+  },
+  {
+    "path": "docs/CLIENT-ECOMMERCE-STATUS.md",
+    "base": "b5cbe57aa1f7e674ce7caca106d359f8977c800a",
+    "otherHead": "0e01a53c1a7ee6d7d06b6b5e1a9fe0a4b080d6f5",
+    "threeWayMerge": "CLEAN",
+    "adminContentImported": false
+  },
+  {
+    "path": "docs/release/FINAL-RELEASE-READINESS.md",
+    "base": "b5cbe57aa1f7e674ce7caca106d359f8977c800a",
+    "otherHead": "0e01a53c1a7ee6d7d06b6b5e1a9fe0a4b080d6f5",
+    "threeWayMerge": "CLEAN",
+    "adminContentImported": false
+  }
+]
