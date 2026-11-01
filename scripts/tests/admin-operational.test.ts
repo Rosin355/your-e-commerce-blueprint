@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { canRecoverDraftAfterError } from '../../src/adminv2/lib/operationalUiPolicy.ts';
 import {
   approvalMatches,
   CANONICAL_HANDLES,
@@ -29,6 +30,13 @@ const fixture = (): ProductDraft => ({
 });
 const off = { drafts: false, shopify: false, approval: false };
 const on = { drafts: true, shopify: true, approval: true };
+test('recupero UI disponibile solo con scritture attive, operazione salvata e ruolo Admin', () => {
+  assert.equal(canRecoverDraftAfterError({ writesEnabled: false, roles: ['admin'] }, true, true), false);
+  assert.equal(canRecoverDraftAfterError({ writesEnabled: true, roles: ['editor'] }, true, true), false);
+  assert.equal(canRecoverDraftAfterError({ writesEnabled: true, roles: ['admin'] }, false, true), false);
+  assert.equal(canRecoverDraftAfterError({ writesEnabled: true, roles: ['admin'] }, true, false), false);
+  assert.equal(canRecoverDraftAfterError({ writesEnabled: true, roles: ['tech_admin'] }, true, true), true);
+});
 test('bozza manuale completa senza generazione AI e senza categoria inventata', () => {
   const d = validateDraft(fixture());
   assert.equal(d.title, 'Prodotto simulato');

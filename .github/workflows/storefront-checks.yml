@@ -69,7 +69,7 @@ jobs:
       - name: Lint Admin operational scope
         run: |
           if test -f src/adminv2/pages/NewProductPage.tsx; then
-            npx --no-install eslint src/adminv2/pages/NewProductPage.tsx src/adminv2/pages/CategoriesPage.tsx src/adminv2/components/ProductOperations.tsx src/adminv2/lib/operationalApi.ts src/adminv2/components/FieldEditor.tsx src/adminv2/pages/ProductsPage.tsx src/adminv2/pages/ProductDetailPage.tsx src/adminv2/pages/PlaceholderPages.tsx src/App.tsx
+            npx --no-install eslint src/adminv2/pages/NewProductPage.tsx src/adminv2/pages/CategoriesPage.tsx src/adminv2/components/ProductOperations.tsx src/adminv2/lib/operationalApi.ts src/adminv2/lib/operationalUiPolicy.ts src/adminv2/components/FieldEditor.tsx src/adminv2/pages/ProductsPage.tsx src/adminv2/pages/ProductDetailPage.tsx src/adminv2/pages/PlaceholderPages.tsx src/App.tsx
             npx --no-install eslint --no-ignore supabase/functions/_shared/admin-operational-core.ts supabase/functions/_shared/admin-operational-service.ts supabase/functions/_shared/admin-v2-queries.ts supabase/functions/product-admin-api/index.ts scripts/tests/admin-operational.test.ts
           fi
       - name: Typecheck Admin operational server with frozen dependencies

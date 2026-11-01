@@ -8,6 +8,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import FieldEditor from '../components/FieldEditor';
 import { callAdminApi } from '../lib/adminApi';
 import { OPERATION_LABELS, useCategoryCatalogue } from '../lib/operationalApi';
+import { canRecoverDraftAfterError } from '../lib/operationalUiPolicy';
+import { useAdminContext } from '../hooks/useAdminData';
 import {
   DRAFT_BOTANICAL_KEYS,
   type ProductDraft,
@@ -43,6 +45,7 @@ export default function NewProductPage() {
   const [confirmed, setConfirmed] = useState(false);
   const [locked, setLocked] = useState(false);
   const catalogue = useCategoryCatalogue();
+  const adminContext = useAdminContext();
   const definitions = useQuery({
     queryKey: ['admin', 'draft-field-definitions'],
     queryFn: () =>
@@ -380,9 +383,11 @@ export default function NewProductPage() {
         <div role='alert'>
           <p>{save.error.message}</p>
           <p>I dati restano bloccati per evitare una seconda richiesta diversa dopo un timeout.</p>
-          <Button disabled={save.isPending} onClick={() => save.mutate()}>
-            Recupera salvataggio con la stessa richiesta
-          </Button>
+          {catalogue.data?.canSaveDraft && (
+            <Button disabled={save.isPending} onClick={() => save.mutate()}>
+              Recupera salvataggio con la stessa richiesta
+            </Button>
+          )}
         </div>
       )}
       {save.data && (
@@ -413,12 +418,18 @@ export default function NewProductPage() {
           {send.isError && (
             <>
               <p role='alert'>{send.error.message}</p>
-              <Button
-                disabled={send.isPending}
-                onClick={() => send.mutate('recover_shopify_draft')}
-              >
-                Recupera stato senza ricreare
-              </Button>
+              {canRecoverDraftAfterError(
+                adminContext.data,
+                Boolean(save.data?.result.operationId),
+                send.isError,
+              ) && (
+                <Button
+                  disabled={send.isPending}
+                  onClick={() => send.mutate('recover_shopify_draft')}
+                >
+                  Recupera stato senza ricreare
+                </Button>
+              )}
             </>
           )}
         </section>
