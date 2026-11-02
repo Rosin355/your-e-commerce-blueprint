@@ -66,6 +66,10 @@ jobs:
           npx --no-install eslint src/components/CartDrawer.tsx src/components/ProductCard.tsx src/components/storefront/CatalogProductCard.tsx src/components/storefront/HomeHeaderOverlay.tsx src/components/storefront/HomeHero.tsx src/components/storefront/HomepageV3.tsx src/components/storefront/Pdp.tsx src/hooks/useProduct.ts src/lib/shopify.ts src/pages/AllProducts.tsx
           if test -f src/lib/storefront-money.ts; then npx --no-install eslint src/lib/storefront-money.ts; fi
           if test -f scripts/tests/storefront-money.test.ts; then npx --no-install eslint --no-ignore scripts/tests/storefront-money.test.ts; fi
+      - name: Lint Admin runtime diagnostics
+        run: |
+          npx --no-install eslint src/adminv2/pages/PlaceholderPages.tsx src/adminv2/hooks/useAdminData.ts src/adminv2/components/AdminRuntimeDiagnostics.tsx src/adminv2/lib/adminDiagnostics.ts
+          npx --no-install eslint --no-ignore scripts/tests/admin-diagnostics.test.ts
       - name: Build without private credentials
         run: npm run build
       - name: Verify Node offline guard
