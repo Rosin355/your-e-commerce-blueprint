@@ -1,3 +1,7 @@
+## 2 novembre 2026 — diagnostica Preview: scritture Admin V2 abilitate
+
+Un amministratore autorizzato ha letto alle 18:58 nella Preview Lovable `writesEnabled=true`, `writeMode=canary`, `shopifySyncEnabled=false`: la schermata segnala correttamente **SCRITTURE ABILITATE**. Questo non è ancora un controllo diretto del sito pubblico. La configurazione è condivisa a livello di progetto Lovable; disattivare il master `PRODUCT_ADMIN_WRITES_ENABLED` inciderebbe su Preview e produzione, impedendo le modifiche prodotto e AI dell'Admin V2. Le altre funzioni Admin con interruttori autonomi richiedono verifica separata. È stata verificata la possibilità di sostituire il solo master con `false`, ma non è stato salvato alcun cambiamento. Occorre autorizzazione esplicita prima della modifica e una successiva lettura autenticata sul dominio pubblico per chiudere il gate. PR #42 non integrata; nessuna migration, deploy o modifica ai prodotti. [Runbook](ADMIN-V2-ACTIVATION-RUNBOOK.md).
+
 ## 1 novembre 2026 — Admin V2 aggiornato dopo il footer, non ancora attivabile
 
 Il branch della PR #42 ora include il nuovo `main@04ae6d4` dopo la pubblicazione della PR #43: il footer online, Contatti e Privacy Policy sono conservati. I controlli locali su homepage, catalogo, scheda prodotto e pagine legali sono positivi; 361 test Node e 103 Deno, typecheck, lint e build passano. Abbiamo inoltre nascosto una CTA di recupero quando l'Admin non è autorizzato a scrivere. La PR resta Draft e il nuovo HEAD richiede CI e GitGuardian propri.
