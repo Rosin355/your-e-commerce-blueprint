@@ -1,8 +1,18 @@
 # Admin V2 — diagnostica runtime isolata
 
+## Rilascio verificato — 2 novembre 2026
+
+La [PR #44](https://github.com/Rosin355/your-e-commerce-blueprint/pull/44), HEAD sorgente `6804447d18c16255e2714c5e5677e5dbed54b23f`, è passata da Draft a Ready for Review ed è stata integrata con merge normale su `main` nel commit `e26d6f4d453ab3d959b9f9f670f9d707fda57202`. Prima del merge: CI applicativa [SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41464311867), GitGuardian SUCCESS e mergeability clean sull'HEAD sorgente. Non era presente una review GitHub indipendente; non è stata simulata un'approvazione. La PR #42 è rimasta aperta e non integrata.
+
+È stato richiesto esplicitamente il solo publish del frontend nel progetto Lovable Online Garden: deployment ID `251548b2-46c2-4842-85a7-16f9c1cdfa6f`. Il progetto risulta pubblicato e ready, con `latest_commit_sha=e26d6f4d453ab3d959b9f9f670f9d707fda57202`. Sul dominio [onlinegarden.it](https://onlinegarden.it/) il DOM della homepage, del catalogo e della PDP espone lo stesso `data-commit-sha`, prova che il codice del merge è servito dal dominio primario. Il publish non ha incluso una distribuzione Edge o migration.
+
+**Smoke live read-only:** homepage con titolo e footer, link Contatti/Privacy, `/collections/all` con prodotti e immagini, PDP `/products/bulbo-di-dalia-purple-queen-confezione-da-1-tubero` con titolo, prezzo Shopify `5,00 €`, disponibilità e CTA, carrello vuoto apribile senza aggiungere articoli. `/admin/settings` è raggiungibile e presenta il login all'utente anonimo. La sessione browser disponibile non è autenticata come Admin, perciò il pannello diagnostico e i tre valori runtime **non sono stati letti**. Non è stato avviato checkout né eseguita alcuna mutation Shopify o Supabase. Non sono state osservate regressioni nello smoke eseguito; il rollback non è stato attivato. Il gate della PR #42 rimane **BLOCKED**.
+
+**Passo minimo per chiudere il gate:** un `admin` o `tech_admin` già autorizzato apre [onlinegarden.it/admin/settings](https://onlinegarden.it/admin/settings), usa **Aggiorna stato** e registra solo `writesEnabled`, `writeMode` e `shopifySyncEnabled` con origine e ora. Finché questa lettura non esiste, non dichiarare READ-ONLY e non attivare Admin V2. Non occorrono DevTools, token o credenziali nel report.
+
 ## Scopo e prova disponibile — 2 novembre 2026
 
-Questo branch nasce da `main@04ae6d4` e aggiunge soltanto una vista di lettura in `/admin/settings`. La PR #42 resta separata: nessuna sua migration, nuova azione operativa, mutation o logica Shopify è importata.
+Il branch originario della PR #44 nasceva da `main@04ae6d4` e aggiungeva soltanto una vista di lettura in `/admin/settings`. La PR #42 resta separata: nessuna sua migration, nuova azione operativa, mutation o logica Shopify è importata.
 
 **Contratto backend:** l'ultima distribuzione di `product-admin-api` documentata nel progetto Lovable è del 10 ottobre 2026, dalla revisione `main@4f5bdef` (messaggio Lovable `main:agent#00000000349542#don:FVP7IKNL`). La distribuzione della revisione precedente `main@889d6ce` è registrata anche in `docs/PROJECT_STATUS.md`. Il file `supabase/functions/product-admin-api/index.ts` è identico fra `4f5bdef` e `main@04ae6d4`; l'azione `get_admin_context` include `writesEnabled`, `writeMode` e `shopifySyncEnabled`. Il backend verifica il JWT tramite Supabase Auth e carica i ruoli da `user_roles` prima di rispondere. Non servono endpoint, modifiche backend o migration per questa UI.
 
@@ -16,7 +26,7 @@ Questo branch nasce da `main@04ae6d4` e aggiunge soltanto una vista di lettura i
 - Se la richiesta fallisce, è ancora in corso, manca un campo o la risposta contiene tipi/ruoli inattesi, appare **NON VERIFICATO**. Il refresh non lascia visibile un precedente `false`. La cache del contesto Admin è separata per ID utente.
 - L'origine della pagina e l'ora dell'ultima lettura valida aiutano a distinguere produzione da preview. Il pannello visualizza solo i tre campi richiesti; gli altri valori della risposta non sono riportati in UI o nei documenti.
 
-## Pubblicazione futura e rollback — non eseguiti
+## Preflight e procedura originaria — storico prima del rilascio
 
 **QA locale su `main@04ae6d4` più il solo diff diagnostico:** installazione `npm ci --offline` dal lock, typecheck, lint mirato e build PASS; 343 test Node e 92 test Deno PASS. Dieci scenari browser con risposte API simulate e tutte le richieste esterne bloccate PASS a 1440 e 390 px: anonimo, `editor`/`publisher` senza sezione, `admin`/`tech_admin`, scritture/sync ON, risposta incompleta, errore iniziale e refresh fallito. Zero page error. I warning Vite su Browserslist, classi Tailwind e dimensione del chunk principale erano già presenti nella base e non impediscono la build. Nessuna lettura o scrittura live è stata eseguita dai test. Sul commit implementativo `ef87ee8`, [CI applicativa](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41460497600) e [GitGuardian](https://github.com/Rosin355/your-e-commerce-blueprint/runs/125328292812) sono SUCCESS; ogni HEAD successivo richiede check propri.
 
@@ -30,4 +40,4 @@ Questo branch nasce da `main@04ae6d4` e aggiunge soltanto una vista di lettura i
 
 **Rollback:** in caso di errore della sola vista, effettuare un revert revisionato del commit diagnostico su `main` e ripubblicare il frontend della revisione corretta. Non usare reset/force push, non toccare Edge Function, database, Shopify o secret. Confermare poi che `/admin/settings` sia tornata alla schermata precedente e che storefront e checkout funzionino. Il rollback della UI non cambia il valore dei flag.
 
-**Gate aperti:** review e approvazione della PR; eventuale pubblicazione autorizzata; lettura autenticata produzione; attivazione Admin V2 della PR #42 e validazione commerciale restano percorsi separati.
+**Gate aperti dopo il rilascio:** lettura autenticata dei tre valori in produzione; successiva valutazione separata della PR #42 e validazione commerciale. La procedura numerata sopra registra il piano precedente al rilascio; i punti di merge e publish sono stati eseguiti come documentato nella sezione iniziale.
