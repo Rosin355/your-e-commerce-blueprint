@@ -1,5 +1,10 @@
 # Admin V2 — diagnostica runtime isolata
 
+## 2 novembre 2026 — cambio del master dopo il rilascio
+
+La lettura autenticata comunicata dal proprietario per Lovable Preview alle 18:58 Europe/Rome ha mostrato `writesEnabled=true`, `writeMode=canary`, `shopifySyncEnabled=false` e stato **SCRITTURE ABILITATE**. Con successiva autorizzazione esplicita, è stato sostituito soltanto `PRODUCT_ADMIN_WRITES_ENABLED` con `false` nei Project secrets del medesimo progetto Lovable. Il pannello ha confermato il salvataggio e mostra la data aggiornata, ma non espone il valore memorizzato. La sessione browser disponibile non è Admin autenticata né in Preview né su `onlinegarden.it/admin/settings`: la risposta runtime **dopo** il cambio resta NON VERIFICATA in entrambi. Il gate della PR #42 resta **BLOCKED**. Nessun frontend, Edge, migration o dato commerciale è stato modificato. [Procedura e limiti nel runbook #42](https://github.com/Rosin355/your-e-commerce-blueprint/blob/c05f58775e3fa9fb2299311cfc4dd520e8a26027/docs/ADMIN-V2-ACTIVATION-RUNBOOK.md). La sezione seguente conserva le evidenze del rilascio della sola UI.
+
+
 ## Rilascio verificato — 2 novembre 2026
 
 La [PR #44](https://github.com/Rosin355/your-e-commerce-blueprint/pull/44), HEAD sorgente `6804447d18c16255e2714c5e5677e5dbed54b23f`, è passata da Draft a Ready for Review ed è stata integrata con merge normale su `main` nel commit `e26d6f4d453ab3d959b9f9f670f9d707fda57202`. Prima del merge: CI applicativa [SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41464311867), GitGuardian SUCCESS e mergeability clean sull'HEAD sorgente. Non era presente una review GitHub indipendente; non è stata simulata un'approvazione. La PR #42 è rimasta aperta e non integrata.
