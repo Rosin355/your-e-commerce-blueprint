@@ -2,7 +2,9 @@
 import { Link } from 'react-router-dom';
 import { Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import AdminRuntimeDiagnostics from '../components/AdminRuntimeDiagnostics';
 import { useAdminContext } from '../hooks/useAdminData';
+import { canViewAdminDiagnostics } from '../lib/adminDiagnostics';
 import { LEGACY_TOOLS_ENABLED } from '../lib/flags';
 
 function Placeholder({ title, description }: { title: string; description: string }) {
@@ -52,13 +54,18 @@ export function SettingsPage() {
           <CardTitle className="text-sm">Il tuo accesso</CardTitle>
         </CardHeader>
         <CardContent className="space-y-1 text-sm text-muted-foreground">
-          <p>Modalità: sola consultazione</p>
+          <p>Permessi del tuo account: {data?.canWrite === true
+            ? 'modifica campi abilitata'
+            : data?.canWrite === false
+              ? 'modifica campi non abilitata'
+              : 'NON VERIFICATO'}</p>
           <p>
             {data?.readOnlyReason ??
-              'Le funzioni di modifica saranno abilitate dopo il completamento dei test.'}
+              'Stato delle autorizzazioni NON VERIFICATO.'}
           </p>
         </CardContent>
       </Card>
+      {canViewAdminDiagnostics(data?.roles) && <AdminRuntimeDiagnostics />}
     </div>
   );
 }

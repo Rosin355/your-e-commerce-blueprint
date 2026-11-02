@@ -1,3 +1,7 @@
+## 2 novembre 2026 — proposta di diagnostica Admin senza strumenti sviluppatore
+
+È stata preparata separatamente dalla PR #42 una piccola schermata in `/admin/settings` che permette a un amministratore autorizzato di leggere tre stati tecnici già previsti dal server. Non cambia prodotti, prezzi, disponibilità, Shopify o impostazioni. In caso di errore mostra **NON VERIFICATO**, senza indicare falsamente che le scritture sono spente. Il codice della funzione pubblicata nell'ultima distribuzione documentata contiene i tre campi, ma i valori effettivi dell'ambiente online non sono ancora stati letti. La [Draft PR #44](https://github.com/Rosin355/your-e-commerce-blueprint/pull/44) ha CI e GitGuardian positivi sul commit implementativo; la schermata non è stata pubblicata. Per chiudere il gate read-only servirà, dopo una pubblicazione autorizzata, una lettura sul sito reale da parte di un Admin. Nessun controllo con DevTools è richiesto. La PR #42 e l'attivazione delle sue funzioni restano sospese. [Piano tecnico e rollback](ADMIN-RUNTIME-DIAGNOSTICS-ONLY.md).
+
 ## 30 ottobre 2026 — CI minima reale, preservando la base #39
 
 Introdotto workflow pull_request verso main e codex/storefront-main-integration con runtime e Action fissati, npm ci senza lifecycle script, typecheck, lint pertinente, build e test Node/Deno con lock frozen. Solo contents:read, nessun segreto applicativo o permesso di scrittura, nessun sync/import/backup/deploy; test Node con blocco rete e Deno senza permessi runtime rete/run/write. Codice dello storefront e test esistenti invariati.

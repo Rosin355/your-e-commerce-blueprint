@@ -1,6 +1,7 @@
 // F6 — Hook di lettura: cache, retry, debounce e paginazione a cursore.
 import { useEffect, useState } from 'react';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/useAuth';
 import {
   AdminApiError,
   acceptAiSuggestion,
@@ -34,9 +35,11 @@ export function useDebounced<T>(value: T, delay = 350): T {
 }
 
 export function useAdminContext() {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ['admin', 'context'],
+    queryKey: ['admin', 'context', user?.id],
     queryFn: () => callAdminApi<{ ok: true } & AdminContext>({ action: 'get_admin_context' }),
+    enabled: Boolean(user),
     staleTime: 5 * 60_000,
     retry,
   });
