@@ -21,7 +21,9 @@ export default function AdminV2Guard() {
         <Alert variant="destructive">
           <AlertTitle>Accesso non consentito</AlertTitle>
           <AlertDescription>
-            Il tuo account non è abilitato all’area amministrativa di Online Garden.
+            {isError
+              ? 'Impossibile verificare le autorizzazioni Admin. Stato NON VERIFICATO.'
+              : 'Il tuo account non è abilitato all’area amministrativa di Online Garden.'}
           </AlertDescription>
         </Alert>
       </div>

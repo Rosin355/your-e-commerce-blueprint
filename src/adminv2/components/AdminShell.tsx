@@ -107,7 +107,7 @@ export default function AdminShell() {
         <p className="mx-auto max-w-7xl px-4 py-2 text-sm">
           {context?.canWrite
             ? 'Modifiche field-by-field controllate dal server; nessuna pubblicazione automatica.'
-            : (context?.readOnlyReason ?? 'Modalità consultazione: le modifiche non sono abilitate.')}
+            : (context?.readOnlyReason ?? 'Stato delle autorizzazioni NON VERIFICATO.')}
         </p>
       </div>
 
