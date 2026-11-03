@@ -1,0 +1,1 @@
+Historical browser extension UI interruptions and an extension update request were resolved by the owner. Tests resumed in the same Chrome browser. No alternate browser, direct app API or bypass used. Native checkout completed. Browser interruptions are not the final blocker.

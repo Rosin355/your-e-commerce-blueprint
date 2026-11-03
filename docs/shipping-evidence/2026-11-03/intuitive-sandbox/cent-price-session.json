@@ -1,0 +1,24 @@
+{
+  "scope": "ONLY development store 111269380421",
+  "status": "ORIGINAL_PRICES_RESTORED_SAVED_AND_VERIFIED_AFTER_RELOAD",
+  "shopifyFinalEUR": {
+    "bulb": "15.00",
+    "succulent": "45.00",
+    "shrub": "30.00",
+    "unknown": "10.00"
+  },
+  "intuitiveFinalCatalog": "Reimport completed; picker showed 15/45/30/10 and final real Cart Tester total 160 returned A 17.50",
+  "nativeFinalCheck": "native-22-original-prices-restored: 2 bulbs at 15 + unknown at 10 = 40, one A 11.90",
+  "temporaryBulbPricesEUR": [
+    "0.01",
+    "5.99"
+  ],
+  "temporaryUnknownPricesEUR": [
+    "0.01",
+    "18.99",
+    "7.01"
+  ],
+  "restoreRequired": false,
+  "note": "Immediate UI readback was not treated as persistence proof; final Admin reload, app catalog readback and native checkout verified restoration.",
+  "supersedes": "earlier in-progress price notes"
+}

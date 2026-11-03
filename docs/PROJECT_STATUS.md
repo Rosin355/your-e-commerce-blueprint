@@ -1,3 +1,13 @@
+## 3 novembre 2026 — PR #45: SANDBOX PASS A/B, produzione bloccata
+
+Solo Dev **111269380421**, Grow simulato, Italia/EUR, preview Mercati, Intuitive sandbox/Testing. Quattro scenari **154776–154779 / 668877–668880**, B ALL approvati, A ANY complementare, totale intero senza filtri/somme/blending. **38 casi Cart Tester validi PASS**, inclusi tutti i 28 confini A/B standard/speciale e CAP sintetico. Checkout nativo conferma B puro, B bulbo+grassa, A bulbo+arbusto/sconosciuto, unica A 17,50 € sul totale 160 €, prima soglia A, tutti i confini B standard e campioni Palermo/Cagliari.
+
+**Difetto riprodotto e corretto:** 2×5,99 € + 7,01 € = 18,99 € dava 11,90 € anziché 8,90 €. Limiti tecnici `x.995`, costi/policy invariati; stesso controesempio nativo ora 8,90 € e 19,00 € passa correttamente a 11,90 €. Dieci test nativi dopo fix tutti PASS. Due errori storici conservati; 00000 rifiutato dalla validazione nativa, escluso come prova tariffaria. Conferma fornitore sul workaround prima di ogni approvazione produttiva.
+
+Prezzi **15/45/30/10 €** ripristinati e confermati dopo reload; catalogo Intuitive reimportato/riletto e prova finale a prezzi originali PASS. Sample Scenario Archived e Standard nativa Inactive solo nel Dev, ripristinabili. Costo **0,00 €**, nessun piano/trial/CCS acquistato, ordine, pagamento, modifica produzione/Sendcloud/PR #42/secret, merge o deploy.
+
+**Grow/CCS/Mercati:** funzionamento gratuito Dev dimostrato; CCS produzione resta da abilitare secondo l'ultima lettura indipendente, entitlement/costo non confermati. Sicilia/Sardegna ancora candidate, mappa disagiata non approvata; ulteriori gate sconti/varianti/gruppi/outage aperti. **Prossimo passo unico:** validare con Intuitive i limiti tecnici a mezzo centesimo prima di approvare qualsiasi attivazione live; nessun messaggio inviato al supporto. [Report, risultati distinti, screenshot, difetto e rollback](shipping-evidence/2026-11-03/intuitive-sandbox/README.md). Le sezioni seguenti sono storico.
+
 ## 3 novembre 2026 — PR #45: Dev Grow creato, SANDBOX BLOCKED su verifica identità Shopify
 
 Autorizzazione esplicita eseguita: creato **Online Garden Shipping Test**, ID **111269380421**, `online-garden-shipping-test.myshopify.com`, organizzazione Online Garden `213529043`, tipo **Development non Client Transfer**, Grow simulato, Italia/EUR, preview **Market-driven shipping and ship & pickup in one order**. Dati dimostrativi disattivati; creati e riletti solo bulbo, grassa, arbusto e sconosciuto fittizi. Nessun cliente/ordine reale importato. **0,00 €**, nessun piano pagante, abbonamento o trial attivato.

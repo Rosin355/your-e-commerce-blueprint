@@ -1,0 +1,174 @@
+{
+  "status": "SANDBOX PASS",
+  "date": "2026-11-03",
+  "baseHead": "428783ad90444dc81a8b0e3d1fad3923ec7878f9",
+  "store": {
+    "id": "111269380421",
+    "domain": "online-garden-shipping-test.myshopify.com",
+    "simulatedPlan": "Grow",
+    "marketDrivenShippingPreview": true,
+    "appIdentifiesOnlyThisDomain": true,
+    "currency": "EUR",
+    "importedProductCount": 4
+  },
+  "authorization": "Free isolated sandbox operations only; no plan, trial, paid CCS, production changes or payments.",
+  "intuitive": {
+    "installedBy": "owner before this continuation",
+    "sandboxBannerObserved": true,
+    "globalStatus": "Testing",
+    "discountFetchingEnabled": true,
+    "scenariosCreated": [
+      {
+        "id": "154776",
+        "label": "B standard",
+        "methodId": "668877"
+      },
+      {
+        "id": "154777",
+        "label": "B special experimental",
+        "methodId": "668878"
+      },
+      {
+        "id": "154778",
+        "label": "A standard",
+        "methodId": "668879"
+      },
+      {
+        "id": "154779",
+        "label": "A special experimental",
+        "methodId": "668880"
+      }
+    ],
+    "savedConfigurationVerification": "PASS technical-boundaries-verification.json (final technical x.995 limits)",
+    "sampleScenario": {
+      "id": "154768",
+      "previousStatus": "Published",
+      "currentStatus": "Archived",
+      "reversible": true
+    },
+    "missingDimensionsIgnoredForTotalRates": true,
+    "initialSavedConfigurationVerification": "configuration-verification.json (literal x.99 limits, superseded)"
+  },
+  "geography": {
+    "scope": "EXPERIMENTAL DEV ONLY, not a production remote-postcode mapping",
+    "specialTestPostcodes": [
+      "90133",
+      "09124",
+      "00000"
+    ],
+    "realPostalFixtures": {
+      "90133": "Palermo, Sicily sample only",
+      "09124": "Cagliari, Sardinia sample only"
+    },
+    "syntheticPostalFixture": "00000",
+    "standardCondition": "does not equal the same three values",
+    "wholeIslandClassificationApproved": false,
+    "productionMappingChanged": false
+  },
+  "cartTester": {
+    "status": "PASS_TARGETED_MATRIX",
+    "baselineAndRestoredCatalogValidCases": 9,
+    "excludedStaleCaptures": 1,
+    "exactBoundaryCasesPassed": 28,
+    "additionalSyntheticPostcodeCasePassed": 1,
+    "uniqueBoundaryAndSyntheticTransactions": 29,
+    "totalValidCasesPassed": 38,
+    "currentFailedCases": 0,
+    "fullCart160EURCase": "PASS before and after fix; final catalog restored",
+    "results": [
+      "cart-tester-results.json",
+      "threshold-cart-tester-results.json"
+    ],
+    "notNativeCheckoutProof": true
+  },
+  "nativeCheckout": {
+    "status": "PASS_TARGETED_MATRIX",
+    "recordedCaptures": 21,
+    "validRateCaptures": 20,
+    "historicalSuccessfulCaptures": 8,
+    "historicalFailures": 2,
+    "historicalFailureStatus": "Fixed with technical half-cent maxima; original three-unit counterexample retested successfully",
+    "afterFixSuccessfulCaptures": 10,
+    "currentObservedFailures": 0,
+    "syntheticPostcode": "Rejected by Shopify address validation; 1 capture excluded from rate proofs",
+    "initialDefaultStandard": "Competing Dev Standard was deactivated reversibly; baseline saved",
+    "singleRateObserved": true,
+    "nativePreviewTokenPersisted": false,
+    "results": "native-checkout-results.json",
+    "all28BoundariesRunNatively": false,
+    "nativeBoundaryCoverage": "A 18.99/19.00 plus B 49.99/50.00/149.99/150.00; full 28-case coverage is internal Cart Tester",
+    "nativeWholeCart160EUR": "A 17.50, one rate",
+    "ordersCreated": 0,
+    "paymentsMade": 0
+  },
+  "ccsMarkets": {
+    "dev": "Functional Intuitive rate delivery to native checkout verified at no cost on simulated Grow with Market-driven shipping preview",
+    "standardDevOptionStillPresent": true,
+    "live": "Independent prior read-only production check: Grow and activation prompt for third-party calculated rates. No purchase or activation. Grow add-on/annual entitlement and account-specific cost must be resolved separately.",
+    "liveEntitlementActivated": false,
+    "standardDevOptionActive": false
+  },
+  "temporaryPrices": {
+    "scope": "ONLY development store 111269380421",
+    "status": "ORIGINAL_PRICES_RESTORED_SAVED_AND_VERIFIED_AFTER_RELOAD",
+    "shopifyFinalEUR": {
+      "bulb": "15.00",
+      "succulent": "45.00",
+      "shrub": "30.00",
+      "unknown": "10.00"
+    },
+    "intuitiveFinalCatalog": "Reimport completed; picker showed 15/45/30/10 and final real Cart Tester total 160 returned A 17.50",
+    "nativeFinalCheck": "native-22-original-prices-restored: 2 bulbs at 15 + unknown at 10 = 40, one A 11.90",
+    "temporaryBulbPricesEUR": [
+      "0.01",
+      "5.99"
+    ],
+    "temporaryUnknownPricesEUR": [
+      "0.01",
+      "18.99",
+      "7.01"
+    ],
+    "restoreRequired": false,
+    "note": "Immediate UI readback was not treated as persistence proof; final Admin reload, app catalog readback and native checkout verified restoration."
+  },
+  "costs": {
+    "actualIncrementalSpendEUR": "0.00",
+    "paidPlanSelected": false,
+    "trialStarted": false,
+    "ccsPurchased": false
+  },
+  "boundaries": {
+    "productionWrites": 0,
+    "sendcloudChanges": 0,
+    "secretChanges": 0,
+    "pr42Changes": 0,
+    "ordersCreated": 0,
+    "paymentsMade": 0,
+    "merges": 0,
+    "deploys": 0
+  },
+  "nextStep": "Validate the technical half-cent boundary workaround with Intuitive before approving any live activation; production remains blocked by CCS entitlement and geography.",
+  "scope": "Targeted A/B matrix in isolated Dev only; NOT production readiness or live Grow CCS certification",
+  "boundaryFix": {
+    "commercialPricesUnchanged": true,
+    "technicalUpperBoundSuffix": ".995",
+    "appliedToMethods": [
+      "668877",
+      "668878",
+      "668879",
+      "668880"
+    ],
+    "originalCounterexample": "2 x 5.99 bulb + 7.01 unknown = Shopify subtotal 18.99; got A 11.90 rather than 8.90",
+    "fixedCounterexample": "Same three units/subtotal now one A 8.90; native-21",
+    "causeStatus": "Floating-point accumulation hypothesis, provider internals not inspected",
+    "providerConfirmationBeforeProduction": true,
+    "configurationProof": "technical-boundaries-verification.json"
+  },
+  "remainingLimits": [
+    "Live Grow CCS entitlement and actual billing/cost unresolved",
+    "Whole Sicily/Sardinia classification not approved; remote-postcode mapping still undefined",
+    "Provider confirmation of technical half-cent workaround before production approval",
+    "Discounts/tax bases, blank/duplicate SKUs, mixed-class variants, accelerated checkout, provider outage and multi-origin delivery groups outside this targeted matrix",
+    "No Sendcloud connection in Dev or end-to-end order/label test; live untouched"
+  ]
+}

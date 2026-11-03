@@ -1,0 +1,104 @@
+Browser tab: 2097937111, Title: "Edit scenario - Intuitive Shipping", URL: "https://v2.intuitiveshipping.app/scenarios/edit/154768".
+0 AXWebArea Edit scenario - Intuitive Shipping, URL: v2.intuitiveshipping.app/scenarios/edit/154768
+	1 container
+		2 container header
+			3 container
+				4 link Description: Home, Value: v2.intuitiveshipping.app/get-started
+				5 link Description: / Scenarios, Value: v2.intuitiveshipping.app/scenarios
+				6 link Description: / Edit scenario, Value: v2.intuitiveshipping.app/scenarios/edit/154768#
+			7 content list
+				8 link Description: Notifications, Value: v2.intuitiveshipping.app/notifications
+				9 link Description: Online Garden Shipping Te…, Value: v2.intuitiveshipping.app/scenarios/edit/154768#
+		10 container navigation
+			11 link Description: Intuitive Shipping>, Value: v2.intuitiveshipping.app/
+			12 content list
+				13 link Description:  Get started, Value: v2.intuitiveshipping.app/get-started
+				14 link Description:  Activity, Value: v2.intuitiveshipping.app/activity
+				15 link Description:  Shipping , Value: v2.intuitiveshipping.app/scenarios/edit/154768#navigation-shipping
+				16 content list navigation-shipping
+					17 link Description: Scenarios, Value: v2.intuitiveshipping.app/scenarios
+					18 link Description: Rate blending, Value: v2.intuitiveshipping.app/blending
+					19 link Description: Condition groups , Value: v2.intuitiveshipping.app/conditions
+				20 link Description:  Zones, Value: v2.intuitiveshipping.app/zones
+				21 link Description:  Products, Value: v2.intuitiveshipping.app/products
+				22 link Description:  Locations, Value: v2.intuitiveshipping.app/locations
+				23 link Description:  Packages, Value: v2.intuitiveshipping.app/packages
+				24 link Description:  Carrier accounts, Value: v2.intuitiveshipping.app/carrier-account/carrier-accounts
+				25 link Description:  Partner integrations, Value: v2.intuitiveshipping.app/integrations
+				26 link Description:  Shopify connection, Value: v2.intuitiveshipping.app/platform/shopify/connection
+				27 link Description:  Plans & billing, Value: v2.intuitiveshipping.app/billing
+				28 link Description:  Settings, Value: v2.intuitiveshipping.app/settings
+				29 link Description:  Cart Tester, Value: v2.intuitiveshipping.app/test
+			30 content list
+				31 link Description:  Help center, Value: knowledge.intuitiveshipping.com/
+				32 link Description:  Support, Value: v2.intuitiveshipping.app/support?email=rosin%40digitalyogin.com&name=Online+Garden+Shipping+Test&ticket_platform_select=Shopify&shop_id=online-garden-shipping-test.myshopify.com
+		33 container form-scenario
+			34 container
+				35 link Description: Scenarios, Value: v2.intuitiveshipping.app/scenarios
+				36 heading Sample Scenario, Value: 1
+					37 text Sample Scenario
+				38 text  Published
+				39 button  Notes, ID: btn-notes-toggle
+					40 text 
+					41 text Notes
+				42 button More actions
+					43 text More actions
+				44 button Save
+			45 container
+				46 heading Scenario title, Value: 4
+					47 text Scenario title
+				48 text field (settable) Value: Sample Scenario, ID: title
+				49 text Title is not visible to customers.
+				50 text Status:
+				51 radio button (settable, integer) Description: Published, Value: 1, ID: status-2
+				52 container
+					53 text Published
+				54 radio button (settable, integer) Description: Testing, Value: 0, ID: status-1
+				55 container
+					56 text Testing
+				57 radio button (settable, integer) Description: Archived, Value: 0, ID: status-0
+				58 container
+					59 text Archived
+			60 container
+				61 heading Conditions Learn more about this feature, Value: 4
+					62 text Conditions
+					63 link Description: Learn more about this feature, Value: knowledge.intuitiveshipping.com/create-a-scenario#conditions
+				64 checkbox No restrictions set , Value: 0
+					65 container
+						66 text No restrictions set  
+		67 container shipping
+			68 container
+				69 heading  Domestic, Value: 3
+					70 text 
+					71 text  Domestic
+				72 content list
+					73 container
+						74 image Domestic Shipping
+						75 text Domestic Shipping Published
+						76 button Edit
+				77 heading  Rest of world, Value: 3
+					78 text 
+					79 text  Rest of world
+				80 content list
+					81 container
+						82 image International Shipping
+						83 text International Shipping Published
+						84 button Edit
+				85 button  Create shipping method
+					86 text 
+					87 text Create shipping method
+		88 image
+		89 container
+			90 text Learn more about
+			91 link Description: scenario settings, Value: knowledge.intuitiveshipping.com/create-a-scenario/
+			92 text .
+		93 text Built by humans ❤️
+		94 container
+			95 text Copyright © 2026
+			96 link Description: Intuitive Shipping Inc., Value: intuitiveshipping.com/
+			97 link Description: End user license agreement, Value: intuitiveshipping.com/end-user-license-agreement/
+			98 text .
+	99 container grammarly-integration
+		100 text {"mode":"full","isActive":true,"isUserDisabled":false}
+
+The focused UI element is 0 AXWebArea Edit scenario - Intuitive Shipping, URL: v2.intuitiveshipping.app/scenarios/edit/154768

@@ -1,0 +1,75 @@
+{
+  "status": "PASS_SAVED_UI_CONFIGURATION",
+  "notCheckoutProof": true,
+  "methods": {
+    "668877": {
+      "persistedTechnicalMaxima": [
+        "49.995",
+        "149.995",
+        "~"
+      ],
+      "costsUnchanged": [
+        "5.90",
+        "7.90",
+        "8.90"
+      ],
+      "perUnitEmpty": true
+    },
+    "668878": {
+      "persistedTechnicalMaxima": [
+        "49.995",
+        "149.995",
+        "~"
+      ],
+      "costsUnchanged": [
+        "6.90",
+        "8.90",
+        "9.50"
+      ],
+      "perUnitEmpty": true
+    },
+    "668879": {
+      "persistedTechnicalMaxima": [
+        "18.995",
+        "79.995",
+        "149.995",
+        "249.995",
+        "499.995",
+        "~"
+      ],
+      "costsUnchanged": [
+        "8.90",
+        "11.90",
+        "12.50",
+        "17.50",
+        "36.00",
+        "54.00"
+      ],
+      "perUnitEmpty": true
+    },
+    "668880": {
+      "persistedTechnicalMaxima": [
+        "18.995",
+        "79.995",
+        "149.995",
+        "249.995",
+        "499.995",
+        "~"
+      ],
+      "costsUnchanged": [
+        "9.60",
+        "12.50",
+        "14.90",
+        "17.50",
+        "36.00",
+        "54.00"
+      ],
+      "perUnitEmpty": true
+    }
+  },
+  "currency": "EUR",
+  "commercialPolicyChanged": false,
+  "representation": "For totals in integer EUR cents, an upper bound x.995 includes x.99 and excludes (x+1).00. Actual runtime coverage is recorded separately.",
+  "providerImplementationCause": "Not proven; floating-point accumulation is an inference from the observed multi-row vs single-row difference.",
+  "vendorEndorsementOfWorkaround": "Not obtained; confirmation required before production approval."
+}

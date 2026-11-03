@@ -1,5 +1,7 @@
 # Scelta motore Grow — evidenze mirate PR #45
 
+**Ultimo aggiornamento:** [SANDBOX PASS della matrice mirata, checkout nativo incluso](../intuitive-sandbox/README.md). Difetto sui confini corretto e rieseguito; i blocchi browser/identità sotto sono storici, la produzione resta bloccata.
+
 **Aggiornamento successivo:** [Dev creato 111269380421, ma installazione Intuitive bloccata dalla verifica identità Shopify](../development-store/README.md). Il precedente blocco “store mancante” sotto è storico.
 
 **Esito successivo all’autorizzazione: SANDBOX BLOCKED**, nessun development store visibile nell’organizzazione Online Garden accessibile. [Rapporto, costi effettivi, test non eseguiti e rollback](SANDBOX-RESULT.md) · [Evidenza strutturata](sandbox-preflight.json) · [Osservazione UI](sandbox-access-observation.txt).
@@ -15,6 +17,8 @@ Continuazione da `5ce8883`, 3 novembre 2026. Audit catalogo e account Sendcloud 
 | `intuitive-blueprint.fixture.json` | Blueprint **manuale** derivato dalle istruzioni tecniche, quattro scenari esclusivi | Non è un export/import del fornitore o un'app installata |
 | `offline-proof.json` | Dieci esempi con importi espliciti, contromodelli nativi, semantica simulata | Non chiama Intuitive, Shopify o Sendcloud; non certifica checkout |
 | `local-checks.json` | 325 test shipping inclusi nei 668 Node offline, typecheck e lint PASS | Non dimostra runtime app, CCS o Mercati |
+
+**Nota operativa dopo il collaudo:** il blueprint manuale originale usa limiti letterali x.99, che hanno prodotto un errore reale sul confine. Non copiarli come configurazione finale dell’app: usare il read-back x.995 documentato nel rapporto sandbox, con conferma fornitore prima della produzione. Il simulatore offline in centesimi interi non riproduce il codice interno Intuitive.
 
 ## Riproduzione senza rete
 

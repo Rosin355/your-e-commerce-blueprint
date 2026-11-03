@@ -1,0 +1,300 @@
+Browser tab: 2097937111, Title: "Edit scenario - Intuitive Shipping", URL: "https://v2.intuitiveshipping.app/scenarios/edit/154779".
+0 AXWebArea Edit scenario - Intuitive Shipping, URL: v2.intuitiveshipping.app/scenarios/edit/154779
+	1 container
+		2 container header
+			3 container
+				4 link Description: Home, Value: v2.intuitiveshipping.app/get-started
+				5 link Description: / Scenarios, Value: v2.intuitiveshipping.app/scenarios
+				6 link Description: / Edit scenario, Value: v2.intuitiveshipping.app/scenarios/edit/154779#
+			7 content list
+				8 link Description: Notifications, Value: v2.intuitiveshipping.app/notifications
+				9 link Description: Online Garden Shipping Te…, Value: v2.intuitiveshipping.app/scenarios/edit/154779#
+		10 container navigation
+			11 link Description: Intuitive Shipping>, Value: v2.intuitiveshipping.app/
+			12 content list
+				13 link Description:  Get started, Value: v2.intuitiveshipping.app/get-started
+				14 link Description:  Activity, Value: v2.intuitiveshipping.app/activity
+				15 link Description:  Shipping , Value: v2.intuitiveshipping.app/scenarios/edit/154779#navigation-shipping
+				16 content list navigation-shipping
+					17 link Description: Scenarios, Value: v2.intuitiveshipping.app/scenarios
+					18 link Description: Rate blending, Value: v2.intuitiveshipping.app/blending
+					19 link Description: Condition groups , Value: v2.intuitiveshipping.app/conditions
+				20 link Description:  Zones, Value: v2.intuitiveshipping.app/zones
+				21 link Description:  Products, Value: v2.intuitiveshipping.app/products
+				22 link Description:  Locations, Value: v2.intuitiveshipping.app/locations
+				23 link Description:  Packages, Value: v2.intuitiveshipping.app/packages
+				24 link Description:  Carrier accounts, Value: v2.intuitiveshipping.app/carrier-account/carrier-accounts
+				25 link Description:  Partner integrations, Value: v2.intuitiveshipping.app/integrations
+				26 link Description:  Shopify connection, Value: v2.intuitiveshipping.app/platform/shopify/connection
+				27 link Description:  Plans & billing, Value: v2.intuitiveshipping.app/billing
+				28 link Description:  Settings, Value: v2.intuitiveshipping.app/settings
+				29 link Description:  Cart Tester, Value: v2.intuitiveshipping.app/test
+			30 content list
+				31 link Description:  Help center, Value: knowledge.intuitiveshipping.com/
+				32 link Description:  Support, Value: v2.intuitiveshipping.app/support?email=rosin%40digitalyogin.com&name=Online+Garden+Shipping+Test&ticket_platform_select=Shopify&shop_id=online-garden-shipping-test.myshopify.com
+		33 container form-scenario
+			34 container
+				35 link Description: Scenarios, Value: v2.intuitiveshipping.app/scenarios
+				36 heading OG QA A speciale sperimentale - sandbox only, Value: 1
+					37 text OG QA A speciale sperimentale - sandbox only
+				38 text  Testing
+				39 button  Notes, ID: btn-notes-toggle
+					40 text 
+					41 text Notes
+				42 button More actions
+					43 text More actions
+				44 button Save
+			45 container
+				46 heading Scenario title, Value: 4
+					47 text Scenario title
+				48 text field (settable) Value: OG QA A speciale sperimentale - sandbox only, ID: title
+				49 text Title is not visible to customers.
+				50 text Status:
+				51 radio button (settable, integer) Description: Published, Value: 0, ID: status-2
+				52 container
+					53 text Published
+				54 radio button (settable, integer) Description: Testing, Value: 1, ID: status-1
+				55 container
+					56 text Testing
+				57 radio button (settable, integer) Description: Archived, Value: 0, ID: status-0
+				58 container
+					59 text Archived
+			60 container
+				61 heading Conditions Learn more about this feature, Value: 4
+					62 text Conditions
+					63 link Description: Learn more about this feature, Value: knowledge.intuitiveshipping.com/create-a-scenario#conditions
+				64 checkbox Has restrictions, Value: 0
+					65 text Has restrictions
+				66 text Cart must match:
+				67 radio button (settable, integer) Description: All conditions, Value: 1, ID: condition-match-all
+				68 container
+					69 text All conditions
+				70 radio button (settable, integer) Description: Any condition, Value: 0, ID: condition-match-any
+				71 container
+					72 text Any condition
+				73 container condition-6aea17152d82d
+					74 pop up button (collapsed, settable) Value: Product sku, ID: condition-6aea17152d82d-type, Secondary Actions: Expand
+						75 menu
+							76 container Product conditions
+								77 Product tag
+								78 Product vendor
+								79 Product title
+								80 (selected) Product sku
+								81 Product collection
+								82 Product type
+								83 Product property
+								84 Product quantity
+								85 Product price
+								86 Product total
+								87 Product weight
+								88 Product volume
+								89 Product length
+								90 Product width
+								91 Product height
+								92 Product packing method
+								93 Product free shipping
+								94 Product has custom shipping
+								95 Product has pieces
+							96 container Customer conditions
+								97 Customer tag
+								98 Postal/zip code
+								99 Street address
+								100 City
+								101 Post office box
+								102 Company
+								103 Customer name
+								104 Email
+								105 Previous order count
+								106 Previous order total
+							107 container Cart conditions
+								108 Cart quantity
+								109 Cart total
+								110 Cart weight
+								111 Cart volume
+								112 Cart length
+								113 Cart width
+								114 Cart height
+							115 container Filtered cart conditions
+								116 Filtered cart quantity
+								117 Filtered cart total
+								118 Filtered cart weight
+								119 Filtered cart volume
+								120 Filtered cart length
+								121 Filtered cart width
+								122 Filtered cart height
+							123 container Delivery conditions
+								124 Delivery distance
+								125 Delivery day of week
+								126 Delivery date
+								127 Delivery time
+								128 Delivery type
+								129 Days to delivery
+							130 container Sameday conditions
+								131 Current day of week
+								132 Current date
+								133 Current time
+							134 container Delivery origin conditions
+								135 Origin postal/zip code
+							136 container Deprecated conditions
+								137 Order source
+					138 pop up button (collapsed, settable) Value: does not equal, ID: condition-6aea17152d82d-operation, Secondary Actions: Expand
+						139 menu
+							140 equals
+							141 (selected) does not equal
+							142 (disabled) greater than
+							143 (disabled) greater than or equals
+							144 (disabled) less than
+							145 (disabled) less than or equals
+							146 contains
+							147 does not contain
+							148 starts with
+							149 ends with
+					150 container
+						151 text field (settable) Value: OG-QA-BULB, OG-QA-SUCCULENT, ID: condition-6aea17152d82d-value-product-sku
+						152 pop up button (collapsed, settable) Value: Any product, ID: condition-6aea17152d82d-parameter-product-sku-match, Secondary Actions: Expand
+							153 menu
+								154 (selected) Any product
+								155 All products
+								156 No products
+					157 button Remove condition
+						158 text 
+				159 container condition-1793726323952
+					160 pop up button (collapsed, settable) Value: Postal/zip code, ID: condition-1793726323952-type, Secondary Actions: Expand
+						161 menu
+							162 container Product conditions
+								163 Product tag
+								164 Product vendor
+								165 Product title
+								166 Product sku
+								167 Product collection
+								168 Product type
+								169 Product property
+								170 Product quantity
+								171 Product price
+								172 Product total
+								173 Product weight
+								174 Product volume
+								175 Product length
+								176 Product width
+								177 Product height
+								178 Product packing method
+								179 Product free shipping
+								180 Product has custom shipping
+								181 Product has pieces
+							182 container Customer conditions
+								183 Customer tag
+								184 (selected) Postal/zip code
+								185 Street address
+								186 City
+								187 Post office box
+								188 Company
+								189 Customer name
+								190 Email
+								191 Previous order count
+								192 Previous order total
+							193 container Cart conditions
+								194 Cart quantity
+								195 Cart total
+								196 Cart weight
+								197 Cart volume
+								198 Cart length
+								199 Cart width
+								200 Cart height
+							201 container Filtered cart conditions
+								202 Filtered cart quantity
+								203 Filtered cart total
+								204 Filtered cart weight
+								205 Filtered cart volume
+								206 Filtered cart length
+								207 Filtered cart width
+								208 Filtered cart height
+							209 container Delivery conditions
+								210 Delivery distance
+								211 Delivery day of week
+								212 Delivery date
+								213 Delivery time
+								214 Delivery type
+								215 Days to delivery
+							216 container Sameday conditions
+								217 Current day of week
+								218 Current date
+								219 Current time
+							220 container Delivery origin conditions
+								221 Origin postal/zip code
+							222 container Deprecated conditions
+								223 Order source
+					224 pop up button (collapsed, settable) Value: equals, ID: condition-1793726323952-operation, Secondary Actions: Expand
+						225 menu
+							226 (selected) equals
+							227 does not equal
+							228 (disabled) greater than
+							229 (disabled) greater than or equals
+							230 (disabled) less than
+							231 (disabled) less than or equals
+							232 (disabled) contains
+							233 (disabled) does not contain
+							234 starts with
+							235 ends with
+					236 container
+						237 text field (settable) Value: 90133, 09124, 00000, ID: condition-1793726323952-value-customer-postal-code
+						238 pop up button (collapsed, settable) Value: Non-United Kingdom postal code, ID: condition-1793726323952-parameter-customer-postal-code-type, Secondary Actions: Expand
+							239 menu
+								240 (selected) Non-United Kingdom postal code
+								241 United Kingdom postal code
+					242 button Remove condition
+						243 text 
+				244 button Add condition
+					245 text 
+					246 text Add condition
+				247 button Hide advanced condition settings
+					248 text Hide
+					249 text advanced condition settings
+				250 container
+					251 checkbox (settable, integer) Description: Match product filters to conditions , Value: 0, ID: filter-match-condition
+					252 text Match product filters to conditions
+					253 text 
+				254 text Products with custom shipping:
+				255 container
+					256 radio button (settable, integer) Description: Include in conditions check, Value: 1, ID: condition-custom-ship-include
+					257 text Include in conditions check
+				258 container
+					259 radio button (settable, integer) Description: Exclude from conditions check, Value: 0, ID: condition-custom-ship-exclude
+					260 text Exclude from conditions check
+				261 text Choose how products that have
+				262 link Description: custom shipping charges, Value: knowledge.intuitiveshipping.com/update-product-settings#shipping-settings
+				263 text  applied in the product settings are to be handled during the conditions check operation.
+			264 container
+				265 heading Product filters Learn more about this feature, Value: 4
+					266 text Product filters
+					267 link Description: Learn more about this feature, Value: knowledge.intuitiveshipping.com/create-a-scenario#product-filtering
+				268 checkbox No product filters set , Value: 0
+					269 container
+						270 text No product filters set  
+		271 container shipping
+			272 container
+				273 heading  Domestic, Value: 3
+					274 text 
+					275 text  Domestic
+				276 content list
+					277 container
+						278 image OG QA A speciale sperimentale
+						279 text OG QA A speciale sperimentale Testing
+						280 button Edit
+				281 button  Create shipping method
+					282 text 
+					283 text Create shipping method
+		284 image
+		285 container
+			286 text Learn more about
+			287 link Description: scenario settings, Value: knowledge.intuitiveshipping.com/create-a-scenario/
+			288 text .
+		289 text Built by humans ❤️
+		290 container
+			291 text Copyright © 2026
+			292 link Description: Intuitive Shipping Inc., Value: intuitiveshipping.com/
+			293 link Description: End user license agreement, Value: intuitiveshipping.com/end-user-license-agreement/
+			294 text .
+	295 container grammarly-integration
+		296 text {"mode":"full","isActive":true,"isUserDisabled":false}
+
+The focused UI element is 247 button Hide advanced condition settings

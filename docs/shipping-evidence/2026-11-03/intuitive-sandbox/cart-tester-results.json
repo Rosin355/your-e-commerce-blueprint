@@ -1,0 +1,113 @@
+[
+  {
+    "label": "cart-01-bulb-standard",
+    "expectedEUR": "5.90",
+    "displayedResult": "OG QA B standard\nEUR 5.90",
+    "returnedRateCount": 1,
+    "passed": true,
+    "uiEvidence": "cart-01-bulb-standard.txt",
+    "nativeCheckout": false,
+    "validCalculationEvidence": true
+  },
+  {
+    "label": "cart-02-bulb-shrub-standard",
+    "expectedEUR": "11.90",
+    "displayedResult": "OG QA B standard\nEUR 5.90",
+    "returnedRateCount": 1,
+    "passed": false,
+    "uiEvidence": "cart-02-bulb-shrub-standard.txt",
+    "nativeCheckout": false,
+    "validCalculationEvidence": false,
+    "exclusionReason": "Stale previous B-only result: transaction 03420989-ab30-4abb-8a3e-acce245c8f20; superseded by cart-04 confirmed fresh run.",
+    "status": "INVALID_CAPTURE_REPLAYED"
+  },
+  {
+    "label": "cart-03-bulb-succulent-standard",
+    "expectedEUR": "7.90",
+    "displayedResult": "OG QA B standard\nEUR 7.90",
+    "returnedRateCount": 1,
+    "passed": true,
+    "uiEvidence": "cart-03-bulb-succulent-standard.txt",
+    "nativeCheckout": false,
+    "validCalculationEvidence": true
+  },
+  {
+    "label": "cart-04-bulb-shrub-retest",
+    "expectedEUR": "11.90",
+    "displayedResult": "OG QA A standard\nEUR 11.90",
+    "returnedRateCount": 1,
+    "passed": true,
+    "uiEvidence": "cart-04-bulb-shrub-retest.txt",
+    "nativeCheckout": false,
+    "validCalculationEvidence": true
+  },
+  {
+    "label": "cart-05-unknown-standard",
+    "expectedEUR": "11.90",
+    "displayedResult": "OG QA A standard\nEUR 11.90",
+    "returnedRateCount": 1,
+    "passed": true,
+    "uiEvidence": "cart-05-unknown-standard.txt",
+    "nativeCheckout": false,
+    "validCalculationEvidence": true
+  },
+  {
+    "label": "cart-06-palermo-mixed",
+    "expectedEUR": "12.50",
+    "displayedResult": "OG QA A speciale sperimentale\nEUR 12.50",
+    "returnedRateCount": 1,
+    "passed": true,
+    "uiEvidence": "cart-06-palermo-mixed.txt",
+    "nativeCheckout": false,
+    "validCalculationEvidence": true
+  },
+  {
+    "label": "cart-07-cagliari-bulb",
+    "expectedEUR": "6.90",
+    "displayedResult": "OG QA B speciale sperimentale\nEUR 6.90",
+    "returnedRateCount": 1,
+    "passed": true,
+    "uiEvidence": "cart-07-cagliari-bulb.txt",
+    "nativeCheckout": false,
+    "validCalculationEvidence": true
+  },
+  {
+    "label": "cart-08-synthetic-postcode",
+    "expectedEUR": "6.90",
+    "displayedResult": "OG QA B speciale sperimentale\nEUR 6.90",
+    "returnedRateCount": 1,
+    "passed": true,
+    "uiEvidence": "cart-08-synthetic-postcode.txt",
+    "nativeCheckout": false,
+    "validCalculationEvidence": true
+  },
+  {
+    "label": "cart-09-mixed-whole-total-160",
+    "expectedEUR": 17.5,
+    "actualEUR": [
+      17.5
+    ],
+    "pass": true,
+    "validCalculationEvidence": true,
+    "bulbQuantity": 10,
+    "unknownQuantity": 1,
+    "totalEUR": 160,
+    "scope": "Cart Tester"
+  },
+  {
+    "label": "cart-10-final-restored-whole-total-160",
+    "expectedEUR": 17.5,
+    "actualEUR": [
+      17.5
+    ],
+    "pass": true,
+    "validCalculationEvidence": true,
+    "bulbQuantity": 10,
+    "bulbUnitEUR": 15,
+    "unknownQuantity": 1,
+    "unknownUnitEUR": 10,
+    "totalEUR": 160,
+    "configurationVersion": "technical-half-cent-maxima",
+    "purpose": "postfix final catalog resync verification"
+  }
+]

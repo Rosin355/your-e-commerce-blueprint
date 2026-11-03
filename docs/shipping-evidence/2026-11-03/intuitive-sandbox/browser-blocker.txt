@@ -1,0 +1,9 @@
+Browser automation observation — 3 November 2026
+
+Native Shopify preview tab retrieval was blocked by the browser tool:
+Google Chrome is blocking automation because another extension UI is open on this page. Complete or dismiss that extension UI in Google Chrome, then ask me to continue.
+
+The same blocker later affected the Intuitive Products page, preventing further app interaction and catalog verification. No alternate browser, direct HTTP endpoint, hidden API or alternate automation was used to bypass the block.
+A text request to close the extension popup/panel was issued to the user. No response was received before documenting this result.
+The Shopify Admin Dev product pages remained accessible and were used only to restore the two temporary fixture prices; restored values were read back.
+No native checkout tariff or payment was reached. No preview key or checkout token is stored in these evidence files.

@@ -1,0 +1,234 @@
+[
+  {
+    "scenarioId": "154776",
+    "label": "B-standard",
+    "ui": [
+      {
+        "id": "title",
+        "value": "OG QA B standard - sandbox only"
+      },
+      {
+        "checked": true,
+        "id": "status-1",
+        "value": "1"
+      },
+      {
+        "checked": true,
+        "id": "condition-match-all",
+        "value": "all"
+      },
+      {
+        "id": "condition-6aea17152d82d-type",
+        "selectedLabel": "Product sku",
+        "value": "product_sku"
+      },
+      {
+        "id": "condition-6aea17152d82d-operation",
+        "selectedLabel": "equals",
+        "value": "equal_to"
+      },
+      {
+        "id": "condition-6aea17152d82d-value-product-sku",
+        "value": "OG-QA-BULB, OG-QA-SUCCULENT"
+      },
+      {
+        "id": "condition-6aea17152d82d-parameter-product-sku-match",
+        "selectedLabel": "All products",
+        "value": "all"
+      },
+      {
+        "id": "condition-1793726323952-type",
+        "selectedLabel": "Postal/zip code",
+        "value": "customer_postal_code"
+      },
+      {
+        "id": "condition-1793726323952-operation",
+        "selectedLabel": "does not equal",
+        "value": "not_equal_to"
+      },
+      {
+        "id": "condition-1793726323952-value-customer-postal-code",
+        "value": "90133, 09124, 00000"
+      },
+      {
+        "checked": false,
+        "id": "filter-match-condition",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "scenarioId": "154777",
+    "label": "B-special",
+    "ui": [
+      {
+        "id": "title",
+        "value": "OG QA B speciale sperimentale - sandbox only"
+      },
+      {
+        "checked": true,
+        "id": "status-1",
+        "value": "1"
+      },
+      {
+        "checked": true,
+        "id": "condition-match-all",
+        "value": "all"
+      },
+      {
+        "id": "condition-6aea17152d82d-type",
+        "selectedLabel": "Product sku",
+        "value": "product_sku"
+      },
+      {
+        "id": "condition-6aea17152d82d-operation",
+        "selectedLabel": "equals",
+        "value": "equal_to"
+      },
+      {
+        "id": "condition-6aea17152d82d-value-product-sku",
+        "value": "OG-QA-BULB, OG-QA-SUCCULENT"
+      },
+      {
+        "id": "condition-6aea17152d82d-parameter-product-sku-match",
+        "selectedLabel": "All products",
+        "value": "all"
+      },
+      {
+        "id": "condition-1793726323952-type",
+        "selectedLabel": "Postal/zip code",
+        "value": "customer_postal_code"
+      },
+      {
+        "id": "condition-1793726323952-operation",
+        "selectedLabel": "equals",
+        "value": "equal_to"
+      },
+      {
+        "id": "condition-1793726323952-value-customer-postal-code",
+        "value": "90133, 09124, 00000"
+      },
+      {
+        "checked": false,
+        "id": "filter-match-condition",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "scenarioId": "154778",
+    "label": "A-standard",
+    "ui": [
+      {
+        "id": "title",
+        "value": "OG QA A standard - sandbox only"
+      },
+      {
+        "checked": true,
+        "id": "status-1",
+        "value": "1"
+      },
+      {
+        "checked": true,
+        "id": "condition-match-all",
+        "value": "all"
+      },
+      {
+        "id": "condition-6aea17152d82d-type",
+        "selectedLabel": "Product sku",
+        "value": "product_sku"
+      },
+      {
+        "id": "condition-6aea17152d82d-operation",
+        "selectedLabel": "does not equal",
+        "value": "not_equal_to"
+      },
+      {
+        "id": "condition-6aea17152d82d-value-product-sku",
+        "value": "OG-QA-BULB, OG-QA-SUCCULENT"
+      },
+      {
+        "id": "condition-6aea17152d82d-parameter-product-sku-match",
+        "selectedLabel": "Any product",
+        "value": "any"
+      },
+      {
+        "id": "condition-1793726323952-type",
+        "selectedLabel": "Postal/zip code",
+        "value": "customer_postal_code"
+      },
+      {
+        "id": "condition-1793726323952-operation",
+        "selectedLabel": "does not equal",
+        "value": "not_equal_to"
+      },
+      {
+        "id": "condition-1793726323952-value-customer-postal-code",
+        "value": "90133, 09124, 00000"
+      },
+      {
+        "checked": false,
+        "id": "filter-match-condition",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "scenarioId": "154779",
+    "label": "A-special",
+    "ui": [
+      {
+        "id": "title",
+        "value": "OG QA A speciale sperimentale - sandbox only"
+      },
+      {
+        "checked": true,
+        "id": "status-1",
+        "value": "1"
+      },
+      {
+        "checked": true,
+        "id": "condition-match-all",
+        "value": "all"
+      },
+      {
+        "id": "condition-6aea17152d82d-type",
+        "selectedLabel": "Product sku",
+        "value": "product_sku"
+      },
+      {
+        "id": "condition-6aea17152d82d-operation",
+        "selectedLabel": "does not equal",
+        "value": "not_equal_to"
+      },
+      {
+        "id": "condition-6aea17152d82d-value-product-sku",
+        "value": "OG-QA-BULB, OG-QA-SUCCULENT"
+      },
+      {
+        "id": "condition-6aea17152d82d-parameter-product-sku-match",
+        "selectedLabel": "Any product",
+        "value": "any"
+      },
+      {
+        "id": "condition-1793726323952-type",
+        "selectedLabel": "Postal/zip code",
+        "value": "customer_postal_code"
+      },
+      {
+        "id": "condition-1793726323952-operation",
+        "selectedLabel": "equals",
+        "value": "equal_to"
+      },
+      {
+        "id": "condition-1793726323952-value-customer-postal-code",
+        "value": "90133, 09124, 00000"
+      },
+      {
+        "checked": false,
+        "id": "filter-match-condition",
+        "value": "1"
+      }
+    ]
+  }
+]

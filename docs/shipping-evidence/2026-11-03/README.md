@@ -1,6 +1,8 @@
 # Evidenze spedizioni — 3 novembre 2026
 
-**Stato corrente:** [Dev Grow 111269380421 creato; SANDBOX BLOCKED per verifica identità richiesta da Shopify](development-store/README.md). Quattro prodotti fittizi e otto screenshot; zero checkout Intuitive. CCS live da abilitare secondo la UI separatamente letta.
+**Ultimo stato:** [SANDBOX PASS della matrice A/B, Cart Tester e checkout nativo verificati](intuitive-sandbox/README.md). Difetto 18,99 € corretto e rieseguito; prezzi/catalogo ripristinati. CCS live, geografia e conferma del workaround ancora aperti; produzione bloccata.
+
+**Storico Dev iniziale:** [Dev Grow 111269380421 creato; SANDBOX BLOCKED per verifica identità richiesta da Shopify](development-store/README.md). Quattro prodotti fittizi e otto screenshot; zero checkout Intuitive. CCS live da abilitare secondo la UI separatamente letta.
 
 **Aggiornamento motore PR #45:** [evidenze mirate, fonti e riproduzione](engine-selection/README.md). Spedizione per Mercati attiva sul Grow reale; vecchio input merchant DeliveryProfile superato. Intuitive candidato a collaudo isolato, non installato/certificato.
 

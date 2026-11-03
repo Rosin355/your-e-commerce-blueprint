@@ -1,0 +1,10 @@
+0 AXWebArea Online Garden Shipping Test · Spedizione e consegna · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/settings/shipping
+													213 text 1 mercato
+													215 heading La spedizione è stata spostata su Mercati, Value: 2
+														216 text La spedizione è stata spostata su Mercati
+																		231 link Description: Italy, Value: admin.shopify.com/store/online-garden-shipping-test/markets/119681515845#shipping
+																		234 container Standard
+																			235 text Standard
+																		236 container Intuitive Shipping (tramite app)
+																			237 text Intuitive Shipping (tramite app)
+The focused UI element is 0 AXWebArea Online Garden Shipping Test · Spedizione e consegna · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/settings/shipping

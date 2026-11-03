@@ -1,0 +1,3 @@
+0 AXWebArea Online Garden Shipping Test · Prodotti · OG QA - Bulbo fittizio · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products/16337677287749
+												105 AXWebArea about:srcdoc
+												139 text field (settable) Prezzo  €, Value: 15,00, ID: :r1k:

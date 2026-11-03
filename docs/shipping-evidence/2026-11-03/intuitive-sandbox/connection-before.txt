@@ -1,0 +1,71 @@
+Browser tab: 2097937111, Title: "Shopify connection - Intuitive Shipping", URL: "https://v2.intuitiveshipping.app/platform/shopify/connection".
+0 AXWebArea Shopify connection - Intuitive Shipping, URL: v2.intuitiveshipping.app/platform/shopify/connection
+	1 container
+		2 container header
+			3 container
+				4 link Description: Home, Value: v2.intuitiveshipping.app/get-started
+				5 link Description: / Platform connection, Value: v2.intuitiveshipping.app/platform/shopify/connection#
+			6 content list
+				7 link Description: Notifications, Value: v2.intuitiveshipping.app/notifications
+				8 link Description: Online Garden Shipping Te…, Value: v2.intuitiveshipping.app/platform/shopify/connection#
+		9 container navigation
+			10 link Description: Intuitive Shipping>, Value: v2.intuitiveshipping.app/
+			11 content list
+				12 link Description:  Get started, Value: v2.intuitiveshipping.app/get-started
+				13 link Description:  Activity, Value: v2.intuitiveshipping.app/activity
+				14 link Description:  Shipping , Value: v2.intuitiveshipping.app/platform/shopify/connection#navigation-shipping
+				15 link Description:  Zones, Value: v2.intuitiveshipping.app/zones
+				16 link Description:  Products, Value: v2.intuitiveshipping.app/products
+				17 link Description:  Locations, Value: v2.intuitiveshipping.app/locations
+				18 link Description:  Packages, Value: v2.intuitiveshipping.app/packages
+				19 link Description:  Carrier accounts, Value: v2.intuitiveshipping.app/carrier-account/carrier-accounts
+				20 link Description:  Partner integrations, Value: v2.intuitiveshipping.app/integrations
+				21 link Description:  Shopify connection, Value: v2.intuitiveshipping.app/platform/shopify/connection
+				22 link Description:  Plans & billing, Value: v2.intuitiveshipping.app/billing
+				23 link Description:  Settings, Value: v2.intuitiveshipping.app/settings
+				24 link Description:  Cart Tester, Value: v2.intuitiveshipping.app/test
+			25 content list
+				26 link Description:  Help center, Value: knowledge.intuitiveshipping.com/
+				27 link Description:  Support, Value: v2.intuitiveshipping.app/support?email=rosin%40digitalyogin.com&name=Online+Garden+Shipping+Test&ticket_platform_select=Shopify&shop_id=online-garden-shipping-test.myshopify.com
+		28 container
+			29 image Shopify connection
+			30 heading Shopify connection, Value: 1
+				31 text Shopify connection
+		32 container
+			33 heading Import shop settings  Last imported 5 minutes ago., Value: 4
+				34 text Import shop settings
+				35 text 
+				36 text Last imported 5 minutes ago.
+			37 text Import the primary contact email and base currency from your shop settings.
+			38 button Import settings
+			39 heading Import product catalog  Last imported 1 hour ago., Value: 4
+				40 text Import product catalog
+				41 text 
+				42 text Last imported 1 hour ago.
+			43 text Import your product catalog to assign dimensions to your latest offerings.
+			44 container
+				45 button Import catalog
+				46 text 4 products, 1 collections imported.
+			47 container form-metafields-status
+				48 heading Metafield mapping, Value: 4
+					49 text Metafield mapping
+				50 checkbox Metafield mapping disabled , Value: 0
+					51 container
+						52 text Metafield mapping disabled  
+		53 container
+			54 text   We recommend importing your catalog anytime you make large updates or update metafield mapping.
+		55 image
+		56 container
+			57 text Learn more about
+			58 link Description: platform connection, Value: knowledge.intuitiveshipping.com/how-to-update-your-platform-connection/
+			59 text .
+		60 text Built by humans ❤️
+		61 container
+			62 text Copyright © 2026
+			63 link Description: Intuitive Shipping Inc., Value: intuitiveshipping.com/
+			64 link Description: End user license agreement, Value: intuitiveshipping.com/end-user-license-agreement/
+			65 text .
+	66 container grammarly-integration
+		67 text {"mode":"full","isActive":true,"isUserDisabled":false}
+
+The focused UI element is 0 AXWebArea Shopify connection - Intuitive Shipping, URL: v2.intuitiveshipping.app/platform/shopify/connection

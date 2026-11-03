@@ -1,0 +1,1 @@
+Reimport completed after restoration; picker read-back: OG-QA-BULB 15.00, OG-QA-SUCCULENT 45.00, OG-QA-SHRUB 30.00, OG-QA-UNKNOWN 10.00 EUR.

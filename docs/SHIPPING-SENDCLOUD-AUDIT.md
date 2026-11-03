@@ -1,8 +1,14 @@
 # Sendcloud — audit piattaforma e prezzo checkout
 
-**3 novembre 2026. Stato: Sendcloud confermata come piattaforma logistica; motore checkout candidato Intuitive Shipping, da collaudare; sincronizzazione live bloccata.** Nessuna nuova connessione, app, servizio, subscription, upgrade, pubblicazione, etichetta, ordine o addebito.
+**3 novembre 2026. Stato: Sendcloud confermata come piattaforma logistica; motore checkout Intuitive Shipping collaudato nel solo Dev; sincronizzazione live bloccata.** Nessuna nuova connessione o modifica Sendcloud, subscription, upgrade, etichetta, ordine o addebito. Intuitive è presente esclusivamente nel Dev.
 
-## Dev creato, Sendcloud isolata — SANDBOX BLOCKED su identità Shopify
+## Intuitive Dev: matrice A/B PASS, Sendcloud isolata
+
+Quattro scenari/metodi Testing nel solo Dev `111269380421`; **38 casi Cart Tester validi PASS** e conferme nel checkout nativo per B puro, B bulbo+grassa, A bulbo+arbusto/sconosciuto, totale 160 €, soglie e campioni Palermo/Cagliari. Il difetto sul confine 18,99 € è stato riprodotto e corretto con limiti tecnici fra centesimi; stesso carrello rieseguito correttamente. Dieci prove native dopo fix PASS, 28 confini completi verificati nell'app. Conferma del workaround dal fornitore ancora necessaria prima della produzione.
+
+**0,00 €**, nessun piano/trial/CCS acquistato, ordine o pagamento. Prezzi fixture ripristinati e catalogo Intuitive risincronizzato. Nessuna connessione Sendcloud Dev o modifica Sendcloud live; nessuna prova ordine→etichetta e nessuna certificazione end-to-end Sendcloud. CCS funzionale nel Dev con Mercati; entitlement/costo CCS Grow reale e geografia operativa ancora aperti. **SANDBOX PASS limitato alla matrice, sincronizzazione live bloccata.** [Evidenze, difetto/correzione e rollback](shipping-evidence/2026-11-03/intuitive-sandbox/README.md).
+
+## Storico: Dev creato, Sendcloud isolata — blocco identità poi risolto
 
 Development store **111269380421**, `online-garden-shipping-test.myshopify.com`, Grow simulato, Italia/EUR e preview Mercati creati gratuitamente. Solo quattro prodotti fittizi, nessuna importazione di clienti/ordini e nessuna app nell'elenco Dev: **Sendcloud produzione non collegata**. Intuitive non installabile finché l'utente/proprietario non verifica l'identità con Shopify; zero prove checkout. Il controllo read-only live rileva CCS da abilitare su Grow, distinto dalla disponibilità UI carrier nel Dev. Nessun costo, trial, abbonamento o modifica Sendcloud/live. [Evidenze e rollback limitato alle fixture Dev](shipping-evidence/2026-11-03/development-store/README.md).
 
@@ -12,7 +18,7 @@ Preflight 3 novembre 2026: Dev Dashboard Online Garden accessibile, tabella Nego
 
 ## Aggiornamento PR #45 — separazione dal motore tariffario
 
-Il controllo richiesto sul motore Grow non ripete l'audit account sottostante. È stata verificata separatamente la spedizione per Mercati già attiva nello store. Il confronto raccomanda **Intuitive Shipping solo per un collaudo isolato**, con CCS e compatibilità Mercati ancora da provare; non viene autorizzato alcun abbonamento. [Confronto, costi e prova](SHIPPING-SHOPIFY-INTEGRATION.md).
+Il controllo richiesto sul motore Grow non ripete l'audit account sottostante. È stata verificata separatamente la spedizione per Mercati già attiva nello store. Il confronto raccomanda **Intuitive Shipping solo per un collaudo isolato**, con CCS/Mercati ora provati nel Dev e requisiti live separati; non viene autorizzato alcun abbonamento. [Confronto, costi e prova](SHIPPING-SHOPIFY-INTEGRATION.md).
 
 **Sendcloud può restare per importazione ordini, etichette e spedizioni con tutte e tre le alternative considerate.** La guida ufficiale chiarisce che Sendcloud non importa tariffe in Shopify: prezzi checkout e servizio logistico sono indipendenti. L'ordine Shopify contiene il metodo scelto; Sendcloud può usare il metodo predefinito o la selezione manuale. Le Shipping Rules possono associarlo al servizio del futuro vettore dove disponibili nel piano (guida: Lite o superiore), ma non sono necessarie per definire il listino A/B. Non si promette una mappatura automatica gratuita o una connessione già collaudata. [Fonte Sendcloud](https://support.sendcloud.com/hc/en-us/articles/360049346772-Setting-up-shipping-methods-in-Shopify).
 
