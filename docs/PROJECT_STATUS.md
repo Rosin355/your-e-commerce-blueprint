@@ -1,3 +1,13 @@
+## 3 novembre 2026 — PR #45: SANDBOX BLOCKED, development store non disponibile
+
+Il proprietario ha autorizzato Intuitive esclusivamente in sandbox, con operazioni gratuite/reversibili e stop se ambiente, accesso o capacità gratuita mancano. Preflight browser autenticato: Dev Dashboard dell'organizzazione **Online Garden `213529043`**, pagina Negozi senza filtri, **«Nessun negozio per ora»**. Nessun development store isolato identificato. Arresto prima di creazione store/installazione app; CCS gratuito, entitlement Grow e preview Mercati del target non verificabili.
+
+**Zero prove checkout eseguite**, nessun risultato locale usato come sostituto. Test B puro, misto A sull'intero totale, soglie, isole/CAP sintetici, Grow/Mercati e integrazione Sendcloud tutti **NON ESEGUITI per blocco ambiente**. Costo effettivo **0,00 €**, nessun trial a conversione automatica, piano o abbonamento attivato. Nessuna mutation Shopify o modifica Sendcloud, merge/deploy; nessun rollback applicativo necessario. Le verifiche software del commit `66ce71b` restano storiche e non certificano sandbox.
+
+**Singola decisione successiva:** rendere disponibile il development store isolato e autorizzato nell'organizzazione Online Garden, con entitlement Grow e Mercati, per verificare CCS gratuito prima del collaudo. L'autorizzazione già concessa non va richiesta nuovamente; produzione resta bloccata. [Rapporto ed evidenze](shipping-evidence/2026-11-03/engine-selection/SANDBOX-RESULT.md).
+
+Le sezioni seguenti conservano il confronto e lo stato antecedente all'autorizzazione sandbox.
+
 ## 3 novembre 2026 — PR #45: motore Grow, Mercati già attivi e candidato al collaudo
 
 Continuazione da `5ce8883` sul branch `codex/shopify-shipping-rates`, senza ripetere audit catalogo o account Sendcloud. Query read-only e UI confermano **Grow, spedizione per Mercati attiva, mercati regionali disponibili**. Il modello nativo può prendere il massimo A/B nella stessa opzione, ma non è dimostrato completo per CAP/località e fallback A dei nuovi prodotti. Corretto il generatore: vecchio payload merchant DeliveryProfile e relativo rollback soppressi; `deploymentCandidate=null`, tutti i gate ancora aperti. I file di profilo precedenti restano solo evidenze storiche da non eseguire.

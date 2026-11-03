@@ -2,6 +2,14 @@
 
 **3 novembre 2026 · PR #45 · continuazione da `5ce8883` · LIVE BLOCCATO.** Verifica mirata delle capacità native e delle alternative, senza ripetere audit catalogo/Sendcloud. Zero installazioni, acquisti, mutation Shopify, ordini, merge o deploy.
 
+## Esito del collaudo autorizzato: SANDBOX BLOCKED
+
+Il proprietario ha autorizzato operazioni gratuite e reversibili esclusivamente sul development store isolato, vietando trial a conversione automatica e chiedendo di fermarsi se l'ambiente manca. Il preflight del 3 novembre 2026 alle 13:23:42 UTC ha raggiunto la Dev Dashboard **Online Garden `213529043`**: la pagina Negozi senza filtri mostra **«Nessun negozio per ora»**. Nessun target di test disponibile; il link Crea negozio non è stato seguito. Non è una dichiarazione sull'esistenza di store fuori dall'organizzazione accessibile.
+
+**CCS gratuito, entitlement Grow e Mercati del dev store non verificati; zero prove checkout.** Sandbox Intuitive gratuita documentata, ma nessuna app installata, piano/trial attivato o costo sostenuto (**0,00 €**). Le simulazioni precedenti non sostituiscono il collaudo. Nessuna modifica Shopify/Sendcloud: rollback applicativo non necessario. [Evidenze, test non eseguiti, costi e rollback](shipping-evidence/2026-11-03/engine-selection/SANDBOX-RESULT.md).
+
+**Decisione successiva:** rendere disponibile il development store isolato autorizzato con entitlement Grow e Mercati, per verificare CCS gratuito. L'autorizzazione sandbox è già acquisita; produzione sempre bloccata.
+
 ## Decisione tecnica
 
 **Intuitive Shipping è il candidato raccomandato per un collaudo su development store isolato, non un motore già certificato o autorizzato in produzione.** Copre documentalmente quantificatori sulle righe, tabelle sul totale e CAP/località. Grow è supportato con CCS. Mancano la prova dell'app con il modello per Mercati attivo nello store, la conferma CCS dell'account e il collaudo checkout: non si dichiarano risolti con un simulatore locale. Non serve proporre Plus sulla base delle evidenze raccolte.
@@ -49,10 +57,10 @@ La prima prova rigenera [blueprint manuale con fixture](shipping-evidence/2026-1
 
 ## Collaudo successivo: criteri di accettazione, nessuna esecuzione live
 
-Dopo decisione del proprietario, il collaudo richiede un **nuovo development store con preview Market-driven shipping**, come indicato da Shopify, oppure un ambiente isolato equivalente. Nessuna installazione su questo store per costruire la prova. Sandbox Intuitive non richiede un piano app pagante, ma visualizzare tariffe di test richiede comunque CCS: se l'ambiente non lo consente, fermarsi prima di attivare abbonamenti o cambiare piano.
+L’autorizzazione sandbox è acquisita; il collaudo richiede un **nuovo development store con preview Market-driven shipping**, come indicato da Shopify, oppure un ambiente isolato equivalente. Nessuna installazione su questo store per costruire la prova. Sandbox Intuitive non richiede un piano app pagante, ma visualizzare tariffe di test richiede comunque CCS: se l'ambiente non lo consente, fermarsi prima di attivare abbonamenti o cambiare piano.
 
 La prova deve attestare compatibilità Markets API/posizionamento della tariffa app, entitlement equivalente Grow con CCS, una sola tariffa IT e gruppo di consegna sull'intero carrello, SKU esatto per variante, fallback A per nuovo/assente, tutti i confini A/B, sconti, quantità, destinazioni e indirizzi incompleti. Verificare che altre opzioni native non restino visibili o si sommino alla tariffa app; provare indisponibilità/errore del provider, gruppi multipli e rollback nell'ambiente isolato. Non configurare un fallback che inventi un prezzo errato. Un collaudo su development store privo dei medesimi entitlement non certifica automaticamente Grow.
 
 Sendcloud resta downstream dell'ordine; nessun corriere è necessario per provare le tabelle fisse. Prima del rilascio serviranno geografia/classificazione approvate, connessione logistica già prevista verificata, backup aggiornato **dei Mercati e dell'app**, diff definitivo e autorizzazione live. Nessun esecutore live o `--apply` è stato introdotto; tutti i gate restano falsi. [Audit Sendcloud esistente e conferma della separazione](SHIPPING-SENDCLOUD-AUDIT.md), [policy](../shipping/platform-policy.json), [gate](../shipping/release-gates.pending.json).
 
-**Unica decisione operativa richiesta:** autorizzare il collaudo isolato di Intuitive Shipping in sandbox, senza acquisti e mantenendo la produzione bloccata. Questo non autorizza installazioni live, CCS a pagamento, cambio fatturazione, merge o deploy.
+**Stato successivo all’autorizzazione:** SANDBOX BLOCKED per development store mancante nel portfolio accessibile. Rendere disponibile l’ambiente isolato è la singola decisione successiva; non va ripetuta la richiesta di autorizzazione al collaudo. Installazioni live, CCS a pagamento, cambio fatturazione, merge e deploy restano esclusi.

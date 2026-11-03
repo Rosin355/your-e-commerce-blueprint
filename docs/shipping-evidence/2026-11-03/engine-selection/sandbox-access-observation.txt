@@ -1,0 +1,17 @@
+Osservazione UI circoscritta — 3 novembre 2026, acquisita entro le 13:23:42 UTC
+Metodo: Chrome autorizzato, CUA accessibility; nessuna lettura di API private del browser.
+
+Titolo: Negozi · Dev Dashboard
+URL: https://dev.shopify.com/dashboard/213529043/stores
+Organizzazione selezionata: Online Garden
+Link visibile: Crea negozio
+Destinazione link: https://admin.shopify.com/store-create/organization/213529043
+Tabella: Negozi
+Testo risultato: Nessun negozio per ora
+Testo esplicativo: Collega un negozio per iniziare a visualizzarlo qui nel tuo portfolio
+
+Navigazione: Admin Shopify -> menu account -> Visualizza Dev Dashboard -> Negozi.
+Nessun filtro o ricerca applicato. Nessun negozio presente nella tabella osservata.
+Il link Crea negozio non è stato seguito: l'utente richiede di fermarsi se manca il development store.
+Non è un inventario globale di tutte le organizzazioni o degli account Shopify.
+Nessuna app installata, store creato, connessione modificata o configurazione salvata.

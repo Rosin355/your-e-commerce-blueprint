@@ -1,5 +1,7 @@
 # Scelta motore Grow — evidenze mirate PR #45
 
+**Esito successivo all’autorizzazione: SANDBOX BLOCKED**, nessun development store visibile nell’organizzazione Online Garden accessibile. [Rapporto, costi effettivi, test non eseguiti e rollback](SANDBOX-RESULT.md) · [Evidenza strutturata](sandbox-preflight.json) · [Osservazione UI](sandbox-access-observation.txt).
+
 Continuazione da `5ce8883`, 3 novembre 2026. Audit catalogo e account Sendcloud precedenti conservati, non ripetuti. [Decisione e confronto](../../../SHIPPING-SHOPIFY-INTEGRATION.md).
 
 ## Livelli di prova
@@ -43,4 +45,4 @@ Il generatore usa le istantanee precedenti, senza rifare audit live. Nessun flag
 
 Intuitive è il candidato **al collaudo**, non una scelta produttiva certificata. La raccomandazione si basa sui controlli configurabili documentati e sui controesempi riprodotti, non sulle recensioni o sulle frasi promozionali. Necessità di acquistare un abbonamento ancora subordinata al superamento della prova app con Mercati/CCS, importi, gruppi e indirizzi. Senza installazioni autorizzate non è possibile produrre una prova di esecuzione del software del fornitore.
 
-Decisione proprietario: collaudo su development store isolato con sandbox, senza acquisti; produzione bloccata. Sicilia/Sardegna rimangono candidate; CAP disagiati da listino futuro, nessun vettore richiesto nuovamente.
+Autorizzazione proprietario al collaudo ricevuta. Preflight bloccato: rendere disponibile il development store isolato; nessun acquisto e produzione bloccata. Sicilia/Sardegna rimangono candidate; CAP disagiati da listino futuro, nessun vettore richiesto nuovamente.

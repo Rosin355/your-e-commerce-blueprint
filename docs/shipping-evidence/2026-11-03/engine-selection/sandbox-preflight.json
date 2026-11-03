@@ -1,0 +1,99 @@
+{
+  "status": "SANDBOX BLOCKED",
+  "observedAt": "2026-11-03T13:23:42Z",
+  "baseHead": "66ce71b4fb6fbc056925f22a808ea90bf64461e5",
+  "authorization": {
+    "isolatedSandboxTesting": true,
+    "freeReversibleTestOperations": true,
+    "productionChanges": false,
+    "paidPlansOrAutoConvertingTrials": false,
+    "stopIfStoreOrAccessOrFreeCapabilityMissing": true
+  },
+  "primaryBlocker": {
+    "code": "NO_ISOLATED_DEVELOPMENT_STORE_VISIBLE_IN_AUTHORIZED_ORGANIZATION",
+    "organization": "Online Garden",
+    "organizationId": "213529043",
+    "url": "https://dev.shopify.com/dashboard/213529043/stores",
+    "observedUI": [
+      "Nessun negozio per ora",
+      "Collega un negozio per iniziare a visualizzarlo qui nel tuo portfolio"
+    ],
+    "limitation": "Empty accessible organization portfolio; not proof that no dev store exists in other organizations or outside this account."
+  },
+  "access": {
+    "devDashboardAuthenticated": true,
+    "authorizedOrganizationReadable": true,
+    "isolatedTestStoreIdentified": false,
+    "isolatedTestStoreDomain": null,
+    "storeCreationLinkVisible": true,
+    "storeCreationLinkFollowed": false,
+    "creationPermissionsVerified": false
+  },
+  "capabilities": {
+    "intuitiveFreeUnlimitedSandbox": "DOCUMENTED_NOT_INSTALLED",
+    "ccsRequiredEvenInSandbox": true,
+    "ccsFreeOnTargetDevelopmentStore": "NOT_VERIFIED_NO_TARGET_STORE",
+    "growEquivalentEntitlement": "NOT_VERIFIED_NO_TARGET_STORE",
+    "marketDrivenShippingOnTarget": "NOT_VERIFIED_NO_TARGET_STORE"
+  },
+  "tests": [
+    {
+      "case": "B only bulbs/succulents",
+      "status": "NOT_RUN_BLOCKED",
+      "checkoutEvidence": null
+    },
+    {
+      "case": "A bulb + shrub; one rate on whole cart",
+      "status": "NOT_RUN_BLOCKED",
+      "checkoutEvidence": null
+    },
+    {
+      "case": "A/B exact price thresholds",
+      "status": "NOT_RUN_BLOCKED",
+      "checkoutEvidence": null
+    },
+    {
+      "case": "Sicily/Sardinia test-only candidate geography",
+      "status": "NOT_RUN_BLOCKED",
+      "checkoutEvidence": null
+    },
+    {
+      "case": "Synthetic postal destination rules",
+      "status": "NOT_RUN_BLOCKED",
+      "checkoutEvidence": null
+    },
+    {
+      "case": "Grow + market-driven shipping",
+      "status": "NOT_RUN_BLOCKED",
+      "checkoutEvidence": null
+    },
+    {
+      "case": "Sendcloud non-interference end-to-end",
+      "status": "NOT_RUN_BLOCKED",
+      "checkoutEvidence": null
+    }
+  ],
+  "localSimulationUsedAsCheckoutEvidence": false,
+  "externalActions": {
+    "storesCreated": 0,
+    "appInstallations": 0,
+    "billingPlansActivated": 0,
+    "trialsActivated": 0,
+    "checkoutCasesExecuted": 0,
+    "testOrders": 0,
+    "shopifyMutations": 0,
+    "sendcloudChanges": 0,
+    "merges": 0,
+    "deploys": 0
+  },
+  "costs": {
+    "actualIncrementalSpendEUR": "0.00",
+    "newRecurringCommitments": false,
+    "developmentStoreAndCcsFreeAvailabilityVerified": false
+  },
+  "rollback": {
+    "required": false,
+    "reason": "No test store, app, fixtures, rates, billing or production settings were changed. Documentation-only commit can be reverted independently."
+  },
+  "nextSingleDecision": "Make one authorized isolated development store available in Online Garden, with Grow-equivalent entitlement and market-driven shipping; verify free CCS before installing or testing Intuitive. Do not reuse production or unrelated stores."
+}
