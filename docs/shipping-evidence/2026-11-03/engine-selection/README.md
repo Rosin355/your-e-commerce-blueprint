@@ -1,5 +1,7 @@
 # Scelta motore Grow — evidenze mirate PR #45
 
+**Aggiornamento successivo:** [Dev creato 111269380421, ma installazione Intuitive bloccata dalla verifica identità Shopify](../development-store/README.md). Il precedente blocco “store mancante” sotto è storico.
+
 **Esito successivo all’autorizzazione: SANDBOX BLOCKED**, nessun development store visibile nell’organizzazione Online Garden accessibile. [Rapporto, costi effettivi, test non eseguiti e rollback](SANDBOX-RESULT.md) · [Evidenza strutturata](sandbox-preflight.json) · [Osservazione UI](sandbox-access-observation.txt).
 
 Continuazione da `5ce8883`, 3 novembre 2026. Audit catalogo e account Sendcloud precedenti conservati, non ripetuti. [Decisione e confronto](../../../SHIPPING-SHOPIFY-INTEGRATION.md).

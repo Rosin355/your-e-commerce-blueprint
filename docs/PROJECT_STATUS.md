@@ -1,3 +1,13 @@
+## 3 novembre 2026 — PR #45: Dev Grow creato, SANDBOX BLOCKED su verifica identità Shopify
+
+Autorizzazione esplicita eseguita: creato **Online Garden Shipping Test**, ID **111269380421**, `online-garden-shipping-test.myshopify.com`, organizzazione Online Garden `213529043`, tipo **Development non Client Transfer**, Grow simulato, Italia/EUR, preview **Market-driven shipping and ship & pickup in one order**. Dati dimostrativi disattivati; creati e riletti solo bulbo, grassa, arbusto e sconosciuto fittizi. Nessun cliente/ordine reale importato. **0,00 €**, nessun piano pagante, abbonamento o trial attivato.
+
+**SANDBOX BLOCKED:** Shopify richiede verifica identità dell'utente/proprietario prima di installare app di terze parti sul Dev; Installa Intuitive disabilitato. Store mancante non è più il blocco. Intuitive non installata, tabelle non configurate, **zero test checkout**, nessun risultato locale usato come sostituto. Carrier UI disponibile nel Dev senza upgrade, CCS funzionale con Intuitive ancora da provare. Lettura separata Online Garden live: piano Grow e **CCS da abilitare secondo la UI**; add-on/fatturazione annuale sono percorsi documentati, nessun upgrade eseguito né compatibilità produttiva certificata.
+
+Otto screenshot e osservazioni UI archiviati. Sendcloud Dev assente, Sendcloud produzione invariata; nessuna scrittura live, modifica secret/pagamenti/PR #42, merge o deploy. Il Dev e quattro fixture restano per ripresa; rollback eventuale solo archiviazione fixture Dev, nessuna cancellazione permanente. **Sblocco: verifica identità da utente/proprietario direttamente in Shopify; autorizzazione sandbox già acquisita.** [Rapporto completo, ID, prodotti, CCS e costi](shipping-evidence/2026-11-03/development-store/README.md).
+
+Le sezioni seguenti documentano i preflight precedenti e non rappresentano il blocco corrente.
+
 ## 3 novembre 2026 — PR #45: SANDBOX BLOCKED, development store non disponibile
 
 Il proprietario ha autorizzato Intuitive esclusivamente in sandbox, con operazioni gratuite/reversibili e stop se ambiente, accesso o capacità gratuita mancano. Preflight browser autenticato: Dev Dashboard dell'organizzazione **Online Garden `213529043`**, pagina Negozi senza filtri, **«Nessun negozio per ora»**. Nessun development store isolato identificato. Arresto prima di creazione store/installazione app; CCS gratuito, entitlement Grow e preview Mercati del target non verificabili.

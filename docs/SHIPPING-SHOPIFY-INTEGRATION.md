@@ -1,8 +1,20 @@
 # Tariffe Shopify Grow — scelta del motore e prova tecnica
 
-**3 novembre 2026 · PR #45 · continuazione da `5ce8883` · LIVE BLOCCATO.** Verifica mirata delle capacità native e delle alternative, senza ripetere audit catalogo/Sendcloud. Zero installazioni, acquisti, mutation Shopify, ordini, merge o deploy.
+**3 novembre 2026 · PR #45 · continuazione da `5ce8883` · LIVE BLOCCATO.** Verifica mirata delle capacità native e delle alternative, senza ripetere audit catalogo/Sendcloud. Nessuna installazione app, acquisto, mutation Shopify produzione, ordine, merge o deploy; scritture Dev esplicitate sotto.
 
-## Esito del collaudo autorizzato: SANDBOX BLOCKED
+## Development store creato — SANDBOX BLOCKED su verifica identità
+
+Dopo autorizzazione esplicita è stato creato **Online Garden Shipping Test**, ID **111269380421**, dominio `online-garden-shipping-test.myshopify.com`, organizzazione Online Garden `213529043`: **Development, Grow simulato, Italia, EUR, preview Market-driven shipping**. Quattro fixture fittizie create/rilette, nessun cliente/ordine importato; costo effettivo **0,00 €**, nessun abbonamento/trial.
+
+Il precedente blocco «store mancante» è risolto. **Nuovo blocco:** Shopify richiede la verifica identità dell'utente o del proprietario per installare app di terze parti sul Dev; **Installa Intuitive è disabilitato**. Nessuna app installata, tabella A/B configurata o prova checkout eseguita. I carrier sono accessibili nella UI Dev senza upgrade, ma CCS funzionale con l'app resta da dimostrare. Non si sostituisce il test con il simulatore locale.
+
+**Verifica separata live:** Online Garden è Grow; Account corrieri mostra «Abilita tariffe calcolate di terze parti al check-out» e upgrade, quindi CCS risulta non abilitato secondo la UI. Shopify documenta comunque add-on Grow o fatturazione annuale, senza obbligo di Advanced/Plus; ciclo/prezzo specifico non accertati e nulla attivato. Nessuna compatibilità produttiva dedotta dal Dev. [ID, fixture, otto screenshot, CCS, costi e rollback](shipping-evidence/2026-11-03/development-store/README.md).
+
+**Sblocco necessario:** l'utente/proprietario completa la verifica identità direttamente in Shopify; la pagina Dev è lasciata aperta. Le autorizzazioni gratuite già concesse restano valide. Produzione, Sendcloud, PR #42, secret e pagamenti invariati.
+
+Le sezioni precedenti al collaudo sono conservate sotto come storico; l'assenza iniziale del Dev non è più il blocco corrente.
+
+## Storico: preflight prima della creazione Dev — SANDBOX BLOCKED
 
 Il proprietario ha autorizzato operazioni gratuite e reversibili esclusivamente sul development store isolato, vietando trial a conversione automatica e chiedendo di fermarsi se l'ambiente manca. Il preflight del 3 novembre 2026 alle 13:23:42 UTC ha raggiunto la Dev Dashboard **Online Garden `213529043`**: la pagina Negozi senza filtri mostra **«Nessun negozio per ora»**. Nessun target di test disponibile; il link Crea negozio non è stato seguito. Non è una dichiarazione sull'esistenza di store fuori dall'organizzazione accessibile.
 
@@ -63,4 +75,4 @@ La prova deve attestare compatibilità Markets API/posizionamento della tariffa 
 
 Sendcloud resta downstream dell'ordine; nessun corriere è necessario per provare le tabelle fisse. Prima del rilascio serviranno geografia/classificazione approvate, connessione logistica già prevista verificata, backup aggiornato **dei Mercati e dell'app**, diff definitivo e autorizzazione live. Nessun esecutore live o `--apply` è stato introdotto; tutti i gate restano falsi. [Audit Sendcloud esistente e conferma della separazione](SHIPPING-SENDCLOUD-AUDIT.md), [policy](../shipping/platform-policy.json), [gate](../shipping/release-gates.pending.json).
 
-**Stato successivo all’autorizzazione:** SANDBOX BLOCKED per development store mancante nel portfolio accessibile. Rendere disponibile l’ambiente isolato è la singola decisione successiva; non va ripetuta la richiesta di autorizzazione al collaudo. Installazioni live, CCS a pagamento, cambio fatturazione, merge e deploy restano esclusi.
+**Stato corrente:** Dev creato; SANDBOX BLOCKED per verifica identità Shopify necessaria all’installazione Intuitive. Nessun checkout eseguito o abbonamento attivato. Installazioni live, CCS a pagamento, cambio fatturazione, merge e deploy restano esclusi.

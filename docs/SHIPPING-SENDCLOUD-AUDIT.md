@@ -2,7 +2,11 @@
 
 **3 novembre 2026. Stato: Sendcloud confermata come piattaforma logistica; motore checkout candidato Intuitive Shipping, da collaudare; sincronizzazione live bloccata.** Nessuna nuova connessione, app, servizio, subscription, upgrade, pubblicazione, etichetta, ordine o addebito.
 
-## Collaudo sandbox autorizzato — SANDBOX BLOCKED
+## Dev creato, Sendcloud isolata — SANDBOX BLOCKED su identità Shopify
+
+Development store **111269380421**, `online-garden-shipping-test.myshopify.com`, Grow simulato, Italia/EUR e preview Mercati creati gratuitamente. Solo quattro prodotti fittizi, nessuna importazione di clienti/ordini e nessuna app nell'elenco Dev: **Sendcloud produzione non collegata**. Intuitive non installabile finché l'utente/proprietario non verifica l'identità con Shopify; zero prove checkout. Il controllo read-only live rileva CCS da abilitare su Grow, distinto dalla disponibilità UI carrier nel Dev. Nessun costo, trial, abbonamento o modifica Sendcloud/live. [Evidenze e rollback limitato alle fixture Dev](shipping-evidence/2026-11-03/development-store/README.md).
+
+## Storico: collaudo prima della creazione Dev — SANDBOX BLOCKED
 
 Preflight 3 novembre 2026: Dev Dashboard Online Garden accessibile, tabella Negozi «Nessun negozio per ora». Nessun development store isolato identificato; CCS gratuito non verificato. Il collaudo si ferma per ambiente mancante come richiesto, con zero test checkout e costo effettivo 0,00 €. Non sono stati installati Intuitive, attivati trial/piani o modificati Shopify/Sendcloud. **Nessuna interferenza introdotta; prova completa di integrazione non eseguita**, quindi nessun PASS attribuito. Nessun rollback logistico necessario. [Evidenze e prossima decisione](shipping-evidence/2026-11-03/engine-selection/SANDBOX-RESULT.md).
 

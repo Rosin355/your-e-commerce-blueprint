@@ -1,4 +1,6 @@
-# SANDBOX BLOCKED — development store non disponibile
+# Storico: SANDBOX BLOCKED — development store inizialmente non disponibile
+
+**Superato dalla nuova autorizzazione alla creazione:** [store Dev ora creato; blocco corrente verifica identità Shopify per Intuitive](../development-store/README.md). Le osservazioni sotto restano il preflight precedente.
 
 **3 novembre 2026, preflight concluso alle 13:23:42 UTC (14:23:42 Europe/Rome).** Continuazione PR #45 da `66ce71b`. L'autorizzazione al collaudo gratuito e reversibile in sandbox è ricevuta; non deve essere richiesta nuovamente. Produzione, acquisti, trial a conversione automatica, merge e deploy restano esclusi.
 

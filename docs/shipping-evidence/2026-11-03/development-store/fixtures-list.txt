@@ -1,0 +1,14 @@
+0 AXWebArea Online Garden Shipping Test · Prodotti · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products
+													124 link Description: OG QA - Prodotto non classificato, Value: admin.shopify.com/store/online-garden-shipping-test/products/16337683349829
+													126 text Attivo
+													128 text Scorte non monitorate
+													146 link Description: OG QA - Arbusto fittizio, Value: admin.shopify.com/store/online-garden-shipping-test/products/16337681416517
+													148 text Attivo
+													150 text Scorte non monitorate
+													168 link Description: OG QA - Pianta grassa fittizia, Value: admin.shopify.com/store/online-garden-shipping-test/products/16337678958917
+													170 text Attivo
+													172 text Scorte non monitorate
+													190 link Description: OG QA - Bulbo fittizio, Value: admin.shopify.com/store/online-garden-shipping-test/products/16337677287749
+													192 text Attivo
+													194 text Scorte non monitorate
+The focused UI element is 0 AXWebArea Online Garden Shipping Test · Prodotti · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products

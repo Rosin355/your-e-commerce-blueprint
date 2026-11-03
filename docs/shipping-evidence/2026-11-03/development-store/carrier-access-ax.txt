@@ -1,0 +1,12 @@
+0 AXWebArea Online Garden Shipping Test · Spedizione e consegna · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/settings/shipping
+													507 heading La spedizione è stata spostata su Mercati, Value: 2
+														508 text La spedizione è stata spostata su Mercati
+													610 button Collega account corriere
+														611 text Collega account corriere
+				619 container Collega account
+						621 heading Collega account, Value: 2, ID: :r8g:
+							622 text Collega account
+								627 button FedEx
+								630 button UPS®
+						631 button Annulla
+The focused UI element is 619 container Collega account

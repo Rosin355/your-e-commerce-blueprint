@@ -1,0 +1,94 @@
+{
+  "date": "2026-11-03",
+  "scope": "Original browser screenshots, scoped AX observations and development sandbox outcome; not a full store backup",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "8668bbff6a16d0f516ea8a980fe22e35f8eadd99ad415a7d26ba42e3126ebed6"
+    },
+    {
+      "path": "carrier-access-ax.txt",
+      "sha256": "b73fd25c6efc9f67aefd7d06f3e68d58e4fb0ec3ff052247ada75756206c88ec"
+    },
+    {
+      "path": "dev-apps-empty.txt",
+      "sha256": "3c8ee704d057ba2d98fc14e74ff19f167aa563deae4dc2642006011d09197152"
+    },
+    {
+      "path": "fixtures-list.txt",
+      "sha256": "64393c4b6b233d88de34b72e0a0d04acc0a8f0d1ed11829013ebf8b6a353c4df"
+    },
+    {
+      "path": "general-capabilities.txt",
+      "sha256": "eb680278b0295ac797f344052870547e7c1f1d315fc640e2e2d189b1a76cc032"
+    },
+    {
+      "path": "intuitive-install-blocker.txt",
+      "sha256": "d44732d72a5fdb28e5bc1d79d7e2449058d2a0ecbcbac365019ddb56c94f992d"
+    },
+    {
+      "path": "live-ccs-readonly.txt",
+      "sha256": "8cf817b9399d76d7a3e4d31da76d8f1bae7a61a9deb876fe189fe06439380d35"
+    },
+    {
+      "path": "live-plan-readonly.txt",
+      "sha256": "7536435aa838297303e1a35551708bbd1383764584c6fbc3c8505649c0405f9d"
+    },
+    {
+      "path": "product-bulb.txt",
+      "sha256": "33769f0ba4b12071bc954adb7baf912cfd624e955946d23ddb406446ebf9e0ea"
+    },
+    {
+      "path": "product-shrub.txt",
+      "sha256": "029d421e94afaf8d54641c072c7ace8ea407ec32965761be1b4459c7241646bd"
+    },
+    {
+      "path": "product-succulent.txt",
+      "sha256": "6d29633bc0f041c10c2f7d0a9fa375c240e69a4de05ad4120342c8905a3c7469"
+    },
+    {
+      "path": "product-unknown.txt",
+      "sha256": "023424c4c2e76668fa173c943a85fb170543210a28846bc5e7200d807874c554"
+    },
+    {
+      "path": "result.json",
+      "sha256": "3ac806fcecf04863a43c155b8b7ba42286ed9ceecb10574ebb5d45cf92b2c40f"
+    },
+    {
+      "path": "screenshots/01-dev-create-grow-markets.png",
+      "sha256": "bb537ee796705d7c263fded357762b621081fb33307d3d803053d544d179a222"
+    },
+    {
+      "path": "screenshots/02-dev-store-identity.png",
+      "sha256": "f825d2540d5fa227f302840d9a08548eea72812f590aea2ab7fdabd1014ae64a"
+    },
+    {
+      "path": "screenshots/03-dev-grow-plan.png",
+      "sha256": "26f1ab5b11dece81164b822b22165a680aa6ad47709cad09890b9809d35e8e47"
+    },
+    {
+      "path": "screenshots/04-dev-carrier-access.png",
+      "sha256": "87d887496fa3b51cbdd7ca52e322402d96bca2a243d557ee5466929c35bd7767"
+    },
+    {
+      "path": "screenshots/05-intuitive-identity-required.png",
+      "sha256": "a2350c7873f78402a0a0630ada063284e4d9b04aea7d646b26674b827f57bbe3"
+    },
+    {
+      "path": "screenshots/06-four-fictional-products.png",
+      "sha256": "9036648845c27de6e228c9b394e788e637356d6cd1dd64d390b7e7196aabacd9"
+    },
+    {
+      "path": "screenshots/07-live-ccs-not-enabled-readonly.png",
+      "sha256": "b0da5607ddbb03573ef827b2585e5fef43a3fa17152230bafdbe0a15e936ab5b"
+    },
+    {
+      "path": "screenshots/08-dev-no-apps-installed.png",
+      "sha256": "54709109f7927e682e409893e4627c75c9d721afb22ee922d023ba9e22c4dfcf"
+    },
+    {
+      "path": "store-identity-ax.txt",
+      "sha256": "00f4b1602692d4219443f3497335b533191336d683d6372053f3ed9adf035adf"
+    }
+  ]
+}

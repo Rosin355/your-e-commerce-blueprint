@@ -1,0 +1,63 @@
+Browser tab: 2097937099, Title: "Negozi · Dev Dashboard", URL: "https://dev.shopify.com/dashboard/213529043/stores".
+0 AXWebArea Negozi · Dev Dashboard, URL: dev.shopify.com/dashboard/213529043/stores
+	1 container
+		2 link Description: Vai al contenuto principale, Value: dev.shopify.com/dashboard/213529043/stores#main
+		3 container altair-app-frame-d7ee5742
+			4 container Description: Main navigation, ID: altair-app-frame-d7ee5742-nav
+				5 container Main
+					6 link Description: $ shopify dev, Value: dev.shopify.com/dashboard/213529043
+					7 content list
+						8 link Description: Home, Value: dev.shopify.com/dashboard/213529043
+						9 link Description: App, Value: dev.shopify.com/dashboard/213529043/apps
+						10 link Description: Negozi, Value: dev.shopify.com/dashboard/213529043/stores
+						11 link Description: Agenti, Value: dev.shopify.com/dashboard/213529043/catalogs
+					12 button (collapsed) Description: Online Garden, Secondary Actions: Expand
+			13 container main
+				14 container
+					15 heading Negozi, Value: 1
+						16 text Negozi
+					17 link Description: Crea negozio, Value: admin.shopify.com/store-create/organization/213529043
+				18 container
+					19 container stores-next-filter-autocomplete-field
+						20 container stores-next-filter-query-field
+							21 text Cerca e filtra
+							22 combo box (collapsed, settable) Cerca e filtra, ID: stores-next-filter-query, Secondary Actions: Expand
+						23 text 3 suggestions available.
+					24 table Negozi
+						25 text Negozi
+						26 row
+							27 cell
+								28 link Description: Nome, Value: dev.shopify.com/dashboard/213529043/stores?direction=asc&sort=name
+							29 cell
+								30 link Description: Tipo, Value: dev.shopify.com/dashboard/213529043/stores?direction=asc&sort=type
+							31 cell
+								32 link Description: Stato, Value: dev.shopify.com/dashboard/213529043/stores?direction=asc&sort=status
+							33 cell
+								34 link Description: Organizzazione, Value: dev.shopify.com/dashboard/213529043/stores?direction=asc&sort=organization
+							35 cell
+								36 link Description: Piano, Value: dev.shopify.com/dashboard/213529043/stores?direction=asc&sort=plan
+							37 cell
+								38 link Description: Ultimo accesso, Value: dev.shopify.com/dashboard/213529043/stores?direction=asc&sort=last_accessed
+							39 cell
+								40 text Azioni
+						41 row
+							42 cell
+								43 image Online Garden Shipping Test
+								44 link Description: Online Garden Shipping Test, Value: dev.shopify.com/dashboard/213529043/stores/111269380421
+								45 text online-garden-shipping-test.myshopify.com
+							46 cell
+								47 text Development
+							48 cell
+								49 text —
+							50 cell
+								51 text Online Garden
+							52 cell
+								53 text Grow
+							54 cell
+								55 text 3 nov 2026
+							56 cell
+								57 pop up button (collapsed) Description: Azioni, Secondary Actions: Expand
+	58 container grammarly-integration
+		59 text {"mode":"full","isActive":true,"isUserDisabled":false}
+
+The focused UI element is 0 AXWebArea Negozi · Dev Dashboard, URL: dev.shopify.com/dashboard/213529043/stores

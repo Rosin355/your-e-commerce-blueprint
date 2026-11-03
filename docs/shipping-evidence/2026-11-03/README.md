@@ -1,5 +1,7 @@
 # Evidenze spedizioni — 3 novembre 2026
 
+**Stato corrente:** [Dev Grow 111269380421 creato; SANDBOX BLOCKED per verifica identità richiesta da Shopify](development-store/README.md). Quattro prodotti fittizi e otto screenshot; zero checkout Intuitive. CCS live da abilitare secondo la UI separatamente letta.
+
 **Aggiornamento motore PR #45:** [evidenze mirate, fonti e riproduzione](engine-selection/README.md). Spedizione per Mercati attiva sul Grow reale; vecchio input merchant DeliveryProfile superato. Intuitive candidato a collaudo isolato, non installato/certificato.
 
 Follow-up Sendcloud: `sendcloud-followup-audit.json` registra la nuova lettura API e le osservazioni UI dell'app installata; `sendcloud-reaudit-*.graphql` e `sendcloud-schema-validation.json` conservano le tre query validate; `sendcloud-followup-local-checks.json` contiene 302 test spedizioni / 645 dominio, distinti dallo storico iniziale 295 / 638. Nessun nuovo servizio selezionato e nessuna configurazione live modificata. [Audit e limiti](../../SHIPPING-SENDCLOUD-AUDIT.md).

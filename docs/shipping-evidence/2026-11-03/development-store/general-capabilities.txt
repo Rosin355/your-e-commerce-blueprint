@@ -1,0 +1,9 @@
+0 AXWebArea Online Garden Shipping Test · Generali · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/settings/general
+												213 text Online Garden Shipping Test - entity Italia
+												227 text Italia
+												229 text Development store Creato il 3 novembre 2026 · Anteprima Market-driven shipping and ship & pickup in one order
+													239 text Euro (EUR €)
+													246 text Italia
+													247 pop up button (collapsed, settable) Area geografica backup, Value: Italia, ID: select, Secondary Actions: Expand
+															249 (selected) Italia
+										478 text Questo negozio non può essere trasferito perché è un development store creato per i test.
