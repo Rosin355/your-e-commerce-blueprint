@@ -1,0 +1,1 @@
+query ShippingApps($after: String) { appInstallations(first: 50, after: $after) { pageInfo { hasNextPage endCursor } nodes { id app { id title handle appStoreAppUrl } accessScopes { handle } } } }

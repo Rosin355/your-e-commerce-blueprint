@@ -1,0 +1,16 @@
+{
+  "status": "pending",
+  "coverageComplete": false,
+  "source": null,
+  "carrier": null,
+  "service": null,
+  "approvedBy": null,
+  "approvedAt": null,
+  "specialDestinations": [],
+  "openDecisions": [
+    "Confermare copertura integrale Sicilia e Sardegna e relativa fonte.",
+    "Acquisire elenco ufficiale isole minori, CAP/località disagiate e destinazioni non servite del corriere e servizio contrattuale.",
+    "Verificare CAP condivisi da località ordinarie e disagiate: richiedere anche comune/località quando necessario.",
+    "Confermare completezza, data di validità e manutenzione della lista; nessuna macroregione Sud."
+  ]
+}

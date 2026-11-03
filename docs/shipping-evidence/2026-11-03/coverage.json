@@ -1,0 +1,13 @@
+{
+  "data": {
+    "deliveryProfiles": {
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": "eyJsYXN0X2lkIjoxMzk3OTY2NzY5NDgsImxhc3RfdmFsdWUiOiIyMDI2LTA0LTA5IDIwOjQ3OjIwLjAwMDAwMCJ9"
+      },
+      "nodes": [
+        {"id":"gid://shopify/DeliveryProfile/139796676948","productVariantsCount":{"count":500,"precision":"AT_LEAST"},"unassignedLocations":[]}
+      ]
+    }
+  }
+}

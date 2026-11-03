@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-03",
+  "shippingTests": {
+    "passed": 295,
+    "failed": 0
+  },
+  "nodeDomainTests": {
+    "passed": 638,
+    "failed": 0,
+    "network": "blocked by ci/offline-network.cjs"
+  },
+  "typecheck": "PASS",
+  "targetedEslint": "PASS",
+  "viteBuild": "PASS; existing >500 kB chunk warning",
+  "schemaOperationsValid": 14,
+  "completeInputsValid": 2,
+  "nativeCheckoutCases": {
+    "prepared": 720,
+    "executed": 0
+  },
+  "shopifyMutationsExecuted": 0,
+  "liveConfigurationModified": false,
+  "ordersCreated": 0,
+  "paymentsCreated": 0,
+  "remoteCi": "NOT_RUN_FOR_THIS_BRANCH",
+  "status": "BLOCKED"
+}

@@ -1,0 +1,7 @@
+{
+  "status": "pending",
+  "catalogReference": "docs/shipping-evidence/2026-11-03/catalog.json",
+  "approvals": [],
+  "requiredFieldsPerApproval": ["variantId", "logisticsClass", "approvedBy", "approvalReference"],
+  "note": "Nessuna approvazione è implicita nei suggerimenti delle collezioni. Compilare solo dopo validazione cliente."
+}

@@ -1,0 +1,15 @@
+{
+  "capturedAt": "2026-11-03T09:30:59.963Z",
+  "source": "Shopify Admin API; read only",
+  "response": {
+    "data": {
+      "metafieldDefinitions": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        },
+        "nodes": []
+      }
+    }
+  }
+}

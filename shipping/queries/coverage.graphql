@@ -1,0 +1,1 @@
+query ShippingProfileCoverage { deliveryProfiles(first: 10) { pageInfo { hasNextPage endCursor } nodes { id productVariantsCount { count precision } unassignedLocations { id name } } } }

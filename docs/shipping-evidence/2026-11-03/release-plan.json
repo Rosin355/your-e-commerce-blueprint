@@ -1,0 +1,739 @@
+{
+  "status": "BLOCKED",
+  "blockers": [
+    "geographyApproved",
+    "classificationApproved",
+    "publicAppVerified",
+    "deliveryCustomizationsAudited",
+    "discountBasisVerified",
+    "singleDeliveryGroupVerified",
+    "stagingCheckoutMatrixPassed",
+    "freshBackupVerified",
+    "operationalDiffApproved"
+  ],
+  "liveSynchronized": false,
+  "checkoutCertified": false,
+  "plan": {
+    "expectedProfileId": "gid://shopify/DeliveryProfile/139796676948",
+    "expectedVersion": 1,
+    "expectedSnapshotSha256": "8020b926b59411c4aa7c3768129ab568cfdb1466bdd714afcce1856dd2f80d99",
+    "comparisonExcludes": [
+      "DeliveryProfile.coversAllItems; variant/profile membership is audited separately"
+    ],
+    "specs": [
+      {
+        "code": "OG-A-IT-1",
+        "table": "A",
+        "area": "standard",
+        "tierIndex": 0,
+        "minCents": 0,
+        "maxCents": 1899,
+        "priceCents": 890,
+        "displayName": "Spedizione standard"
+      },
+      {
+        "code": "OG-A-SPECIAL-1",
+        "table": "A",
+        "area": "special",
+        "tierIndex": 0,
+        "minCents": 0,
+        "maxCents": 1899,
+        "priceCents": 960,
+        "displayName": "Spedizione isole e zone disagiate"
+      },
+      {
+        "code": "OG-A-IT-2",
+        "table": "A",
+        "area": "standard",
+        "tierIndex": 1,
+        "minCents": 1900,
+        "maxCents": 7999,
+        "priceCents": 1190,
+        "displayName": "Spedizione standard"
+      },
+      {
+        "code": "OG-A-SPECIAL-2",
+        "table": "A",
+        "area": "special",
+        "tierIndex": 1,
+        "minCents": 1900,
+        "maxCents": 7999,
+        "priceCents": 1250,
+        "displayName": "Spedizione isole e zone disagiate"
+      },
+      {
+        "code": "OG-A-IT-3",
+        "table": "A",
+        "area": "standard",
+        "tierIndex": 2,
+        "minCents": 8000,
+        "maxCents": 14999,
+        "priceCents": 1250,
+        "displayName": "Spedizione standard"
+      },
+      {
+        "code": "OG-A-SPECIAL-3",
+        "table": "A",
+        "area": "special",
+        "tierIndex": 2,
+        "minCents": 8000,
+        "maxCents": 14999,
+        "priceCents": 1490,
+        "displayName": "Spedizione isole e zone disagiate"
+      },
+      {
+        "code": "OG-A-IT-4",
+        "table": "A",
+        "area": "standard",
+        "tierIndex": 3,
+        "minCents": 15000,
+        "maxCents": 24999,
+        "priceCents": 1750,
+        "displayName": "Spedizione standard"
+      },
+      {
+        "code": "OG-A-SPECIAL-4",
+        "table": "A",
+        "area": "special",
+        "tierIndex": 3,
+        "minCents": 15000,
+        "maxCents": 24999,
+        "priceCents": 1750,
+        "displayName": "Spedizione isole e zone disagiate"
+      },
+      {
+        "code": "OG-A-IT-5",
+        "table": "A",
+        "area": "standard",
+        "tierIndex": 4,
+        "minCents": 25000,
+        "maxCents": 49999,
+        "priceCents": 3600,
+        "displayName": "Spedizione standard"
+      },
+      {
+        "code": "OG-A-SPECIAL-5",
+        "table": "A",
+        "area": "special",
+        "tierIndex": 4,
+        "minCents": 25000,
+        "maxCents": 49999,
+        "priceCents": 3600,
+        "displayName": "Spedizione isole e zone disagiate"
+      },
+      {
+        "code": "OG-A-IT-6",
+        "table": "A",
+        "area": "standard",
+        "tierIndex": 5,
+        "minCents": 50000,
+        "maxCents": null,
+        "priceCents": 5400,
+        "displayName": "Spedizione standard"
+      },
+      {
+        "code": "OG-A-SPECIAL-6",
+        "table": "A",
+        "area": "special",
+        "tierIndex": 5,
+        "minCents": 50000,
+        "maxCents": null,
+        "priceCents": 5400,
+        "displayName": "Spedizione isole e zone disagiate"
+      },
+      {
+        "code": "OG-B-IT-1",
+        "table": "B",
+        "area": "standard",
+        "tierIndex": 0,
+        "minCents": 0,
+        "maxCents": 4999,
+        "priceCents": 590,
+        "displayName": "Spedizione standard"
+      },
+      {
+        "code": "OG-B-SPECIAL-1",
+        "table": "B",
+        "area": "special",
+        "tierIndex": 0,
+        "minCents": 0,
+        "maxCents": 4999,
+        "priceCents": 690,
+        "displayName": "Spedizione isole e zone disagiate"
+      },
+      {
+        "code": "OG-B-IT-2",
+        "table": "B",
+        "area": "standard",
+        "tierIndex": 1,
+        "minCents": 5000,
+        "maxCents": 14999,
+        "priceCents": 790,
+        "displayName": "Spedizione standard"
+      },
+      {
+        "code": "OG-B-SPECIAL-2",
+        "table": "B",
+        "area": "special",
+        "tierIndex": 1,
+        "minCents": 5000,
+        "maxCents": 14999,
+        "priceCents": 890,
+        "displayName": "Spedizione isole e zone disagiate"
+      },
+      {
+        "code": "OG-B-IT-3",
+        "table": "B",
+        "area": "standard",
+        "tierIndex": 2,
+        "minCents": 15000,
+        "maxCents": null,
+        "priceCents": 890,
+        "displayName": "Spedizione standard"
+      },
+      {
+        "code": "OG-B-SPECIAL-3",
+        "table": "B",
+        "area": "special",
+        "tierIndex": 2,
+        "minCents": 15000,
+        "maxCents": null,
+        "priceCents": 950,
+        "displayName": "Spedizione isole e zone disagiate"
+      }
+    ],
+    "proposedVariables": {
+      "id": "gid://shopify/DeliveryProfile/139796676948",
+      "profile": {
+        "locationGroupsToUpdate": [
+          {
+            "id": "gid://shopify/DeliveryLocationGroup/142245462356",
+            "zonesToUpdate": [
+              {
+                "id": "gid://shopify/DeliveryZone/682687136084",
+                "methodDefinitionsToCreate": [
+                  {
+                    "name": "OG-A-IT-1",
+                    "description": "Spedizione standard",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "8.90",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "0.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "18.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-A-SPECIAL-1",
+                    "description": "Spedizione isole e zone disagiate",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "9.60",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "0.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "18.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-A-IT-2",
+                    "description": "Spedizione standard",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "11.90",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "19.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "79.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-A-SPECIAL-2",
+                    "description": "Spedizione isole e zone disagiate",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "12.50",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "19.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "79.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-A-IT-3",
+                    "description": "Spedizione standard",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "12.50",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "80.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "149.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-A-SPECIAL-3",
+                    "description": "Spedizione isole e zone disagiate",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "14.90",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "80.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "149.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-A-IT-4",
+                    "description": "Spedizione standard",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "17.50",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "150.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "249.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-A-SPECIAL-4",
+                    "description": "Spedizione isole e zone disagiate",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "17.50",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "150.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "249.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-A-IT-5",
+                    "description": "Spedizione standard",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "36.00",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "250.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "499.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-A-SPECIAL-5",
+                    "description": "Spedizione isole e zone disagiate",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "36.00",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "250.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "499.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-A-IT-6",
+                    "description": "Spedizione standard",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "54.00",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "500.00",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-A-SPECIAL-6",
+                    "description": "Spedizione isole e zone disagiate",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "54.00",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "500.00",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-B-IT-1",
+                    "description": "Spedizione standard",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "5.90",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "0.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "49.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-B-SPECIAL-1",
+                    "description": "Spedizione isole e zone disagiate",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "6.90",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "0.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "49.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-B-IT-2",
+                    "description": "Spedizione standard",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "7.90",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "50.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "149.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-B-SPECIAL-2",
+                    "description": "Spedizione isole e zone disagiate",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "8.90",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "50.00",
+                          "currencyCode": "EUR"
+                        }
+                      },
+                      {
+                        "operator": "LESS_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "149.99",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-B-IT-3",
+                    "description": "Spedizione standard",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "8.90",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "150.00",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "OG-B-SPECIAL-3",
+                    "description": "Spedizione isole e zone disagiate",
+                    "active": true,
+                    "rateDefinition": {
+                      "price": {
+                        "amount": "9.50",
+                        "currencyCode": "EUR"
+                      }
+                    },
+                    "priceConditionsToCreate": [
+                      {
+                        "operator": "GREATER_THAN_OR_EQUAL_TO",
+                        "criteria": {
+                          "amount": "150.00",
+                          "currencyCode": "EUR"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "methodDefinitionsToUpdate": [
+                  {
+                    "id": "gid://shopify/DeliveryMethodDefinition/1265953014100",
+                    "active": false
+                  },
+                  {
+                    "id": "gid://shopify/DeliveryMethodDefinition/1265953046868",
+                    "active": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "rollback": {
+      "restoreLegacy": [
+        {
+          "id": "gid://shopify/DeliveryMethodDefinition/1265953014100",
+          "active": true
+        },
+        {
+          "id": "gid://shopify/DeliveryMethodDefinition/1265953046868",
+          "active": true
+        }
+      ],
+      "deactivateCreatedMethods": "Resolve exactly the 18 IDs returned by the authorized mutation; never delete by name alone.",
+      "restoreSnapshotSha256": "21dd0036371070d5119a94d753d12aaac3ceb7ab7339763f251ad2968546d290"
+    },
+    "preconditions": [
+      "Fresh snapshot matches this fingerprint and profile version.",
+      "Public app rules verified in staging, active and restricted to IT; exact code matching and approved classification.",
+      "Approved complete geography, native discount basis verified, exactly one delivery group.",
+      "Single explicit live authorization for the full operational diff."
+    ]
+  },
+  "gates": {
+    "geographyApproved": false,
+    "classificationApproved": false,
+    "publicAppVerified": false,
+    "deliveryCustomizationsAudited": false,
+    "discountBasisVerified": false,
+    "singleDeliveryGroupVerified": false,
+    "stagingCheckoutMatrixPassed": false,
+    "freshBackupVerified": false,
+    "operationalDiffApproved": false
+  },
+  "classificationDefinition": {
+    "name": "Classe logistica spedizioni Online Garden",
+    "namespace": "logistics",
+    "key": "shipping_class",
+    "type": "single_line_text_field",
+    "ownerType": "PRODUCTVARIANT",
+    "description": "Classe logistica approvata; assenza o valore sconosciuto implica tariffa ordinaria A.",
+    "validations": [
+      {
+        "name": "choices",
+        "value": "[\"bulb\",\"succulent\",\"shrub\",\"standard\",\"heavy\",\"bulky\",\"unknown\"]"
+      }
+    ]
+  },
+  "classificationWrites": [],
+  "reducedSkuAllowlist": [],
+  "note": "PROPOSAL ONLY. App configuration, geography and classification remain unapproved. No live executor exists in this package."
+}

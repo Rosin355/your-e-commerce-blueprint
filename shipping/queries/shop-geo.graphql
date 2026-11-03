@@ -1,0 +1,1 @@
+query ShippingShopGeography { shop { shipping: metafields(first: 50, namespace: "shipping") { pageInfo { hasNextPage endCursor } nodes { namespace key type value } } logistics: metafields(first: 50, namespace: "logistics") { pageInfo { hasNextPage endCursor } nodes { namespace key type value } } } }

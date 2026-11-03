@@ -1,0 +1,104 @@
+{
+  "apiSchemaVersion": "2026-01",
+  "liveApiResponseVersion": "not exposed by connector",
+  "executedMutations": 0,
+  "operations": [
+    {
+      "artifact": "apps.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": true
+    },
+    {
+      "artifact": "audit.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": true
+    },
+    {
+      "artifact": "carriers.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": true
+    },
+    {
+      "artifact": "catalog.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": true
+    },
+    {
+      "artifact": "coverage.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": true
+    },
+    {
+      "artifact": "create-classification-definition.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": false
+    },
+    {
+      "artifact": "customs.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": true
+    },
+    {
+      "artifact": "defs.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": true
+    },
+    {
+      "artifact": "profile.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": true
+    },
+    {
+      "artifact": "set-classification.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": false
+    },
+    {
+      "artifact": "shop-geo.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": true
+    },
+    {
+      "artifact": "update-profile.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": false
+    },
+    {
+      "artifact": "variant-defs.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": true
+    },
+    {
+      "artifact": "variantsCoverage.graphql",
+      "status": "VALID",
+      "validator": "Shopify AI Toolkit validate.mjs; admin 2026-01",
+      "executed": true
+    }
+  ],
+  "additionalInputValidations": [
+    {
+      "artifact": "profile-target-input.graphql",
+      "status": "VALID",
+      "executed": false
+    },
+    {
+      "artifact": "classification-definition-input.graphql",
+      "status": "VALID",
+      "executed": false
+    }
+  ],
+  "correction": "coversAllItems omitted from reusable profile query after validator reported it absent in 2026-01. Initial live snapshot retains the observed newer field. No API upgrade deployed."
+}

@@ -1,0 +1,39 @@
+{
+  "capturedAt": "2026-11-03T09:21:51.734Z",
+  "source": "Shopify Admin API via connected Shopify tool; read only",
+  "response": {
+    "data": {
+      "metafieldDefinitions": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "eyJsYXN0X2lkIjo0NDgwOTc4NDU1ODgsImxhc3RfdmFsdWUiOiI0NDgwOTc4NDU1ODgifQ=="
+        },
+        "nodes": [
+          {"id":"gid://shopify/MetafieldDefinition/393008873812","name":"Care Info","namespace":"custom","key":"care_info"},
+          {"id":"gid://shopify/MetafieldDefinition/393010348372","name":"Promo Text","namespace":"custom","key":"promo_text"},
+          {"id":"gid://shopify/MetafieldDefinition/393013887316","name":"Key Features","namespace":"custom","key":"key_features"},
+          {"id":"gid://shopify/MetafieldDefinition/393013952852","name":"Special Bullets","namespace":"custom","key":"special_bullets"},
+          {"id":"gid://shopify/MetafieldDefinition/393078767956","name":"Short_intro","namespace":"custom","key":"short_intro"},
+          {"id":"gid://shopify/MetafieldDefinition/393080340820","name":"Long_description","namespace":"custom","key":"long_description"},
+          {"id":"gid://shopify/MetafieldDefinition/393118679380","name":"Difficoltà di coltivazione","namespace":"custom","key":"difficolta_di_coltivazione"},
+          {"id":"gid://shopify/MetafieldDefinition/393118744916","name":"Origini e habitat","namespace":"custom","key":"origini_e_habitat"},
+          {"id":"gid://shopify/MetafieldDefinition/393118843220","name":"Nome botanico","namespace":"custom","key":"nome_botanico"},
+          {"id":"gid://shopify/MetafieldDefinition/393118875988","name":"Nome comune","namespace":"custom","key":"nome_comune"},
+          {"id":"gid://shopify/MetafieldDefinition/393119039828","name":"Attributi prodotto","namespace":"custom","key":"attributi_prodotto"},
+          {"id":"gid://shopify/MetafieldDefinition/393119203668","name":"Periodo di fioritura","namespace":"custom","key":"periodo_di_fioritura"},
+          {"id":"gid://shopify/MetafieldDefinition/393119236436","name":"Periodo ottimale di potatura","namespace":"custom","key":"periodo_ottimale_di_potatura"},
+          {"id":"gid://shopify/MetafieldDefinition/393119334740","name":"Periodo di messa a dimora","namespace":"custom","key":"periodo_di_messa_a_dimora"},
+          {"id":"gid://shopify/MetafieldDefinition/393119826260","name":"Periodo di raccolta","namespace":"custom","key":"periodo_di_raccolta"},
+          {"id":"gid://shopify/MetafieldDefinition/393119957332","name":"Conosci meglio la tua pianta","namespace":"custom","key":"conosci_meglio_la_tua_pianta"},
+          {"id":"gid://shopify/MetafieldDefinition/393120022868","name":"Come prendersene cura","namespace":"custom","key":"come_prendersene_cura"},
+          {"id":"gid://shopify/MetafieldDefinition/393120121172","name":"Titolo sezione FAQ","namespace":"custom","key":"titolo_sezione_faq"},
+          {"id":"gid://shopify/MetafieldDefinition/393120383316","name":"FAQ prodotto","namespace":"custom","key":"faq_prodotto"},
+          {"id":"gid://shopify/MetafieldDefinition/448097616212","name":"Ibridatore","namespace":"custom","key":"ibridatore"},
+          {"id":"gid://shopify/MetafieldDefinition/448097714516","name":"Colore fiore","namespace":"custom","key":"colore_fiore"},
+          {"id":"gid://shopify/MetafieldDefinition/448097780052","name":"Colore foglia","namespace":"custom","key":"colore_foglia"},
+          {"id":"gid://shopify/MetafieldDefinition/448097845588","name":"Curiosità","namespace":"custom","key":"curiosita"}
+        ]
+      }
+    }
+  }
+}

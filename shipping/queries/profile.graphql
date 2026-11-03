@@ -1,0 +1,12 @@
+query ShippingProfiles($after: String) {
+ deliveryProfiles(first: 5, after: $after) { pageInfo { hasNextPage endCursor } nodes {
+ id name default version activeMethodDefinitionsCount
+ profileLocationGroups { locationGroup { id locations(first: 50) { pageInfo { hasNextPage endCursor } nodes { id name } } }
+ locationGroupZones(first: 10) { pageInfo { hasNextPage endCursor } nodes {
+ zone { id name countries { id name code { countryCode restOfWorld } provinces { id code name } } }
+ methodDefinitions(first: 20) { pageInfo { hasNextPage endCursor } nodes { id name description active
+ methodConditions { id field operator conditionCriteria { __typename ... on MoneyV2 { amount currencyCode } ... on Weight { value unit } } }
+ rateProvider { __typename ... on DeliveryRateDefinition { id price { amount currencyCode } } ... on DeliveryParticipant { id fixedFee { amount currencyCode } percentageOfRateFee carrierService { id name active } } }
+ } } } } }
+ } }
+}

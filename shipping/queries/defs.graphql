@@ -1,0 +1,1 @@
+query ShippingDefinitions($after: String) { metafieldDefinitions(first: 50, after: $after, ownerType: PRODUCT) { pageInfo { hasNextPage endCursor } nodes { id name namespace key } } }

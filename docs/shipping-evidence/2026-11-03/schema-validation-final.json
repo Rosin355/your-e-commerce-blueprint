@@ -1,0 +1,32 @@
+[
+  {
+    "artifact": "profile",
+    "exitCode": 0,
+    "output": "## Validation Summary\n\n**Overall Status:** ✅ VALID\n**Total Code Blocks:** 1\n\n## Detailed Results\n\n### Code Block 1\n**Artifact ID:** og-shipping-profile\n**Revision:** 2\n*Use same ID & increment revision when retrying on an improvement of this artifact*\n\n**Status:** ✅ SUCCESS\n**Details:** Successfully validated GraphQL query against schema.\nRequired scopes: read_locations, read_inventory, read_markets_home\n\n\n"
+  },
+  {
+    "artifact": "set-classification",
+    "exitCode": 0,
+    "output": "## Validation Summary\n\n**Overall Status:** ✅ VALID\n**Total Code Blocks:** 1\n\n## Detailed Results\n\n### Code Block 1\n**Artifact ID:** og-shipping-set-classification\n**Revision:** 1\n*Use same ID & increment revision when retrying on an improvement of this artifact*\n\n**Status:** ✅ SUCCESS\n**Details:** Successfully validated GraphQL mutation against schema.\n\n\n"
+  },
+  {
+    "artifact": "shop-geo",
+    "exitCode": 0,
+    "output": "## Validation Summary\n\n**Overall Status:** ✅ VALID\n**Total Code Blocks:** 1\n\n## Detailed Results\n\n### Code Block 1\n**Artifact ID:** og-shipping-shop-geo\n**Revision:** 1\n*Use same ID & increment revision when retrying on an improvement of this artifact*\n\n**Status:** ✅ SUCCESS\n**Details:** Successfully validated GraphQL query against schema.\n\n\n"
+  },
+  {
+    "artifact": "update-profile",
+    "exitCode": 0,
+    "output": "## Validation Summary\n\n**Overall Status:** ✅ VALID\n**Total Code Blocks:** 1\n\n## Detailed Results\n\n### Code Block 1\n**Artifact ID:** og-shipping-update-profile\n**Revision:** 1\n*Use same ID & increment revision when retrying on an improvement of this artifact*\n\n**Status:** ✅ SUCCESS\n**Details:** Successfully validated GraphQL mutation against schema.\n\n\n"
+  },
+  {
+    "artifact": "variant-defs",
+    "exitCode": 0,
+    "output": "## Validation Summary\n\n**Overall Status:** ✅ VALID\n**Total Code Blocks:** 1\n\n## Detailed Results\n\n### Code Block 1\n**Artifact ID:** og-shipping-variant-defs\n**Revision:** 1\n*Use same ID & increment revision when retrying on an improvement of this artifact*\n\n**Status:** ✅ SUCCESS\n**Details:** Successfully validated GraphQL query against schema.\n\n\n"
+  },
+  {
+    "artifact": "variantsCoverage",
+    "exitCode": 0,
+    "output": "## Validation Summary\n\n**Overall Status:** ✅ VALID\n**Total Code Blocks:** 1\n\n## Detailed Results\n\n### Code Block 1\n**Artifact ID:** og-shipping-variantsCoverage\n**Revision:** 1\n*Use same ID & increment revision when retrying on an improvement of this artifact*\n\n**Status:** ✅ SUCCESS\n**Details:** Successfully validated GraphQL query against schema.\nRequired scopes: read_products\n\n\n"
+  }
+]

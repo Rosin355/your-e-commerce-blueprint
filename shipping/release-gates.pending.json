@@ -1,0 +1,11 @@
+{
+  "geographyApproved": false,
+  "classificationApproved": false,
+  "publicAppVerified": false,
+  "deliveryCustomizationsAudited": false,
+  "discountBasisVerified": false,
+  "singleDeliveryGroupVerified": false,
+  "stagingCheckoutMatrixPassed": false,
+  "freshBackupVerified": false,
+  "operationalDiffApproved": false
+}

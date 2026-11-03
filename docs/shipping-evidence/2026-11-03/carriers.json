@@ -1,0 +1,15 @@
+{
+  "capturedAt": "2026-11-03T09:21:51.734Z",
+  "source": "Shopify Admin API via connected Shopify tool; read only",
+  "response": {
+    "data": {
+      "carrierServices": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        },
+        "nodes": []
+      }
+    }
+  }
+}

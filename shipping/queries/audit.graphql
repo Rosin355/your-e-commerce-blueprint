@@ -1,0 +1,4 @@
+query ShippingCapabilities {
+shop { id name myshopifyDomain currencyCode ianaTimezone plan { publicDisplayName shopifyPlus partnerDevelopment } taxesIncluded taxShipping }
+currentAppInstallation { accessScopes { handle } }
+}
