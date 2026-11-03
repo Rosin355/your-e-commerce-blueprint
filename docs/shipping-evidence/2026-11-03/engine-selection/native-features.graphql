@@ -1,0 +1,1 @@
+query ShippingNativeCapabilities { shop { myshopifyDomain currencyCode plan { publicDisplayName shopifyPlus } features { marketDrivenShipping subCountryMarketsEnabled } } }

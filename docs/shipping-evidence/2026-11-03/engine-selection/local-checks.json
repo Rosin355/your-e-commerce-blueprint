@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-03",
+  "baseHead": "5ce8883e602124dc1ea3e61f1ea0a3bc6576ded9",
+  "shippingTests": {
+    "passed": 325,
+    "failed": 0
+  },
+  "allNodeDomainTests": {
+    "passed": 668,
+    "failed": 0,
+    "networkGuard": "ci/offline-network.cjs"
+  },
+  "typecheck": "PASS",
+  "lintShipping": "PASS",
+  "graphql": {
+    "api": "admin",
+    "version": "2026-10",
+    "operationsValidated": 2,
+    "receipt": "graphql-validation.json"
+  },
+  "liveCheckoutCasesExecuted": 0,
+  "installations": 0,
+  "purchases": 0,
+  "shopifyMutations": 0,
+  "build": "NOT_REPEATED_THIS_FOLLOWUP; frontend unchanged; CI to verify final HEAD",
+  "releaseStatus": "BLOCKED"
+}

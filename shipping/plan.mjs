@@ -146,6 +146,21 @@ export const REQUIRED_GATES = Object.freeze(['geographyApproved', 'classificatio
   'deliveryCustomizationsAudited', 'discountBasisVerified', 'singleDeliveryGroupVerified',
   'stagingCheckoutMatrixPassed', 'freshBackupVerified', 'operationalDiffApproved']);
 
+export function prepareCurrentShippingPlan(snapshot, features) {
+  if (typeof features?.marketDrivenShipping !== 'boolean') throw new Error('SHIPPING_MODEL_NOT_VERIFIED');
+  if (!features.marketDrivenShipping) return buildProfilePlan(snapshot);
+  return {
+    status: 'LEGACY_MERCHANT_PROFILE_TEMPLATE_SUPERSEDED_BY_MARKET_DRIVEN_SHIPPING',
+    configurationReadPath: 'Market.delivery.shipping',
+    proposedVariables: null, rollback: null,
+    specs: nativeRateSpecs(),
+    historicalProfileSnapshotSha256: fingerprint(snapshot),
+    preconditions: ['Use current Markets API / app integration; do not update the historical merchant DeliveryProfile.',
+      'Prove the selected Grow-compatible engine in an isolated development checkout, including market-driven shipping.',
+      'Keep live synchronization blocked until the complete product/geography configuration and operational diff are approved.'],
+  };
+}
+
 export function releaseReadiness(gates) {
   const blockers = REQUIRED_GATES.filter(key => gates?.[key] !== true);
   return { status: blockers.length ? 'BLOCKED' : 'AWAITING_CONTROLLED_RELEASE', blockers,

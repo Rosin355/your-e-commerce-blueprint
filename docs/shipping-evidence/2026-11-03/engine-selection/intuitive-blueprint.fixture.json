@@ -1,0 +1,194 @@
+{
+  "kind": "DOCUMENTED_MANUAL_CONFIGURATION_BLUEPRINT_NOT_VENDOR_IMPORT",
+  "selectedForLive": false,
+  "publishable": false,
+  "requiredPlan": "Shopify Grow with third-party CCS enabled",
+  "requiredSettings": {
+    "matchProductFiltersToConditions": false,
+    "productFilters": [],
+    "enableDiscountFetching": true,
+    "productCustomShippingCosts": false,
+    "customCostBlending": false,
+    "rateBlending": false,
+    "cartSplitting": false,
+    "freeShippingThreshold": false,
+    "handlingFees": false,
+    "rounding": false,
+    "wholeCartDeliveryGroupRequired": true
+  },
+  "reducedSkus": [
+    "__SKU_BULB__",
+    "__SKU_SUCCULENT__"
+  ],
+  "geographicPolicy": "Approved IT special CAP/locality list; standard is its complement. Regional candidates have no operational effect.",
+  "scenarios": [
+    {
+      "id": "OG-A-standard",
+      "conditionMatch": "All conditions",
+      "country": "IT",
+      "area": "standard",
+      "productCondition": {
+        "field": "Product SKU",
+        "operator": "Does not equal",
+        "values": [
+          "__SKU_BULB__",
+          "__SKU_SUCCULENT__"
+        ],
+        "productMatch": "Any product"
+      },
+      "productFilters": [],
+      "shippingMethod": {
+        "type": "Custom shipping rates",
+        "rateType": "Total",
+        "perUnit": null,
+        "ratesTableMode": "Return the highest applicable rate row",
+        "rows": [
+          {
+            "upTo": "18.99",
+            "cost": "8.90"
+          },
+          {
+            "upTo": "79.99",
+            "cost": "11.90"
+          },
+          {
+            "upTo": "149.99",
+            "cost": "12.50"
+          },
+          {
+            "upTo": "249.99",
+            "cost": "17.50"
+          },
+          {
+            "upTo": "499.99",
+            "cost": "36.00"
+          },
+          {
+            "upTo": "~",
+            "cost": "54.00"
+          }
+        ]
+      }
+    },
+    {
+      "id": "OG-A-special",
+      "conditionMatch": "All conditions",
+      "country": "IT",
+      "area": "special",
+      "productCondition": {
+        "field": "Product SKU",
+        "operator": "Does not equal",
+        "values": [
+          "__SKU_BULB__",
+          "__SKU_SUCCULENT__"
+        ],
+        "productMatch": "Any product"
+      },
+      "productFilters": [],
+      "shippingMethod": {
+        "type": "Custom shipping rates",
+        "rateType": "Total",
+        "perUnit": null,
+        "ratesTableMode": "Return the highest applicable rate row",
+        "rows": [
+          {
+            "upTo": "18.99",
+            "cost": "9.60"
+          },
+          {
+            "upTo": "79.99",
+            "cost": "12.50"
+          },
+          {
+            "upTo": "149.99",
+            "cost": "14.90"
+          },
+          {
+            "upTo": "249.99",
+            "cost": "17.50"
+          },
+          {
+            "upTo": "499.99",
+            "cost": "36.00"
+          },
+          {
+            "upTo": "~",
+            "cost": "54.00"
+          }
+        ]
+      }
+    },
+    {
+      "id": "OG-B-standard",
+      "conditionMatch": "All conditions",
+      "country": "IT",
+      "area": "standard",
+      "productCondition": {
+        "field": "Product SKU",
+        "operator": "Equals",
+        "values": [
+          "__SKU_BULB__",
+          "__SKU_SUCCULENT__"
+        ],
+        "productMatch": "All products"
+      },
+      "productFilters": [],
+      "shippingMethod": {
+        "type": "Custom shipping rates",
+        "rateType": "Total",
+        "perUnit": null,
+        "ratesTableMode": "Return the highest applicable rate row",
+        "rows": [
+          {
+            "upTo": "49.99",
+            "cost": "5.90"
+          },
+          {
+            "upTo": "149.99",
+            "cost": "7.90"
+          },
+          {
+            "upTo": "~",
+            "cost": "8.90"
+          }
+        ]
+      }
+    },
+    {
+      "id": "OG-B-special",
+      "conditionMatch": "All conditions",
+      "country": "IT",
+      "area": "special",
+      "productCondition": {
+        "field": "Product SKU",
+        "operator": "Equals",
+        "values": [
+          "__SKU_BULB__",
+          "__SKU_SUCCULENT__"
+        ],
+        "productMatch": "All products"
+      },
+      "productFilters": [],
+      "shippingMethod": {
+        "type": "Custom shipping rates",
+        "rateType": "Total",
+        "perUnit": null,
+        "ratesTableMode": "Return the highest applicable rate row",
+        "rows": [
+          {
+            "upTo": "49.99",
+            "cost": "6.90"
+          },
+          {
+            "upTo": "149.99",
+            "cost": "8.90"
+          },
+          {
+            "upTo": "~",
+            "cost": "9.50"
+          }
+        ]
+      }
+    }
+  ]
+}

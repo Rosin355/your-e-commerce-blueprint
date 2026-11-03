@@ -1,0 +1,16 @@
+[
+  {
+    "artifact": "native-features.graphql",
+    "version": "2026-10",
+    "exitCode": 0,
+    "stdout": "{\"success\":true,\"responses\":[{\"result\":\"success\",\"resultDetail\":\"Successfully validated GraphQL query against schema.\",\"artifactId\":\"shipping-engine-native-features.graphql\",\"artifactRevision\":1}],\"resolvedVersion\":\"2026-10\"}\n",
+    "stderr": ""
+  },
+  {
+    "artifact": "native-market-options.graphql",
+    "version": "2026-10",
+    "exitCode": 0,
+    "stdout": "{\"success\":true,\"responses\":[{\"result\":\"success\",\"resultDetail\":\"Successfully validated GraphQL query against schema.\\nRequired scopes: read_markets, write_markets, read_products\",\"artifactId\":\"shipping-engine-native-market-options.graphql\",\"artifactRevision\":1}],\"resolvedVersion\":\"2026-10\"}\n",
+    "stderr": ""
+  }
+]

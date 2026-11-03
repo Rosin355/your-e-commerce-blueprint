@@ -1,6 +1,16 @@
 # Sendcloud — audit piattaforma e prezzo checkout
 
-**3 novembre 2026. Stato: Sendcloud confermata come piattaforma logistica; nuovo prezzo checkout non risolto; sincronizzazione live bloccata.** Nessuna nuova connessione, app, servizio, subscription, upgrade, pubblicazione, etichetta, ordine o addebito.
+**3 novembre 2026. Stato: Sendcloud confermata come piattaforma logistica; motore checkout candidato Intuitive Shipping, da collaudare; sincronizzazione live bloccata.** Nessuna nuova connessione, app, servizio, subscription, upgrade, pubblicazione, etichetta, ordine o addebito.
+
+## Aggiornamento PR #45 — separazione dal motore tariffario
+
+Il controllo richiesto sul motore Grow non ripete l'audit account sottostante. È stata verificata separatamente la spedizione per Mercati già attiva nello store. Il confronto raccomanda **Intuitive Shipping solo per un collaudo isolato**, con CCS e compatibilità Mercati ancora da provare; non viene autorizzato alcun abbonamento. [Confronto, costi e prova](SHIPPING-SHOPIFY-INTEGRATION.md).
+
+**Sendcloud può restare per importazione ordini, etichette e spedizioni con tutte e tre le alternative considerate.** La guida ufficiale chiarisce che Sendcloud non importa tariffe in Shopify: prezzi checkout e servizio logistico sono indipendenti. L'ordine Shopify contiene il metodo scelto; Sendcloud può usare il metodo predefinito o la selezione manuale. Le Shipping Rules possono associarlo al servizio del futuro vettore dove disponibili nel piano (guida: Lite o superiore), ma non sono necessarie per definire il listino A/B. Non si promette una mappatura automatica gratuita o una connessione già collaudata. [Fonte Sendcloud](https://support.sendcloud.com/hc/en-us/articles/360049346772-Setting-up-shipping-methods-in-Shopify).
+
+Il flusso candidato è **Intuitive → tariffa nel checkout nativo → ordine Shopify → Sendcloud → etichetta**. Non richiede un connettore diretto Intuitive–Sendcloud né il Dynamic Checkout Sendcloud. Il nome cliente del metodo deve essere stabile e distinto dalla classe interna A/B; il servizio di etichetta verrà associato quando il cliente sceglierà il vettore. Nessuna regola Sendcloud è stata modificata o riaperta in questo intervento.
+
+Le sezioni seguenti conservano l'audit precedente: installazione confermata, connessione interna non verificata. Le osservazioni di allora sul motore non individuato sono superate dal confronto attuale, **non** da una certificazione checkout.
 
 ## Decisione del cliente
 
@@ -40,12 +50,12 @@ Conservare **Sendcloud per la logistica**, Shopify per carrello/checkout e le ta
 
 Il template nativo di 18 tariffe e il contratto generico di selezione sono **riferimenti condizionali**, non una configurazione Sendcloud pronta. Il generatore produce `deploymentCandidate=null`, mantiene i gate falsi e aggiunge i blocchi derivati dall'audit, anche se qualcuno abilita il vecchio flag `publicAppVerified`. Non esiste una modalità di scrittura live nel pacchetto.
 
-È dimostrato il limite del percorso Dynamic Checkout documentato sul piano Grow; **non è ancora dimostrata una soluzione completa solo con le capacità attive**, né la necessità di uno specifico abbonamento aggiuntivo. Nessuna raccomandazione di acquisto sostituisce il collaudo di carrelli misti, CAP/località e base sconti. La precedente preferenza per un selettore esterno è superata: nessun servizio esterno è ora scelto.
+È dimostrato il limite del percorso Dynamic Checkout documentato sul piano Grow; **non è ancora dimostrata una soluzione completa solo con le capacità attive**, né la necessità di uno specifico abbonamento aggiuntivo. Nessuna raccomandazione di acquisto sostituisce il collaudo di carrelli misti, CAP/località e base sconti. La precedente preferenza generica per un selettore esterno è superata: il nuovo confronto indica Intuitive solo come candidato al collaudo, non come servizio acquistato o installato.
 
 ## Passi di verifica ancora necessari
 
 1. Verificare in una sessione Sendcloud già autorizzata l'integrazione Shopify effettivamente collegata, piano/capacità correnti, template e stato pubblicato. La schermata di collegamento osservata non viene completata automaticamente.
-2. Individuare e dimostrare un percorso checkout compatibile con il piano effettivo, usando prima le capacità esistenti. Se richiede nuove capacità o costi, documentarne la necessità, copertura e costo prima di richiedere autorizzazione.
+2. Eseguire, dopo decisione del proprietario, il collaudo isolato del candidato Intuitive descritto nel confronto Grow: compatibilità Mercati, CCS, condizioni ALL/ANY sulle righe e tariffa intera. Costi e limiti sono documentati; nessuna attivazione è stata eseguita.
 3. Completare approvazioni varianti e mappa geografica: candidati regionali separati dalle regole operative, CAP/località con fonte e decorrenza, nessuna macroregione «Sud».
 4. Eseguire staging senza pagamento: B puro, A misto/sconosciuto, prezzo sul totale corretto, zone speciali, quantità, sconti, gruppi multipli, rollback. Conservare un unico profilo se il percorso scelto lo consente e dimostrare nessuna tariffa sommata.
 5. Presentare un unico diff operativo completo con richiesta di autorizzazione live. Nessuna sincronizzazione parziale finché il meccanismo resta irrisolto.

@@ -1,0 +1,157 @@
+{
+  "proofType": "OFFLINE_DOCUMENTED_SEMANTICS_NOT_INSTALLED_APP_EXECUTION",
+  "results": [
+    {
+      "label": "bulbi 15",
+      "result": {
+        "scenario": "OG-B-standard",
+        "table": "B",
+        "area": "standard",
+        "rateCount": 1,
+        "priceCents": 590,
+        "subtotalCents": 1500,
+        "checkoutExecuted": false
+      },
+      "passed": true
+    },
+    {
+      "label": "bulbi 15",
+      "result": {
+        "scenario": "OG-B-special",
+        "table": "B",
+        "area": "special",
+        "rateCount": 1,
+        "priceCents": 690,
+        "subtotalCents": 1500,
+        "checkoutExecuted": false
+      },
+      "passed": true
+    },
+    {
+      "label": "bulbi + grasse 60",
+      "result": {
+        "scenario": "OG-B-standard",
+        "table": "B",
+        "area": "standard",
+        "rateCount": 1,
+        "priceCents": 790,
+        "subtotalCents": 6000,
+        "checkoutExecuted": false
+      },
+      "passed": true
+    },
+    {
+      "label": "bulbi + grasse 60",
+      "result": {
+        "scenario": "OG-B-special",
+        "table": "B",
+        "area": "special",
+        "rateCount": 1,
+        "priceCents": 890,
+        "subtotalCents": 6000,
+        "checkoutExecuted": false
+      },
+      "passed": true
+    },
+    {
+      "label": "bulbi + arbusti 45",
+      "result": {
+        "scenario": "OG-A-standard",
+        "table": "A",
+        "area": "standard",
+        "rateCount": 1,
+        "priceCents": 1190,
+        "subtotalCents": 4500,
+        "checkoutExecuted": false
+      },
+      "passed": true
+    },
+    {
+      "label": "bulbi + arbusti 45",
+      "result": {
+        "scenario": "OG-A-special",
+        "table": "A",
+        "area": "special",
+        "rateCount": 1,
+        "priceCents": 1250,
+        "subtotalCents": 4500,
+        "checkoutExecuted": false
+      },
+      "passed": true
+    },
+    {
+      "label": "bulbi 150 + ordinario 10",
+      "result": {
+        "scenario": "OG-A-standard",
+        "table": "A",
+        "area": "standard",
+        "rateCount": 1,
+        "priceCents": 1750,
+        "subtotalCents": 16000,
+        "checkoutExecuted": false
+      },
+      "passed": true
+    },
+    {
+      "label": "bulbi 150 + ordinario 10",
+      "result": {
+        "scenario": "OG-A-special",
+        "table": "A",
+        "area": "special",
+        "rateCount": 1,
+        "priceCents": 1750,
+        "subtotalCents": 16000,
+        "checkoutExecuted": false
+      },
+      "passed": true
+    },
+    {
+      "label": "bulbi + prodotto sconosciuto",
+      "result": {
+        "scenario": "OG-A-standard",
+        "table": "A",
+        "area": "standard",
+        "rateCount": 1,
+        "priceCents": 1190,
+        "subtotalCents": 4500,
+        "checkoutExecuted": false
+      },
+      "passed": true
+    },
+    {
+      "label": "bulbi + prodotto sconosciuto",
+      "result": {
+        "scenario": "OG-A-special",
+        "table": "A",
+        "area": "special",
+        "rateCount": 1,
+        "priceCents": 1250,
+        "subtotalCents": 4500,
+        "checkoutExecuted": false
+      },
+      "passed": true
+    }
+  ],
+  "liveCheckoutCasesExecuted": 0,
+  "installations": 0,
+  "purchases": 0,
+  "shopifyMutations": 0,
+  "nativeCounterexamples": {
+    "broadOrdinaryRateSuppressesReduced": {
+      "actualCents": 890,
+      "requiredCents": 590
+    },
+    "missingOrdinaryCollectionMembershipUndercharges": {
+      "actualCents": 590,
+      "requiredCents": 1190
+    }
+  },
+  "releaseStatus": "BLOCKED_PENDING_OWNER_DECISION_AND_DEVELOPMENT_CHECKOUT_PROOF",
+  "runtimeStillRequired": [
+    "Grow CCS entitlement",
+    "market-driven shipping compatibility and correct app rate placement",
+    "native subtotal/discount fetching equivalence",
+    "single whole-cart delivery group",
+    "approved geographic and classification mappings"
+  ]
+}

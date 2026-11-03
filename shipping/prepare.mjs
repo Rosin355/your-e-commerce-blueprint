@@ -2,7 +2,7 @@
 // Offline preparation only. No fetch, credentials, Shopify mutation, or --apply mode.
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { applyClassificationApprovals, buildProfilePlan, classificationWrites, reducedSkuAllowlist, releaseReadiness, reviewCatalog } from './plan.mjs';
+import { applyClassificationApprovals, prepareCurrentShippingPlan, classificationWrites, reducedSkuAllowlist, releaseReadiness, reviewCatalog } from './plan.mjs';
 import { CLASSES, rateFor } from './rules.mjs';
 import { evidenceJson } from './evidence-json.mjs';
 import { assessSendcloud } from './sendcloud.mjs';
@@ -14,7 +14,8 @@ const catalog = await read(new URL('catalog.json', root));
 const profile = await read(new URL('profile.json', root));
 const approvals = await read(new URL('./classification.approvals.pending.json', import.meta.url));
 const review = applyClassificationApprovals(reviewCatalog(catalog.pages), approvals);
-const plan = buildProfilePlan(profile.response);
+const nativeCapabilities = await read(new URL('engine-selection/native-capabilities.json', root));
+const plan = prepareCurrentShippingPlan(profile.response, nativeCapabilities.features.data.shop.features);
 const gates = await read(new URL('./release-gates.pending.json', import.meta.url));
 const platformPolicy = await read(new URL('./platform-policy.json', import.meta.url));
 const audit = await read(new URL('sendcloud-followup-audit.json', root));
@@ -48,7 +49,7 @@ const artifacts = {
     },
     classificationWrites: classificationWrites(review),
     reducedSkuAllowlist: reducedSkuAllowlist(review),
-    note: 'BLOCKED. Sendcloud is the logistics platform; checkout pricing mechanism is unresolved on Shopify Grow. Native 18-rate payload is a conditional reference template, not a selected release. No additional service or subscription is authorized. No live executor exists.',
+    note: 'BLOCKED. Sendcloud remains the logistics platform. Market-driven shipping is active: legacy merchant profile mutation variables are suppressed. Intuitive Shipping is the documented candidate for an isolated development proof, not authorized or installed. No additional subscription or live executor exists.',
   },
   'checkout-matrix.json': {
     status: 'NOT_RUN_IN_NATIVE_CHECKOUT',
@@ -80,7 +81,7 @@ function graphqlLiteral(value, key = '') {
   if (['currencyCode', 'operator', 'ownerType'].includes(key)) return value;
   return JSON.stringify(value);
 }
-await writeFile(new URL('profile-target-input.graphql', root),
+if (plan.proposedVariables) await writeFile(new URL('profile-target-input.graphql', root),
   'mutation ShippingTargetValidation { deliveryProfileUpdate(id:' + JSON.stringify(plan.proposedVariables.id) + ', profile:' + graphqlLiteral(plan.proposedVariables.profile) + ') { profile { id version } userErrors { field message } } }\n');
 await writeFile(new URL('classification-definition-input.graphql', root),
   'mutation ClassificationDefinitionValidation { metafieldDefinitionCreate(definition:' + graphqlLiteral(artifacts['release-plan.json'].classificationDefinition) + ') { createdDefinition { id } userErrors { field message } } }\n');
