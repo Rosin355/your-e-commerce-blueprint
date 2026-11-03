@@ -1,7 +1,8 @@
 {
   "geographyApproved": false,
   "classificationApproved": false,
-  "publicAppVerified": false,
+  "sendcloudIntegrationVerified": false,
+  "checkoutMechanismVerified": false,
   "deliveryCustomizationsAudited": false,
   "discountBasisVerified": false,
   "singleDeliveryGroupVerified": false,

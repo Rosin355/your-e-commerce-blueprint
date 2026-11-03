@@ -25,15 +25,15 @@ App installate: Flow, Lovable, Messaging, OnlineGardenPerplexity, OnlineGardenIn
 
 Il frontend esistente crea il carrello Storefront API e usa il `checkoutUrl` Shopify: nessuna modifica necessaria. Il pacchetto `shipping/` è un riferimento offline per test e generazione della configurazione; **non è un rate provider installato**, non viene importato dallo storefront e non può modificare il prezzo di un checkout reale.
 
-Proposta prioritaria: **un solo profilo generale, 18 tariffe native per prezzo e un'app pubblica di Delivery Customization che lasci una sola opzione corretta**.
+**Vincolo cliente recepito: Sendcloud resta la piattaforma logistica; il corriere verrà scelto successivamente dal cliente. Nessun nuovo servizio o abbonamento è autorizzato.** La tariffa pagata dall'acquirente è il listino commerciale A/B, indipendente dal costo di acquisto della spedizione presso il futuro corriere.
 
-1. Le 18 regole rappresentano A: 6 fasce × 2 aree, B: 3 fasce × 2 aree. Le condizioni `TOTAL_PRICE` restano gestite da Shopify. Massimi inclusivi al centesimo; ultima fascia illimitata.
-2. L'app sceglie B soltanto se **tutte** le varianti fisiche hanno una classe ridotta approvata; altrimenti A. Seleziona inoltre standard/speciale da geografia approvata. Non somma i costi e non usa prezzi di singoli sottocarrelli.
-3. Shopify propone le fasce coerenti col proprio totale; l'app nasconde le altre combinazioni di classe e area e rinomina l'unica opzione visibile «Spedizione standard» oppure «Spedizione isole e zone disagiate».
-4. Il filtro opera solo su destinazione IT e sui codici `OG-*` previsti. Nessuna selezione per semplice importo, nome generico «Standard» o dato fornito dal browser. UE/internazionale restano esclusi dal diff.
-5. Sconosciuti → A. CAP non risolvibile, geografia non approvata, gruppo multiplo o prodotto non consegnabile richiedono gestione esplicita e test, senza selezione arbitraria della tariffa più economica.
+L'architettura separa due responsabilità: Shopify deve applicare realmente il prezzo A/B al checkout; Sendcloud deve ricevere gli ordini e gestire la spedizione successiva. Il meccanismo di prezzo checkout resta **NON RISOLTO sul piano attuale**, perché l'app Sendcloud standard non dimostra quella capacità e il percorso Dynamic Checkout documentato richiede Shopify Plus. Non si sostituisce Shopify con un checkout Lovable.
 
-Una [Delivery Customization può nascondere, ordinare e rinominare opzioni](https://shopify.dev/docs/api/functions/2026-01/delivery-customization), non creare un prezzo. Il prezzo viene quindi dalle regole native; l'app esegue soltanto la selezione. Questo preserva la base effettiva Shopify per sconti, imposte e arrotondamenti. Non assumiamo che un subtotal Storefront o una somma di `price × quantity` equivalga automaticamente alla base `TOTAL_PRICE`.
+Il template locale conserva 18 combinazioni (A: 6 × 2; B: 3 × 2) con condizioni native `TOTAL_PRICE`. È ora marcato **CONDITIONAL_REFERENCE_TEMPLATE_NOT_SELECTED_FOR_DEPLOYMENT**: non è una configurazione Sendcloud pronta né una scelta di acquisto di un selettore esterno. `deploymentCandidate=null` nel piano generato impedisce di presentarlo come rilascio scelto.
+
+Rimangono invarianti: B solo con tutte le varianti fisiche approvate bulbi/grasse; una riga ordinaria o sconosciuta impone A; intero totale rilevante Shopify; nessuna somma; una sola tariffa; CAP/località solo da mappa approvata; ambito IT e nessuna variazione alle zone estere. I costi del corriere e le Shipping Rules post-ordine non possono sostituire questo contratto.
+
+Il precedente contratto generico di selezione resta soltanto come alternativa di riferimento non selezionata. Una [Delivery Customization](https://shopify.dev/docs/api/functions/2026-01/delivery-customization) potrebbe selezionare tariffe native, ma ciò non significa che Sendcloud standard implementi il contratto. Non si assume l'equivalenza fra un subtotal Storefront e `TOTAL_PRICE`.
 
 **Carrelli misti:** il contratto locale è testato, ma l'esecuzione nel checkout non è ancora provata. Due profili tradizionali sono esclusi perché [Shopify può combinarne e sommarne le tariffe](https://help.shopify.com/en/manual/fulfillment/setup/shipping-rates/setting-up-shipping-rates). Un unico profilo evita quel meccanismo, ma non elimina automaticamente gruppi di consegna distinti: sedi, disponibilità, fulfillment e delivery group devono essere verificati nei carrelli reali. Una risposta carrier per gruppo non garantirebbe da sola una singola tariffa globale.
 
@@ -43,11 +43,11 @@ Shopify sta introducendo [Shipping options by market](https://help.shopify.com/e
 
 Una Function in una **custom app** non può essere attivata su Grow come se il negozio fosse Plus. [Vincolo Shopify](https://shopify.dev/docs/api/admin-graphql/latest/enums/DeliveryCustomizationErrorCode). Non viene preparata una custom app non distribuibile per questo piano.
 
-Candidato documentato: **ShipX — Shipping Rates & Rules**, nella modalità Delivery Customization senza CCS. La documentazione del fornitore descrive condizioni prodotto/SKU e CAP e selezione delle opzioni esistenti. Il prezzo pubblicato Starter è **9,99 USD/mese**, Smart **19,99 USD/mese**; piano minimo, limiti, quantificatori su tutte le righe, variante/metafield o allowlist SKU, CAP + località e comportamento con gruppi multipli devono essere verificati prima di scegliere l'abbonamento. Nessuna installazione, spesa o messaggio al fornitore è stato effettuato. [Scheda e prezzi](https://apps.shopify.com/shipping-rates), [condizioni SKU](https://shipx.helpkit.so/delivery-customization-without-ccs-api/8jJcSMAS3Pn4ZqTxMFmBTV/product-based-delivery-customization/8jJcSMAS3PBTRMnKR86ju8), [modalità senza CCS](https://www.logbase.io/blog/shopify-shipping-based-on-zip-code).
+La proposta precedente di un'app aggiuntiva come prima scelta è **superata dal chiarimento del cliente**. Nessuna app esterna viene selezionata o installata; nessun upgrade Shopify/Sendcloud viene attivato. Il piano e il costo dell'account Sendcloud non sono verificati: non si introduce un preventivo basato su supposizioni.
 
-L'idoneità del candidato è una **raccomandazione da dimostrare**, non una certificazione basata sulla scheda commerciale. Se il quantificatore universale o la granularità geografica non sono supportati, non si attivano le 18 tariffe: si prepara una soluzione alternativa compatibile e un nuovo diff concreto. Le regole dichiarative nell'app non sono gestibili automaticamente dalle generiche Admin API Shopify: la sincronizzazione comprende impostazioni app da esportare e verificare separatamente.
+La [guida ufficiale Sendcloud per Shopify Dynamic Checkout](https://support.sendcloud.com/hc/en-us/articles/27525573677201-Shopify-Plus-Dynamic-checkout-app) indica Shopify Plus e account Sendcloud idoneo fra i prerequisiti. Grow non soddisfa il requisito Shopify. Le [Shipping Rules](https://support.sendcloud.com/hc/en-gb/articles/10274470454292-Create-your-shipping-rules) agiscono dopo l'importazione ordine; le [Checkout Rules](https://support.sendcloud.com/hc/en-gb/articles/18580048370705-Checkout-rules) richiedono invece Checkout API/Dynamic Checkout. La documentazione generica di quest'ultima non prova la disponibilità nel plugin Shopify standard. [Audit Sendcloud dettagliato](SHIPPING-SENDCLOUD-AUDIT.md).
 
-Un eventuale rate provider via **Carrier Calculated Shipping** richiede verifica dell'abilitazione: su Grow è disponibile con maggiorazione mensile o fatturazione annuale, secondo [Shopify](https://help.shopify.com/en/manual/fulfillment/setup/shipping-rates/third-party-carrier-calculated-shipping/carrier-accounts). La modalità raccomandata senza CCS evita questa dipendenza. L'importo dell'eventuale maggiorazione Shopify non è certificato dai dati disponibili e non è incluso in un preventivo. Il provider dovrebbe inoltre dimostrare base sconti e carrello completo: non basta sommare i prezzi ricevuti nel callback.
+Un eventuale provider CCS richiederebbe anche verifica dell'abilitazione Grow, base sconti e carrello completo. Non è una soluzione selezionata né un'autorizzazione a creare un servizio esterno. Prima di proporre un costo aggiuntivo occorre dimostrare il divario funzionale residuo e confrontare una configurazione completa con le capacità già disponibili. L'incompatibilità del percorso Dynamic Checkout documentato è dimostrata; una soluzione alternativa completa senza cambi di piano non è ancora dimostrata.
 
 ## Diff operativo previsto, non eseguito
 
@@ -58,8 +58,9 @@ Un eventuale rate provider via **Carrier Calculated Shipping** richiede verifica
 | Profilo/gruppo/sede | Generale unico | Stessi ID e struttura |
 | Zona Italia | Unica, tutte le province attuali | Stessa zona; distinzione CAP nell'app |
 | Metodi Italia `1265953014100`, `1265953046868` | Gratis da 55 €, 7 € sotto soglia | Disattivare, conservare per rollback |
-| Tariffe Italia A/B | Assenti | Creare 18 metodi con prezzi e soglie esatte nel payload |
-| App selettore | Nessuna scelta/configurazione verificata | Installazione/configurazione separata ancora da definire e approvare |
+| Tariffe Italia A/B | Assenti | Template di 18 metodi; non selezionato per il rilascio |
+| Piattaforma logistica | Sendcloud installata | Conservare Sendcloud; connessione interna da verificare |
+| Prezzo checkout | Meccanismo nuovo non risolto su Grow | Nessuna nuova app/servizio/upgrade autorizzato |
 | Definizione variante | Chiave nuova assente | Creare `logistics.shipping_class` condivisa con app, previa verifica assenza |
 | Valori variante | Non approvati | Attualmente **0 scritture**; elenco definitivo solo dopo approvazioni |
 | Geografia | Nessuna lista ufficiale | **Pending**, nessun CAP inventato |
@@ -67,7 +68,7 @@ Un eventuale rate provider via **Carrier Calculated Shipping** richiede verifica
 
 Il payload completo di esempio è validato contro lo schema Admin **2026-01**, insieme alle mutation e query riutilizzabili. La versione richiesta storicamente dal progetto `2025-07` non è più supportata dal toolkit; non viene modificata globalmente. Il connettore non espone l'header della versione realmente eseguita: la validazione 2026-01 non certifica quell'header. L'istantanea iniziale contiene anche `coversAllItems`, esposto dallo schema live del connettore ma assente nel validatore 2026-01: la query riutilizzabile lo omette e la copertura viene provata dalle associazioni variante/profilo.
 
-Questo **non è ancora il diff finale autorizzabile**: mancano elenco prodotti approvati, CAP, esportazione delle regole app, costo/piano confermato e prove checkout. Non viene chiesta un'autorizzazione generica o parziale.
+Questo **non è ancora il diff finale autorizzabile**: mancano elenco prodotti approvati, mappa geografica, connessione Sendcloud verificata e un meccanismo checkout completo compatibile col piano effettivo, oltre alle prove. Il nome del futuro corriere non è un requisito per progettare le tabelle A/B e non viene richiesto nuovamente.
 
 ## Sincronizzazione controllata dopo chiusura dei blocchi
 
@@ -75,13 +76,15 @@ Questo **non è ancora il diff finale autorizzabile**: mancano elenco prodotti a
 2. Rileggere istantanee di profili, condizioni, associazioni, nuove chiavi e configurazione app; confrontare semanticamente il profilo con il backup e verificarne versione, valute e ID. Il fingerprint è un controllo locale, **non** un lock/API compare-and-swap sul profilo. Se cambia qualcosa, rigenerare il diff e fermare il piano precedente.
 3. Presentare **una sola richiesta esplicita di autorizzazione live** con diff definitivo, scritture variante, CAP, app/costo, staging QA, tempi e rollback. Fino a quel momento nessuna mutation o installazione in produzione.
 4. Dopo autorizzazione, creare definizione e valori approvati senza sovrascritture, controllando `userErrors`, digest e read-back a ogni batch. Applicare le regole app con ambito IT e verificare che non interferiscano con quelle correnti. Non rendere disponibili nuove tariffe senza il selettore completo.
-5. Effettuare il cambio tariffario del profilo in un'unica richiesta pianificata: disattivazione dei due metodi precedenti e creazione dei 18 nuovi metodi. Non si assume una transazione distribuita fra app e Shopify: sequenza app/profilo, eventuale intervallo di incoerenza e recupero devono essere provati in staging. Se non si ottiene una sequenza sicura, il rilascio rimane bloccato.
+5. Applicare soltanto il payload definitivo del percorso scelto e approvato. Se verrà confermato il template nativo, prevedere il cambio del profilo con disattivazione dei due metodi precedenti e creazione dei 18 nuovi metodi. Non si assume una transazione distribuita fra integrazione e Shopify: sequenza, intervalli di incoerenza e recupero devono essere provati in staging. Se non si ottiene una sequenza sicura, il rilascio rimane bloccato.
 6. Rileggere tutti i prezzi/soglie/ID, controllare esattamente un'opzione per ogni prova nativa e completare smoke senza pagamento: B puro, misto A, sconosciuto A, standard/speciale, sconti e quantità. Verificare anche assenza delle vecchie opzioni Italia e conservazione di UE/internazionale.
 7. Solo con read-back e checkout nativi conformi aggiornare lo stato a sincronizzato/verificato. Registrare ID creati, digest, configurazione app e prove senza dati cliente o URL checkout sensibili.
 
 Il codice di preparazione **non contiene un esecutore live né una modalità `--apply`**. Le mutation sono disponibili per gli strumenti Shopify dopo autorizzazione; la configurazione privata dell'app richiede le sue capacità/UI. Non viene promesso un sync puramente Admin API di impostazioni che appartengono a un fornitore esterno.
 
 ## Backup e rollback
+
+Il rollback delle 18 regole descritto sotto riguarda esclusivamente quel template condizionale, se in futuro selezionato e autorizzato. Attualmente non è stato effettuato alcun cambio da annullare; il rollback definitivo dipenderà dal percorso checkout dimostrato.
 
 Le evidenze conservano il profilo precedente con sedi, paesi/province, tutti i quattro metodi e condizioni, app/scopes, catalogo logistico e copertura. Sono un backup dello **scope letto**, non dell'intero negozio né delle impostazioni interne Sendcloud. Il rilascio richiede un backup fresco; le letture di oggi non vengono considerate eterne.
 
@@ -91,4 +94,4 @@ I metafield aggiunti si rimuovono solo se creati da questa release e ancora ugua
 
 ## Gate aperti
 
-Geografia approvata; classificazione validata; app selezionata e provata; lettura `deliveryCustomizations`; base sconti verificata; gruppo unico provato; matrice staging; backup fresco; diff definitivo autorizzato. [Registro gate](../shipping/release-gates.pending.json). **Non implementato nel checkout live.**
+Geografia approvata; classificazione validata; integrazione Sendcloud verificata; meccanismo checkout completo e compatibile con il piano approvato; lettura `deliveryCustomizations`; base sconti; gruppo unico; staging; backup fresco; diff definitivo autorizzato. Nessuna dipendenza architetturale dal nome di un corriere. [Registro gate](../shipping/release-gates.pending.json). **Non implementato nel checkout live.**

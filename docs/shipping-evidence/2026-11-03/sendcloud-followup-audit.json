@@ -1,0 +1,761 @@
+{
+  "capturedAt": "2026-11-03T10:43:00.763Z",
+  "source": "Shopify Admin API read only; follow-up audit after Sendcloud platform confirmation",
+  "shop": {
+    "data": {
+      "shop": {
+        "id": "gid://shopify/Shop/102600966484",
+        "name": "Online Garden",
+        "myshopifyDomain": "ecom-blueprint-gen-6ud1s.myshopify.com",
+        "currencyCode": "EUR",
+        "plan": {
+          "publicDisplayName": "Grow",
+          "shopifyPlus": false,
+          "partnerDevelopment": false
+        }
+      }
+    }
+  },
+  "applications": {
+    "data": {
+      "appInstallations": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "eyJsYXN0X2lkIjoxMTY0NzAyMDI0MDIwLCJsYXN0X3ZhbHVlIjoiMjAyNi0xMS0wMlQwODo1MzozOC4yNzg2MjgwMDBaIn0="
+        },
+        "nodes": [
+          {
+            "id": "gid://shopify/AppInstallation/1010333647188",
+            "app": {
+              "id": "gid://shopify/App/1602671",
+              "title": "Flow",
+              "handle": "flow",
+              "appStoreAppUrl": "https://apps.shopify.com/15100ebca4d221b650a7671125cd1444"
+            },
+            "accessScopes": [
+              {
+                "handle": "read_orders"
+              },
+              {
+                "handle": "write_orders"
+              },
+              {
+                "handle": "read_customers"
+              },
+              {
+                "handle": "write_customers"
+              },
+              {
+                "handle": "read_products"
+              },
+              {
+                "handle": "write_products"
+              },
+              {
+                "handle": "read_locations"
+              },
+              {
+                "handle": "read_notifications"
+              },
+              {
+                "handle": "read_shipping"
+              },
+              {
+                "handle": "read_draft_orders"
+              },
+              {
+                "handle": "write_draft_orders"
+              },
+              {
+                "handle": "read_fulfillments"
+              },
+              {
+                "handle": "read_gift_cards"
+              },
+              {
+                "handle": "write_admin_notifications"
+              },
+              {
+                "handle": "write_channels"
+              },
+              {
+                "handle": "read_users"
+              },
+              {
+                "handle": "write_inventory"
+              },
+              {
+                "handle": "read_all_orders"
+              },
+              {
+                "handle": "read_apps"
+              },
+              {
+                "handle": "write_publications"
+              },
+              {
+                "handle": "write_assigned_fulfillment_orders"
+              },
+              {
+                "handle": "write_merchant_managed_fulfillment_orders"
+              },
+              {
+                "handle": "write_third_party_fulfillment_orders"
+              },
+              {
+                "handle": "read_all_subscription_contracts"
+              },
+              {
+                "handle": "write_content"
+              },
+              {
+                "handle": "write_marketing_events"
+              },
+              {
+                "handle": "write_order_edits"
+              },
+              {
+                "handle": "read_payment_terms"
+              },
+              {
+                "handle": "read_admin_notifications"
+              },
+              {
+                "handle": "read_channels"
+              },
+              {
+                "handle": "read_inventory"
+              },
+              {
+                "handle": "read_publications"
+              },
+              {
+                "handle": "read_assigned_fulfillment_orders"
+              },
+              {
+                "handle": "read_merchant_managed_fulfillment_orders"
+              },
+              {
+                "handle": "read_third_party_fulfillment_orders"
+              },
+              {
+                "handle": "read_content"
+              },
+              {
+                "handle": "read_marketing_events"
+              },
+              {
+                "handle": "read_order_edits"
+              }
+            ]
+          },
+          {
+            "id": "gid://shopify/AppInstallation/1010333745492",
+            "app": {
+              "id": "gid://shopify/App/278891167745",
+              "title": "Lovable",
+              "handle": "vibe-ide-app-lovable",
+              "appStoreAppUrl": "https://apps.shopify.com/95e21b0701010e0b6be967fa00531dcd"
+            },
+            "accessScopes": [
+              {
+                "handle": "read_discounts"
+              },
+              {
+                "handle": "read_inventory"
+              },
+              {
+                "handle": "read_price_rules"
+              },
+              {
+                "handle": "read_products"
+              },
+              {
+                "handle": "read_themes"
+              },
+              {
+                "handle": "unauthenticated_read_product_listings"
+              },
+              {
+                "handle": "write_discounts"
+              },
+              {
+                "handle": "write_inventory"
+              },
+              {
+                "handle": "write_price_rules"
+              },
+              {
+                "handle": "write_products"
+              },
+              {
+                "handle": "write_publications"
+              },
+              {
+                "handle": "read_publications"
+              }
+            ]
+          },
+          {
+            "id": "gid://shopify/AppInstallation/1029572690260",
+            "app": {
+              "id": "gid://shopify/App/2755583",
+              "title": "Messaging",
+              "handle": "shopify-messaging",
+              "appStoreAppUrl": "https://apps.shopify.com/14711ad7477a3d0211488990623ad24c"
+            },
+            "accessScopes": [
+              {
+                "handle": "read_apps"
+              },
+              {
+                "handle": "read_customers"
+              },
+              {
+                "handle": "read_online_store"
+              },
+              {
+                "handle": "read_products"
+              },
+              {
+                "handle": "read_themes"
+              },
+              {
+                "handle": "write_marketing_events"
+              },
+              {
+                "handle": "read_discounts"
+              },
+              {
+                "handle": "read_locales"
+              },
+              {
+                "handle": "read_price_rules"
+              },
+              {
+                "handle": "write_billing"
+              },
+              {
+                "handle": "read_online_store_pages"
+              },
+              {
+                "handle": "read_legal_policies"
+              },
+              {
+                "handle": "read_email_sender_configuration"
+              },
+              {
+                "handle": "read_files"
+              },
+              {
+                "handle": "write_files"
+              },
+              {
+                "handle": "read_orders"
+              },
+              {
+                "handle": "read_brand_settings"
+              },
+              {
+                "handle": "read_brand"
+              },
+              {
+                "handle": "read_checkout_settings"
+              },
+              {
+                "handle": "write_home"
+              },
+              {
+                "handle": "write_customers"
+              },
+              {
+                "handle": "read_content"
+              },
+              {
+                "handle": "read_analytics"
+              },
+              {
+                "handle": "write_discounts"
+              },
+              {
+                "handle": "read_reports"
+              },
+              {
+                "handle": "read_user_additional_data"
+              },
+              {
+                "handle": "read_users"
+              },
+              {
+                "handle": "read_analytics_overviews"
+              },
+              {
+                "handle": "read_all_orders"
+              },
+              {
+                "handle": "read_marketing_events"
+              },
+              {
+                "handle": "read_billing"
+              },
+              {
+                "handle": "read_home"
+              }
+            ]
+          },
+          {
+            "id": "gid://shopify/AppInstallation/1051334869332",
+            "app": {
+              "id": "gid://shopify/App/361159426049",
+              "title": "OnlineGardenPerplexity",
+              "handle": "onlinegardenperplexity",
+              "appStoreAppUrl": null
+            },
+            "accessScopes": [
+              {
+                "handle": "read_all_orders"
+              },
+              {
+                "handle": "write_checkouts"
+              },
+              {
+                "handle": "read_checkouts"
+              },
+              {
+                "handle": "write_order_edits"
+              },
+              {
+                "handle": "read_order_edits"
+              },
+              {
+                "handle": "read_orders"
+              },
+              {
+                "handle": "write_orders"
+              },
+              {
+                "handle": "read_products"
+              },
+              {
+                "handle": "write_products"
+              },
+              {
+                "handle": "unauthenticated_write_checkouts"
+              },
+              {
+                "handle": "unauthenticated_read_checkouts"
+              },
+              {
+                "handle": "unauthenticated_write_customers"
+              },
+              {
+                "handle": "unauthenticated_read_customers"
+              },
+              {
+                "handle": "unauthenticated_read_customer_tags"
+              },
+              {
+                "handle": "unauthenticated_read_metaobjects"
+              },
+              {
+                "handle": "unauthenticated_read_product_pickup_locations"
+              },
+              {
+                "handle": "unauthenticated_read_product_inventory"
+              },
+              {
+                "handle": "unauthenticated_read_product_listings"
+              },
+              {
+                "handle": "unauthenticated_read_product_tags"
+              }
+            ]
+          },
+          {
+            "id": "gid://shopify/AppInstallation/1059567239508",
+            "app": {
+              "id": "gid://shopify/App/380922265601",
+              "title": "OnlineGardenInventoryOttobre",
+              "handle": "online-garden-backend",
+              "appStoreAppUrl": null
+            },
+            "accessScopes": [
+              {
+                "handle": "read_customers"
+              },
+              {
+                "handle": "write_customers"
+              },
+              {
+                "handle": "read_files"
+              },
+              {
+                "handle": "write_files"
+              },
+              {
+                "handle": "write_inventory"
+              },
+              {
+                "handle": "read_inventory"
+              },
+              {
+                "handle": "read_locales"
+              },
+              {
+                "handle": "read_orders"
+              },
+              {
+                "handle": "write_orders"
+              },
+              {
+                "handle": "read_product_listings"
+              },
+              {
+                "handle": "read_products"
+              },
+              {
+                "handle": "write_products"
+              },
+              {
+                "handle": "read_publications"
+              },
+              {
+                "handle": "write_publications"
+              },
+              {
+                "handle": "read_content"
+              },
+              {
+                "handle": "write_content"
+              },
+              {
+                "handle": "read_themes"
+              }
+            ]
+          },
+          {
+            "id": "gid://shopify/AppInstallation/1163569758548",
+            "app": {
+              "id": "gid://shopify/App/340764327937",
+              "title": "Shopify ChatGPT MCP App",
+              "handle": "shopify-chatgpt-mcp-app",
+              "appStoreAppUrl": "https://apps.shopify.com/45259e620f376e2327ef26a91ac35e88"
+            },
+            "accessScopes": [
+              {
+                "handle": "write_online_store_navigation"
+              },
+              {
+                "handle": "write_publications"
+              },
+              {
+                "handle": "write_discounts"
+              },
+              {
+                "handle": "write_draft_orders"
+              },
+              {
+                "handle": "write_locations"
+              },
+              {
+                "handle": "write_validations"
+              },
+              {
+                "handle": "write_inventory"
+              },
+              {
+                "handle": "read_apps"
+              },
+              {
+                "handle": "write_translations"
+              },
+              {
+                "handle": "read_reports"
+              },
+              {
+                "handle": "write_shipping"
+              },
+              {
+                "handle": "write_content"
+              },
+              {
+                "handle": "write_order_edits"
+              },
+              {
+                "handle": "write_fulfillments"
+              },
+              {
+                "handle": "write_products"
+              },
+              {
+                "handle": "read_analytics"
+              },
+              {
+                "handle": "write_price_rules"
+              },
+              {
+                "handle": "read_legal_policies"
+              },
+              {
+                "handle": "write_merchant_managed_fulfillment_orders"
+              },
+              {
+                "handle": "read_all_orders"
+              },
+              {
+                "handle": "write_customers"
+              },
+              {
+                "handle": "write_metaobjects"
+              },
+              {
+                "handle": "write_themes"
+              },
+              {
+                "handle": "write_orders"
+              },
+              {
+                "handle": "write_marketing_events"
+              },
+              {
+                "handle": "write_metaobject_definitions"
+              },
+              {
+                "handle": "write_files"
+              },
+              {
+                "handle": "write_digital_products_product"
+              },
+              {
+                "handle": "read_companies"
+              },
+              {
+                "handle": "write_collective.access"
+              },
+              {
+                "handle": "write_markets"
+              },
+              {
+                "handle": "write_checkout_branding_settings"
+              },
+              {
+                "handle": "write_returns"
+              },
+              {
+                "handle": "write_checkouts"
+              },
+              {
+                "handle": "write_locales"
+              },
+              {
+                "handle": "read_online_store_navigation"
+              },
+              {
+                "handle": "read_publications"
+              },
+              {
+                "handle": "read_discounts"
+              },
+              {
+                "handle": "read_draft_orders"
+              },
+              {
+                "handle": "read_locations"
+              },
+              {
+                "handle": "read_validations"
+              },
+              {
+                "handle": "read_inventory"
+              },
+              {
+                "handle": "read_translations"
+              },
+              {
+                "handle": "read_shipping"
+              },
+              {
+                "handle": "read_content"
+              },
+              {
+                "handle": "read_order_edits"
+              },
+              {
+                "handle": "read_fulfillments"
+              },
+              {
+                "handle": "read_products"
+              },
+              {
+                "handle": "read_price_rules"
+              },
+              {
+                "handle": "read_merchant_managed_fulfillment_orders"
+              },
+              {
+                "handle": "read_customers"
+              },
+              {
+                "handle": "read_metaobjects"
+              },
+              {
+                "handle": "read_themes"
+              },
+              {
+                "handle": "read_orders"
+              },
+              {
+                "handle": "read_marketing_events"
+              },
+              {
+                "handle": "read_metaobject_definitions"
+              },
+              {
+                "handle": "read_files"
+              },
+              {
+                "handle": "read_collective.access"
+              },
+              {
+                "handle": "read_markets"
+              },
+              {
+                "handle": "read_checkout_branding_settings"
+              },
+              {
+                "handle": "read_returns"
+              },
+              {
+                "handle": "read_checkouts"
+              },
+              {
+                "handle": "read_locales"
+              }
+            ]
+          },
+          {
+            "id": "gid://shopify/AppInstallation/1164702024020",
+            "app": {
+              "id": "gid://shopify/App/808246",
+              "title": "Sendcloud",
+              "handle": "sendcloud",
+              "appStoreAppUrl": "https://apps.shopify.com/f95decc02ff88f37bd12774e8112ec4c"
+            },
+            "accessScopes": [
+              {
+                "handle": "write_script_tags"
+              },
+              {
+                "handle": "read_locations"
+              },
+              {
+                "handle": "write_merchant_managed_fulfillment_orders"
+              },
+              {
+                "handle": "write_validations"
+              },
+              {
+                "handle": "write_assigned_fulfillment_orders"
+              },
+              {
+                "handle": "read_products"
+              },
+              {
+                "handle": "read_all_orders"
+              },
+              {
+                "handle": "write_third_party_fulfillment_orders"
+              },
+              {
+                "handle": "write_shipping"
+              },
+              {
+                "handle": "read_inventory"
+              },
+              {
+                "handle": "write_fulfillments"
+              },
+              {
+                "handle": "write_returns"
+              },
+              {
+                "handle": "write_orders"
+              },
+              {
+                "handle": "read_script_tags"
+              },
+              {
+                "handle": "read_merchant_managed_fulfillment_orders"
+              },
+              {
+                "handle": "read_validations"
+              },
+              {
+                "handle": "read_assigned_fulfillment_orders"
+              },
+              {
+                "handle": "read_third_party_fulfillment_orders"
+              },
+              {
+                "handle": "read_shipping"
+              },
+              {
+                "handle": "read_fulfillments"
+              },
+              {
+                "handle": "read_returns"
+              },
+              {
+                "handle": "read_orders"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "carrierServices": {
+    "data": {
+      "carrierServices": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        },
+        "nodes": []
+      }
+    }
+  },
+  "uiObservations": {
+    "store": "ecom-blueprint-gen-6ud1s",
+    "page": "https://admin.shopify.com/store/ecom-blueprint-gen-6ud1s/settings/apps/app_installations/app/sendcloud",
+    "installed": true,
+    "installedLabel": "Installata Ieri",
+    "activeExtensions": 0,
+    "activeFunctions": 0,
+    "openAppResult": {
+      "url": "https://account.sendcloud.com/shopify/?next=%2F3rdparty%2Fsignup%2F",
+      "heading": "Collega Sendcloud con il tuo account Shopify",
+      "actionNotTaken": "Inizia a connettere Shopify"
+    },
+    "authenticatedSendcloudAccountSettingsRead": false,
+    "connectionConclusion": "NOT_VERIFIED; installation does not prove completed Sendcloud account integration",
+    "sideEffects": "No install, connection completion, consent, subscription, save, publication, order or label creation performed"
+  },
+  "documentation": [
+    {
+      "url": "https://support.sendcloud.com/hc/en-us/articles/27525573677201-Shopify-Plus-Dynamic-checkout-app",
+      "checkedOn": "2026-11-03",
+      "finding": "Documented Shopify Dynamic Checkout integration requires Shopify Plus and an eligible Sendcloud account. Current Grow plan fails the Shopify requirement; no upgrade authorized."
+    },
+    {
+      "url": "https://support.sendcloud.com/hc/en-gb/articles/10274470454292-Create-your-shipping-rules",
+      "checkedOn": "2026-11-03",
+      "finding": "Shipping Rules run on orders imported from the shop; they do not set Shopify checkout customer prices."
+    },
+    {
+      "url": "https://support.sendcloud.com/hc/en-gb/articles/18580048370705-Checkout-rules",
+      "checkedOn": "2026-11-03",
+      "finding": "Checkout Rules require Checkout API / configured Dynamic Checkout; generic documentation is not proof that the standard Shopify plugin applies these rules at checkout."
+    }
+  ]
+}

@@ -58,7 +58,7 @@ export function classificationWrites(review) {
   const approved = review.filter(row => row.approvedClass !== null);
   return approved.map(row => {
     if (!CLASSES.includes(row.approvedClass) || !row.approvedBy || !row.approvalReference) throw new Error('CLASSIFICATION_APPROVAL_REQUIRED');
-    // New merchant-owned key, shared with the chosen public app. Existing keys are never replaced.
+    // New merchant-owned key for approved logistics integrations. Existing keys are never replaced.
     if (row.observedLogisticsFields.some(field => field.namespace === 'logistics' && field.key === 'shipping_class')) throw new Error('EXISTING_CLASSIFICATION_REQUIRES_SEPARATE_DIFF');
     return { ownerId: row.variantId, namespace: 'logistics', key: 'shipping_class',
       type: 'single_line_text_field', value: row.approvedClass, compareDigest: null };
@@ -121,6 +121,7 @@ export function buildProfilePlan(snapshot) {
     ],
   }));
   return {
+    status: 'CONDITIONAL_REFERENCE_TEMPLATE_NOT_SELECTED_FOR_DEPLOYMENT',
     expectedProfileId: profile.id, expectedVersion: profile.version,
     expectedSnapshotSha256: profileSnapshotFingerprint(snapshot),
     comparisonExcludes: ['DeliveryProfile.coversAllItems; variant/profile membership is audited separately'],
@@ -135,13 +136,13 @@ export function buildProfilePlan(snapshot) {
       restoreSnapshotSha256: fingerprint(snapshot),
     },
     preconditions: ['Fresh snapshot matches this fingerprint and profile version.',
-      'Public app rules verified in staging, active and restricted to IT; exact code matching and approved classification.',
+      'A checkout mechanism compatible with the actual Shopify plan is selected, verified and approved. Sendcloud remains the logistics platform.',
       'Approved complete geography, native discount basis verified, exactly one delivery group.',
       'Single explicit live authorization for the full operational diff.'],
   };
 }
 
-export const REQUIRED_GATES = Object.freeze(['geographyApproved', 'classificationApproved', 'publicAppVerified',
+export const REQUIRED_GATES = Object.freeze(['geographyApproved', 'classificationApproved', 'sendcloudIntegrationVerified', 'checkoutMechanismVerified',
   'deliveryCustomizationsAudited', 'discountBasisVerified', 'singleDeliveryGroupVerified',
   'stagingCheckoutMatrixPassed', 'freshBackupVerified', 'operationalDiffApproved']);
 

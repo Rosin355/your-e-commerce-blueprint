@@ -3,17 +3,21 @@
   "blockers": [
     "geographyApproved",
     "classificationApproved",
-    "publicAppVerified",
+    "sendcloudIntegrationVerified",
+    "checkoutMechanismVerified",
     "deliveryCustomizationsAudited",
     "discountBasisVerified",
     "singleDeliveryGroupVerified",
     "stagingCheckoutMatrixPassed",
     "freshBackupVerified",
-    "operationalDiffApproved"
+    "operationalDiffApproved",
+    "SENDCLOUD_ACCOUNT_CONNECTION_UNVERIFIED",
+    "CHECKOUT_MECHANISM_UNRESOLVED"
   ],
   "liveSynchronized": false,
   "checkoutCertified": false,
   "plan": {
+    "status": "CONDITIONAL_REFERENCE_TEMPLATE_NOT_SELECTED_FOR_DEPLOYMENT",
     "expectedProfileId": "gid://shopify/DeliveryProfile/139796676948",
     "expectedVersion": 1,
     "expectedSnapshotSha256": "8020b926b59411c4aa7c3768129ab568cfdb1466bdd714afcce1856dd2f80d99",
@@ -703,7 +707,7 @@
     },
     "preconditions": [
       "Fresh snapshot matches this fingerprint and profile version.",
-      "Public app rules verified in staging, active and restricted to IT; exact code matching and approved classification.",
+      "A checkout mechanism compatible with the actual Shopify plan is selected, verified and approved. Sendcloud remains the logistics platform.",
       "Approved complete geography, native discount basis verified, exactly one delivery group.",
       "Single explicit live authorization for the full operational diff."
     ]
@@ -711,7 +715,8 @@
   "gates": {
     "geographyApproved": false,
     "classificationApproved": false,
-    "publicAppVerified": false,
+    "sendcloudIntegrationVerified": false,
+    "checkoutMechanismVerified": false,
     "deliveryCustomizationsAudited": false,
     "discountBasisVerified": false,
     "singleDeliveryGroupVerified": false,
@@ -719,6 +724,38 @@
     "freshBackupVerified": false,
     "operationalDiffApproved": false
   },
+  "platformPolicy": {
+    "logisticsPlatform": "sendcloud",
+    "carrierSelection": "deferred_to_client",
+    "carrierBoundArchitecture": false,
+    "customerPriceSource": "approved_fixed_AB_tables",
+    "carrierPurchaseCostDeterminesCustomerPrice": false,
+    "checkoutMechanism": "unresolved",
+    "sendcloudAccountConnectionVerified": false,
+    "additionalSubscriptionsAuthorized": false,
+    "externalServicesAuthorized": false,
+    "shopifyPlanUpgradeAuthorized": false,
+    "native18RateTemplateSelectedForDeployment": false,
+    "liveSynchronizationAllowed": false
+  },
+  "sendcloudAssessment": {
+    "status": "BLOCKED",
+    "logisticsPlatform": "sendcloud",
+    "installed": true,
+    "accountConnectionVerified": false,
+    "shopifyPlan": "Grow",
+    "dynamicCheckoutInstalled": false,
+    "documentedDynamicCheckoutEligibleOnShopifyPlan": false,
+    "shippingRulesSetCustomerCheckoutPrice": false,
+    "registeredCarrierServiceCount": 0,
+    "carrierSelectionRequiredForTariffEngineDesign": false,
+    "customerPriceSource": "approved_fixed_AB_tables",
+    "blockers": [
+      "SENDCLOUD_ACCOUNT_CONNECTION_UNVERIFIED",
+      "CHECKOUT_MECHANISM_UNRESOLVED"
+    ]
+  },
+  "deploymentCandidate": null,
   "classificationDefinition": {
     "name": "Classe logistica spedizioni Online Garden",
     "namespace": "logistics",
@@ -735,5 +772,5 @@
   },
   "classificationWrites": [],
   "reducedSkuAllowlist": [],
-  "note": "PROPOSAL ONLY. App configuration, geography and classification remain unapproved. No live executor exists in this package."
+  "note": "BLOCKED. Sendcloud is the logistics platform; checkout pricing mechanism is unresolved on Shopify Grow. Native 18-rate payload is a conditional reference template, not a selected release. No additional service or subscription is authorized. No live executor exists."
 }

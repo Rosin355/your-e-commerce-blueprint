@@ -1,3 +1,11 @@
+## 3 novembre 2026 — Sendcloud mantenuta, nessun abbonamento aggiuntivo introdotto
+
+La soluzione logistica resta Sendcloud e il cliente sceglierà il corriere successivamente. Le tariffe A/B all'acquirente restano quelle concordate, indipendenti dal costo dell'etichetta. Sicilia e Sardegna sono soltanto candidate alla fascia isole; la mappa configurabile delle località speciali rimane da completare e approvare, senza pubblicare approssimazioni.
+
+Abbiamo riconfermato Sendcloud installata in Shopify; il pannello dell'app porta però alla schermata di collegamento account, quindi non attestiamo una configurazione interna completata. La documentazione del checkout dinamico Sendcloud per Shopify richiede Plus, mentre il negozio è su Grow. Le normali regole Sendcloud gestiscono la spedizione dopo l'ordine e non sostituiscono il prezzo del checkout. Non sono stati attivati upgrade, servizi o app aggiuntive; la precedente proposta di un selettore esterno non è più la scelta prioritaria.
+
+**302 test locali spedizioni e 645 test di dominio passati.** Le nuove tariffe non sono applicate al checkout: occorre ancora dimostrare il meccanismo compatibile con il piano e collaudare carrelli misti/zone speciali. Nessuna richiesta ulteriore sul nome del corriere e nessuna modifica live, ordine o costo. [Audit Sendcloud e passi successivi](SHIPPING-SENDCLOUD-AUDIT.md). Le sezioni seguenti conservano la cronologia precedente.
+
 ## 3 novembre 2026 — nuove spedizioni preparate, ancora da applicare al checkout
 
 Abbiamo verificato il negozio reale: Shopify addebita ancora 7 € per l'Italia sotto 55 € e rende gratuita la spedizione da 55 €. Questa configurazione non coincide con le tariffe concordate. Sono state preparate entrambe le tabelle, senza gratuità: tariffa ridotta solo per carrelli composti interamente da bulbi/piante grasse approvati; tariffa ordinaria quando compare un arbusto, un prodotto ordinario o non classificato. Le due spedizioni non si sommano.

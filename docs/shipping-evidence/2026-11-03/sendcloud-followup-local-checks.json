@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-03",
+  "shippingTests": {
+    "passed": 302,
+    "failed": 0
+  },
+  "nodeDomainTests": {
+    "passed": 645,
+    "failed": 0,
+    "network": "blocked"
+  },
+  "typecheck": "PASS",
+  "targetedEslint": "PASS",
+  "viteBuild": "PASS; existing >500 kB chunk warning",
+  "followupSchemaQueriesValid": 3,
+  "shopifyMutationsExecuted": 0,
+  "nativeCheckoutCasesExecuted": 0,
+  "newAppsInstalled": 0,
+  "newSubscriptions": 0,
+  "shopifyPlanChanged": false,
+  "sendcloudAccountConnectionCompleted": false,
+  "checkoutMechanism": "unresolved",
+  "deploymentCandidate": null,
+  "status": "BLOCKED"
+}

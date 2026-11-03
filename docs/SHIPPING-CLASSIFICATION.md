@@ -2,6 +2,8 @@
 
 Audit read-only del **3 novembre 2026** sullo store `ecom-blueprint-gen-6ud1s.myshopify.com`. Stato: classificazione proposta, **zero scritture live**.
 
+La classificazione rimane indipendente dal vettore e viene mantenuta per l'integrazione logistica Sendcloud già prevista. Il modello non richiede l'acquisto di un'altra app; l'adattatore SKU descritto sotto è soltanto un riferimento condizionale e non una capacità checkout attribuita a Sendcloud standard. [Audit piattaforma](SHIPPING-SENDCLOUD-AUDIT.md).
+
 ## Copertura reale
 
 Lettura completa di **1.364 prodotti**, di cui 1.348 ACTIVE e 16 DRAFT, e **1.392 varianti**, di cui 1.376 su prodotti ACTIVE e 16 su DRAFT. Catalogo paginato in 46 pagine; associazioni variante/profilo verificate separatamente in 28 pagine. Tutte le varianti risultano nel profilo generale `139796676948`. Nessun `hasNextPage` residuo nelle connessioni raccolte di varianti, collezioni e namespace logistici.

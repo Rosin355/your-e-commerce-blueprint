@@ -7,6 +7,11 @@
   "approvedBy": null,
   "approvedAt": null,
   "specialDestinations": [],
+  "candidateRegions": [
+    { "name": "Sicilia", "proposedArea": "special", "status": "candidate_not_approved" },
+    { "name": "Sardegna", "proposedArea": "special", "status": "candidate_not_approved" }
+  ],
+  "carrierSelectionStatus": "deferred_to_client_not_required_for_rate_engine_design",
   "openDecisions": [
     "Confermare copertura integrale Sicilia e Sardegna e relativa fonte.",
     "Acquisire elenco ufficiale isole minori, CAP/località disagiate e destinazioni non servite del corriere e servizio contrattuale.",

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { applyClassificationApprovals, buildProfilePlan, classificationWrites, reducedSkuAllowlist, releaseReadiness, reviewCatalog } from './plan.mjs';
 import { CLASSES, rateFor } from './rules.mjs';
 import { evidenceJson } from './evidence-json.mjs';
+import { assessSendcloud } from './sendcloud.mjs';
 
 const root = new URL('../docs/shipping-evidence/2026-11-03/', import.meta.url);
 const read = async path => JSON.parse(await readFile(path, 'utf8'));
@@ -15,6 +16,17 @@ const approvals = await read(new URL('./classification.approvals.pending.json', 
 const review = applyClassificationApprovals(reviewCatalog(catalog.pages), approvals);
 const plan = buildProfilePlan(profile.response);
 const gates = await read(new URL('./release-gates.pending.json', import.meta.url));
+const platformPolicy = await read(new URL('./platform-policy.json', import.meta.url));
+const audit = await read(new URL('sendcloud-followup-audit.json', root));
+const sendcloudAssessment = assessSendcloud({
+  shop: audit.shop.data.shop, applications: audit.applications.data.appInstallations,
+  carrierServices: audit.carrierServices.data.carrierServices,
+  accountConnectionVerified: platformPolicy.sendcloudAccountConnectionVerified,
+  checkoutMechanism: platformPolicy.checkoutMechanism,
+});
+const readiness = releaseReadiness(gates);
+readiness.blockers = [...new Set([...readiness.blockers, ...sendcloudAssessment.blockers])];
+if (readiness.blockers.length) readiness.status = 'BLOCKED';
 const summary = {
   products: catalog.pages.flatMap(page => page.products.nodes).length, variants: review.length,
   statuses: review.reduce((counts, row) => ({ ...counts, [row.status]: (counts[row.status] || 0) + 1 }), {}),
@@ -26,7 +38,8 @@ const summary = {
 const artifacts = {
   'classification-review.json': { status: 'PENDING_CLIENT_VALIDATION', summary, rows: review },
   'release-plan.json': {
-    ...releaseReadiness(gates), plan, gates,
+    ...readiness, plan, gates, platformPolicy, sendcloudAssessment,
+    deploymentCandidate: null,
     classificationDefinition: {
       name: 'Classe logistica spedizioni Online Garden', namespace: 'logistics', key: 'shipping_class',
       type: 'single_line_text_field', ownerType: 'PRODUCTVARIANT',
@@ -35,7 +48,7 @@ const artifacts = {
     },
     classificationWrites: classificationWrites(review),
     reducedSkuAllowlist: reducedSkuAllowlist(review),
-    note: 'PROPOSAL ONLY. App configuration, geography and classification remain unapproved. No live executor exists in this package.',
+    note: 'BLOCKED. Sendcloud is the logistics platform; checkout pricing mechanism is unresolved on Shopify Grow. Native 18-rate payload is a conditional reference template, not a selected release. No additional service or subscription is authorized. No live executor exists.',
   },
   'checkout-matrix.json': {
     status: 'NOT_RUN_IN_NATIVE_CHECKOUT',
@@ -71,4 +84,4 @@ await writeFile(new URL('profile-target-input.graphql', root),
   'mutation ShippingTargetValidation { deliveryProfileUpdate(id:' + JSON.stringify(plan.proposedVariables.id) + ', profile:' + graphqlLiteral(plan.proposedVariables.profile) + ') { profile { id version } userErrors { field message } } }\n');
 await writeFile(new URL('classification-definition-input.graphql', root),
   'mutation ClassificationDefinitionValidation { metafieldDefinitionCreate(definition:' + graphqlLiteral(artifacts['release-plan.json'].classificationDefinition) + ') { createdDefinition { id } userErrors { field message } } }\n');
-console.log(JSON.stringify({ output: fileURLToPath(root), summary, readiness: releaseReadiness(gates), plannedNativeRates: plan.specs.length }, null, 2));
+console.log(JSON.stringify({ output: fileURLToPath(root), summary, readiness, sendcloudAssessment, referenceNativeRates: plan.specs.length }, null, 2));

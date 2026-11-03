@@ -1,5 +1,6 @@
 {
-  "status": "PROPOSED_NOT_INSTALLED_OR_VERIFIED",
+  "status": "ALTERNATIVE_REFERENCE_ONLY_NOT_SELECTED_OR_AUTHORIZED",
+  "note": "Sendcloud remains the logistics platform. This generic selector contract does not prove the standard Sendcloud app can execute it, and does not authorize any additional app/subscription.",
   "scope": { "countryCode": "IT", "deliveryGroupCount": 1, "managedMethodPrefix": "OG-" },
   "classification": {
     "source": "Approved variant logistics.shipping_class, or unique SKU allowlist compiled from those approvals",

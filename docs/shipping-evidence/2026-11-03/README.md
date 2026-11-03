@@ -1,5 +1,7 @@
 # Evidenze spedizioni — 3 novembre 2026
 
+Follow-up Sendcloud: `sendcloud-followup-audit.json` registra la nuova lettura API e le osservazioni UI dell'app installata; `sendcloud-reaudit-*.graphql` e `sendcloud-schema-validation.json` conservano le tre query validate; `sendcloud-followup-local-checks.json` contiene 302 test spedizioni / 645 dominio, distinti dallo storico iniziale 295 / 638. Nessun nuovo servizio selezionato e nessuna configurazione live modificata. [Audit e limiti](../../../SHIPPING-SENDCLOUD-AUDIT.md).
+
 Letture dello store Shopify autorizzato, senza mutation. Nessun ordine o dato cliente letto.
 
 - `audit.json`: identità store, piano Grow, EUR, imposte/fuso e scope del connettore.

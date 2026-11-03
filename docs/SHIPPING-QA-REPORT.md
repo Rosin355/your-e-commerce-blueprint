@@ -2,6 +2,8 @@
 
 **3 novembre 2026 — QA LOCALE PASS; CHECKOUT NATIVO NON CERTIFICATO; RILASCIO BLOCCATO.** Nessuna configurazione live modificata, nessun ordine creato, nessun pagamento/addebito, nessuna mutation Shopify eseguita.
 
+Follow-up Sendcloud: piano Grow riconfermato, installazione riconfermata via API/UI, zero estensioni/Functions attive nella scheda Shopify, apertura app su schermata di collegamento account. Connessione interna non verificata. Il percorso Dynamic Checkout documentato richiede Plus; Shipping Rules post-ordine non producono prezzi checkout. Nessuna app aggiuntiva è selezionata. [Audit dedicato](SHIPPING-SENDCLOUD-AUDIT.md).
+
 ## Verifiche eseguite
 
 | Controllo | Risultato | Limite dell'evidenza |
@@ -14,12 +16,12 @@
 | Classificazione/pesi | Criticità: nessuna classe nei campi controllati, tutti i pesi zero | 161 candidati ridotti non ancora approvati |
 | App installate e carrier | PASS: Sendcloud installata, carrier service vuoti | Impostazioni interne Sendcloud non lette |
 | Delivery Customization esistenti | **NON VERIFICATO** | Access denied, manca `read_delivery_customizations` |
-| Regole dominio spedizioni | **295/295 PASS** | Esecuzione locale, fixture e snapshot, nessuna Function installata |
-| Suite dominio Node offline | **638/638 PASS** | Include le verifiche spedizioni; API live non coinvolte |
+| Regole dominio spedizioni | **302/302 PASS** | Incluse sette verifiche specifiche Sendcloud; nessuna Function installata |
+| Suite dominio Node offline | **645/645 PASS** | Include le verifiche spedizioni; API live non coinvolte |
 | TypeScript | PASS | Nessun cambio applicativo a checkout/Admin V2 |
 | ESLint nuovi file e test | PASS | Controllo mirato allo scope modificato |
 | Build Vite | PASS | Avviso dimensione chunk >500 kB già presente; nessun deploy |
-| Query/mutation Admin | **14 operazioni VALID**, più **2 input completi VALID** | Schema 2026-01; validità sintattica/tipi non equivale a permessi o risultato live |
+| Query/mutation Admin | **14 operazioni iniziali + 3 query follow-up VALID**, più **2 input completi VALID** | Schema 2026-01; validità sintattica/tipi non equivale a permessi o risultato live |
 | Matrice checkout nativo | **720 casi preparati, 0 eseguiti** | Geografia e app pending; nessun risultato live inventato |
 
 Una prima query profilo superava il limite Shopify di costo 1.000; è stata ridotta ed eseguita con paginazione controllata. Il validatore del connettore dichiarava di rinviare la validazione all'esecuzione: è stato quindi usato anche il validatore della skill. Il campo live `coversAllItems` non era nello schema 2026-01: rimosso dalla query riutilizzabile, lasciando il dato grezzo nel backup. [Riepilogo validazioni](shipping-evidence/2026-11-03/validation-summary.json).
@@ -32,7 +34,7 @@ npm run shipping:prepare
 npm run test:shipping
 node ci/run-domain.mjs node
 npm run typecheck
-npx --no-install eslint --no-ignore shipping/rules.mjs shipping/plan.mjs shipping/prepare.mjs shipping/evidence-json.mjs scripts/tests/shipping-rates.test.ts
+npx --no-install eslint --no-ignore shipping/*.mjs scripts/tests/shipping-*.test.ts
 npm run build
 git diff --check
 ```
@@ -41,7 +43,7 @@ git diff --check
 
 ## Copertura delle regole automatiche
 
-280 casi incrociano 10 composizioni carrello, 14 valori (compresi zero e importo elevato), due fasce geografiche sintetiche. Ulteriori 15 test coprono esempi cliente, sconosciuti/non approvati, quantità invalide, digitale/non spedibile, CAP e località, opzioni duplicate/assenti, importi, sconti con base già determinata, completezza snapshot, diff Italia, approvazioni, unicità SKU e gate di rilascio.
+280 casi incrociano 10 composizioni carrello, 14 valori (compresi zero e importo elevato), due fasce geografiche sintetiche. Ulteriori 22 test coprono esempi cliente, sconosciuti/non approvati, quantità invalide, digitale/non spedibile, CAP e località, opzioni duplicate/assenti, importi, sconti con base già determinata, completezza snapshot, diff Italia, approvazioni, unicità SKU e gate di rilascio. Le sette nuove verifiche distinguono installazione Sendcloud da connessione e prezzo checkout, incompatibilità Grow/Plus, configurazione comunque da provare, snapshot completo/store corretto, candidati regionali senza effetti live, nuovi gate e listino indipendente dal vettore.
 
 Un controllo esaustivo verifica **ogni centesimo da 0 a 600 €**, per A/B e standard/speciale: esattamente una fascia per contesto, nessun buco o sovrapposizione, prezzo positivo, A non inferiore a B. I casi di carrello verificano che venga mantenuta una sola tariffa, senza sommare A e B. La fascia superiore aperta è verificata anche a 10.000 €.
 

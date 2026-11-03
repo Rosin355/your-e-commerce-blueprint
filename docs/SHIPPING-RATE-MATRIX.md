@@ -2,6 +2,8 @@
 
 Aggiornamento: **3 novembre 2026**, orario operativo Europe/Rome. Stato: **PREPARATO LOCALMENTE — NON SINCRONIZZATO — RILASCIO BLOCCATO**. Nessuna modifica Shopify live.
 
+Chiarimento cliente recepito: piattaforma logistica **Sendcloud**, scelta del vettore rinviata al cliente. Le tabelle sono prezzi commerciali fissi, indipendenti dal costo del corriere. Sicilia/Sardegna sono ora registrate come candidate non approvate nella configurazione; non generano regole operative. Nessuna richiesta ulteriore del nome del corriere è necessaria per proseguire il lavoro locale.
+
 ## Regole commerciali
 
 La decisione riguarda l'intero carrello fisico. B soltanto se tutte le varianti sono bulbi o piante grasse con classificazione approvata. Basta una variante ordinaria, pesante, voluminosa o sconosciuta per usare A. Le quantità non generano spedizioni aggiuntive. **A e B non si sommano e non prevedono spedizione gratuita.** La fascia usa il valore complessivo rilevante per le condizioni native Shopify, senza ricalcolare sconti o imposte nel browser.
@@ -56,4 +58,4 @@ Ricerca effettuata nel repository (documentazione e codice) e nelle letture Shop
 
 Le zone dei profili tradizionali usano paesi/province, non una lista arbitraria di CAP. La geografia richiesta deve quindi essere selezionata nel checkout da una capacità aggiuntiva verificata. [Configurazione zone Shopify](https://help.shopify.com/en/manual/fulfillment/setup/shipping-rates/setting-up-shipping-rates), [documentazione del fornitore sui CAP e Delivery Customization](https://www.logbase.io/blog/shopify-shipping-based-on-zip-code).
 
-Prima del rilascio servono: corriere/servizio contrattuale, lista vigente con fonte e decorrenza, conferma Sicilia/Sardegna, CAP condivisi, destinazioni escluse e responsabile dei futuri aggiornamenti. Nessuna classificazione geografica è stata pubblicata.
+Prima del rilascio serve una lista territoriale approvata con fonte e decorrenza, conferma Sicilia/Sardegna, CAP condivisi, destinazioni escluse e responsabile dei futuri aggiornamenti. La mappa è configurabile e sarà completata con il listino del servizio scelto successivamente dal cliente; il motore A/B non dipende dal nome del vettore. Nessuna classificazione geografica è stata pubblicata.
