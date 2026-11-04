@@ -1,3 +1,9 @@
+## Aggiornamento controllo varianti PR #45
+
+Vincolo di omogeneità B approvato e blocco server implementato nel codice di prova: assegnazioni B dal client e modifiche varianti di prodotti B rifiutate; pubblicazione B bloccata fino alle approvazioni di tutte le varianti nel registro server. Prodotti sconosciuti senza tag restano A; nessuna separazione automatica. Nessun deploy e flag Admin V2 invariati. [Copertura e limiti del blocco](SHIPPING-CLASSIFICATION.md).
+
+Sicilia/Sardegna approvate; checkout Palermo/Cagliari BLOCKED perché la scheda Dev non è più disponibile. Matrice standard già PASS, non ripetuta. Elba, Lido e Pellestrina restano non coperte. Test mirati Node 18/18 e Deno 67/67, typecheck e build PASS. Main è antenato della PR: nessun conflitto. Il rilascio richiede ancora checkout regionali, approvazioni B ed eccezioni geografiche risolte. Costo aggiuntivo 0 €, produzione e Sendcloud invariati. Le sezioni successive sono cronologia.
+
 ## Checkpoint mirato — Isole approvate, collaudo regionale incompleto
 
 **NATIVE PARTIAL.** Il proprietario approva Sicilia, Sardegna e isole minori. Solo Dev: mercato provinciale 119731978565 creato in bozza, tariffe speciali non completate; checkout Palermo/Cagliari NON VERIFICATI per «Debugger unattached». Riutilizzati i PASS di Roma. Elba, Lido, Pellestrina restano eccezioni non distinguibili dal modello provinciale. Classificazione nuove varianti BLOCKED: vincolo prodotto omogeneo proposto, non implementato. Nessuna modifica produzione, Sendcloud, UE/internazionale, PR #42, costo o ordine. [Stato puntuale](shipping-evidence/2026-11-04/native-islands/README.md).

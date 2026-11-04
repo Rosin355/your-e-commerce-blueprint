@@ -1,0 +1,26 @@
+{
+  "baseline": "b0ba990d775eb6d2619155aafcffde3d2ed0812c",
+  "managedPublicationGuard": "PASS_LOCAL_ONLY",
+  "approvalRegistryEntries": 0,
+  "bPublication": "BLOCKED_UNTIL_SERVER_APPROVAL",
+  "nodeTests": {
+    "passed": 18,
+    "failed": 0
+  },
+  "denoTests": {
+    "passed": 67,
+    "failed": 0
+  },
+  "typecheck": "PASS",
+  "build": "PASS",
+  "denoClientCheck": "PASS",
+  "palermo": "BLOCKED",
+  "cagliari": "BLOCKED",
+  "browserError": "Tab not found in browser 3.",
+  "browserAttempts": 1,
+  "mainAncestor": "8ad26ba66e8c3b49987544934bbcc8c1a0915aa0",
+  "conflicts": "NONE_ANCESTOR",
+  "productionWrites": 0,
+  "deploys": 0,
+  "extraCostsEUR": 0
+}

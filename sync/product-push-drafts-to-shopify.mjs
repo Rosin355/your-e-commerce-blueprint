@@ -1,3 +1,4 @@
+import { guardCatalogMutation } from "../supabase/functions/_shared/shipping-publication-guard.mjs";
 import path from "node:path";
 import process from "node:process";
 import { loadCsv, loadEnvFile, nowIso } from "./lib/csv-utils.mjs";
@@ -29,6 +30,7 @@ async function sleep(ms) {
 }
 
 async function graphql(query, variables) {
+  await guardCatalogMutation(query, variables, graphql);
   const res = await fetch(`https://${cfg.shop}/admin/api/${cfg.apiVersion}/graphql.json`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": cfg.token },
