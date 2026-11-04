@@ -1,5 +1,16 @@
 # QA spedizioni Online Garden
 
+## Checkpoint finale mirato — tariffe Isole salvate nel Dev
+
+Nel solo Dev Online Garden Shipping Test è stato salvato l'override del mercato 119731978565, attivato e riletto nello stato **Attivo**. Nella stessa opzione «Spedizione standard» sono stati impostati i nove importi: A 9,60 / 12,50 / 14,90 / 17,50 / 36,00 / 54,00 €; B 6,90 / 8,90 / 9,50 €, mantenendo gli scaglioni esistenti e la gratuità non selezionata. Le condizioni sono le 17 province Sicilia/Sardegna già selezionate; nessuna provincia continentale aggiunta.
+
+**Palermo e Cagliari: BLOCKED, non PASS.** Il tentativo di aprire il carrello Dev con due bulbi è stato interrotto dal distacco del collegamento browser durante l'apertura della nuova scheda. Nessun checkout regionale è stato letto; nessun tentativo ripetuto. Non è disponibile uno screenshot di conferma dopo l'ultimo salvataggio: l'evidenza di stato Attivo proviene dalla lettura DOM. La configurazione rimane nel Dev; per ripristinare la copertura ereditata standard durante una diagnosi, riportare il sottomercato in Bozza. Nessuna modifica live, al guard varianti, a Sendcloud o alla PR #42.
+
+**CI baseline 2d034eb:** GitGuardian PASS; zero run Storefront. Il workflow 401886711 risulta active. Il file accetta solo pull_request verso main/codex/storefront-main-integration. Unico tentativo ordinario: gh workflow run sul branch, rifiutato HTTP 422 «Workflow does not have 'workflow_dispatch' trigger». Questo dimostra perché l'avvio manuale non è disponibile; non dimostra la causa del mancato evento automatico. Nessuna modifica al workflow, nessuna chiusura/riapertura PR o cambio Draft. Le verifiche locali precedenti restano valide e non sono state ripetute.
+
+Rilascio ancora bloccato dai due checkout, dalla CI Storefront e dai gate catalogo/geografici già descritti. Elba, Lido e Pellestrina restano non coperte. Non si chiede di riapprovare Sicilia/Sardegna: l'approvazione commerciale è acquisita. Nessuna attivazione produttiva autorizzata.
+
+
 ## Chiusura controllo varianti — aggiornamento PR #45
 
 Il proprietario ha approvato il vincolo di omogeneità B. Implementato nel codice di prova il blocco server comune alle API Admin GraphQL/REST e ai tre script di sincronizzazione prodotti. Le approvazioni B sono un registro lato server, attualmente vuoto: **tutti i prodotti B restano bloccati alla pubblicazione**, anche se il client dichiara una propria approvazione. Prima di consentire una pubblicazione B vanno approvate tutte le varianti correnti per ID prodotto, ID variante, SKU, classe bulb/succulent, approvatore e riferimento; un elenco incompleto blocca. Il registro non viene compilato dai suggerimenti o dal titolo.

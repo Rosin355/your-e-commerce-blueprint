@@ -1,3 +1,7 @@
+## Nuove evidenze — Isole Dev e avvio CI
+
+Tariffe speciali A/B salvate e mercato provinciale Dev attivo. Palermo/Cagliari restano non verificati per interruzione del collegamento browser all'apertura checkout; nessun altro tentativo. Il guard varianti non è cambiato. Storefront attivo ma senza run su 2d034eb: l'unico avvio manuale è rifiutato perché manca il trigger workflow_dispatch; causa del mancato avvio automatico non dimostrata. GitGuardian PASS sulla baseline. Nessuna modifica produzione o Sendcloud. [Dettagli nuovi](SHIPPING-QA-REPORT.md). Le sezioni successive sono storico.
+
 ## Aggiornamento controllo varianti PR #45
 
 Vincolo di omogeneità B approvato e blocco server implementato nel codice di prova: assegnazioni B dal client e modifiche varianti di prodotti B rifiutate; pubblicazione B bloccata fino alle approvazioni di tutte le varianti nel registro server. Prodotti sconosciuti senza tag restano A; nessuna separazione automatica. Nessun deploy e flag Admin V2 invariati. [Copertura e limiti del blocco](SHIPPING-CLASSIFICATION.md).
