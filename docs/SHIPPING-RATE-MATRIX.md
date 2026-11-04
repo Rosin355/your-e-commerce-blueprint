@@ -1,6 +1,6 @@
 # Spedizioni Online Garden — regole approvate e geografia
 
-Aggiornamento: **3 novembre 2026**, orario operativo Europe/Rome. Stato: **PREPARATO LOCALMENTE — NON SINCRONIZZATO — RILASCIO BLOCCATO**. Nessuna modifica Shopify live.
+Aggiornamento: **4 novembre 2026**, Europe/Rome. Stato: **Italia standard verificata nel checkout Dev — rilascio bloccato**. Nessuna modifica Shopify live.
 
 Chiarimento cliente recepito: piattaforma logistica **Sendcloud**, scelta del vettore rinviata al cliente. Le tabelle sono prezzi commerciali fissi, indipendenti dal costo del corriere. Sicilia/Sardegna sono ora registrate come candidate non approvate nella configurazione; non generano regole operative. Nessuna richiesta ulteriore del nome del corriere è necessaria per proseguire il lavoro locale.
 
@@ -27,14 +27,14 @@ La decisione riguarda l'intero carrello fisico. B soltanto se tutte le varianti 
 | 50–149,99 € | 7,90 € | 8,90 € |
 | Da 150 € | 8,90 € | 9,50 € |
 
-Gli intervalli sono inclusivi al centesimo; l'ultima fascia non ha massimo. Il codice conserva solo interi in centesimi. Un ordine fisico interamente scontato a zero conserva una tariffa positiva secondo la fascia nativa applicabile; non viene aggiunta una regola di gratuità.
+Gli intervalli sono inclusivi al centesimo; l'ultima fascia non ha massimo. Il codice conserva solo interi in centesimi. Le fasce a zero partono da una tariffa positiva e la gratuità è disattivata nella configurazione. Il checkout a zero non è stato provato. Gli sconti d’ordine usano la base netta, come verificato a 49,99/50,00 € e 149,99/150,00 €.
 
-| Carrello, Italia standard | Totale rilevante | Spedizione |
+| Checkout Dev, Italia standard | Totale rilevante | Spedizione |
 |---|---:|---:|
-| Bulbi | 15 € | 5,90 € |
+| Due bulbi | 30 € | 5,90 € |
 | Bulbi + grasse | 60 € | 7,90 € |
 | Bulbi + arbusto | 45 € | 11,90 € |
-| Bulbi + arbusto | 160 € | 17,50 € |
+| Dieci bulbi + sconosciuto | 160 € | 17,50 € |
 
 ## Matrice geografica da approvare
 
@@ -43,19 +43,15 @@ Gli intervalli sono inclusivi al centesimo; l'ultima fascia non ha massimo. Il c
 | Destinazione | Fascia proposta | Fonte disponibile | Stato / decisione |
 |---|---|---|---|
 | Italia continentale ordinaria, compreso Sud continentale | Standard, salvo eccezioni documentate | Istruzione cliente; manca elenco eccezioni completo | Validare copertura residuale dopo confronto corriere |
-| Sicilia | Isole/disagiate | Chiarimento cliente sulle isole, nessuna lista territoriale contrattuale | Confermare applicazione integrale e riferimenti |
-| Sardegna | Isole/disagiate | Come Sicilia | Confermare applicazione integrale e riferimenti |
+| Sicilia | Isole/disagiate | Chiarimento cliente sulle isole, nessuna lista territoriale contrattuale | Sottomercato per province: approvare la copertura e collaudare |
+| Sardegna | Isole/disagiate | Come Sicilia | Sottomercato per province: approvare la copertura e collaudare |
 | Isole minori | Isole/disagiate per località approvate | Nessun elenco ufficiale acquisito | Acquisire CAP, località, servizio e decorrenza |
 | Località montane/remote | Supplemento solo se documentato | Nessun elenco ufficiale acquisito | Non classificare intere regioni |
 | CAP/località con supplemento corriere | Isole/disagiate | Corriere e contratto non identificati | Acquisire listino corrente e approvazione Marco |
-| CAP condiviso da località ordinarie e disagiate | Dipende anche dalla località | Da listino corriere | Verificare capacità dell'app per CAP + località |
+| CAP condiviso da località ordinarie e disagiate | Dipende anche dalla località | Da listino corriere | Non distinguibile dal mercato nativo per provincia |
 | Destinazioni non servite | Nessuna consegna acquistabile | Da contratto | Elenco distinto dal supplemento |
 | Estero | Fuori dalle tabelle A/B | Configurazione Shopify attuale | UE/internazionale esclusi dall'intervento |
 
-Ricerca effettuata nel repository (documentazione e codice) e nelle letture Shopify autorizzate: profili/zone/regole, metafield Shop nei namespace `shipping` e `logistics`. Nessun elenco ufficiale trovato. Le impostazioni interne Sendcloud non sono state lette: non si può escludere che il cliente ne abbia uno nel proprio account. Non è stato scelto un elenco generico Internet o un listino di un corriere diverso.
+[Registro dei checkout e verifica selettore Dev](shipping-evidence/2026-11-04/native-shipping/README.md). Shopify espone province nei [sottomercati](https://help.shopify.com/en/manual/markets/getting-started/market-types); le [condizioni native](https://shopify.dev/docs/api/admin-graphql/latest/input-objects/MarketConditionsInput) non espongono il singolo CAP o la località. Non sono stati salvati sottomercati né inventate esclusioni.
 
-[Configurazione geografica pending](../shipping/geography.pending.json): elenco vuoto, fonte e corriere assenti, `coverageComplete=false`. È un blocco intenzionale: la mancanza di un CAP nella lista vuota **non** autorizza una tariffa standard. `resolveArea` richiede fonte, approvatore, data e lista dichiarata completa; gestisce CAP esatti, località e destinazioni non servite. I CAP nei test sono esclusivamente fixture sintetiche.
-
-Le zone dei profili tradizionali usano paesi/province, non una lista arbitraria di CAP. La geografia richiesta deve quindi essere selezionata nel checkout da una capacità aggiuntiva verificata. [Configurazione zone Shopify](https://help.shopify.com/en/manual/fulfillment/setup/shipping-rates/setting-up-shipping-rates), [documentazione del fornitore sui CAP e Delivery Customization](https://www.logbase.io/blog/shopify-shipping-based-on-zip-code).
-
-Prima del rilascio serve una lista territoriale approvata con fonte e decorrenza, conferma Sicilia/Sardegna, CAP condivisi, destinazioni escluse e responsabile dei futuri aggiornamenti. La mappa è configurabile e sarà completata con il listino del servizio scelto successivamente dal cliente; il motore A/B non dipende dal nome del vettore. Nessuna classificazione geografica è stata pubblicata.
+Il [riferimento geografico locale](../shipping/geography.pending.json) è ancora incompleto, con lista vuota e fonte assente. I CAP sintetici dei test locali non rappresentano destinazioni reali. Marco deve decidere se approvare Sicilia/Sardegna per province intere e accettare che eventuali eccezioni dentro una provincia seguano la tariffa provinciale. Se il listino impone una distinzione esatta per CAP, questa parte non è coperta dal percorso nativo.

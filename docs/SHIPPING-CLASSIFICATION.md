@@ -2,7 +2,7 @@
 
 Audit read-only del **3 novembre 2026** sullo store `ecom-blueprint-gen-6ud1s.myshopify.com`. Stato: classificazione proposta, **zero scritture live**.
 
-La classificazione rimane indipendente dal vettore e viene mantenuta per l'integrazione logistica Sendcloud già prevista. Il modello non richiede l'acquisto di un'altra app; l'adattatore SKU descritto sotto è soltanto un riferimento condizionale e non una capacità checkout attribuita a Sendcloud standard. [Audit piattaforma](SHIPPING-SENDCLOUD-AUDIT.md).
+**4 novembre 2026 — fallback nuovi prodotti PASS; nuove varianti su prodotto B BLOCKED senza controllo di pubblicazione.** Si riutilizza l'istantanea del 3 novembre. [Matrice operativa CSV: 161 candidati, zero approvati](shipping-evidence/2026-11-04/native-shipping/candidati-b.csv). La classificazione rimane indipendente da Sendcloud e dal corriere.
 
 ## Copertura reale
 
@@ -34,14 +34,17 @@ La precedente analisi WooCommerce menzionava le classi `Pesante` / `Non Pesante`
 
 I conteggi sono di **varianti**, includono DRAFT e non certificano categorie botaniche. Non viene usato il titolo commerciale per abilitare tariffe ridotte. Le collezioni sono indizi di revisione: non producono scritture o sconti automatici.
 
-## Modello stabile proposto
+## Regola nativa e controllo nel gestionale
 
-Nuovo metafield merchant-owned **PRODUCTVARIANT `logistics.shipping_class`**, `single_line_text_field`, valori ammessi `bulb`, `succulent`, `shrub`, `standard`, `heavy`, `bulky`, `unknown`. La granularità variante consente di differenziare formati e confezioni dello stesso prodotto. Namespace condiviso necessario per la lettura da altre app; nessun dato botanico o metafield esistente viene sostituito.
+La collezione B include solo i prodotti con il tag logistico di approvazione; A include tutti quelli senza tag. Il [checkout con lo sconosciuto](shipping-evidence/2026-11-04/native-shipping/09-sconosciuto-solo.txt) conferma la tariffa A sul prodotto senza tag. Un nuovo prodotto entra in A se viene pubblicato senza tag B. Shopify documenta che la [fonte Products delle collezioni](https://help.shopify.com/en/manual/products/collections/create-collection) comprende tutte le varianti: una nuova variante sullo stesso prodotto può quindi ereditare B prima dell'approvazione. La copertura automatica delle nuove varianti è **BLOCKED**.
 
-Sequenza preparata: creare la definizione se assente e compatibile; scrivere **solo** le varianti esplicitamente approvate con `metafieldsSet`, massimo 25 per chiamata, `compareDigest:null` per esigere l'assenza del nuovo valore; rileggere valori e digest. Se la chiave compare nel frattempo, interrompere e produrre un diff separato. Nessuna mutation è stata eseguita. [Query e mutation preparate](../shipping/queries/).
+**Controllo minimo da adottare prima del rilascio:** nel flusso del gestionale, e in ogni percorso alternativo via import o Admin, togliere il tag B **prima** di aggiungere o modificare una variante di un prodotto B. Rileggere le due collezioni e attendere che il prodotto risulti solo in A prima di rendere la variante vendibile. Riapplicare il tag B solo dopo aver verificato e approvato ogni variante fisica vendibile per ID e SKU; se coesistono varianti A e B sullo stesso prodotto, mantenere il prodotto in A. Niente codice al checkout o abbonamenti. Il controllo è preparato, non applicato al gestionale live.
 
-Le approvazioni si registrano separatamente in [classification.approvals.pending.json](../shipping/classification.approvals.pending.json), con ID variante, classe, approvatore e riferimento. `npm run shipping:prepare` rigenera il piano senza trasformare i suggerimenti in approvazioni e senza perdere questo registro separato. Attualmente il registro è vuoto e il piano contiene **zero scritture di classificazione**.
+| Decisione catalogo | Azione prima dell'attivazione |
+|---|---|
+| 118 bulbi e 43 piante grasse candidati | Approvare o rifiutare ciascuna riga del CSV per ID variante e SKU, con riferimento. Nello snapshot i 161 candidati erano attivi e su 161 prodotti con una variante ciascuno: confrontare le varianti correnti prima di applicare i tag. Nessuna idoneità deriva dal nome commerciale. |
+| Arbusti, standard, sconosciuti, record senza approvazione | A. Verificare che ogni prodotto fisico vendibile sia in una sola delle collezioni. |
+| `OG_791194`, gift card osservata come fisica | Verificare se debba richiedere spedizione. Se è digitale, verificare il checkout digitale/fisico prima di dichiarare coperto quel perimetro. |
+| Nuove varianti su prodotti B | Applicare e provare il controllo di pubblicazione sopra prima di autorizzare il rilascio. |
 
-Se l'app scelta non legge metafield variante, il piano offre un adattatore **allowlist SKU** derivato esclusivamente dalle approvazioni. Tutti gli articoli devono risultare nell'allowlist per usare B; SKU assente, duplicato o nuovo comporta A e blocca la compilazione di un'allowlist ambigua. Le capacità `ALL` / `ANY` dell'app restano da provare: la sola condizione «contiene un bulbo» è insufficiente. Non usare proprietà carrello controllabili dal browser come fonte della classe.
-
-Marco deve validare i 161 candidati alla B, gli eventuali pesanti/voluminosi fra le altre classi, le 244 varianti incerte e l'anomalia gift card. Una variante fisica sconosciuta ricade sempre in A; un prodotto esplicitamente non spedibile blocca la consegna. Il digitale puro non richiede consegna; i carrelli misti digitale/fisico richiedono una decisione sulla base tariffaria prima dell'attivazione.
+Il [registro di approvazione](../shipping/classification.approvals.pending.json) resta vuoto. Conservare le evidenze del catalogo originale; nessun tag, metafield o prodotto live è stato modificato.

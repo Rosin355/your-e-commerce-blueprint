@@ -1,0 +1,9 @@
+  - heading "Online Garden Shipping Test Checkout" [level=1]
+    - generic: Postal code
+    - textbox "Postal code": "00186"
+    - heading "Shipping method" [level=2]
+    - heading "Spedizione standard" [level=3]
+        - row "Quantity 1 OG QA - Arbusto fittizio 1 €30.00":
+        - row "Quantity 1 OG QA - Bulbo fittizio 1 €15.00":
+      - row "Subtotal · 2 items €45.00":
+      - row "Shipping €11.90":

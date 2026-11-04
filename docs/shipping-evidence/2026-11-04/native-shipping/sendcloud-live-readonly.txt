@@ -1,0 +1,3 @@
+        - generic: Installate
+      - img "Logo Sendcloud"
+      - link "Sendcloud":

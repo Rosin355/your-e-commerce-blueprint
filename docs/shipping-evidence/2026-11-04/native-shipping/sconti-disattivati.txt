@@ -1,0 +1,6 @@
+      - row "Seleziona gid://shopify/DiscountCodeNode/2267078328645 OG-QA-NATIVE-1000 Scaduto Codice Tutti i clienti Sconto ordine Importo fisso sull'ordine 0":
+        - cell "Scaduto":
+          - generic: Scaduto
+      - row "Seleziona gid://shopify/DiscountCodeNode/2267078000965 OG-QA-NATIVE-1001 Scaduto Codice Tutti i clienti Sconto ordine Importo fisso sull'ordine 0":
+        - cell "Scaduto":
+          - generic: Scaduto

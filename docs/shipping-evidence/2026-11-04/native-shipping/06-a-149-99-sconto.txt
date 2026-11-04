@@ -1,0 +1,18 @@
+  - heading "Online Garden Shipping Test Checkout" [level=1]
+    - generic: Postal code
+    - textbox "Postal code": "00186"
+    - heading "Shipping method" [level=2]
+    - heading "Spedizione standard" [level=3]
+        - row "Quantity 1 OG QA - Prodotto non classificato 1 €10.00":
+        - row "Quantity 10 OG QA - Bulbo fittizio 10 €150.00":
+    - generic: OG-QA-NATIVE-1001
+    - generic: OG-QA-NATIVE-1001
+    - button "Remove OG-QA-NATIVE-1001":
+      - row "Subtotal · 11 items €160.00":
+      - row "Order discount":
+      - row "OG-QA-NATIVE-1001 − €10.01":
+        - rowheader "OG-QA-NATIVE-1001":
+          - generic: OG-QA-NATIVE-1001
+      - row "Shipping €12.50":
+      - row "Total EUR €162.49":
+- status: "Updated shipping method: Spedizione standard"

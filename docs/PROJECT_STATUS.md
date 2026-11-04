@@ -1,10 +1,10 @@
-## 4 novembre 2026 — PR #45, prova Shopify nativa
+## 4 novembre 2026 — PR #45, checkout Shopify nativo verificato
 
-La direzione scelta è Shopify Native Shipping Options by Market su Grow, con Sendcloud per l'evasione. Nel Dev 111269380421 il mercato Italy contiene una sola opzione attiva “Spedizione standard”. Le due tariffe per importo sono assegnate a collezioni complementari. B comprende bulbo e pianta grassa tramite approvazione esplicita. A comprende arbusto e sconosciuto in assenza del tag di approvazione. Intuitive e Standard dimostrativa risultano inattive.
+**NATIVE PARTIAL · gate Italia standard 4/4 PASS.** Nove prove nel checkout Dev su Grow simulato e Mercati. Una sola spedizione: due bulbi 30 € → 5,90 €; bulbo + grassa 60 € → 7,90 €; bulbo + arbusto 45 € → 11,90 €; dieci bulbi + sconosciuto 160 € → 17,50 €. Sconti e due confini al centesimo verificati. [QA e screenshot](SHIPPING-QA-REPORT.md).
 
-Il checkout Dev per due bulbi da 30 € mostra 5,90 €. Il controllo del browser si interrompe prima dei risultati sui misti e della cattura dello screenshot. Soglie, sconti e gruppi separati restano da collaudare. Le prove Intuitive precedenti sono storiche e non concorrono al verdetto nativo. [Configurazione, prima lettura e ripristino](shipping-evidence/2026-11-04/native-shipping/README.md)
+Il percorso nativo su Grow ha costo aggiuntivo 0 € e non richiede CCS. Sendcloud resta per evasione ed etichette. **Intuitive Shipping:** Valutata esclusivamente per il collaudo; esclusa dalla soluzione di produzione per decisione del proprietario.
 
-Il percorso a costo incrementale di licenza 0 € consiste in un'opzione nativa con le due collezioni complementari e Sendcloud per l'evasione. I sottomercati per provincia permettono di valutare una fascia isole separata dopo approvazione territoriale. Il modello documentato richiede una decisione commerciale per le eccezioni CAP che ricadono dentro la stessa provincia. Il rilascio produttivo resta bloccato.
+PR Draft, rilascio bloccato: approvare il perimetro provinciale e la gestione delle eccezioni CAP, validare gli SKU candidati e attuare il controllo sulle nuove varianti B. I gruppi separati non sono stati verificati; il perimetro testato usa una sede. Baseline Italia live letta senza scritture: 7 € e gratis da 55 €. [Configurazione, backup e rollback](SHIPPING-SHOPIFY-INTEGRATION.md). Le sezioni successive sono storiche.
 
 ## 3 novembre 2026 — PR #45: SANDBOX PASS A/B, produzione bloccata
 
