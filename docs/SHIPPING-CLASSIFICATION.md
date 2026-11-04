@@ -1,5 +1,14 @@
 # Classificazione logistica Shopify — matrice di validazione
 
+## Vincolo minimo proposto per il catalogo — 4 novembre 2026
+
+Il controllo non può limitarsi a un warning o a un metafield variante: le tariffe native qui configurate usano collezioni di prodotti. **Protezione tecnica nuove varianti: BLOCKED**, nessun controllo gestionale implementato o dichiarato efficace in questo checkpoint.
+
+Vincolo minimo realmente compatibile con questa configurazione: un prodotto B deve essere logisticamente omogeneo e contenere soltanto varianti tutte esplicitamente approvate. Una variante con classe diversa va creata come prodotto separato senza tag B; non va aggiunta al prodotto B. Prima di ogni aggiunta di variante a un prodotto B, il prodotto deve perdere il tag B ed essere verificato nella sola A; durante la rivalidazione non può mantenere la tariffa ridotta. Il tag può tornare soltanto dopo approvazione esplicita di tutti gli ID variante correnti.
+
+Per rendere obbligatorio il vincolo, il percorso di creazione/pubblicazione nel gestionale deve rifiutare l'operazione finché il prodotto B non è stato declassato o la creazione è stata separata. Lo stesso vincolo deve coprire import e modifiche dirette nell'Admin: una validazione solo nel gestionale non garantisce gli altri percorsi. L'attuazione ed il test di tale blocco restano da fare, prima dell'autorizzazione live. Il titolare deve approvare il vincolo di omogeneità; nessuna nuova dipendenza o modifica ai metafield esistenti è richiesta per questa proposta.
+
+
 Audit read-only del **3 novembre 2026** sullo store `ecom-blueprint-gen-6ud1s.myshopify.com`. Stato: classificazione proposta, **zero scritture live**.
 
 **4 novembre 2026 — fallback nuovi prodotti PASS; nuove varianti su prodotto B BLOCKED senza controllo di pubblicazione.** Si riutilizza l'istantanea del 3 novembre. [Matrice operativa CSV: 161 candidati, zero approvati](shipping-evidence/2026-11-04/native-shipping/candidati-b.csv). La classificazione rimane indipendente da Sendcloud e dal corriere.

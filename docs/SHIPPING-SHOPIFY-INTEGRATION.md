@@ -1,5 +1,14 @@
 # Spedizioni Shopify Grow — configurazione nativa e rilascio
 
+## Checkpoint operativo Isole — 4 novembre 2026
+
+Approvazione commerciale ricevuta per Sicilia/Sardegna e isole minori. Creato nel solo Dev il mercato **QA Isole Sicilia e Sardegna**, ID **119731978565**, genitore Italy **119681515845**, **Bozza**. Sono state selezionate le 17 province mostrate da Shopify; l'override della spedizione è stato iniziato ma le tariffe speciali non risultano completate e rilette. Non attivare questa bozza come se fosse pronta.
+
+Diff previsto, non applicato al live: conservare Italy standard; configurare nel sottomercato provinciale una sola opzione con A speciale 9,60/12,50/14,90/17,50/36,00/54,00 € e B speciale 6,90/8,90/9,50 €, stesse soglie approvate e nessuna gratuità. Evitare doppia esposizione della tariffa genitore. Confrontare i checkout Palermo B 30 € → 6,90 € e Cagliari misto A 45 € → 12,50 € con i due checkout Roma già PASS, rispettivamente 5,90 € e 11,90 €.
+
+L'errore browser «Debugger unattached» ha impedito di completare l'override e i due nuovi checkout. Non è un errore della tariffa. Elba, Lido e Pellestrina restano escluse dalla copertura tecnica speciale: non si modifica l'intera provincia continentale. Il backup, i 161 candidati B, il rollback e le checklist già presenti restano validi come preparazione; aggiornare la baseline al momento dell'autorizzazione live. UE/internazionale e Sendcloud restano invariati.
+
+
 **4 novembre 2026 · PR #45 Draft · NATIVE PARTIAL.** Gate A/B Italia standard **4/4 PASS** nel checkout Shopify Dev. La produzione è stata consultata in sola lettura e conserva le tariffe precedenti.
 
 ## Configurazione da preservare

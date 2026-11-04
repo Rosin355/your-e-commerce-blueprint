@@ -1,3 +1,9 @@
+## Checkpoint mirato — decisione Isole recepita
+
+Sicilia, Sardegna e isole minori sono commercialmente approvate nella fascia speciale. La configurazione regionale nel negozio di test è ancora in bozza: l'interruzione del controllo browser non ha consentito di verificare Palermo e Cagliari. Le tariffe standard già provate restano PASS. Per Elba, Lido e Pellestrina Shopify non distingue le singole località nel modello provinciale verificato. Nessun supplemento viene esteso all'intera provincia continentale.
+
+Costo aggiuntivo 0 €. Protezione delle nuove varianti ancora da attuare. Decisione da approvare per il catalogo: mantenere i prodotti B con sole varianti tutte approvate e logisticamente omogenee, separando in prodotti A le varianti diverse. Nessuna attivazione live è stata effettuata o autorizzata.
+
 ## 4 novembre 2026 — Spedizioni Shopify native: carrelli misti verificati
 
 Nel negozio di test Shopify addebita **una sola spedizione**: 5,90 € per due bulbi da 30 €, 7,90 € per bulbo e pianta grassa da 60 €, 11,90 € per bulbo e arbusto da 45 €, 17,50 € per dieci bulbi e un articolo sconosciuto da 160 €. Gli sconti cambiano lo scaglione quando il valore netto attraversa la soglia. [Prove del checkout](shipping-evidence/2026-11-04/native-shipping/README.md).

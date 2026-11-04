@@ -1,5 +1,19 @@
 # Spedizioni Online Garden — regole approvate e geografia
 
+## Decisione geografica recepita — 4 novembre 2026
+
+Il proprietario approva la fascia speciale per Sicilia, Sardegna e isole minori, con esempi Elba, Lido di Venezia e Pellestrina. Questa decisione commerciale sostituisce lo stato «candidate» riportato nella precedente matrice. La copertura tecnica resta parziale: nessuna estensione automatica del supplemento alle intere province di Livorno o Venezia.
+
+| Eccezione approvata | Gestione operativa ancora necessaria |
+|---|---|
+| Isola d'Elba | Condizione CAP/località non disponibile nei Mercati nativi verificati; non estendere la tariffa speciale a Livorno intera. Checkout non eseguito. |
+| Lido di Venezia | Non separabile dalla restante provincia mediante le condizioni native verificate. Checkout non eseguito. |
+| Pellestrina | Stesso limite; non estendere la tariffa speciale a Venezia intera. Checkout non eseguito. |
+| Altre isole minori / località disagiate | Elenco ancora da acquisire dal listino: nessun CAP o intervallo inventato. |
+
+Sicilia/Sardegna: mercato Dev provinciale creato **in bozza**, configurazione speciale e checkout ancora incompleti. [Checkpoint mirato](shipping-evidence/2026-11-04/native-islands/README.md).
+
+
 Aggiornamento: **4 novembre 2026**, Europe/Rome. Stato: **Italia standard verificata nel checkout Dev — rilascio bloccato**. Nessuna modifica Shopify live.
 
 Chiarimento cliente recepito: piattaforma logistica **Sendcloud**, scelta del vettore rinviata al cliente. Le tabelle sono prezzi commerciali fissi, indipendenti dal costo del corriere. Sicilia/Sardegna sono ora registrate come candidate non approvate nella configurazione; non generano regole operative. Nessuna richiesta ulteriore del nome del corriere è necessaria per proseguire il lavoro locale.

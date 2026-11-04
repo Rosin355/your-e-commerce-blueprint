@@ -1,3 +1,7 @@
+## Checkpoint mirato — Isole approvate, collaudo regionale incompleto
+
+**NATIVE PARTIAL.** Il proprietario approva Sicilia, Sardegna e isole minori. Solo Dev: mercato provinciale 119731978565 creato in bozza, tariffe speciali non completate; checkout Palermo/Cagliari NON VERIFICATI per «Debugger unattached». Riutilizzati i PASS di Roma. Elba, Lido, Pellestrina restano eccezioni non distinguibili dal modello provinciale. Classificazione nuove varianti BLOCKED: vincolo prodotto omogeneo proposto, non implementato. Nessuna modifica produzione, Sendcloud, UE/internazionale, PR #42, costo o ordine. [Stato puntuale](shipping-evidence/2026-11-04/native-islands/README.md).
+
 ## 4 novembre 2026 — PR #45, checkout Shopify nativo verificato
 
 **NATIVE PARTIAL · gate Italia standard 4/4 PASS.** Nove prove nel checkout Dev su Grow simulato e Mercati. Una sola spedizione: due bulbi 30 € → 5,90 €; bulbo + grassa 60 € → 7,90 €; bulbo + arbusto 45 € → 11,90 €; dieci bulbi + sconosciuto 160 € → 17,50 €. Sconti e due confini al centesimo verificati. [QA e screenshot](SHIPPING-QA-REPORT.md).

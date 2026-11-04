@@ -1,5 +1,19 @@
 # QA spedizioni Online Garden
 
+## Follow-up geografico mirato — 4 novembre 2026
+
+| Verifica richiesta | Esito verificato |
+|---|---|
+| Roma, due bulbi 30 € | PASS riutilizzato: una B 5,90 €. Non ripetuto. |
+| Roma, bulbo + arbusto 45 € | PASS riutilizzato: una A 11,90 €. Non ripetuto. |
+| Palermo, due bulbi 30 € | NON VERIFICATO: attesa B speciale 6,90 €, nessun nuovo checkout letto. |
+| Cagliari, bulbo + arbusto 45 € | NON VERIFICATO: attesa A speciale 12,50 €, nessun nuovo checkout letto. |
+| Elba / Lido / Pellestrina | NON VERIFICATO in checkout; condizioni native note insufficienti a distinguerle dalla provincia. Nessun indirizzo o CAP inventato. |
+| Protezione nuove varianti | BLOCKED: proposto il vincolo prodotto omogeneo; nessun semplice warning considerato una soluzione. |
+
+La sessione autenticata ha consentito di creare il mercato Isole in bozza, ma il collegamento browser si è poi interrotto con «Debugger unattached» su due tentativi di ricollegamento. Il browser inventory conferma la scheda sul mercato Dev 119731978565. Zero nuovi checkout PASS; le nove prove precedenti restano conservate. Modifiche di questo checkpoint esclusivamente documentali e Dev: TypeScript/build e i test shipping già superati non sono stati rieseguiti, poiché nessun codice runtime è cambiato.
+
+
 **4 novembre 2026 · NATIVE PARTIAL · gate A/B Italia standard 4/4 PASS.** Nove verifiche in checkout Shopify, di cui una riutilizzata; collaudo sul solo Dev `111269380421`, Grow simulato, Mercati attivi, EUR. Nessun ordine o pagamento.
 
 | Tipo di verifica | Risultato | Limite |
