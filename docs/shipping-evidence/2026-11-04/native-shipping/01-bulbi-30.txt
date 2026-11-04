@@ -1,0 +1,10 @@
+Estratto della lettura DOM del checkout Shopify Dev del 4 novembre 2026.
+  - heading "Online Garden Shipping Test Checkout" [level=1]
+    - textbox "Postal code": "00186"
+      - strong: €5.90
+    - button "Pay now €35.90" [disabled]:
+        - row "Quantity 2 OG QA - Bulbo fittizio 2 €30.00":
+      - row "Subtotal €30.00":
+      - row "Shipping €5.90":
+      - row "Total EUR €35.90":
+L'unica opzione attiva nel mercato è verificata separatamente in market-saved.txt.

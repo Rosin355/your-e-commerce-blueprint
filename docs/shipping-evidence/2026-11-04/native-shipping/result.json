@@ -1,0 +1,53 @@
+{
+  "status": "CHECKOUT_INCOMPLETE",
+  "nativeVerdict": null,
+  "storeId": "111269380421",
+  "marketId": "119681515845",
+  "activeOption": "Spedizione standard",
+  "collectionIds": {
+    "A": "710044385605",
+    "B": "710044287301"
+  },
+  "intuitiveOptionActive": false,
+  "defaultStandardOptionActive": false,
+  "incrementalCostsEUR": 0,
+  "checkoutCases": [
+    {
+      "case": "bulbs_2",
+      "subtotalEUR": 30,
+      "expectedEUR": 5.9,
+      "observedEUR": 5.9,
+      "status": "PASS",
+      "evidence": "01-bulbi-30.txt"
+    },
+    {
+      "case": "bulb_succulent",
+      "subtotalEUR": 60,
+      "expectedEUR": 7.9,
+      "status": "NOT_RUN"
+    },
+    {
+      "case": "bulb_shrub",
+      "subtotalEUR": 45,
+      "expectedEUR": 11.9,
+      "status": "NO_RESULT_BROWSER_TIMEOUT"
+    },
+    {
+      "case": "bulbs_unknown",
+      "subtotalEUR": 160,
+      "expectedEUR": 17.5,
+      "status": "NOT_RUN"
+    }
+  ],
+  "pending": [
+    "discounts",
+    "exact_cent_boundaries",
+    "separate_delivery_groups",
+    "regional_checkout",
+    "screenshots"
+  ],
+  "savedEvidence": {
+    "market": "market-saved.txt",
+    "proofSource": "observed Shopify Dev UI"
+  }
+}

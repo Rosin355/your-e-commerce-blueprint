@@ -1,3 +1,9 @@
+## 4 novembre 2026 — Spedizione Shopify nativa in collaudo
+
+Il negozio di test applica **5,90 €** a un carrello di soli bulbi da **30 €**, con l'opzione Shopify “Spedizione standard”. La prova usa il piano Grow simulato. Il costo sostenuto è **0 €**. Restano da dimostrare nel checkout i carrelli misti, gli scaglioni e gli sconti. Il collaudo si è interrotto per un timeout del controllo Chrome.
+
+La soluzione in prova mantiene Sendcloud per l'evasione. La fascia isole richiede l'approvazione del perimetro territoriale. Le eccezioni per singoli CAP rimangono un limite del modello nativo per province. [Rapporto di collaudo](shipping-evidence/2026-11-04/native-shipping/README.md)
+
 ## 3 novembre 2026 — Sendcloud mantenuta, nessun abbonamento aggiuntivo introdotto
 
 La soluzione logistica resta Sendcloud e il cliente sceglierà il corriere successivamente. Le tariffe A/B all'acquirente restano quelle concordate, indipendenti dal costo dell'etichetta. Sicilia e Sardegna sono soltanto candidate alla fascia isole; la mappa configurabile delle località speciali rimane da completare e approvare, senza pubblicare approssimazioni.

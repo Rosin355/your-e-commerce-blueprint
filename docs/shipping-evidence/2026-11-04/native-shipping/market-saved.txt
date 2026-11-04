@@ -1,0 +1,290 @@
+- status
+- status
+- link "Vai al contenuto":
+  - /url: "#AppFrameMain"
+  - strong:
+    - generic: Vai al contenuto
+- generic "Navigazione":
+  - img "Shopify"
+  - button "Comprimi navigazione" [expanded]:
+  - button "Cerca":
+    - generic: Cerca
+    - generic: ⌘K
+  - navigation:
+    - list:
+      - link "Home":
+        - /url: /store/online-garden-shipping-test
+        - generic: Home
+      - link "Ordini":
+        - /url: /store/online-garden-shipping-test/orders
+        - generic: Ordini
+      - link "Prodotti":
+        - /url: /store/online-garden-shipping-test/products
+        - generic: Prodotti
+      - link "Clienti":
+        - /url: /store/online-garden-shipping-test/customers
+        - generic: Clienti
+      - link "Crescita":
+        - /url: /store/online-garden-shipping-test/growth
+        - generic: Crescita
+      - link "Sconti":
+        - /url: /store/online-garden-shipping-test/discounts
+        - generic: Sconti
+      - link "Contenuto":
+        - /url: /store/online-garden-shipping-test/content/metaobjects
+        - generic: Contenuto
+      - link "Mercati" [expanded]:
+        - /url: /store/online-garden-shipping-test/markets
+        - generic: Mercati
+      - list:
+        - link "Cataloghi":
+          - /url: /store/online-garden-shipping-test/catalogs
+          - generic: Cataloghi
+        - link "Rollout":
+          - /url: /store/online-garden-shipping-test/rollouts
+          - generic: Rollout
+      - link "Contabilità":
+        - /url: /store/online-garden-shipping-test/finance
+        - generic: Contabilità
+      - link "Analisi":
+        - /url: /store/online-garden-shipping-test/analytics
+        - generic: Analisi
+    - list:
+      - button "Canali di vendita":
+        - generic: Canali di vendita
+      - list:
+        - button "Negozio online":
+          - list:
+            - link "Negozio online":
+              - /url: /store/online-garden-shipping-test/themes?appLoadId=a49580f5-a4f1-4f3a-af9c-fe3abdab299b
+              - generic: Negozio online
+        - button "Agentico":
+          - list:
+            - link "Agentico":
+              - /url: /store/online-garden-shipping-test/apps/agentic?appLoadId=e8aadfb5-4189-4c8b-b7fe-0fa4b9413411
+              - generic: Agentico
+      - status
+      - button "Applicazioni":
+        - generic: Applicazioni
+    - list:
+      - link "Impostazioni":
+        - /url: /store/online-garden-shipping-test/settings
+        - generic: Impostazioni
+      - button "Romesh Singhabahu":
+        - img "Online Garden Shipping Test":
+          - generic: OT
+        - paragraph: Online Garden Shipping Test
+        - generic: dev
+      - generic: Online Garden
+      - generic: Visualizza Dev Dashboard
+      - generic: dev
+      - generic: Negozi recenti
+      - button "Feed avvisi - 0 avvisi non letti":
+      - generic: Segna tutti come letti
+      - generic: Qui verranno mostrati gli avvisi sul negozio e sull’account
+- main:
+  - navigation:
+    - link "Mercati":
+      - /url: /store/online-garden-shipping-test/markets
+    - link "Mercati":
+      - /url: /store/online-garden-shipping-test/markets
+      - generic: Mercati
+    - generic: /
+  - heading [level=1]: Italy
+  - button "Altre azioni":
+    - generic: Altre azioni
+  - heading "Italy" [level=1]
+  - generic "tipo di mercato":
+    - generic: Area geografica
+  - generic "Stato":
+    - generic: Attivo
+  - heading "Dettagli mercato" [level=2]:
+    - generic: Dettagli mercato
+  - generic: Nome
+  - textbox "Nome": Italy
+  - generic: Stato
+  - generic: Attivo
+  - combobox "Stato":
+    - option "Bozza"
+    - option "Attivo" [selected]
+  - generic "Include":
+    - heading "Include" [level=3]
+    - list:
+      - listitem "Italia":
+        - generic "Italia":
+          - paragraph: Italia
+      - button "Modifica condizioni":
+  - heading "Personalizzazioni" [level=2]:
+    - generic: Personalizzazioni
+  - list:
+    - listitem "Spedizione":
+      - heading "Spedizione" [level=3]:
+        - generic: Spedizione
+      - list:
+        - button "Spedizione standard" [expanded]:
+          - paragraph
+          - generic: Spedizione standard
+        - button "Rimuovi tutto":
+  - link "Traduci il negozio per aumentare le conversioni":
+    - /url: /store/online-garden-shipping-test/settings/languages?marketId=119681515845
+    - generic: Traduci il negozio per aumentare le conversioni
+  - button "Ignora banner":
+  - region "Impostazioni ereditate":
+    - heading "Impostazioni ereditate" [level=2]:
+      - generic: Impostazioni ereditate
+    - list:
+      - listitem "Valuta":
+        - heading "Valuta" [level=3]:
+          - generic: Valuta
+        - list:
+          - listitem "Ereditate da Predefinito del negozio":
+            - generic: Euro (EUR €)
+        - button "Aggiungi personalizzazione valuta":
+      - listitem "Cataloghi":
+        - heading "Cataloghi" [level=3]:
+          - generic: Cataloghi
+        - generic: Tutti i prodotti
+        - button "Aggiungi personalizzazione catalogo":
+      - listitem "Sconti":
+        - heading "Sconti" [level=3]:
+          - generic: Sconti
+        - generic: Tutti gli sconti idonei
+        - button "Aggiungi personalizzazione sconti":
+      - listitem "Negozio online":
+        - heading "Negozio online" [level=3]:
+          - generic: Negozio online
+        - list:
+          - listitem "Ereditate da Predefinito del negozio":
+            - generic: Horizon
+        - button "Aggiungi personalizzazione tema":
+      - listitem "Dominio/lingua":
+        - heading "Dominio/lingua" [level=3]:
+          - generic: Dominio/lingua
+        - list:
+          - listitem "Ereditate da Predefinito del negozio":
+            - generic: online-garden-shipping-test.myshopify.com
+            - generic: ·
+            - generic: Inglese
+        - button "Aggiungi personalizzazione dominio":
+      - listitem "Imposte e dazi":
+        - heading "Imposte e dazi" [level=3]:
+          - generic: Imposte e dazi
+        - list:
+          - listitem "Ereditate da Predefinito del negozio":
+            - text: Nessuna riscossione
+        - button "Aggiungi personalizzazione":
+      - listitem "Resi e annullamenti":
+        - heading "Resi e annullamenti" [level=3]:
+          - generic: Resi e annullamenti
+        - generic: 14 giorni · Inevaso
+        - button "Aggiungi personalizzazione del profilo della politica di reso":
+      - listitem "Check-out e account":
+        - heading "Check-out e account" [level=3]:
+          - generic: Check-out e account
+        - list:
+          - listitem "Ereditate da Predefinito del negozio":
+            - generic: Configurazione di Online Garden Shipping Test
+  - complementary:
+    - link "Visualizza nel grafico":
+      - /url: /store/online-garden-shipping-test/markets/graph?market_id=119681515845&origin=details
+    - heading "Mercato principale" [level=2]:
+      - generic: Mercato principale
+    - list "Mercato principale":
+      - paragraph:
+        - generic: Predefinito del negozio
+    - heading "Altre impostazioni per Italy" [level=2]:
+      - generic: Altre impostazioni per Italy
+    - link "Prezzo di confronto Nascosto per 0 paesi/aree geografiche":
+      - /url: /store/online-garden-shipping-test/markets/119681515845/compare-at
+      - heading "Prezzo di confronto" [level=3]:
+        - generic: Prezzo di confronto
+      - paragraph:
+        - generic: Nascosto per 0 paesi/aree geografiche
+    - link "Privacy dei clienti Banner dei cookie, Esclusione dalla condivisione dei dati":
+      - /url: /store/online-garden-shipping-test/settings/privacy
+      - heading "Privacy dei clienti" [level=3]:
+        - generic: Privacy dei clienti
+      - paragraph:
+        - generic: Banner dei cookie, Esclusione dalla condivisione dei dati
+    - link "Informative 1 pubblicata":
+      - /url: /store/online-garden-shipping-test/settings/legal
+      - heading "Informative" [level=3]:
+        - generic: Informative
+      - paragraph:
+        - generic: 1 pubblicata
+  - status
+- status
+- region "Sidekick":
+  - status
+  - paragraph
+  - button "Chiudi" [disabled]:
+  - generic: Lavora con Sidekick
+  - textbox "Lavora con Sidekick"
+  - button "Aggiungi file e altro":
+  - button "Detta":
+  - button "Apri Sidekick":
+  - status
+- list:
+  - heading "Spedizione" [level=2]:
+    - generic: Spedizione
+  - status:
+    - generic: 1 opzione di spedizione attiva
+  - checkbox "Spedizione" [checked]
+  - separator
+  - heading "Standard" [level=2]:
+    - generic: Standard
+  - generic: Inattivo
+  - button "Altre azioni":
+  - generic: €7.00 (Gratis a partire da €55.00) · 3–5 giorni lavorativi
+  - generic: Tutti i prodotti in Italy
+  - generic: Tutti i prodotti
+  - text: ·
+  - generic: "Sedi:"
+  - generic: Shop location
+  - separator
+  - heading "Intuitive Shipping (tramite app)" [level=2]:
+    - generic: Intuitive Shipping (tramite app)
+  - generic: Inattivo
+  - button "Altre azioni":
+  - generic: Prezzo calcolato e tempo di transito
+  - generic: Tutti i prodotti in Italy
+  - generic: Tutti i prodotti
+  - text: ·
+  - generic: "Sedi:"
+  - generic: Shop location
+  - separator
+  - heading "Spedizione standard" [level=2]:
+    - generic: Spedizione standard
+  - button "Altre azioni":
+  - generic: €8.90–€54.00
+  - generic: "Collezioni:"
+  - generic: OG QA Logistica A fallback
+  - text: ·
+  - generic: "Sedi:"
+  - generic: Shop location
+  - text: ·
+  - generic: Per importo dell'ordine
+  - generic: €5.90–€8.90
+  - generic: "Collezioni:"
+  - generic: OG QA Logistica B approvata
+  - text: ·
+  - generic: "Sedi:"
+  - generic: Shop location
+  - text: ·
+  - generic: Per importo dell'ordine
+- separator
+- button "Aggiungi opzione di spedizione":
+  - paragraph: Aggiungi opzione di spedizione
+- generic: azioni
+- generic: Inglese
+- generic: Predefinita
+- generic: Annulla
+- generic: Fatto
+- generic: Scorciatoie generali
+- generic: Aggiunta di articoli al tuo negozio
+- generic: Navigazione nel tuo pannello di controllo
+- generic: Navigazione nelle impostazioni
+- separator "Ridimensiona barra laterale"
+- complementary "Sidekick"
+- status
+- alert

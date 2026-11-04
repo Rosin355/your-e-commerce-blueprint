@@ -1,5 +1,15 @@
 # QA spedizioni Online Garden
 
+## 4 novembre 2026 — Prova nativa in corso
+
+La direzione scelta è Shopify Native Shipping Options by Market su Grow, con Sendcloud per l'evasione. Nel Dev 111269380421 il mercato Italy contiene una sola opzione attiva “Spedizione standard”. Le due tariffe per importo sono assegnate a collezioni complementari. B comprende bulbo e pianta grassa tramite approvazione esplicita. A comprende arbusto e sconosciuto in assenza del tag di approvazione. Intuitive e Standard dimostrativa risultano inattive.
+
+Il checkout Dev per due bulbi da 30 € mostra 5,90 €. Il controllo del browser si interrompe prima dei risultati sui misti e della cattura dello screenshot. Soglie, sconti e gruppi separati restano da collaudare. Le prove Intuitive precedenti sono storiche e non concorrono al verdetto nativo. [Configurazione, prima lettura e ripristino](shipping-evidence/2026-11-04/native-shipping/README.md)
+
+Il percorso a costo incrementale di licenza 0 € consiste in un'opzione nativa con le due collezioni complementari e Sendcloud per l'evasione. I sottomercati per provincia permettono di valutare una fascia isole separata dopo approvazione territoriale. Il modello documentato richiede una decisione commerciale per le eccezioni CAP che ricadono dentro la stessa provincia. Il rilascio produttivo resta bloccato.
+
+## Storico QA precedente
+
 **3 novembre 2026 — QA LOCALE PASS; CHECKOUT NATIVO NON CERTIFICATO; RILASCIO BLOCCATO.** Nessuna configurazione live modificata, nessun ordine creato, nessun pagamento/addebito, nessuna mutation Shopify eseguita.
 
 Follow-up Sendcloud: piano Grow riconfermato, installazione riconfermata via API/UI, zero estensioni/Functions attive nella scheda Shopify, apertura app su schermata di collegamento account. Connessione interna non verificata. Il percorso Dynamic Checkout documentato richiede Plus; Shipping Rules post-ordine non producono prezzi checkout. Nessuna app aggiuntiva è selezionata. [Audit dedicato](SHIPPING-SENDCLOUD-AUDIT.md).
