@@ -49,3 +49,29 @@ test("managed transports include the guard before sending catalog writes", () =>
   }
   assert.match(readFileSync("supabase/functions/_shared/shopify-admin-client.ts", "utf8"), /await guardCatalogRest\(/);
 });
+test("actual shared client never transmits a denied mutation (standard, versioned, REST)", async () => {
+  const savedDeno = (globalThis as any).Deno;
+  const savedFetch = globalThis.fetch;
+  const sent: string[] = [];
+  (globalThis as any).Deno = { env: { get: (key: string) => ({
+    SHOPIFY_ADMIN_API_TOKEN: "f".repeat(40),
+    SHOPIFY_STORE_PERMANENT_DOMAIN: "shipping-test.invalid",
+  } as Record<string, string>)[key] } };
+  globalThis.fetch = async (_url, options) => {
+    const payload = JSON.parse(String(options?.body));
+    assert.match(payload.query, /^query ShippingPublicationGuard/);
+    sent.push(payload.query);
+    return new Response(JSON.stringify({ data: { node: product } }), { status: 200 });
+  };
+  try {
+    const client = await import("../../supabase/functions/_shared/shopify-admin-client.ts");
+    const mutation = "mutation { publishablePublish(id: $id, input: $input) { userErrors { message } } }";
+    await assert.rejects(client.shopifyAdminGraphQL(mutation, { id }), /NOT_APPROVED/);
+    await assert.rejects(client.shopifyAdminGraphQLAtVersion("2025-07", mutation, { id }), /NOT_APPROVED/);
+    await assert.rejects(client.shopifyAdminFetch("products/1.json", "PUT", { product: { id: 1 } }), /LEGACY/);
+    assert.equal(sent.length, 2); // Only two read preflights; no mutation or REST write.
+  } finally {
+    globalThis.fetch = savedFetch;
+    (globalThis as any).Deno = savedDeno;
+  }
+});
