@@ -1,3 +1,11 @@
+## Decisione del proprietario — 5 novembre 2026: abilitazione classe B
+
+**NUOVA REGOLA PREVALENTE:** il proprietario autorizza la classificazione B per **tutti i bulbi e tutte le piante grasse/succulente** del catalogo, senza subordinare l'appartenenza B a peso, volume, fragilità, imballaggio o altre valutazioni logistiche aggiuntive. La differenza di tariffa è una scelta commerciale, non un calcolo fisico del trasporto. Tutte le altre tipologie e i prodotti non riconosciuti restano A. La precedente richiesta di conferme sull'imballaggio **non è più un gate**.
+
+La matrice storica contiene **118 varianti candidate bulb + 43 candidate succulent = 161**, tutte su prodotti a variante unica nello snapshot del 3 novembre; il proprietario approva **la regola di classe per tali categorie**, autorizzando il rilascio B per i relativi prodotti dopo la riconciliazione obbligatoria di ID/SKU e varianti con lo stato Shopify **live attuale**. Non dedurre che 161 righe siano già state scritte/abilitate: il numero effettivo va riletto e registrato dopo l'applicazione. Eventuali varianti aggiunte, categorie ambigue o prodotti con varianti A/B miste restano A finché la coerenza non è risolta; prodotti B devono contenere solo varianti B. Non modificare prezzi, pesi, disponibilità o catalogo non pertinente.
+
+**Attivazione coordinata obbligatoria:** la tariffa A è attualmente associata a tutti i prodotti live. La sola assegnazione di tag B non basta, perché Shopify applica il massimo nell'opzione di spedizione: occorre configurare insieme le **collezioni complementari A e B** e tutte le fasce native, poi osservare checkout B puro e misto A+B. Non disattivare o lasciare senza tariffa il checkout esistente, non ripristinare gratuità. La copertura delle isole minori rimane una limitazione geografica separata e non revoca la decisione del proprietario di applicare la fascia speciale a tutte le isole.
+
 # Classificazione logistica Shopify — matrice di validazione
 
 ## 5 novembre 2026 — intervento LIVE autorizzato: A attiva, B in attesa
