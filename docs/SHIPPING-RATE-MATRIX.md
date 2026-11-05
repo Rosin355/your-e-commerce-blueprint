@@ -1,3 +1,9 @@
+## Decisione commerciale confermata — 5 novembre 2026 (PR #45)
+
+**Approvazione del proprietario:** Sicilia e Sardegna applicano la fascia «Isole e zone disagiate» su tutto il territorio delle rispettive province. Per il **lancio iniziale**, le isole minori (esempi: Isola d'Elba, Lido di Venezia, Pellestrina) applicano **provvisoriamente la tariffa standard della rispettiva provincia**, senza supplemento dedicato: questa è un'eccezione commerciale esplicitamente accettata, non un riconoscimento automatico dell'insularità da parte di Shopify. Eventuali maggiori costi del corriere vanno monitorati e rivalutati con listino e CAP/località ufficiali. Il resto dell'Italia mantiene la fascia standard, salvo future eccezioni approvate. Nessun supplemento esteso a province continentali. **Tariffe A/B e importi invariati.**
+
+**Distinzione fra decisione e prova:** la configurazione speciale per Sicilia/Sardegna risulta salvata e attiva nel solo Dev, ma i checkout Palermo (B 6,90 € attesi) e Cagliari (A 12,50 € attesi) sono **NON VERIFICATI** per disconnessione browser. Nessuna configurazione live autorizzata. La matrice geografica storica più sotto rappresenta le questioni aperte al momento della sua redazione; la decisione qui sopra ne aggiorna il perimetro commerciale.
+
 # Spedizioni Online Garden — regole approvate e geografia
 
 ## 5 novembre 2026 — chiusura mirata, gate ancora aperti
