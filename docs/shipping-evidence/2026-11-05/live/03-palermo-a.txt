@@ -1,0 +1,8 @@
+      - heading "Standard" [level=3]:
+      - strong: 12,50 €
+      - row "Subtotale 65,60 €":
+        - rowheader "Subtotale"
+      - row "Spedizione 12,50 €":
+        - rowheader "Spedizione":
+      - row "Totale EUR 78,10 €":
+        - rowheader "Totale":

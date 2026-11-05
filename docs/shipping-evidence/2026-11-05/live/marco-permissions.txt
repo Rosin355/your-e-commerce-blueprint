@@ -1,0 +1,6 @@
+      - generic: 2 negozi
+    - generic: Attivo
+      - link "Amministratore dell'organizzazione":
+        - generic: Amministratore dell'organizzazione
+      - generic: 2 negozi
+        - generic: Questo utente ha il ruolo di sistema Amministratore dell'organizzazione, che conferisce privilegi amministrativi completi in tutta l'organizzazione (inclusa la gestione degli utenti) e l'accesso a tutte le funzionalità e ai dati sensibili.
