@@ -1,3 +1,9 @@
+## Decisione e gate aggiornati — 5 novembre 2026
+
+**Politica commerciale approvata:** Sicilia e Sardegna in fascia speciale; isole minori (Elba, Lido di Venezia, Pellestrina, ecc.) **provvisoriamente in fascia standard della rispettiva provincia per il lancio**, senza maggiorazioni automatiche su province continentali. Questo non equivale a una prova di copertura tecnica per singolo CAP.
+
+**Evidenze distinte:** Italia standard A/B checkout 4/4 PASS e confini/sconti principali PASS; Palermo B speciale 6,90 € attesi e Cagliari A speciale 12,50 € attesi **NON VERIFICATI** (browser scollegato); classificazione nuove varianti PASS nei test locali, non in produzione; 161 candidati B, **zero approvazioni**; gruppi di spedizione separati NON VERIFICATI. Storefront CI e GitGuardian PASS sul commit `bb1bdf6fe0416035e72f6b3f7a29fde79b5bdd19`, non automaticamente su commit successivi. Nessun ordine o pagamento. Rilascio **BLOCCATO** fino ai gate rimanenti e a esplicita autorizzazione live.
+
 # QA spedizioni Online Garden
 
 ## 5 novembre 2026 — chiusura mirata, gate ancora aperti
