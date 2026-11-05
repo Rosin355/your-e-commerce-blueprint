@@ -1,5 +1,9 @@
 ## 5 novembre 2026 — intervento LIVE autorizzato: A attiva, B in attesa
 
+## 5 novembre 2026 — A+B LIVE
+
+Le tabelle approvate sotto sono ora configurate nella stessa opzione Standard, per collezioni complementari A/B, in Italy e nel sottomercato Sicilia/Sardegna. **118 bulbi e 43 grasse approvati e classificati B** secondo la politica botanica definitiva del proprietario. Sei checkout reali PASS: [rapporto](SHIPPING-QA-REPORT.md). Nessuna gratuità. Isole minori ancora non coperte dalla speciale verificata; nessuna deroga o supplemento a province continentali. Le sezioni successive conservano la cronologia precedente.
+
 **LIVE PARZIALE.** Rimossa dal mercato Italy la gratuità da 55 €, mantenendo prima un fallback positivo da 7 €. Checkout immediato del sito reale: 65,60 € → una sola spedizione 7,00 €. Successivamente attivati i sei scaglioni **A standard per tutti i prodotti** e creato il sottomercato live **Sicilia e Sardegna — Isole 120287887700** (genitore Italy 112143401300), con le 17 province approvate e i sei scaglioni A speciali. Nessun ID Dev copiato. Le opzioni si chiamano «Standard» e sono attive; nome conservato dalla configurazione esistente. Non c'è gratuità.
 
 | Checkout live dal sito onlinegarden.it | Subtotale | Unica spedizione osservata |

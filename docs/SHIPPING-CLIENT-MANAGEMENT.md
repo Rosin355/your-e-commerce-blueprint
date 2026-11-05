@@ -1,42 +1,56 @@
-# Guida spedizioni per Marco
+# Guida Marco — classi spedizione A/B in Shopify Admin
 
-Aggiornata il **5 novembre 2026**. Questa guida distingue la gestione disponibile oggi da quella ancora da completare.
+**5 novembre 2026: A+B sono LIVE.** Nessun nuovo abbonamento, app o deploy del gestionale. Il tuo ruolo Amministratore dell'organizzazione è stato verificato nell'intervento precedente; non sono stati cambiati permessi.
 
-## Stato reale
+## Dove vedere la classe
 
-Shopify Admin → Mercati → **Italy** → Spedizione → **Standard** applica la tabella A a tutti i prodotti. Il sottomercato **Sicilia e Sardegna — Isole** applica la tabella A speciale. Nessuna gratuità da 55 €. La B non è attiva: i 161 candidati non sono ancora approvazioni logistiche. Sendcloud resta il pannello per evasione ed etichette.
+Apri **Shopify Admin → Prodotti → Collezioni → OG Logistica B — Bulbi e succulente approvati**. La sorgente è **Varianti**, con selezioni esplicite. Il pulsante osservato «Includi manualmente varianti, 161 attualmente selezionate» apre il selettore; «161 varianti selezionate» permette di vedere quelle già incluse. Sono presenti anche i comandi «Rimuovi inclusione manuale».
 
-Il tuo account **Marco Geron** risulta attivo con ruolo **Amministratore dell'organizzazione** e privilegi completi. I permessi non sono stati cambiati. La gestione classi nel gestionale Online Garden non è stata pubblicata: non compare un nuovo comando A/B protetto per effetto di questo intervento.
+La collezione B contiene oggi 118 bulbi e 43 piante grasse/succulente. La collezione **OG Logistica A — Ordinaria e sconosciuti** è complementare. Un tag prodotto non assegna la classe: non usarlo per cambiare la spedizione.
 
-## Verificare la classe e la tariffa oggi
+Prima di ogni modifica controlla ID prodotto, ID variante e SKU, non soltanto il titolo. Selezionare il prodotto intero nel picker può selezionare tutte le varianti: controlla ogni riga variante e includi soltanto gli ID verificati.
 
-1. Apri il prodotto in Shopify Admin e controlla tutte le varianti, SKU e disponibilità.
-2. Oggi ogni variante fisica del catalogo usa A: un titolo «bulbo», una collezione botanica o un tag non costituiscono un'approvazione B.
-3. Per controllare il costo effettivo, aggiungi il prodotto al carrello del sito, apri il checkout e inserisci una destinazione di prova. Fermati alla tariffa senza premere «Paga ora».
-4. Confronta il totale dopo gli sconti con la [tabella approvata](SHIPPING-RATE-MATRIX.md). Devono apparire una sola tariffa corretta e nessuna gratuità. Roma 16,40 € → 8,90 €; Roma 65,60 € → 11,90 €; Palermo/Cagliari 65,60 € → 12,50 €.
+## A → B
 
-## Richiedere A → B senza classificazioni erronee
+1. Verifica che tutte le varianti del prodotto siano bulbi oppure piante grasse/succulente, secondo la politica commerciale del proprietario. Non serve una nuova approvazione su peso, dimensioni, fragilità o imballo. Se la categoria è ambigua, lascia A.
+2. Se una variante è ordinaria, deve appartenere a un prodotto distinto: non mescolare classi nello stesso prodotto e non dividere automaticamente prodotti esistenti.
+3. Nel selettore B cerca il prodotto/SKU e seleziona esplicitamente tutte le sue varianti idonee correnti.
+4. Prima di confermare, rileggi la selezione: questa azione riduce il prezzo di spedizione per i carrelli interamente B. Conferma e salva con i comandi mostrati da Shopify.
+5. Verifica che le varianti compaiano in B e non in A; apri un checkout di prova del sito, senza ordine, e confronta la tariffa con la tabella. Se l'appartenenza non è ancora aggiornata, attendi la rielaborazione della collezione e non procedere con altre modifiche.
 
-La richiesta va registrata per ogni variante: ID prodotto, ID variante, SKU, classe proposta bulbo/grassa, conferma dell'idoneità logistica (imballo, fragilità, ingombro), nome dell'approvatore, data e riferimento alla conferma. Il file dei candidati è una lista da valutare, non un elenco da importare come approvato.
+## B → A
 
-Prima di applicare B devono essere approvate **tutte** le varianti fisiche del prodotto. Una variante A deve essere un prodotto distinto, senza dividere automaticamente prodotti esistenti. Peso zero significa informazione insufficiente, non «leggero». Non compilare dimensioni o peso per tentativi.
+Apri le varianti selezionate nella collezione B e rimuovi **tutte le inclusioni del prodotto**, usando la deselezione oppure «Rimuovi inclusione manuale». Prima di confermare, considera che la spedizione dei carrelli interessati passerà ad A. Conferma/salva, poi verifica B assente, A presente e un checkout positivo. La collezione A si aggiorna per esclusione di B: non serve aggiungere manualmente il prodotto ad A.
 
-**Blocco attuale:** il codice server di prova rifiuta assegnazioni B dal percorso generico e il registro è vuoto. Il passaggio autonomo A → B non è disponibile in un percorso protetto online. Non aggiungere tag B o modificare collezioni per aggirarlo: Shopify Admin diretto non passa da quel guard. Il futuro percorso protetto richiede una conferma esplicita che mostri classe attuale, nuova classe, tutte le varianti approvate e l'effetto sul prezzo; non è stato distribuito.
+## Nuovi prodotti e nuove varianti
 
-La configurazione A attuale si applica a tutti i prodotti. Prima di attivare B andrà sostituita con collezioni A/B complementari nella stessa opzione: aggiungere solo una tariffa B lasciando A su tutti i prodotti non riduce la spedizione, perché Shopify usa il massimo. Questa attivazione non è avvenuta.
+Un nuovo ID variante non è selezionato automaticamente in B. La sorgente B usa ID espliciti, non tag prodotto ereditabili.
 
-## B → A e nuove varianti
+**Prima di aggiungere, importare o modificare una variante di un prodotto B:** togli tutte le sue inclusioni B e verifica che l'intero prodotto sia passato in A. Soltanto dopo crea/modifica la variante; ricontrolla la categoria di tutte le varianti e, se sono tutte idonee, reincludi gli ID correnti in B. Per una variante A usa un prodotto distinto.
 
-Oggi nessun prodotto è B. Quando B sarà attivata con percorso protetto, B → A dovrà togliere l'idoneità B, verificare l'appartenenza alla sola A e mostrare la conferma del cambiamento tariffario. Non promettiamo quel pulsante come già online.
+Questo passaggio va rispettato anche nelle modifiche dirette in Shopify Admin e negli import. Il guard server del gestionale non intercetta automaticamente l'Admin Shopify: l'omogeneità futura richiede questa procedura. Nessun flag Admin V2 è stato abilitato e non esiste un nuovo pannello classi pubblicato nel gestionale.
 
-Per nuovi prodotti senza approvazione, mantenere A. Prima di aggiungere, importare o modificare una variante di un futuro prodotto B, declassificare e verificare l'intero prodotto in A tramite il percorso autorizzato. Soltanto dopo approvazione di tutte le varianti correnti potrà tornare B. Se serve una variante ordinaria, creare un prodotto distinto. Non usare import o modifiche dirette per eludere il blocco.
+## Verifica del prezzo
 
-## Segnalare un'eccezione geografica
+Shopify Admin → Mercati → Italy / Sicilia e Sardegna — Isole → Standard contiene **A e B nella stessa opzione**. Non aggiungere una tariffa gratuita, non lasciare A universale insieme a B e non creare una seconda opzione per sommare i prezzi.
 
-Inviare destinazione, provincia, CAP reale verificato, località, riferimento del corriere e tariffa attesa, senza dati personali del cliente non necessari. Elba, Lido di Venezia, Pellestrina e altre isole minori restano **non coperte dalla fascia speciale**: non sono state incluse intere province continentali. Il fatto che il checkout offra la tariffa standard del genitore non approva commercialmente quella tariffa.
+| Checkout verificato | Subtotale | Unica spedizione |
+|---|---:|---:|
+| Roma, soli bulbi | 30,00 € | B 5,90 € |
+| Roma, bulbi + Aloe | 60,80 € | B 7,90 € |
+| Roma, bulbi + rosa A | 46,40 € | A 11,90 € |
+| Roma, bulbi + rose A | 177,60 € | A 17,50 € |
+| Palermo, soli bulbi | 30,00 € | B speciale 6,90 € |
+| Cagliari, bulbi + rosa A | 46,40 € | A speciale 12,50 € |
 
-Serve una decisione specifica del proprietario su questa limitazione prima di dichiarare la copertura completa. Non inventare un supplemento manuale, una lista CAP o un blocco checkout.
+Le fasce complete restano in [SHIPPING-RATE-MATRIX.md](SHIPPING-RATE-MATRIX.md). Per controllare un cambiamento apri il checkout dal sito con un indirizzo di prova e fermati alla tariffa: **non completare ordini o pagamenti**. Se compare un duplicato, una somma, una gratuità o nessuna spedizione, segnala SKU, quantità, totale dopo sconto, destinazione e screenshot della tariffa.
 
-## Se la tariffa è errata
+La disponibilità online rimane governata dalle giacenze reali: non cambiare inventario per eseguire un test. Nel collaudo è stata usata Aloe disponibile al posto di una succulenta non disponibile.
 
-Non completare un ordine. Registrare prodotto/SKU, quantità, subtotale dopo sconto, destinazione e screenshot della sola tariffa. Segnalare subito duplicati, gratuità inattesa o assenza di spedizione. Il responsabile autorizzato può usare il [rollback positivo](SHIPPING-SHOPIFY-INTEGRATION.md): fallback 7 € senza gratuità e sottomercato isole in Bozza. Non ripristinare la vecchia gratuità da 55 €.
+## Eccezioni geografiche e rollback
+
+Sicilia e Sardegna usano la fascia speciale. **Elba, Lido di Venezia, Pellestrina e altre isole minori non sono ancora coperte dalla speciale verificata.** Segnala località, provincia, CAP reale verificato e riferimento del servizio; non aggiungere supplementi a intere province continentali, CAP inventati, blocchi o deroghe commerciali non approvati.
+
+In caso di errore tariffario il responsabile autorizzato può tornare alla configurazione A positiva precedente: in ciascun mercato ripristinare il gruppo A su Tutti i prodotti e rimuovere il gruppo B, conservando gli importi A e la gratuità OFF. Verificare subito il checkout. Non ripristinare la vecchia gratuità da 55 €. Non cancellare prodotti, varianti o collezioni come parte del rollback.
+
+La procedura nativa e i selettori sono stati verificati in UI; l'operazione futura di modifica classi va sempre ricontrollata nel checkout dopo il salvataggio. [Evidenze e screenshot](shipping-evidence/2026-11-05/b-live/README.md). Sendcloud resta per evasione ed etichette e non va modificato per cambiare queste tariffe.

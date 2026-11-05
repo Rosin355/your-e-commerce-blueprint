@@ -1,3 +1,31 @@
+## 5 novembre 2026 — B LIVE: sei checkout PASS
+
+**A+B attive e collaudate nel checkout del sito reale.** Questo checkpoint sostituisce lo stato intermedio di blocco: dopo i rifiuti della revisione automatica, il proprietario ha confermato direttamente in chat «Confermo modifiche shipping LIVE, checkout senza ordini/pagamenti e rollback A positiva». Nessun ordine, pagamento, merge o deploy effettuato.
+
+Classificati B **118 bulbi + 43 grasse/succulente = 161 prodotti e varianti**. Decisione definitiva per categoria botanica: non sono più richieste approvazioni per peso, dimensioni, fragilità o imballo. Tutti i 161 ID/SKU sono stati confrontati col live e risultano invariati, ACTIVE e con una sola variante; nessun nuovo prodotto univoco nelle categorie controllate. La ricerca ha restituito 180 righe con 19 duplicati, deduplicati per ID.
+
+Collezioni native live **A 734709547348**, **B 734709514580**. B seleziona esplicitamente gli ID variante approvati con sorgente **VARIANTS**, senza ereditarietà tramite tag prodotto. A è la sorgente VARIANTS complementare: include i prezzi base non negativi ed esclude B. Verifica dedicata completa: **1.364 prodotti / 1.392 varianti**, **1.231 varianti A + 161 B**, nessun prodotto con classi sovrapposte o varianti senza classe. È una verifica della copertura shipping, non un nuovo audit botanico.
+
+Italy e Sicilia/Sardegna mantengono ciascuna **una sola opzione Standard**, con A e B per collezioni complementari. A universale è stata rimossa solo dopo aver preparato la copertura A/B. Conservati tutti i sei scaglioni A; aggiunti tre B standard 5,90/7,90/8,90 € e tre B Isole 6,90/8,90/9,50 €. Gratuità disattivata in entrambi i mercati.
+
+| Checkout live | Subtotale | Unica tariffa osservata |
+|---|---:|---:|
+| Roma, soli bulbi | 30,00 € | B 5,90 € |
+| Roma, bulbi + Aloe | 60,80 € | B 7,90 € |
+| Roma, bulbi + rosa A | 46,40 € | A 11,90 € |
+| Roma, bulbi + rose A | 177,60 € | A 17,50 € |
+| Palermo, soli bulbi | 30,00 € | B Isole 6,90 € |
+| Cagliari, bulbi + rosa A | 46,40 € | A Isole 12,50 € |
+
+I tre carrelli non esatti sono equivalenti nelle fasce richieste: 60,80 € invece di 60 €, 46,40 € invece di 45 €, 177,60 € invece di 160 €. Usati prodotti e disponibilità reali, senza cambiare prezzi o giacenze. La Wigginsia iniziale non era disponibile sul sito; sostituita con Aloe disponibile. Mai somma A+B, gratuità o assenza di tariffa nei sei checkout. [Backup, letture API, coverage e screenshot](shipping-evidence/2026-11-05/b-live/README.md).
+
+**Marco:** percorso Shopify Admin → Prodotti → Collezioni → OG Logistica B → sorgente Varianti → «Includi manualmente varianti». Selettore, 161 selezioni e comandi di rimozione verificati in UI senza modificare la lista durante questa verifica. La [guida cliente](SHIPPING-CLIENT-MANAGEMENT.md) descrive A→B, B→A e la rivalidazione prima di aggiungere varianti. Una nuova variante non è inserita automaticamente nella lista B. L'omogeneità futura dell'intero prodotto richiede la procedura: togliere prima tutte le selezioni B del prodotto, verificare A, creare la variante, quindi approvare tutti gli ID correnti. L'Admin Shopify diretto non è bloccato dal guard server del gestionale: non viene dichiarata un'intercettazione automatica di ogni operazione amministrativa. Nessun deploy o flag Admin V2 attivato.
+
+**Limiti invariati:** tutte le isole minori devono commercialmente usare la speciale, ma Elba/Lido/Pellestrina e altre destinazioni non distinguibili restano tecnicamente non coperte; nessun supplemento a province continentali o deroga inventati. Profili tradizionali UE/internazionale riletti identici alla baseline prima di B; checkout estero non ripetuto. Sendcloud invariato. Nessun deploy Lovable necessario: i sei checkout provengono dal sito reale.
+
+Rollback pronto, non eseguito: riportare A a Tutti i prodotti e rimuovere il gruppo B da ciascuna opzione, conservando i sei importi A e gratuità OFF; soltanto dopo verificare le opzioni attive. Conservare le selezioni B per ripresa, senza cancellare prodotti o modificarne lo stato. Le sezioni seguenti sono storico. Costi aggiuntivi **0 €**.
+
+
 ## 5 novembre 2026 — intervento LIVE autorizzato: A attiva, B in attesa
 
 **LIVE PARZIALE.** Rimossa dal mercato Italy la gratuità da 55 €, mantenendo prima un fallback positivo da 7 €. Checkout immediato del sito reale: 65,60 € → una sola spedizione 7,00 €. Successivamente attivati i sei scaglioni **A standard per tutti i prodotti** e creato il sottomercato live **Sicilia e Sardegna — Isole 120287887700** (genitore Italy 112143401300), con le 17 province approvate e i sei scaglioni A speciali. Nessun ID Dev copiato. Le opzioni si chiamano «Standard» e sono attive; nome conservato dalla configurazione esistente. Non c'è gratuità.

@@ -1,0 +1,1618 @@
+{
+  "approvedVariants": 161,
+  "bulbs": 118,
+  "succulents": 43,
+  "approvalPolicy": "OWNER_BOTANICAL_CATEGORY",
+  "approvals": [
+    {
+      "productId": "gid://shopify/Product/15357625991508",
+      "variantId": "gid://shopify/ProductVariant/55507140280660",
+      "sku": "OG_113165",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357626057044",
+      "variantId": "gid://shopify/ProductVariant/55507140346196",
+      "sku": "OG_123411",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357626089812",
+      "variantId": "gid://shopify/ProductVariant/55507140378964",
+      "sku": "OG_123928",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357626286420",
+      "variantId": "gid://shopify/ProductVariant/55507140837716",
+      "sku": "OG_125937",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357626450260",
+      "variantId": "gid://shopify/ProductVariant/55507141165396",
+      "sku": "OG_134564",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357626712404",
+      "variantId": "gid://shopify/ProductVariant/55507141427540",
+      "sku": "OG_139828",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357626810708",
+      "variantId": "gid://shopify/ProductVariant/55507141525844",
+      "sku": "OG_143783",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357626909012",
+      "variantId": "gid://shopify/ProductVariant/55507141624148",
+      "sku": "OG_145376",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357627367764",
+      "variantId": "gid://shopify/ProductVariant/55507142967636",
+      "sku": "OG_152798",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357627662676",
+      "variantId": "gid://shopify/ProductVariant/55507143262548",
+      "sku": "OG_159857",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357627990356",
+      "variantId": "gid://shopify/ProductVariant/55507143655764",
+      "sku": "OG_161222",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357628547412",
+      "variantId": "gid://shopify/ProductVariant/55507144180052",
+      "sku": "OG_172978",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357628940628",
+      "variantId": "gid://shopify/ProductVariant/55507144507732",
+      "sku": "OG_178428",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357629038932",
+      "variantId": "gid://shopify/ProductVariant/55507144606036",
+      "sku": "OG_183851",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357629202772",
+      "variantId": "gid://shopify/ProductVariant/55507144802644",
+      "sku": "OG_189826",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357629235540",
+      "variantId": "gid://shopify/ProductVariant/55507144835412",
+      "sku": "OG_195314",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357629301076",
+      "variantId": "gid://shopify/ProductVariant/55507144900948",
+      "sku": "OG_196912",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357629497684",
+      "variantId": "gid://shopify/ProductVariant/55507145163092",
+      "sku": "OG_212915",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357629563220",
+      "variantId": "gid://shopify/ProductVariant/55507145228628",
+      "sku": "OG_215239",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357629923668",
+      "variantId": "gid://shopify/ProductVariant/55507145654612",
+      "sku": "OG_222549",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357630185812",
+      "variantId": "gid://shopify/ProductVariant/55507145916756",
+      "sku": "OG_242775",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357630218580",
+      "variantId": "gid://shopify/ProductVariant/55507145949524",
+      "sku": "OG_245434",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357630251348",
+      "variantId": "gid://shopify/ProductVariant/55507145982292",
+      "sku": "OG_248898",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357630513492",
+      "variantId": "gid://shopify/ProductVariant/55507146244436",
+      "sku": "OG_261595",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357630939476",
+      "variantId": "gid://shopify/ProductVariant/55507146604884",
+      "sku": "OG_264361",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357631234388",
+      "variantId": "gid://shopify/ProductVariant/55507146965332",
+      "sku": "OG_269564",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357632315732",
+      "variantId": "gid://shopify/ProductVariant/55507148276052",
+      "sku": "OG_278394",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357632381268",
+      "variantId": "gid://shopify/ProductVariant/55507152273748",
+      "sku": "OG_281153",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357632938324",
+      "variantId": "gid://shopify/ProductVariant/55507153060180",
+      "sku": "OG_297857",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357633560916",
+      "variantId": "gid://shopify/ProductVariant/55507153715540",
+      "sku": "OG_328425",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357633626452",
+      "variantId": "gid://shopify/ProductVariant/55507153781076",
+      "sku": "OG_328665",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357634019668",
+      "variantId": "gid://shopify/ProductVariant/55507154731348",
+      "sku": "OG_342697",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357634281812",
+      "variantId": "gid://shopify/ProductVariant/55507154993492",
+      "sku": "OG_362693",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357634380116",
+      "variantId": "gid://shopify/ProductVariant/55507155091796",
+      "sku": "OG_365676",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357634609492",
+      "variantId": "gid://shopify/ProductVariant/55507155321172",
+      "sku": "OG_369644",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357634642260",
+      "variantId": "gid://shopify/ProductVariant/55507155353940",
+      "sku": "OG_372776",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357634707796",
+      "variantId": "gid://shopify/ProductVariant/55507155452244",
+      "sku": "OG_375266",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357634871636",
+      "variantId": "gid://shopify/ProductVariant/55507155616084",
+      "sku": "OG_376783",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357634937172",
+      "variantId": "gid://shopify/ProductVariant/55507155681620",
+      "sku": "OG_382663",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357635461460",
+      "variantId": "gid://shopify/ProductVariant/55507156533588",
+      "sku": "OG_394691",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357635494228",
+      "variantId": "gid://shopify/ProductVariant/55507156566356",
+      "sku": "OG_396772",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357635559764",
+      "variantId": "gid://shopify/ProductVariant/55507156631892",
+      "sku": "OG_398964",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357635690836",
+      "variantId": "gid://shopify/ProductVariant/55507156894036",
+      "sku": "OG_414166",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357635985748",
+      "variantId": "gid://shopify/ProductVariant/55507157287252",
+      "sku": "OG_419379",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357636149588",
+      "variantId": "gid://shopify/ProductVariant/55507157451092",
+      "sku": "OG_421473",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357637755220",
+      "variantId": "gid://shopify/ProductVariant/55507159417172",
+      "sku": "OG_425199",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357638082900",
+      "variantId": "gid://shopify/ProductVariant/55507159744852",
+      "sku": "OG_431367",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357638213972",
+      "variantId": "gid://shopify/ProductVariant/55507159875924",
+      "sku": "OG_434178",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357638279508",
+      "variantId": "gid://shopify/ProductVariant/55507160138068",
+      "sku": "OG_438337",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357638541652",
+      "variantId": "gid://shopify/ProductVariant/55507160564052",
+      "sku": "OG_442771",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357638771028",
+      "variantId": "gid://shopify/ProductVariant/55507160826196",
+      "sku": "OG_446434",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357639426388",
+      "variantId": "gid://shopify/ProductVariant/55507162300756",
+      "sku": "OG_461849",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357639852372",
+      "variantId": "gid://shopify/ProductVariant/55507165086036",
+      "sku": "OG_481563",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357640180052",
+      "variantId": "gid://shopify/ProductVariant/55507166331220",
+      "sku": "OG_488344",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357640245588",
+      "variantId": "gid://shopify/ProductVariant/55507166396756",
+      "sku": "OG_489124",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357640343892",
+      "variantId": "gid://shopify/ProductVariant/55507166495060",
+      "sku": "OG_494877",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357640409428",
+      "variantId": "gid://shopify/ProductVariant/55507166560596",
+      "sku": "OG_498992",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357640474964",
+      "variantId": "gid://shopify/ProductVariant/55507166658900",
+      "sku": "OG_513117",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357640933716",
+      "variantId": "gid://shopify/ProductVariant/55507167084884",
+      "sku": "OG_531295",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357641130324",
+      "variantId": "gid://shopify/ProductVariant/55507167281492",
+      "sku": "OG_538147",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357641589076",
+      "variantId": "gid://shopify/ProductVariant/55507167740244",
+      "sku": "OG_544336",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357641982292",
+      "variantId": "gid://shopify/ProductVariant/55507168395604",
+      "sku": "OG_561125",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357642178900",
+      "variantId": "gid://shopify/ProductVariant/55507168592212",
+      "sku": "OG_561839",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357642408276",
+      "variantId": "gid://shopify/ProductVariant/55507168821588",
+      "sku": "OG_566678",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357642572116",
+      "variantId": "gid://shopify/ProductVariant/55507168985428",
+      "sku": "OG_568383",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357644276052",
+      "variantId": "gid://shopify/ProductVariant/55507171082580",
+      "sku": "OG_576741",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357644800340",
+      "variantId": "gid://shopify/ProductVariant/55507171639636",
+      "sku": "OG_598828",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357644865876",
+      "variantId": "gid://shopify/ProductVariant/55507171705172",
+      "sku": "OG_611436",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357645357396",
+      "variantId": "gid://shopify/ProductVariant/55507172294996",
+      "sku": "OG_617851",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357645521236",
+      "variantId": "gid://shopify/ProductVariant/55507172458836",
+      "sku": "OG_621756",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357645848916",
+      "variantId": "gid://shopify/ProductVariant/55507173048660",
+      "sku": "OG_629964",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357646111060",
+      "variantId": "gid://shopify/ProductVariant/55507173310804",
+      "sku": "OG_636929",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357646176596",
+      "variantId": "gid://shopify/ProductVariant/55507173376340",
+      "sku": "OG_638113",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357646471508",
+      "variantId": "gid://shopify/ProductVariant/55507173704020",
+      "sku": "OG_642171",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357646504276",
+      "variantId": "gid://shopify/ProductVariant/55507173736788",
+      "sku": "OG_642917",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357647225172",
+      "variantId": "gid://shopify/ProductVariant/55507175047508",
+      "sku": "OG_662251",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357647585620",
+      "variantId": "gid://shopify/ProductVariant/55507175539028",
+      "sku": "OG_693292",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357647651156",
+      "variantId": "gid://shopify/ProductVariant/55507175637332",
+      "sku": "OG_698499",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357647716692",
+      "variantId": "gid://shopify/ProductVariant/55507175702868",
+      "sku": "OG_719882",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357647749460",
+      "variantId": "gid://shopify/ProductVariant/55507175735636",
+      "sku": "OG_721349",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357647978836",
+      "variantId": "gid://shopify/ProductVariant/55507175997780",
+      "sku": "OG_737659",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357648011604",
+      "variantId": "gid://shopify/ProductVariant/55507176030548",
+      "sku": "OG_738337",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357648109908",
+      "variantId": "gid://shopify/ProductVariant/55507176325460",
+      "sku": "OG_741952",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357648535892",
+      "variantId": "gid://shopify/ProductVariant/55507176882516",
+      "sku": "OG_754154",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357648699732",
+      "variantId": "gid://shopify/ProductVariant/55507177242964",
+      "sku": "OG_762129",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357648732500",
+      "variantId": "gid://shopify/ProductVariant/55507177275732",
+      "sku": "OG_762339",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357648929108",
+      "variantId": "gid://shopify/ProductVariant/55507177472340",
+      "sku": "OG_779277",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357649387860",
+      "variantId": "gid://shopify/ProductVariant/55507178357076",
+      "sku": "OG_797988",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357649453396",
+      "variantId": "gid://shopify/ProductVariant/55507178422612",
+      "sku": "OG_799192",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357649617236",
+      "variantId": "gid://shopify/ProductVariant/55507178586452",
+      "sku": "OG_814497",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357649682772",
+      "variantId": "gid://shopify/ProductVariant/55507178651988",
+      "sku": "OG_817764",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357649846612",
+      "variantId": "gid://shopify/ProductVariant/55507178848596",
+      "sku": "OG_824764",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650207060",
+      "variantId": "gid://shopify/ProductVariant/55507179405652",
+      "sku": "OG_838142",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650239828",
+      "variantId": "gid://shopify/ProductVariant/55507179438420",
+      "sku": "OG_838748",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650370900",
+      "variantId": "gid://shopify/ProductVariant/55507179602260",
+      "sku": "OG_853813",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650469204",
+      "variantId": "gid://shopify/ProductVariant/55507179700564",
+      "sku": "OG_859819",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650501972",
+      "variantId": "gid://shopify/ProductVariant/55507179733332",
+      "sku": "OG_861821",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650534740",
+      "variantId": "gid://shopify/ProductVariant/55507179766100",
+      "sku": "OG_862424",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650567508",
+      "variantId": "gid://shopify/ProductVariant/55507179798868",
+      "sku": "OG_863672",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650698580",
+      "variantId": "gid://shopify/ProductVariant/55507179929940",
+      "sku": "OG_876962",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650796884",
+      "variantId": "gid://shopify/ProductVariant/55507180159316",
+      "sku": "OG_886637",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650829652",
+      "variantId": "gid://shopify/ProductVariant/55507180192084",
+      "sku": "OG_887487",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357651255636",
+      "variantId": "gid://shopify/ProductVariant/55507180945748",
+      "sku": "OG_895459",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357651419476",
+      "variantId": "gid://shopify/ProductVariant/55507181109588",
+      "sku": "OG_911469",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357651583316",
+      "variantId": "gid://shopify/ProductVariant/55507181273428",
+      "sku": "OG_924238",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357651616084",
+      "variantId": "gid://shopify/ProductVariant/55507181306196",
+      "sku": "OG_926984",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357651812692",
+      "variantId": "gid://shopify/ProductVariant/55507181502804",
+      "sku": "OG_938952",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357651845460",
+      "variantId": "gid://shopify/ProductVariant/55507181535572",
+      "sku": "OG_941962",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357651910996",
+      "variantId": "gid://shopify/ProductVariant/55507181601108",
+      "sku": "OG_946583",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357652173140",
+      "variantId": "gid://shopify/ProductVariant/55507181961556",
+      "sku": "OG_958774",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357652435284",
+      "variantId": "gid://shopify/ProductVariant/55507182190932",
+      "sku": "OG_966537",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357652533588",
+      "variantId": "gid://shopify/ProductVariant/55507182322004",
+      "sku": "OG_968916",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357652664660",
+      "variantId": "gid://shopify/ProductVariant/55507182649684",
+      "sku": "OG_981513",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357652730196",
+      "variantId": "gid://shopify/ProductVariant/55507182780756",
+      "sku": "OG_983136",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357652762964",
+      "variantId": "gid://shopify/ProductVariant/55507182813524",
+      "sku": "OG_989194",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357652795732",
+      "variantId": "gid://shopify/ProductVariant/55507182846292",
+      "sku": "OG_989852",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357652861268",
+      "variantId": "gid://shopify/ProductVariant/55507182911828",
+      "sku": "OG_992177",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357652959572",
+      "variantId": "gid://shopify/ProductVariant/55507183010132",
+      "sku": "OG_993552",
+      "logisticsClass": "bulb",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357625958740",
+      "variantId": "gid://shopify/ProductVariant/55507140215124",
+      "sku": "OG_112771",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357626024276",
+      "variantId": "gid://shopify/ProductVariant/55507140313428",
+      "sku": "OG_115382",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357626614100",
+      "variantId": "gid://shopify/ProductVariant/55507141329236",
+      "sku": "OG_135364",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357627138388",
+      "variantId": "gid://shopify/ProductVariant/55507142705492",
+      "sku": "OG_148866",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357627466068",
+      "variantId": "gid://shopify/ProductVariant/55507143065940",
+      "sku": "OG_154513",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357628252500",
+      "variantId": "gid://shopify/ProductVariant/55507143885140",
+      "sku": "OG_163472",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357628350804",
+      "variantId": "gid://shopify/ProductVariant/55507143983444",
+      "sku": "OG_163884",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357628383572",
+      "variantId": "gid://shopify/ProductVariant/55507144016212",
+      "sku": "OG_165761",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357628645716",
+      "variantId": "gid://shopify/ProductVariant/55507144409428",
+      "sku": "OG_177613",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357629071700",
+      "variantId": "gid://shopify/ProductVariant/55507144638804",
+      "sku": "OG_185268",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357629104468",
+      "variantId": "gid://shopify/ProductVariant/55507144671572",
+      "sku": "OG_186484",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357629530452",
+      "variantId": "gid://shopify/ProductVariant/55507145195860",
+      "sku": "OG_213937",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357630316884",
+      "variantId": "gid://shopify/ProductVariant/55507146015060",
+      "sku": "OG_256481",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357631070548",
+      "variantId": "gid://shopify/ProductVariant/55507146801492",
+      "sku": "OG_267123",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357632446804",
+      "variantId": "gid://shopify/ProductVariant/55507152535892",
+      "sku": "OG_281384",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357632741716",
+      "variantId": "gid://shopify/ProductVariant/55507152830804",
+      "sku": "OG_288339",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357633495380",
+      "variantId": "gid://shopify/ProductVariant/55507153650004",
+      "sku": "OG_327894",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357633659220",
+      "variantId": "gid://shopify/ProductVariant/55507153813844",
+      "sku": "OG_333649",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357634052436",
+      "variantId": "gid://shopify/ProductVariant/55507154764116",
+      "sku": "OG_347741",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357635101012",
+      "variantId": "gid://shopify/ProductVariant/55507156042068",
+      "sku": "OG_384855",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357635592532",
+      "variantId": "gid://shopify/ProductVariant/55507156762964",
+      "sku": "OG_411287",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357637263700",
+      "variantId": "gid://shopify/ProductVariant/55507158892884",
+      "sku": "OG_423321",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357640573268",
+      "variantId": "gid://shopify/ProductVariant/55507166757204",
+      "sku": "OG_514482",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357640868180",
+      "variantId": "gid://shopify/ProductVariant/55507167019348",
+      "sku": "OG_529745",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357642244436",
+      "variantId": "gid://shopify/ProductVariant/55507168657748",
+      "sku": "OG_563347",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357642342740",
+      "variantId": "gid://shopify/ProductVariant/55507168756052",
+      "sku": "OG_564563",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357642703188",
+      "variantId": "gid://shopify/ProductVariant/55507169280340",
+      "sku": "OG_571716",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357644472660",
+      "variantId": "gid://shopify/ProductVariant/55507171279188",
+      "sku": "OG_582648",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357644570964",
+      "variantId": "gid://shopify/ProductVariant/55507171410260",
+      "sku": "OG_583454",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357644636500",
+      "variantId": "gid://shopify/ProductVariant/55507171475796",
+      "sku": "OG_592166",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357645914452",
+      "variantId": "gid://shopify/ProductVariant/55507173114196",
+      "sku": "OG_631727",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357645979988",
+      "variantId": "gid://shopify/ProductVariant/55507173179732",
+      "sku": "OG_633554",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357646537044",
+      "variantId": "gid://shopify/ProductVariant/55507173769556",
+      "sku": "OG_646187",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357646668116",
+      "variantId": "gid://shopify/ProductVariant/55507173900628",
+      "sku": "OG_652341",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357647257940",
+      "variantId": "gid://shopify/ProductVariant/55507175080276",
+      "sku": "OG_662532",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357648372052",
+      "variantId": "gid://shopify/ProductVariant/55507176718676",
+      "sku": "OG_747526",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357648830804",
+      "variantId": "gid://shopify/ProductVariant/55507177374036",
+      "sku": "OG_776582",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650108756",
+      "variantId": "gid://shopify/ProductVariant/55507179241812",
+      "sku": "OG_833511",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650338132",
+      "variantId": "gid://shopify/ProductVariant/55507179536724",
+      "sku": "OG_846654",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650436436",
+      "variantId": "gid://shopify/ProductVariant/55507179667796",
+      "sku": "OG_856689",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357650633044",
+      "variantId": "gid://shopify/ProductVariant/55507179864404",
+      "sku": "OG_875794",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357652107604",
+      "variantId": "gid://shopify/ProductVariant/55507181896020",
+      "sku": "OG_954282",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    },
+    {
+      "productId": "gid://shopify/Product/15357652205908",
+      "variantId": "gid://shopify/ProductVariant/55507181994324",
+      "sku": "OG_961563",
+      "logisticsClass": "succulent",
+      "approvedBy": "Proprietario Online Garden — istruzione diretta allegata",
+      "approvalReference": "b6758fa3-232f-4e3b-929a-85a9a80cfda8: AUTORIZZAZIONE DEL PROPRIETARIO",
+      "approvalPolicy": "Categoria botanica; nessun gate peso/fragilità/dimensioni/imballaggio",
+      "reviewedCurrentIdSku": true
+    }
+  ]
+}
