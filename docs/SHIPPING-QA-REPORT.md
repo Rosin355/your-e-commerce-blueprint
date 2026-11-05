@@ -1,8 +1,8 @@
-## Decisione e gate aggiornati — 5 novembre 2026
+## Decisione commerciale finale e QA — 5 novembre 2026
 
-**Politica commerciale approvata:** Sicilia e Sardegna in fascia speciale; isole minori (Elba, Lido di Venezia, Pellestrina, ecc.) **provvisoriamente in fascia standard della rispettiva provincia per il lancio**, senza maggiorazioni automatiche su province continentali. Questo non equivale a una prova di copertura tecnica per singolo CAP.
+**La precedente eccezione commerciale che lasciava le isole minori in tariffa standard è REVOCATA.** Regola finale: **tutte le isole italiane, incluse Sicilia, Sardegna, Elba, Lido di Venezia, Pellestrina e le altre isole minori, usano la fascia «Isole e zone disagiate»**. Nessuna deroga di lancio alla tariffa provinciale; nessun supplemento applicato automaticamente a territori continentali della medesima provincia.
 
-**Evidenze distinte:** Italia standard A/B checkout 4/4 PASS e confini/sconti principali PASS; Palermo B speciale 6,90 € attesi e Cagliari A speciale 12,50 € attesi **NON VERIFICATI** (browser scollegato); classificazione nuove varianti PASS nei test locali, non in produzione; 161 candidati B, **zero approvazioni**; gruppi di spedizione separati NON VERIFICATI. Storefront CI e GitGuardian PASS sul commit `bb1bdf6fe0416035e72f6b3f7a29fde79b5bdd19`, non automaticamente su commit successivi. Nessun ordine o pagamento. Rilascio **BLOCCATO** fino ai gate rimanenti e a esplicita autorizzazione live.
+**Esiti tecnici separati:** Italia standard A/B 4/4 checkout PASS, soglie/sconti principali PASS; Palermo B 6,90 € attesi e Cagliari A 12,50 € attesi NON VERIFICATI; isole minori NON COPERTE dalla configurazione nativa per provincia finora dimostrata. L'assenza di filtro CAP/località rende la copertura completa un **GATE BLOCCANTE**; non inventare checkout PASS. Classificazione varianti PASS locale, 161 candidati B e zero approvati; gruppi separati NON VERIFICATI. CI e GitGuardian erano PASS su `bb1bdf6`, non automaticamente sul nuovo commit. Nessuna modifica produttiva. PR #45 Draft, non autorizzata al rilascio.
 
 # QA spedizioni Online Garden
 
