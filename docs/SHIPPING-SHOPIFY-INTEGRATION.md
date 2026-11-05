@@ -1,3 +1,9 @@
+## Decisione operativa B — 5 novembre 2026
+
+Il proprietario richiede **attivazione B live per bulbi e piante grasse/succulente**, senza condizionare la tariffa ridotta a verifica di imballaggio, ingombro, peso o fragilità. L'elenco di partenza è `docs/shipping-evidence/2026-11-04/native-shipping/candidati-b.csv` (118 bulb + 43 succulent nello snapshot storico). Tutto il resto è A. Rimangono obbligatori il confronto IDs/SKU/varianti con Shopify live corrente, l'omogeneità delle varianti e l'assenza di prodotti misti A/B in un unico prodotto.
+
+**Non considerare B attiva fino a verifica checkout:** in live A è attualmente universale; la semplice aggiunta di tag/collezione B non fa prevalere B su A. Il passaggio deve sostituire A universale con due collezioni complementari nella stessa opzione nativa, con backup e fallback positivo, e verificare B puro, carrello misto, Roma/Palermo/Cagliari e assenza di gratuità. Mantieni Sendcloud, tariffe estere, Lovable e flag Admin V2 invariati se non pertinenti. Questa decisione **sostituisce** i precedenti gate di approvazione per l'imballaggio, ma non costituisce attestazione di modifica Shopify già avvenuta. Per tutte le isole minori resta richiesta la fascia speciale, non ancora garantita tecnicamente dall'attuale perimetro provinciale.
+
 ## 5 novembre 2026 — intervento LIVE autorizzato: A attiva, B in attesa
 
 **LIVE PARZIALE.** Rimossa dal mercato Italy la gratuità da 55 €, mantenendo prima un fallback positivo da 7 €. Checkout immediato del sito reale: 65,60 € → una sola spedizione 7,00 €. Successivamente attivati i sei scaglioni **A standard per tutti i prodotti** e creato il sottomercato live **Sicilia e Sardegna — Isole 120287887700** (genitore Italy 112143401300), con le 17 province approvate e i sei scaglioni A speciali. Nessun ID Dev copiato. Le opzioni si chiamano «Standard» e sono attive; nome conservato dalla configurazione esistente. Non c'è gratuità.
