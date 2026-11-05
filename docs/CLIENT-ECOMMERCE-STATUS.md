@@ -1,3 +1,9 @@
+## Decisione cliente sulle spedizioni — 5 novembre 2026
+
+**Approvato:** spedizioni gestite da Shopify nativo, senza una nuova app a pagamento; Sendcloud resta il servizio per etichette ed evasione. Sicilia e Sardegna ricevono le tariffe dedicate «Isole e zone disagiate». Per partire senza imporre un sovrapprezzo a intere province della penisola, **Elba, Lido di Venezia, Pellestrina e le altre isole minori seguiranno temporaneamente la tariffa standard della loro provincia**. È una scelta commerciale provvisoria: un eventuale maggiore costo reale delle consegne sarà monitorato e rivalutato.
+
+**Non ancora attivo sul negozio reale:** i quattro carrelli principali Italia standard hanno superato i test Shopify Dev, ma mancano le verifiche checkout Palermo e Cagliari; nessuno dei 161 prodotti/varianti candidati alla tariffa ridotta B è ancora approvato. La protezione delle nuove varianti è stata verificata localmente. PR #45 resta Draft; CI/GitGuardian PASS sul commit `bb1bdf6` precedente a questa decisione. Nessuna modifica a pagamenti, tariffe, catalogo o logistica in produzione. Prima dell'attivazione serviranno verifiche finali, classificazione approvata e autorizzazione esplicita.
+
 ## 5 novembre 2026 — chiusura mirata, gate ancora aperti
 
 **PARTIAL — SPECIFIC BLOCKERS.** Un solo tentativo di apertura autenticata del sottomercato Dev è terminato con “Detached while handling command”. Palermo e Cagliari: **CHECKOUT BLOCKED**, nessun prezzo regionale osservato. Rimane valida l'ultima lettura del 4 novembre: sottomercato Dev 119731978565 attivo e nove importi speciali salvati, senza nuova conferma odierna. Attesi 6,90 € su Palermo B 30 € e 12,50 € su Cagliari misto A 45 €; non sono risultati checkout. Le prove standard PASS non sono state ripetute.
