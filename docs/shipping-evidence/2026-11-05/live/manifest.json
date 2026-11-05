@@ -1,0 +1,21 @@
+{
+  "01-hotfix-65-60.jpg": "64e5627d7cc8710e77beff43381c8902854620f7bceec6dcc549f956ecc7faf6",
+  "02-a-65-60.jpg": "aa81fe8156f6a33bca3faeddbef22dbd1c9d02e8068a5679f15a46075391a3c8",
+  "02-a-65-60.txt": "d77b612e7daf10189ce07f71d0e4bebf619af43f670ca523dccf48685b410b57",
+  "03-palermo-a.jpg": "f7bc8f0244bd39ad4e114678e20640117278e3736facff01dd9f68943ad7da80",
+  "03-palermo-a.txt": "de6d790f81ecd3780815ce8de5daf8a08ef6a5923ffce43b7202db9d88f5ac7a",
+  "04-cagliari-a.jpg": "093e32b7daf71479522ee4ef343adaf738b53b4daf7965fd19532960c79549c1",
+  "04-cagliari-a.txt": "de6d790f81ecd3780815ce8de5daf8a08ef6a5923ffce43b7202db9d88f5ac7a",
+  "05-a-16-40.jpg": "1d37ca929632faa0f0abb420a8cee3f3070c7136ab2467445edd1ba14de4e08d",
+  "05-a-16-40.txt": "b7ecb06c440d1897e36aa8c728dd3260906cae2671e6757befda40689a41cca0",
+  "README.md": "7bec5bc3880654c2295f745f8304050f83c0ffd5e7110b13cebc40218729425f",
+  "backup-before.json": "a7dfe7c4b83025591c9618058324cf72abd1d38cab6df3f09d5afdae339d893f",
+  "candidates-exceptions.csv": "ad37626191d1a79eb434979ad4fd8ebc2157b0608c7c14df13664f96a343d0a2",
+  "candidates-refresh.json": "8955423b1ead6bb6a24d98c4247793ddf1e8bc1ea368ec100e3670c75ba50e51",
+  "discounts-before.json": "1e6e4c87e966a48b3879dd78d46790603f75375d3511b6eb11a4293e23b4fe1f",
+  "islands-active.jpg": "77ba21ef3382031f3d7a1174a968e1601b0aa201fd379c55d6df894a96f2bc27",
+  "marco-permissions.txt": "377c9a1ed839c0bad297c29961298b930f618c053cc739e9f6e851d83edd4dc4",
+  "native-rates-after.json": "6f18f348f16d58c7311348e32d7d7f7d86a8a9cb184ada3140884411f328953b",
+  "profiles-after.json": "801b29020afd86477ef069e29a66272441af9ba80d87ae4aa1f7b8c3b7dab21a",
+  "result.json": "1faab5f1901ad2c25f1a96a5eedb0ca40bf847aa95c3c17aa436f60e784e6f95"
+}

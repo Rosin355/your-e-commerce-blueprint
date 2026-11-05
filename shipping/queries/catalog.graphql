@@ -1,0 +1,7 @@
+query ShippingCatalog($after: String) { products(first: 30, after: $after, sortKey: ID) { pageInfo { hasNextPage endCursor } nodes { id title handle status productType tags updatedAt category { id fullName }
+ collections(first: 20) { pageInfo { hasNextPage endCursor } nodes { id handle title } }
+ shipping: metafields(first: 20, namespace: "shipping") { pageInfo { hasNextPage endCursor } nodes { namespace key type value } }
+ logistics: metafields(first: 10, namespace: "logistics") { pageInfo { hasNextPage endCursor } nodes { namespace key type value } }
+ customClass: metafield(namespace: "custom", key: "shipping_class") { namespace key type value }
+ variants(first: 5) { pageInfo { hasNextPage endCursor } nodes { id title sku price inventoryItem { requiresShipping measurement { weight { value unit } } } shipping: metafields(first: 5, namespace: "shipping") { pageInfo { hasNextPage endCursor } nodes { namespace key type value } } logistics: metafields(first: 5, namespace: "logistics") { pageInfo { hasNextPage endCursor } nodes { namespace key type value } } } }
+ } } }

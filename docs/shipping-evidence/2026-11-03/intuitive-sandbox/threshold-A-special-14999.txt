@@ -1,0 +1,457 @@
+{
+  "table": "A",
+  "totalCents": 14999,
+  "expectedEUR": 14.9,
+  "actualEUR": [
+    14.9
+  ],
+  "geography": "special",
+  "transactionId": "332c60ae-88fc-4640-ade9-c9f301cc9bc1",
+  "pass": true,
+  "scope": "REAL Intuitive Cart Tester",
+  "configurationVersion": "technical-half-cent-maxima",
+  "bulbQuantity": 14998,
+  "unknownQuantity": 1
+}
+
+Products
+ Locations
+ Packages
+ Carrier accounts
+ Partner integrations
+ Shopify connection
+ Plans & billing
+ Settings
+ Cart Tester
+Help center
+ Support
+Sandbox mode
+
+Intuitive Shipping is currently in sandbox mode. While in sandbox mode, customers will NOT be able to see shipping methods created within Intuitive Shipping at checkout.
+
+When you're done testing, select a billing plan to make the shipping methods available to customers.
+
+Select a billing plan How to test my setup
+Cart Tester
+Run test
+Transaction ID
+Origin
+Select an origin location
+Shop Location
+Destination
+Recent Destinations
+Via QA Fittizia 1, Palermo, PA 90133
+Via QA Fittizia 1, Roma, RM 00186
+Via QA Fittizia 1, Localita QA sintetica, CA 00000
+Via QA Fittizia 1, Cagliari, CA 09124
+Address
+City
+Country
+Afghanistan
+Aland Islands
+Albania
+Algeria
+Andorra
+Angola
+Anguilla
+Antigua And Barbuda
+Argentina
+Armenia
+Aruba
+Ascension Island
+Australia
+Austria
+Azerbaijan
+Bahamas
+Bahrain
+Bangladesh
+Barbados
+Belarus
+Belgium
+Belize
+Benin
+Bermuda
+Bhutan
+Bolivia
+Bosnia And Herzegovina
+Botswana
+Brazil
+British Indian Ocean Territory
+British Virgin Islands
+Brunei
+Bulgaria
+Burkina Faso
+Burundi
+Cambodia
+Canada
+Cape Verde
+Caribbean Netherlands
+Cayman Islands
+Central African Republic
+Chad
+Chile
+China
+Christmas Island
+Cocos (Keeling) Islands
+Colombia
+Comoros
+Congo - Brazzaville
+Congo - Kinshasa
+Cook Islands
+Costa Rica
+Croatia
+Curaçao
+Cyprus
+Czech Republic
+Côte d'Ivoire
+Denmark
+Djibouti
+Dominica
+Dominican Republic
+Ecuador
+Egypt
+El Salvador
+Equatorial Guinea
+Eritrea
+Estonia
+Eswatini
+Ethiopia
+Falkland Islands (Malvinas)
+Faroe Islands
+Fiji
+Finland
+France
+French Guiana
+French Polynesia
+French Southern Territories
+Gabon
+Gambia
+Georgia
+Germany
+Ghana
+Gibraltar
+Greece
+Greenland
+Grenada
+Guadeloupe
+Guatemala
+Guernsey
+Guinea
+Guinea Bissau
+Guyana
+Haiti
+Holy See (Vatican City State)
+Honduras
+Hong Kong
+Hungary
+Iceland
+India
+Indonesia
+Iraq
+Ireland
+Isle Of Man
+Israel
+Italy
+Jamaica
+Japan
+Jersey
+Jordan
+Kazakhstan
+Kenya
+Kiribati
+Kosovo
+Kuwait
+Kyrgyzstan
+Lao People's Democratic Republic
+Latvia
+Lebanon
+Lesotho
+Liberia
+Libyan Arab Jamahiriya
+Liechtenstein
+Lithuania
+Luxembourg
+Macao
+Madagascar
+Malawi
+Malaysia
+Maldives
+Mali
+Malta
+Martinique
+Mauritania
+Mauritius
+Mayotte
+Mexico
+Moldova
+Monaco
+Mongolia
+Montenegro
+Montserrat
+Morocco
+Mozambique
+Myanmar
+Namibia
+Nauru
+Nepal
+Netherlands
+New Caledonia
+New Zealand
+Nicaragua
+Niger
+Nigeria
+Niue
+Norfolk Island
+North Macedonia
+Norway
+Oman
+Pakistan
+Palestinian Territory (Occupied)
+Panama
+Papua New Guinea
+Paraguay
+Peru
+Philippines
+Pitcairn
+Poland
+Portugal
+Qatar
+Republic of Cameroon
+Reunion
+Romania
+Russia
+Rwanda
+Saint Barthélemy
+Saint Helena
+Saint Kitts And Nevis
+Saint Lucia
+Saint Martin
+Saint Pierre And Miquelon
+Samoa
+San Marino
+Sao Tome And Principe
+Saudi Arabia
+Senegal
+Serbia
+Seychelles
+Sierra Leone
+Singapore
+Sint Maarten
+Slovakia
+Slovenia
+Solomon Islands
+Somalia
+South Africa
+South Georgia And The South Sandwich Islands
+South Korea
+South Sudan
+Spain
+Sri Lanka
+St. Vincent
+Sudan
+Suriname
+Svalbard And Jan Mayen
+Sweden
+Switzerland
+Taiwan
+Tajikistan
+Tanzania
+Thailand
+Timor Leste
+Togo
+Tokelau
+Tonga
+Trinidad and Tobago
+Tristan da Cunha
+Tunisia
+Turkey
+Turkmenistan
+Turks and Caicos Islands
+Tuvalu
+Uganda
+Ukraine
+United Arab Emirates
+United Kingdom
+United States
+United States Minor Outlying Islands
+Uruguay
+Uzbekistan
+Vanuatu
+Venezuela
+Vietnam
+Wallis And Futuna
+Western Sahara
+Yemen
+Zambia
+Zimbabwe
+Province / State
+Agrigento
+Alessandria
+Ancona
+Aosta
+Arezzo
+Ascoli Piceno
+Asti
+Avellino
+Bari
+Barletta-Andria-Trani
+Belluno
+Benevento
+Bergamo
+Biella
+Bologna
+Bolzano
+Brescia
+Brindisi
+Cagliari
+Caltanissetta
+Campobasso
+Sulcis Iglesiente
+Caserta
+Catania
+Catanzaro
+Chieti
+Como
+Cosenza
+Cremona
+Crotone
+Cuneo
+Enna
+Fermo
+Ferrara
+Firenze
+Foggia
+Forlì-Cesena
+Frosinone
+Genova
+Gorizia
+Grosseto
+Imperia
+Isernia
+L'Aquila
+La Spezia
+Latina
+Lecce
+Lecco
+Livorno
+Lodi
+Lucca
+Macerata
+Mantova
+Massa-Carrara
+Matera
+Medio Campidano
+Messina
+Milano
+Modena
+Monza e Brianza
+Napoli
+Novara
+Nuoro
+Ogliastra
+Gallura Nord-Est Sardegna
+Oristano
+Padova
+Palermo
+Parma
+Pavia
+Perugia
+Pesaro e Urbino
+Pescara
+Piacenza
+Pisa
+Pistoia
+Pordenone
+Potenza
+Prato
+Ragusa
+Ravenna
+Reggio Calabria
+Reggio Emilia
+Rieti
+Rimini
+Roma
+Rovigo
+Salerno
+Sassari
+Savona
+Siena
+Siracusa
+Sondrio
+Taranto
+Teramo
+Terni
+Torino
+Trapani
+Trento
+Treviso
+Trieste
+Udine
+Varese
+Venezia
+Verbano-Cusio-Ossola
+Vercelli
+Verona
+Vibo Valentia
+Vicenza
+Viterbo
+Postal / zip code
+Customer
+Customer tags
+Products
+
+OG QA - Bulbo fittizio
+
+OG-QA-BULB
+
+$0.01
+
+OG QA - Prodotto non classificato
+
+OG-QA-UNKNOWN
+
+$0.01
+
+Add products
+Delivery options
+OG QA A speciale sperimentale
+EUR 14.90
+Debug Information
+
+Transaction ID
+
+332c60ae-88fc-4640-ade9-c9f301cc9bc1
+
+Calculation time
+
+33 ms
+
+Activity
+
+View activity
+
+Scenarios
+Scenario	Shipping Methods
+
+154779
+OG QA A speciale sperimentale - sandbox only
+
+668880
+OG QA A speciale sperimentale
+
+
+154778
+OG QA A standard - sandbox only
+	View details
+
+154777
+OG QA B speciale sperimentale - sandbox only
+	View details
+
+154776
+OG QA B standard - sandbox only
+	View details
+
+Built by humans ❤️
+
+Copyright © 2026 Intuitive Shipping Inc. End user license agreement.

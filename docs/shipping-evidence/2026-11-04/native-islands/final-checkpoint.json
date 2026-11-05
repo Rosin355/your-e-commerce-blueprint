@@ -1,0 +1,36 @@
+{
+  "baseline": "2d034ebfb5031b60d00bb23f4435b636fa7d40a1",
+  "storeId": "111269380421",
+  "marketId": "119731978565",
+  "observedStatus": "ACTIVE",
+  "rateInputsEUR": {
+    "A": [
+      9.6,
+      12.5,
+      14.9,
+      17.5,
+      36,
+      54
+    ],
+    "B": [
+      6.9,
+      8.9,
+      9.5
+    ]
+  },
+  "freeShippingChecked": false,
+  "regionalCheckout": "BLOCKED_NO_RESULT",
+  "browserFailure": "Debugger detached while attaching",
+  "screenshotAfterSave": false,
+  "storefrontWorkflow": {
+    "id": 401886711,
+    "state": "active",
+    "baselineRuns": 0,
+    "manualDispatchAttempts": 1,
+    "manualDispatchResult": "HTTP 422: Workflow does not have workflow_dispatch trigger",
+    "automaticTriggerAbsenceCause": "NOT_DETERMINED"
+  },
+  "baselineGitGuardian": "PASS",
+  "guardChanged": false,
+  "productionWrites": 0
+}

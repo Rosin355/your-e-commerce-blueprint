@@ -1,0 +1,8 @@
+0 AXWebArea Edit zone - Intuitive Shipping, URL: v2.intuitiveshippin…
+				47 text field (settable) Value: Domestic, ID: title
+						473 checkbox (settable, integer) Description: Italy Italy, Value: 1, ID: IT
+						477 button 110 of 110 regions 
+			1276 heading Subzones, Value: 3
+				1277 text Subzones
+				1286 text There are no subzones added to this zone.
+The focused UI element is 0 AXWebArea Edit zone - Intuitive Shipping, URL: v2.intuitiveshippin…

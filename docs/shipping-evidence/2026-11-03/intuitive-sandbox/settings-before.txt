@@ -1,0 +1,243 @@
+Browser tab: 2097937111, Title: "General settings - Intuitive Shipping", URL: "https://v2.intuitiveshipping.app/settings".
+0 AXWebArea General settings - Intuitive Shipping, URL: v2.intuitiveshipping.app/settings
+	1 container
+		2 container header
+			3 container
+				4 link Description: Home, Value: v2.intuitiveshipping.app/get-started
+				5 link Description: / General settings, Value: v2.intuitiveshipping.app/settings#
+			6 content list
+				7 link Description: Notifications, Value: v2.intuitiveshipping.app/notifications
+				8 link Description: Online Garden Shipping Te…, Value: v2.intuitiveshipping.app/settings#
+		9 container navigation
+			10 link Description: Intuitive Shipping>, Value: v2.intuitiveshipping.app/
+			11 content list
+				12 link Description:  Get started, Value: v2.intuitiveshipping.app/get-started
+				13 link Description:  Activity, Value: v2.intuitiveshipping.app/activity
+				14 link Description:  Shipping , Value: v2.intuitiveshipping.app/settings#navigation-shipping
+				15 link Description:  Zones, Value: v2.intuitiveshipping.app/zones
+				16 link Description:  Products, Value: v2.intuitiveshipping.app/products
+				17 link Description:  Locations, Value: v2.intuitiveshipping.app/locations
+				18 link Description:  Packages, Value: v2.intuitiveshipping.app/packages
+				19 link Description:  Carrier accounts, Value: v2.intuitiveshipping.app/carrier-account/carrier-accounts
+				20 link Description:  Partner integrations, Value: v2.intuitiveshipping.app/integrations
+				21 link Description:  Shopify connection, Value: v2.intuitiveshipping.app/platform/shopify/connection
+				22 link Description:  Plans & billing, Value: v2.intuitiveshipping.app/billing
+				23 link Description:  Settings, Value: v2.intuitiveshipping.app/settings
+				24 link Description:  Cart Tester, Value: v2.intuitiveshipping.app/test
+			25 content list
+				26 link Description:  Help center, Value: knowledge.intuitiveshipping.com/
+				27 link Description:  Support, Value: v2.intuitiveshipping.app/support?email=rosin%40digitalyogin.com&name=Online+Garden+Shipping+Test&ticket_platform_select=Shopify&shop_id=online-garden-shipping-test.myshopify.com
+		28 container
+			29 image
+			30 heading Sandbox mode, Value: 3
+				31 text Sandbox mode
+			32 text Intuitive Shipping is currently in sandbox mode. While in sandbox mode, customers will
+			33 text NOT
+			34 text  be able to see shipping methods created within Intuitive Shipping at checkout.
+			35 text When you're done testing, select a billing plan to make the shipping methods available to customers.
+			36 button Select a billing plan
+			37 button How to test my setup
+		38 heading General settings, Value: 1
+			39 text General settings
+		40 container
+			41 heading General settings, Value: 3
+				42 text General settings
+			43 text Configure the general settings for Intuitive Shipping.
+			44 container
+				45 heading Status, Value: 4
+					46 text Status
+				47 text Choose how Intuitive Shipping is available at checkout.
+				48 link Description: Learn more, Value: knowledge.intuitiveshipping.com/update-general-settings#general-settings
+				49 text .
+				50 container
+					51 radio button (settable, integer) Description: Archived, Value: 0, ID: status-0
+					52 text Archived
+				53 container
+					54 radio button (settable, integer) Description: Testing, Value: 1, ID: status-1
+					55 text Testing
+				56 container
+					57 radio button (settable, integer) Description: Published, Value: 0, ID: status-2
+					58 text Published
+			59 container
+				60 heading Units, Value: 4
+					61 text Units
+				62 text Choose your preferred units of measurement.
+				63 link Description: Learn more, Value: knowledge.intuitiveshipping.com/update-general-settings#general-settings
+				64 text .
+				65 text Dimensional unit
+				66 pop up button (collapsed, settable) Dimensional unit, Value: centimetres (cm), ID: length-unit, Secondary Actions: Expand
+					67 menu
+						68 millimetres (mm)
+						69 (selected) centimetres (cm)
+						70 metres (m)
+						71 inches (in)
+						72 feet (ft)
+						73 yards (yd)
+				74 text Weight unit
+				75 pop up button (collapsed, settable) Weight unit, Value: kilograms (kg), ID: weight-unit, Secondary Actions: Expand
+					76 menu
+						77 grams (g)
+						78 (selected) kilograms (kg)
+						79 tonnes (t)
+						80 pounds (lb)
+						81 ounces (oz)
+				82 text Distance unit
+				83 pop up button (collapsed, settable) Distance unit, Value: kilometres (km), ID: distance-unit, Secondary Actions: Expand
+					84 menu
+						85 (selected) kilometres (km)
+						86 miles (mi)
+				87 heading Currency, Value: 4
+					88 text Currency
+				89 text The base currency is synced with your shop settings and cannot be changed within Intuitive Shipping.
+				90 text Base currency
+				91 text field Base currency, Value: EUR, ID: currency-code
+				92 text Changing units will not automatically convert values already entered into Intuitive Shipping.
+			93 heading Discounts, Value: 3
+				94 text Discounts
+			95 text Fetching discounts can help provide more accurate shipping rates when discounts are applied to an order.
+			96 container
+				97 heading Discount fetching , Value: 4
+					98 text Discount fetching
+					99 text 
+				100 text Turn on to allow the system to fetch discounts.
+				101 container
+					102 radio button (settable, integer) Description: Enable discount fetching, Value: 1, ID: api-discount-read-status-1
+					103 text Enable discount fetching
+				104 container
+					105 radio button (settable, integer) Description: Disable discount fetching, Value: 0, ID: api-discount-read-status-0
+					106 text Disable discount fetching
+			107 heading Delivery dates, Value: 3
+				108 text Delivery dates
+			109 text Show delivery times to customers as delivery dates.
+			110 container
+				111 heading Estimated delivery date, Value: 4
+					112 text Estimated delivery date
+				113 container
+					114 radio button (settable, integer) Description: Display delivery days, Value: 1, ID: delivery-date-status-0
+					115 text Display delivery days
+				116 container
+					117 radio button (settable, integer) Description: Display delivery date, Value: 0, ID: delivery-date-status-1
+					118 text Display delivery date
+				119 heading Order Processing days, Value: 4
+					120 text Order Processing days
+				121 text Choose the days of the week when orders are processed.
+				122 container delivery-date-order_processing-days
+					123 container
+						124 checkbox (settable, integer) Description: Monday, Value: 1, ID: delivery-date-order-processing-day-1
+						125 text Monday
+					126 container
+						127 checkbox (settable, integer) Description: Tuesday, Value: 1, ID: delivery-date-order-processing-day-2
+						128 text Tuesday
+					129 container
+						130 checkbox (settable, integer) Description: Wednesday, Value: 1, ID: delivery-date-order-processing-day-3
+						131 text Wednesday
+					132 container
+						133 checkbox (settable, integer) Description: Thursday, Value: 1, ID: delivery-date-order-processing-day-4
+						134 text Thursday
+					135 container
+						136 checkbox (settable, integer) Description: Friday, Value: 1, ID: delivery-date-order-processing-day-5
+						137 text Friday
+					138 container
+						139 checkbox (settable, integer) Description: Saturday, Value: 1, ID: delivery-date-order-processing-day-6
+						140 text Saturday
+					141 container
+						142 checkbox (settable, integer) Description: Sunday, Value: 1, ID: delivery-date-order-processing-day-7
+						143 text Sunday
+				144 heading Order processing time, Value: 4
+					145 text Order processing time
+				146 text Specify how many days it takes to dispatch an order from your warehouse.
+				147 container
+					148 text days
+					149 stepper (settable, integer) days, Value: 0, ID: delivery-date-dispatch-lead-time
+			150 heading Rate blending, Value: 3
+				151 text Rate blending
+			152 container
+				153 text All users start in simple blending. Switching to advanced blending gives you more control over how your shipping rates will combine and be displayed at checkout.
+				154 link Description: Learn more, Value: knowledge.intuitiveshipping.com/update-general-settings#rate-blending
+				155 text .
+			156 container
+				157 heading Rate blending mode, Value: 4
+					158 text Rate blending mode
+				159 text Choose your preferred rate blending configuration.
+				160 container
+					161 radio button (settable, integer) Description: Simple blending, Value: 1, ID: rate-blend-status-simple
+					162 text Simple blending
+				163 container
+					164 radio button (settable, integer) Description: Advanced blending, Value: 0, ID: rate-blend-status-advance
+					165 text Advanced blending
+			166 heading Order notes, Value: 3
+				167 text Order notes
+			168 text Push rating details to orders. Package details are only available for shipping rates that require packaging.
+			169 container
+				170 heading Push rating details to orders, Value: 4
+					171 text Push rating details to orders
+				172 container
+					173 radio button (settable, integer) Description: Do not push rating details, Value: 0, ID: order-details-push-status-0
+					174 text Do not push rating details
+				175 container
+					176 radio button (settable, integer) Description: Push rating details, Value: 1, ID: order-details-push-status-1
+					177 text Push rating details
+				178 heading Rating details save location, Value: 4
+					179 text Rating details save location
+				180 text Choose where the rating details will be saved.
+				181 container
+					182 radio button (settable, integer) Description: Order details, Value: 1, ID: order-details-push-location-order-attribute
+					183 text Order details
+				184 container
+					185 radio button (settable, integer) Description: Order notes, Value: 0, ID: order-details-push-location-order-note
+					186 text Order notes
+				187 heading Rating content, Value: 4
+					188 text Rating content
+				189 text Choose what rating details to include in the information.
+				190 container order-details-push-contents
+					191 container
+						192 checkbox (settable, integer) Description: Package information, Value: 1, ID: order-details-push-content-package
+						193 text Package information
+					194 container
+						195 checkbox (settable, integer) Description: Package contents, Value: 1, ID: order-details-push-content-package_contents
+						196 text Package contents
+					197 container
+						198 checkbox (settable, integer) Description: Ship by date, Value: 1, ID: order-details-push-content-dispatch_date
+						199 text Ship by date
+					200 container
+						201 checkbox (settable, integer) Description: Estimated delivery date, Value: 1, ID: order-details-push-content-delivery_date
+						202 text Estimated delivery date
+			203 heading Performance, Value: 3
+				204 text Performance
+			205 text Performance settings can be used to improve rating response times.
+			206 container
+				207 heading Cache rating results, Value: 4
+					208 text Cache rating results
+				209 text Cache rating results to improve performance on repeated requests. Cached rating results are ignored when using the customer name
+				210 text Intuitive
+				211 text .
+				212 container
+					213 radio button (settable, integer) Description: Do not cache results, Value: 0, ID: rate-cache-status-0
+					214 text Do not cache results
+				215 container
+					216 radio button (settable, integer) Description: Cache rating results, Value: 1, ID: rate-cache-status-1
+					217 text Cache rating results
+				218 heading Cache record expiration, Value: 4
+					219 text Cache record expiration
+				220 text Choose how long cached rating results are kept until they expire.
+				221 container
+					222 radio button (settable, integer) Description: 5 minutes, Value: 1, ID: rate-cache-expire-300
+					223 text 5 minutes
+				224 container
+					225 radio button (settable, integer) Description: 10 minutes, Value: 0, ID: rate-cache-expire-600
+					226 text 10 minutes
+				227 container
+					228 radio button (settable, integer) Description: 15 minutes, Value: 0, ID: rate-cache-expire-900
+					229 text 15 minutes
+			230 container Page actions
+				231 button Save
+		232 text Built by humans ❤️
+		233 container
+			234 text Copyright © 2026
+			235 link Description: Intuitive Shipping Inc., Value: intuitiveshipping.com/
+			236 link Description: End user license agreement, Value: intuitiveshipping.com/end-user-license-agreement/
+			237 text .
+	238 container grammarly-integration
+		239 text {"mode":"full","isActive":true,"isUserDisabled":false}
+
+The focused UI element is 0 AXWebArea General settings - Intuitive Shipping, URL: v2.intuitiveshipping.app/settings

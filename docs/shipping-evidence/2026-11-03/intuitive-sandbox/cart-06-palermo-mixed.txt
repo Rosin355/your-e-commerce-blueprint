@@ -1,0 +1,16 @@
+0 AXWebArea Cart Tester - Intuitive Shipping, URL: v2.intuitiveshipping.app/test
+				44 heading Transaction ID, Value: 3
+					45 text Transaction ID
+				58 text field (settable) Address, Value: Via QA Fittizia 1, ID: address-1
+				60 text field (settable) City, Value: Palermo, ID: city
+				415 text field (settable) Postal / zip code, Value: 90133, ID: postal-code
+						642 image OG QA - Bulbo fittizio
+						643 text OG QA - Bulbo fittizio
+						644 text OG-QA-BULB
+						650 image OG QA - Prodotto non classificato
+						651 text OG QA - Prodotto non classificato
+						652 text OG-QA-UNKNOWN
+				667 heading Delivery options, Value: 3
+					668 text Delivery options
+					670 text OG QA A speciale sperimentale
+					671 text EUR 12.50

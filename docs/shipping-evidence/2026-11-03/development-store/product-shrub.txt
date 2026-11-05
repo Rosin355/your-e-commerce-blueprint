@@ -1,0 +1,14 @@
+0 AXWebArea Online Garden Shipping Test · Prodotti · OG QA - Arbusto fittizio · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products/16337681416517
+									314 heading OG QA - Arbusto fittizio, Value: 1
+											319 heading OG QA - Arbusto fittizio aggiunto, Value: 2
+												356 AXWebArea about:srcdoc
+												384 text field (settable) Prezzo  €, Value: 30,00, ID: :r97:
+										403 text Scorte non monitorate
+											406 checkbox (settable, integer) Description: Scorte non monitorate, Value: 0
+											407 text Scorte non monitorate
+											409 button (collapsed) SKU OG-QA-SHRUB, Secondary Actions: Expand
+										419 text Prodotto fisico
+											421 checkbox (settable, integer) Description: Prodotto fisico, Value: 1
+											422 text Prodotto fisico
+											455 text field (settable) Peso, Value: 0,1, ID: ShippingCardWeight
+The focused UI element is 0 AXWebArea Online Garden Shipping Test · Prodotti · OG QA - Arbusto fittizio · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products/16337681416517

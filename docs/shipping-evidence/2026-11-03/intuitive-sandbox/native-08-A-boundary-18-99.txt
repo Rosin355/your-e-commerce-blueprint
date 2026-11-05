@@ -1,0 +1,207 @@
+{
+  "label": "native-08-A-boundary-18-99",
+  "scope": "Shopify native development checkout",
+  "expectedEUR": 8.9,
+  "shippingSegment": "Shipping method\nChoose a shipping method\n\nOG QA A standard\n\nShips next business day\n\n€11.90\n",
+  "bulbQuantity": 899,
+  "bulbUnitEUR": 0.01,
+  "unknownQuantity": 1,
+  "unknownUnitEUR": 10,
+  "subtotalEUR": 18.99,
+  "postalCode": "00186",
+  "expectedTable": "A",
+  "actualEUR": 11.9,
+  "pass": false,
+  "note": "Mismatch at approved upper boundary; not marked PASS"
+}
+
+Skip to content
+Online Garden Shipping Test
+Navigate to Online Store
+Online Garden Shipping Test Checkout
+Contact
+Sign in
+Email
+Used for your order confirmation and cart reminders
+Email me with news and offers
+Delivery
+Country/Region
+Italy
+First name
+Last name
+Powered by Google
+Address
+Apartment, suite, etc. (optional)
+Postal code
+City
+Province
+Agrigento
+Alessandria
+Ancona
+Aosta Valley
+Arezzo
+Ascoli Piceno
+Asti
+Avellino
+Bari
+Barletta-Andria-Trani
+Belluno
+Benevento
+Bergamo
+Biella
+Bologna
+South Tyrol
+Brescia
+Brindisi
+Cagliari
+Caltanissetta
+Campobasso
+Caserta
+Catania
+Catanzaro
+Chieti
+Como
+Cosenza
+Cremona
+Crotone
+Cuneo
+Enna
+Fermo
+Ferrara
+Florence
+Foggia
+Forlì-Cesena
+Frosinone
+Gallura Nord-Est Sardegna
+Genoa
+Gorizia
+Grosseto
+Imperia
+Isernia
+L’Aquila
+La Spezia
+Latina
+Lecce
+Lecco
+Livorno
+Lodi
+Lucca
+Macerata
+Mantua
+Massa and Carrara
+Matera
+Medio Campidano
+Messina
+Milan
+Modena
+Monza and Brianza
+Naples
+Novara
+Nuoro
+Ogliastra
+Oristano
+Padua
+Palermo
+Parma
+Pavia
+Perugia
+Pesaro and Urbino
+Pescara
+Piacenza
+Pisa
+Pistoia
+Pordenone
+Potenza
+Prato
+Ragusa
+Ravenna
+Reggio Calabria
+Reggio Emilia
+Rieti
+Rimini
+Rome
+Rovigo
+Salerno
+Sassari
+Savona
+Siena
+Syracuse
+Sondrio
+Sulcis Iglesiente
+Taranto
+Teramo
+Terni
+Turin
+Trapani
+Trentino
+Treviso
+Trieste
+Udine
+Varese
+Venice
+Verbano-Cusio-Ossola
+Vercelli
+Verona
+Vibo Valentia
+Vicenza
+Viterbo
+Phone (optional)
+In case we need to contact you about your order
+Save this information for next time
+Shipping method
+Choose a shipping method
+
+OG QA A standard
+
+Ships next business day
+
+€11.90
+Payment
+
+All transactions are secure and encrypted.
+
+This store can’t accept payments right now.
+
+Additional information
+Codice Fiscale (optional)
+PEC (optional)
+Finalize order
+Pay now
+€30.89
+Submit
+Privacy policy
+Cookies
+Order summary
+Shopping cart
+Product image
+Description
+Quantity
+Price
+Quantity
+1
+
+OG QA - Prodotto non classificato
+
+1
+€10.00
+Quantity
+899
+
+OG QA - Bulbo fittizio
+
+899
+€8.99
+Scroll for more items
+Cost summary
+Item
+Value
+Subtotal · 900 items
+€18.99
+Shipping
+€11.90
+Total
+EUR
+€30.89
+Opens external website in a new window.
+Opens in a new window.
+Opens external website.

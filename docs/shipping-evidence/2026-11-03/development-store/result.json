@@ -1,0 +1,174 @@
+{
+  "status": "SANDBOX BLOCKED",
+  "date": "2026-11-03",
+  "evidenceCheckedAtUTC": "2026-11-03T15:07:00Z",
+  "baseHead": "25eae289f065353e583606cbac5b1bec3b3472aa",
+  "supersedes": "engine-selection/SANDBOX-RESULT.md: missing development store blocker resolved by explicit creation authorization",
+  "developmentStore": {
+    "id": "111269380421",
+    "gid": "gid://shopify/Shop/111269380421",
+    "name": "Online Garden Shipping Test",
+    "domain": "online-garden-shipping-test.myshopify.com",
+    "organizationName": "Online Garden",
+    "organizationId": "213529043",
+    "type": "Development",
+    "clientTransfer": false,
+    "simulatedPlan": "Grow",
+    "country": "IT",
+    "currency": "EUR",
+    "featurePreview": "Market-driven shipping and ship & pickup in one order",
+    "shippingMovedToMarketsObserved": true,
+    "marketId": "119681515845",
+    "seedDemoData": false,
+    "storeCreated": true,
+    "storeCreationUIPriceOrBillingApproval": false
+  },
+  "fixtures": {
+    "createdVia": "Shopify Admin product forms, exclusively in development store",
+    "products": [
+      {
+        "title": "OG QA - Bulbo fittizio",
+        "id": "16337677287749",
+        "sku": "OG-QA-BULB",
+        "priceEUR": "15.00",
+        "expectedTableIfAlone": "B"
+      },
+      {
+        "title": "OG QA - Pianta grassa fittizia",
+        "id": "16337678958917",
+        "sku": "OG-QA-SUCCULENT",
+        "priceEUR": "45.00",
+        "expectedTableIfAlone": "B"
+      },
+      {
+        "title": "OG QA - Arbusto fittizio",
+        "id": "16337681416517",
+        "sku": "OG-QA-SHRUB",
+        "priceEUR": "30.00",
+        "expectedTableIfAlone": "A"
+      },
+      {
+        "title": "OG QA - Prodotto non classificato",
+        "id": "16337683349829",
+        "sku": "OG-QA-UNKNOWN",
+        "priceEUR": "10.00",
+        "expectedTableIfAlone": "A"
+      }
+    ],
+    "physical": true,
+    "weightKgEach": "0.1",
+    "inventoryTracked": false,
+    "logisticsMetafieldsCreated": false,
+    "classificationForFutureTest": "Explicit SKU allowlist; no reliance on auto-generated product taxonomy",
+    "csvImported": false,
+    "realCatalogImported": false,
+    "customersImported": 0,
+    "ordersImported": 0
+  },
+  "primaryBlocker": {
+    "code": "SHOPIFY_IDENTITY_VERIFICATION_REQUIRED_FOR_THIRD_PARTY_DEV_APP_INSTALL",
+    "observedHeading": "Verifica dell'identità richiesta",
+    "observedRequirement": "Per installare app di terze parti su un development store, tu o il proprietario dell'organizzazione a cui appartiene il negozio dovete verificare l'identità.",
+    "installButtonDisabled": true,
+    "verifyIdentityClicked": false,
+    "identityDocumentsHandled": false,
+    "ownerActionRequired": true
+  },
+  "intuitive": {
+    "installationAttemptedOn": "online-garden-shipping-test.myshopify.com",
+    "installed": false,
+    "sandboxFreeUnlimited": "DOCUMENTED_ONLY_NOT_EXERCISED",
+    "subscriptionSelected": false,
+    "trialActivated": false,
+    "tablesConfiguredInApp": false,
+    "devInstalledAppsUI": "Empty: Aggiungi app al tuo negozio"
+  },
+  "ccs": {
+    "dev": {
+      "carrierConnectionUIAvailable": true,
+      "carrierChooserOpened": true,
+      "carriersShown": [
+        "FedEx",
+        "UPS"
+      ],
+      "upgradeRequiredByObservedUI": false,
+      "carrierAccountConnected": false,
+      "appCarrierServiceRegistered": false,
+      "functionalCheckoutVerified": false,
+      "freeCcsEndToEndVerified": false
+    },
+    "live": {
+      "domain": "ecom-blueprint-gen-6ud1s.myshopify.com",
+      "effectivePlanUI": "Grow",
+      "ccsStatus": "NOT_ENABLED_ACCORDING_TO_ADMIN_UI",
+      "observedHeading": "Abilita tariffe calcolate di terze parti al check-out",
+      "observedAction": "Effettua l'upgrade del tuo piano",
+      "observedActionTargetRecommendedPlan": "Advanced Shopify",
+      "upgradeClicked": false,
+      "officialGrowRequirement": "additional monthly fee or included with annual billing",
+      "accountBillingCycle": "NOT_VERIFIED",
+      "accountSpecificCcsPrice": "NOT_QUOTED",
+      "newCapabilityActivated": false
+    }
+  },
+  "checkoutTests": [
+    {
+      "case": "Bulbs only -> B",
+      "status": "NOT_RUN_INSTALLATION_BLOCKED",
+      "evidence": null
+    },
+    {
+      "case": "Bulb + shrub -> one A on full total",
+      "status": "NOT_RUN_INSTALLATION_BLOCKED",
+      "evidence": null
+    },
+    {
+      "case": "Bulbs + succulent -> B",
+      "status": "NOT_RUN_INSTALLATION_BLOCKED",
+      "evidence": null
+    },
+    {
+      "case": "Exact A/B thresholds",
+      "status": "NOT_RUN_INSTALLATION_BLOCKED",
+      "evidence": null
+    },
+    {
+      "case": "Sicily/Sardinia test geography",
+      "status": "NOT_RUN_INSTALLATION_BLOCKED",
+      "evidence": null
+    },
+    {
+      "case": "Synthetic postcodes",
+      "status": "NOT_RUN_INSTALLATION_BLOCKED",
+      "evidence": null
+    },
+    {
+      "case": "No sum of multiple rates",
+      "status": "NOT_RUN_INSTALLATION_BLOCKED",
+      "evidence": null
+    }
+  ],
+  "nativeCheckoutCasesExecuted": 0,
+  "localSimulationsUsedAsCheckoutProof": false,
+  "boundaries": {
+    "productionShopifyWrites": 0,
+    "sendcloudConnectionsOrChanges": 0,
+    "secretsChanged": 0,
+    "paymentsConfigured": false,
+    "realPayments": 0,
+    "ordersCreated": 0,
+    "productionShippingProfilesChanged": false,
+    "pr42Changed": false,
+    "merges": 0,
+    "deploys": 0
+  },
+  "costs": {
+    "actualIncrementalSpendEUR": "0.00",
+    "newRecurringCommitments": false,
+    "paidCcsActivated": false,
+    "paidShopifyPlanActivated": false,
+    "freeDevelopmentStoreCreated": true,
+    "intuitiveSandboxBillingNotReached": true
+  },
+  "nextAction": "Owner/user completes Shopify identity verification in the authorized Dev app install flow, then resume the already-authorized free sandbox test; no new production authorization implied."
+}

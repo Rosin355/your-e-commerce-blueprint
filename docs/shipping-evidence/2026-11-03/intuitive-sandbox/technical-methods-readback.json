@@ -1,0 +1,226 @@
+{
+  "668877": [
+    {
+      "id": "cost-table-6aea17a9015f4-max",
+      "value": "49.995"
+    },
+    {
+      "id": "cost-table-6aea17a9015f4-cost",
+      "value": "5.90"
+    },
+    {
+      "id": "cost-table-6aea17a9015f4-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726401630-max",
+      "value": "149.995"
+    },
+    {
+      "id": "cost-table-1793726401630-cost",
+      "value": "7.90"
+    },
+    {
+      "id": "cost-table-1793726401630-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726401891-max",
+      "value": "~"
+    },
+    {
+      "id": "cost-table-1793726401891-cost",
+      "value": "8.90"
+    },
+    {
+      "id": "cost-table-1793726401891-per-unit",
+      "value": ""
+    }
+  ],
+  "668878": [
+    {
+      "id": "cost-table-6aea17a9015f4-max",
+      "value": "49.995"
+    },
+    {
+      "id": "cost-table-6aea17a9015f4-cost",
+      "value": "6.90"
+    },
+    {
+      "id": "cost-table-6aea17a9015f4-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726401630-max",
+      "value": "149.995"
+    },
+    {
+      "id": "cost-table-1793726401630-cost",
+      "value": "8.90"
+    },
+    {
+      "id": "cost-table-1793726401630-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726401891-max",
+      "value": "~"
+    },
+    {
+      "id": "cost-table-1793726401891-cost",
+      "value": "9.50"
+    },
+    {
+      "id": "cost-table-1793726401891-per-unit",
+      "value": ""
+    }
+  ],
+  "668879": [
+    {
+      "id": "cost-table-6aea17a9015f4-max",
+      "value": "18.995"
+    },
+    {
+      "id": "cost-table-6aea17a9015f4-cost",
+      "value": "8.90"
+    },
+    {
+      "id": "cost-table-6aea17a9015f4-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726401630-max",
+      "value": "79.995"
+    },
+    {
+      "id": "cost-table-1793726401630-cost",
+      "value": "11.90"
+    },
+    {
+      "id": "cost-table-1793726401630-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726401891-max",
+      "value": "149.995"
+    },
+    {
+      "id": "cost-table-1793726401891-cost",
+      "value": "12.50"
+    },
+    {
+      "id": "cost-table-1793726401891-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726551900-max",
+      "value": "249.995"
+    },
+    {
+      "id": "cost-table-1793726551900-cost",
+      "value": "17.50"
+    },
+    {
+      "id": "cost-table-1793726551900-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726552146-max",
+      "value": "499.995"
+    },
+    {
+      "id": "cost-table-1793726552146-cost",
+      "value": "36.00"
+    },
+    {
+      "id": "cost-table-1793726552146-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726552412-max",
+      "value": "~"
+    },
+    {
+      "id": "cost-table-1793726552412-cost",
+      "value": "54.00"
+    },
+    {
+      "id": "cost-table-1793726552412-per-unit",
+      "value": ""
+    }
+  ],
+  "668880": [
+    {
+      "id": "cost-table-6aea17a9015f4-max",
+      "value": "18.995"
+    },
+    {
+      "id": "cost-table-6aea17a9015f4-cost",
+      "value": "9.60"
+    },
+    {
+      "id": "cost-table-6aea17a9015f4-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726401630-max",
+      "value": "79.995"
+    },
+    {
+      "id": "cost-table-1793726401630-cost",
+      "value": "12.50"
+    },
+    {
+      "id": "cost-table-1793726401630-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726401891-max",
+      "value": "149.995"
+    },
+    {
+      "id": "cost-table-1793726401891-cost",
+      "value": "14.90"
+    },
+    {
+      "id": "cost-table-1793726401891-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726551900-max",
+      "value": "249.995"
+    },
+    {
+      "id": "cost-table-1793726551900-cost",
+      "value": "17.50"
+    },
+    {
+      "id": "cost-table-1793726551900-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726552146-max",
+      "value": "499.995"
+    },
+    {
+      "id": "cost-table-1793726552146-cost",
+      "value": "36.00"
+    },
+    {
+      "id": "cost-table-1793726552146-per-unit",
+      "value": ""
+    },
+    {
+      "id": "cost-table-1793726552412-max",
+      "value": "~"
+    },
+    {
+      "id": "cost-table-1793726552412-cost",
+      "value": "54.00"
+    },
+    {
+      "id": "cost-table-1793726552412-per-unit",
+      "value": ""
+    }
+  ]
+}

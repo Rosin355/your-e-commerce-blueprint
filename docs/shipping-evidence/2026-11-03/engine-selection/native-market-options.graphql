@@ -1,0 +1,1 @@
+query ShippingNativeMarketOptions($id: ID!) { market(id: $id) { id name delivery { shipping { isEnabled optionDefinitions(first: 20) { pageInfo { hasNextPage endCursor } nodes { id currency description isActive freeDeliveryMinimumValue { amount currencyCode } includedCollections(first: 20) { pageInfo { hasNextPage endCursor } nodes { id title } } } } } } } }

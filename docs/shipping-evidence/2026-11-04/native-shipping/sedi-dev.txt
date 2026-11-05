@@ -1,0 +1,6 @@
+    - generic: Stai utilizzando 1 su 10 sedi attive disponibili nel tuo piano
+    - link "Aggiungi sede":
+        - row "Shop location Italia POS Pro Attiva":
+          - cell "Shop location Italia":
+            - link "Shop location":
+              - generic: Shop location

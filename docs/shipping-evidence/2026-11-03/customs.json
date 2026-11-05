@@ -1,0 +1,23 @@
+{
+  "capturedAt": "2026-11-03T09:21:51.734Z",
+  "source": "Shopify Admin API via connected Shopify tool; read only",
+  "response": {
+    "error": "invalid_request",
+    "error_description": "GraphQL errors occurred: Access denied for deliveryCustomizations field. Required access: `read_delivery_customizations` access scope.",
+    "graphql_errors": [
+      {
+        "message": "Access denied for deliveryCustomizations field. Required access: `read_delivery_customizations` access scope.",
+        "path": [
+          "deliveryCustomizations"
+        ],
+        "locations": [
+          {
+            "line": 1,
+            "column": 48
+          }
+        ]
+      }
+    ],
+    "error_code": "INVALID_ARGUMENT"
+  }
+}

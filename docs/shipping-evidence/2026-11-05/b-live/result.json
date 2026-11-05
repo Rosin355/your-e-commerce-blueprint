@@ -1,0 +1,80 @@
+{
+  "status": "LIVE_AB_CHECKOUT_PASS_MINOR_ISLANDS_OPEN",
+  "startingHead": "795e2015db241f15736e44cface1d694a1ba96f9",
+  "approvalPolicy": "BOTANICAL_CATEGORY_BY_OWNER",
+  "directChatAuthorization": "Confermo modifiche shipping LIVE, checkout senza ordini/pagamenti e rollback A positiva",
+  "classifiedBulbs": 118,
+  "classifiedSucculents": 43,
+  "approvedBVariants": 161,
+  "newUnambiguousProductsFound": 0,
+  "aCollectionId": "734709547348",
+  "bCollectionId": "734709514580",
+  "selectionScope": "EXPLICIT_VARIANT_IDS",
+  "coveredProducts": 1364,
+  "coveredVariants": 1392,
+  "aVariants": 1231,
+  "bVariants": 161,
+  "mixedClassProducts": 0,
+  "checkoutCases": [
+    {
+      "case": "01-b-30",
+      "city": "Roma",
+      "subtotalCents": 3000,
+      "observedShippingCents": 590,
+      "status": "PASS",
+      "evidence": "01-b-30.txt"
+    },
+    {
+      "case": "02-b-60-80",
+      "city": "Roma",
+      "subtotalCents": 6080,
+      "observedShippingCents": 790,
+      "status": "PASS",
+      "evidence": "02-b-60-80.txt"
+    },
+    {
+      "case": "03-mixed-46-40",
+      "city": "Roma",
+      "subtotalCents": 4640,
+      "observedShippingCents": 1190,
+      "status": "PASS",
+      "evidence": "03-mixed-46-40.txt"
+    },
+    {
+      "case": "04-mixed-177-60",
+      "city": "Roma",
+      "subtotalCents": 17760,
+      "observedShippingCents": 1750,
+      "status": "PASS",
+      "evidence": "04-mixed-177-60.txt"
+    },
+    {
+      "case": "05-palermo-b-30",
+      "city": "Palermo",
+      "subtotalCents": 3000,
+      "observedShippingCents": 690,
+      "status": "PASS",
+      "evidence": "05-palermo-b-30.txt"
+    },
+    {
+      "case": "06-cagliari-mixed-46-40",
+      "city": "Cagliari",
+      "subtotalCents": 4640,
+      "observedShippingCents": 1250,
+      "status": "PASS",
+      "evidence": "06-cagliari-mixed-46-40.txt"
+    }
+  ],
+  "freeShippingEnabled": false,
+  "traditionalProfilesUnchanged": true,
+  "foreignCheckoutTested": false,
+  "sendcloudChanges": 0,
+  "orders": 0,
+  "payments": 0,
+  "frontendDeploys": 0,
+  "extraCostsEUR": 0,
+  "minorIslands": "OPEN_NOT_COVERED_BY_SPECIAL_RATE",
+  "futureVariantHomogeneity": "REQUIRES_ADMIN_PROCEDURE_BEFORE_VARIANT_CREATION",
+  "rollbackPerformed": false,
+  "automaticReviewBlock": "RESOLVED_BY_DIRECT_USER_CONFIRMATION"
+}

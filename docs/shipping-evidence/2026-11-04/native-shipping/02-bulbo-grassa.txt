@@ -1,0 +1,11 @@
+  - heading "Online Garden Shipping Test Checkout" [level=1]
+    - generic: Postal code
+    - textbox "Postal code": "00186"
+    - heading "Shipping method" [level=2]
+      - heading "Spedizione standard" [level=3]:
+          - strong: Spedizione standard
+        - row "Quantity 1 OG QA - Pianta grassa fittizia 1 €45.00":
+        - row "Quantity 1 OG QA - Bulbo fittizio 1 €15.00":
+      - row "Subtotal · 2 items €60.00":
+      - row "Shipping €7.90":
+- status: "Updated shipping method: Spedizione standard"

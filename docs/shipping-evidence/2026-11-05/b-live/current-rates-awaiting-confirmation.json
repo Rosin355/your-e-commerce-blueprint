@@ -1,0 +1,388 @@
+{
+  "data": {
+    "markets": {
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": "eyJsYXN0X2lkIjoxMjAyODc4ODc3MDAsImxhc3RfdmFsdWUiOiJTaWNpbGlhIGUgU2FyZGVnbmEg4oCUIElzb2xlIn0="
+      },
+      "nodes": [
+        {
+          "id": "gid://shopify/Market/112143401300",
+          "name": "Italy",
+          "status": "ACTIVE",
+          "delivery": {
+            "shipping": {
+              "isEnabled": true,
+              "optionDefinitions": {
+                "pageInfo": {
+                  "hasNextPage": false,
+                  "endCursor": "eyJsYXN0X2lkIjoxNDY0MDAxMTM0OTMyLCJsYXN0X3ZhbHVlIjoiMjAyNi0xMC0yMSAyMToxOTowNy4wMDAwMDAifQ=="
+                },
+                "nodes": [
+                  {
+                    "id": "gid://shopify/DeliveryValueBasedOptionDefinition/1464001134932",
+                    "isActive": true,
+                    "currency": "EUR",
+                    "freeDeliveryMinimumValue": null,
+                    "name": "Standard",
+                    "rateGroups": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": "eyJsYXN0X2lkIjo2OTMzMjI2NDU4NDQsImxhc3RfdmFsdWUiOiI2OTMzMjI2NDU4NDQifQ=="
+                      },
+                      "nodes": [
+                        {
+                          "id": "gid://shopify/DeliveryValueBasedRateGroup/669463085396",
+                          "conditions": {
+                            "collections": {
+                              "pageInfo": {
+                                "hasNextPage": false,
+                                "endCursor": "eyJsYXN0X2lkIjo3MzQ3MDk1NDczNDgsImxhc3RfdmFsdWUiOjczNDcwOTU0NzM0OH0="
+                              },
+                              "nodes": [
+                                {
+                                  "id": "gid://shopify/Collection/734709547348",
+                                  "handle": "og-logistica-a-fallback"
+                                }
+                              ]
+                            }
+                          },
+                          "rates": {
+                            "pageInfo": {
+                              "hasNextPage": false,
+                              "endCursor": "eyJsYXN0X2lkIjoxNDE0Nzc2OTE0MjYwLCJsYXN0X3ZhbHVlIjoiNTAwLjAifQ=="
+                            },
+                            "nodes": [
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1390244987220",
+                                "minValue": {
+                                  "amount": "0.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "18.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "8.9",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414776783188",
+                                "minValue": {
+                                  "amount": "19.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "79.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "11.9",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414776815956",
+                                "minValue": {
+                                  "amount": "80.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "149.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "12.5",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414776848724",
+                                "minValue": {
+                                  "amount": "150.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "249.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "17.5",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414776881492",
+                                "minValue": {
+                                  "amount": "250.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "499.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "36.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414776914260",
+                                "minValue": {
+                                  "amount": "500.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": null,
+                                "price": {
+                                  "amount": "54.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "id": "gid://shopify/DeliveryValueBasedRateGroup/693322645844",
+                          "conditions": {
+                            "collections": {
+                              "pageInfo": {
+                                "hasNextPage": false,
+                                "endCursor": "eyJsYXN0X2lkIjo3MzQ3MDk1MTQ1ODAsImxhc3RfdmFsdWUiOjczNDcwOTUxNDU4MH0="
+                              },
+                              "nodes": [
+                                {
+                                  "id": "gid://shopify/Collection/734709514580",
+                                  "handle": "og-logistica-b-approvati"
+                                }
+                              ]
+                            }
+                          },
+                          "rates": {
+                            "pageInfo": {
+                              "hasNextPage": false,
+                              "endCursor": "eyJsYXN0X2lkIjoxNDE0Nzg1MzM1NjM2LCJsYXN0X3ZhbHVlIjoiMTUwLjAifQ=="
+                            },
+                            "nodes": [
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414785270100",
+                                "minValue": {
+                                  "amount": "0.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "49.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "5.9",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414785302868",
+                                "minValue": {
+                                  "amount": "50.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "149.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "7.9",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414785335636",
+                                "minValue": {
+                                  "amount": "150.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": null,
+                                "price": {
+                                  "amount": "8.9",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "gid://shopify/Market/120287887700",
+          "name": "Sicilia e Sardegna — Isole",
+          "status": "ACTIVE",
+          "delivery": {
+            "shipping": {
+              "isEnabled": true,
+              "optionDefinitions": {
+                "pageInfo": {
+                  "hasNextPage": false,
+                  "endCursor": "eyJsYXN0X2lkIjoxNDg3ODQzMzkzODc2LCJsYXN0X3ZhbHVlIjoiMjAyNi0xMS0wNSAwOTozMTowMy4wMDAwMDAifQ=="
+                },
+                "nodes": [
+                  {
+                    "id": "gid://shopify/DeliveryValueBasedOptionDefinition/1487843393876",
+                    "isActive": true,
+                    "currency": "EUR",
+                    "freeDeliveryMinimumValue": null,
+                    "name": "Standard",
+                    "rateGroups": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": "eyJsYXN0X2lkIjo2OTMzMTQ1NTIxNDgsImxhc3RfdmFsdWUiOiI2OTMzMTQ1NTIxNDgifQ=="
+                      },
+                      "nodes": [
+                        {
+                          "id": "gid://shopify/DeliveryValueBasedRateGroup/693314552148",
+                          "conditions": {
+                            "collections": null
+                          },
+                          "rates": {
+                            "pageInfo": {
+                              "hasNextPage": false,
+                              "endCursor": "eyJsYXN0X2lkIjoxNDE0Nzc3NTA0MDg0LCJsYXN0X3ZhbHVlIjoiNTAwLjAifQ=="
+                            },
+                            "nodes": [
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414777340244",
+                                "minValue": {
+                                  "amount": "0.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "18.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "9.6",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414777373012",
+                                "minValue": {
+                                  "amount": "19.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "79.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "12.5",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414777405780",
+                                "minValue": {
+                                  "amount": "80.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "149.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "14.9",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414777438548",
+                                "minValue": {
+                                  "amount": "150.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "249.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "17.5",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414777471316",
+                                "minValue": {
+                                  "amount": "250.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": {
+                                  "amount": "499.99",
+                                  "currencyCode": "EUR"
+                                },
+                                "price": {
+                                  "amount": "36.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              },
+                              {
+                                "id": "gid://shopify/DeliveryValueBasedRate/1414777504084",
+                                "minValue": {
+                                  "amount": "500.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "maxValue": null,
+                                "price": {
+                                  "amount": "54.0",
+                                  "currencyCode": "EUR"
+                                },
+                                "transitTimeMinSeconds": null,
+                                "transitTimeMaxSeconds": null
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,347 @@
+Browser tab: 2097937139, Title: "Online Garden Shipping Test · Prodotti · OG QA - Bulbo fittizio · Shopify", URL: "https://admin.shopify.com/store/online-garden-shipping-test/products/16337677287749".
+0 AXWebArea Online Garden Shipping Test · Prodotti · OG QA - Bulbo fittizio · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products/16337677287749
+	1 container
+		2 container app
+			3 container AppFrame
+				4 container AppFrameChrome
+					5 link Description: Vai al contenuto, Value: admin.shopify.com/store/online-garden-shipping-test/products/16337677287749#AppFrameMain
+					6 container AppFrameBevel
+						7 container Description: Navigazione, ID: AppFrameNav
+							8 container
+								9 image Shopify
+								10 button (expanded) Description: Comprimi navigazione, Secondary Actions: Collapse
+								11 button Cerca
+									12 text Cerca
+								13 container scroll-container
+									14 content list
+										15 link Description: Home, Value: admin.shopify.com/store/online-garden-shipping-test
+										16 container
+											17 link (collapsed) Description: Ordini, Value: admin.shopify.com/store/online-garden-shipping-test/orders, Secondary Actions: Expand
+										18 container
+											19 link (expanded) Description: Prodotti, Value: admin.shopify.com/store/online-garden-shipping-test/products, Secondary Actions: Collapse
+											20 content list
+												21 link Description: Collezioni, Value: admin.shopify.com/store/online-garden-shipping-test/collections
+												22 link Description: Scorte, Value: admin.shopify.com/store/online-garden-shipping-test/products/inventory
+												23 link Description: Ordini d'acquisto, Value: admin.shopify.com/store/online-garden-shipping-test/purchase_orders
+												24 link Description: Trasferimenti, Value: admin.shopify.com/store/online-garden-shipping-test/transfers
+												25 link Description: Buoni regalo, Value: admin.shopify.com/store/online-garden-shipping-test/gift_cards
+										26 container
+											27 link (collapsed) Description: Clienti, Value: admin.shopify.com/store/online-garden-shipping-test/customers, Secondary Actions: Expand
+										28 container
+											29 link (collapsed) Description: Crescita, Value: admin.shopify.com/store/online-garden-shipping-test/growth, Secondary Actions: Expand
+										30 link Description: Sconti, Value: admin.shopify.com/store/online-garden-shipping-test/discounts
+										31 container
+											32 link (collapsed) Description: Contenuto, Value: admin.shopify.com/store/online-garden-shipping-test/content/metaobjects, Secondary Actions: Expand
+										33 container
+											34 link (collapsed) Description: Mercati, Value: admin.shopify.com/store/online-garden-shipping-test/markets, Secondary Actions: Expand
+										35 link Description: Contabilità, Value: admin.shopify.com/store/online-garden-shipping-test/finance
+										36 container
+											37 link (collapsed) Description: Analisi, Value: admin.shopify.com/store/online-garden-shipping-test/analytics, Secondary Actions: Expand
+									38 content list
+										39 container
+											40 button Canali di vendita
+												41 text Canali di vendita
+											42 content list
+												43 sortable Negozio online
+													44 content list
+														45 link Description: Negozio online, Value: admin.shopify.com/store/online-garden-shipping-test/themes?appLoadId=0efdd0a2-cda9-42fa-be02-87c368624ff7
+												46 sortable Agentico
+													47 content list
+														48 link Description: Agentico, Value: admin.shopify.com/store/online-garden-shipping-test/apps/agentic?appLoadId=843eb3f9-6ddb-4d97-8b22-c6ae00e8932a
+										49 button Applicazioni
+											50 text Applicazioni
+								51 content list
+									52 link Description: Impostazioni, Value: admin.shopify.com/store/online-garden-shipping-test/settings
+									53 container
+										54 button (collapsed) Description: Romesh Singhabahu, Secondary Actions: Expand
+											55 container Online Garden Shipping Test
+											56 text Online Garden Shipping Test
+											57 text dev
+										58 button (collapsed) Description: Feed avvisi - 0 avvisi non letti, Secondary Actions: Expand
+						59 container AppFrameMain
+							60 container
+								61 container
+									62 container
+										63 container
+											64 button Torna alla pagina Spedizione e consegna
+											65 link Description: Prodotti, Value: admin.shopify.com/store/online-garden-shipping-test/products
+										66 button Visualizza come
+											67 text Visualizza come
+										68 button Visualizza anteprima sul negozio online
+										69 button Condividi
+										70 button (collapsed) Altre azioni, Secondary Actions: Expand
+											71 text Altre azioni
+										72 button (disabled) Vai alla pagina precedente
+										73 button Vai alla pagina successiva
+									74 heading OG QA - Bulbo fittizio, Value: 1
+										75 text OG QA - Bulbo fittizio
+									76 text Attivo
+									77 container
+										78 container
+											79 text Titolo
+											80 text field (settable) Titolo, Value: OG QA - Bulbo fittizio, ID: P0-0
+										81 container
+											82 text rich text editor
+											83 text Descrizione
+											84 container richtexteditor_toolbar-product-description-rp
+												85 button Description: Genera testo, ID: sidekick-field-activator
+												86 checkbox (collapsed) Description: Opzioni di formattazione, Paragrafo selezionato, Value: 0, Secondary Actions: Expand
+													87 text Paragrafo
+												88 checkbox Description: Grassetto, Value: 0
+												89 checkbox Description: Corsivo, Value: 0
+												90 checkbox Description: Sottolineato, Value: 0
+												91 checkbox (collapsed) Description: Colore, Value: 0, Secondary Actions: Expand
+												92 checkbox (collapsed) Description: Allineamento, Value: 0, Secondary Actions: Expand
+												93 checkbox (disabled) Description: Link - Seleziona testo, Value: 0
+												94 checkbox Description: Inserisci immagine, Value: 0
+												95 checkbox Description: Inserisci video, Value: 0
+												96 checkbox (collapsed) Description: Inserisci tabella, Value: 0, Secondary Actions: Expand
+												97 checkbox Description: Elenco puntato, Value: 0
+												98 checkbox Description: Elenco numerato, Value: 0
+												99 checkbox Description: Riduci rientro, Value: 0
+												100 checkbox Description: Aumenta rientro, Value: 0
+												101 checkbox Description: Cancella formattazione, Value: 0
+												102 checkbox Description: Mostra HTML, Value: 0
+											103 container Description: Rich Text Area, ID: product-description-rp_ifr
+												104 AXWebArea about:srcdoc
+													105 container Description: Rich Text Area. Press ALT-0 for help., ID: tinymce, Value:
+
+													106 container grammarly-integration
+														107 text {"mode":"full","isActive":true,"isUserDisabled":false}
+										108 text Contenuti multimediali
+										109 container
+											110 text Trascina contenuti multimediali per caricare
+											111 button Trascina contenuti multimediali per caricare, ID: file-input
+											112 container
+												113 button Carica nuovo
+												114 button Seleziona esistente
+												115 text Accetta immagini, video o modelli 3D
+										116 container ProductCategoryPickerAnchor
+											117 text Categoria
+											118 container
+												119 text Categoria
+												120 button (collapsed) Description: Categoria, Secondary Actions: Expand
+												121 container
+													122 container
+														123 text Lampadine  in Illuminazione
+													124 button
+											125 button Accetta categoria suggerita: Tubi luminosi e luminarie in Illuminazione
+												126 container
+													127 text Tubi luminosi e luminarie
+													128 text  in Illuminazione
+												129 text Suggerita
+											130 button Ignora categoria suggerita: Tubi luminosi e luminarie in Illuminazione
+											131 text Determina le aliquote fiscali e aggiunge metafield per migliorare la ricerca, i filtri e le vendite cross-channel
+									132 container
+										133 heading Prezzo, Value: 2
+											134 text Prezzo
+										135 container
+											136 text Prezzo
+											137 container
+												138 text field (settable) Prezzo  €, Value: 15,00, ID: :r1k:
+												139 text  €
+										140 container Prezzo di confronto
+											141 button (collapsed) Prezzo di confronto, Secondary Actions: Expand
+												142 text Prezzo di confronto
+										143 container Prezzo unitario
+											144 button (collapsed) Prezzo unitario, Secondary Actions: Expand
+												145 text Prezzo unitario
+										146 container Addebita imposta
+											147 button (collapsed) Addebita imposta Sì, Secondary Actions: Expand
+												148 text Addebita imposta
+												149 text Sì
+										150 container Costo per articolo
+											151 button (collapsed) Costo per articolo, Secondary Actions: Expand
+												152 text Costo per articolo
+										153 button (collapsed) Secondary Actions: Expand
+									154 container
+										155 heading Scorte, Value: 2
+											156 text Scorte
+										157 text Scorte non monitorate
+										158 image
+										159 container
+											160 checkbox (settable, integer) Description: Scorte non monitorate, Value: 0
+											161 text Scorte non monitorate
+										162 container SKU
+											163 button (collapsed) SKU OG-QA-BULB, Secondary Actions: Expand
+												164 text SKU
+												165 text OG-QA-BULB
+										166 container Codici a barre
+											167 button (collapsed) Codici a barre, Secondary Actions: Expand
+												168 text Codici a barre
+										169 button (collapsed) Secondary Actions: Expand
+									170 container
+										171 heading Spedizione, Value: 2
+											172 text Spedizione
+										173 text Prodotto fisico
+										174 container
+											175 checkbox (settable, integer) Description: Prodotto fisico, Value: 1
+											176 text Prodotto fisico
+										177 text Pacco quando spedito da solo
+										178 combo box (collapsed) Pacco quando spedito da solo, Value: Predefinito del negozio · Imballaggio di esempio - 22 × 13,7 × 4,2 cm, 0 kg, ID: package-selector-input, Secondary Actions: Expand
+											179 container
+												180 text Predefinito del negozio
+												181 text ·
+												182 text Imballaggio di esempio - 22 × 13,7 × 4,2 cm, 0 kg
+										183 text Dimensioni del prodotto imballato
+										184 image
+										185 container Dimensioni del prodotto imballato
+											186 text Lunghezza (L)
+											187 container
+												188 text L
+												189 text field (settable) Lunghezza (L) L, ID: ShippingCardDimensionLength
+											190 text Larghezza (La)
+											191 container
+												192 text La
+												193 text field (settable) Larghezza (La) La, ID: ShippingCardDimensionWidth
+											194 text Altezza (A)
+											195 container
+												196 text A
+												197 text field (settable) Altezza (A) A, ID: ShippingCardDimensionHeight
+											198 container
+												199 text Unità di misura delle dimensioni
+												200 text cm
+												201 pop up button (collapsed, settable) Unità di misura delle dimensioni, Value: cm, ID: select, Secondary Actions: Expand
+													202 menu
+														203 (selected) cm
+														204 in
+										205 text Peso
+										206 image
+										207 text Peso
+										208 container
+											209 text field (settable) Peso, Value: 0,1, ID: ShippingCardWeight
+										210 container
+											211 text Unità di peso
+											212 text kg
+											213 pop up button (collapsed, settable) Unità di peso, Value: kg, ID: select, Secondary Actions: Expand
+												214 menu
+													215 lb
+													216 oz
+													217 (selected) kg
+													218 g
+										219 container Spedisce in
+											220 button (collapsed) Spedisce in 1 mercato, Secondary Actions: Expand
+												221 text Spedisce in
+												222 text 1 mercato
+										223 container Paese di origine
+											224 button (collapsed) Paese di origine, Secondary Actions: Expand
+												225 text Paese di origine
+										226 container Codice HS
+											227 button (collapsed) Codice HS, Secondary Actions: Expand
+												228 text Codice HS
+										229 button (collapsed) Secondary Actions: Expand
+									230 container
+										231 heading Varianti, Value: 2
+											232 text Varianti
+										233 button Aggiungi opzioni come taglia o colore
+											234 text Aggiungi opzioni come taglia o colore
+									235 container product-metafields-card
+										236 container
+											237 heading Metafield di Categoria, Value: 2
+												238 text Metafield di Categoria
+											239 text Lampadine
+											240 text  in  Illuminazione
+											241 container Metafield di Categoria
+											242 text Nessun metafield di categoria
+											243 button Color
+												244 text Color
+											245 button Colore della luce
+												246 text Colore della luce
+											247 button Dimensioni della lampadina
+												248 text Dimensioni della lampadina
+											249 button Tipo di attacco della lampadina
+												250 text Tipo di attacco della lampadina
+											251 button Finitura della lampadina
+												252 text Finitura della lampadina
+											253 button Forma della lampadina
+												254 text Forma della lampadina
+											255 button Classe di efficienza energetica
+												256 text Classe di efficienza energetica
+											257 button Temperatura della luce
+												258 text Temperatura della luce
+											259 button Funzionalità di illuminazione
+												260 text Funzionalità di illuminazione
+										261 container
+											262 heading Metafield del prodotto, Value: 2
+												263 text Metafield del prodotto
+											264 button Aggiungi definizione
+											265 text Nessun metafield fissato
+											266 button Disclosures
+												267 text Disclosures
+									268 container
+										269 heading Inserzione sui motori di ricerca, Value: 2
+											270 text Inserzione sui motori di ricerca
+										271 button Modifica
+										272 text Online Garden Shipping Test
+										273 text https://online-garden-shipping-test.myshopify.com › products › og-qa-bulbo-fittizio
+										274 text OG QA - Bulbo fittizio
+										275 text 15,00 € EUR
+									276 container
+										277 container
+											278 heading Stato, Value: 2
+												279 text Stato
+											280 container
+												281 button (collapsed) Description: Stato, Secondary Actions: Expand
+												282 text Attivo
+										283 container
+											284 heading Pubblicazione, Value: 2
+												285 text Pubblicazione
+											286 button Gestisci pubblicazione
+											287 button Tutti i canali
+												288 content list
+													289 text Tutti i canali
+										290 container
+											291 heading Vendite, Value: 2
+												292 text Vendite
+											293 text Nessuna vendita recente di questo prodotto
+											294 button Visualizza dettagli
+										295 container
+											296 heading Organizzazione del prodotto, Value: 2
+												297 text Organizzazione del prodotto
+											298 link Description: Maggiori informazioni, Value: help.shopify.com/it/manual/products/details#product-organization
+											299 container product-field-productType
+												300 container
+													301 button (collapsed) Description: Tipo, Secondary Actions: Expand
+													302 text Nessuna
+											303 container product-field-vendor
+												304 container
+													305 button (collapsed) Description: Venditore, Secondary Actions: Expand
+													306 text Online Garden Shipping Test
+											307 text Collezioni
+											308 button (collapsed) Description: Modifica collezioni, Secondary Actions: Expand
+											309 container Collezioni
+												310 content list
+													311 container Visualizza la collezione “Home page”
+														312 link Description: Visualizza la collezione “Home page”, Value: admin.shopify.com/store/online-garden-shipping-test/collections/710005293381
+														313 button Rimuovi chip
+											314 container product-field-tags
+												315 container
+													316 text Tag
+													317 container Tag
+														318 container Tag
+															319 button (collapsed) Aggiungi tag, Secondary Actions: Expand
+																320 text Aggiungi tag
+										321 container
+											322 heading Modelli di tema, Value: 2
+												323 text Modelli di tema
+											324 container
+												325 heading Modello di tema, Value: 3
+													326 text Modello di tema
+												327 text Modello di tema
+												328 link Description: Visualizza modello, Value: admin.shopify.com/store/online-garden-shipping-test/themes/210331500869/editor?previewPath=%2Fproducts%2Fog-qa-bulbo-fittizio%3Fview%3D__DEFAULT__
+												329 text Modello di tema
+												330 container
+													331 button (collapsed) Description: Modello di tema, Secondary Actions: Expand
+													332 text Prodotto predefinito
+					333 container
+						334 container Sidekick
+							335 container
+								336 container
+									337 text field (settable) Description: Lavora con Sidekick, ID: :r74:
+									338 button Aggiungi file e altro
+									339 button Detta
+									340 button Apri Sidekick
+	341 container grammarly-integration
+		342 text {"mode":"full","isActive":true,"isUserDisabled":false}
+
+The focused UI element is 0 AXWebArea Online Garden Shipping Test · Prodotti · OG QA - Bulbo fittizio · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products/16337677287749

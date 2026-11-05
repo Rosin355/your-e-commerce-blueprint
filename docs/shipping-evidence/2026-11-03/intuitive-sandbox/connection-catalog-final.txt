@@ -1,0 +1,44 @@
+Home Platform connection
+OG
+Online Garden Shipping Te…
+ Get started
+ Activity
+ Shipping
+ Zones
+ Products
+ Locations
+ Packages
+ Carrier accounts
+ Partner integrations
+ Shopify connection
+ Plans & billing
+ Settings
+ Cart Tester
+Help center
+ Support
+Shopify connection
+Import shop settings
+Last imported 1 hour ago.
+
+Import the primary contact email and base currency from your shop settings.
+
+Import settings
+Import product catalog
+Last imported less than a minute ago.
+
+Import your product catalog to assign dimensions to your latest offerings.
+
+Import catalog
+
+4 products, 1 collections imported.
+
+Metafield mapping
+Metafield mapping disabled
+
+ We recommend importing your catalog anytime you make large updates or update metafield mapping.
+
+Learn more about platform connection.
+
+Built by humans ❤️
+
+Copyright © 2026 Intuitive Shipping Inc. End user license agreement.

@@ -29,7 +29,9 @@
     "dryrun:import": "node --import tsx scripts/dry-run-import.mjs",
     "dryrun:lossless-golden": "node --import tsx scripts/lossless-catalog-golden-dry-run.mjs --dry-run --golden-only --offline",
     "backup:catalog": "node scripts/backup-catalog.mjs",
-    "snapshot:shopify-manual": "node scripts/snapshot-shopify-manual-metafields.mjs"
+    "snapshot:shopify-manual": "node scripts/snapshot-shopify-manual-metafields.mjs",
+    "test:shipping": "node --import tsx --test scripts/tests/shipping-*.test.ts",
+    "shipping:prepare": "node shipping/prepare.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

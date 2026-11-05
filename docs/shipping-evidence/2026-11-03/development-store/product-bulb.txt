@@ -1,0 +1,16 @@
+0 AXWebArea Online Garden Shipping Test · Prodotti · OG QA - Bulbo fittizio · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products/16337677287749
+									113 heading OG QA - Bulbo fittizio, Value: 1
+											118 heading OG QA - Bulbo fittizio aggiunto, Value: 2
+												155 AXWebArea about:srcdoc
+										178 heading Prezzo, Value: 2
+												183 text field (settable) Prezzo  €, Value: 15,00, ID: :r9i:
+										202 text Scorte non monitorate
+											205 checkbox (settable, integer) Description: Scorte non monitorate, Value: 0
+											206 text Scorte non monitorate
+											208 button (collapsed) SKU OG-QA-BULB, Secondary Actions: Expand
+												210 text OG-QA-BULB
+										218 text Prodotto fisico
+											220 checkbox (settable, integer) Description: Prodotto fisico, Value: 1
+											221 text Prodotto fisico
+											254 text field (settable) Peso, Value: 0,1, ID: ShippingCardWeight
+The focused UI element is 0 AXWebArea Online Garden Shipping Test · Prodotti · OG QA - Bulbo fittizio · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products/16337677287749

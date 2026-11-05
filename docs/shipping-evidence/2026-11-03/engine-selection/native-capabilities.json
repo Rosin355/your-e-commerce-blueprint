@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-03",
+  "scope": "Targeted native shipping capability check; no catalog or Sendcloud account re-audit",
+  "features": {
+    "data": {
+      "shop": {
+        "myshopifyDomain": "ecom-blueprint-gen-6ud1s.myshopify.com",
+        "currencyCode": "EUR",
+        "plan": {
+          "publicDisplayName": "Grow",
+          "shopifyPlus": false
+        },
+        "features": {
+          "marketDrivenShipping": true,
+          "subCountryMarketsEnabled": true
+        }
+      }
+    }
+  },
+  "market": {
+    "data": {
+      "market": {
+        "id": "gid://shopify/Market/112143401300",
+        "name": "Italy",
+        "delivery": {
+          "shipping": {
+            "isEnabled": true,
+            "optionDefinitions": {
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "eyJsYXN0X2lkIjoxNDY0MDAxMTM0OTMyLCJsYXN0X3ZhbHVlIjoiMjAyNi0xMC0yMSAyMToxOTowNy4wMDAwMDAifQ=="
+              },
+              "nodes": [
+                {
+                  "id": "gid://shopify/DeliveryValueBasedOptionDefinition/1464001134932",
+                  "currency": "EUR",
+                  "description": null,
+                  "isActive": true,
+                  "freeDeliveryMinimumValue": {
+                    "amount": "55.0",
+                    "currencyCode": "EUR"
+                  },
+                  "includedCollections": {
+                    "pageInfo": {
+                      "hasNextPage": false,
+                      "endCursor": null
+                    },
+                    "nodes": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "ui": {
+    "shippingSettings": "La spedizione è stata spostata su Mercati",
+    "market": "Italy",
+    "marketId": "112143401300",
+    "option": "Standard",
+    "rateEditor": {
+      "typesObserved": [
+        "Importo dell’ordine"
+      ],
+      "productSelector": "Si applica a Tutti i prodotti / Cerca collezioni",
+      "directVariantOrLogisticsMetafieldPredicateObserved": false,
+      "postalCodePredicateObserved": false
+    },
+    "currentMarketGeography": "Italia; 110 di 110 province; espansione delle singole province disabilitata in questo mercato",
+    "regionalMarketsFeature": true,
+    "regionalMarketConclusion": "Available flag true; current whole-country market dialog limitation is not a global denial of regional markets.",
+    "planLabel": "Grow",
+    "ccsActivation": "NOT_VERIFIED; zero registered carriers from existing audit does not prove disabled",
+    "billingCycle": "NOT_VERIFIED; monthly displayed plan price is not proof of billing cycle"
+  },
+  "prohibitedActionsExecuted": [],
+  "mutationsExecuted": 0
+}

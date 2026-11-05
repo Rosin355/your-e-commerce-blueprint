@@ -1,0 +1,229 @@
+Browser tab: 2097937121, Title: "Online Garden Shipping Test · Mercati · Italy · Shopify", URL: "https://admin.shopify.com/store/online-garden-shipping-test/markets/119681515845#shipping".
+0 AXWebArea Online Garden Shipping Test · Mercati · Italy · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/markets/119681515845#shipping
+	1 container
+		2 container app
+			3 container AppFrame
+				255 text Italy
+				4 container AppFrameChrome
+					5 link Description: Vai al contenuto, Value: admin.shopify.com/store/online-garden-shipping-test/markets/119681515845#AppFrameMain
+					6 container AppFrameBevel
+						7 container Description: Navigazione, ID: AppFrameNav
+							8 container
+								9 image Shopify
+								215 button (expanded) Description: Comprimi navigazione, Secondary Actions: Collapse
+								10 button Cerca
+									216 text Cerca
+								11 container scroll-container
+									12 content list
+										217 link Description: Home, Value: admin.shopify.com/store/online-garden-shipping-test
+										218 container
+											219 link (collapsed) Description: Ordini, Value: admin.shopify.com/store/online-garden-shipping-test/orders, Secondary Actions: Expand
+										220 container
+											221 link (collapsed) Description: Prodotti, Value: admin.shopify.com/store/online-garden-shipping-test/products, Secondary Actions: Expand
+										222 container
+											223 link (collapsed) Description: Clienti, Value: admin.shopify.com/store/online-garden-shipping-test/customers, Secondary Actions: Expand
+										224 container
+											225 link (collapsed) Description: Crescita, Value: admin.shopify.com/store/online-garden-shipping-test/growth, Secondary Actions: Expand
+										226 link Description: Sconti, Value: admin.shopify.com/store/online-garden-shipping-test/discounts
+										227 container
+											228 link (collapsed) Description: Contenuto, Value: admin.shopify.com/store/online-garden-shipping-test/content/metaobjects, Secondary Actions: Expand
+										229 container
+											230 link (expanded) Description: Mercati, Value: admin.shopify.com/store/online-garden-shipping-test/markets, Secondary Actions: Collapse
+											231 content list
+												232 link Description: Cataloghi, Value: admin.shopify.com/store/online-garden-shipping-test/catalogs
+												233 link Description: Rollout, Value: admin.shopify.com/store/online-garden-shipping-test/rollouts
+										234 link Description: Contabilità, Value: admin.shopify.com/store/online-garden-shipping-test/finance
+										235 container
+											236 link (collapsed) Description: Analisi, Value: admin.shopify.com/store/online-garden-shipping-test/analytics, Secondary Actions: Expand
+									30 content list
+										237 container
+											238 button Canali di vendita
+												239 text Canali di vendita
+											240 content list
+												241 sortable Negozio online
+													242 content list
+														243 link Description: Negozio online, Value: admin.shopify.com/store/online-garden-shipping-test/themes?appLoadId=18990186-0508-417c-9361-69da8ae1bcc4
+												244 sortable Agentico
+													245 content list
+														246 link Description: Agentico, Value: admin.shopify.com/store/online-garden-shipping-test/apps/agentic?appLoadId=68aa1500-5fd2-4e3f-a545-a4056c46772e
+										247 button Applicazioni
+											248 text Applicazioni
+								37 content list
+									38 link Description: Impostazioni, Value: admin.shopify.com/store/online-garden-shipping-test/settings
+									39 container
+										249 button (collapsed) Description: Romesh Singhabahu, Secondary Actions: Expand
+											250 container Online Garden Shipping Test
+											251 text Online Garden Shipping Test
+											252 text dev
+										253 button (collapsed) Description: Feed avvisi - 0 avvisi non letti, Secondary Actions: Expand
+						85 container AppFrameMain
+							256 container
+								257 container
+									258 container
+										259 button Torna alla pagina Spedizione e consegna
+										260 link Description: Mercati, Value: admin.shopify.com/store/online-garden-shipping-test/markets
+									261 button (collapsed) Altre azioni, Secondary Actions: Expand
+										262 text Altre azioni
+								263 heading Italy, Value: 1
+									264 text Italy
+								265 container tipo di mercato
+									266 text Area geografica
+								267 container Stato
+									268 text Attivo
+								269 container
+									270 heading Dettagli mercato, Value: 2
+										271 text Dettagli mercato
+									272 text Nome
+									273 container
+										274 text field (settable) Nome, Value: Italy, ID: :r6e:
+									275 container
+										276 text Stato
+										277 text Attivo
+										278 pop up button (collapsed, settable) Stato, Value: Attivo, ID: select, Secondary Actions: Expand
+											279 menu
+												280 Bozza
+												281 (selected) Attivo
+									282 container Include
+										283 heading Include, Value: 3, ID: :r6f:
+											284 text Include
+										285 content list
+											286 container Italia
+												287 text Italia
+											288 button Modifica condizioni
+								289 container
+									290 heading Personalizzazioni, Value: 2
+										291 text Personalizzazioni
+									292 content list
+										293 container Spedizione
+											294 heading Spedizione, Value: 3
+												295 text Spedizione
+											296 content list
+												297 pop up button (expanded) Standard, Intuitive Shipping (tramite app), Secondary Actions: Collapse
+													298 text Standard, Intuitive Shipping (tramite app)
+												299 button Rimuovi tutto
+									300 link Description: Traduci il negozio per aumentare le conversioni, Value: admin.shopify.com/store/online-garden-shipping-test/settings/languages?marketId=119681515845
+									301 button Ignora banner
+								302 container Impostazioni ereditate
+									303 heading Impostazioni ereditate, Value: 2
+										304 text Impostazioni ereditate
+									305 content list
+										306 container Valuta
+											307 heading Valuta, Value: 3
+												308 text Valuta
+											309 container
+												310 content list
+													311 container Ereditate da Predefinito del negozio
+														312 image
+														313 text Euro (EUR €)
+												314 button (collapsed) Description: Aggiungi personalizzazione valuta, Secondary Actions: Expand
+										315 container Cataloghi
+											316 heading Cataloghi, Value: 3
+												317 text Cataloghi
+											318 container
+												319 image
+												320 text Tutti i prodotti
+												321 button Aggiungi personalizzazione catalogo
+										322 container Sconti
+											323 heading Sconti, Value: 3
+												324 text Sconti
+											325 container
+												326 image
+												327 text Tutti gli sconti idonei
+												328 button Aggiungi personalizzazione sconti
+										329 container Negozio online
+											330 heading Negozio online, Value: 3
+												331 text Negozio online
+											332 container
+												333 content list
+													334 container Ereditate da Predefinito del negozio
+														335 image
+														336 text Horizon
+												337 pop up button (collapsed) Description: Aggiungi personalizzazione tema, Secondary Actions: Expand
+										338 container Dominio/lingua
+											339 heading Dominio/lingua, Value: 3
+												340 text Dominio/lingua
+											341 container
+												342 content list
+													343 container Ereditate da Predefinito del negozio
+														344 image
+														345 text online-garden-shipping-test.myshopify.com
+														346 text ·
+														347 text Inglese
+												348 pop up button (collapsed) Description: Aggiungi personalizzazione dominio, Secondary Actions: Expand
+										349 container Imposte e dazi
+											350 heading Imposte e dazi, Value: 3
+												351 text Imposte e dazi
+											352 container
+												353 content list
+													354 container Ereditate da Predefinito del negozio
+														355 image
+														356 text Nessuna riscossione
+												357 pop up button (collapsed) Description: Aggiungi personalizzazione, Secondary Actions: Expand
+										358 container Resi e annullamenti
+											359 heading Resi e annullamenti, Value: 3
+												360 text Resi e annullamenti
+											361 container
+												362 image
+												363 text 14 giorni · Inevaso
+												364 pop up button (collapsed) Description: Aggiungi personalizzazione del profilo della politica di reso, Secondary Actions: Expand
+										365 container Check-out e account
+											366 heading Check-out e account, Value: 3
+												367 text Check-out e account
+											368 content list
+												369 container Ereditate da Predefinito del negozio
+													370 image
+													371 text Configurazione di Online Garden Shipping Test
+								372 container
+									373 container
+										374 link Description: Visualizza nel grafico, Value: admin.shopify.com/store/online-garden-shipping-test/markets/graph?market_id=119681515845&origin=details
+										375 heading Mercato principale, Value: 2
+											376 text Mercato principale
+										377 content list Mercato principale
+											378 text Predefinito del negozio
+									379 container
+										380 heading Altre impostazioni per Italy, Value: 2
+											381 text Altre impostazioni per Italy
+										382 link Description: Prezzo di confronto Nascosto per 0 paesi/aree geografiche, Value: admin.shopify.com/store/online-garden-shipping-test/markets/119681515845/compare-at
+										383 link Description: Privacy dei clienti Banner dei cookie, Esclusione dalla condivisione dei dati, Value: admin.shopify.com/store/online-garden-shipping-test/settings/privacy
+										384 link Description: Informative 1 pubblicata, Value: admin.shopify.com/store/online-garden-shipping-test/settings/legal
+					206 container
+						207 container Sidekick
+							208 container
+								209 container
+									210 text field (settable) Description: Lavora con Sidekick, ID: :r41:
+									211 button Aggiungi file e altro
+									212 button Detta
+									213 button Apri Sidekick
+			385 container PolarisPortalsContainer
+				386 container
+					387 container :r8a:
+						388 content list
+							389 container
+								390 heading Spedizione, Value: 2
+									391 text Spedizione
+								392 text 2 opzioni di spedizione attive
+								393 checkbox (settable, integer) Description: Spedizione, Value: 1
+							394 container
+								395 heading Standard, Value: 2
+									396 text Standard
+								397 button (collapsed) Description: Altre azioni, Secondary Actions: Expand
+								398 text €7.00 (Gratis a partire da €55.00) · 3–5 giorni lavorativi
+								399 text Tutti i prodotti
+								400 text  ·
+								401 text Sedi:
+								402 text Shop location
+							403 container
+								404 heading Intuitive Shipping (tramite app), Value: 2
+									405 text Intuitive Shipping (tramite app)
+								406 button (collapsed) Description: Altre azioni, Secondary Actions: Expand
+								407 text Prezzo calcolato e tempo di transito
+								408 text Tutti i prodotti
+								409 text  ·
+								410 text Sedi:
+								411 text Shop location
+						412 button Aggiungi opzione di spedizione
+							413 text Aggiungi opzione di spedizione
+	214 container grammarly-integration
+		254 text {"mode":"full","isActive":true,"isUserDisabled":false}
+
+The focused UI element is 393 checkbox (settable, integer) Description: Spedizione, Value: 1

@@ -1,3 +1,4 @@
+import { guardCatalogMutation, guardCatalogRest } from "./shipping-publication-guard.mjs";
 /**
  * Centralized Shopify Admin API client.
  *
@@ -161,6 +162,7 @@ export async function shopifyAdminFetch(
   method: string,
   body?: unknown,
 ): Promise<any> {
+  await guardCatalogRest(path, method, body, (q: string, v: Record<string, unknown>) => runShopifyAdminGraphQL(q, v));
   let cfg = await getConfig();
   const buildHeaders = (token: string): Record<string, string> => ({
     "Content-Type": "application/json",
@@ -199,6 +201,7 @@ async function runShopifyAdminGraphQL<T = any>(
   variables: Record<string, unknown> = {},
   apiVersionOverride?: string,
 ): Promise<T> {
+  await guardCatalogMutation(query, variables, (q: string, v: Record<string, unknown>) => runShopifyAdminGraphQL(q, v, apiVersionOverride));
   let cfg = await getConfig(apiVersionOverride);
   let attempts = 0;
   let unauthorizedRetried = false;

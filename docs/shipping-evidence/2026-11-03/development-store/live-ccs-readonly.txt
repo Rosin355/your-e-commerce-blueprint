@@ -1,0 +1,11 @@
+0 AXWebArea Online Garden · Spedizione e consegna · Shopify, URL: admin.shopify.com/store/ecom-blueprint-gen-6ud1s/settings/shipping
+													215 heading Account corrieri, Value: 3
+														216 button (expanded) Account corrieri, Secondary Actions: Collapse
+															217 text Account corrieri
+													218 text Collega l'account corriere esistente per usare le tue tariffe
+													219 text Nessuno
+													221 heading Abilita tariffe calcolate di terze parti al check-out, Value: 2
+														222 text Abilita tariffe calcolate di terze parti al check-out
+													223 text Collega il tuo account corriere di spedizione esistente per utilizzare le tue tariffe
+													224 link Description: Effettua l'upgrade del tuo piano, Value: admin.shopify.com/store/ecom-blueprint-gen-6ud1s/settings/subscribe/select-plan?referrer=shipping-settings&recommended=Advanced%20Shopify
+The focused UI element is 0 AXWebArea Online Garden · Spedizione e consegna · Shopify, URL: admin.shopify.com/store/ecom-blueprint-gen-6ud1s/settings/shipping

@@ -1,0 +1,774 @@
+[
+  {
+    "methodId": "668877",
+    "label": "B-standard",
+    "ui": [
+      {
+        "id": "title",
+        "value": "OG QA B standard"
+      },
+      {
+        "checked": true,
+        "id": "status-1",
+        "value": "1"
+      },
+      {
+        "id": "description",
+        "value": ""
+      },
+      {
+        "id": "delivery-day-min",
+        "value": ""
+      },
+      {
+        "id": "delivery-day-max",
+        "value": ""
+      },
+      {
+        "id": "service-code",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "cost-type-total",
+        "value": "total"
+      },
+      {
+        "checked": true,
+        "id": "cost-group-cart",
+        "value": "cart"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-max",
+        "value": "49.99"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-cost",
+        "value": "5.90"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726401630-max",
+        "value": "149.99"
+      },
+      {
+        "id": "cost-table-1793726401630-cost",
+        "value": "7.90"
+      },
+      {
+        "id": "cost-table-1793726401630-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726401891-max",
+        "value": "~"
+      },
+      {
+        "id": "cost-table-1793726401891-cost",
+        "value": "8.90"
+      },
+      {
+        "id": "cost-table-1793726401891-per-unit",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "cost-split-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "cost-blend-mode-single",
+        "value": "single"
+      },
+      {
+        "checked": true,
+        "id": "rounding-status-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "free-ship-status-0",
+        "value": "0"
+      },
+      {
+        "id": "free-ship-value",
+        "value": ""
+      },
+      {
+        "id": "free-ship-title",
+        "value": ""
+      },
+      {
+        "id": "free-ship-description",
+        "value": ""
+      },
+      {
+        "id": "free-ship-delivery-day-min",
+        "value": ""
+      },
+      {
+        "id": "free-ship-delivery-day-max",
+        "value": ""
+      },
+      {
+        "id": "free-ship-service-code",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-blend-status-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-blend-mode-add",
+        "value": "add"
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-filter-exclude",
+        "value": "exclude"
+      },
+      {
+        "id": "custom-ship-markup-flat",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-markup-percent",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-discount-flat",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-discount-percent",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "rate-blend-status-0",
+        "value": "0"
+      },
+      {
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "copy-shipping-metod-zone-87231",
+        "value": "87231"
+      },
+      {
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "move-shipping-metod-zone-87231",
+        "value": "87231"
+      }
+    ]
+  },
+  {
+    "methodId": "668878",
+    "label": "B-special",
+    "ui": [
+      {
+        "id": "title",
+        "value": "OG QA B speciale sperimentale"
+      },
+      {
+        "checked": true,
+        "id": "status-1",
+        "value": "1"
+      },
+      {
+        "id": "description",
+        "value": ""
+      },
+      {
+        "id": "delivery-day-min",
+        "value": ""
+      },
+      {
+        "id": "delivery-day-max",
+        "value": ""
+      },
+      {
+        "id": "service-code",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "cost-type-total",
+        "value": "total"
+      },
+      {
+        "checked": true,
+        "id": "cost-group-cart",
+        "value": "cart"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-max",
+        "value": "49.99"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-cost",
+        "value": "6.90"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726401630-max",
+        "value": "149.99"
+      },
+      {
+        "id": "cost-table-1793726401630-cost",
+        "value": "8.90"
+      },
+      {
+        "id": "cost-table-1793726401630-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726401891-max",
+        "value": "~"
+      },
+      {
+        "id": "cost-table-1793726401891-cost",
+        "value": "9.50"
+      },
+      {
+        "id": "cost-table-1793726401891-per-unit",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "cost-split-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "cost-blend-mode-single",
+        "value": "single"
+      },
+      {
+        "checked": true,
+        "id": "rounding-status-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "free-ship-status-0",
+        "value": "0"
+      },
+      {
+        "id": "free-ship-value",
+        "value": ""
+      },
+      {
+        "id": "free-ship-title",
+        "value": ""
+      },
+      {
+        "id": "free-ship-description",
+        "value": ""
+      },
+      {
+        "id": "free-ship-delivery-day-min",
+        "value": ""
+      },
+      {
+        "id": "free-ship-delivery-day-max",
+        "value": ""
+      },
+      {
+        "id": "free-ship-service-code",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-blend-status-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-blend-mode-add",
+        "value": "add"
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-filter-exclude",
+        "value": "exclude"
+      },
+      {
+        "id": "custom-ship-markup-flat",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-markup-percent",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-discount-flat",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-discount-percent",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "rate-blend-status-0",
+        "value": "0"
+      },
+      {
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "copy-shipping-metod-zone-87231",
+        "value": "87231"
+      },
+      {
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "move-shipping-metod-zone-87231",
+        "value": "87231"
+      }
+    ]
+  },
+  {
+    "methodId": "668879",
+    "label": "A-standard",
+    "ui": [
+      {
+        "id": "title",
+        "value": "OG QA A standard"
+      },
+      {
+        "checked": true,
+        "id": "status-1",
+        "value": "1"
+      },
+      {
+        "id": "description",
+        "value": ""
+      },
+      {
+        "id": "delivery-day-min",
+        "value": ""
+      },
+      {
+        "id": "delivery-day-max",
+        "value": ""
+      },
+      {
+        "id": "service-code",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "cost-type-total",
+        "value": "total"
+      },
+      {
+        "checked": true,
+        "id": "cost-group-cart",
+        "value": "cart"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-max",
+        "value": "18.99"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-cost",
+        "value": "8.90"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726401630-max",
+        "value": "79.99"
+      },
+      {
+        "id": "cost-table-1793726401630-cost",
+        "value": "11.90"
+      },
+      {
+        "id": "cost-table-1793726401630-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726401891-max",
+        "value": "149.99"
+      },
+      {
+        "id": "cost-table-1793726401891-cost",
+        "value": "12.50"
+      },
+      {
+        "id": "cost-table-1793726401891-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726551900-max",
+        "value": "249.99"
+      },
+      {
+        "id": "cost-table-1793726551900-cost",
+        "value": "17.50"
+      },
+      {
+        "id": "cost-table-1793726551900-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726552146-max",
+        "value": "499.99"
+      },
+      {
+        "id": "cost-table-1793726552146-cost",
+        "value": "36.00"
+      },
+      {
+        "id": "cost-table-1793726552146-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726552412-max",
+        "value": "~"
+      },
+      {
+        "id": "cost-table-1793726552412-cost",
+        "value": "54.00"
+      },
+      {
+        "id": "cost-table-1793726552412-per-unit",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "cost-split-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "cost-blend-mode-single",
+        "value": "single"
+      },
+      {
+        "checked": true,
+        "id": "rounding-status-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "free-ship-status-0",
+        "value": "0"
+      },
+      {
+        "id": "free-ship-value",
+        "value": ""
+      },
+      {
+        "id": "free-ship-title",
+        "value": ""
+      },
+      {
+        "id": "free-ship-description",
+        "value": ""
+      },
+      {
+        "id": "free-ship-delivery-day-min",
+        "value": ""
+      },
+      {
+        "id": "free-ship-delivery-day-max",
+        "value": ""
+      },
+      {
+        "id": "free-ship-service-code",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-blend-status-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-blend-mode-add",
+        "value": "add"
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-filter-exclude",
+        "value": "exclude"
+      },
+      {
+        "id": "custom-ship-markup-flat",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-markup-percent",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-discount-flat",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-discount-percent",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "rate-blend-status-0",
+        "value": "0"
+      },
+      {
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "copy-shipping-metod-zone-87231",
+        "value": "87231"
+      },
+      {
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "move-shipping-metod-zone-87231",
+        "value": "87231"
+      }
+    ]
+  },
+  {
+    "methodId": "668880",
+    "label": "A-special",
+    "ui": [
+      {
+        "id": "title",
+        "value": "OG QA A speciale sperimentale"
+      },
+      {
+        "checked": true,
+        "id": "status-1",
+        "value": "1"
+      },
+      {
+        "id": "description",
+        "value": ""
+      },
+      {
+        "id": "delivery-day-min",
+        "value": ""
+      },
+      {
+        "id": "delivery-day-max",
+        "value": ""
+      },
+      {
+        "id": "service-code",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "cost-type-total",
+        "value": "total"
+      },
+      {
+        "checked": true,
+        "id": "cost-group-cart",
+        "value": "cart"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-max",
+        "value": "18.99"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-cost",
+        "value": "9.60"
+      },
+      {
+        "id": "cost-table-6aea17a9015f4-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726401630-max",
+        "value": "79.99"
+      },
+      {
+        "id": "cost-table-1793726401630-cost",
+        "value": "12.50"
+      },
+      {
+        "id": "cost-table-1793726401630-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726401891-max",
+        "value": "149.99"
+      },
+      {
+        "id": "cost-table-1793726401891-cost",
+        "value": "14.90"
+      },
+      {
+        "id": "cost-table-1793726401891-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726551900-max",
+        "value": "249.99"
+      },
+      {
+        "id": "cost-table-1793726551900-cost",
+        "value": "17.50"
+      },
+      {
+        "id": "cost-table-1793726551900-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726552146-max",
+        "value": "499.99"
+      },
+      {
+        "id": "cost-table-1793726552146-cost",
+        "value": "36.00"
+      },
+      {
+        "id": "cost-table-1793726552146-per-unit",
+        "value": ""
+      },
+      {
+        "id": "cost-table-1793726552412-max",
+        "value": "~"
+      },
+      {
+        "id": "cost-table-1793726552412-cost",
+        "value": "54.00"
+      },
+      {
+        "id": "cost-table-1793726552412-per-unit",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "cost-split-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "cost-blend-mode-single",
+        "value": "single"
+      },
+      {
+        "checked": true,
+        "id": "rounding-status-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "free-ship-status-0",
+        "value": "0"
+      },
+      {
+        "id": "free-ship-value",
+        "value": ""
+      },
+      {
+        "id": "free-ship-title",
+        "value": ""
+      },
+      {
+        "id": "free-ship-description",
+        "value": ""
+      },
+      {
+        "id": "free-ship-delivery-day-min",
+        "value": ""
+      },
+      {
+        "id": "free-ship-delivery-day-max",
+        "value": ""
+      },
+      {
+        "id": "free-ship-service-code",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-blend-status-0",
+        "value": "0"
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-blend-mode-add",
+        "value": "add"
+      },
+      {
+        "checked": true,
+        "id": "custom-ship-filter-exclude",
+        "value": "exclude"
+      },
+      {
+        "id": "custom-ship-markup-flat",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-markup-percent",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-discount-flat",
+        "value": ""
+      },
+      {
+        "id": "custom-ship-discount-percent",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "rate-blend-status-0",
+        "value": "0"
+      },
+      {
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "copy-shipping-metod-zone-87231",
+        "value": "87231"
+      },
+      {
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": true,
+        "id": "move-shipping-metod-zone-87231",
+        "value": "87231"
+      }
+    ]
+  }
+]

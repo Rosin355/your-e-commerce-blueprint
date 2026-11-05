@@ -1,3 +1,4 @@
+import { guardCatalogMutation } from "../supabase/functions/_shared/shipping-publication-guard.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -150,6 +151,7 @@ async function fetchWooProductsPage(page) {
 }
 
 async function shopifyGraphQL(query, variables) {
+  await guardCatalogMutation(query, variables, shopifyGraphQL);
   const url = `https://${config.shopifyShop}/admin/api/${config.shopifyApiVersion}/graphql.json`;
   const res = await fetch(url, {
     method: "POST",

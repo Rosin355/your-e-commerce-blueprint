@@ -1,0 +1,14 @@
+0 AXWebArea Online Garden Shipping Test · Prodotti · OG QA - Pianta grassa fittizia · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products/16337678958917
+									603 heading OG QA - Pianta grassa fittizia, Value: 1
+											608 heading OG QA - Pianta grassa fittizia aggiunto, Value: 2
+												645 AXWebArea about:srcdoc
+												673 text field (settable) Prezzo  €, Value: 45,00, ID: :r9n:
+										692 text Scorte non monitorate
+											695 checkbox (settable, integer) Description: Scorte non monitorate, Value: 0
+											696 text Scorte non monitorate
+											698 button (collapsed) SKU OG-QA-SUCCULENT, Secondary Actions: Expand
+										708 text Prodotto fisico
+											710 checkbox (settable, integer) Description: Prodotto fisico, Value: 1
+											711 text Prodotto fisico
+											744 text field (settable) Peso, Value: 0,1, ID: ShippingCardWeight
+The focused UI element is 0 AXWebArea Online Garden Shipping Test · Prodotti · OG QA - Pianta grassa fittizia · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products/16337678958917

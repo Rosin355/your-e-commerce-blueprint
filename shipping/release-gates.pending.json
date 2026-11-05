@@ -1,0 +1,12 @@
+{
+  "geographyApproved": false,
+  "classificationApproved": false,
+  "sendcloudIntegrationVerified": false,
+  "checkoutMechanismVerified": false,
+  "deliveryCustomizationsAudited": false,
+  "discountBasisVerified": false,
+  "singleDeliveryGroupVerified": false,
+  "stagingCheckoutMatrixPassed": false,
+  "freshBackupVerified": false,
+  "operationalDiffApproved": false
+}

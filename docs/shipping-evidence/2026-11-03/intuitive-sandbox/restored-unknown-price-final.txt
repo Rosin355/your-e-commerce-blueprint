@@ -1,0 +1,312 @@
+Browser tab: 2097937140, Title: "Online Garden Shipping Test · Prodotti · OG QA - Prodotto non classificato · Shopify", URL: "https://admin.shopify.com/store/online-garden-shipping-test/products/16337683349829".
+0 AXWebArea Online Garden Shipping Test · Prodotti · OG QA - Prodotto non classificato · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products/16337683349829
+	1 container
+		2 container app
+			3 container AppFrame
+				4 container AppFrameChrome
+					5 link Description: Vai al contenuto, Value: admin.shopify.com/store/online-garden-shipping-test/products/16337683349829#AppFrameMain
+					6 container AppFrameBevel
+						7 container Description: Navigazione, ID: AppFrameNav
+							8 container
+								9 image Shopify
+								10 button (expanded) Description: Comprimi navigazione, Secondary Actions: Collapse
+								11 button Cerca
+									12 text Cerca
+								13 container scroll-container
+									14 content list
+										15 link Description: Home, Value: admin.shopify.com/store/online-garden-shipping-test
+										16 container
+											17 link (collapsed) Description: Ordini, Value: admin.shopify.com/store/online-garden-shipping-test/orders, Secondary Actions: Expand
+										18 container
+											19 link (expanded) Description: Prodotti, Value: admin.shopify.com/store/online-garden-shipping-test/products, Secondary Actions: Collapse
+											20 content list
+												21 link Description: Collezioni, Value: admin.shopify.com/store/online-garden-shipping-test/collections
+												22 link Description: Scorte, Value: admin.shopify.com/store/online-garden-shipping-test/products/inventory
+												23 link Description: Ordini d'acquisto, Value: admin.shopify.com/store/online-garden-shipping-test/purchase_orders
+												24 link Description: Trasferimenti, Value: admin.shopify.com/store/online-garden-shipping-test/transfers
+												25 link Description: Buoni regalo, Value: admin.shopify.com/store/online-garden-shipping-test/gift_cards
+										26 container
+											27 link (collapsed) Description: Clienti, Value: admin.shopify.com/store/online-garden-shipping-test/customers, Secondary Actions: Expand
+										28 container
+											29 link (collapsed) Description: Crescita, Value: admin.shopify.com/store/online-garden-shipping-test/growth, Secondary Actions: Expand
+										30 link Description: Sconti, Value: admin.shopify.com/store/online-garden-shipping-test/discounts
+										31 container
+											32 link (collapsed) Description: Contenuto, Value: admin.shopify.com/store/online-garden-shipping-test/content/metaobjects, Secondary Actions: Expand
+										33 container
+											34 link (collapsed) Description: Mercati, Value: admin.shopify.com/store/online-garden-shipping-test/markets, Secondary Actions: Expand
+										35 link Description: Contabilità, Value: admin.shopify.com/store/online-garden-shipping-test/finance
+										36 container
+											37 link (collapsed) Description: Analisi, Value: admin.shopify.com/store/online-garden-shipping-test/analytics, Secondary Actions: Expand
+									38 content list
+										39 container
+											40 button Canali di vendita
+												41 text Canali di vendita
+											42 content list
+												43 sortable Negozio online
+													44 content list
+														45 link Description: Negozio online, Value: admin.shopify.com/store/online-garden-shipping-test/themes?appLoadId=5f81b7b8-2b8c-4442-83e4-9eb3b08f6ddd
+												46 sortable Agentico
+													47 content list
+														48 link Description: Agentico, Value: admin.shopify.com/store/online-garden-shipping-test/apps/agentic?appLoadId=42b8a83c-d0a7-462e-b165-a104daa58d38
+										49 button Applicazioni
+											50 text Applicazioni
+								51 content list
+									52 link Description: Impostazioni, Value: admin.shopify.com/store/online-garden-shipping-test/settings
+									53 container
+										54 button (collapsed) Description: Romesh Singhabahu, Secondary Actions: Expand
+											55 container Online Garden Shipping Test
+											56 text Online Garden Shipping Test
+											57 text dev
+										58 button (collapsed) Description: Feed avvisi - 0 avvisi non letti, Secondary Actions: Expand
+						59 container AppFrameMain
+							60 container
+								61 container
+									62 container
+										63 container
+											64 button Torna alla pagina Spedizione e consegna
+											65 link Description: Prodotti, Value: admin.shopify.com/store/online-garden-shipping-test/products
+										66 button Visualizza come
+											67 text Visualizza come
+										68 button Visualizza anteprima sul negozio online
+										69 button Condividi
+										70 button (collapsed) Altre azioni, Secondary Actions: Expand
+											71 text Altre azioni
+										72 button Vai alla pagina precedente
+										73 button (disabled) Vai alla pagina successiva
+									74 heading OG QA - Prodotto non classificato, Value: 1
+										75 text OG QA - Prodotto non classificato
+									76 text Attivo
+									77 container
+										78 container
+											79 text Titolo
+											80 text field (settable) Titolo, Value: OG QA - Prodotto non classificato, ID: P0-0
+										81 container
+											82 text rich text editor
+											83 text Descrizione
+											84 container richtexteditor_toolbar-product-description-rp
+												85 button Description: Genera testo, ID: sidekick-field-activator
+												86 checkbox (collapsed) Description: Opzioni di formattazione, Paragrafo selezionato, Value: 0, Secondary Actions: Expand
+													87 text Paragrafo
+												88 checkbox Description: Grassetto, Value: 0
+												89 checkbox Description: Corsivo, Value: 0
+												90 checkbox Description: Sottolineato, Value: 0
+												91 checkbox (collapsed) Description: Colore, Value: 0, Secondary Actions: Expand
+												92 checkbox (collapsed) Description: Allineamento, Value: 0, Secondary Actions: Expand
+												93 checkbox (disabled) Description: Link - Seleziona testo, Value: 0
+												94 checkbox Description: Inserisci immagine, Value: 0
+												95 checkbox Description: Inserisci video, Value: 0
+												96 checkbox (collapsed) Description: Inserisci tabella, Value: 0, Secondary Actions: Expand
+												97 checkbox Description: Elenco puntato, Value: 0
+												98 checkbox Description: Elenco numerato, Value: 0
+												99 checkbox Description: Riduci rientro, Value: 0
+												100 checkbox Description: Aumenta rientro, Value: 0
+												101 checkbox Description: Cancella formattazione, Value: 0
+												102 checkbox Description: Mostra HTML, Value: 0
+											103 container Description: Rich Text Area, ID: product-description-rp_ifr
+												104 AXWebArea about:srcdoc
+													105 container Description: Rich Text Area. Press ALT-0 for help., ID: tinymce, Value:
+
+													106 container grammarly-integration
+														107 text {"mode":"full","isActive":true,"isUserDisabled":false}
+										108 text Contenuti multimediali
+										109 container
+											110 text Trascina contenuti multimediali per caricare
+											111 button Trascina contenuti multimediali per caricare, ID: file-input
+											112 container
+												113 button Carica nuovo
+												114 button Seleziona esistente
+												115 text Accetta immagini, video o modelli 3D
+										116 container ProductCategoryPickerAnchor
+											117 text Categoria
+											118 container
+												119 text Categoria
+												120 button (collapsed) Description: Categoria, Secondary Actions: Expand
+												121 container
+													122 text Non categorizzato
+													123 button
+											124 text Determina le aliquote fiscali e aggiunge metafield per migliorare la ricerca, i filtri e le vendite cross-channel
+									125 container
+										126 heading Prezzo, Value: 2
+											127 text Prezzo
+										128 container
+											129 text Prezzo
+											130 container
+												131 text field (settable) Prezzo  €, Value: 10,00, ID: :r1k:
+												132 text  €
+										133 container Prezzo di confronto
+											134 button (collapsed) Prezzo di confronto, Secondary Actions: Expand
+												135 text Prezzo di confronto
+										136 container Prezzo unitario
+											137 button (collapsed) Prezzo unitario, Secondary Actions: Expand
+												138 text Prezzo unitario
+										139 container Addebita imposta
+											140 button (collapsed) Addebita imposta Sì, Secondary Actions: Expand
+												141 text Addebita imposta
+												142 text Sì
+										143 container Costo per articolo
+											144 button (collapsed) Costo per articolo, Secondary Actions: Expand
+												145 text Costo per articolo
+										146 button (collapsed) Secondary Actions: Expand
+									147 container
+										148 heading Scorte, Value: 2
+											149 text Scorte
+										150 text Scorte non monitorate
+										151 image
+										152 container
+											153 checkbox (settable, integer) Description: Scorte non monitorate, Value: 0
+											154 text Scorte non monitorate
+										155 container SKU
+											156 button (collapsed) SKU OG-QA-UNKNOWN, Secondary Actions: Expand
+												157 text SKU
+												158 text OG-QA-UNKNOWN
+										159 container Codici a barre
+											160 button (collapsed) Codici a barre, Secondary Actions: Expand
+												161 text Codici a barre
+										162 button (collapsed) Secondary Actions: Expand
+									163 container
+										164 heading Spedizione, Value: 2
+											165 text Spedizione
+										166 text Prodotto fisico
+										167 container
+											168 checkbox (settable, integer) Description: Prodotto fisico, Value: 1
+											169 text Prodotto fisico
+										170 text Pacco quando spedito da solo
+										171 combo box (collapsed) Pacco quando spedito da solo, Value: Predefinito del negozio · Imballaggio di esempio - 22 × 13,7 × 4,2 cm, 0 kg, ID: package-selector-input, Secondary Actions: Expand
+											172 container
+												173 text Predefinito del negozio
+												174 text ·
+												175 text Imballaggio di esempio - 22 × 13,7 × 4,2 cm, 0 kg
+										176 text Dimensioni del prodotto imballato
+										177 image
+										178 container Dimensioni del prodotto imballato
+											179 text Lunghezza (L)
+											180 container
+												181 text L
+												182 text field (settable) Lunghezza (L) L, ID: ShippingCardDimensionLength
+											183 text Larghezza (La)
+											184 container
+												185 text La
+												186 text field (settable) Larghezza (La) La, ID: ShippingCardDimensionWidth
+											187 text Altezza (A)
+											188 container
+												189 text A
+												190 text field (settable) Altezza (A) A, ID: ShippingCardDimensionHeight
+											191 container
+												192 text Unità di misura delle dimensioni
+												193 text cm
+												194 pop up button (collapsed, settable) Unità di misura delle dimensioni, Value: cm, ID: select, Secondary Actions: Expand
+													195 menu
+														196 (selected) cm
+														197 in
+										198 text Peso
+										199 image
+										200 text Peso
+										201 container
+											202 text field (settable) Peso, Value: 0,1, ID: ShippingCardWeight
+										203 container
+											204 text Unità di peso
+											205 text kg
+											206 pop up button (collapsed, settable) Unità di peso, Value: kg, ID: select, Secondary Actions: Expand
+												207 menu
+													208 lb
+													209 oz
+													210 (selected) kg
+													211 g
+										212 container Spedisce in
+											213 button (collapsed) Spedisce in 1 mercato, Secondary Actions: Expand
+												214 text Spedisce in
+												215 text 1 mercato
+										216 container Paese di origine
+											217 button (collapsed) Paese di origine, Secondary Actions: Expand
+												218 text Paese di origine
+										219 container Codice HS
+											220 button (collapsed) Codice HS, Secondary Actions: Expand
+												221 text Codice HS
+										222 button (collapsed) Secondary Actions: Expand
+									223 container
+										224 heading Varianti, Value: 2
+											225 text Varianti
+										226 button Aggiungi opzioni come taglia o colore
+											227 text Aggiungi opzioni come taglia o colore
+									228 container
+										229 heading Metafield del prodotto, Value: 2
+											230 text Metafield del prodotto
+										231 button Aggiungi definizione
+										232 text Nessun metafield fissato
+										233 button Disclosures
+											234 text Disclosures
+									235 container
+										236 heading Inserzione sui motori di ricerca, Value: 2
+											237 text Inserzione sui motori di ricerca
+										238 button Modifica
+										239 text Online Garden Shipping Test
+										240 text https://online-garden-shipping-test.myshopify.com › products › og-qa-prodotto-non-classificato
+										241 text OG QA - Prodotto non classificato
+										242 text 10,00 € EUR
+									243 container
+										244 container
+											245 heading Stato, Value: 2
+												246 text Stato
+											247 container
+												248 button (collapsed) Description: Stato, Secondary Actions: Expand
+												249 text Attivo
+										250 container
+											251 heading Pubblicazione, Value: 2
+												252 text Pubblicazione
+											253 button Gestisci pubblicazione
+											254 button Tutti i canali
+												255 content list
+													256 text Tutti i canali
+										257 container
+											258 heading Vendite, Value: 2
+												259 text Vendite
+											260 text Nessuna vendita recente di questo prodotto
+											261 button Visualizza dettagli
+										262 container
+											263 heading Organizzazione del prodotto, Value: 2
+												264 text Organizzazione del prodotto
+											265 link Description: Maggiori informazioni, Value: help.shopify.com/it/manual/products/details#product-organization
+											266 container product-field-productType
+												267 container
+													268 button (collapsed) Description: Tipo, Secondary Actions: Expand
+													269 text Nessuna
+											270 container product-field-vendor
+												271 container
+													272 button (collapsed) Description: Venditore, Secondary Actions: Expand
+													273 text Online Garden Shipping Test
+											274 text Collezioni
+											275 container Collezioni
+												276 container Collezioni
+													277 button (collapsed) Aggiungi collezioni, Secondary Actions: Expand
+														278 text Aggiungi collezioni
+											279 container product-field-tags
+												280 container
+													281 text Tag
+													282 container Tag
+														283 container Tag
+															284 button (collapsed) Aggiungi tag, Secondary Actions: Expand
+																285 text Aggiungi tag
+										286 container
+											287 heading Modelli di tema, Value: 2
+												288 text Modelli di tema
+											289 container
+												290 heading Modello di tema, Value: 3
+													291 text Modello di tema
+												292 text Modello di tema
+												293 link Description: Visualizza modello, Value: admin.shopify.com/store/online-garden-shipping-test/themes/210331500869/editor?previewPath=%2Fproducts%2Fog-qa-prodotto-non-classificato%3Fview%3D__DEFAULT__
+												294 text Modello di tema
+												295 container
+													296 button (collapsed) Description: Modello di tema, Secondary Actions: Expand
+													297 text Prodotto predefinito
+					298 container
+						299 container Sidekick
+							300 container
+								301 container
+									302 text field (settable) Description: Lavora con Sidekick, ID: :r6t:
+									303 button Aggiungi file e altro
+									304 button Detta
+									305 button Apri Sidekick
+	306 container grammarly-integration
+		307 text {"mode":"full","isActive":true,"isUserDisabled":false}
+
+The focused UI element is 0 AXWebArea Online Garden Shipping Test · Prodotti · OG QA - Prodotto non classificato · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/products/16337683349829

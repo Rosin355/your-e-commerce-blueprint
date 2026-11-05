@@ -1,0 +1,294 @@
+Browser tab: 2097937111, Title: "Custom Shipping Rates - Intuitive Shipping", URL: "https://v2.intuitiveshipping.app/shipping/edit/668877".
+0 AXWebArea Custom Shipping Rates - Intuitive Shipping, URL: v2.intuitiveshipping.app/shipping/edit/668877
+	1 container
+		2 container header
+			3 container
+				4 link Description: Home, Value: v2.intuitiveshipping.app/get-started
+				5 link Description: / Scenarios, Value: v2.intuitiveshipping.app/scenarios
+				6 link Description: / OG QA B standard - sandbo…, Value: v2.intuitiveshipping.app/scenarios/edit/154776
+				7 link Description: / Domestic, Value: v2.intuitiveshipping.app/scenarios/edit/154776
+				8 link Description: / Edit shipping method, Value: v2.intuitiveshipping.app/shipping/edit/668877#
+			9 content list
+				10 link Description: Notifications, Value: v2.intuitiveshipping.app/notifications
+				11 link Description: Online Garden Shipping Te…, Value: v2.intuitiveshipping.app/shipping/edit/668877#
+		12 container navigation
+			13 link Description: Intuitive Shipping>, Value: v2.intuitiveshipping.app/
+			14 content list
+				15 link Description:  Get started, Value: v2.intuitiveshipping.app/get-started
+				16 link Description:  Activity, Value: v2.intuitiveshipping.app/activity
+				17 link Description:  Shipping , Value: v2.intuitiveshipping.app/shipping/edit/668877#navigation-shipping
+				18 content list navigation-shipping
+					19 link Description: Scenarios, Value: v2.intuitiveshipping.app/scenarios
+					20 link Description: Rate blending, Value: v2.intuitiveshipping.app/blending
+					21 link Description: Condition groups , Value: v2.intuitiveshipping.app/conditions
+				22 link Description:  Zones, Value: v2.intuitiveshipping.app/zones
+				23 link Description:  Products, Value: v2.intuitiveshipping.app/products
+				24 link Description:  Locations, Value: v2.intuitiveshipping.app/locations
+				25 link Description:  Packages, Value: v2.intuitiveshipping.app/packages
+				26 link Description:  Carrier accounts, Value: v2.intuitiveshipping.app/carrier-account/carrier-accounts
+				27 link Description:  Partner integrations, Value: v2.intuitiveshipping.app/integrations
+				28 link Description:  Shopify connection, Value: v2.intuitiveshipping.app/platform/shopify/connection
+				29 link Description:  Plans & billing, Value: v2.intuitiveshipping.app/billing
+				30 link Description:  Settings, Value: v2.intuitiveshipping.app/settings
+				31 link Description:  Cart Tester, Value: v2.intuitiveshipping.app/test
+			32 content list
+				33 link Description:  Help center, Value: knowledge.intuitiveshipping.com/
+				34 link Description:  Support, Value: v2.intuitiveshipping.app/support?email=rosin%40digitalyogin.com&name=Online+Garden+Shipping+Test&ticket_platform_select=Shopify&shop_id=online-garden-shipping-test.myshopify.com
+		35 container
+			36 link Description:  OG QA B standard - sandbo…, Value: v2.intuitiveshipping.app/scenarios/edit/154776
+			37 image OG QA B standard
+			38 heading OG QA B standard, Value: 1
+				39 text OG QA B standard
+			40 link Description:  Help center, Value: knowledge.intuitiveshipping.com/create-a-custom-service-shipping-method/
+			41 button  Duplicate
+				42 text 
+				43 text Duplicate
+			44 button  Move
+				45 text 
+				46 text Move
+			47 button  Notes, ID: btn-notes-toggle
+				48 text 
+				49 text Notes
+			50 button  Video guide
+				51 text 
+				52 text Video guide
+		53 container
+			54 heading General, Value: 3
+				55 text General
+			56 text Configure the general settings for the shipping method.
+			57 container
+				58 heading Shipping method title, Value: 4
+					59 text Shipping method title
+				60 text Specify the title for this shipping method.
+				61 text field (settable) Value: OG QA B standard, ID: title
+				62 heading Status, Value: 4
+					63 text Status
+				64 text Toggle the status of the shipping method. Inactive shipping methods will be ignored.
+				65 container
+					66 radio button (settable, integer) Description: Archived, Value: 0, ID: status-0
+					67 text Archived
+				68 container
+					69 radio button (settable, integer) Description: Testing, Value: 1, ID: status-1
+					70 text Testing
+				71 container
+					72 radio button (settable, integer) Description: Published, Value: 0, ID: status-2
+					73 text Published
+				74 heading Description (Optional), Value: 4
+					75 text Description  (Optional)
+				76 text Descriptions appear below the shipping method title at checkout. Limit of 90 characters.
+				77 text field (settable) description
+				78 button Show additional display settings
+					79 text Show
+					80 text additional display settings
+			81 heading Shipping cost, Value: 3
+				82 text Shipping cost
+			83 text Configure the settings for calculating the shipping cost.
+			84 container
+				85 heading Rate type, Value: 4
+					86 text Rate type
+				87 text Choose the rate type that will will determine the shipping cost.
+				88 container
+					89 radio button (settable, integer) Description: Quantity, Value: 0, ID: cost-type-quantity
+					90 text Quantity
+				91 container
+					92 radio button (settable, integer) Description: Weight, Value: 0, ID: cost-type-weight
+					93 text Weight
+				94 container
+					95 radio button (settable, integer) Description: Total, Value: 1, ID: cost-type-total
+					96 text Total
+				97 container
+					98 radio button (settable, integer) Description: Dimensional volume, Value: 0, ID: cost-type-volume
+					99 text Dimensional volume
+				100 heading Rate grouping, Value: 4
+					101 text Rate grouping
+				102 text Choose how costs will be determined when there are multiple products in the cart.
+				103 container
+					104 radio button (settable, integer) Description: Combine products, Value: 1, ID: cost-group-cart
+					105 text Combine products
+				106 container
+					107 radio button (settable, integer) Description: Separate products, Value: 0, ID: cost-group-product
+					108 text Separate products
+				109 heading Rates, Value: 4
+					110 text Rates
+				111 button Add rate row, ID: add-rate
+				112 container
+					113 text Define the
+					114 link Description: rates table, Value: knowledge.intuitiveshipping.com/create-a-custom-service-shipping-method#shipping-cost
+					115 text  that will be used to calculate the shipping cost.
+				116 table
+					117 row
+						118 cell
+							119 text Up to
+						120 cell
+							121 text Cost
+						122 cell
+							123 text Per unit  (Optional)
+					124 row cost-table-6aea17a9015f4
+						125 cell
+							126 container
+								127 text EUR
+								128 text field (settable) EUR, Value: 49.99, ID: cost-table-6aea17a9015f4-max
+						129 cell
+							130 container
+								131 text EUR
+								132 text field (settable) EUR, Value: 5.90, ID: cost-table-6aea17a9015f4-cost
+						133 cell
+							134 container
+								135 text EUR
+								136 text field (settable) EUR, ID: cost-table-6aea17a9015f4-per-unit
+						137 cell
+							138 button 
+								139 text 
+					140 row cost-table-1793726401630
+						141 cell
+							142 container
+								143 text EUR
+								144 text field (settable) EUR, Value: 149.99, ID: cost-table-1793726401630-max
+						145 cell
+							146 container
+								147 text EUR
+								148 text field (settable) EUR, Value: 7.90, ID: cost-table-1793726401630-cost
+						149 cell
+							150 container
+								151 text EUR
+								152 text field (settable) EUR, ID: cost-table-1793726401630-per-unit
+						153 cell
+							154 button 
+								155 text 
+					156 row cost-table-1793726401891
+						157 cell
+							158 container
+								159 text EUR
+								160 text field (settable) EUR, Value: ~, ID: cost-table-1793726401891-max
+						161 cell
+							162 container
+								163 text EUR
+								164 text field (settable) EUR, Value: 8.90, ID: cost-table-1793726401891-cost
+						165 cell
+							166 container
+								167 text EUR
+								168 text field (settable) EUR, ID: cost-table-1793726401891-per-unit
+						169 cell
+							170 button 
+								171 text 
+				172 button Hide additional shipping cost settings
+					173 text Hide
+					174 text additional shipping cost settings
+				175 heading Cart splitting, Value: 4
+					176 text Cart splitting
+				177 text Choose if the cart should be split when the rate value exceeds the highest
+				178 text up to
+				179 text  value.
+				180 container
+					181 radio button (settable, integer) Description: Do not return a rate, Value: 1, ID: cost-split-0
+					182 text Do not return a rate
+				183 container
+					184 radio button (settable, integer) Description: Split cart into multiple calculations, Value: 0, ID: cost-split-1
+					185 text Split cart into multiple calculations
+				186 heading Rates table blending mode, Value: 4
+					187 text Rates table blending mode
+				188 text Choose how the rate rows will blend to determine the shipping cost.
+				189 container
+					190 radio button (settable, integer) Description: Return the highest applicable rate row, Value: 1, ID: cost-blend-mode-single
+					191 text Return the highest applicable rate row
+				192 container
+					193 radio button (settable, integer) Description: Add all applicable rate rows, Value: 0, ID: cost-blend-mode-add
+					194 text Add all applicable rate rows
+			195 button Show optional settings
+				196 text Show
+				197 text optional settings
+			198 container
+				199 heading Cost adjustments, Value: 3
+					200 text Cost adjustments
+				201 button  Video guide
+					202 text 
+					203 text Video guide
+				204 text Configure adjustments to the final shipping cost. Adjustments are applied to the final shipping cost in the order that they appear on the form.
+			205 container
+				206 heading Cost adjustments, Value: 4
+					207 text Cost adjustments
+				208 button Add adjustment, ID: add-cost-adjustment
+				209 table
+					210 row
+						211 cell
+							212 text Title
+						213 cell
+							214 text Type
+						215 cell
+							216 text Value
+					217 row cost-adjustments-placeholder
+						218 cell
+							219 text No cost adjustments added
+				220 heading Rounding, Value: 4
+					221 text Rounding
+				222 text Apply rounding to the final shipping cost.
+				223 container
+					224 radio button (settable, integer) Description: Do not apply rounding, Value: 1, ID: rounding-status-0
+					225 text Do not apply rounding
+				226 container
+					227 radio button (settable, integer) Description: Round final shipping cost, Value: 0, ID: rounding-status-1
+					228 text Round final shipping cost
+			229 container
+				230 heading Free shipping, Value: 3
+					231 text Free shipping
+				232 text Increase conversions by offering free shipping to your customers when they reach a threshold such as minimum order spend.
+			233 container
+				234 heading Offer free shipping, Value: 4
+					235 text Offer free shipping
+				236 text Define a threshold to convert the shipping cost to free based on the filtered products.
+				237 container
+					238 radio button (settable, integer) Description: Do not offer free shipping, Value: 1, ID: free-ship-status-0
+					239 text Do not offer free shipping
+				240 container
+					241 radio button (settable, integer) Description: Set a free shipping threshold, Value: 0, ID: free-ship-status-1
+					242 text Set a free shipping threshold
+			243 container
+				244 heading Custom shipping blending, Value: 3
+					245 text Custom shipping blending
+				246 text Custom shipping costs can be applied directly to a product within
+				247 link Description: product settings, Value: v2.intuitiveshipping.app/products
+				248 text .
+			249 container
+				250 heading Custom shipping blending, Value: 4
+					251 text Custom shipping blending
+				252 text Blend custom shipping costs assigned to products with this method.
+				253 container
+					254 radio button (settable, integer) Description: Do not blend, Value: 1, ID: custom-ship-blend-status-0
+					255 text Do not blend
+				256 container
+					257 radio button (settable, integer) Description: Blend custom shipping costs, Value: 0, ID: custom-ship-blend-status-1
+					258 text Blend custom shipping costs
+			259 container
+				260 heading Rate blending, Value: 3
+					261 text Rate blending
+				262 text Configure rate blending for this shipping method.
+			263 container
+				264 heading Rate blending, Value: 4
+					265 text Rate blending
+				266 text Choose whether this shipping rate will blend with other rates configured within Intuitive Shipping.
+				267 link Description: Learn More, Value: knowledge.intuitiveshipping.com/create-a-custom-service-shipping-method#optional-settings-custom
+				268 text .
+				269 container
+					270 radio button (settable, integer) Description: Do not blend, Value: 1, ID: rate-blend-status-0
+					271 text Do not blend
+				272 container
+					273 radio button (settable, integer) Description: Blend with other rates, Value: 0, ID: rate-blend-status-1
+					274 text Blend with other rates
+			275 container Page actions
+				276 button Delete
+				277 button Save
+		278 image
+		279 container
+			280 text Learn more about
+			281 link Description: shipping method settings, Value: knowledge.intuitiveshipping.com/create-a-custom-service-shipping-method/
+			282 text .
+		283 text Built by humans ❤️
+		284 container
+			285 text Copyright © 2026
+			286 link Description: Intuitive Shipping Inc., Value: intuitiveshipping.com/
+			287 link Description: End user license agreement, Value: intuitiveshipping.com/end-user-license-agreement/
+			288 text .
+	289 container grammarly-integration
+		290 text {"mode":"full","isActive":true,"isUserDisabled":false}
+
+The focused UI element is 195 button Show optional settings

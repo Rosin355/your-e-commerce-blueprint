@@ -1,0 +1,202 @@
+{
+  "status": "MAIN_GATE_PASS",
+  "nativeVerdict": "PARTIAL",
+  "storeId": "111269380421",
+  "marketId": "119681515845",
+  "activeOption": "Spedizione standard",
+  "collectionIds": {
+    "A": "710044385605",
+    "B": "710044287301"
+  },
+  "intuitiveOptionActive": false,
+  "defaultStandardOptionActive": false,
+  "incrementalCostsEUR": 0,
+  "checkoutCases": [
+    {
+      "case": "01-bulbi-30",
+      "table": "B",
+      "subtotalCents": 3000,
+      "discountCents": 0,
+      "netCents": 3000,
+      "observedRateCents": 590,
+      "optionCount": 1,
+      "status": "PASS",
+      "evidence": "01-bulbi-30.txt"
+    },
+    {
+      "case": "02-bulbo-grassa",
+      "table": "B",
+      "subtotalCents": 6000,
+      "discountCents": 0,
+      "netCents": 6000,
+      "observedRateCents": 790,
+      "optionCount": 1,
+      "status": "PASS",
+      "evidence": "02-bulbo-grassa.txt"
+    },
+    {
+      "case": "03-bulbo-arbusto",
+      "table": "A",
+      "subtotalCents": 4500,
+      "discountCents": 0,
+      "netCents": 4500,
+      "observedRateCents": 1190,
+      "optionCount": 1,
+      "status": "PASS",
+      "evidence": "03-bulbo-arbusto.txt"
+    },
+    {
+      "case": "04-bulbi-sconosciuto",
+      "table": "A",
+      "subtotalCents": 16000,
+      "discountCents": 0,
+      "netCents": 16000,
+      "observedRateCents": 1750,
+      "optionCount": 1,
+      "status": "PASS",
+      "evidence": "04-bulbi-sconosciuto.txt"
+    },
+    {
+      "case": "05-b-49-99-sconto",
+      "table": "B",
+      "subtotalCents": 6000,
+      "discountCents": 1001,
+      "netCents": 4999,
+      "observedRateCents": 590,
+      "optionCount": 1,
+      "status": "PASS",
+      "evidence": "05-b-49-99-sconto.txt"
+    },
+    {
+      "case": "06-a-149-99-sconto",
+      "table": "A",
+      "subtotalCents": 16000,
+      "discountCents": 1001,
+      "netCents": 14999,
+      "observedRateCents": 1250,
+      "optionCount": 1,
+      "status": "PASS",
+      "evidence": "06-a-149-99-sconto.txt"
+    },
+    {
+      "case": "07-b-50-sconto",
+      "table": "B",
+      "subtotalCents": 6000,
+      "discountCents": 1000,
+      "netCents": 5000,
+      "observedRateCents": 790,
+      "optionCount": 1,
+      "status": "PASS",
+      "evidence": "07-b-50-sconto.txt"
+    },
+    {
+      "case": "08-a-150-sconto",
+      "table": "A",
+      "subtotalCents": 16000,
+      "discountCents": 1000,
+      "netCents": 15000,
+      "observedRateCents": 1750,
+      "optionCount": 1,
+      "status": "PASS",
+      "evidence": "08-a-150-sconto.txt"
+    },
+    {
+      "case": "09-sconosciuto-solo",
+      "table": "A",
+      "subtotalCents": 1000,
+      "discountCents": 0,
+      "netCents": 1000,
+      "observedRateCents": 890,
+      "optionCount": 1,
+      "status": "PASS",
+      "evidence": "09-sconosciuto-solo.txt"
+    }
+  ],
+  "pending": [
+    "split_delivery_group_checkout",
+    "island_checkout_after_provincial_scope_approval",
+    "catalog_variant_publication_control",
+    "postal_code_exceptions",
+    "live_release_authorization"
+  ],
+  "savedEvidence": {
+    "market": "market-saved.txt",
+    "proofSource": "observed Shopify Dev UI"
+  },
+  "plan": "Grow (simulated)",
+  "marketDrivenShipping": true,
+  "currency": "EUR",
+  "ccsRequired": false,
+  "localTests": {
+    "passed": 325,
+    "failed": 0
+  },
+  "mainCheckoutGate": {
+    "passed": 4,
+    "total": 4
+  },
+  "configuredItalyRatesCents": {
+    "A": [
+      [
+        0,
+        1899,
+        890
+      ],
+      [
+        1900,
+        7999,
+        1190
+      ],
+      [
+        8000,
+        14999,
+        1250
+      ],
+      [
+        15000,
+        24999,
+        1750
+      ],
+      [
+        25000,
+        49999,
+        3600
+      ],
+      [
+        50000,
+        null,
+        5400
+      ]
+    ],
+    "B": [
+      [
+        0,
+        4999,
+        590
+      ],
+      [
+        5000,
+        14999,
+        790
+      ],
+      [
+        15000,
+        null,
+        890
+      ]
+    ]
+  },
+  "liveRollbackBaseline": {
+    "marketId": "112143401300",
+    "option": "Standard",
+    "priceCents": 700,
+    "freeFromCents": 5500,
+    "allProducts": true,
+    "active": true,
+    "evidence": [
+      "live-italia-readonly.txt",
+      "live-standard-editor-readonly.txt"
+    ],
+    "scope": "Native Italy option observed read-only; refresh before authorized activation"
+  }
+}

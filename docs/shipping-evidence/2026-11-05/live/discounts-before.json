@@ -1,0 +1,15 @@
+{
+  "data": {
+    "shop": {
+      "name": "Online Garden",
+      "myshopifyDomain": "ecom-blueprint-gen-6ud1s.myshopify.com"
+    },
+    "discountNodes": {
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": null
+      },
+      "nodes": []
+    }
+  }
+}

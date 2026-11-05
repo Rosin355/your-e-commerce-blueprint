@@ -1,0 +1,17 @@
+{
+  "source": "Read-only follow-up; does not replace initial backup",
+  "files": [
+    {
+      "name": "sendcloud-followup-audit.json",
+      "sha256": "0c8301ea2445fa4439480995485e3dbff4f59fa1434b4867c19509d20b248eb1"
+    },
+    {
+      "name": "sendcloud-schema-validation.json",
+      "sha256": "8912f70940bd89dd95ada269ab4091acf8dca35618a3261632f50beaeb1097f1"
+    },
+    {
+      "name": "sendcloud-followup-local-checks.json",
+      "sha256": "f4ddf3a8017a53c20e90d22643eccb4437dbe5ee87ce1883e81eec25a0855b9b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+											52 container Online Garden Shipping Test
+											53 text Online Garden Shipping Test
+									61 heading Verifica dell'identità richiesta, Value: 2
+										62 text Verifica dell'identità richiesta
+									63 text Per installare app di terze parti su un development store, tu o il proprietario dell'organizzazione a cui appartiene il negozio dovete verificare l'identità. Puoi farlo ora. Questo aiuta a proteggere merchant e sviluppatori di app da attività fraudolente.
+									64 button Verifica identità
+									66 container Visualizza dettagli dell'app Intuitive Shipping
+										67 image Icona di Intuitive Shipping
+									68 heading Intuitive Shipping, Value: 2
+										69 text Intuitive Shipping
+									70 text Intuitive Shipping Inc
+								92 button (disabled) Installa, ID: proceed_cta

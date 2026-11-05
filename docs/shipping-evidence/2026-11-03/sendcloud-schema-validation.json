@@ -1,0 +1,17 @@
+[
+  {
+    "artifact": "sendcloud-reaudit-audit.graphql",
+    "exitCode": 0,
+    "output": "## Validation Summary\n\n**Overall Status:** \u2705 VALID\n**Total Code Blocks:** 1\n\n## Detailed Results\n\n### Code Block 1\n**Artifact ID:** og-sendcloud-reaudit-audit\n**Revision:** 1\n*Use same ID & increment revision when retrying on an improvement of this artifact*\n\n**Status:** \u2705 SUCCESS\n**Details:** Successfully validated GraphQL query against schema.\n\n\n"
+  },
+  {
+    "artifact": "sendcloud-reaudit-apps.graphql",
+    "exitCode": 0,
+    "output": "## Validation Summary\n\n**Overall Status:** \u2705 VALID\n**Total Code Blocks:** 1\n\n## Detailed Results\n\n### Code Block 1\n**Artifact ID:** og-sendcloud-reaudit-apps\n**Revision:** 1\n*Use same ID & increment revision when retrying on an improvement of this artifact*\n\n**Status:** \u2705 SUCCESS\n**Details:** Successfully validated GraphQL query against schema.\n\n\n"
+  },
+  {
+    "artifact": "sendcloud-reaudit-carriers.graphql",
+    "exitCode": 0,
+    "output": "## Validation Summary\n\n**Overall Status:** \u2705 VALID\n**Total Code Blocks:** 1\n\n## Detailed Results\n\n### Code Block 1\n**Artifact ID:** og-sendcloud-reaudit-carriers\n**Revision:** 1\n*Use same ID & increment revision when retrying on an improvement of this artifact*\n\n**Status:** \u2705 SUCCESS\n**Details:** Successfully validated GraphQL query against schema.\nRequired scopes: read_shipping\n\n\n"
+  }
+]

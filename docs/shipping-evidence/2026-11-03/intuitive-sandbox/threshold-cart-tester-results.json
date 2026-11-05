@@ -1,0 +1,437 @@
+[
+  {
+    "table": "A",
+    "totalCents": 1899,
+    "expectedEUR": 8.9,
+    "actualEUR": [
+      8.9
+    ],
+    "geography": "standard",
+    "transactionId": "1c3b4202-752d-434f-a58a-3926d3f9f05f",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 1898,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 1900,
+    "expectedEUR": 11.9,
+    "actualEUR": [
+      11.9
+    ],
+    "geography": "standard",
+    "transactionId": "6da90b33-3066-464e-a783-79c2d42dd197",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 1899,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 7999,
+    "expectedEUR": 11.9,
+    "actualEUR": [
+      11.9
+    ],
+    "geography": "standard",
+    "transactionId": "9c2750b5-e75d-446c-a490-648981804661",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 7998,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 8000,
+    "expectedEUR": 12.5,
+    "actualEUR": [
+      12.5
+    ],
+    "geography": "standard",
+    "transactionId": "73fb6b79-de84-4cab-ba44-a6b565a6c784",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 7999,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 14999,
+    "expectedEUR": 12.5,
+    "actualEUR": [
+      12.5
+    ],
+    "geography": "standard",
+    "transactionId": "8bd70da9-0636-404c-810d-635ad523b2cb",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 14998,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 15000,
+    "expectedEUR": 17.5,
+    "actualEUR": [
+      17.5
+    ],
+    "geography": "standard",
+    "transactionId": "0206ed5c-08e4-4b52-bc80-bda48d7284d4",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 14999,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 24999,
+    "expectedEUR": 17.5,
+    "actualEUR": [
+      17.5
+    ],
+    "geography": "standard",
+    "transactionId": "ae4880be-7402-4d46-a473-ed710c25a7e2",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 24998,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 25000,
+    "expectedEUR": 36,
+    "actualEUR": [
+      36
+    ],
+    "geography": "standard",
+    "transactionId": "6825a52c-bc63-4671-9217-952273bdac52",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 24999,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 49999,
+    "expectedEUR": 36,
+    "actualEUR": [
+      36
+    ],
+    "geography": "standard",
+    "transactionId": "aca150d2-e0ad-419e-a68f-a7a8a15ffd41",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 49998,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 50000,
+    "expectedEUR": 54,
+    "actualEUR": [
+      54
+    ],
+    "geography": "standard",
+    "transactionId": "2514a63c-26d1-43ea-85cf-d3a2cf3e5cf6",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 49999,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 1899,
+    "expectedEUR": 9.6,
+    "actualEUR": [
+      9.6
+    ],
+    "geography": "special",
+    "transactionId": "6553e912-b1b1-45e4-b991-38eb3da1c388",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 1898,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 1900,
+    "expectedEUR": 12.5,
+    "actualEUR": [
+      12.5
+    ],
+    "geography": "special",
+    "transactionId": "181db3eb-6521-4693-baef-9b0cd098af39",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 1899,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 7999,
+    "expectedEUR": 12.5,
+    "actualEUR": [
+      12.5
+    ],
+    "geography": "special",
+    "transactionId": "7c003984-7956-40ab-86f7-2338f5f63500",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 7998,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 8000,
+    "expectedEUR": 14.9,
+    "actualEUR": [
+      14.9
+    ],
+    "geography": "special",
+    "transactionId": "6bdc7e68-c4b4-484b-a70a-54e82dcf6b31",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 7999,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 14999,
+    "expectedEUR": 14.9,
+    "actualEUR": [
+      14.9
+    ],
+    "geography": "special",
+    "transactionId": "332c60ae-88fc-4640-ade9-c9f301cc9bc1",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 14998,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 15000,
+    "expectedEUR": 17.5,
+    "actualEUR": [
+      17.5
+    ],
+    "geography": "special",
+    "transactionId": "f7c4732c-91db-4a31-86fb-f0fd48eee822",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 14999,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 24999,
+    "expectedEUR": 17.5,
+    "actualEUR": [
+      17.5
+    ],
+    "geography": "special",
+    "transactionId": "cef91032-e631-48f7-ab59-4f21cdc098ea",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 24998,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 25000,
+    "expectedEUR": 36,
+    "actualEUR": [
+      36
+    ],
+    "geography": "special",
+    "transactionId": "e979350e-4b52-42f7-b8e8-06bc3d7fe485",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 24999,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 49999,
+    "expectedEUR": 36,
+    "actualEUR": [
+      36
+    ],
+    "geography": "special",
+    "transactionId": "858973b3-7431-4c61-be33-0ad7ab3ff0e3",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 49998,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "A",
+    "totalCents": 50000,
+    "expectedEUR": 54,
+    "actualEUR": [
+      54
+    ],
+    "geography": "special",
+    "transactionId": "9e3eaa39-d4bd-438d-a33a-9049b5bf7d43",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 49999,
+    "unknownQuantity": 1
+  },
+  {
+    "table": "B",
+    "totalCents": 4999,
+    "expectedEUR": 5.9,
+    "actualEUR": [
+      5.9
+    ],
+    "geography": "standard",
+    "transactionId": "2eb6945e-a656-4faa-aa46-57a6c44842cf",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 4999,
+    "unknownQuantity": 0
+  },
+  {
+    "table": "B",
+    "totalCents": 5000,
+    "expectedEUR": 7.9,
+    "actualEUR": [
+      7.9
+    ],
+    "geography": "standard",
+    "transactionId": "6f683c07-47bd-496b-abef-7b18e591d430",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 5000,
+    "unknownQuantity": 0
+  },
+  {
+    "table": "B",
+    "totalCents": 14999,
+    "expectedEUR": 7.9,
+    "actualEUR": [
+      7.9
+    ],
+    "geography": "standard",
+    "transactionId": "f7c5a918-acb9-4f79-b8a4-fbc47d090693",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 14999,
+    "unknownQuantity": 0
+  },
+  {
+    "table": "B",
+    "totalCents": 15000,
+    "expectedEUR": 8.9,
+    "actualEUR": [
+      8.9
+    ],
+    "geography": "standard",
+    "transactionId": "9ff1667f-7de6-4635-affe-14aed629bb41",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 15000,
+    "unknownQuantity": 0
+  },
+  {
+    "table": "B",
+    "totalCents": 4999,
+    "expectedEUR": 6.9,
+    "actualEUR": [
+      6.9
+    ],
+    "geography": "special",
+    "transactionId": "2dc3754b-da9f-44ed-94de-82e0fc407ae8",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 4999,
+    "unknownQuantity": 0
+  },
+  {
+    "table": "B",
+    "totalCents": 5000,
+    "expectedEUR": 8.9,
+    "actualEUR": [
+      8.9
+    ],
+    "geography": "special",
+    "transactionId": "617f862c-6926-474b-afc4-c7cc70d7a1c5",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 5000,
+    "unknownQuantity": 0
+  },
+  {
+    "table": "B",
+    "totalCents": 14999,
+    "expectedEUR": 8.9,
+    "actualEUR": [
+      8.9
+    ],
+    "geography": "special",
+    "transactionId": "191d612f-5af5-4da1-aa21-7f37211de723",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 14999,
+    "unknownQuantity": 0
+  },
+  {
+    "table": "B",
+    "totalCents": 15000,
+    "expectedEUR": 9.5,
+    "actualEUR": [
+      9.5
+    ],
+    "geography": "special",
+    "transactionId": "2ebe1937-809d-4a18-b93d-1cf89eb0a17c",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 15000,
+    "unknownQuantity": 0
+  },
+  {
+    "table": "B",
+    "totalCents": 1500,
+    "expectedEUR": 6.9,
+    "actualEUR": [
+      6.9
+    ],
+    "geography": "synthetic",
+    "transactionId": "0874f4d6-f58a-4a40-a666-2abee8e8ce9a",
+    "pass": true,
+    "scope": "REAL Intuitive Cart Tester",
+    "configurationVersion": "technical-half-cent-maxima",
+    "bulbQuantity": 1500,
+    "unknownQuantity": 0
+  }
+]

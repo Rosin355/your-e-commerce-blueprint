@@ -1,0 +1,1 @@
+query ShippingCapabilities { shop { id name myshopifyDomain currencyCode plan { publicDisplayName shopifyPlus partnerDevelopment } } }

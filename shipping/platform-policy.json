@@ -1,0 +1,14 @@
+{
+  "logisticsPlatform": "sendcloud",
+  "carrierSelection": "deferred_to_client",
+  "carrierBoundArchitecture": false,
+  "customerPriceSource": "approved_fixed_AB_tables",
+  "carrierPurchaseCostDeterminesCustomerPrice": false,
+  "checkoutMechanism": "unresolved",
+  "sendcloudAccountConnectionVerified": false,
+  "additionalSubscriptionsAuthorized": false,
+  "externalServicesAuthorized": false,
+  "shopifyPlanUpgradeAuthorized": false,
+  "native18RateTemplateSelectedForDeployment": false,
+  "liveSynchronizationAllowed": false
+}

@@ -1,0 +1,27 @@
+/store/ecom-blueprint-gen-6ud1s/markets/112143401300
+- list:
+  - heading "Spedizione" [level=2]:
+    - generic: Spedizione
+  - status:
+    - generic: 1 opzione di spedizione attiva
+  - checkbox "Spedizione" [checked]
+  - separator
+  - heading "Standard" [level=2]:
+    - generic: Standard
+  - button "Altre azioni":
+  - generic: €7.00 (Gratis a partire da €55.00)
+  - generic: Tutti i prodotti in Italy
+  - generic: Tutti i prodotti
+  - text: ·
+  - generic: "Sedi:"
+  - generic: [Sede esistente, indirizzo omesso]
+  - text: ·
+  - generic: Per importo dell'ordine
+- separator
+- button "Aggiungi opzione di spedizione":
+  - paragraph: Aggiungi opzione di spedizione
+- generic: azioni
+- generic: Italiano
+- generic: Predefinita
+- generic: Annulla
+- generic: Fatto

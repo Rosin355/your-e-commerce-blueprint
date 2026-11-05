@@ -1,0 +1,1 @@
+query ShippingCarriers($after: String) { carrierServices(first: 50, after: $after) { pageInfo { hasNextPage endCursor } nodes { id name active callbackUrl supportsServiceDiscovery } } }

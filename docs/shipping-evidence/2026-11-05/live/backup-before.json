@@ -1,0 +1,20 @@
+{
+  "observedDate": "2026-11-05",
+  "source": "Authenticated Shopify Admin DOM",
+  "store": "ecom-blueprint-gen-6ud1s.myshopify.com",
+  "marketId": "112143401300",
+  "marketName": "Italy",
+  "activeOptionCount": 1,
+  "option": "Standard",
+  "status": "ACTIVE",
+  "type": "order_amount",
+  "products": "ALL",
+  "minimumEUR": 0,
+  "maximumEUR": null,
+  "priceEUR": 7,
+  "freeShippingEnabled": true,
+  "freeShippingFromEUR": 55,
+  "location": "Existing location unchanged; street address omitted",
+  "foreignMarketsChanged": false,
+  "scope": "Current native Italy option; discounts and foreign profiles not yet refreshed"
+}

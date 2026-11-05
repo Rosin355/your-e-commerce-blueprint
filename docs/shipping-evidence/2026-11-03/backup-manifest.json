@@ -1,0 +1,56 @@
+{
+  "capturedDate": "2026-11-03",
+  "store": "ecom-blueprint-gen-6ud1s.myshopify.com",
+  "scope": "Read-only shipping configuration, selected logistics catalog fields and variant-profile assignments",
+  "fullStoreBackup": false,
+  "privateAppSettingsBackedUp": false,
+  "deliveryCustomizationsReadable": false,
+  "files": [
+    {
+      "name": "audit.json",
+      "sha256": "ea06d88e8f027e76bb30345747664a3538025148183147316ef85df92eeb0e72"
+    },
+    {
+      "name": "profile.json",
+      "sha256": "695ccd94f1ff6544688cd2c14b45f020103fb2201efd42c3e8bdee35504f2a28"
+    },
+    {
+      "name": "apps.json",
+      "sha256": "3858bc63c375ba34879b457031c0792448e23c0c3fc55b3d1ed6db051432e340"
+    },
+    {
+      "name": "carriers.json",
+      "sha256": "5dcd04b9456630d874f2bd7e09e65806f88915f9eceeb29aa0443f571101f60c"
+    },
+    {
+      "name": "customs.json",
+      "sha256": "afd5238f09e50f18ebad686766fd5d34d5e403b71c4a0eb2b375833097a97270"
+    },
+    {
+      "name": "defs.json",
+      "sha256": "f6fed33debb1020039513451677be2301ea428dc709976dd9b9e0c0c76dfa5c1"
+    },
+    {
+      "name": "variant-defs.json",
+      "sha256": "6ca51ec653afab55a750577e3ec96081314b7033937c0a1a878f0e98545b2196"
+    },
+    {
+      "name": "shop-geo.json",
+      "sha256": "6eca6d41f803562175d33983aa6b091f859a27dcef8ebaf6a57810b4e68dfda9"
+    },
+    {
+      "name": "catalog.json",
+      "sha256": "e544cf63b3a741c792e329ec3fe8e15d7e647a1a7464d9b1ae3296a64da058c4"
+    },
+    {
+      "name": "coverage.json",
+      "sha256": "4a9a4730e7d59b33b352c4372bcf09eb9bbe3418abb7f62cd6fe76c472724173"
+    },
+    {
+      "name": "variants-profile-coverage.json",
+      "sha256": "ef6054d9a261247b7fa3a49dc96d482ca9e61cc4985daef637b14ed91e312c6b"
+    }
+  ],
+  "profileRawResponseSha256": "21dd0036371070d5119a94d753d12aaac3ceb7ab7339763f251ad2968546d290",
+  "profilePortableComparisonSha256": "8020b926b59411c4aa7c3768129ab568cfdb1466bdd714afcce1856dd2f80d99"
+}

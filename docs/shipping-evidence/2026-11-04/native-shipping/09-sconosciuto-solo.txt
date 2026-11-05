@@ -1,0 +1,10 @@
+  - heading "Online Garden Shipping Test Checkout" [level=1]
+    - generic: Postal code
+    - textbox "Postal code": "00186"
+    - heading "Shipping method" [level=2]
+      - heading "Spedizione standard" [level=3]:
+          - strong: Spedizione standard
+        - row "Quantity 1 OG QA - Prodotto non classificato 1 €10.00":
+      - row "Subtotal €10.00":
+      - row "Shipping €8.90":
+- status: "Updated shipping method: Spedizione standard"

@@ -1,0 +1,20 @@
+0 AXWebArea Cart Tester - Intuitive Shipping, URL: v2.intuitiveshipping.app/test
+				44 heading Transaction ID, Value: 3
+					45 text Transaction ID
+				58 text field (settable) Address, Value: Via QA Fittizia 1, ID: address-1
+				60 text field (settable) City, Value: Roma, ID: city
+				415 text field (settable) Postal / zip code, Value: 00186, ID: postal-code
+						481 image OG QA - Bulbo fittizio
+						482 text OG QA - Bulbo fittizio
+						483 text OG-QA-BULB
+				495 heading Delivery options, Value: 3
+					499 text Delivery options
+					501 text OG QA B standard
+					502 text EUR 5.90
+								511 text Transaction ID
+								512 text 03420989-ab30-4abb-8a3e-acce245c8f20
+										531 link Description: OG QA A speciale sperimentale - sandbox only, Value: v2.intuitiveshipping.app/scenarios/edit/154779
+										538 link Description: OG QA A standard - sandbox only, Value: v2.intuitiveshipping.app/scenarios/edit/154778
+										545 link Description: OG QA B speciale sperimentale - sandbox only, Value: v2.intuitiveshipping.app/scenarios/edit/154777
+										552 link Description: OG QA B standard - sandbox only, Value: v2.intuitiveshipping.app/scenarios/edit/154776
+										556 link Description: OG QA B standard, Value: v2.intuitiveshipping.app/shipping/edit/668877

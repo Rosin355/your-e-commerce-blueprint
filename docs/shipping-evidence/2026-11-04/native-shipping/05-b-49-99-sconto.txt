@@ -1,0 +1,19 @@
+  - heading "Online Garden Shipping Test Checkout" [level=1]
+    - generic: Postal code
+    - textbox "Postal code": "00186"
+    - heading "Shipping method" [level=2]
+      - heading "Spedizione standard" [level=3]:
+          - strong: Spedizione standard
+        - row "Quantity 1 OG QA - Pianta grassa fittizia 1 €45.00":
+        - row "Quantity 1 OG QA - Bulbo fittizio 1 €15.00":
+    - generic: OG-QA-NATIVE-1001
+    - generic: OG-QA-NATIVE-1001
+    - button "Remove OG-QA-NATIVE-1001":
+      - row "Subtotal · 2 items €60.00":
+      - row "Order discount":
+      - row "OG-QA-NATIVE-1001 − €10.01":
+        - rowheader "OG-QA-NATIVE-1001":
+          - generic: OG-QA-NATIVE-1001
+      - row "Shipping €5.90":
+      - row "Total EUR €55.89":
+- status: "Updated shipping method: Spedizione standard"

@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-05",
+  "status": "LIVE_A_PARTIAL_B_NOT_ACTIVE",
+  "baseCommit": "d26d2f0120bc4a1c270b864aad003288f7bf8eb1",
+  "freeShippingRuleRemoved": true,
+  "discountNodesCount": 0,
+  "activeBProducts": 0,
+  "approvedBVariants": 0,
+  "candidateProductsRefreshed": 161,
+  "candidateIdsSkuChanged": 0,
+  "italyMarket": "112143401300",
+  "islandMarket": "120287887700",
+  "nativeOptionsPerMarket": 1,
+  "checkoutCases": [
+    {
+      "case": "hotfix_over55",
+      "subtotalEUR": 65.6,
+      "observedShippingEUR": 7,
+      "status": "PASS_INTERIM"
+    },
+    {
+      "case": "A_standard_over55",
+      "subtotalEUR": 65.6,
+      "observedShippingEUR": 11.9,
+      "status": "PASS",
+      "evidence": "02-a-65-60.txt"
+    },
+    {
+      "case": "A_standard_under19",
+      "subtotalEUR": 16.4,
+      "observedShippingEUR": 8.9,
+      "status": "PASS",
+      "evidence": "05-a-16-40.txt"
+    },
+    {
+      "case": "A_palermo",
+      "subtotalEUR": 65.6,
+      "observedShippingEUR": 12.5,
+      "status": "PASS",
+      "evidence": "03-palermo-a.txt"
+    },
+    {
+      "case": "A_cagliari",
+      "subtotalEUR": 65.6,
+      "observedShippingEUR": 12.5,
+      "status": "PASS",
+      "evidence": "04-cagliari-a.txt"
+    }
+  ],
+  "bAndMixedLive": "NOT_RUN_NO_APPROVED_B",
+  "minorIslands": "OPEN_NOT_COVERED_BY_SPECIAL_RATE",
+  "marco": "Active organization administrator verified; protected A/B management not deployed",
+  "lovableDeployment": "NOT_NEEDED_NOT_PERFORMED",
+  "sendcloudOperations": 0,
+  "traditionalProfileEqualTo2026_11_03": true,
+  "foreignCheckout": "NOT_TESTED",
+  "orders": 0,
+  "payments": 0,
+  "extraCostsEUR": 0
+}

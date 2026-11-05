@@ -1,0 +1,1 @@
+query ShippingVariantsCoverage($after: String) { productVariants(first: 50, after: $after) { pageInfo { hasNextPage endCursor } nodes { id deliveryProfile { id } } } }

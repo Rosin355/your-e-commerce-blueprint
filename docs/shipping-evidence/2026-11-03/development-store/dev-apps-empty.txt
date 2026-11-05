@@ -1,0 +1,4 @@
+0 AXWebArea Online Garden Shipping Test · App · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/settings/apps
+									92 heading Applicazioni, Value: 1
+										95 text Aggiungi app al tuo negozio App e canali di vendita aggiungono funzionalità e strumenti che fanno crescere la tua attività. Scegli tra migliaia di app gratuite e a pagamento per trovare quella più adatta a te.
+The focused UI element is 0 AXWebArea Online Garden Shipping Test · App · Shopify, URL: admin.shopify.com/store/online-garden-shipping-test/settings/apps

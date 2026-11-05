@@ -1,0 +1,33 @@
+{
+  "status": "ALTERNATIVE_REFERENCE_ONLY_NOT_SELECTED_OR_AUTHORIZED",
+  "note": "Sendcloud remains the logistics platform. This generic selector contract does not prove the standard Sendcloud app can execute it, and does not authorize any additional app/subscription.",
+  "scope": { "countryCode": "IT", "deliveryGroupCount": 1, "managedMethodPrefix": "OG-" },
+  "classification": {
+    "source": "Approved variant logistics.shipping_class, or unique SKU allowlist compiled from those approvals",
+    "tableB": "ALL physical cart variants are approved bulb or succulent",
+    "tableA": "ANY physical cart variant is ordinary, heavy, bulky, unknown, unapproved or not in the reduced allowlist",
+    "doNotUse": ["contains any bulb", "client-supplied cart attributes", "commercial title matching", "sum of subset rates"]
+  },
+  "nativePriceRanges": "Shopify TOTAL_PRICE conditions select applicable amount tiers. The app must not calculate a separate product-group subtotal.",
+  "decisionTable": [
+    { "cartTable": "A", "area": "standard", "keepCodesMatching": "OG-A-IT-*" },
+    { "cartTable": "A", "area": "special", "keepCodesMatching": "OG-A-SPECIAL-*" },
+    { "cartTable": "B", "area": "standard", "keepCodesMatching": "OG-B-IT-*" },
+    { "cartTable": "B", "area": "special", "keepCodesMatching": "OG-B-SPECIAL-*" }
+  ],
+  "actions": [
+    "Hide every managed method outside the selected table and area.",
+    "Exactly one applicable managed method must remain after Shopify native price conditions.",
+    "Rename remaining method to approved buyer-facing shipping label.",
+    "Never change options for non-IT destinations.",
+    "Unapproved geography, unserviceable products/destinations or multiple groups must follow a separately verified blocking path."
+  ],
+  "acceptanceBeforeRelease": [
+    "Demonstrate ALL/ANY predicates with approved and unknown items in the same cart.",
+    "Demonstrate exact CAP plus locality matching and complete exception list.",
+    "Verify product metafield or unique SKU lookup; ignore browser-supplied classification.",
+    "Export actual app rules, rule priority, identifier mapping, subscription limits and rollback behavior.",
+    "Demonstrate no interval exposing all 18 prices during activation and rollback.",
+    "Complete staging matrix and post-authorization native checkout smoke without payment."
+  ]
+}

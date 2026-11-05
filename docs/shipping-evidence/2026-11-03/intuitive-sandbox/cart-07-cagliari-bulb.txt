@@ -1,0 +1,13 @@
+0 AXWebArea Cart Tester - Intuitive Shipping, URL: v2.intuitiveshipping.app/test
+				44 heading Transaction ID, Value: 3
+					45 text Transaction ID
+				58 text field (settable) Address, Value: Via QA Fittizia 1, ID: address-1
+				60 text field (settable) City, Value: Cagliari, ID: city
+				415 text field (settable) Postal / zip code, Value: 09124, ID: postal-code
+						747 image OG QA - Bulbo fittizio
+						762 text OG QA - Bulbo fittizio
+						763 text OG-QA-BULB
+				767 heading Delivery options, Value: 3
+					768 text Delivery options
+					770 text OG QA B speciale sperimentale
+					771 text EUR 6.90

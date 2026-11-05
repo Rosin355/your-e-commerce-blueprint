@@ -1,0 +1,1 @@
+query ShippingCustomizations($after: String) { deliveryCustomizations(first: 50, after: $after) { pageInfo { hasNextPage endCursor } nodes { id title enabled functionId } } }
