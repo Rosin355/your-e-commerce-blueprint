@@ -1,3 +1,9 @@
+## Decisione geografica di lancio — 5 novembre 2026 (PR #45)
+
+Il proprietario ha approvato la **fascia speciale su tutte le province di Sicilia e Sardegna**. Per l'avvio, **Elba, Lido di Venezia, Pellestrina e le altre isole minori seguono provvisoriamente la fascia standard della rispettiva provincia**. Non si introducono supplementi per intere province continentali e non si promette una tariffazione per singolo CAP o località che Shopify nativo non è stato dimostrato capace di applicare. Il differenziale di costo del vettore è una deroga commerciale accettata provvisoriamente e da monitorare; nessun elenco CAP o tariffa supplementare inventato.
+
+**Gate di rilascio ancora aperti:** checkout nativi Palermo e Cagliari non verificati; 161 candidati B ancora da approvare (zero approvati); controllo delle varianti PASS nei test locali ma da applicare al flusso di catalogo effettivo; valutazione degli eventuali gruppi/sedi separati nel live. La CI Storefront e GitGuardian hanno dato PASS sul commit `bb1bdf6fe0416035e72f6b3f7a29fde79b5bdd19`, antecedente a questa integrazione documentale: non attribuire automaticamente quel PASS a nuovi commit. PR #45 Draft, nessun merge/deploy e nessuna scrittura Shopify/Sendcloud produzione. Le sezioni storiche successive non sovrascrivono questa decisione.
+
 # Spedizioni Shopify Grow — configurazione nativa e rilascio
 
 ## 5 novembre 2026 — chiusura mirata, gate ancora aperti
