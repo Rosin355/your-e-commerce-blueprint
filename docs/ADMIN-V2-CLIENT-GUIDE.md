@@ -1,3 +1,13 @@
+# Admin Online Garden — versione pubblicata il 6 novembre 2026
+
+**Puoi consultare il catalogo:** dashboard, ricerca per nome o SKU, pagine dei risultati e schede prodotto. Il controllo dopo la pubblicazione ha confermato il caricamento e la navigazione.
+
+**Le modifiche sono disabilitate.** Salvataggio, sincronizzazione Shopify, nuove bozze, recupero bozze, AI e assegnazione categorie non sono attivi. I filtri avanzati non ancora supportati mostrano il motivo del blocco. Aprire una pagina non disponibile non modifica alcun dato.
+
+Accedi con l'account già assegnato dal responsabile: questo rilascio non aggiunge permessi. L'accesso personale di Marco deve ancora essere confermato. Non usare gli strumenti tecnici per aggirare un blocco.
+
+Le istruzioni operative e la checklist conservate sotto descrivono anche funzioni future: le prove di modifica non sono da svolgere ora. Il responsabile dovrà autorizzare separatamente la loro attivazione. [Stato tecnico e registrazione del rilascio](ADMIN-V2-QA-REPORT.md).
+
 ## Versione consegnabile ora: consultazione del catalogo
 
 Puoi usare dashboard, ricerca per nome/SKU, tipo prodotto, paginazione e apertura della scheda con i dati già disponibili. La versione è **in sola lettura**: nessun salvataggio, sincronizzazione, generazione AI, nuova bozza o assegnazione categoria. Le funzioni non operative spiegano il motivo; aprirle non modifica dati.

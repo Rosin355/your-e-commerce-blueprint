@@ -1,0 +1,47 @@
+{
+  "status": "VERIFIED_PUBLISHED",
+  "project": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+  "origin": "https://onlinegarden.it",
+  "pullRequest": 42,
+  "prHead": "c35c53ba004bd425c371c369621938bd2f607ffe",
+  "mergeCommit": "1ad61826c01ade2821f6c1577a3bd1555d0ab899",
+  "mergedAt": "2026-11-06T16:57:39Z",
+  "deploymentId": "00a243b8-240f-48bf-8507-202d352fc4f4",
+  "publishedContentCommit": "1ad61826c01ade2821f6c1577a3bd1555d0ab899",
+  "liveDomVersion": "admin-readonly-20261106-r1",
+  "confirmation": [
+    "Lovable UI: Il tuo sito web è stato aggiornato",
+    "Lovable editor commit matched merge before and after publication",
+    "Live #contenuto-admin data-admin-release marker matched the released version"
+  ],
+  "ci": {
+    "run": "https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/42256971612",
+    "status": "SUCCESS",
+    "head": "c35c53ba004bd425c371c369621938bd2f607ffe",
+    "gitGuardian": "SUCCESS"
+  },
+  "postDeployRuntime": {
+    "observedAt": "2026-11-06T18:00:09+01:00",
+    "writesEnabled": false,
+    "writeMode": "canary",
+    "shopifySyncEnabled": false
+  },
+  "minimalLiveSmoke": {
+    "dashboard": "PASS; 2706 internal rows",
+    "catalog": "PASS; 25 results displayed, new-product and advanced filters disabled",
+    "productDetail": "PASS; OG_113165 loaded and Modifica disabled",
+    "categories": "PASS; explanatory unavailable page",
+    "navigation": "PASS",
+    "obviousRegressions": "NONE_OBSERVED_IN_MINIMAL_SMOKE"
+  },
+  "catalogWriteCallsByAgent": 0,
+  "shopifyMutationCallsByAgent": 0,
+  "sqlMutationsByAgent": 0,
+  "secretsChanged": false,
+  "migrationApplied": false,
+  "newResourcesCreated": false,
+  "backendOperationalFeatures": "NOT_ACTIVATED",
+  "roleMarco": "NOT_VERIFIED; no permissions granted",
+  "validationLimit": "Minimal read-only smoke, not a new full regression/Safari/Marco acceptance cycle",
+  "documentationNote": "A subsequent docs-only main commit records this deployment; it is not itself a new deployed frontend."
+}
