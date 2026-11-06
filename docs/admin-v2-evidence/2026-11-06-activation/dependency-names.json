@@ -1,0 +1,159 @@
+{
+  "mode": "CATALOG_METADATA_NAMES_ONLY_NO_APPLICATION_ROWS",
+  "project": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+  "queryResult": {
+    "rows": [
+      {
+        "result": [
+          "auth.users",
+          "public.product_categories",
+          "public.product_category_assignments",
+          "public.product_category_source_map",
+          "public.product_current_values",
+          "public.product_field_definitions",
+          "public.product_import_batches",
+          "public.products",
+          "public.user_roles"
+        ],
+        "section": "fk_closure_names_only"
+      },
+      {
+        "result": [
+          {
+            "from": "user_roles",
+            "name": "user_roles_user_id_fkey",
+            "to": "auth.users"
+          },
+          {
+            "from": "product_current_values",
+            "name": "product_current_values_field_key_fkey",
+            "to": "product_field_definitions"
+          },
+          {
+            "from": "product_current_values",
+            "name": "product_current_values_source_batch_id_fkey",
+            "to": "product_import_batches"
+          },
+          {
+            "from": "products",
+            "name": "products_parent_product_id_fkey",
+            "to": "products"
+          },
+          {
+            "from": "product_current_values",
+            "name": "pcv_product_fk",
+            "to": "products"
+          },
+          {
+            "from": "product_categories",
+            "name": "product_categories_parent_id_fkey",
+            "to": "product_categories"
+          },
+          {
+            "from": "product_category_source_map",
+            "name": "product_category_source_map_target_category_fkey",
+            "to": "product_categories"
+          },
+          {
+            "from": "product_category_assignments",
+            "name": "product_category_assignments_product_id_fkey",
+            "to": "products"
+          },
+          {
+            "from": "product_category_assignments",
+            "name": "product_category_assignments_category_id_fkey",
+            "to": "product_categories"
+          },
+          {
+            "from": "product_category_assignments",
+            "name": "product_category_assignments_source_map_id_fkey",
+            "to": "product_category_source_map"
+          },
+          {
+            "from": "product_current_values",
+            "name": "product_current_values_reviewed_by_fkey",
+            "to": "auth.users"
+          }
+        ],
+        "section": "direct_fk_edges_names_only"
+      },
+      {
+        "result": [
+          {
+            "function": "handle_new_user",
+            "table": "auth.users",
+            "trigger": "on_auth_user_created"
+          },
+          {
+            "function": "update_updated_at_column",
+            "table": "product_field_definitions",
+            "trigger": "trg_pfd_updated"
+          },
+          {
+            "function": "update_updated_at_column",
+            "table": "product_current_values",
+            "trigger": "trg_pcv_updated"
+          },
+          {
+            "function": "enforce_product_parent",
+            "table": "products",
+            "trigger": "trg_products_parent"
+          },
+          {
+            "function": "protect_product_identity",
+            "table": "products",
+            "trigger": "trg_products_identity"
+          },
+          {
+            "function": "update_updated_at_column",
+            "table": "products",
+            "trigger": "trg_products_updated"
+          },
+          {
+            "function": "enforce_category_hierarchy",
+            "table": "product_categories",
+            "trigger": "trg_pc_hierarchy"
+          },
+          {
+            "function": "protect_category_stable_key",
+            "table": "product_categories",
+            "trigger": "trg_pc_stable_key"
+          },
+          {
+            "function": "recalc_category_descendants",
+            "table": "product_categories",
+            "trigger": "trg_pc_descendants"
+          },
+          {
+            "function": "update_updated_at_column",
+            "table": "product_categories",
+            "trigger": "trg_pc_updated"
+          },
+          {
+            "function": "update_updated_at_column",
+            "table": "product_category_source_map",
+            "trigger": "trg_pcsm_updated"
+          },
+          {
+            "function": "update_updated_at_column",
+            "table": "product_category_assignments",
+            "trigger": "trg_pca_updated"
+          },
+          {
+            "function": "mark_admin_field_pending_shopify_sync",
+            "table": "product_current_values",
+            "trigger": "trg_pcv_mark_pending_shopify_sync"
+          }
+        ],
+        "section": "trigger_functions_names_only"
+      },
+      {
+        "result": [
+          "public.app_role"
+        ],
+        "section": "public_enum_dependencies_names_only"
+      }
+    ]
+  },
+  "limitations": "FK closure and policy/trigger names only. No function bodies, auth rows, personal IDs, credentials or data backup exported."
+}

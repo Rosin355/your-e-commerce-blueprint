@@ -1,0 +1,21 @@
+{
+  "mode": "CATALOG_METADATA_NAMES_ONLY_NO_APPLICATION_ROWS",
+  "project": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+  "queryResult": {
+    "rows": [
+      {
+        "function_name": "auth.uid"
+      },
+      {
+        "function_name": "public.can_edit_products"
+      },
+      {
+        "function_name": "public.can_manage_taxonomy"
+      },
+      {
+        "function_name": "public.has_role"
+      }
+    ]
+  },
+  "limitations": "FK closure and policy/trigger names only. No function bodies, auth rows, personal IDs, credentials or data backup exported."
+}

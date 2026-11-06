@@ -1,0 +1,146 @@
+{
+  "status": "WORK_CYCLE_CLOSED_READONLY_DELIVERED_OPERATIONAL_BLOCKED",
+  "baseMain": "3296a7669216ff1082ff74f5c52cec396af27acf",
+  "liveFrontend": {
+    "commit": "1ad61826c01ade2821f6c1577a3bd1555d0ab899",
+    "version": "admin-readonly-20261106-r1",
+    "changedThisTask": false
+  },
+  "target": {
+    "lovableProject": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+    "configuredSupabase": "iekwvvihjwghosqdxrdi",
+    "databaseName": "postgres",
+    "serverMajor": 17,
+    "regionObserved": "Europe (Frankfurt)",
+    "identityChain": "Lovable project -> current config.toml -> configured Supabase ref; SQL database name alone is not project identity"
+  },
+  "migration": {
+    "version": "20261031184521",
+    "path": "docs/release/pending/20261031184521_admin_operational_drafts.sql",
+    "sha256": "ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328",
+    "changed": false,
+    "execution": "Single explicit transaction; error stops and rolls back; history recorded only with successful DDL",
+    "tables": [
+      "admin_product_operations",
+      "admin_product_shopify_links",
+      "admin_operation_events",
+      "admin_category_operations"
+    ],
+    "functions": [
+      "admin_save_new_draft",
+      "admin_claim_draft",
+      "admin_complete_draft",
+      "admin_finish_categories"
+    ],
+    "applyNow": false
+  },
+  "backup": {
+    "providerBackupPreviouslyObserved": "2026-11-06T05:25:08Z",
+    "providerRestoreMechanism": "Same database; schema and rows replaced; downtime and loss of subsequent changes; no independent clone/PITR proven",
+    "providerRestoreAvailable": true,
+    "restoreVerified": false,
+    "fullExportForbiddenByOwner": true,
+    "exportStarted": false,
+    "downloaded": false,
+    "optionalExportScope": "SCHEMA_ONLY_EIGHT_PUBLIC_TABLES_ZERO_ROWS",
+    "optionalExportAuthorized": false,
+    "persistentDestinationProposed": "~/Library/Application Support/OnlineGarden/Recovery/admin-v2-20261106",
+    "destinationCreated": false,
+    "copyPolicy": "0700 directory / 0600 files; protected persistent copy plus agreed encrypted second copy; no sole /private/tmp copy",
+    "requiredToolchain": "PostgreSQL server/pg_dump/psql 17 for prepared plain-SQL structural procedure; tools 16.15 observed only, no new run or installation",
+    "scopeLimit": "DDL fixture/archive partial only; not production data/Auth/Storage/managed recovery",
+    "optionalExportFormat": "PLAIN_SQL_SCHEMA_ONLY; owner/comment/security-label output suppressed, ACL retained; never an application-row backup"
+  },
+  "gates": {
+    "migrationApproval": false,
+    "backupRecovery": false,
+    "marcoIdentityAndRole": false,
+    "approvedCanaryDraftSku": null,
+    "categoryMappingsApproved": 0
+  },
+  "writes": {
+    "master": "KEEP_OFF",
+    "shopifySync": "KEEP_OFF",
+    "drafts": "KEEP_OFF",
+    "draftShopify": "KEEP_OFF",
+    "categories": "KEEP_OFF",
+    "operationalApproval": "DO_NOT_SET",
+    "frontendReadOnly": "KEEP_TRUE"
+  },
+  "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
+  "productionMutationsThisTask": 0,
+  "cloudResourcesCreated": 0,
+  "manualPassedSuitesRepeated": 0,
+  "recoveryPolicy": {
+    "fullDatabaseExportAllowed": false,
+    "authUsersExportAllowed": false,
+    "personalOrCredentialDataExportAllowed": false,
+    "exportRealDataNow": false,
+    "scopeOfCurrentGoal": "Pre-capability DDL only; no existing row mutations by applying the migration",
+    "fullManagedRestoreDemonstrated": false,
+    "localStructuralRestoreDemonstratedOn17": false,
+    "localPartialRestoreIsFullRecovery": false
+  },
+  "scope": {
+    "newTables": [
+      "admin_product_operations",
+      "admin_product_shopify_links",
+      "admin_operation_events",
+      "admin_category_operations"
+    ],
+    "newFunctions": [
+      "admin_save_new_draft",
+      "admin_claim_draft",
+      "admin_complete_draft",
+      "admin_finish_categories"
+    ],
+    "existingFutureWriteTables": [
+      "public.products",
+      "public.product_current_values",
+      "public.product_category_assignments"
+    ],
+    "existingReadTables": [
+      "public.user_roles",
+      "public.product_field_definitions",
+      "public.product_categories"
+    ],
+    "additionalFkDependencies": [
+      "public.product_import_batches",
+      "public.product_category_source_map",
+      "auth.users(id) REFERENCE_ONLY_NOT_EXPORTED"
+    ],
+    "optionalSchemaTableAllowlist": [
+      "public.products",
+      "public.product_current_values",
+      "public.product_field_definitions",
+      "public.product_categories",
+      "public.product_category_assignments",
+      "public.user_roles",
+      "public.product_import_batches",
+      "public.product_category_source_map"
+    ],
+    "exportedApplicationRows": 0,
+    "roleDataExported": false,
+    "enumDependency": "public.app_role",
+    "functionAndTriggerClosureComplete": false,
+    "functionBodiesExported": false
+  },
+  "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
+  "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
+  "authorizationNeededNow": "None to close the documentation and deliver read-only. A future live migration requires separate specific approval naming target, checksum and recovery plan; no full export consent sought.",
+  "closure": {
+    "date": "2026-11-06",
+    "targetDeadline": "2026-11-06T19:45:00+01:00",
+    "referencePr": 46,
+    "startingHead": "f369ca505145fdc0f06e05561099113506362451",
+    "singleCoherenceCheck": "PASS; migration hash matches expected; PR contains docs/JSON only",
+    "levelA": "DELIVERED_TO_AUTHORIZED_ACCOUNTS; existing live evidence reused, no new smoke",
+    "levelB": "BLOCKED_NOT_ACTIVATED",
+    "marcoAccount": "NOT_ATTESTABLE: missing owner-confirmed account identifier linked to authoritative role record; do not infer from a display name or aggregate",
+    "categoryDecisions": "22 finalized choices, none approved or applied",
+    "currentCodeOrSqlChanges": false,
+    "mergeScope": "Documentation only after final HEAD CI/GitGuardian success; no merge/deploy of operational code",
+    "postSessionPromises": false,
+    "liveChangesThisExecution": false
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "mode": "READ_ONLY_FINAL_ACTIVATION_PREREQUISITES",
+  "project": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+  "configuredSupabase": "iekwvvihjwghosqdxrdi",
+  "identityEvidence": "Lovable project/config.toml -> configured project reference -> database query. current_database=postgres is not independently a project identity.",
+  "result": {
+    "rows": [
+      {
+        "finalprerequisites": {
+          "categories": 22,
+          "categoryMappings": 0,
+          "database": "postgres",
+          "dependencyRls": {
+            "product_categories": true,
+            "product_category_assignments": true,
+            "product_current_values": true,
+            "product_field_definitions": true,
+            "products": true,
+            "user_roles": true
+          },
+          "latestMigration": "20260817125535",
+          "migrationApplied": false,
+          "newFunctions": null,
+          "newRelations": {
+            "public.admin_category_operations": null,
+            "public.admin_operation_events": null,
+            "public.admin_product_operations": null,
+            "public.admin_product_shopify_links": null
+          },
+          "requiredRelations": {
+            "auth.users": "auth.users",
+            "public.product_categories": "product_categories",
+            "public.product_category_assignments": "product_category_assignments",
+            "public.product_category_shopify_map": "product_category_shopify_map",
+            "public.product_current_values": "product_current_values",
+            "public.product_field_definitions": "product_field_definitions",
+            "public.products": "products",
+            "public.user_roles": "user_roles"
+          },
+          "roleAssignmentCounts": [
+            {
+              "count": 1,
+              "role": "admin"
+            }
+          ],
+          "serverVersion": "17.6"
+        }
+      }
+    ]
+  },
+  "mutations": 0,
+  "backupRestoreVerified": false,
+  "exportStarted": false
+}
