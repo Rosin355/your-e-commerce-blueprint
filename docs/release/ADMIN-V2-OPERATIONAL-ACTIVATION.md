@@ -1,3 +1,11 @@
+## Stato conclusivo: procedura definitiva, nessuna esecuzione live
+
+La preparazione è chiusa con questa PR documentale; non restano nuove analisi o prove applicative da richiedere per chiuderla. Il solo livello read-only è consegnato. Il livello operativo resta BLOCKED: recovery completo non dimostrato, autorizzazione migration mancante, ruolo Marco/canary e decisioni commerciali non approvati. Le procedure sotto sono riferimenti per eventuali operazioni future, non un impegno ad avviarle dopo la sessione. Export completo vietato; nessun nuovo tool/ambiente/servizio proposto per oggi.
+
+**Sequenza esatta già preparata:** autorizzazione concreta sul target/checksum e copertura recovery → transazione unica col SQL invariato e history/postcondizioni → lettura schema/RPC/RLS → backend compatibile ancora OFF → capability minima separatamente approvata → DRAFT/SKU approvato → verifica account Marco → altre capability per passi → eventuale frontend compatibile → lettura non distruttiva. Shopify sync non è implicita.
+
+**Rollback nominativo, solo se autorizzato e tutte le quattro tabelle ancora vuote:** nella medesima transazione, funzioni `public.admin_finish_categories(uuid,uuid,uuid[])`, `public.admin_complete_draft(uuid,uuid,text,jsonb)`, `public.admin_claim_draft(uuid,uuid)`, `public.admin_save_new_draft(uuid,uuid,text,jsonb,jsonb)`; poi tabelle `public.admin_category_operations`, `public.admin_operation_events`, `public.admin_product_shopify_links`, `public.admin_product_operations`; infine la sola voce history della versione applicata. Rimozioni con RESTRICT, mai CASCADE. Errore/dipendenza o righe presenti: arresto, niente cancellazione automatica. Prima del COMMIT vale il rollback integrale; dopo scritture si conservano journal e dati, non si applica questo down-schema. Nessun rollback live eseguito ora.
+
 # Admin V2 — recovery minimizzato e gate operativo vigente
 
 **Revisione successiva a `40f5ba9`: nessun export indiscriminato autorizzato.** Questa sezione sostituisce il precedente invito all'export completo. PR #46 solo preparatoria; main, migration live, flag, ruoli, Shopify e versione pubblicata invariati. Non creare staging, progetti o servizi. [Manifest](ADMIN-V2-ACTIVATION-MANIFEST.json).
@@ -102,7 +110,7 @@ psql -X -h "$OG_LOCAL_SOCKET" -p "$OG_LOCAL_PORT" -d og_admin_test_recovery_targ
 
 Questa prova, se PASS, dimostra **soltanto il ripristino dello schema della fixture e la reversibilità del delta**. Non dimostra recupero di dati produttivi, utenti/ruoli effettivi, provider Auth, job, funzioni non presenti nella fixture, Storage o capacità di restore in-place del progetto. Il precedente PASS PostgreSQL 16 resta separato; il manifest mantiene `restoreVerified=false`.
 
-## Secondo gate: approvazione della sola migration
+## Gate separato: approvazione della sola migration
 
 Solo dopo una valutazione esplicita delle coperture di recovery sotto (senza trasformare una prova strutturale in recupero completo), presentare al proprietario un'unica operazione concreta con target, versione e checksum sopra, manifest backup verificato e rollback qui definito. La frase di autorizzazione dovrà nominare `iekwvvihjwghosqdxrdi`, il progetto Lovable, `20261031184521` e il relativo SHA-256. **Non include deploy, flag ON, nuovi ruoli, mapping categorie o mutation Shopify.** Un eventuale consenso all'export DDL minimizzato non equivale ad approvazione della migration. Il precedente consenso richiesto per export completo è ritirato: quel percorso non è autorizzato.
 

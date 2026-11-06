@@ -16,34 +16,36 @@
 
 La gestione categorie è isolata dal frontend pubblicabile: non vengono richiesti nuovi cataloghi/RPC o applicate associazioni. La tabella decisionale per Marco resta una proposta per un'eventuale attivazione successiva, non un prerequisito per consultare dashboard/prodotti oggi. Zero mapping applicati in questo intervento. Nessuna modifica alle collezioni logistiche A/B.
 
-## Tabella decisionale per Marco — proposta, non applicazione
+## Tabella finale per la decisione commerciale di Marco
 
-Riutilizzo dei riferimenti già rilevati il 1 novembre, senza nuove letture Shopify e senza modificare categorie/collezioni A/B. Tutte le 22 righe restano proposte: nessun mapping approvato. Prima di una write futura va riconfermata la destinazione tecnica indicata nella matrice originale sotto.
+Questa è l'unica scheda decisionale cliente: 22 righe riutilizzate dalla matrice esistente, senza rifare la riconciliazione. **Nessuna decisione è presunta: mapping approvati/applicati = 0.** Per ogni riga Marco sceglie una sola opzione; la scelta non scrive dati e non richiede attività tecniche. Il team registrerà l'eventuale decisione esplicita prima di una futura attivazione autorizzata. Una corrispondenza tecnica non vale approvazione commerciale.
 
-| Categoria interna | Collezione Shopify proposta (handle) | Affidabilità | Decisione necessaria | Eccezione |
+Le proposte derivano dalla lettura del 1 novembre, non da una nuova lettura Shopify. Nessuna collezione logistica A/B inclusa o modificata. Le alternative ambigue sono proposte da valutare, non destinazioni automaticamente abilitate. Non creare collezioni o associare prodotti da questa scheda.
+
+| Categoria interna | Collezione proposta | Affidabilità tecnica | Opzioni per Marco (sceglierne una) | Decisione attuale |
 |---|---|---|---|---|
-| Aromatiche | `aromatiche` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Bulbi | `bulbi` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Bulbi → Fioritura Autunnale | Nessuna proposta certa | Nessuna | Lasciare senza mapping o progettare separatamente | Nessuna creazione automatica |
-| Bulbi → Fioritura Estiva | Nessuna proposta certa | Nessuna | Lasciare senza mapping o progettare separatamente | Nessuna creazione automatica |
-| Bulbi → Fioritura Primaverile | Nessuna proposta certa | Nessuna | Lasciare senza mapping o progettare separatamente | Nessuna creazione automatica |
-| Erbacee e Graminacee | `erbacee-perenni-graminacee` | Ambigua | Scegliere la destinazione canonica | Più alternative nella matrice tecnica |
-| Grasse e Succulente | `piante-grasse-succulente` | Ambigua | Scegliere la destinazione canonica | Più alternative nella matrice tecnica |
-| Piante da Esterno | `piante-da-esterno` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Piante da Esterno → Alberi | `alberi` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Piante da Esterno → Arbusti | `arbusti` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Piante da Esterno → Conifere | `conifere` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Piante da Esterno → Siepi | `piante-da-siepe` | Media | Validare contenuti e gerarchia | Nome simile non sufficiente |
-| Piante da Frutto | `piante-da-frutto` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Piante da Frutto → Alberi da Frutto | `alberi-da-frutto` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Piante da Frutto → Piccoli Frutti | `piccoli-frutti` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Rampicanti | `rampicanti` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Rose | `rose` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Rose → Rose a Cespuglio | `rose-cespuglio` | Media | Validare contenuti e gerarchia | Nome simile non sufficiente |
-| Rose → Rose a Fiore Grande | `rose-fiore-grande` | Media | Validare contenuti e gerarchia | Nome simile non sufficiente |
-| Rose → Rose Paesaggistiche | `rose-paesaggistiche` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Rose → Rose Rampicanti | `rose-rampicanti` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
-| Rose → Rose Tappezzanti | Nessuna proposta certa | Nessuna | Lasciare senza mapping o progettare separatamente | Nessuna creazione automatica |
+| Aromatiche | `aromatiche` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Bulbi | `bulbi` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Bulbi → Fioritura Autunnale | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
+| Bulbi → Fioritura Estiva | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
+| Bulbi → Fioritura Primaverile | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
+| Erbacee e Graminacee | `erbacee-perenni-graminacee` | Ambigua | Scegli la proposta / Scegli erbacee-perenni-e-graminacee / Mantieni senza associazione | Non espressa |
+| Grasse e Succulente | `piante-grasse-succulente` | Ambigua | Scegli la proposta / Scegli piante-da-interno-piante-grasse-e-succulente / Mantieni senza associazione | Non espressa |
+| Piante da Esterno | `piante-da-esterno` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Piante da Esterno → Alberi | `alberi` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Piante da Esterno → Arbusti | `arbusti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Piante da Esterno → Conifere | `conifere` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Piante da Esterno → Siepi | `piante-da-siepe` | Media | Approva dopo conferma commerciale dei contenuti / Mantieni senza associazione | Non espressa |
+| Piante da Frutto | `piante-da-frutto` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Piante da Frutto → Alberi da Frutto | `alberi-da-frutto` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Piante da Frutto → Piccoli Frutti | `piccoli-frutti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Rampicanti | `rampicanti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Rose | `rose` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Rose → Rose a Cespuglio | `rose-cespuglio` | Media | Approva dopo conferma commerciale dei contenuti / Mantieni senza associazione | Non espressa |
+| Rose → Rose a Fiore Grande | `rose-fiore-grande` | Media | Approva dopo conferma commerciale dei contenuti / Mantieni senza associazione | Non espressa |
+| Rose → Rose Paesaggistiche | `rose-paesaggistiche` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Rose → Rose Rampicanti | `rose-rampicanti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| Rose → Rose Tappezzanti | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
 
 # Riconciliazione: stato confermato 6 novembre 2026
 

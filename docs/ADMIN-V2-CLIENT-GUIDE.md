@@ -1,3 +1,18 @@
+# Guida rapida per Marco — disponibile oggi, in sola lettura
+
+Il pannello è pronto per **consultare** il catalogo. Non è ancora abilitato a modificare o pubblicare prodotti.
+
+1. Apri [Admin Online Garden](https://onlinegarden.it/admin) e accedi con il tuo account abituale, se già autorizzato. Se l'accesso è negato, segnala il problema al proprietario: non devi configurare strumenti o permessi. L'accesso personale di Marco non è ancora stato attestato dal team.
+2. **Dashboard:** consulta il riepilogo del catalogo. I conteggi interni non sono una certificazione delle pubblicazioni Shopify.
+3. **Prodotti:** cerca per nome o, per individuare un prodotto preciso, usa il suo codice SKU. Puoi usare il tipo prodotto e il filtro dei valori da verificare. Usa Pagina successiva/precedente per gli altri risultati: il numero mostrato riguarda la pagina corrente.
+4. **Dettaglio:** apri il prodotto e consulta le sezioni e lo storico esistente. “Sincronizzazione non verificata” significa che manca uno storico interno certo, non che il prodotto sia assente dal negozio.
+5. **Funzioni disabilitate:** Modifica, salvataggio, nuove bozze/recupero, categorie e sincronizzazione richiedono un'attivazione separata. Anche i filtri avanzati categoria/completezza/sincronizzazione/non classificati sono disabilitati: non dipende da una tua operazione errata. Non usare strumenti tecnici alternativi e non reinserire prodotti per aggirare il blocco.
+6. **Categorie:** nella [scheda unica delle 22 decisioni](ADMIN-V2-CATEGORY-RECONCILIATION-PLAN.md) scegli la proposta commerciale, un'alternativa indicata oppure lascia la categoria senza associazione. Nessuna scelta è già approvata e la scheda non applica modifiche. Non devi verificare ID o configurare Shopify.
+
+Non sono richiesti nuovi test o attività tecniche al cliente. La checklist UI/UX e le istruzioni future restano conservate sotto: le voci di modifica/salvataggio/canary non sono da eseguire ora. Stato consegna: **Livello A disponibile agli account autorizzati; Livello B non operativo.**
+
+---
+
 ## Recovery: protezione dei dati prima di ogni attivazione
 
 Non verrà richiesto un export completo contenente account o password. La consultazione resta disponibile; modifiche, bozze e categorie non sono attivate. Il piano distingue il ripristino di strutture di prova dal recupero dei dati reali: una prova parziale non viene presentata come recupero completo. Non cambia alcun permesso o dato del catalogo.

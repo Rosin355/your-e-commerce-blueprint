@@ -1,5 +1,5 @@
 {
-  "status": "PREPARED_NOT_AUTHORIZED_FOR_LIVE_EXECUTION",
+  "status": "WORK_CYCLE_CLOSED_READONLY_DELIVERED_OPERATIONAL_BLOCKED",
   "baseMain": "3296a7669216ff1082ff74f5c52cec396af27acf",
   "liveFrontend": {
     "commit": "1ad61826c01ade2821f6c1577a3bd1555d0ab899",
@@ -127,5 +127,20 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "None for the preparation. Only if an actual minimized schema export is chosen: explicit consent for eight listed public table definitions, zero rows, approved read-only connection, protected persistent destination. Never full database export. Migration remains a separate gated approval."
+  "authorizationNeededNow": "None to close the documentation and deliver read-only. A future live migration requires separate specific approval naming target, checksum and recovery plan; no full export consent sought.",
+  "closure": {
+    "date": "2026-11-06",
+    "targetDeadline": "2026-11-06T19:45:00+01:00",
+    "referencePr": 46,
+    "startingHead": "f369ca505145fdc0f06e05561099113506362451",
+    "singleCoherenceCheck": "PASS; migration hash matches expected; PR contains docs/JSON only",
+    "levelA": "DELIVERED_TO_AUTHORIZED_ACCOUNTS; existing live evidence reused, no new smoke",
+    "levelB": "BLOCKED_NOT_ACTIVATED",
+    "marcoAccount": "NOT_ATTESTABLE: missing owner-confirmed account identifier linked to authoritative role record; do not infer from a display name or aggregate",
+    "categoryDecisions": "22 finalized choices, none approved or applied",
+    "currentCodeOrSqlChanges": false,
+    "mergeScope": "Documentation only after final HEAD CI/GitGuardian success; no merge/deploy of operational code",
+    "postSessionPromises": false,
+    "liveChangesThisExecution": false
+  }
 }
