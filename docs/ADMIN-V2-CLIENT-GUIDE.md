@@ -1,3 +1,9 @@
+## Attivazione futura: cosa cambia per Marco
+
+La consultazione già pubblicata rimane disponibile; non sono state abilitate modifiche, nuove bozze o assegnazioni categorie. Il responsabile deve prima rendere verificabile il recupero del database e autorizzare separatamente la migrazione e le capability necessarie. Non occorre creare nuovi progetti.
+
+Il tuo account e ruolo devono essere verificati prima di cambiare permessi; non riceverai automaticamente privilegi amministrativi. Le categorie non approvate restano escluse: [le 22 decisioni sono raccolte in un'unica tabella](ADMIN-V2-CATEGORY-RECONCILIATION-PLAN.md). La guida e la checklist sotto restano valide per le rispettive fasi; non effettuare prove di scrittura adesso.
+
 # Admin Online Garden — versione pubblicata il 6 novembre 2026
 
 **Puoi consultare il catalogo:** dashboard, ricerca per nome o SKU, pagine dei risultati e schede prodotto. Il controllo dopo la pubblicazione ha confermato il caricamento e la navigazione.

@@ -1,0 +1,71 @@
+{
+  "status": "PREPARED_NOT_AUTHORIZED_FOR_LIVE_EXECUTION",
+  "baseMain": "3296a7669216ff1082ff74f5c52cec396af27acf",
+  "liveFrontend": {
+    "commit": "1ad61826c01ade2821f6c1577a3bd1555d0ab899",
+    "version": "admin-readonly-20261106-r1",
+    "changedThisTask": false
+  },
+  "target": {
+    "lovableProject": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+    "configuredSupabase": "iekwvvihjwghosqdxrdi",
+    "databaseName": "postgres",
+    "serverMajor": 17,
+    "regionObserved": "Europe (Frankfurt)",
+    "identityChain": "Lovable project -> current config.toml -> configured Supabase ref; SQL database name alone is not project identity"
+  },
+  "migration": {
+    "version": "20261031184521",
+    "path": "docs/release/pending/20261031184521_admin_operational_drafts.sql",
+    "sha256": "ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328",
+    "changed": false,
+    "execution": "Single explicit transaction; error stops and rolls back; history recorded only with successful DDL",
+    "tables": [
+      "admin_product_operations",
+      "admin_product_shopify_links",
+      "admin_operation_events",
+      "admin_category_operations"
+    ],
+    "functions": [
+      "admin_save_new_draft",
+      "admin_claim_draft",
+      "admin_complete_draft",
+      "admin_finish_categories"
+    ],
+    "applyNow": false
+  },
+  "backup": {
+    "providerBackupObserved": "2026-11-06T05:25:08Z",
+    "observedRetentionRows": 15,
+    "databaseStorageObserved": "0.35 GB of 8 GB",
+    "providerExportAvailable": true,
+    "exportStarted": false,
+    "downloaded": false,
+    "restoreVerified": false,
+    "block": "Automatic approval review rejected the Export action because complete DB export can include sensitive account data/password hashes and needs explicit approval",
+    "proposedPrivateDestination": "/private/tmp/og-admin-recovery-20261106",
+    "destinationPermissions": "directory 0700; files 0600; excluded from repository and reports",
+    "localPgRestoreObserved": "16.15",
+    "requiredRestoreToolchain": "PostgreSQL/pg_restore 17 or compatible newer; no installation or restore performed"
+  },
+  "gates": {
+    "migrationApproval": false,
+    "backupRecovery": false,
+    "marcoIdentityAndRole": false,
+    "approvedCanaryDraftSku": null,
+    "categoryMappingsApproved": 0
+  },
+  "writes": {
+    "master": "KEEP_OFF",
+    "shopifySync": "KEEP_OFF",
+    "drafts": "KEEP_OFF",
+    "draftShopify": "KEEP_OFF",
+    "categories": "KEEP_OFF",
+    "operationalApproval": "DO_NOT_SET",
+    "frontendReadOnly": "KEEP_TRUE"
+  },
+  "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
+  "productionMutationsThisTask": 0,
+  "cloudResourcesCreated": 0,
+  "manualPassedSuitesRepeated": 0
+}
