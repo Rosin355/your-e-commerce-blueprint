@@ -1,3 +1,46 @@
+## Percorso unico di attivazione — chiusura residui, 6 novembre 2026
+
+Questa sezione sostituisce le precedenti sequenze di rilascio; le evidenze storiche PASS restano valide. Base di questa ripresa `0d3f404`, nessun cambiamento ai flag.
+
+**Staging: NON DISPONIBILE negli accessi identificati/autorizzati.** Il backend letto via connettore Lovable è operativo; Preview non è un secondo ambiente. La [documentazione Lovable](https://docs.lovable.dev/features/environments) indica il ritiro Test/Live il 23 ottobre 2026 e specifica che le bozze non forniscono un secondo database. Il metadata del progetto espone una Preview e un backend Supabase, nessuno staging attestato. Non è una dichiarazione sull'eventuale esistenza di risorse non accessibili. Nessun progetto o risorsa creati. [Evidenza](admin-v2-evidence/2026-11-06-final/staging.json).
+
+| Passo, nell'ordine | Evidenza necessaria / punto di arresto |
+|---|---|
+| 1. Codice definitivo | HEAD PR #42, CI/GitGuardian PASS, review e diff pertinenti; tenere Draft finché mancano i gate. |
+| 2. Backup | Identificare database target e backup completo protetto, inclusi ruoli/schema/dati necessari e riferimento a storage/auth; verificare un ripristino su target isolato. Un export presente senza prova di restore non è un backup verificato. Nessun dump di dati reali in Git. |
+| 3. Migration controllata | Prima target isolato identificato e autorizzato, poi eventuale produzione soltanto con ulteriore approvazione. Verificare hash SQL, baseline e registro; applicare esclusivamente la migration operativa prevista, non un push indiscriminato di tutte le migration storiche. |
+| 4. ACL/RLS | Verificare quattro tabelle e quattro RPC nuove, ACL service-only, RLS e test negativi anon/authenticated/publisher; prove dei ruoli applicativi e audit. Fermarsi in caso di divergenza. |
+| 5. Backend | Distribuire product-admin-api compatibile mantenendo i flag OFF; controllare contesto, ricerca/filtri e risposte al tentativo non autorizzato nell'ambiente di collaudo. Il backend precedente ignora i filtri nuovi. |
+| 6. Frontend Lovable | Dopo review/approvazione integrazione e pubblicazione, annotare commit effettivamente distribuito. Il commit editor Lovable o il merge GitHub non dimostrano pubblicazione. Verificare consultazione e tre flag senza attivazioni generali. |
+| 7. Capability graduali | Iniziare dal solo salvataggio interno su canary approvato, poi approvazione della specifica operazione DRAFT e categoria. Shopify sync a campo singolo ha il suo flag separato. Mai abilitare modalità full o tutti i permessi per comodità. |
+| 8. Canary DRAFT | SKU, operationId, campi, categorie e finestra approvati; claim, esito, mapping, rilettura e recovery senza duplicazione. Non pubblicare il prodotto; nessun prodotto commerciale casuale. |
+| 9. Marco | Identità Supabase e ruolo effettivo verificati senza nuove assegnazioni implicite. Checklist A–I e Safari/device con Marco/designer; screenshot senza dati personali. |
+| 10. Rollback | Fermare i nuovi comandi e riportare le capability abilitate allo stato concordato; conservare journal/GID per recovery. Ripristinare backend/frontend precedenti e verificare letture. Restore database solo da backup già provato, con autorizzazione e riconciliazione delle operazioni successive; non perdere nuovi dati o creare duplicati Shopify. |
+
+I passi 2–10 sono **preparati, non eseguiti**; nessuna autorizzazione produttiva implicita. Il gate di staging non è chiuso da una simulazione locale. L'assenza di staging non impedisce le correzioni UI indipendenti già effettuate.
+
+### Ripetere la prova PostgreSQL temporanea (solo quando serve)
+
+Prerequisiti già usati: PostgreSQL 16, Node e dipendenze repository. Il SQL non è cambiato: **non serve rieseguire ora** la prova già PASS. Il comando crea solo fixture sintetiche, non scarica dati live e non avvia Edge Functions con credenziali produttive.
+
+```sh
+set -eu
+OG_ADMIN_TEST_DIR=$(mktemp -d /tmp/og-admin42.XXXXXX)
+mkdir "$OG_ADMIN_TEST_DIR/socket"
+initdb -D "$OG_ADMIN_TEST_DIR/data" -A trust --no-locale --encoding=UTF8
+trap 'pg_ctl -D "$OG_ADMIN_TEST_DIR/data" stop -m fast >/dev/null 2>&1 || true' EXIT
+pg_ctl -D "$OG_ADMIN_TEST_DIR/data" -l "$OG_ADMIN_TEST_DIR/server.log" \
+  -o "-k $OG_ADMIN_TEST_DIR/socket -p 55442 -c listen_addresses=''" start
+createdb -h "$OG_ADMIN_TEST_DIR/socket" -p 55442 og_admin_test_release
+OG_TEST_PG_SOCKET="$OG_ADMIN_TEST_DIR/socket" \
+OG_TEST_PG_PORT=55442 OG_TEST_PG_DATABASE=og_admin_test_release \
+  node scripts/test-admin-operational-db.mjs
+psql -h "$OG_ADMIN_TEST_DIR/socket" -p 55442 -d og_admin_test_release \
+  -v ON_ERROR_STOP=1 -f scripts/fixtures/admin-operational/rollback-roles.sql
+```
+
+`listen_addresses=''` esclude TCP; socket nel percorso temporaneo, nessun account reale. Lo script rifiuta socket non temporanei e nomi DB fuori `og_admin_test_*`. Su host che richiedono permessi per IPC, usare l'autorizzazione locale appropriata: non spostare il test sul database operativo. Conservare output e directory fino a revisione, arrestare solo il cluster creato. Questa è una prova del SQL/RPC/ACL su fixture, non di Supabase Auth o restore di backup live. [PASS già conservato](admin-v2-evidence/2026-11-06/postgres-local.json).
+
 # Stato eseguibile e prossimi gate — 6 novembre 2026
 
 **Aggiornamento 6 novembre 2026 — PR #42; questa sezione prevale sugli stati storici sottostanti.**

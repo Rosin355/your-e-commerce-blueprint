@@ -1,3 +1,32 @@
+## Tabella decisionale per Marco — proposta, non applicazione
+
+Riutilizzo dei riferimenti già rilevati il 1 novembre, senza nuove letture Shopify e senza modificare categorie/collezioni A/B. Tutte le 22 righe restano proposte: nessun mapping approvato. Prima di una write futura va riconfermata la destinazione tecnica indicata nella matrice originale sotto.
+
+| Categoria interna | Collezione Shopify proposta (handle) | Affidabilità | Decisione necessaria | Eccezione |
+|---|---|---|---|---|
+| Aromatiche | `aromatiche` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Bulbi | `bulbi` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Bulbi → Fioritura Autunnale | Nessuna proposta certa | Nessuna | Lasciare senza mapping o progettare separatamente | Nessuna creazione automatica |
+| Bulbi → Fioritura Estiva | Nessuna proposta certa | Nessuna | Lasciare senza mapping o progettare separatamente | Nessuna creazione automatica |
+| Bulbi → Fioritura Primaverile | Nessuna proposta certa | Nessuna | Lasciare senza mapping o progettare separatamente | Nessuna creazione automatica |
+| Erbacee e Graminacee | `erbacee-perenni-graminacee` | Ambigua | Scegliere la destinazione canonica | Più alternative nella matrice tecnica |
+| Grasse e Succulente | `piante-grasse-succulente` | Ambigua | Scegliere la destinazione canonica | Più alternative nella matrice tecnica |
+| Piante da Esterno | `piante-da-esterno` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Piante da Esterno → Alberi | `alberi` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Piante da Esterno → Arbusti | `arbusti` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Piante da Esterno → Conifere | `conifere` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Piante da Esterno → Siepi | `piante-da-siepe` | Media | Validare contenuti e gerarchia | Nome simile non sufficiente |
+| Piante da Frutto | `piante-da-frutto` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Piante da Frutto → Alberi da Frutto | `alberi-da-frutto` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Piante da Frutto → Piccoli Frutti | `piccoli-frutti` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Rampicanti | `rampicanti` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Rose | `rose` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Rose → Rose a Cespuglio | `rose-cespuglio` | Media | Validare contenuti e gerarchia | Nome simile non sufficiente |
+| Rose → Rose a Fiore Grande | `rose-fiore-grande` | Media | Validare contenuti e gerarchia | Nome simile non sufficiente |
+| Rose → Rose Paesaggistiche | `rose-paesaggistiche` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Rose → Rose Rampicanti | `rose-rampicanti` | Alta tecnica | Confermare significato e approvare | Non ancora approvata |
+| Rose → Rose Tappezzanti | Nessuna proposta certa | Nessuna | Lasciare senza mapping o progettare separatamente | Nessuna creazione automatica |
+
 # Riconciliazione: stato confermato 6 novembre 2026
 
 **Aggiornamento 6 novembre 2026 — PR #42; questa sezione prevale sugli stati storici sottostanti.**

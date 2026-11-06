@@ -1,0 +1,12 @@
+{
+  "project": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+  "databaseEnabled": true,
+  "stack": "supabase",
+  "editorCommit": "8ad26ba66e8c3b49987544934bbcc8c1a0915aa0",
+  "preview": "https://id-preview--95cad199-55fd-4870-9d5c-a2653edf88f5.lovable.app",
+  "isolatedStaging": "NOT_IDENTIFIED_OR_AUTHORIZED_IN_AVAILABLE_ACCESS",
+  "productionDatabaseUsedForTesting": false,
+  "documentation": "https://docs.lovable.dev/features/environments",
+  "documentationFinding": "Test/Live retired 2026-10-23; drafts do not supply a second database",
+  "scope": "No new project, database, branch, subscription or resource created. Editor commit does not attest published commit."
+}

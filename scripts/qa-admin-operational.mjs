@@ -17,6 +17,7 @@ const report = {
 };
 const id = '20000000-0000-4000-8000-000000000001', pid = '30000000-0000-4000-8000-000000000001';
 let mode = 'normal';
+let operationState = 'LOCAL_DRAFT';
 const catalog = () => ({
   categories: mode === 'empty' ? [] : [{
     id,
@@ -84,8 +85,8 @@ await context.route('**/*', async (route) => {
       return json({
         ok: true,
         roles: ['admin'],
-        canWrite: true,
-        writesEnabled: true,
+        canWrite: mode !== 'blocked-actions',
+        writesEnabled: mode !== 'blocked-actions',
         canSync: false,
         readOnlyReason: 'Simulazione QA',
       });
@@ -149,7 +150,7 @@ await context.route('**/*', async (route) => {
       });
     }
     if (p.action === 'get_product') return json({ok:true,product:{productId:pid,sku:'QA-SIMULATO-001',entityType:'simple',parentProductId:null,parentSku:null,isActive:true,updatedAt:new Date().toISOString()},sections:[],history:[],shopifyLive:{available:false,mapped:false,productId:null}});
-    if (p.action === 'get_product_operations') return json({ok:true,canSendDraft:false,operations:[{id:'40000000-0000-4000-8000-000000000001',state:'LOCAL_DRAFT',created_at:new Date().toISOString(),admin_operation_events:[]}]});
+    if (p.action === 'get_product_operations') return json({ok:true,canSendDraft:false,operations:[{id:'40000000-0000-4000-8000-000000000001',state:operationState,created_at:new Date().toISOString(),admin_operation_events:[]}]});
     if (p.action === 'list_products') {
       report.filterRequests.push({category:p.category,sku:p.sku});
       const items = [
@@ -168,6 +169,26 @@ await context.route('**/*', async (route) => {
 const page = await context.newPage();
 page.on('pageerror', (e) => report.errors.push(e.message));
 try {
+  if (process.env.OG_ADMIN_QA_TARGET === 'blocked-actions') {
+    mode = 'blocked-actions';
+    for (const width of [320, 1440]) {
+      await page.setViewportSize({ width, height: 1000 });
+      for (const state of ['LOCAL_DRAFT', 'NEEDS_RECONCILIATION']) {
+        operationState = state;
+        await page.goto(`http://127.0.0.1:5189/admin/products/${pid}`);
+        const create = state === 'LOCAL_DRAFT';
+        const button = page.getByRole('button', { name: create ? 'Crea bozza Shopify' : 'Recupera stato senza ricreare', exact: true });
+        await button.waitFor();
+        assert.ok(await button.isDisabled());
+        await page.getByText(create
+          ? 'Invio non disponibile: richiede abilitazione operativa e approvazione di questa bozza.'
+          : 'Recupero non disponibile: richiede scritture abilitate e un amministratore autorizzato.', { exact: true }).waitFor();
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+        await page.screenshot({ path: `${output}/blocked-${state}-${width}.png`, fullPage: true });
+        report.checks.push({ width, state, disabled: true, explanationVisible: true, overflow: false });
+      }
+    }
+  } else {
   if (process.env.OG_ADMIN_QA_SKIP_BASELINE !== 'true') for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('http://127.0.0.1:5188/admin/categories');
@@ -289,6 +310,7 @@ try {
   await page.keyboard.press('Tab');
   assert.ok(await page.evaluate(() => document.activeElement !== document.body));
   report.checks.push({ keyboardFocus: true });
+  }
   assert.deepEqual(report.errors, []);
   report.result = 'PASS';
 } catch (e) {

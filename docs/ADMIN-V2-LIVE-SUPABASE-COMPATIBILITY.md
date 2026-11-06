@@ -1,3 +1,11 @@
+## Chiusura mirata del 6 novembre 2026 — delta rispetto alla baseline
+
+**Nuove incompatibilità rilevate: nessuna nei controlli mirati.** Non è stato ripetuto l'audit del catalogo né della struttura completa. SELECT via Lovable sul database operativo: 25 tabelle public; sette tabelle richieste con RLS attiva e accesso service_role necessario; `sku_norm` ancora generata `lower(btrim(sku))`. Il massimo identificativo nel registro migration è `20260817125535`; la migration operativa successiva resta assente. I due RPC editoriali preesistenti restano service-only, non eseguibili da anon/authenticated; i helper di ruolo restano eseguibili da authenticated. Gli enum includono i ruoli attesi; aggregato assegnazioni: una sola riga admin. **Non identifica Marco né autorizza nuovi ruoli.**
+
+I quattro RPC operativi mancanti e i mapping non approvati sono blocchi già noti, non regressioni nuove. Il grant SELECT anon su `user_roles` è il debito già registrato: RLS attiva e grant non equivalgono ad accesso effettivo alle righe. Nessun privilegio corretto di nascosto. [Metadata/grant/aggregati sanificati](admin-v2-evidence/2026-11-06-final/backend-readonly.json).
+
+Il database collegato a Lovable è quello operativo, **non staging**. Nessun test di scrittura, SQL DDL/DML, chiamata RPC operativa o lettura di credenziali. La compatibilità strutturale non è un test JWT/RLS con l'account di Marco.
+
 # Admin V2 — compatibilità con Supabase Online Garden
 
 **Addendum 1 novembre 2026:** la review successiva ha confermato che la migration resta non applicata anche nel registro `supabase_migrations.schema_migrations`; il precedente schema `sku_norm` è applicato. È stato corretto sul branch il solo bypass del kill switch in `recover_shopify_draft`: il master OFF ora blocca anche la finalizzazione del mapping interno. Le letture di 22 categorie e 55 collezioni hanno prodotto la [matrice di riconciliazione](ADMIN-V2-CATEGORY-RECONCILIATION-PLAN.md); il [runbook](ADMIN-V2-ACTIVATION-RUNBOOK.md) separa merge, migration, mapping, canary e capability. Nessuna modifica live.

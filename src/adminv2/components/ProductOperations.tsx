@@ -42,27 +42,40 @@ export default function ProductOperations({ productId }: { productId: string }) 
         <div key={op.id} className='space-y-2'>
           <p>{OPERATION_LABELS[op.state] ?? 'Stato da verificare'}</p>
           <p className='text-sm'>{new Date(op.created_at).toLocaleString('it-IT')}</p>
-          {op.state === 'LOCAL_DRAFT' && query.data.canSendDraft &&
-            query.data.approvedOperationId === op.id && (
-            <Button
-              disabled={command.isPending}
-              onClick={() => {
-                if (window.confirm('Creare una bozza Shopify senza pubblicarla?')) {
-                  command.mutate({ action: 'create_shopify_draft', operationId: op.id });
-                }
-              }}
-            >
-              Crea bozza Shopify
-            </Button>
+          {op.state === 'LOCAL_DRAFT' && (
+            <div className='space-y-2'>
+              <Button
+                disabled={command.isPending || !query.data.canSendDraft || query.data.approvedOperationId !== op.id}
+                onClick={() => {
+                  if (window.confirm('Creare una bozza Shopify senza pubblicarla?')) {
+                    command.mutate({ action: 'create_shopify_draft', operationId: op.id });
+                  }
+                }}
+              >
+                Crea bozza Shopify
+              </Button>
+              {(!query.data.canSendDraft || query.data.approvedOperationId !== op.id) && (
+                <p className='text-sm text-muted-foreground'>
+                  Invio non disponibile: richiede abilitazione operativa e approvazione di questa bozza.
+                </p>
+              )}
+            </div>
           )}
-          {canRecover && ['IN_FLIGHT', 'NEEDS_RECONCILIATION'].includes(op.state) && (
-            <Button
-              disabled={command.isPending}
-              onClick={() =>
-                command.mutate({ action: 'recover_shopify_draft', operationId: op.id })}
-            >
-              Recupera stato senza ricreare
-            </Button>
+          {['IN_FLIGHT', 'NEEDS_RECONCILIATION'].includes(op.state) && (
+            <div className='space-y-2'>
+              <Button
+                disabled={command.isPending || !canRecover}
+                onClick={() =>
+                  command.mutate({ action: 'recover_shopify_draft', operationId: op.id })}
+              >
+                Recupera stato senza ricreare
+              </Button>
+              {!canRecover && (
+                <p className='text-sm text-muted-foreground'>
+                  Recupero non disponibile: richiede scritture abilitate e un amministratore autorizzato.
+                </p>
+              )}
+            </div>
           )}
           <ul className='text-sm'>
             {op.admin_operation_events.map((e, i) => (

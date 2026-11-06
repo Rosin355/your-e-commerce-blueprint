@@ -1,3 +1,11 @@
+## Aggiornamento per Marco — cosa significano le azioni bloccate
+
+Le azioni “Crea bozza Shopify” e “Recupera stato senza ricreare”, quando esiste una bozza interna o un'operazione incerta, ora restano visibili ma disabilitate con una spiegazione se manca l'abilitazione del server. Questo non indica una creazione fallita e non richiede di reinserire lo stesso prodotto. Il recupero serve a verificare la stessa operazione: non crea una seconda bozza.
+
+Se un campo richiede assistenza o una categoria non ha una corrispondenza approvata, segnalarlo al responsabile senza usare funzioni tecniche alternative. La Preview del progetto usa il database operativo: non è un posto sicuro dove fare modifiche di prova.
+
+Consultazione disponibile, scritture e sincronizzazione ancora OFF. Rimangono da svolgere con il proprio account la checklist sotto e la prova Safari; i risultati locali simulati non sono accettazione cliente.
+
 # Admin Online Garden — guida per Marco e accettazione
 
 Stato 6 novembre 2026: consultazione verificata; **modifiche e sincronizzazione sono disabilitate**. Nuove bozze/categorie non ancora rilasciate: manca il collaudo staging, il canary autorizzato e l'approvazione finale. Non richiedere l'attivazione generale per provare un pulsante.

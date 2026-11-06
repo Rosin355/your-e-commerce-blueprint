@@ -155,7 +155,7 @@ export default function FieldEditor({ field, value, onChange, disabled = false }
   }
 
   if (kind === 'unsupported_json') {
-    return <p className="text-xs text-destructive">Formato JSON non supportato dall’editor tipizzato.</p>;
+    return <p className="text-xs text-destructive">Campo in sola lettura: questo contenuto richiede assistenza per essere modificato.</p>;
   }
 
   if (kind === 'unsupported_select') {

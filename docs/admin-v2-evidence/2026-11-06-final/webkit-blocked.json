@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-06",
+  "engine": "WebKit already installed v2388",
+  "attemptsThisTask": 1,
+  "status": "BLOCKED",
+  "phase": "context.newPage",
+  "exitCode": 139,
+  "error": "Process crashed before test navigation",
+  "reinstalled": false,
+  "safariClaim": "NOT_VERIFIED"
+}

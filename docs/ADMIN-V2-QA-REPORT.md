@@ -1,3 +1,15 @@
+## Chiusura tecnica dei soli residui — 6 novembre 2026
+
+Ripresa da `0d3f404`: non ripetuti i 370 Node, 103 Deno, SQL/rollback e Chromium a sei larghezze già PASS. Nessun SQL/migration/controllo server cambiato.
+
+- **Nuova prova mirata Chromium PASS, 4 casi:** bozza interna e operazione da riconciliare a 320/1440 px. Invio/recupero disabilitati e motivo visibile quando il server nega la capability; zero overflow e zero page error. API/auth simulate, non prova live. [Report](admin-v2-evidence/2026-11-06-final/chromium/browser-qa.json).
+- Due testi semplificati: niente codice di stato tecnico nella pagina Categorie e niente “JSON/editor tipizzato” per un campo non modificabile.
+- Typecheck, lint dei tre componenti modificati e build PASS. La CI sull'HEAD finale esegue i check obbligatori e viene attestata nella PR; i PASS sul commit precedente non sono trasferiti automaticamente.
+- **WebKit BLOCKED dopo un unico tentativo:** browser già installato, exit 139 prima della navigazione. Nessuna reinstallazione o retry; Safari/device restano aperti. [Evidenza](admin-v2-evidence/2026-11-06-final/webkit-blocked.json).
+- Backend: nessuna incompatibilità nuova nei metadata/grant mirati. Staging isolato non identificato/autorizzato; nessuna prova di write reale. Ruolo Marco non verificato dall'aggregato admin esistente.
+
+UI/UX complessiva **PARTIAL** per Safari e accettazione reale. Funzioni di scrittura **non dichiarate operative**. Guida/checklist già esistenti conservate; percorso di rilascio ora unico e con rollback/backup distinti dalle prove SQL locali. Nessuna modifica produttiva.
+
 # Completamento mirato Admin V2 — 6 novembre 2026
 
 **Aggiornamento 6 novembre 2026 — PR #42; questa sezione prevale sugli stati storici sottostanti.**

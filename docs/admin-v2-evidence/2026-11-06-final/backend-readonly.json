@@ -1,0 +1,172 @@
+{
+  "mode": "SELECT_ONLY_OPERATIONAL_DATABASE_NOT_STAGING",
+  "project": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+  "configuredSupabase": "iekwvvihjwghosqdxrdi",
+  "metadata": {
+    "rows": [
+      {
+        "metadata": {
+          "appRoleValues": [
+            "admin",
+            "moderator",
+            "user",
+            "editor",
+            "publisher",
+            "tech_admin"
+          ],
+          "latestMigration": "20260817125535",
+          "operationalRPC": null,
+          "publicTables": 25,
+          "requiredTables": [
+            {
+              "anonSelect": false,
+              "authenticatedSelect": true,
+              "rls": true,
+              "serviceInsert": true,
+              "serviceSelect": true,
+              "table": "product_categories"
+            },
+            {
+              "anonSelect": false,
+              "authenticatedSelect": true,
+              "rls": true,
+              "serviceInsert": true,
+              "serviceSelect": true,
+              "table": "product_category_assignments"
+            },
+            {
+              "anonSelect": false,
+              "authenticatedSelect": true,
+              "rls": true,
+              "serviceInsert": true,
+              "serviceSelect": true,
+              "table": "product_category_shopify_map"
+            },
+            {
+              "anonSelect": false,
+              "authenticatedSelect": true,
+              "rls": true,
+              "serviceInsert": true,
+              "serviceSelect": true,
+              "table": "product_current_values"
+            },
+            {
+              "anonSelect": false,
+              "authenticatedSelect": true,
+              "rls": true,
+              "serviceInsert": true,
+              "serviceSelect": true,
+              "table": "product_field_definitions"
+            },
+            {
+              "anonSelect": false,
+              "authenticatedSelect": true,
+              "rls": true,
+              "serviceInsert": true,
+              "serviceSelect": true,
+              "table": "products"
+            },
+            {
+              "anonSelect": true,
+              "authenticatedSelect": true,
+              "rls": true,
+              "serviceInsert": true,
+              "serviceSelect": true,
+              "table": "user_roles"
+            }
+          ],
+          "skuNorm": {
+            "expression": "lower(btrim(sku))",
+            "generated": "ALWAYS"
+          }
+        }
+      }
+    ]
+  },
+  "grantsAndRoleAggregates": {
+    "rows": [
+      {
+        "evidence": [
+          {
+            "anonExecute": false,
+            "authenticatedExecute": false,
+            "name": "admin_complete_product_field_sync",
+            "securityDefiner": true,
+            "serviceExecute": true
+          },
+          {
+            "anonExecute": false,
+            "authenticatedExecute": false,
+            "name": "admin_update_product_field",
+            "securityDefiner": true,
+            "serviceExecute": true
+          },
+          {
+            "anonExecute": false,
+            "authenticatedExecute": true,
+            "name": "can_edit_products",
+            "securityDefiner": true,
+            "serviceExecute": true
+          },
+          {
+            "anonExecute": false,
+            "authenticatedExecute": true,
+            "name": "has_role",
+            "securityDefiner": true,
+            "serviceExecute": true
+          }
+        ],
+        "section": "existing_rpc"
+      },
+      {
+        "evidence": [
+          {
+            "count": 1,
+            "role": "admin"
+          }
+        ],
+        "section": "role_counts"
+      },
+      {
+        "evidence": [
+          {
+            "count": 2,
+            "tablename": "product_categories"
+          },
+          {
+            "count": 3,
+            "tablename": "product_category_assignments"
+          },
+          {
+            "count": 2,
+            "tablename": "product_category_shopify_map"
+          },
+          {
+            "count": 1,
+            "tablename": "product_current_values"
+          },
+          {
+            "count": 2,
+            "tablename": "product_field_definitions"
+          },
+          {
+            "count": 1,
+            "tablename": "products"
+          },
+          {
+            "count": 2,
+            "tablename": "user_roles"
+          }
+        ],
+        "section": "policy_counts"
+      }
+    ]
+  },
+  "comparison": "No new structural incompatibilities versus existing baseline. Missing operational RPC/migration and unapproved mappings were already known.",
+  "limitations": [
+    "Role aggregates do not identify or authorize Marco",
+    "RLS enabled/grants read are not an end-to-end identity test",
+    "Table privileges do not establish effective RLS row access"
+  ],
+  "mutationCalls": 0
+}

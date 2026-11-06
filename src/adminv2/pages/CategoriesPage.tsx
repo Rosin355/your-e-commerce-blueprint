@@ -68,7 +68,7 @@ export default function CategoriesPage() {
       </header>
       <p className='rounded-lg border p-4 text-sm'>{data.notice}</p>
       <p className='text-sm'>
-        82 casi storici NEEDS_REVIEW: riconciliazione non verificata. Non sono il conteggio dei
+        82 casi storici da verificare: riconciliazione non conclusa. Non sono il conteggio dei
         prodotti senza categoria mostrati qui.
       </p>
       {data.missingCanonicalHandles.length > 0 && (
