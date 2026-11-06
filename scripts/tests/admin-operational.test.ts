@@ -172,7 +172,7 @@ test('nessuna pubblicazione o inventory mutation nel nuovo servizio', () => {
   assert.ok(s.indexOf("db.rpc('admin_claim_draft'") < s.indexOf('mutation AdminCreateDraft'));
 });
 test('journal e mapping negano accesso diretto al browser e RPC pubbliche', () => {
-  const s = readFileSync('supabase/migrations/20261031184521_admin_operational_drafts.sql', 'utf8');
+  const s = readFileSync('docs/release/pending/20261031184521_admin_operational_drafts.sql', 'utf8');
   for (
     const t of ['admin_product_operations', 'admin_product_shopify_links', 'admin_operation_events']
   ) assert.match(s, new RegExp(`ALTER TABLE public.${t} ENABLE ROW LEVEL SECURITY`));

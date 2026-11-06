@@ -1,3 +1,4 @@
+import { ADMIN_READ_ONLY_RELEASE } from '../lib/readOnlyRelease';
 // F6 — Lista prodotti: ricerca, filtri, paginazione a cursore. Sola lettura.
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -87,7 +88,8 @@ export default function ProductsPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-xl font-semibold">Prodotti</h1>
-        <Button asChild className="my-2 min-h-11"><Link to="/admin/products/new">Nuovo prodotto</Link></Button>
+        <Button disabled={ADMIN_READ_ONLY_RELEASE} className="my-2 min-h-11">Nuovo prodotto</Button>
+        {ADMIN_READ_ONLY_RELEASE && <p className="text-sm text-muted-foreground">Creazione bozze non ancora attiva. Il catalogo è disponibile in sola lettura.</p>}
         <p className="text-sm text-muted-foreground">Catalogo interno e modifiche secondo le autorizzazioni del tuo account.</p>
       </div>
 
@@ -141,7 +143,7 @@ export default function ProductsPage() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="categoria">Categoria</Label>
-            <Input id="categoria" list="categorie-suggerite"
+            <Input disabled={ADMIN_READ_ONLY_RELEASE} id="categoria" list="categorie-suggerite"
               value={category === 'all' ? '' : category}
               onChange={e => onFilterChange(() => setCategory(e.target.value || 'all'))}
               placeholder="Tutte · cerca una categoria" />
@@ -151,7 +153,7 @@ export default function ProductsPage() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="origine">Sincronizzazione</Label>
-            <Select value={origin} onValueChange={(v) => onFilterChange(() => setOrigin(v))}>
+            <Select disabled={ADMIN_READ_ONLY_RELEASE} value={origin} onValueChange={(v) => onFilterChange(() => setOrigin(v))}>
               <SelectTrigger id="origine"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tutte</SelectItem>
@@ -162,7 +164,7 @@ export default function ProductsPage() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="completezza">Completezza</Label>
-            <Select value={completeness} onValueChange={(v) => onFilterChange(() => setCompleteness(v))}>
+            <Select disabled={ADMIN_READ_ONLY_RELEASE} value={completeness} onValueChange={(v) => onFilterChange(() => setCompleteness(v))}>
               <SelectTrigger id="completezza"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tutti</SelectItem>
@@ -173,10 +175,12 @@ export default function ProductsPage() {
           </div>
         </div>
 
+        {ADMIN_READ_ONLY_RELEASE && <p className="text-sm text-muted-foreground">Categoria, completezza e sincronizzazione richiedono un aggiornamento separato del servizio e sono disabilitati. Ricerca, tipo prodotto e paginazione usano il servizio attuale.</p>}
         <div className="flex flex-wrap items-center gap-6">
           <div className="flex items-center gap-2">
             <Checkbox
               id="da-classificare"
+              disabled={ADMIN_READ_ONLY_RELEASE}
               checked={toClassify}
               onCheckedChange={(v) => onFilterChange(() => setToClassify(v === true))}
             />
@@ -195,7 +199,7 @@ export default function ProductsPage() {
       </section>
 
       <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
-        {isFetching || searchPending ? "Aggiornamento risultati…" : `${items.length} ${items.length === 1 ? 'prodotto' : 'prodotti'} in questa pagina. I filtri si applicano al catalogo.`}
+        {isFetching || searchPending ? "Aggiornamento risultati…" : `${items.length} ${items.length === 1 ? 'prodotto' : 'prodotti'} in questa pagina.`}
       </p>
 
       {isError && (

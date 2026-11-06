@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminContext } from '../hooks/useAdminData';
 import { LEGACY_TOOLS_ENABLED } from '../lib/flags';
+import { ADMIN_READ_ONLY_RELEASE, ADMIN_READ_ONLY_VERSION, READ_ONLY_RELEASE_NOTICE } from '../lib/readOnlyRelease';
 
 const NAV = [
   { to: '/admin', label: 'Dashboard', icon: BarChart3, end: true },
@@ -105,13 +106,13 @@ export default function AdminShell() {
 
       <div className="border-b bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
         <p className="mx-auto max-w-7xl px-4 py-2 text-sm">
-          {context?.canWrite
+          {ADMIN_READ_ONLY_RELEASE ? READ_ONLY_RELEASE_NOTICE : context?.canWrite
             ? 'Modifiche field-by-field controllate dal server; nessuna pubblicazione automatica.'
             : (context?.readOnlyReason ?? 'Stato delle autorizzazioni NON VERIFICATO.')}
         </p>
       </div>
 
-      <main id="contenuto-admin" className="mx-auto max-w-7xl px-4 py-6">
+      <main id="contenuto-admin" data-admin-release={ADMIN_READ_ONLY_VERSION} className="mx-auto max-w-7xl px-4 py-6">
         <Outlet />
       </main>
     </div>

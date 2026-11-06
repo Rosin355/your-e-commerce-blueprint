@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { listProducts } from "../../supabase/functions/_shared/admin-v2-queries.ts";
+import { listProducts } from "../../supabase/functions/_shared/admin-v2-queries-deferred.ts";
 import { matchesProductFilters } from "../../supabase/functions/_shared/admin-v2-list-filters.ts";
 
 function fixture(count: number, extraFields = 0) {

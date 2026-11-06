@@ -1,4 +1,5 @@
 import ProductOperations from '../components/ProductOperations';
+import { ADMIN_READ_ONLY_RELEASE, readOnlyField, READ_ONLY_RELEASE_NOTICE } from '../lib/readOnlyRelease';
 // F6 — Scheda prodotto in sola lettura, organizzata per sezioni.
 import { Link, useParams } from 'react-router-dom';
 import { AlertTriangle, ArrowLeft } from 'lucide-react';
@@ -79,7 +80,7 @@ export default function ProductDetailPage() {
         <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Torna ai prodotti
       </Link>
 
-      <ProductOperations productId={product.productId} />
+      {!ADMIN_READ_ONLY_RELEASE && <ProductOperations productId={product.productId} />}
       <header className="space-y-2">
         <h1 className="text-xl font-semibold">{title}</h1>
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
@@ -99,7 +100,7 @@ export default function ProductDetailPage() {
           </Badge>
         </div>
         <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-          {context?.canWrite
+          {ADMIN_READ_ONLY_RELEASE ? READ_ONLY_RELEASE_NOTICE : context?.canWrite
             ? 'Il salvataggio aggiorna prima l’Admin. Shopify cambia soltanto dopo un’azione esplicita di sincronizzazione.'
             : (context?.readOnlyReason ?? 'Questa scheda è in sola lettura.')}
         </p>
@@ -148,10 +149,10 @@ export default function ProductDetailPage() {
                   {section.fields.map((field) => (
                     <FieldCard
                       key={field.key}
-                      field={field}
+                      field={ADMIN_READ_ONLY_RELEASE ? readOnlyField(field) : field}
                       onCommand={command.mutateAsync}
                       onSync={fieldSync.mutateAsync}
-                      syncEnabled={context?.canSync === true}
+                      syncEnabled={!ADMIN_READ_ONLY_RELEASE && context?.canSync === true}
                       onConflict={refetch}
                       aiSuggestion={aiSuggestions.data?.find((item) => item.fieldKey === field.key)}
                       onGenerateAi={async (input) => (await generateAi.mutateAsync(input)).suggestion}

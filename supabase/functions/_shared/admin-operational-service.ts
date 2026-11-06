@@ -17,7 +17,7 @@ import {
   verifyCreatedMapping,
 } from './admin-operational-core.ts';
 import { payloadHash, writeMode, writesEnabled } from './admin-v2-commands.ts';
-import { getExactShopifyProductMapping, getFieldDefinitions } from './admin-v2-queries.ts';
+import { getExactShopifyProductMapping, getFieldDefinitions } from './admin-v2-queries-deferred.ts';
 import { isFieldEditable, validateValue } from './admin-v2-validation.ts';
 import { shopifyAdminGraphQLAtVersion } from './shopify-admin-client.ts';
 

@@ -1,8 +1,10 @@
+import { ADMIN_READ_ONLY_RELEASE } from './adminv2/lib/readOnlyRelease';
+import ReadOnlyFeaturePage from './adminv2/pages/ReadOnlyFeaturePage';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
@@ -84,17 +86,17 @@ const App = () => (
             <Route path="/account" element={<SuspenseLoader><Account /></SuspenseLoader>} />
             
             {/* Strumenti tecnici della versione precedente (accesso diretto) */}
-            <Route path="/admin/import" element={<SuspenseLoader><AdminGuard /></SuspenseLoader>} />
-            <Route path="/admin/settings-legacy" element={<SuspenseLoader><AdminGuard page="settings" /></SuspenseLoader>} />
+            <Route path="/admin/import" element={<SuspenseLoader>{ADMIN_READ_ONLY_RELEASE ? <Navigate to="/admin/settings" replace /> : <AdminGuard />}</SuspenseLoader>} />
+            <Route path="/admin/settings-legacy" element={<SuspenseLoader>{ADMIN_READ_ONLY_RELEASE ? <Navigate to="/admin/settings" replace /> : <AdminGuard page="settings" />}</SuspenseLoader>} />
 
             {/* Nuovo Admin Online Garden (sola lettura) */}
             <Route path="/admin" element={<SuspenseLoader><AdminV2Guard /></SuspenseLoader>}>
               <Route index element={<SuspenseLoader><AdminDashboard /></SuspenseLoader>} />
               <Route path="products" element={<SuspenseLoader><AdminProducts /></SuspenseLoader>} />
-              <Route path="products/new" element={<SuspenseLoader><AdminNewProduct /></SuspenseLoader>} />
+              <Route path="products/new" element={<SuspenseLoader>{ADMIN_READ_ONLY_RELEASE ? <ReadOnlyFeaturePage title="Nuovo prodotto non ancora attivo" /> : <AdminNewProduct />}</SuspenseLoader>} />
               <Route path="products/:productId" element={<SuspenseLoader><AdminProductDetail /></SuspenseLoader>} />
               <Route path="imports" element={<SuspenseLoader><AdminImportsPage /></SuspenseLoader>} />
-              <Route path="categories" element={<SuspenseLoader><AdminCategoriesPage /></SuspenseLoader>} />
+              <Route path="categories" element={<SuspenseLoader>{ADMIN_READ_ONLY_RELEASE ? <ReadOnlyFeaturePage title="Gestione categorie non ancora attiva" /> : <AdminCategoriesPage />}</SuspenseLoader>} />
               <Route path="publications" element={<SuspenseLoader><AdminPublicationsPage /></SuspenseLoader>} />
               <Route path="settings" element={<SuspenseLoader><AdminSettingsPage /></SuspenseLoader>} />
               <Route path="technical" element={<SuspenseLoader><AdminTechnicalPage /></SuspenseLoader>} />

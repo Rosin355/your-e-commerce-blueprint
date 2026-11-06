@@ -1,0 +1,10 @@
+{
+  "origin": "https://onlinegarden.it/admin/settings",
+  "observedAt": "2026-11-06T17:48:30+01:00",
+  "writesEnabled": false,
+  "writeMode": "canary",
+  "shopifySyncEnabled": false,
+  "mode": "Authenticated existing authorized session; no account identity exported",
+  "writeCalls": 0,
+  "scope": "Frontend-only release, existing backend; no new tables/RPC used"
+}

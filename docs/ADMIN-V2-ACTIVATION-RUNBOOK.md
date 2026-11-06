@@ -1,3 +1,35 @@
+## Esecuzione e rollback della sola versione di consultazione
+
+1. Verificare CI/GitGuardian sul nuovo HEAD e assenza conflitti; merge ordinario autorizzato della sola #42, senza bypass.
+2. Attendere Git Sync e verificare il commit editor Lovable. Pubblicare solo lo snapshot sicuro, senza richieste di migration o modifica dati; non avviare l'agente Lovable per attivare backend/flag.
+3. Dopo deploy, annotare deployment ID, SHA contenuto e versione realmente servita dal dominio. Fare solo controllo minimo autenticato di dashboard/catalogo/dettaglio, navigazione, pagine non operative e diagnostica OFF. Nessuna scrittura di prova.
+4. Rollback frontend: ripubblicare lo snapshot precedentemente live, se disponibile, oppure revert mirato dei soli cambi frontend del rilascio e pubblicazione dopo verifica. Base di codice main prima dell'integrazione `8ad26ba66e8c3b49987544934bbcc8c1a0915aa0`; non presumere che sia lo SHA pubblicato prima del deploy senza attestazione. Backend e database non richiedono down-migration: non sono stati attivati nuovi oggetti. Non fare reset/force-push o DROP.
+
+### Scritture future — solo procedura conservata, non attività di adesso
+
+Serve approvazione specifica per backup verificato/rollback, SQL pendente, ACL/RLS effettive, backend compatibile, mapping categorie e canary DRAFT concordato. Ripristinare il servizio proposto da `admin-v2-queries-deferred.ts` e dalla patch endpoint soltanto con tale approvazione; il materiale differito non è codice backend già distribuito. Una successiva modifica revisionata deve rimuovere il vincolo frontend di sola lettura, senza consentire scritture se le capability server sono OFF. Verificare il ruolo reale Marco prima di qualsiasi canary e conservare checklist UI/UX. Nessuna assegnazione implicita, attivazione generale o proposta di nuove risorse in questo passaggio.
+
+I comandi PostgreSQL sotto restano disponibili per uso futuro: il runner ora usa il SQL in `docs/release/pending/`; le evidenze locali già PASS non sono state ripetute.
+
+## Decisione operativa vigente — rilascio Admin in sola lettura, 6 novembre 2026
+
+Il proprietario autorizza merge della PR #42 e pubblicazione del **solo frontend compatibile**, senza staging aggiuntivi, migrazioni, prodotti nuovi o scritture. Questa decisione sostituisce i precedenti blocchi di rilascio riferiti all'Admin completamente modificabile; le funzioni operative future restano disabilitate. Non richiedere nuovi progetti o staging per consegnare questa versione.
+
+| Funzione | Perimetro di questa versione |
+|---|---|
+| Dashboard, ricerca nome/SKU, tipo, paginazione | Disponibili tramite azioni già supportate dal backend attuale; limiti di ricerca/volumi del servizio attuale conservati, non dichiarati risolti dal solo frontend. |
+| Scheda prodotto, valori e storico editoriale esistente | Consultazione, senza editor/sync/AI operativi. Gli stati di sincronizzazione non certificano la pubblicazione Shopify. |
+| Categorie, nuove bozze e storico nuove operazioni | Isolati: nessuna chiamata a catalog_categories/get_product_operations o RPC nuove; pagina esplicativa sulle route dirette. |
+| Filtri categoria/completezza/sincronizzazione/non classificati | Disabilitati con motivazione: il backend attuale non li supporta. Nessun filtro locale sui soli 25 risultati presentato come globale. |
+| Legacy tecnico | Collegamenti nascosti e route legacy reindirizzate alle impostazioni protette nel frontend; autorizzazioni backend legacy non cambiate. |
+| Permessi | Login e ruolo server esistenti; nessun nuovo ruolo a Marco. Identità personale Marco non certificata da una sessione di altro amministratore. |
+
+**Confine fail-closed:** `ADMIN_READ_ONLY_RELEASE=true` è un vincolo nel codice, non una preferenza locale. Il canale Admin ammette soltanto le letture note e blocca le altre azioni prima del trasporto; canale AI bloccato, nessuna generazione. Capability dei campi disabilitate. Diagnostica continua a mostrare i flag reali del server senza forzarli a false. Lettura pre-release autenticata: `writesEnabled=false / writeMode=canary / shopifySyncEnabled=false`, ore 17:48:30 CET. Nessun secret o flag modificato.
+
+**Separazione del backend:** entrypoint product-admin-api identico a main precedente; query attive con sole annotazioni TypeScript, nessuna nuova lettura di tabelle. Query future conservate in `admin-v2-queries-deferred.ts`, non importate dal percorso attivo; endpoint futuro nella patch `docs/release/ADMIN-V2-DEFERRED-ENDPOINT.patch`. Migration spostata in `docs/release/pending/20261031184521_admin_operational_drafts.sql`, fuori dal percorso di migration automatiche. I test offline conservano i controlli sul materiale differito. Nessun SQL applicato, nessun deploy Edge esplicitamente eseguito.
+
+CI/GitGuardian e SHA effettivi sono registrati nella PR #42. Lo stato del deployment sarà attestato solo dalla risposta Lovable e dalla verifica della versione servita; merge e commit editor non equivalgono a pubblicazione. [Registro](https://github.com/Rosin355/your-e-commerce-blueprint/pull/42) · [Preflight](admin-v2-evidence/2026-11-06-readonly/preflight.json).
+
 ## Percorso unico di attivazione — chiusura residui, 6 novembre 2026
 
 Questa sezione sostituisce le precedenti sequenze di rilascio; le evidenze storiche PASS restano valide. Base di questa ripresa `0d3f404`, nessun cambiamento ai flag.

@@ -1,3 +1,11 @@
+## Versione consegnabile ora: consultazione del catalogo
+
+Puoi usare dashboard, ricerca per nome/SKU, tipo prodotto, paginazione e apertura della scheda con i dati già disponibili. La versione è **in sola lettura**: nessun salvataggio, sincronizzazione, generazione AI, nuova bozza o assegnazione categoria. Le funzioni non operative spiegano il motivo; aprirle non modifica dati.
+
+I filtri categoria, completezza e sincronizzazione sono disabilitati perché richiedono un aggiornamento separato del servizio. Non indicano una mancanza del prodotto o della categoria. La ricerca usa il servizio attuale: per identificare un prodotto preferire lo SKU preciso. La checklist sotto è conservata: le prove di scrittura A–I non sono da svolgere ora. Le autorizzazioni del tuo account restano quelle assegnate dal responsabile; la pubblicazione frontend non assegna nuovi permessi.
+
+Le istruzioni di modifica/bozze nelle sezioni storiche descrivono la fase futura, non funzioni abilitate da questo rilascio. La conferma della pubblicazione effettiva si trova nel registro della PR #42.
+
 ## Aggiornamento per Marco — cosa significano le azioni bloccate
 
 Le azioni “Crea bozza Shopify” e “Recupera stato senza ricreare”, quando esiste una bozza interna o un'operazione incerta, ora restano visibili ma disabilitate con una spiegazione se manca l'abilitazione del server. Questo non indica una creazione fallita e non richiede di reinserire lo stesso prodotto. Il recupero serve a verificare la stessa operazione: non crea una seconda bozza.

@@ -1,5 +1,3 @@
-import { OPERATION_ACTIONS, OperationalError } from '../_shared/admin-operational-core.ts';
-import { handleOperational } from '../_shared/admin-operational-service.ts';
 // F5 — Admin Product API (Online Garden).
 // Letture Shopify e sync esplicita a campo singolo; nessuna pubblicazione automatica.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
@@ -87,14 +85,10 @@ Deno.serve(async (req) => {
       return fail("VALIDATION_ERROR", "Payload non valido");
     }
     action = String(payload.action ?? "");
-    if (!(OPERATION_ACTIONS as readonly string[]).includes(action) && !isKnownAction(action)) return fail("VALIDATION_ERROR", "Azione non riconosciuta");
+    if (!isKnownAction(action)) return fail("VALIDATION_ERROR", "Azione non riconosciuta");
 
     const auth = await authenticate(req);
     actorId = auth.userId;
-    if ((OPERATION_ACTIONS as readonly string[]).includes(action)) {
-      return json(await handleOperational(serviceClient(), auth, payload));
-    }
-    if (!isKnownAction(action)) return fail("VALIDATION_ERROR", "Azione non riconosciuta");
     const authz = authorizeAction(action, auth.roles);
     if (!authz.allowed) return fail("FORBIDDEN", authz.reason ?? "Accesso negato");
 
@@ -148,22 +142,18 @@ Deno.serve(async (req) => {
     }
 
     if (action === "list_products") {
-      const { productRows, nextCursor, currentValues } = await listProducts(db, {
+      const { productRows, nextCursor } = await listProducts(db, {
         search: typeof payload.search === "string" ? payload.search : undefined,
         sku: typeof payload.sku === "string" ? payload.sku : undefined,
         gtin: typeof payload.gtin === "string" ? payload.gtin : undefined,
         entityType: payload.entityType as never,
-        category: typeof payload.category === "string" ? payload.category : undefined,
-        completeness: (payload.completeness === "complete" || payload.completeness === "incomplete") ? payload.completeness : undefined,
-        origin: (payload.origin === "shopify" || payload.origin === "import") ? payload.origin : undefined,
-        needsClassification: payload.needsClassification === true,
         reviewRequired: payload.reviewRequired === true,
         publishBlocked: payload.publishBlocked === true,
         cursor: typeof payload.cursor === "string" ? payload.cursor : null,
         pageSize: typeof payload.pageSize === "number" ? payload.pageSize : undefined,
       });
       const ids = productRows.map((p: { id: string }) => p.id);
-      const values = currentValues;
+      const values = await getCurrentValues(db, ids);
       const parentIds = [
         ...new Set(
           productRows
@@ -558,7 +548,6 @@ Deno.serve(async (req) => {
     console.log(redactedLog(action, actorId, String(result?.code ?? "APPLIED")));
     return json({ ok: true, result });
   } catch (err) {
-    if (err instanceof OperationalError) return json({ ok: false, error: { code: err.code, message: err.message } }, err.code === "FORBIDDEN" ? 403 : 400);
     if (err instanceof AuthError) return fail(err.code, err.message);
     console.error(redactedLog(action, actorId, "INTERNAL_ERROR", { hint: (err as Error)?.name }));
     return fail("INTERNAL_ERROR", "Errore interno");

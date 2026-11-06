@@ -2,6 +2,7 @@
 // Il browser non interroga mai direttamente le tabelle del catalogo.
 import { supabase } from '@/integrations/supabase/client';
 import { AdminApiError } from './AdminApiError';
+import { ADMIN_READ_ONLY_RELEASE, readOnlyRequest, READ_ONLY_RELEASE_NOTICE } from './readOnlyRelease';
 export { AdminApiError } from './AdminApiError';
 
 export type EntityType = 'simple' | 'variable' | 'variation';
@@ -243,10 +244,11 @@ export async function callAdminApi<T = unknown>(
   body: Record<string, unknown>,
   signal?: AbortSignal,
 ): Promise<T> {
-  return invokeWithAdminSession<T>('product-admin-api', body, signal);
+  return invokeWithAdminSession<T>('product-admin-api', ADMIN_READ_ONLY_RELEASE ? readOnlyRequest(body) : body, signal);
 }
 
 export async function callAdminAiApi<T = unknown>(body: Record<string, unknown>): Promise<T> {
+  if (ADMIN_READ_ONLY_RELEASE) throw new AdminApiError('WRITES_DISABLED', READ_ONLY_RELEASE_NOTICE);
   return invokeWithAdminSession<T>('product-admin-ai', body);
 }
 

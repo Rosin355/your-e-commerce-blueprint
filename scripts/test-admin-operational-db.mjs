@@ -19,7 +19,6 @@ for (
     '20260817092153',
     '20260817092305',
     '20260817103437',
-    '20261031184521',
   ]
 ) {
   files.push(
@@ -28,6 +27,7 @@ for (
     ),
   );
 }
+files.push('docs/release/pending/20261031184521_admin_operational_drafts.sql');
 files.push('scripts/fixtures/admin-operational/assertions.sql');
 for (const file of files) {
   const r = spawnSync(psql, [...args, '-f', file], { stdio: 'inherit' });

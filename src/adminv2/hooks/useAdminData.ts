@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
+import { ADMIN_READ_ONLY_RELEASE } from '../lib/readOnlyRelease';
 import {
   AdminApiError,
   acceptAiSuggestion,
@@ -102,7 +103,7 @@ export function useAiSuggestions(productId?: string) {
   return useQuery({
     queryKey: ['admin', 'ai-suggestions', productId],
     queryFn: async () => (await getAiSuggestions(productId!)).suggestions,
-    enabled: !!productId,
+    enabled: !!productId && !ADMIN_READ_ONLY_RELEASE,
     staleTime: 15_000,
     retry,
   });

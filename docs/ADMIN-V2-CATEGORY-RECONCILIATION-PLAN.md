@@ -1,3 +1,7 @@
+## Perimetro della versione in sola lettura
+
+La gestione categorie è isolata dal frontend pubblicabile: non vengono richiesti nuovi cataloghi/RPC o applicate associazioni. La tabella decisionale per Marco resta una proposta per un'eventuale attivazione successiva, non un prerequisito per consultare dashboard/prodotti oggi. Zero mapping applicati in questo intervento. Nessuna modifica alle collezioni logistiche A/B.
+
 ## Tabella decisionale per Marco — proposta, non applicazione
 
 Riutilizzo dei riferimenti già rilevati il 1 novembre, senza nuove letture Shopify e senza modificare categorie/collezioni A/B. Tutte le 22 righe restano proposte: nessun mapping approvato. Prima di una write futura va riconfermata la destinazione tecnica indicata nella matrice originale sotto.
