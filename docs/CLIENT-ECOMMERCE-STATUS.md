@@ -1,3 +1,17 @@
+## 6 novembre 2026 — Admin V2 completamento mirato, rilascio BLOCKED
+
+**Aggiornamento 6 novembre 2026 — PR #42; questa sezione prevale sugli stati storici sottostanti.**
+
+- Runtime autenticato live **PASS**: scritture OFF, modo canary, sync Shopify OFF; dashboard/ricerca SKU/dettaglio letti senza write.
+- Correzioni PR #42: filtri sul catalogo prima della paginazione, nessun troncamento silenzioso, stato sync non confuso con pubblicazione, focus visibile e responsive. Typecheck/lint/build, 370 Node e 103 Deno PASS; SQL locale/rollback PASS; Chromium simulato 11 scenari PASS.
+- **UI/UX PARTIAL:** WebKit crash tecnico, Safari/device e accettazione Marco/designer non conclusi. **Sicurezza operativa BLOCKED:** ruoli reali Marco e RLS gestita post-migration non collaudati, legacy separati.
+- SELECT backend Lovable conferma migration non applicata, 22 categorie e zero mapping/assegnazioni. **Staging NON ESEGUITA**. Nessun canary commerciale o write live.
+- PR #42 Draft; risoluzione conflitti con main sul branch, nessun merge in main/deploy. SHA, CI e GitGuardian dell'HEAD finale nella PR. PR #45, tariffe A/B, Sendcloud e checkout indipendenti e invariati.
+- **Progresso indicativo per gate, non misura del codice:** consultazione 75% (3/4: lettura live, filtri locali, UI; manca accettazione Marco); modifica/bozze 60% (3/5: server, SQL locale, UI; mancano staging e canary); categorie 50% (2/4: codice e QA locale; mancano mapping approvati e canary); UI 67% (4/6: responsive, tastiera/focus, conferme, stati; mancano Safari e accettazione); rilascio 25% (2/8: codice/CI e runtime; restanti gate nel runbook). Non è pronto all'uso completo del cliente.
+- Prossima azione unica: ambiente staging Supabase isolato autorizzato e accessibile, prima di ogni decisione produttiva. [Guida Marco](ADMIN-V2-CLIENT-GUIDE.md), [runbook](ADMIN-V2-ACTIVATION-RUNBOOK.md), [QA](ADMIN-V2-QA-REPORT.md).
+
+**TODO SEO post-rilascio, non eseguito:** Google Search Console **già collegata tramite Windsor.ai**; analisi 404, recupero URL WordPress/WooCommerce, mapping vecchio URL → pagina nuova, redirect permanenti HTTP 301 e monitoraggio indicizzazione. Le vecchie note “collegare GSC” sono superate. Nessun redirect o credenziale Google modificati.
+
 ## 5 novembre 2026 — Focus cliente: Admin V2 e rifinitura UI/UX; SEO rinviata
 
 **Priorità scelta:** prima completare il pannello amministrativo utilizzabile da Marco e verificare definitivamente l'esperienza del sito, poi affrontare SEO tecnico. **TODO successivo:** collegamento Google Search Console, raccolta degli errori 404 e delle vecchie URL WordPress/WooCommerce, mappatura verso le pagine Online Garden equivalenti e redirect permanenti 301 verificati. Nessuna attività SEO/redirect avviata o pubblicata ora.
@@ -31,6 +45,18 @@ Abbiamo confrontato in sola lettura le 22 categorie interne con tutte le 55 coll
 Abbiamo controllato **in sola lettura** il database Supabase collegato al progetto Online Garden e confrontato la nuova migration con lo schema reale. La compatibilità tecnica risulta positiva; nessuna migration è stata applicata e nessun prodotto Shopify è stato modificato. I test automatici sull'ultimo commit applicativo `d9f0d39` sono [passati su GitHub](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236633321). Un eventuale commit solo documentale richiede il proprio controllo CI.
 
 L'Admin V2 di Marco **non è ancora attivabile per nuove categorie o prodotti commerciali**: nel database sono presenti 22 categorie interne, ma manca il collegamento verificato con le collezioni Shopify; inoltre 194 famiglie interne non hanno ancora un Product GID nel mapping legacy. Questo non significa che siano prodotti assenti da Shopify: serve riconciliazione puntuale. Le 903 famiglie dell'importazione e gli 82 casi storici in revisione restano un'altra popolazione, da verificare separatamente. Migration, ruoli/flag, canary DRAFT, pubblicazione, email e validazione commerciale richiedono autorizzazioni e QA dedicati. [Dettaglio tecnico e gate](ADMIN-V2-LIVE-SUPABASE-COMPATIBILITY.md).
+
+## 2 novembre 2026 — master Admin configurato a false, conferma runtime in attesa
+
+Con autorizzazione del proprietario, Lovable ha registrato `false` per il solo `PRODUCT_ADMIN_WRITES_ENABLED` del progetto Online Garden. Nessun prodotto, dato o deploy è stato modificato e il sito pubblico resta disponibile. La schermata Admin dopo il cambio non è stata letta con un account autorizzato: nelle sessioni disponibili compare il login. La misura delle 18:58 riguardava la **Preview prima del cambio**; non dichiariamo READ-ONLY in produzione e la PR #42 resta bloccata. Il passo minimo è leggere i tre indicatori della diagnostica su `onlinegarden.it/admin/settings`, senza DevTools né condivisione di credenziali. [Runbook tecnico nel branch Draft #42](https://github.com/Rosin355/your-e-commerce-blueprint/blob/c05f58775e3fa9fb2299311cfc4dd520e8a26027/docs/ADMIN-V2-ACTIVATION-RUNBOOK.md).
+
+## 2 novembre 2026 — diagnostica Admin pubblicata, verifica degli stati ancora da completare
+
+La sola [PR #44](https://github.com/Rosin355/your-e-commerce-blueprint/pull/44) è stata integrata (`e26d6f4`) e il frontend è stato pubblicato su [onlinegarden.it](https://onlinegarden.it/) tramite Lovable (`251548b2-46c2-4842-85a7-16f9c1cdfa6f`). Homepage, catalogo, scheda prodotto, footer e carrello vuoto sono navigabili; `/admin/settings` richiede correttamente il login. La pagina diagnostica è disponibile nel codice pubblicato per gli Admin autorizzati, ma non è stato possibile leggerla con la sessione disponibile. I tre stati delle scritture **non sono verificati** e Admin V2 della PR #42 resta bloccato. Passo minimo: un Admin già autorizzato apre `/admin/settings` e legge i tre campi mostrati, senza DevTools né invio di credenziali. Nessuna modifica a Shopify, Supabase, Edge, migration, secret o flag. [Report tecnico](ADMIN-RUNTIME-DIAGNOSTICS-ONLY.md). La sezione seguente descrive il preflight precedente.
+
+## 2 novembre 2026 — proposta di diagnostica Admin senza strumenti sviluppatore
+
+È stata preparata separatamente dalla PR #42 una piccola schermata in `/admin/settings` che permette a un amministratore autorizzato di leggere tre stati tecnici già previsti dal server. Non cambia prodotti, prezzi, disponibilità, Shopify o impostazioni. In caso di errore mostra **NON VERIFICATO**, senza indicare falsamente che le scritture sono spente. Il codice della funzione pubblicata nell'ultima distribuzione documentata contiene i tre campi, ma i valori effettivi dell'ambiente online non sono ancora stati letti. La [Draft PR #44](https://github.com/Rosin355/your-e-commerce-blueprint/pull/44) ha CI e GitGuardian positivi sul commit implementativo; la schermata non è stata pubblicata. Per chiudere il gate read-only servirà, dopo una pubblicazione autorizzata, una lettura sul sito reale da parte di un Admin. Nessun controllo con DevTools è richiesto. La PR #42 e l'attivazione delle sue funzioni restano sospese. [Piano tecnico e rollback](ADMIN-RUNTIME-DIAGNOSTICS-ONLY.md).
 
 ## 30 ottobre 2026 — CI minima reale, preservando la base #39
 

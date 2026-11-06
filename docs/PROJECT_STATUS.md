@@ -1,3 +1,17 @@
+## 6 novembre 2026 — Admin V2 completamento mirato, rilascio BLOCKED
+
+**Aggiornamento 6 novembre 2026 — PR #42; questa sezione prevale sugli stati storici sottostanti.**
+
+- Runtime autenticato live **PASS**: scritture OFF, modo canary, sync Shopify OFF; dashboard/ricerca SKU/dettaglio letti senza write.
+- Correzioni PR #42: filtri sul catalogo prima della paginazione, nessun troncamento silenzioso, stato sync non confuso con pubblicazione, focus visibile e responsive. Typecheck/lint/build, 370 Node e 103 Deno PASS; SQL locale/rollback PASS; Chromium simulato 11 scenari PASS.
+- **UI/UX PARTIAL:** WebKit crash tecnico, Safari/device e accettazione Marco/designer non conclusi. **Sicurezza operativa BLOCKED:** ruoli reali Marco e RLS gestita post-migration non collaudati, legacy separati.
+- SELECT backend Lovable conferma migration non applicata, 22 categorie e zero mapping/assegnazioni. **Staging NON ESEGUITA**. Nessun canary commerciale o write live.
+- PR #42 Draft; risoluzione conflitti con main sul branch, nessun merge in main/deploy. SHA, CI e GitGuardian dell'HEAD finale nella PR. PR #45, tariffe A/B, Sendcloud e checkout indipendenti e invariati.
+- **Progresso indicativo per gate, non misura del codice:** consultazione 75% (3/4: lettura live, filtri locali, UI; manca accettazione Marco); modifica/bozze 60% (3/5: server, SQL locale, UI; mancano staging e canary); categorie 50% (2/4: codice e QA locale; mancano mapping approvati e canary); UI 67% (4/6: responsive, tastiera/focus, conferme, stati; mancano Safari e accettazione); rilascio 25% (2/8: codice/CI e runtime; restanti gate nel runbook). Non è pronto all'uso completo del cliente.
+- Prossima azione unica: ambiente staging Supabase isolato autorizzato e accessibile, prima di ogni decisione produttiva. [Guida Marco](ADMIN-V2-CLIENT-GUIDE.md), [runbook](ADMIN-V2-ACTIVATION-RUNBOOK.md), [QA](ADMIN-V2-QA-REPORT.md).
+
+**TODO SEO post-rilascio, non eseguito:** Google Search Console **già collegata tramite Windsor.ai**; analisi 404, recupero URL WordPress/WooCommerce, mapping vecchio URL → pagina nuova, redirect permanenti HTTP 301 e monitoraggio indicizzazione. Le vecchie note “collegare GSC” sono superate. Nessun redirect o credenziale Google modificati.
+
 ## 5 novembre 2026 — Priorità: completare Admin V2 e UI/UX prima di SEO/redirect
 
 **Decisione del proprietario:** concentrare il lavoro corrente sulla consegna di un Admin V2 utilizzabile dal cliente Marco e sulla chiusura dei controlli UI/UX dello storefront. **Google Search Console, inventario URL legacy WooCommerce, mappatura redirect HTTP 301 e monitoraggio 404 sono rinviati a TODO POST-ADMIN/UIUX.** Non avviare ora configurazioni Search Console, redirect o deploy SEO; l'attività futura dovrà identificare l'hosting che termina la richiesta HTTP, creare mapping URL vecchio→nuovo canonico e verificare HTTP 301 reali, senza redirect indiscriminati alla homepage. Valutare Search Console per priorità errori 404 e indicizzazione.
@@ -53,6 +67,20 @@ Aggiornamento GitHub: il commit di review `d6a89bb` ha [CI applicativa SUCCESS](
 Smoke browser finale con sole API simulate: sei viewport 320–1440 px, percorsi Admin V2 e stati vuoto/errore PASS, senza page error; [evidenza](admin-v2-evidence/2026-10-31/browser-qa-review.json). Nessuna connessione a servizi live.
 
 ---
+
+## 2 novembre 2026 — secret master Admin aggiornato, gate runtime ancora aperto
+
+Il proprietario ha autorizzato la sostituzione del solo `PRODUCT_ADMIN_WRITES_ENABLED` con `false` nei Project secrets Lovable di Online Garden. Lovable ha confermato il salvataggio e la riga del secret mostra la data 2 novembre; il valore non è rileggibile dal pannello. La precedente lettura Admin autenticata in **Preview** alle 18:58 Europe/Rome era `writesEnabled=true`, `writeMode=canary`, `shopifySyncEnabled=false` e precede il cambio. Dopo il cambio, le sessioni disponibili sia in Preview sia su `onlinegarden.it/admin/settings` mostrano il login: nessuna risposta autenticata `get_admin_context` post-cambio è stata acquisita. **Runtime Preview/produzione NON VERIFICATO; PR #42 BLOCKED.** Nessun altro flag, deploy o dato Shopify/Supabase modificato; homepage pubblica ancora disponibile sul frontend `e26d6f4`. [Runbook aggiornato nel branch Draft #42](https://github.com/Rosin355/your-e-commerce-blueprint/blob/c05f58775e3fa9fb2299311cfc4dd520e8a26027/docs/ADMIN-V2-ACTIVATION-RUNBOOK.md). La sezione seguente registra il precedente rilascio UI della PR #44.
+
+## 2 novembre 2026 — PR #44 pubblicata, gate runtime Admin V2 ancora bloccato
+
+PR #44 `6804447d18c16255e2714c5e5677e5dbed54b23f` integrata con merge normale `e26d6f4d453ab3d959b9f9f670f9d707fda57202` dopo CI e GitGuardian SUCCESS e mergeability clean. Deploy Lovable del solo frontend `251548b2-46c2-4842-85a7-16f9c1cdfa6f`; [onlinegarden.it](https://onlinegarden.it/) serve il merge SHA verificato nel DOM. Smoke live PASS per homepage, catalogo, PDP, footer, carrello vuoto e login anonimo `/admin/settings`; nessun checkout, ordine o mutation. Nessun deploy Edge, migration, secret o flag modificati. La sessione disponibile non è Admin autenticata: `writesEnabled`, `writeMode`, `shopifySyncEnabled` **NON VERIFICATI** e PR #42 **BLOCKED**. [Evidenze e rollback](ADMIN-RUNTIME-DIAGNOSTICS-ONLY.md). La sezione seguente conserva il preflight anteriore al rilascio.
+
+## 2 novembre 2026 — diagnostica Admin V2 isolata dalla PR #42
+
+Branch da `main@04ae6d4`: sola vista read-only in `/admin/settings`, con test di ruoli/stati e nessuna modifica backend, migration, Shopify, checkout o flag. Il registro Lovable attesta la distribuzione di `product-admin-api` da `main@4f5bdef` il 10 ottobre; il file della funzione è identico a quello di `main@04ae6d4` e restituisce i tre campi richiesti tramite `get_admin_context`. Il connettore Supabase non autorizza il progetto Online Garden: il bundle Edge in esecuzione e i valori runtime **non sono stati letti direttamente**. La nuova UI fallisce in **NON VERIFICATO** se il contratto non corrisponde. La PR #42 resta invariata e il suo gate runtime resta **BLOCCATO** finché un Admin autorizzato non legge la vista sull'ambiente corretto dopo un'eventuale pubblicazione separatamente autorizzata. [Ambito, evidenze, piano e rollback](ADMIN-RUNTIME-DIAGNOSTICS-ONLY.md).
+
+QA locale: `npm ci --offline`, typecheck, lint mirato, build, **343 Node + 92 Deno PASS**; dieci scenari browser con API simulate e rete esterna bloccata PASS a 1440/390 px. Sul commit implementativo `ef87ee8`, [CI applicativa](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41460497600) e [GitGuardian](https://github.com/Rosin355/your-e-commerce-blueprint/runs/125328292812) SUCCESS. Draft [PR #44](https://github.com/Rosin355/your-e-commerce-blueprint/pull/44) senza conflitti; il preflight pubblico ha rilevato il frontend `04ae6d4`, login Admin anonimo, homepage/catalogo/PDP/footer e carrello vuoto navigabili. Nessuna lettura autenticata dei flag; review, autorizzazione di merge e pubblicazione restano aperte. Ogni nuovo HEAD richiede check propri.
 
 ## 30 ottobre 2026 — CI minima reale, preservando la base #39
 

@@ -1,3 +1,22 @@
+# Contratto operativo aggiornato — 6 novembre 2026
+
+**Aggiornamento 6 novembre 2026 — PR #42; questa sezione prevale sugli stati storici sottostanti.**
+
+La consultazione live è verificata; **scritture e sync sono OFF**. I nuovi flussi categorie/bozze della PR #42 esistono nel codice e sono provati localmente, non sono attivati per Marco. Guida e accettazione: [ADMIN-V2-CLIENT-GUIDE.md](ADMIN-V2-CLIENT-GUIDE.md). Nessuna funzione frontend viene dichiarata operativa senza backend e migration distribuiti.
+
+Filtri catalogo applicati ora lato server prima della paginazione, compresi categoria, completamento e stato sincronizzazione; ricerca titolo/SKU. “Sincronizzazione non verificata” significa assenza di uno storico interno certo, non prodotto assente/non pubblicato su Shopify. Il filtro disponibilità non viene introdotto senza dati adeguati. L'inventario resta nel flusso Shopify previsto.
+
+| Ruolo dal JWT/DB verificato dal server | Capacità prevista, subordinata ai flag |
+|---|---|
+| admin / tech_admin | Consultazione; salvataggio interno e operazioni Shopify esplicite soltanto con capability, mapping e approvazioni richieste. |
+| editor | Consultazione e salvataggio interno consentito; nessuna creazione/sync Shopify tramite i nuovi flussi. |
+| publisher | Consultazione; nuovi salvataggi, creazione e riconciliazione negati. |
+| non autorizzato | Accesso API negato; nessun ruolo dichiarato nel body viene considerato attendibile. |
+
+Test dominio/SQL locale PASS; ruoli effettivi e RLS in staging gestito NON ESEGUITI. L'account usato per leggere la diagnostica non certifica il ruolo Marco. Percorsi legacy hanno guardie autonome: non sono abilitati/collaudati da questa consegna.
+
+Varianti: mantenuta la sola opzione Formato e massimo 50 nel flusso nuovo prodotto, SKU univoci e legami parent/variante server-side. Nessuna separazione automatica dei prodotti, nessuna modifica alla protezione logistica B della PR #45. Nessun aggiornamento inventario o pubblicazione automatica.
+
 # Admin V2 — guida editing cliente e sync Shopify
 
 Stato: **LIVE / CANARY SHOPIFY PASS**. La sincronizzazione resta disabilitata per default e richiede `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED=true`.

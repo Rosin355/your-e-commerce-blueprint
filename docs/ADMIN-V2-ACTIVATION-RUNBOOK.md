@@ -1,3 +1,22 @@
+# Stato eseguibile e prossimi gate — 6 novembre 2026
+
+**Aggiornamento 6 novembre 2026 — PR #42; questa sezione prevale sugli stati storici sottostanti.**
+
+1. **Codice/CI:** allineamento del branch a main `8ad26ba`, correzioni filtri globali, etichette e focus; risultati esatti di CI/GitGuardian sull'HEAD finale nella PR #42, che rimane Draft.
+2. **Runtime iniziale PASS:** diagnostica autenticata live `false / canary / false`, [evidenza](admin-v2-evidence/2026-11-06/runtime.json). Non cambiare flag per facilitare il collaudo.
+3. **Migrazione STAGING NON ESEGUITA:** SQL invariato, PostgreSQL 16 locale e rollback PASS. SELECT reale tramite Lovable conferma migration `20261031184521` assente e quattro nuove tabelle assenti. Non applicare live. Servono ambiente staging isolato autorizzato e accesso: snapshot/backup verificato, migration, verifica RPC/RLS/ACL, ripristino, test con identità effettive. Nessun servizio a pagamento da creare automaticamente.
+4. **Categorie:** attualmente 22 interne, zero mapping e zero assegnazioni. Riutilizzare matrice esistente; 13 corrispondenze tecniche non equivalgono ad approvazione semantica. Nessuna scrittura automatica o modifiche collezioni/logistica.
+5. **Permessi:** suite server e SQL locale PASS; confermare identità/ruolo Supabase di Marco (non ricavarlo dal ruolo Shopify), accesso negativo anon/publisher e capability in staging. Percorsi legacy valutati a parte sotto.
+6. **QA:** Chromium simulato PASS; WebKit crash tecnico, device Safari e accettazione Marco/designer mancanti. Usare [checklist](ADMIN-V2-CLIENT-GUIDE.md).
+7. **Canary DRAFT:** dopo staging e approvazione specifica di SKU/operationId/campi/ruolo, eseguire A–I della guida, rilettura Shopify, conflitto e recovery senza duplicare. Mai scegliere un prodotto commerciale casuale né pubblicare il DRAFT.
+8. **Pubblicazione:** ulteriore approvazione esplicita; merge #42 non equivale a pubblicazione Lovable. Distribuire il backend compatibile **prima** del nuovo frontend: un backend precedente ignora i nuovi filtri e renderebbe ingannevole la UI. Verificare versione distribuita, tre flag e ricerca; tenere sincronizzazione e scritture generali OFF. Nessuna attivazione eseguita ora.
+
+**Rollback preparato:** conservare SHA frontend/backend precedenti e backup verificato. Su anomalia riattivare il blocco dei percorsi pertinenti con autorizzazione, fermare nuove operazioni e ripristinare frontend/backend precedenti. La migration additiva non va rimossa alla cieca se contiene journal/link: esportare e riconciliare prima le operazioni. Il test `scripts/fixtures/admin-operational/rollback-roles.sql` prova il rollback transazionale locale, non un ripristino di backup live. Nessun DROP o rollback produttivo autorizzato.
+
+**Perimetro legacy:** sync di campo usa `PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED`, indipendente dal master; diagnostica ora conferma entrambi OFF. Gli strumenti legacy tech_admin, visibili secondo `VITE_ADMIN_LEGACY_TOOLS` (default attivo), hanno autorizzazione autonoma e non sono tutti governati dal master V2. Non invocarli per una prova negativa live e non affermare sicurezza globale dalla scritta READ-ONLY. Necessaria accettazione separata dei permessi prima di consegna operativa.
+
+**Unico passo richiesto adesso:** rendere disponibile/indicare uno staging Supabase isolato già autorizzato con accesso sufficiente per migration, rollback e test ruoli. Non equivale ad autorizzare la produzione. Mapping, canary e approvazione finale saranno gate successivi, con il materiale già preparato.
+
 # Admin V2 PR #42 — runbook di integrazione e attivazione
 
 ## 2 novembre 2026 — master sostituito con `false`, verifica runtime ancora aperta

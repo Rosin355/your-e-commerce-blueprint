@@ -1,3 +1,17 @@
+## 6 novembre 2026 — Admin V2 completamento mirato, rilascio BLOCKED
+
+**Aggiornamento 6 novembre 2026 — PR #42; questa sezione prevale sugli stati storici sottostanti.**
+
+- Runtime autenticato live **PASS**: scritture OFF, modo canary, sync Shopify OFF; dashboard/ricerca SKU/dettaglio letti senza write.
+- Correzioni PR #42: filtri sul catalogo prima della paginazione, nessun troncamento silenzioso, stato sync non confuso con pubblicazione, focus visibile e responsive. Typecheck/lint/build, 370 Node e 103 Deno PASS; SQL locale/rollback PASS; Chromium simulato 11 scenari PASS.
+- **UI/UX PARTIAL:** WebKit crash tecnico, Safari/device e accettazione Marco/designer non conclusi. **Sicurezza operativa BLOCKED:** ruoli reali Marco e RLS gestita post-migration non collaudati, legacy separati.
+- SELECT backend Lovable conferma migration non applicata, 22 categorie e zero mapping/assegnazioni. **Staging NON ESEGUITA**. Nessun canary commerciale o write live.
+- PR #42 Draft; risoluzione conflitti con main sul branch, nessun merge in main/deploy. SHA, CI e GitGuardian dell'HEAD finale nella PR. PR #45, tariffe A/B, Sendcloud e checkout indipendenti e invariati.
+- **Progresso indicativo per gate, non misura del codice:** consultazione 75% (3/4: lettura live, filtri locali, UI; manca accettazione Marco); modifica/bozze 60% (3/5: server, SQL locale, UI; mancano staging e canary); categorie 50% (2/4: codice e QA locale; mancano mapping approvati e canary); UI 67% (4/6: responsive, tastiera/focus, conferme, stati; mancano Safari e accettazione); rilascio 25% (2/8: codice/CI e runtime; restanti gate nel runbook). Non è pronto all'uso completo del cliente.
+- Prossima azione unica: ambiente staging Supabase isolato autorizzato e accessibile, prima di ogni decisione produttiva. [Guida Marco](../ADMIN-V2-CLIENT-GUIDE.md), [runbook](../ADMIN-V2-ACTIVATION-RUNBOOK.md), [QA](../ADMIN-V2-QA-REPORT.md).
+
+**TODO SEO post-rilascio, non eseguito:** Google Search Console **già collegata tramite Windsor.ai**; analisi 404, recupero URL WordPress/WooCommerce, mapping vecchio URL → pagina nuova, redirect permanenti HTTP 301 e monitoraggio indicizzazione. Le vecchie note “collegare GSC” sono superate. Nessun redirect o credenziale Google modificati.
+
 # Online Garden — release readiness dopo introduzione CI minima
 
 ## PR #42 post-footer — gate di integrazione, 1 novembre 2026
@@ -26,6 +40,15 @@ Review mirata sul codice della PR con base `main@b5cbe57`: corretto R42-6 nel co
 Il database Supabase di Online Garden è stato verificato in sola lettura tramite il backend del progetto Lovable corrispondente alla base `main@b5cbe57`. Project reference configurato `iekwvvihjwghosqdxrdi`; [report di compatibilità](../ADMIN-V2-LIVE-SUPABASE-COMPATIBILITY.md). La migration Admin V2 è **compatibile per struttura** con schema, vincoli, enum, trigger e registro campi live; non è stata applicata. Le nuove ACL/RLS potranno essere confermate sul progetto reale soltanto dopo migration autorizzata. La review limitata al diff corretto `829eeb0..d9f0d39` non ha rilevato nuovi blocchi. [CI sull'HEAD applicativo `d9f0d39` SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236633321); la CI del successivo commit documentale va verificata sul suo SHA.
 
 **Ready for code merge:** subordinato a CI/GitGuardian sull'HEAD finale e review/decisione GitHub adeguate; la PR resta Draft fino a tale decisione. **Ready for staging operativo:** NO-GO finché migration e deploy non sono autorizzati e verificati, e finché le categorie non hanno mapping approvati (22 categorie interne attive, zero mappe/assegnazioni). **Ready for production:** NO-GO; 194 famiglie senza Product GID nel mapping legacy, 82 casi storici non riconciliati, canary DRAFT/categorie, account Marco, Safari/mobile, email e validazione commerciale ancora da chiudere. Nessuna scrittura o modifica di servizi live in questo audit.
+
+## 2 novembre 2026 — esito del rilascio diagnostico PR #44
+
+**Frontend ONLINE, gate Admin V2 PR #42 BLOCKED.** La [PR #44](https://github.com/Rosin355/your-e-commerce-blueprint/pull/44) è stata integrata da `6804447d18c16255e2714c5e5677e5dbed54b23f` con merge commit `e26d6f4d453ab3d959b9f9f670f9d707fda57202`. [CI finale](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41464311867) e GitGuardian SUCCESS; mergeability clean. Nessuna review GitHub indipendente disponibile, nessuna approvazione fittizia. Deploy Lovable frontend `251548b2-46c2-4842-85a7-16f9c1cdfa6f`; il dominio principale serve il merge SHA. Smoke read-only PASS sulle tre pagine pubbliche, footer, carrello vuoto e rotta Admin anonima. Sessione Admin autenticata assente: i tre flag runtime non sono stati letti e non si dichiara READ-ONLY. PR #42 non integrata; nessuna Edge Function, migration, secret, flag o servizi live modificati. [Report e rollback](../ADMIN-RUNTIME-DIAGNOSTICS-ONLY.md). La sezione seguente conserva lo stato precedente al rilascio.
+
+
+## 2 novembre 2026 — gate diagnostico Admin isolato
+
+La [Draft PR #44](https://github.com/Rosin355/your-e-commerce-blueprint/pull/44) nasce da `main@04ae6d4`, senza importare la PR #42. Ultima distribuzione documentata di `product-admin-api`: `main@4f5bdef` il 10 ottobre; il codice della funzione è identico al `main` di partenza e include i tre campi `get_admin_context`. Il bundle Edge effettivo e i valori runtime non sono leggibili dalla connessione Supabase disponibile. Sul commit implementativo `ef87ee8`, [CI applicativa](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41460497600) e [GitGuardian](https://github.com/Rosin355/your-e-commerce-blueprint/runs/125328292812) SUCCESS; ogni HEAD successivo richiede check propri. **Ready per review della sola UI; runtime gate PR #42 ancora BLOCCATO.** Un eventuale merge della diagnostica non autorizza deploy, migration, Shopify write o attivazione flag. Pubblicazione frontend e rollback richiedono change separato. [Evidenze e procedura senza DevTools](../ADMIN-RUNTIME-DIAGNOSTICS-ONLY.md).
 
 30 ottobre 2026. Documento corrente del branch Header Only; non importa il report storico della proposta Fase 10 come se fosse già eseguita.
 

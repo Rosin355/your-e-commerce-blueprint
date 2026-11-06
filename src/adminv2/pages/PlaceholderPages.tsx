@@ -2,10 +2,10 @@
 import { Link } from 'react-router-dom';
 import { Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAdminContext } from '../hooks/useAdminData';
-import { LEGACY_TOOLS_ENABLED } from '../lib/flags';
-import { canViewAdminDiagnostics } from '../lib/adminDiagnostics';
 import AdminRuntimeDiagnostics from '../components/AdminRuntimeDiagnostics';
+import { useAdminContext } from '../hooks/useAdminData';
+import { canViewAdminDiagnostics } from '../lib/adminDiagnostics';
+import { LEGACY_TOOLS_ENABLED } from '../lib/flags';
 
 function Placeholder({ title, description }: { title: string; description: string }) {
   return (

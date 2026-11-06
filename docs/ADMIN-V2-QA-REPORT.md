@@ -1,3 +1,27 @@
+# Completamento mirato Admin V2 — 6 novembre 2026
+
+**Aggiornamento 6 novembre 2026 — PR #42; questa sezione prevale sugli stati storici sottostanti.**
+
+| Prova | Esito e limite |
+|---|---|
+| Runtime live autenticato | PASS: `writesEnabled=false`, `writeMode=canary`, `shopifySyncEnabled=false`, 10:58:30 CET. [Screenshot](admin-v2-evidence/2026-11-06/runtime-diagnostics.jpg), [JSON](admin-v2-evidence/2026-11-06/runtime.json). Il modo canary non sostituisce gli interruttori OFF. |
+| Consultazione live | PASS: dashboard 2706 righe interne, ricerca SKU OG_113165 e apertura dettaglio; avviso scritture disabilitate. Nessuna scrittura. Sessione autorizzata esistente, non attestata come account Marco. [Prova](admin-v2-evidence/2026-11-06/live-read-smoke.json). |
+| Lettura schema reale | PASS tramite backend Lovable: migration non applicata, quattro oggetti nuovi assenti, 22 categorie, zero mapping/assegnazioni. Management API Supabase nega accesso; il connettore Lovable consente SELECT. [Evidenza](admin-v2-evidence/2026-11-06/supabase-readonly.json). |
+| Test Node / Deno | 370 / 103 PASS; include regressioni paginazione/filtri e stato sincronizzazione. |
+| Typecheck, lint pertinente, build | PASS; warning bundle Vite e dipendenze dati browser già noti, non errori. Check Edge completo locale PASS; CI frozen/no-npm verifica servizio operativo e query senza introdurre dipendenze. |
+| PostgreSQL 16 isolato | PASS migration, RLS/ACL, claim idempotente, recovery, concorrenza; nuova prova transazionale rollback con tech_admin ammesso e publisher negato. Auth bootstrap simulato: **non STAGING PASS**. [Risultato](admin-v2-evidence/2026-11-06/postgres-local.json). |
+| Chromium locale | PASS 11 scenari con API/autenticazione simulate; 320/375/390/430/768/1440 px, filtri server, assenza overflow, tastiera/focus, annulla conferma=zero write simulate, conferma=una write simulata. [Report](admin-v2-evidence/2026-11-06/chromium/browser-qa.json). |
+| WebKit | BLOCKED: binario ufficiale v2388 termina con segmentation fault prima del test. Nessun tentativo ripetitivo, nessun PASS Safari/iOS. [Limite](admin-v2-evidence/2026-11-06/webkit-blocked.json). |
+| Marco, staging gestito, canary DRAFT | NON ESEGUITI; nessun canary approvato o ambiente staging identificato con accesso disponibile. |
+
+**Difetti corretti:** i filtri categoria/completamento/sincronizzazione/non classificati operavano soltanto sui 25 risultati della pagina; ora il backend applica tutti i filtri prima della paginazione, senza troncamento silenzioso a 500 ID/righe. Ricerca per nome/SKU e combinazione delle condizioni verificate su fixture oltre i limiti precedenti. La UI usa “Sincronizzazione” invece di dedurre la provenienza. “Mai sincronizzato” ora appare come “Sincronizzazione non verificata”, senza dichiarare il prodotto non pubblicato. Nessun filtro disponibilità inventato: inventario non governato da questo modulo.
+
+**Integrazione:** main `8ad26ba` incorporato nel branch operativo, preservando diagnostica #44 e pubblicazioni precedenti; quattro conflitti pertinenti risolti. Nessun file shipping #45 o controllo varianti modificato. CI/GitGuardian dell'HEAD finale sono registrati nella descrizione PR per evitare riferimenti circolari a un commit documentale.
+
+**Ruoli:** test server locali admin/tech_admin, editor interno secondo capability, publisher sola lettura e non autorizzati negati PASS; RPC service-only e RLS provati in PostgreSQL isolato. Ruolo effettivo Marco, RLS post-migration gestita e percorsi legacy reali restano NON VERIFICATI: sicurezza operativa complessiva BLOCKED. Nessun nuovo privilegio assegnato.
+
+**UI/UX PARTIAL, pubblicazione BLOCKED.** Non equiparare QA simulata a collaudo operativo live. Nessun merge PR, deploy, migration produttiva, sincronizzazione, cambiamento flag o ordine.
+
 # Admin V2 operativo — report QA
 
 ## Integrazione main post-footer e gate runtime — 1 novembre 2026

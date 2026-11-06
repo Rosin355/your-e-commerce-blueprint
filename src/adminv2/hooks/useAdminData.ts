@@ -60,6 +60,10 @@ export function useDashboardStats() {
 }
 
 export interface ProductFilters {
+  category?: string;
+  completeness?: "complete" | "incomplete";
+  origin?: "shopify" | "import";
+  needsClassification?: boolean;
   search?: string;
   sku?: string;
   gtin?: string;

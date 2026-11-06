@@ -148,18 +148,22 @@ Deno.serve(async (req) => {
     }
 
     if (action === "list_products") {
-      const { productRows, nextCursor } = await listProducts(db, {
+      const { productRows, nextCursor, currentValues } = await listProducts(db, {
         search: typeof payload.search === "string" ? payload.search : undefined,
         sku: typeof payload.sku === "string" ? payload.sku : undefined,
         gtin: typeof payload.gtin === "string" ? payload.gtin : undefined,
         entityType: payload.entityType as never,
+        category: typeof payload.category === "string" ? payload.category : undefined,
+        completeness: (payload.completeness === "complete" || payload.completeness === "incomplete") ? payload.completeness : undefined,
+        origin: (payload.origin === "shopify" || payload.origin === "import") ? payload.origin : undefined,
+        needsClassification: payload.needsClassification === true,
         reviewRequired: payload.reviewRequired === true,
         publishBlocked: payload.publishBlocked === true,
         cursor: typeof payload.cursor === "string" ? payload.cursor : null,
         pageSize: typeof payload.pageSize === "number" ? payload.pageSize : undefined,
       });
       const ids = productRows.map((p: { id: string }) => p.id);
-      const values = await getCurrentValues(db, ids);
+      const values = currentValues;
       const parentIds = [
         ...new Set(
           productRows

@@ -1,0 +1,19 @@
+{
+  "origin": "https://onlinegarden.it",
+  "mode": "READ_ONLY_AUTHENTICATED",
+  "dashboard": {
+    "status": "PASS",
+    "internalRows": 2706
+  },
+  "skuSearch": {
+    "sku": "OG_113165",
+    "status": "PASS"
+  },
+  "productDetail": {
+    "status": "PASS",
+    "writesDisabledNotice": true
+  },
+  "writeCalls": 0,
+  "shopifyMutationCalls": 0,
+  "account": "Existing authorized session; personal details omitted"
+}

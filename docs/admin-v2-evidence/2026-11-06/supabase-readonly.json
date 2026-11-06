@@ -1,0 +1,23 @@
+{
+  "source": "Lovable query_database SELECT only",
+  "project": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+  "configuredSupabase": "iekwvvihjwghosqdxrdi",
+  "managementApi": "Permission denied",
+  "migration": "20261031184521",
+  "migrationApplied": false,
+  "absentObjects": [
+    "admin_product_operations",
+    "admin_product_shopify_links",
+    "admin_operation_events",
+    "admin_category_operations"
+  ],
+  "internalCategories": 22,
+  "categoryMappings": 0,
+  "categoryAssignments": 0,
+  "limitations": [
+    "Backend identity follows repository/Lovable configuration; not independently confirmed by Management API",
+    "No managed staging or live RLS post-migration test",
+    "No user account or personal role rows queried"
+  ],
+  "mutationCalls": 0
+}

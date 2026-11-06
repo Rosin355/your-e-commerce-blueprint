@@ -1,0 +1,18 @@
+{
+  "engine": "PostgreSQL 16",
+  "environment": "isolated temporary Unix socket; simulated Supabase auth bootstrap",
+  "migration": "20261031184521_admin_operational_drafts.sql",
+  "migrationAndAssertions": "PASS",
+  "rollbackAndRoles": "PASS",
+  "coverage": [
+    "SKU uniqueness",
+    "draft idempotency and single claim",
+    "recovery journal",
+    "category concurrency",
+    "RLS and RPC grants",
+    "tech_admin allowed, publisher write denied",
+    "transaction rollback removes test operation and roles"
+  ],
+  "staging": "NOT_EXECUTED",
+  "productionChanges": 0
+}

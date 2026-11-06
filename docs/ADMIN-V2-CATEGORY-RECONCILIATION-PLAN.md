@@ -1,3 +1,18 @@
+# Riconciliazione: stato confermato 6 novembre 2026
+
+**Aggiornamento 6 novembre 2026 — PR #42; questa sezione prevale sugli stati storici sottostanti.**
+
+SELECT sul backend Lovable: **22 categorie interne, 0 mapping, 0 assegnazioni**. La matrice del 1 novembre sotto è riutilizzata senza ripetere l'audit Shopify; handle/GID candidati devono essere riletti prima di una write futura. Nessun mapping approvato o prodotto riconciliato in questa sessione, nessuna collezione logistica A/B toccata.
+
+| Gruppo da presentare a Marco | Numero | Decisione residua |
+|---|---:|---|
+| Handle identici, riferimenti tecnici univoci nella matrice | 13 | Confermare semantica e autorizzare il mapping; non sono già approvati. |
+| Siepi, Rose a Cespuglio, Rose a Fiore Grande | 3 | Validare gerarchia e contenuti del candidato plausibile. |
+| Erbacee/Graminacee; Grasse/Succulente | 2 | Scegliere la collezione canonica rispetto alle alternative; nessuna deduzione dal nome. |
+| Bulbi Fioritura Autunnale/Estiva/Primaverile; Rose Tappezzanti | 4 | Mantenere senza mapping o progettare separatamente la destinazione; nessuna creazione automatica. |
+
+Le **194 famiglie senza Product GID legacy** (112 simple, 82 variable, snapshot precedente) non sono 194 prodotti Shopify mancanti. Nessun backfill basato sul titolo. La futura riconciliazione deve usare SKU, ID e riferimenti Shopify verificati; gli eventuali casi non univoci restano bloccati senza duplicazione. La mappatura interna non è completabile oggi senza approvazione dei candidati e collaudo staging.
+
 # Admin V2 — piano di riconciliazione categorie Shopify–Supabase
 
 Controllo **read-only, 1 novembre 2026**, su Supabase Online Garden (reference `iekwvvihjwghosqdxrdi`) e Shopify Admin dello store `ecom-blueprint-gen-6ud1s.myshopify.com`. Snapshot logico raccolto con SELECT sulle categorie e aggregati Supabase e con paginazione completa delle 55 collezioni Shopify. Le interrogazioni non sono una transazione fra sistemi: rileggere prima di approvare o applicare. **Zero mapping live** in `product_category_shopify_map`, **zero assegnazioni** in `product_category_assignments`. Questa tabella è una proposta, non una modifica al catalogo.

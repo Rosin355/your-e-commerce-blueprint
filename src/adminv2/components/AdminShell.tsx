@@ -36,7 +36,7 @@ export default function AdminShell() {
     <div className="min-h-screen bg-muted/30">
       <a
         href="#contenuto-admin"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         Vai al contenuto
       </a>
@@ -87,7 +87,7 @@ export default function AdminShell() {
                   to="/admin/technical"
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                      'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                       isActive
                         ? 'bg-secondary text-secondary-foreground'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground',

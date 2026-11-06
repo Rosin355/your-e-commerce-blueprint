@@ -1,12 +1,16 @@
 // UI-only fixtures. Every non-local request is mocked or blocked; never authenticates live.
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
-const { chromium } = await import(process.env.OG_PLAYWRIGHT_MODULE ?? 'playwright');
-const output = 'docs/admin-v2-evidence/2026-10-31';
+const engines = await import(process.env.OG_PLAYWRIGHT_MODULE ?? 'playwright');
+const engine = process.env.OG_ADMIN_QA_ENGINE ?? 'chromium';
+const output = process.env.OG_ADMIN_QA_OUTPUT ?? 'docs/admin-v2-evidence/2026-10-31';
 await fs.mkdir(output, { recursive: true });
-const browser = await chromium.launch({ channel: 'chrome', headless: true });
+const browser = await engines[engine].launch(engine === 'chromium' ? { channel: 'chrome', headless: true } : { headless: true });
 const report = {
   mode: 'SIMULATED_API_NO_LIVE',
+  engine,
+  filterRequests: [],
+  simulatedAssignments: 0,
   checks: [],
   errors: [],
   blockedExternalRequests: 0,
@@ -35,7 +39,7 @@ const catalog = () => ({
   missingCanonicalHandles: [],
   canSaveDraft: true,
   canSendDraft: false,
-  canAssign: false,
+  canAssign: mode === 'confirm',
 });
 const context = await browser.newContext({
   viewport: { width: 1440, height: 1000 },
@@ -123,9 +127,13 @@ await context.route('**/*', async (route) => {
       return json({
         ok: true,
         diff: { add: p.categoryIds.filter(x => !(p.productId === pid ? [id] : []).includes(x)), remove: (p.productId === pid ? [id] : []).filter(x => !p.categoryIds.includes(x)), keep: p.categoryIds.filter(x => (p.productId === pid ? [id] : []).includes(x)) },
-        executable: false,
+        executable: mode === 'confirm',
         reason: 'Anteprima simulata: nessuna scrittura.',
       });
+    }
+    if (p.action === 'apply_categories') {
+      report.simulatedAssignments++;
+      return json({ok:true,reason:'Assegnazione simulata verificata'});
     }
     if (p.action === 'preview_new_product') {
       return json({ ok: true, warnings: ['Anteprima simulata. Nessuna chiamata live.'] });
@@ -142,7 +150,15 @@ await context.route('**/*', async (route) => {
     }
     if (p.action === 'get_product') return json({ok:true,product:{productId:pid,sku:'QA-SIMULATO-001',entityType:'simple',parentProductId:null,parentSku:null,isActive:true,updatedAt:new Date().toISOString()},sections:[],history:[],shopifyLive:{available:false,mapped:false,productId:null}});
     if (p.action === 'get_product_operations') return json({ok:true,canSendDraft:false,operations:[{id:'40000000-0000-4000-8000-000000000001',state:'LOCAL_DRAFT',created_at:new Date().toISOString(),admin_operation_events:[]}]});
-    if (p.action === 'list_products') return json({ ok: true, items: [], nextCursor: null });
+    if (p.action === 'list_products') {
+      report.filterRequests.push({category:p.category,sku:p.sku});
+      const items = [
+        {productId:pid,sku:'QA-FILTRO-001',title:'Rosa simulata',categoryEffective:'Rose'},
+        {productId:'30000000-0000-4000-8000-000000000002',sku:'QA-FILTRO-002',title:'Arbusto simulato',categoryEffective:'Arbusti'},
+      ].map(x=>({...x,entityType:'simple',parentProductId:null,parentSku:null,mainImage:null,reviewPendingCount:0,blockedCount:0,contentStatus:'completo',shopifyStatus:'Mai sincronizzato',updatedAt:new Date().toISOString()}))
+      .filter(x=>(!p.category||x.categoryEffective.toLowerCase().includes(p.category.toLowerCase()))&&(!p.sku||x.sku.includes(p.sku)));
+      return json({ok:true,items,nextCursor:null});
+    }
     throw Error('Unexpected API action ' + p.action);
   }
   if(url.pathname.includes('/functions/v1/product-admin-ai'))return json({ok:true,suggestions:[]});
@@ -152,7 +168,7 @@ await context.route('**/*', async (route) => {
 const page = await context.newPage();
 page.on('pageerror', (e) => report.errors.push(e.message));
 try {
-  for (const width of [1440, 390]) {
+  if (process.env.OG_ADMIN_QA_SKIP_BASELINE !== 'true') for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('http://127.0.0.1:5188/admin/categories');
     await page.getByText('In preparazione', { exact: true }).waitFor();
@@ -207,9 +223,25 @@ try {
     if ([390, 1440].includes(width)) {
       await page.screenshot({ path: `${output}/new-product-preview-${width}.png`, fullPage: true });
     }
+    await page.goto('http://127.0.0.1:5189/admin/products');
+    await page.getByText('Rosa simulata',{exact:true}).waitFor();
+    await page.getByLabel('Categoria',{exact:true}).fill('Rose');
+    await page.getByText('1 prodotto in questa pagina. I filtri si applicano al catalogo.',{exact:true}).waitFor();
+    assert.equal(await page.getByText('Arbusto simulato',{exact:true}).count(),0);
+    await page.getByRole('button',{name:'Reimposta filtri',exact:true}).click();
+    await page.getByLabel('Codice prodotto (SKU)',{exact:true}).fill('QA-FILTRO-002');
+    await page.getByText('Arbusto simulato',{exact:true}).waitFor();
+    await page.getByText('1 prodotto in questa pagina. I filtri si applicano al catalogo.',{exact:true}).waitFor();
+    assert.equal(await page.getByText('Rosa simulata',{exact:true}).count(),0);
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    await page.keyboard.press('Tab');
+    assert.ok(await page.evaluate(()=>document.activeElement!==document.body));
+    if ([320,768,1440].includes(width)) await page.screenshot({path:`${output}/catalog-${width}.png`,fullPage:true});
     report.checks.push({
       width,
       overflow: false,
+      serverCategoryFilterRequest: true,
+      skuSearch: true,
       unclassifiedFilter: true,
       categoryPreview: true,
       manualDraftWithoutAI: true,
@@ -217,6 +249,29 @@ try {
       shopifySendHidden: true,
     });
   }
+  mode = 'confirm';
+  await page.goto('http://127.0.0.1:5189/admin/categories');
+  await page.getByRole('button',{name:'Proponi categorie',exact:true}).first().click();
+  await page.getByRole('button',{name:'Verifica proposta',exact:true}).click();
+  await page.getByRole('button',{name:'Conferma assegnazione',exact:true}).waitFor();
+  page.once('dialog', dialog=>dialog.dismiss());
+  await page.getByRole('button',{name:'Conferma assegnazione',exact:true}).click();
+  assert.equal(report.simulatedAssignments,0);
+  page.once('dialog', dialog=>dialog.accept());
+  await page.getByRole('button',{name:'Conferma assegnazione',exact:true}).click();
+  await page.getByText('Assegnazione simulata verificata',{exact:true}).waitFor();
+  assert.equal(report.simulatedAssignments,1);
+  report.checks.push({nativeConfirmationCancelThenAccept:true,allWritesMocked:true});
+  await page.goto('http://127.0.0.1:5189/admin/categories');
+  await page.getByRole('heading',{name:'Categorie',exact:true}).waitFor();
+  for(let i=0;i<4;i++) await page.keyboard.press('Tab');
+  const focus = await page.evaluate(()=>{
+    const el=document.activeElement, style=getComputedStyle(el);
+    return {text:el.textContent,visible:style.boxShadow!=='none'||style.outlineStyle!=='none'};
+  });
+  assert.match(focus.text,/Prodotti/);
+  assert.ok(focus.visible);
+  report.checks.push({keyboardNavigation:true,visibleFocus:true});
   for (const state of ['empty', 'error']) {
     mode = state;
     await page.goto('http://127.0.0.1:5189/admin/categories');

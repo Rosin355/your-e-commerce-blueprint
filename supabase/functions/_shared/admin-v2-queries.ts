@@ -1,3 +1,4 @@
+import { matchesProductFilters } from "./admin-v2-list-filters.ts";
 // F5 — Query di sola lettura. Nessuna tabella o colonna arbitraria dal client.
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 import type {
@@ -79,64 +80,53 @@ export async function listProducts(
   req: ListProductsRequest,
 ) {
   const pageSize = normalizePageSize(req.pageSize);
-  let matchedIds: string[] | null = null;
-
-  const term = (req.search ?? "").trim();
-  if (term || req.gtin) {
-    const like = `%${escapeLike(req.gtin ?? term)}%`;
-    const keys = req.gtin ? ["gtin"] : ["title", "sku", "gtin"];
-    const { data, error } = await db
-      .from("product_current_values")
-      .select("product_id")
-      .in("field_key", keys)
-      .ilike("value_text", like)
-      .limit(500);
+  const selected: Array<{ id: string; sku: string; parent_product_id: string | null; entity_type: string; updated_at: string; is_active: boolean }> = [];
+  const selectedValues: CurrentValueRow[] = [];
+  let after = req.cursor;
+  // Read candidate products in stable batches. Filters are evaluated before the
+  // page boundary, never on the 25 products already returned to the browser.
+  while (selected.length <= pageSize) {
+    let pq = db.from("products")
+      .select("id,sku,entity_type,parent_product_id,updated_at,is_active")
+      .order("sku", { ascending: true }).limit(50);
+    if (req.sku?.trim()) pq = pq.ilike("sku", `%${escapeLike(req.sku.trim())}%`);
+    if (req.entityType) pq = pq.eq("entity_type", req.entityType);
+    if (after) pq = pq.gt("sku", after);
+    const { data, error } = await pq;
     if (error) throw error;
-    matchedIds = [
-      ...new Set((data ?? []).map((r: { product_id: string }) => r.product_id)),
-    ];
-    if (!matchedIds.length) {
-      return { items: [] as string[], nextCursor: null, productRows: [] };
+    const batch = data ?? [];
+    if (!batch.length) break;
+    const ids = batch.map((p: { id: string }) => p.id);
+    const values: CurrentValueRow[] = [];
+    // PostgREST's row ceiling must not silently truncate fields/review flags.
+    for (let offset = 0;; offset += 500) {
+      const page = await db.from("product_current_values")
+        .select("id,product_id,sku,field_key,entity_type,value_text,value_number,value_json,value_origin,origin,review_status,publish_blocked,protected_on_reimport,source_snapshot_id,is_locked,publish_state,shopify_verified_value,shopify_verified_at,shopify_sync_error_code,shopify_sync_error_message,version,updated_at")
+        .in("product_id", ids).order("id").range(offset, offset + 499);
+      if (page.error) throw page.error;
+      values.push(...(page.data ?? []));
+      if ((page.data?.length ?? 0) < 500) break;
     }
-  }
-
-  if (req.reviewRequired || req.publishBlocked) {
-    let q = db.from("product_current_values").select("product_id").limit(2000);
-    q = req.publishBlocked
-      ? q.eq("publish_blocked", true)
-      : q.in("review_status", ["review_required", "legacy_unverified"]);
-    const { data, error } = await q;
-    if (error) throw error;
-    const ids = new Set(
-      (data ?? []).map((r: { product_id: string }) => r.product_id),
-    );
-    matchedIds = matchedIds ? matchedIds.filter((id) => ids.has(id)) : [...ids];
-    if (!matchedIds.length) {
-      return { items: [] as string[], nextCursor: null, productRows: [] };
+    for (const product of batch) {
+      const current = values.filter(v => v.product_id === product.id);
+      if (!matchesProductFilters(product, current, req)) continue;
+      selected.push(product);
+      selectedValues.push(...current);
+      if (selected.length > pageSize) break;
     }
+    const lastSku = batch[batch.length - 1].sku;
+    if (after && lastSku <= after) throw new Error("CATALOG_CURSOR_INVALID");
+    after = lastSku;
+    if (batch.length < 50) break;
   }
-
-  let pq = db
-    .from("products")
-    .select("id,sku,entity_type,parent_product_id,updated_at,is_active")
-    .order("sku", { ascending: true })
-    .limit(pageSize + 1);
-
-  if (req.sku) pq = pq.ilike("sku", `%${escapeLike(req.sku)}%`);
-  if (req.entityType) pq = pq.eq("entity_type", req.entityType);
-  if (req.cursor) pq = pq.gt("sku", req.cursor);
-  if (matchedIds) pq = pq.in("id", matchedIds.slice(0, 1000));
-
-  const { data, error } = await pq;
-  if (error) throw error;
-
-  const rows = data ?? [];
-  const hasMore = rows.length > pageSize;
-  const page = hasMore ? rows.slice(0, pageSize) : rows;
+  const hasMore = selected.length > pageSize;
+  const productRows = selected.slice(0, pageSize);
+  const ids = new Set(productRows.map(p => p.id));
   return {
-    productRows: page,
-    nextCursor: hasMore ? page[page.length - 1].sku : null,
-    items: page.map((p: { id: string }) => p.id),
+    productRows,
+    currentValues: selectedValues.filter(v => ids.has(v.product_id)),
+    nextCursor: hasMore ? productRows[productRows.length - 1].sku : null,
+    items: productRows.map(p => p.id),
   };
 }
 
