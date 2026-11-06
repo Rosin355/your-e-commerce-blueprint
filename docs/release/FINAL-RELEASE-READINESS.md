@@ -1,4 +1,75 @@
+## Decisione operativa vigente — rilascio Admin in sola lettura, 6 novembre 2026
+
+Il proprietario autorizza merge della PR #42 e pubblicazione del **solo frontend compatibile**, senza staging aggiuntivi, migrazioni, prodotti nuovi o scritture. Questa decisione sostituisce i precedenti blocchi di rilascio riferiti all'Admin completamente modificabile; le funzioni operative future restano disabilitate. Non richiedere nuovi progetti o staging per consegnare questa versione.
+
+| Funzione | Perimetro di questa versione |
+|---|---|
+| Dashboard, ricerca nome/SKU, tipo, paginazione | Disponibili tramite azioni già supportate dal backend attuale; limiti di ricerca/volumi del servizio attuale conservati, non dichiarati risolti dal solo frontend. |
+| Scheda prodotto, valori e storico editoriale esistente | Consultazione, senza editor/sync/AI operativi. Gli stati di sincronizzazione non certificano la pubblicazione Shopify. |
+| Categorie, nuove bozze e storico nuove operazioni | Isolati: nessuna chiamata a catalog_categories/get_product_operations o RPC nuove; pagina esplicativa sulle route dirette. |
+| Filtri categoria/completezza/sincronizzazione/non classificati | Disabilitati con motivazione: il backend attuale non li supporta. Nessun filtro locale sui soli 25 risultati presentato come globale. |
+| Legacy tecnico | Collegamenti nascosti e route legacy reindirizzate alle impostazioni protette nel frontend; autorizzazioni backend legacy non cambiate. |
+| Permessi | Login e ruolo server esistenti; nessun nuovo ruolo a Marco. Identità personale Marco non certificata da una sessione di altro amministratore. |
+
+**Confine fail-closed:** `ADMIN_READ_ONLY_RELEASE=true` è un vincolo nel codice, non una preferenza locale. Il canale Admin ammette soltanto le letture note e blocca le altre azioni prima del trasporto; canale AI bloccato, nessuna generazione. Capability dei campi disabilitate. Diagnostica continua a mostrare i flag reali del server senza forzarli a false. Lettura pre-release autenticata: `writesEnabled=false / writeMode=canary / shopifySyncEnabled=false`, ore 17:48:30 CET. Nessun secret o flag modificato.
+
+**Separazione del backend:** entrypoint product-admin-api identico a main precedente; query attive con sole annotazioni TypeScript, nessuna nuova lettura di tabelle. Query future conservate in `admin-v2-queries-deferred.ts`, non importate dal percorso attivo; endpoint futuro nella patch `docs/release/ADMIN-V2-DEFERRED-ENDPOINT.patch`. Migration spostata in `docs/release/pending/20261031184521_admin_operational_drafts.sql`, fuori dal percorso di migration automatiche. I test offline conservano i controlli sul materiale differito. Nessun SQL applicato, nessun deploy Edge esplicitamente eseguito.
+
+CI/GitGuardian e SHA effettivi sono registrati nella PR #42. Lo stato del deployment sarà attestato solo dalla risposta Lovable e dalla verifica della versione servita; merge e commit editor non equivalgono a pubblicazione. [Registro](https://github.com/Rosin355/your-e-commerce-blueprint/pull/42) · [Preflight](../admin-v2-evidence/2026-11-06-readonly/preflight.json).
+
+## 6 novembre 2026 — chiusura residui Admin V2, nessuna attivazione
+
+- **Backend PARTIAL:** nessuna nuova incompatibilità nei metadata/grant mirati rispetto alla baseline; database operativo 25 tabelle, nuove RPC/migration ancora da attivare secondo gate. Non è uno staging. Un solo ruolo admin assegnato nell'aggregato letto: ruolo personale Marco **NON VERIFICATO**.
+- **Staging NON DISPONIBILE negli accessi identificati/autorizzati.** Preview/bozze non isolano il database; fonte ufficiale e identità nel runbook. Non creato alcun progetto. Procedura locale temporanea documentata, SQL e prove PASS precedenti conservati senza ripetizioni.
+- **UI/UX PARTIAL:** spiegazioni per invio/recupero disabilitati e linguaggio cliente; quattro nuovi casi Chromium PASS a 320/1440 px, typecheck/lint/build PASS. Un solo tentativo WebKit, ancora crash 139 prima della prova; Safari e accettazione Marco/designer aperti.
+- Matrice categorie trasformata in tabella decisionale per Marco: 13 tecniche univoche, 3 plausibili, 2 ambigue e 4 assenti; zero mapping applicati. Le 194 famiglie non sono automaticamente prodotti Shopify mancanti.
+- Percorso unico preparato: codice, backup provato, migration controllata, ACL/RLS, backend, frontend, capability limitate, canary DRAFT, account Marco, rollback. Pubblicazione **BLOCKED** finché non superati i gate e autorizzata la produzione. CI/GitGuardian e SHA finali nella PR #42, mantenuta Draft.
+- PR #45, Shopify live, A/B, Sendcloud, checkout e pagamenti invariati; niente merge, deploy, migration o flag produttivi. GSC già collegata tramite Windsor.ai; 404/URL WooCommerce/mapping/301/monitoraggio restano TODO successivi, non eseguiti.
+
+[Runbook](../ADMIN-V2-ACTIVATION-RUNBOOK.md) · [Guida cliente](../ADMIN-V2-CLIENT-GUIDE.md) · [QA](../ADMIN-V2-QA-REPORT.md).
+
+## 6 novembre 2026 — Admin V2 completamento mirato, rilascio BLOCKED
+
+**Aggiornamento 6 novembre 2026 — PR #42; questa sezione prevale sugli stati storici sottostanti.**
+
+- Runtime autenticato live **PASS**: scritture OFF, modo canary, sync Shopify OFF; dashboard/ricerca SKU/dettaglio letti senza write.
+- Correzioni PR #42: filtri sul catalogo prima della paginazione, nessun troncamento silenzioso, stato sync non confuso con pubblicazione, focus visibile e responsive. Typecheck/lint/build, 370 Node e 103 Deno PASS; SQL locale/rollback PASS; Chromium simulato 11 scenari PASS.
+- **UI/UX PARTIAL:** WebKit crash tecnico, Safari/device e accettazione Marco/designer non conclusi. **Sicurezza operativa BLOCKED:** ruoli reali Marco e RLS gestita post-migration non collaudati, legacy separati.
+- SELECT backend Lovable conferma migration non applicata, 22 categorie e zero mapping/assegnazioni. **Staging NON ESEGUITA**. Nessun canary commerciale o write live.
+- PR #42 Draft; risoluzione conflitti con main sul branch, nessun merge in main/deploy. SHA, CI e GitGuardian dell'HEAD finale nella PR. PR #45, tariffe A/B, Sendcloud e checkout indipendenti e invariati.
+- **Progresso indicativo per gate, non misura del codice:** consultazione 75% (3/4: lettura live, filtri locali, UI; manca accettazione Marco); modifica/bozze 60% (3/5: server, SQL locale, UI; mancano staging e canary); categorie 50% (2/4: codice e QA locale; mancano mapping approvati e canary); UI 67% (4/6: responsive, tastiera/focus, conferme, stati; mancano Safari e accettazione); rilascio 25% (2/8: codice/CI e runtime; restanti gate nel runbook). Non è pronto all'uso completo del cliente.
+- Prossima azione unica: ambiente staging Supabase isolato autorizzato e accessibile, prima di ogni decisione produttiva. [Guida Marco](../ADMIN-V2-CLIENT-GUIDE.md), [runbook](../ADMIN-V2-ACTIVATION-RUNBOOK.md), [QA](../ADMIN-V2-QA-REPORT.md).
+
+**TODO SEO post-rilascio, non eseguito:** Google Search Console **già collegata tramite Windsor.ai**; analisi 404, recupero URL WordPress/WooCommerce, mapping vecchio URL → pagina nuova, redirect permanenti HTTP 301 e monitoraggio indicizzazione. Le vecchie note “collegare GSC” sono superate. Nessun redirect o credenziale Google modificati.
+
 # Online Garden — release readiness dopo introduzione CI minima
+
+## PR #42 post-footer — gate di integrazione, 1 novembre 2026
+
+Base aggiornata `main@04ae6d4` dopo PR #43; merge locale `a00a800` nel branch Admin V2. Il footer live, Contatti e Privacy sono preservati e non sono parte di un nuovo deploy. QA locale: typecheck/lint/build, 361 Node, 103 Deno, Edge check, browser pubblico desktop/mobile e [browser Admin simulato a sei larghezze](../admin-v2-evidence/2026-11-01-post-footer/browser-qa.json) PASS; checkout soltanto simulato. CI e GitGuardian del nuovo HEAD PR #42 devono essere confermati dopo push.
+
+| Gate | Stato |
+| --- | --- |
+| Merge del solo codice | **BLOCKED** finché `writesEnabled` e `shopifySyncEnabled` runtime non sono attestati `false` e il proprietario non decide esplicitamente; PR resta Draft |
+| Review GitHub | Nessuna review formale o reviewer indipendente disponibile; `main` non ha requisito obbligatorio osservabile, ma check automatici e review tecnica non sono approvazione GitHub |
+| Deploy read-only | **BLOCKED**: nessun Admin autenticato ha confermato i tre campi `get_admin_context`; `writeMode` va registrato, non interpretato come OFF |
+| Migration | NON APPLICATA; richiede backup, autorizzazione separata e verifica ACL/RLS/RPC post-migration |
+| Canary Shopify/categorie | NON AUTORIZZATI: mapping approvato e approvazione mirata ancora mancanti |
+| Produzione commerciale | NO-GO: validazione Marco, Safari/iOS, checkout sandbox e policy restano gate separati |
+
+Il merge su `main` sincronizza codice nell'editor/preview Lovable, ma non applica migration, non distribuisce Edge Function e non pubblica il sito automaticamente secondo la [documentazione Git Sync](https://docs.lovable.dev/integrations/git-sync-overview). Il footer già pubblicato richiede un rollback separato solo se un futuro deploy lo altera; non usare force push o ripristini dati. [Runbook Admin](../ADMIN-V2-ACTIVATION-RUNBOOK.md) · [Report QA](../ADMIN-V2-QA-REPORT.md).
+
+## PR #42 — review finale e gate di attivazione, 1 novembre 2026
+
+Review mirata sul codice della PR con base `main@b5cbe57`: corretto R42-6 nel commit `c9329ca`, bypass del master write OFF nel recupero di una bozza incerta. Backend e UI impediscono ora la finalizzazione del mapping interno con master OFF; recovery successivo richiede riabilitazione esplicita per un'operazione autorizzata. QA locale PASS: 360 Node, 103 Deno, typecheck, lint mirato, Deno check e build. Sul commit `c9329ca`, [CI applicativa SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41321729729) e GitGuardian PASS; l'HEAD documentale finale richiede check propri. PR Draft, nessuna review GitHub formale al momento del controllo.
+
+**Code merge:** candidato tecnico solo dopo check sull'HEAD finale e review GitHub adeguata, con tutte le scritture OFF. **Staging:** NO-GO fino a backup, migration autorizzata e verifica post-migration; [matrice read-only](../ADMIN-V2-CATEGORY-RECONCILIATION-PLAN.md) mostra 13 handle identici, 3 plausibili, 2 ambigui, 4 senza match fra 22 categorie interne e 55 collezioni Shopify, con zero mapping attuale. **Produzione:** NO-GO finché 194 famiglie senza GID legacy, canary DRAFT, account Marco, Safari/iOS, email e decisioni commerciali non sono verificati. [Runbook](../ADMIN-V2-ACTIVATION-RUNBOOK.md). Nessun merge, migration, deploy o write live.
+
+## Gate PR #42 aggiornato — 1 novembre 2026
+
+Il database Supabase di Online Garden è stato verificato in sola lettura tramite il backend del progetto Lovable corrispondente alla base `main@b5cbe57`. Project reference configurato `iekwvvihjwghosqdxrdi`; [report di compatibilità](../ADMIN-V2-LIVE-SUPABASE-COMPATIBILITY.md). La migration Admin V2 è **compatibile per struttura** con schema, vincoli, enum, trigger e registro campi live; non è stata applicata. Le nuove ACL/RLS potranno essere confermate sul progetto reale soltanto dopo migration autorizzata. La review limitata al diff corretto `829eeb0..d9f0d39` non ha rilevato nuovi blocchi. [CI sull'HEAD applicativo `d9f0d39` SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41236633321); la CI del successivo commit documentale va verificata sul suo SHA.
+
+**Ready for code merge:** subordinato a CI/GitGuardian sull'HEAD finale e review/decisione GitHub adeguate; la PR resta Draft fino a tale decisione. **Ready for staging operativo:** NO-GO finché migration e deploy non sono autorizzati e verificati, e finché le categorie non hanno mapping approvati (22 categorie interne attive, zero mappe/assegnazioni). **Ready for production:** NO-GO; 194 famiglie senza Product GID nel mapping legacy, 82 casi storici non riconciliati, canary DRAFT/categorie, account Marco, Safari/mobile, email e validazione commerciale ancora da chiudere. Nessuna scrittura o modifica di servizi live in questo audit.
 
 ## 2 novembre 2026 — esito del rilascio diagnostico PR #44
 
@@ -48,3 +119,22 @@ Le altre sezioni di questo documento conservano lo storico CI della base. I loro
 La #39 non viene aggiornata e non avrà un nuovo check collegato al suo HEAD tramite questo intervento. La prova del codice aa7e6ae è un job distinto nella run della #41; non è equivalente a un check automatico direttamente sulla #39. La scelta preserva ancestry e PR non coinvolte. Nessun merge, deploy o scrittura live.
 
 Il commit delle evidenze non modifica workflow o sorgenti e attiva comunque la CI completa. Il suo SHA e la run finale verificata sono riportati nella consegna; nessuna esecuzione precedente viene presentata come prova automatica di un HEAD diverso. Non sono stati osservati fallimenti applicativi nella prima run.
+
+
+## Gate Admin operativo — 31 ottobre 2026
+
+IMPLEMENTED: UI categorie/nuovo prodotto, backend gated, journal/mapping, migration additiva. TESTED: typecheck/lint/build, 358 Node, 97 Deno, PostgreSQL locale, Chromium desktop/mobile simulato. LIVE VERIFIED: nessuna nuova attestazione in questa fase. NOT YET ENABLED: migration/deploy, nuove scritture, pubblicazione, autonomia commerciale Marco. Code review/CI sul nuovo HEAD richiesti; staging operativo condizionato; production NO-GO finché mancano canary, Safari/iOS, review permessi, validazione commerciale e prove email. Nessun merge/deploy effettuato.
+
+Riferimenti: [Piano Admin](./../ADMIN-V2-NEW-PRODUCT-PLAN.md), [QA](./../ADMIN-V2-QA-REPORT.md), [Notifiche Shopify](./../SHOPIFY-EMAIL-NOTIFICATIONS-AUDIT.md).
+
+
+## Evidenze GitHub — Draft PR #42
+
+[PR #42](https://github.com/Rosin355/your-e-commerce-blueprint/pull/42), base `main@b5cbe57aa1f7e674ce7caca106d359f8977c800a`. Tre commit implementativi/documentali iniziali: `8be1316`, `ad02abe`, `38b6324`.
+
+Sul codice `38b6324ecdcb705979e5b3a62b4fd3dbc7c71cfd`: **CI SUCCESS** nel [run 41232830219](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/41232830219), tutti gli step completati, inclusi lint Admin e typecheck server frozen; **GitGuardian SUCCESS**, verificato nei check della PR. Il commit successivo registra queste evidenze documentali: il suo check deve essere verificato separatamente, senza attribuirgli automaticamente l'esito precedente.
+
+Valutazione: **pronto per review tecnica come Draft; attivazione live BLOCKED dai gate descritti**. Non è un'autorizzazione al merge o al soft launch. I 17 worktree preesistenti risultano invariati nel confronto HEAD/status/hash delle modifiche originali. Scan mirato sulle nuove righe: nessun riscontro di token Shopify privati, JWT letterali o chiavi private; non sostituisce l'audit integrale della cronologia.
+
+
+**Addendum finale, connessione Shopify resa disponibile:** sola lettura sullo store corretto conferma EUR, italiano principale pubblicato, nuovi account cliente facoltativi, 1.348 prodotti ACTIVE, 16 DRAFT e 55 collezioni. Nessuna scrittura effettuata. Mapping Supabase, riconciliazione storica, autorizzazioni Marco, template/mittente/staff e recapito email restano non verificati. I gate di attivazione non cambiano.

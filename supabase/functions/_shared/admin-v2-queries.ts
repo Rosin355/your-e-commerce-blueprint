@@ -223,14 +223,16 @@ export async function getProductHistory(
 
 /** Conteggi aggregati per la Dashboard: solo `count`, mai righe complete. */
 export async function getDashboardStats(db: SupabaseClient) {
-  const countProducts = async (filter?: (q: any) => any) => {
+  const queryType = () => db.from("products").select("id", { count: "exact", head: true });
+  type CountQuery = ReturnType<typeof queryType>;
+  const countProducts = async (filter?: (q: CountQuery) => CountQuery) => {
     let q = db.from("products").select("id", { count: "exact", head: true });
     if (filter) q = filter(q);
     const { count, error } = await q;
     if (error) throw error;
     return count ?? 0;
   };
-  const countValues = async (filter: (q: any) => any) => {
+  const countValues = async (filter: (q: CountQuery) => CountQuery) => {
     const { count, error } = await filter(
       db.from("product_current_values").select("id", {
         count: "exact",

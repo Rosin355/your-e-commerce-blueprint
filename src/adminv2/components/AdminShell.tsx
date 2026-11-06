@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminContext } from '../hooks/useAdminData';
 import { LEGACY_TOOLS_ENABLED } from '../lib/flags';
+import { ADMIN_READ_ONLY_RELEASE, ADMIN_READ_ONLY_VERSION, READ_ONLY_RELEASE_NOTICE } from '../lib/readOnlyRelease';
 
 const NAV = [
   { to: '/admin', label: 'Dashboard', icon: BarChart3, end: true },
@@ -36,7 +37,7 @@ export default function AdminShell() {
     <div className="min-h-screen bg-muted/30">
       <a
         href="#contenuto-admin"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         Vai al contenuto
       </a>
@@ -87,7 +88,7 @@ export default function AdminShell() {
                   to="/admin/technical"
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                      'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                       isActive
                         ? 'bg-secondary text-secondary-foreground'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground',
@@ -105,13 +106,13 @@ export default function AdminShell() {
 
       <div className="border-b bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
         <p className="mx-auto max-w-7xl px-4 py-2 text-sm">
-          {context?.canWrite
+          {ADMIN_READ_ONLY_RELEASE ? READ_ONLY_RELEASE_NOTICE : context?.canWrite
             ? 'Modifiche field-by-field controllate dal server; nessuna pubblicazione automatica.'
-            : (context?.readOnlyReason ?? 'Modalità consultazione: le modifiche non sono abilitate.')}
+            : (context?.readOnlyReason ?? 'Stato delle autorizzazioni NON VERIFICATO.')}
         </p>
       </div>
 
-      <main id="contenuto-admin" className="mx-auto max-w-7xl px-4 py-6">
+      <main id="contenuto-admin" data-admin-release={ADMIN_READ_ONLY_VERSION} className="mx-auto max-w-7xl px-4 py-6">
         <Outlet />
       </main>
     </div>

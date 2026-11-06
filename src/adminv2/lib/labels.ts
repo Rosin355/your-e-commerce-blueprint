@@ -75,7 +75,8 @@ export function productStates(p: ProductSummary): string[] {
   if (!p.categoryEffective) states.push('Da classificare');
   if (p.shopifyStatus === 'Errore') states.push('Errore');
   else if (p.shopifyStatus === 'Sincronizzato') states.push('Aggiornato');
-  else states.push('Non pubblicato');
+  else if (p.shopifyStatus === 'In attesa') states.push('Sincronizzazione in attesa');
+  else states.push('Sincronizzazione non verificata');
   return states;
 }
 

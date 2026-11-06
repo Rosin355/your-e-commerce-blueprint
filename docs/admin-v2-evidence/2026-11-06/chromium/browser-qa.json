@@ -1,0 +1,139 @@
+{
+  "mode": "SIMULATED_API_NO_LIVE",
+  "engine": "chromium",
+  "filterRequests": [
+    {},
+    {
+      "category": "Rose"
+    },
+    {
+      "sku": "QA-FILTRO-002"
+    },
+    {},
+    {
+      "category": "Rose"
+    },
+    {
+      "sku": "QA-FILTRO-002"
+    },
+    {},
+    {
+      "category": "Rose"
+    },
+    {
+      "sku": "QA-FILTRO-002"
+    },
+    {},
+    {
+      "category": "Rose"
+    },
+    {
+      "sku": "QA-FILTRO-002"
+    },
+    {},
+    {
+      "category": "Rose"
+    },
+    {
+      "sku": "QA-FILTRO-002"
+    },
+    {},
+    {
+      "category": "Rose"
+    },
+    {
+      "sku": "QA-FILTRO-002"
+    }
+  ],
+  "simulatedAssignments": 1,
+  "checks": [
+    {
+      "width": 320,
+      "overflow": false,
+      "serverCategoryFilterRequest": true,
+      "skuSearch": true,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "width": 375,
+      "overflow": false,
+      "serverCategoryFilterRequest": true,
+      "skuSearch": true,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "serverCategoryFilterRequest": true,
+      "skuSearch": true,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "width": 430,
+      "overflow": false,
+      "serverCategoryFilterRequest": true,
+      "skuSearch": true,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "serverCategoryFilterRequest": true,
+      "skuSearch": true,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "serverCategoryFilterRequest": true,
+      "skuSearch": true,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "nativeConfirmationCancelThenAccept": true,
+      "allWritesMocked": true
+    },
+    {
+      "keyboardNavigation": true,
+      "visibleFocus": true
+    },
+    {
+      "state": "empty",
+      "visible": true
+    },
+    {
+      "state": "error",
+      "visible": true
+    },
+    {
+      "keyboardFocus": true
+    }
+  ],
+  "errors": [],
+  "blockedExternalRequests": 29,
+  "result": "PASS"
+}

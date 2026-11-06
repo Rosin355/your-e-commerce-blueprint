@@ -16,7 +16,7 @@ import FaqEditor from './FaqEditor';
 import { MONTHS } from '../../../supabase/functions/_shared/admin-v2-field-policy.ts';
 
 interface FieldEditorProps {
-  field: AdminField;
+  field: Pick<AdminField, 'key' | 'label' | 'editorType' | 'dataType' | 'validationRules' | 'required'>;
   value: unknown;
   onChange: (value: unknown) => void;
   disabled?: boolean;
@@ -155,7 +155,7 @@ export default function FieldEditor({ field, value, onChange, disabled = false }
   }
 
   if (kind === 'unsupported_json') {
-    return <p className="text-xs text-destructive">Formato JSON non supportato dall’editor tipizzato.</p>;
+    return <p className="text-xs text-destructive">Campo in sola lettura: questo contenuto richiede assistenza per essere modificato.</p>;
   }
 
   if (kind === 'unsupported_select') {

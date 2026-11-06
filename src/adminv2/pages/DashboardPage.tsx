@@ -112,7 +112,11 @@ export default function DashboardPage() {
           <CardContent className="text-sm">
             <p>Collegamento attivo</p>
             <p className="text-muted-foreground">
-              {context?.canWrite ? 'Editing per campo controllato dal server' : 'Accesso in sola lettura'}
+              {context?.canWrite === true
+                ? 'Editing per campo controllato dal server'
+                : context?.canWrite === false
+                  ? 'Modifica campi non abilitata per questo account'
+                  : 'Stato Admin NON VERIFICATO'}
             </p>
           </CardContent>
         </Card>
@@ -124,7 +128,11 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
-            <p>{context?.canWrite ? 'Nessuna pubblicazione automatica.' : 'Funzioni di modifica non abilitate.'}</p>
+            <p>{context?.canWrite === true
+              ? 'Nessuna pubblicazione automatica.'
+              : context?.canWrite === false
+                ? 'Modifica campi non abilitata per questo account.'
+                : 'Stato Admin NON VERIFICATO.'}</p>
             <Link to="/admin/products" className="mt-2 inline-block text-primary underline">
               Vai al catalogo
             </Link>

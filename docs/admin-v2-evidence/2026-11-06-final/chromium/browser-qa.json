@@ -1,0 +1,39 @@
+{
+  "mode": "SIMULATED_API_NO_LIVE",
+  "engine": "chromium",
+  "filterRequests": [],
+  "simulatedAssignments": 0,
+  "checks": [
+    {
+      "width": 320,
+      "state": "LOCAL_DRAFT",
+      "disabled": true,
+      "explanationVisible": true,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "state": "NEEDS_RECONCILIATION",
+      "disabled": true,
+      "explanationVisible": true,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "state": "LOCAL_DRAFT",
+      "disabled": true,
+      "explanationVisible": true,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "state": "NEEDS_RECONCILIATION",
+      "disabled": true,
+      "explanationVisible": true,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "blockedExternalRequests": 4,
+  "result": "PASS"
+}

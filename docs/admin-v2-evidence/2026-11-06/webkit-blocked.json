@@ -1,0 +1,9 @@
+{
+  "engine": "webkit",
+  "revision": "2388",
+  "status": "BLOCKED",
+  "phase": "browserContext.newPage",
+  "error": "Target closed; pw_run.sh reported segmentation fault",
+  "retries": 0,
+  "claim": "No Safari/iOS PASS"
+}

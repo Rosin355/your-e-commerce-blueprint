@@ -66,6 +66,20 @@ jobs:
           npx --no-install eslint src/components/CartDrawer.tsx src/components/ProductCard.tsx src/components/storefront/CatalogProductCard.tsx src/components/storefront/HomeHeaderOverlay.tsx src/components/storefront/HomeHero.tsx src/components/storefront/HomepageV3.tsx src/components/storefront/Pdp.tsx src/hooks/useProduct.ts src/lib/shopify.ts src/pages/AllProducts.tsx
           if test -f src/lib/storefront-money.ts; then npx --no-install eslint src/lib/storefront-money.ts; fi
           if test -f scripts/tests/storefront-money.test.ts; then npx --no-install eslint --no-ignore scripts/tests/storefront-money.test.ts; fi
+      - name: Lint Admin operational scope
+        run: |
+          if test -f src/adminv2/pages/NewProductPage.tsx; then
+            npx --no-install eslint src/adminv2/pages/NewProductPage.tsx src/adminv2/pages/CategoriesPage.tsx src/adminv2/components/ProductOperations.tsx src/adminv2/lib/readOnlyRelease.ts src/adminv2/pages/ReadOnlyFeaturePage.tsx src/adminv2/lib/adminApi.ts src/adminv2/lib/flags.ts src/adminv2/lib/labels.ts src/adminv2/lib/operationalApi.ts src/adminv2/lib/operationalUiPolicy.ts src/adminv2/components/FieldEditor.tsx src/adminv2/pages/ProductsPage.tsx src/adminv2/pages/ProductDetailPage.tsx src/adminv2/pages/PlaceholderPages.tsx src/App.tsx
+            npx --no-install eslint src/adminv2/AdminV2Guard.tsx src/adminv2/components/AdminShell.tsx src/adminv2/components/AdminRuntimeDiagnostics.tsx src/adminv2/pages/DashboardPage.tsx src/adminv2/hooks/useAdminData.ts src/adminv2/lib/adminDiagnostics.ts
+            npx --no-install eslint --no-ignore supabase/functions/_shared/admin-operational-core.ts supabase/functions/_shared/admin-operational-service.ts supabase/functions/_shared/admin-v2-queries.ts supabase/functions/_shared/admin-v2-list-filters.ts supabase/functions/_shared/admin-v2-queries-deferred.ts supabase/functions/product-admin-api/index.ts scripts/tests/admin-operational.test.ts
+            npx --no-install eslint --no-ignore scripts/tests/admin-diagnostics.test.ts
+          fi
+      - name: Typecheck Admin operational server with frozen dependencies
+        run: |
+          if test -f supabase/functions/_shared/admin-operational-service.ts; then
+            deno check --no-config --no-npm --frozen --lock=../tooling/ci/deno-ci.lock supabase/functions/_shared/admin-operational-service.ts supabase/functions/_shared/admin-v2-queries.ts
+          fi
+
       - name: Lint Admin runtime diagnostics
         run: |
           npx --no-install eslint src/adminv2/pages/PlaceholderPages.tsx src/adminv2/hooks/useAdminData.ts src/adminv2/components/AdminRuntimeDiagnostics.tsx src/adminv2/lib/adminDiagnostics.ts

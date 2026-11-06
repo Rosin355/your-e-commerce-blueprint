@@ -1,3 +1,4 @@
+import { ADMIN_READ_ONLY_RELEASE } from '../lib/readOnlyRelease';
 // F6 — Lista prodotti: ricerca, filtri, paginazione a cursore. Sola lettura.
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -51,25 +52,19 @@ export default function ProductsPage() {
       gtin: debouncedGtin || undefined,
       entityType: entityType === 'all' ? undefined : entityType,
       reviewRequired: reviewRequired || undefined,
+      category: category === 'all' ? undefined : category,
+      completeness: completeness === 'all' ? undefined : completeness as 'complete' | 'incomplete',
+      origin: origin === 'all' ? undefined : origin as 'shopify' | 'import',
+      needsClassification: toClassify || undefined,
     }),
-    [debouncedSearch, debouncedSku, debouncedGtin, entityType, reviewRequired],
+    [debouncedSearch, debouncedSku, debouncedGtin, entityType, reviewRequired, category, completeness, origin, toClassify],
   );
 
   const { data, isLoading, isFetching, isError, error, refetch } = useProductList(filters, cursor);
 
-  const items = (data?.items ?? []).filter((p) => {
-    if (toClassify && p.categoryEffective) return false;
-    if (category !== 'all' && (p.categoryEffective ?? '') !== category) return false;
-    if (completeness === 'complete' && p.contentStatus !== 'completo') return false;
-    if (completeness === 'incomplete' && p.contentStatus === 'completo') return false;
-    if (origin === 'shopify' && p.shopifyStatus === 'Mai sincronizzato') return false;
-    if (origin === 'import' && p.shopifyStatus !== 'Mai sincronizzato') return false;
-    return true;
-  });
-
-  const categoryOptions = [
-    ...new Set((data?.items ?? []).map((p) => p.categoryEffective).filter(Boolean) as string[]),
-  ].sort();
+  const items = data?.items ?? [];
+  const searchPending = search !== debouncedSearch || sku !== debouncedSku || gtin !== debouncedGtin;
+  const categoryOptions = [...new Set(items.map(p => p.categoryEffective).filter(Boolean) as string[])].sort();
 
   const resetFilters = () => {
     setSearch('');
@@ -93,7 +88,9 @@ export default function ProductsPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-xl font-semibold">Prodotti</h1>
-        <p className="text-sm text-muted-foreground">Consultazione del catalogo. Nessuna modifica disponibile.</p>
+        <Button disabled={ADMIN_READ_ONLY_RELEASE} className="my-2 min-h-11">Nuovo prodotto</Button>
+        {ADMIN_READ_ONLY_RELEASE && <p className="text-sm text-muted-foreground">Creazione bozze non ancora attiva. Il catalogo è disponibile in sola lettura.</p>}
+        <p className="text-sm text-muted-foreground">Catalogo interno e modifiche secondo le autorizzazioni del tuo account.</p>
       </div>
 
       <section aria-label="Filtri" className="space-y-4 rounded-lg border bg-card p-4">
@@ -146,30 +143,28 @@ export default function ProductsPage() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="categoria">Categoria</Label>
-            <Select value={category} onValueChange={(v) => onFilterChange(() => setCategory(v))}>
-              <SelectTrigger id="categoria"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tutte</SelectItem>
-                {categoryOptions.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Input disabled={ADMIN_READ_ONLY_RELEASE} id="categoria" list="categorie-suggerite"
+              value={category === 'all' ? '' : category}
+              onChange={e => onFilterChange(() => setCategory(e.target.value || 'all'))}
+              placeholder="Tutte · cerca una categoria" />
+            <datalist id="categorie-suggerite">
+              {categoryOptions.map(c => <option key={c} value={c} />)}
+            </datalist>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="origine">Origine</Label>
-            <Select value={origin} onValueChange={(v) => onFilterChange(() => setOrigin(v))}>
+            <Label htmlFor="origine">Sincronizzazione</Label>
+            <Select disabled={ADMIN_READ_ONLY_RELEASE} value={origin} onValueChange={(v) => onFilterChange(() => setOrigin(v))}>
               <SelectTrigger id="origine"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tutte</SelectItem>
-                <SelectItem value="import">Importato dal sistema precedente</SelectItem>
-                <SelectItem value="shopify">Già presente su Shopify</SelectItem>
+                <SelectItem value="import">Mai sincronizzato</SelectItem>
+                <SelectItem value="shopify">Con stato di sincronizzazione</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="completezza">Completezza</Label>
-            <Select value={completeness} onValueChange={(v) => onFilterChange(() => setCompleteness(v))}>
+            <Select disabled={ADMIN_READ_ONLY_RELEASE} value={completeness} onValueChange={(v) => onFilterChange(() => setCompleteness(v))}>
               <SelectTrigger id="completezza"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tutti</SelectItem>
@@ -180,10 +175,12 @@ export default function ProductsPage() {
           </div>
         </div>
 
+        {ADMIN_READ_ONLY_RELEASE && <p className="text-sm text-muted-foreground">Categoria, completezza e sincronizzazione richiedono un aggiornamento separato del servizio e sono disabilitati. Ricerca, tipo prodotto e paginazione usano il servizio attuale.</p>}
         <div className="flex flex-wrap items-center gap-6">
           <div className="flex items-center gap-2">
             <Checkbox
               id="da-classificare"
+              disabled={ADMIN_READ_ONLY_RELEASE}
               checked={toClassify}
               onCheckedChange={(v) => onFilterChange(() => setToClassify(v === true))}
             />
@@ -200,6 +197,10 @@ export default function ProductsPage() {
           <Button variant="ghost" size="sm" onClick={resetFilters}>Reimposta filtri</Button>
         </div>
       </section>
+
+      <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
+        {isFetching || searchPending ? "Aggiornamento risultati…" : `${items.length} ${items.length === 1 ? 'prodotto' : 'prodotti'} in questa pagina.`}
+      </p>
 
       {isError && (
         <Alert variant="destructive">
@@ -274,11 +275,11 @@ export default function ProductsPage() {
         </ul>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Button
           variant="outline"
           size="sm"
-          disabled={cursorStack.length <= 1}
+          disabled={cursorStack.length <= 1 || isFetching || searchPending}
           onClick={() => setCursorStack((s) => s.slice(0, -1))}
         >
           Pagina precedente
@@ -287,7 +288,7 @@ export default function ProductsPage() {
         <Button
           variant="outline"
           size="sm"
-          disabled={!data?.nextCursor}
+          disabled={!data?.nextCursor || isFetching || searchPending}
           onClick={() => setCursorStack((s) => [...s, data!.nextCursor])}
         >
           Pagina successiva

@@ -1,0 +1,73 @@
+{
+  "mode": "SIMULATED_API_NO_LIVE",
+  "checks": [
+    {
+      "width": 320,
+      "overflow": false,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "width": 375,
+      "overflow": false,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "width": 430,
+      "overflow": false,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "unclassifiedFilter": true,
+      "categoryPreview": true,
+      "manualDraftWithoutAI": true,
+      "productLinkAndOperationHistory": true,
+      "shopifySendHidden": true
+    },
+    {
+      "state": "empty",
+      "visible": true
+    },
+    {
+      "state": "error",
+      "visible": true
+    },
+    {
+      "keyboardFocus": true
+    }
+  ],
+  "errors": [],
+  "blockedExternalRequests": 23,
+  "result": "PASS"
+}

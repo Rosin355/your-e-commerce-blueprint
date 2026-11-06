@@ -30,13 +30,6 @@ export const ImportsPage = () => (
   />
 );
 
-export const CategoriesPage = () => (
-  <Placeholder
-    title="Categorie"
-    description="Qui potrai consultare e assegnare le categorie del catalogo. La funzione sarà attivata nella prossima fase."
-  />
-);
-
 export const PublicationsPage = () => (
   <Placeholder
     title="Pubblicazioni"
