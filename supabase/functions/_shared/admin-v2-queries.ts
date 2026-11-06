@@ -232,7 +232,7 @@ export async function getDashboardStats(db: SupabaseClient) {
     if (error) throw error;
     return count ?? 0;
   };
-  const countValues = async (filter: (q: any) => any) => {
+  const countValues = async (filter: (q: CountQuery) => CountQuery) => {
     const { count, error } = await filter(
       db.from("product_current_values").select("id", {
         count: "exact",

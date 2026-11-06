@@ -7,7 +7,7 @@
 
 ### Scritture future — solo procedura conservata, non attività di adesso
 
-Serve approvazione specifica per backup verificato/rollback, SQL pendente, ACL/RLS effettive, backend compatibile, mapping categorie e canary DRAFT concordato. Ripristinare il servizio proposto da `admin-v2-queries-deferred.ts` e dalla patch endpoint soltanto con tale approvazione; il materiale differito non è codice backend già distribuito. Una successiva modifica revisionata deve rimuovere il vincolo frontend di sola lettura, senza consentire scritture se le capability server sono OFF. Verificare il ruolo reale Marco prima di qualsiasi canary e conservare checklist UI/UX. Nessuna assegnazione implicita, attivazione generale o proposta di nuove risorse in questo passaggio.
+Serve approvazione specifica per backup verificato/rollback, SQL pendente, ACL/RLS effettive, backend compatibile, mapping categorie e canary DRAFT concordato. Ripristinare il servizio proposto da `admin-v2-queries-deferred.ts` e dalla patch endpoint (formato senza contesto, applicazione con `git apply --unidiff-zero` dopo revisione) soltanto con tale approvazione; il materiale differito non è codice backend già distribuito. Una successiva modifica revisionata deve rimuovere il vincolo frontend di sola lettura, senza consentire scritture se le capability server sono OFF. Verificare il ruolo reale Marco prima di qualsiasi canary e conservare checklist UI/UX. Nessuna assegnazione implicita, attivazione generale o proposta di nuove risorse in questo passaggio.
 
 I comandi PostgreSQL sotto restano disponibili per uso futuro: il runner ora usa il SQL in `docs/release/pending/`; le evidenze locali già PASS non sono state ripetute.
 
