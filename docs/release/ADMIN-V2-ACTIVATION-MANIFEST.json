@@ -35,18 +35,21 @@
     "applyNow": false
   },
   "backup": {
-    "providerBackupObserved": "2026-11-06T05:25:08Z",
-    "observedRetentionRows": 15,
-    "databaseStorageObserved": "0.35 GB of 8 GB",
-    "providerExportAvailable": true,
+    "providerBackupPreviouslyObserved": "2026-11-06T05:25:08Z",
+    "providerRestoreMechanism": "Same database; schema and rows replaced; downtime and loss of subsequent changes; no independent clone/PITR proven",
+    "providerRestoreAvailable": true,
+    "restoreVerified": false,
+    "fullExportForbiddenByOwner": true,
     "exportStarted": false,
     "downloaded": false,
-    "restoreVerified": false,
-    "block": "Automatic approval review rejected the Export action because complete DB export can include sensitive account data/password hashes and needs explicit approval",
-    "proposedPrivateDestination": "/private/tmp/og-admin-recovery-20261106",
-    "destinationPermissions": "directory 0700; files 0600; excluded from repository and reports",
-    "localPgRestoreObserved": "16.15",
-    "requiredRestoreToolchain": "PostgreSQL/pg_restore 17 or compatible newer; no installation or restore performed"
+    "optionalExportScope": "SCHEMA_ONLY_EIGHT_PUBLIC_TABLES_ZERO_ROWS",
+    "optionalExportAuthorized": false,
+    "persistentDestinationProposed": "~/Library/Application Support/OnlineGarden/Recovery/admin-v2-20261106",
+    "destinationCreated": false,
+    "copyPolicy": "0700 directory / 0600 files; protected persistent copy plus agreed encrypted second copy; no sole /private/tmp copy",
+    "requiredToolchain": "PostgreSQL server/pg_dump/psql 17 for prepared plain-SQL structural procedure; tools 16.15 observed only, no new run or installation",
+    "scopeLimit": "DDL fixture/archive partial only; not production data/Auth/Storage/managed recovery",
+    "optionalExportFormat": "PLAIN_SQL_SCHEMA_ONLY; owner/comment/security-label output suppressed, ACL retained; never an application-row backup"
   },
   "gates": {
     "migrationApproval": false,
@@ -67,5 +70,62 @@
   "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
   "productionMutationsThisTask": 0,
   "cloudResourcesCreated": 0,
-  "manualPassedSuitesRepeated": 0
+  "manualPassedSuitesRepeated": 0,
+  "recoveryPolicy": {
+    "fullDatabaseExportAllowed": false,
+    "authUsersExportAllowed": false,
+    "personalOrCredentialDataExportAllowed": false,
+    "exportRealDataNow": false,
+    "scopeOfCurrentGoal": "Pre-capability DDL only; no existing row mutations by applying the migration",
+    "fullManagedRestoreDemonstrated": false,
+    "localStructuralRestoreDemonstratedOn17": false,
+    "localPartialRestoreIsFullRecovery": false
+  },
+  "scope": {
+    "newTables": [
+      "admin_product_operations",
+      "admin_product_shopify_links",
+      "admin_operation_events",
+      "admin_category_operations"
+    ],
+    "newFunctions": [
+      "admin_save_new_draft",
+      "admin_claim_draft",
+      "admin_complete_draft",
+      "admin_finish_categories"
+    ],
+    "existingFutureWriteTables": [
+      "public.products",
+      "public.product_current_values",
+      "public.product_category_assignments"
+    ],
+    "existingReadTables": [
+      "public.user_roles",
+      "public.product_field_definitions",
+      "public.product_categories"
+    ],
+    "additionalFkDependencies": [
+      "public.product_import_batches",
+      "public.product_category_source_map",
+      "auth.users(id) REFERENCE_ONLY_NOT_EXPORTED"
+    ],
+    "optionalSchemaTableAllowlist": [
+      "public.products",
+      "public.product_current_values",
+      "public.product_field_definitions",
+      "public.product_categories",
+      "public.product_category_assignments",
+      "public.user_roles",
+      "public.product_import_batches",
+      "public.product_category_source_map"
+    ],
+    "exportedApplicationRows": 0,
+    "roleDataExported": false,
+    "enumDependency": "public.app_role",
+    "functionAndTriggerClosureComplete": false,
+    "functionBodiesExported": false
+  },
+  "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
+  "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
+  "authorizationNeededNow": "None for the preparation. Only if an actual minimized schema export is chosen: explicit consent for eight listed public table definitions, zero rows, approved read-only connection, protected persistent destination. Never full database export. Migration remains a separate gated approval."
 }

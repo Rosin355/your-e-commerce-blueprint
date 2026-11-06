@@ -1,3 +1,7 @@
+## Recovery: protezione dei dati prima di ogni attivazione
+
+Non verrà richiesto un export completo contenente account o password. La consultazione resta disponibile; modifiche, bozze e categorie non sono attivate. Il piano distingue il ripristino di strutture di prova dal recupero dei dati reali: una prova parziale non viene presentata come recupero completo. Non cambia alcun permesso o dato del catalogo.
+
 ## Attivazione futura: cosa cambia per Marco
 
 La consultazione già pubblicata rimane disponibile; non sono state abilitate modifiche, nuove bozze o assegnazioni categorie. Il responsabile deve prima rendere verificabile il recupero del database e autorizzare separatamente la migrazione e le capability necessarie. Non occorre creare nuovi progetti.

@@ -1,33 +1,110 @@
-# Admin V2 — pacchetto definitivo di attivazione operativa
+# Admin V2 — recovery minimizzato e gate operativo vigente
 
-**Preparato, non eseguito.** Base main `3296a7669216ff1082ff74f5c52cec396af27acf`; frontend live ancora `1ad6182` / `admin-readonly-20261106-r1`. Questo piano usa esclusivamente l'infrastruttura esistente. Nessun nuovo progetto, staging Cloud o abbonamento. [Manifest vincolante](ADMIN-V2-ACTIVATION-MANIFEST.json).
+**Revisione successiva a `40f5ba9`: nessun export indiscriminato autorizzato.** Questa sezione sostituisce il precedente invito all'export completo. PR #46 solo preparatoria; main, migration live, flag, ruoli, Shopify e versione pubblicata invariati. Non creare staging, progetti o servizi. [Manifest](ADMIN-V2-ACTIVATION-MANIFEST.json).
 
-## Stato e perimetro esatto
+## 1. Recovery gestito Lovable: disponibile, non dimostrato qui
 
-- Target: progetto Lovable `95cad199-55fd-4870-9d5c-a2653edf88f5`, configurazione `supabase/config.toml` con project ref `iekwvvihjwghosqdxrdi`; database operativo `postgres`, PostgreSQL **17.6**, Europe (Frankfurt). Il nome `postgres` non identifica da solo il progetto: occorre la catena progetto/configurazione/connessione verificata. Management API Supabase non è un secondo riscontro disponibile.
-- Ultima migration registrata: `20260817125535`. La `20261031184521` non è applicata; quattro nuove tabelle e quattro nuove RPC assenti, nessuna collisione. Le dipendenze auth/users, catalogo, registro campi, ruoli e categorie esistono; RLS delle dipendenze esaminate attiva. [Ultima verifica SELECT](../admin-v2-evidence/2026-11-06-activation/prerequisites.json).
-- SQL unico, già testato nella #42: `docs/release/pending/20261031184521_admin_operational_drafts.sql`, **SHA-256 `ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328`**. Invariato; non ricopiato in nuove migration. La migrazione crea solo journal/link/RPC: non invoca RPC, non inserisce prodotti o categorie, non modifica dati commerciali o flag.
-- Backup provider osservati: 15 punti giornalieri, il più recente **6 novembre 2026 05:25:08 UTC**. Database mostrato: 0,35 GB. Sono punti disponibili, **non una prova di recuperabilità**.
-- L'avvio dell'export completo è stato respinto dalla revisione automatica perché richiede consenso esplicito al trattamento del payload sensibile; export non avviato, nessun archivio scaricato e nessun restore tentato. Nessun dato utente o hash incluso in Git.
+Il [provider documenta](https://docs.lovable.dev/features/database-backups) il ripristino di schema e dati da snapshot giornalieri **sullo stesso database**. Non fornisce un clone isolato tramite quel comando; il ripristino comporta indisponibilità e perdita dei cambiamenti successivi al punto scelto. Non è PITR e non ripristina file Storage o codice frontend/backend. La retention dichiarata è circa 14 giorni; l'osservazione precedente del progetto mostrava 15 punti, ultimo 6 novembre 05:25:08 UTC: dato storico, non nuova attestazione di retention garantita.
 
-## Primo gate: backup effettivamente recuperabile
+La funzionalità e i pulsanti di restore sono disponibili; **nessun ripristino effettivo di questo progetto è stato eseguito**. Non provare “Restore to this backup” sul live e non considerare l'esistenza dello snapshot una prova di recuperabilità. Il dump completo del provider include anche account/hash password: **non avviarlo**. Non richiediamo più quell'export.
 
-**Unica autorizzazione da richiedere ora:** export completo del database del progetto sopra, download privato sul computer locale e prova di ripristino esclusivamente locale. Il dump può comprendere account e hash delle password; non include secret/API key/Edge code e file Storage, secondo la [documentazione del provider](https://docs.lovable.dev/features/database-backups). Non chiedere ancora l'applicazione della migration: questo gate non è soddisfatto.
+## 2. Ambito realmente interessato: distinguere DDL e future scritture RPC
 
-Dopo consenso specifico, sequenza senza interventi sui dati live:
+SQL unico invariato: `docs/release/pending/20261031184521_admin_operational_drafts.sql`, SHA-256 **`ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328`**. Server del progetto PostgreSQL 17.6; target configurato `iekwvvihjwghosqdxrdi` nel progetto Lovable `95cad199-55fd-4870-9d5c-a2653edf88f5`.
 
-1. Avviare un solo export nativo Lovable, senza alterare permessi dei bucket. Attendere che sia pronto; non creare progetti o servizi. Mai inviare l'archivio in chat, GitHub, servizi esterni o log.
-2. Scaricare in `/private/tmp/og-admin-recovery-20261106`, directory `0700`, file `0600`, fuori dal repository. Conservare hash SHA-256, dimensione, data, versione formato e riferimento al progetto in un manifest sanificato. Il percorso proposto non è un backup già creato; `/private/tmp` è locale e temporaneo, quindi prima della finestra produttiva concordare anche una copia protetta persistente fuori dal database e la durata di conservazione. Non cancellare automaticamente copie utili.
-3. Verificare archivio con `pg_restore --list` e ripristinarlo in un cluster PostgreSQL **17** temporaneo locale con solo socket Unix e dati non esposti in rete. Il `pg_restore 16.15` disponibile **non è attestato compatibile** con il dump del server 17: usare toolchain compatibile, senza avviare un servizio Cloud o ripetere il test sintetico già PASS.
-4. Conservare log protetto e verificare integrità di strutture, FK, dati interessati, RLS, ACL e RPC preesistenti rispetto alla baseline di export. Nessun collegamento Shopify o chiamata esterna nel clone. Disabilitare nel clone l'esecuzione di eventuali job/integrazioni prima di consentirne l'avvio; non attivare estensioni di scheduling/HTTP con credenziali reali. Non stampare password hash, token, dati account o payload catalogo nei report.
-5. Un restore con errori, dipendenze Cloud non ripristinate, tabelle mancanti o grant esclusi non vale PASS. Non usare `--no-privileges` o stub per dichiarare recuperata la sicurezza reale. Il report deve indicare esattamente cosa è ripristinato e cosa manca. Se non si ottiene recupero affidabile, fermarsi prima di qualsiasi modifica produttiva.
-6. Le esportazioni non includono codice Edge, secret, configurazione provider auth o file Storage: per questa migration il recupero del database è il gate pertinente; frontend/backend hanno il loro rollback di codice, configurazioni e Storage rimangono invariati. Un restore giornaliero in-place può perdere tutte le modifiche successive al punto scelto ed è una diversa operazione distruttiva, da approvare separatamente: non avviarlo come prova.
+| Momento | Oggetti e dati coinvolti | Copertura necessaria |
+|---|---|---|
+| Applicazione del solo DDL | Crea `admin_product_operations`, `admin_product_shopify_links`, `admin_operation_events`, `admin_category_operations`; quattro RPC e relativi indici/grant/RLS. | Nessuna riga commerciale viene aggiornata/inserita: CREATE FUNCTION non invoca la funzione. I quattro oggetti dati nuovi risultavano assenti alla verifica precedente. Nessun export di righe esistenti è necessario per provare questo solo delta. |
+| Chiamata futura a `admin_save_new_draft` | Scrive `products`, `product_current_values`, `product_category_assignments` e journal; legge `user_roles`, `product_field_definitions`, `product_categories`. | Questa è una diversa fase, non autorizzata. Dopo scritture la sola rimozione delle tabelle nuove non recupera i dati preesistenti. |
+| Chiamata futura a `admin_claim_draft` / `admin_complete_draft` | Legge ruolo e prodotto; aggiorna journal, link e audit nuovi. | Non eliminare journal/link o ricreare il prodotto in caso di esito incerto. |
+| Chiamata futura a `admin_finish_categories` | Legge ruolo; aggiorna assegnazioni interne e journal categorie. | Ripristino dei valori prima/dopo e riconciliazione Shopify richiedono un piano dei dati dedicato; il solo DDL non basta. |
 
-**Non affermare “backup recuperabile” finché non esistono archivio e report di restore verificato.** Non è richiesto uno staging aggiuntivo; è una prova di recupero locale del backup reale, non una ripetizione delle suite sintetiche.
+### Dipendenze riscontrate leggendo soltanto nomi nei cataloghi PostgreSQL
+
+Sei tabelle preesistenti direttamente referenziate dal SQL/RPC: `public.products`, `public.product_current_values`, `public.product_field_definitions`, `public.product_categories`, `public.product_category_assignments`, `public.user_roles`.
+
+La chiusura FK aggiunge `public.product_import_batches`, `public.product_category_source_map` e il riferimento a **`auth.users(id)`**. Quest'ultimo è una dipendenza di integrità, **non un'autorizzazione a esportare auth.users**. Non servono i suoi account reali per una prova strutturale. La tabella mappe Shopify non è usata da questa migration: i flussi backend successivi hanno un perimetro più ampio di questo pacchetto DDL.
+
+Tipo applicativo: `public.app_role`. Trigger delle otto tabelle public dipendono da `update_updated_at_column`, `enforce_product_parent`, `protect_product_identity`, `enforce_category_hierarchy`, `protect_category_stable_key`, `recalc_category_descendants`, `mark_admin_field_pending_shopify_sync`. Le policy referenziano `auth.uid`, `public.can_edit_products`, `public.can_manage_taxonomy`, `public.has_role`. Sono presenti anche funzioni builtin UUID/hash/lock e ruoli di piattaforma `anon`, `authenticated`, `service_role`.
+
+[FK/trigger: solo nomi](../admin-v2-evidence/2026-11-06-activation/dependency-names.json) · [Dipendenze policy: solo nomi](../admin-v2-evidence/2026-11-06-activation/policy-dependency-names.json). Nessuna riga applicativa, UUID personale, definizione di funzione, token o secret estratti. La chiusura FK e i nomi di trigger/policy **non sono una chiusura completa delle dipendenze procedurali PL/pgSQL**.
+
+## 3. Percorso raccomandato ora: zero dati reali esportati
+
+1. Conservare gli snapshot nel provider senza ripristinarli o scaricarli.
+2. Preparare la prova del delta DDL e del ritorno allo schema locale usando i file versionati e fixture sintetiche; nessun account reale. Le prove PostgreSQL 16 già PASS rimangono evidenze del SQL, non prove di ripristino del DB produttivo.
+3. Durante una futura migration approvata, usare un'unica transazione con postcondizioni; prima di abilitare capability, un eventuale rollback dello schema richiede verifica delle quattro tabelle nuove vuote e rimozione dei soli nuovi oggetti, mai CASCADE. Non esportare dati commerciali per simulare una dipendenza che può essere sintetica.
+4. **Non chiudere il gate di recupero completo** con questa prova: il restore gestito del progetto non è stato dimostrato; un restore locale parziale non copre utenti, dati reali, Storage, job, configurazioni provider o cambiamenti concorrenti. Dopo qualsiasi scrittura le procedure e la copertura vanno rivalutate prima di procedere.
+
+## 4. Export reale opzionale: solo DDL minimizzato, non eseguito
+
+Non è necessario per la prima prova sintetica del delta. Se si vuole un confronto strutturale con il live, occorrono autorizzazione specifica **allo schema delle otto tabelle qui elencate** e una connessione PostgreSQL read-only già autorizzata. Il connettore Lovable SQL e l'export nativo completo non equivalgono a una connessione pg_dump selettiva: non ne è stata verificata la disponibilità; non leggere secret per procurarsela e non aggirare il limite scaricando tutto e filtrando dopo.
+
+**Elenco chiuso, zero righe:** `public.products`, `public.product_current_values`, `public.product_field_definitions`, `public.product_categories`, `public.product_category_assignments`, `public.user_roles`, `public.product_import_batches`, `public.product_category_source_map`.
+
+**Esclusi:** tutto auth (inclusa auth.users), Storage/Vault, account, hash/password, sessioni/token, credenziali, righe di user_roles e qualsiasi riga delle altre tabelle; nessun `pg_dumpall` o dump globale di ruoli. Le quattro tabelle operative non esistono ancora: non inventarne dati da salvare. Eventuali metadati owner/commenti possono essere personali: evitarli, non considerarli pubblici per definizione.
+
+Comando **solo preparato, non avviato**, con strumenti 17 e PGSERVICE preventivamente configurato dal titolare senza credenziali nella riga di comando. La directory è persistente, fuori dal repository e non in una cartella sincronizzata; prima dell'export verificarne protezione e cifratura. Non creare servizi o abbonamenti:
+
+```sh
+umask 077
+OG_RECOVERY_ROOT="$HOME/Library/Application Support/OnlineGarden/Recovery/admin-v2-20261106"
+mkdir -p "$OG_RECOVERY_ROOT"
+chmod 700 "$OG_RECOVERY_ROOT"
+# Non eseguire senza consenso e connessione read-only autorizzata.
+PGSERVICE=og_admin_metadata_export pg_dump \
+  --format=plain --schema-only --strict-names \
+  --no-owner --no-comments --no-security-labels \
+  --table=public.products \
+  --table=public.product_current_values \
+  --table=public.product_field_definitions \
+  --table=public.product_categories \
+  --table=public.product_category_assignments \
+  --table=public.user_roles \
+  --table=public.product_import_batches \
+  --table=public.product_category_source_map \
+  --file="$OG_RECOVERY_ROOT/admin-v2-tables-schema.sql" \
+  2>"$OG_RECOVERY_ROOT/export-private.err"
+chmod 600 "$OG_RECOVERY_ROOT/admin-v2-tables-schema.sql" "$OG_RECOVERY_ROOT/export-private.err"
+```
+
+Il formato è SQL plain: `--no-owner` opera sull’output, mentre in un archivio custom non elimina da solo i metadati owner. Verificare in privato assenza di COPY/INSERT di dati, account e metadati personali inattesi; nel report condivisibile soltanto checksum, dimensione, scope e risultato. Se emergono contenuti non consentiti, fermare l'uso e non caricarli in CI/chat/GitHub. Mantenere ACL nell'archivio (non usare `--no-privileges`); owner esclusi vanno dichiarati, non ricostruiti per supposizione. Policy/trigger possono contenere riferimenti che richiedono revisione privata. Nessun dato reale ottenuto con questo comando in questa fase.
+
+**Limite essenziale:** `pg_dump -t` non include automaticamente tipi/funzioni/dipendenze esterne. Questo file di sole tabelle non è autonomamente ripristinabile e **non è un backup completo**, neppure dello strato applicativo. Non va etichettato “restore PASS” dopo aver rimosso FK, trigger o ACL che falliscono. Le dipendenze devono essere fornite da DDL revisionato; usare stand-in auth significa prova sintetica, non recupero autenticazione. [Limiti documentati PostgreSQL](https://www.postgresql.org/docs/17/app-pgdump.html).
+
+Una copia eventuale deve restare in una posizione persistente protetta e avere una seconda copia cifrata in un supporto già disponibile concordato col titolare. `/private/tmp` è ammesso solo per scratch del cluster: **mai unica copia di backup**. Nessuna directory di backup/dump reale è stata creata ora.
+
+## 5. Procedura locale preparata, PostgreSQL 17, senza dati sensibili
+
+**Non eseguita:** non ripetere le suite applicative PASS. È una procedura mirata di prova strutturale futura, non uno staging aggiuntivo. Usare PostgreSQL 17 per server, pg_dump e psql; il solo pg_dump/pg_restore 16.15 osservato non basta contro un server 17. Non affermare compatibilità o successo finché non verificati.
+
+1. Individuare binari 17 approvati; avviare un cluster locale temporaneo dedicato con `listen_addresses=''`, solo socket Unix in scratch e nomi DB `og_admin_test_*`. Nessun secret/provider/job/integrazione del live. Non installare o avviare estensioni che facciano chiamate esterne.
+2. In un DB sorgente locale vuoto, applicare `scripts/fixtures/admin-operational/bootstrap.sql` e le cinque migration baseline già usate in `scripts/test-admin-operational-db.mjs` (`20260817090243`, `20260817092126`, `20260817092153`, `20260817092305`, `20260817103437`), **senza eseguire assertions.sql o suite applicative**. La fixture crea solo uno stand-in auth.users con colonna id e nessun account reale; non copiarlo dalla produzione.
+3. Salvare lo schema **public di quella fixture locale** prima del nuovo DDL, in archivio schema-only persistente protetto, senza auth e senza righe:
+
+```sh
+# Variabili esplicite di cluster locale; non usare PGSERVICE del live.
+pg_dump -h "$OG_LOCAL_SOCKET" -p "$OG_LOCAL_PORT" -d og_admin_test_recovery_source \
+  --format=plain --schema-only --schema=public --no-owner --no-comments \
+  --file="$OG_RECOVERY_ROOT/synthetic-baseline-public.sql"
+```
+
+4. Nel DB sorgente locale, applicare il file originale `docs/release/pending/20261031184521_admin_operational_drafts.sql` con psql `-X -v ON_ERROR_STOP=1 --single-transaction`. Verificare solo nuovi oggetti e RLS/ACL, quattro tabelle vuote e invarianza dello schema precedente. Provare il rollback transazionale/degli oggetti nuovi nel solo cluster locale; non presentarlo come restore di snapshot Lovable.
+5. In un **secondo DB locale vuoto**, creare solo `auth` e gli stand-in indispensabili `auth.users(id uuid primary key)` e `auth.uid() returns uuid` con risultato nullo; i ruoli anon/authenticated/service_role esistono già nel cluster dalla fixture. Non caricare account o hash. Ripristinare il public sintetico:
+
+```sh
+psql -X -h "$OG_LOCAL_SOCKET" -p "$OG_LOCAL_PORT" -d og_admin_test_recovery_target \
+  -v ON_ERROR_STOP=1 --single-transaction \
+  -f "$OG_RECOVERY_ROOT/synthetic-baseline-public.sql"
+```
+
+6. Confrontare sorgente baseline e target per oggetti, colonne, constraint, definizioni di funzioni, grant e RLS; confermare assenza degli oggetti operativi nel baseline recuperato, zero righe reali ed esito senza errori. Gli owner rimappati e gli stand-in vanno riportati come differenze, non nascosti. Mantenere report e hash nella directory persistente; GitHub riceve soltanto esito sanificato e limiti. Arrestare solo il cluster locale creato.
+
+Questa prova, se PASS, dimostra **soltanto il ripristino dello schema della fixture e la reversibilità del delta**. Non dimostra recupero di dati produttivi, utenti/ruoli effettivi, provider Auth, job, funzioni non presenti nella fixture, Storage o capacità di restore in-place del progetto. Il precedente PASS PostgreSQL 16 resta separato; il manifest mantiene `restoreVerified=false`.
 
 ## Secondo gate: approvazione della sola migration
 
-Solo dopo il gate backup, presentare al proprietario un'unica operazione concreta con target, versione e checksum sopra, manifest backup verificato e rollback qui definito. La frase di autorizzazione dovrà nominare `iekwvvihjwghosqdxrdi`, il progetto Lovable, `20261031184521` e il relativo SHA-256. **Non include deploy, flag ON, nuovi ruoli, mapping categorie o mutation Shopify.** L'approvazione dell'export non equivale ad approvazione della migration.
+Solo dopo una valutazione esplicita delle coperture di recovery sotto (senza trasformare una prova strutturale in recupero completo), presentare al proprietario un'unica operazione concreta con target, versione e checksum sopra, manifest backup verificato e rollback qui definito. La frase di autorizzazione dovrà nominare `iekwvvihjwghosqdxrdi`, il progetto Lovable, `20261031184521` e il relativo SHA-256. **Non include deploy, flag ON, nuovi ruoli, mapping categorie o mutation Shopify.** Un eventuale consenso all'export DDL minimizzato non equivale ad approvazione della migration. Il precedente consenso richiesto per export completo è ritirato: quel percorso non è autorizzato.
 
 Esecuzione futura autorizzata:
 
@@ -65,4 +142,4 @@ Conservare SHA backend effettivamente distribuito prima della futura attivazione
 
 SQL immutato: PostgreSQL locale/rollback/RLS PASS già conservati; Node/Deno/Chromium e CI/GitGuardian della versione rilasciata riutilizzati. Nessuna suite manuale ripetuta, nessuna nuova migration sviluppata. Questa PR è di sola preparazione/documentazione: l'eventuale CI GitHub automatica non è un test di backup o un'autorizzazione produttiva.
 
-**Stato finale di questa fase:** frontend già live in sola lettura; migration tecnicamente pronta ma **esecuzione BLOCKED** per recuperabilità non dimostrata e gate di autorizzazione non soddisfatto. Permessi live, editing, bozze e categorie operative non attivati. SEO/404/URL WooCommerce/301/GSC già collegata tramite Windsor restano TODO successivo.
+**Stato finale di questa fase:** frontend già live in sola lettura; migration tecnicamente pronta ma **esecuzione BLOCKED** per recuperabilità completa non dimostrata e gate di autorizzazione non soddisfatto; la procedura limitata al DDL è preparata, non eseguita. Permessi live, editing, bozze e categorie operative non attivati. SEO/404/URL WooCommerce/301/GSC già collegata tramite Windsor restano TODO successivo.
