@@ -152,7 +152,7 @@ export default function ProductDetailPage() {
                       field={ADMIN_READ_ONLY_RELEASE ? readOnlyField(field) : field}
                       onCommand={command.mutateAsync}
                       onSync={fieldSync.mutateAsync}
-                      syncEnabled={!ADMIN_READ_ONLY_RELEASE && context?.canSync === true}
+                      syncEnabled={!ADMIN_READ_ONLY_RELEASE && context?.canSync === true && field.shopifySyncAllowed === true}
                       onConflict={refetch}
                       aiSuggestion={aiSuggestions.data?.find((item) => item.fieldKey === field.key)}
                       onGenerateAi={async (input) => (await generateAi.mutateAsync(input)).suggestion}

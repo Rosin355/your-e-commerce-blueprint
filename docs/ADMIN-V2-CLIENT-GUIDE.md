@@ -1,3 +1,21 @@
+# Aggiornamento per Marco — 9 novembre 2026
+
+**Oggi puoi ancora consultare il catalogo. Il Livello B è pronto nel codice, ma modifiche, bozze e categorie non sono attivate sul sito.** Non occorre ripetere i controlli già svolti o creare altri ambienti. Prima dell'attivazione servono recupero dei dati dimostrato, conferma del tuo account/ruolo e approvazione del prodotto di prova.
+
+Dopo l'attivazione autorizzata, il percorso sarà Prodotti → scheda → Modifica del campo consentito → Salva e rilettura. Il salvataggio interno non sincronizza automaticamente Shopify. Nuovo prodotto apre il modulo guidato già predisposto; l'invio crea solo una DRAFT e non la pubblica. Un errore incerto richiede il recupero della stessa operazione, senza reinserire il prodotto. I pulsanti dipendono dal tuo ruolo; un editor non riceve automaticamente invio Shopify o gestione delle associazioni categorie.
+
+Per il primo collaudo il server ammetterà soltanto lo SKU/operazione approvati e rifiuterà gli altri prodotti. Non devi configurare ID o strumenti: il responsabile prepara il change. Non riceverai privilegi aggiuntivi automaticamente.
+
+**Categorie: 22 decisioni ancora da esprimere.** Usa la [tabella unica per Marco](ADMIN-V2-CATEGORY-RECONCILIATION-PLAN.md): per ciascuna riga indica la proposta, l'alternativa o “mantieni senza associazione”; aggiungi data e conferma commerciale. Le 13 corrispondenze tecniche non sono approvazioni. Le categorie senza associazione restano leggibili con il motivo del blocco; non saranno collegate automaticamente. Le scelte commerciali e la loro applicazione tecnica sono fasi distinte.
+
+Il titolare può usare la [scheda unica di attivazione](ADMIN-V2-ACTIVATION-RUNBOOK.md). Il ripristino non è ancora dimostrato: la sola esistenza di snapshot non autorizza ad accendere le scritture. Nessun export completo contenente dati personali è richiesto. GSC, analisi 404 e redirect 301 rimangono attività successive.
+
+---
+
+## Archivio precedente al completamento tecnico del 9 novembre
+
+Le sezioni sottostanti conservano le evidenze storiche. Per stato, sequenza e autorizzazioni vigenti prevale la sezione del 9 novembre sopra. I riferimenti a staging aggiuntivo, export completo o applicazione della patch differita non sono istruzioni attuali.
+
 # Guida rapida per Marco — disponibile oggi, in sola lettura
 
 Il pannello è pronto per **consultare** il catalogo. Non è ancora abilitato a modificare o pubblicare prodotti.

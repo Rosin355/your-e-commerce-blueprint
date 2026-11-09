@@ -142,7 +142,7 @@ function simulation(
   };
 }
 async function withFlags(run: () => Promise<void>) {
-  const keys = ['PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED', 'PRODUCT_ADMIN_OPERATIONAL_APPROVAL', 'PRODUCT_ADMIN_WRITES_ENABLED'];
+  const keys = ['PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED', 'PRODUCT_ADMIN_OPERATIONAL_APPROVAL', 'PRODUCT_ADMIN_WRITES_ENABLED', 'PRODUCT_ADMIN_WRITE_MODE'];
   const prior = keys.map((k) => Deno.env.get(k));
   Deno.env.set(keys[0], 'true');
   Deno.env.set(keys[1], JSON.stringify({
@@ -151,6 +151,7 @@ async function withFlags(run: () => Promise<void>) {
     expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
   }));
   Deno.env.set(keys[2], 'true');
+  Deno.env.set(keys[3], 'full');
   try {
     await run();
   } finally {
@@ -336,10 +337,11 @@ Deno.test('drift categorie: anteprima non eseguibile e richiesta manuale non rim
     action: 'preview_categories', productId, categoryIds: [],
   }, shopify) as { expectedHash: string };
   const keys = ['PRODUCT_ADMIN_WRITES_ENABLED', 'PRODUCT_ADMIN_CATEGORIES_ENABLED',
-    'PRODUCT_ADMIN_OPERATIONAL_APPROVAL'];
+    'PRODUCT_ADMIN_OPERATIONAL_APPROVAL', 'PRODUCT_ADMIN_WRITE_MODE'];
   const prior = keys.map((key) => Deno.env.get(key));
   Deno.env.set(keys[0], 'true');
   Deno.env.set(keys[1], 'true');
+  Deno.env.set(keys[3], 'full');
   Deno.env.set(keys[2], JSON.stringify({ action: 'apply_categories',
     target: aligned.expectedHash === 'a'.repeat(64) ? 'b'.repeat(64) : 'a'.repeat(64),
     expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString() }));
@@ -409,10 +411,11 @@ Deno.test('rimozione collezione: finalizzazione DB solo dopo job Shopify complet
     action: 'preview_categories', productId, categoryIds: [],
   }, shopify) as { expectedHash: string };
   const keys = ['PRODUCT_ADMIN_WRITES_ENABLED', 'PRODUCT_ADMIN_CATEGORIES_ENABLED',
-    'PRODUCT_ADMIN_OPERATIONAL_APPROVAL'];
+    'PRODUCT_ADMIN_OPERATIONAL_APPROVAL', 'PRODUCT_ADMIN_WRITE_MODE'];
   const prior = keys.map((key) => Deno.env.get(key));
   Deno.env.set(keys[0], 'true');
   Deno.env.set(keys[1], 'true');
+  Deno.env.set(keys[3], 'full');
   Deno.env.set(keys[2], JSON.stringify({ action: 'apply_categories',
     target: preview.expectedHash, expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString() }));
   try {

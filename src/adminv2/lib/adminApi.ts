@@ -17,6 +17,9 @@ export interface AdminContext {
   allowedActions?: string[];
   editableFieldKeys?: string[];
   canaryManualOnly?: boolean;
+  backendVersion?: string;
+  canaryConfigured?: boolean;
+  operationalCapabilities?: { drafts: boolean; draftShopify: boolean; categories: boolean; approvalConfigured: boolean };
   readOnlyReason: string;
 }
 
@@ -73,6 +76,7 @@ export interface AdminField {
   validationRules: Record<string, unknown>;
   publishable: boolean;
   shopifySyncSupported: boolean;
+  shopifySyncAllowed?: boolean;
   syncState: 'INTERNAL_ONLY' | 'PENDING_SYNC' | 'SYNCED' | 'SYNC_ERROR';
   syncErrorCode: string | null;
   syncErrorMessage: string | null;

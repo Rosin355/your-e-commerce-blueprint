@@ -96,6 +96,7 @@ export default function CategoriesPage() {
               {' '}
               {c.is_active ? 'Attiva' : 'Non attiva'}
             </p>
+            {!c.maps.length && <p className='text-sm'>Associazione non approvata: decisione commerciale richiesta. Nessuna modifica applicata.</p>}
             {c.maps.map((m) => (
               <p className='text-sm break-words' key={m.shopify_handle}>
                 {m.shopify_handle} ·{' '}
@@ -145,7 +146,7 @@ export default function CategoriesPage() {
               className='flex flex-wrap items-center justify-between gap-2 border-b p-3'
             >
               <Link className='underline break-all' to={`/admin/products/${p.id}`}>{p.sku}</Link>
-              <Button
+              {data.canManageCategories && <Button
                 variant='outline'
                 className='min-h-11'
                 onClick={() => {
@@ -156,7 +157,7 @@ export default function CategoriesPage() {
                 }}
               >
                 Proponi categorie
-              </Button>
+              </Button>}
             </div>
           ))}
         </div>
@@ -176,7 +177,7 @@ export default function CategoriesPage() {
               <label key={c.id} className='flex min-h-11 items-center gap-2'>
                 <Checkbox
                   checked={selected.includes(c.id)}
-                  disabled={c.maps.some((m) =>
+                  disabled={!c.maps.length || c.maps.some((m) =>
                     m.map_status !== 'verified'
                   )}
                   onCheckedChange={(checked) => {

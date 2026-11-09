@@ -120,6 +120,10 @@ async function requireAiWrite(
     );
   }
 
+  if (writeMode() === "canary") {
+    return fail("WRITES_DISABLED", "Le operazioni AI sono escluse dal canary DRAFT del Livello B");
+  }
+
   let fieldKey = typeof payload.fieldKey === "string" ? payload.fieldKey : null;
   if (
     !fieldKey &&

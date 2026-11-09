@@ -1,3 +1,26 @@
+# QA del completamento Livello B — 9 novembre 2026
+
+**Esito tecnico del delta separato dall'attivazione produttiva.** Le prove del SQL originale e i precedenti smoke sono riutilizzati; nessuna suite PostgreSQL precedente, ripristino Lovable o canary live ripetuti.
+
+| Verifica | Esito / limite |
+|---|---|
+| Protezione HTTP canary | 17 nuovi test offline PASS: approvazione invalida, account/ruolo/SKU/ID/campo/azione errati, stato ACTIVE/ARCHIVED, mapping divergente, master OFF, richiesta di bozza diversa, AI esclusa; il caso DRAFT autorizzato raggiunge la RPC atomica simulata. Zero mutation reali. |
+| Pacchetto attivazione | Test generatore offline PASS: hash originale, transazione, postcondizioni prima della history, rollback solo vuoto/RESTRICT e nessun accesso DB. SQL wrapper non eseguito sul DB. |
+| Servizio operativo modificato | 11 test Deno PASS: claim, unica create, replay, timeout/recovery senza duplicazione, SKU parent/varianti, valuta e categorie. Fixture esplicite full per verificare i flussi preesistenti; nuova suite HTTP verifica il canary ristretto. |
+| Contratti/compilazione | Typecheck frontend, check entrypoint API/AI e server operativo, lint mirato e build read-only PASS; build operativa locale separata, non pubblicata. I check finali e le suite pertinenti definitive sono registrati nella PR e nel risultato locale allegato. |
+| Live read-only | Solo diagnostica flag: 9/11 14:57:44 CET, false/canary/false. Nessun nuovo audit catalogo/browser; evidenze Livello A riutilizzate. |
+| Recovery | Snapshot 9/11 05:25:16 UTC visibile, quindici punti; nessun restore riuscito dimostrato. NON PASS. |
+| Marco/categorie | Identità Marco non verificata; nessuna modifica ruoli. Matrice precedente riutilizzata: 22 decisioni, zero approvazioni. |
+| CI/GitGuardian | Verificare l'HEAD finale della singola PR dedicata; i successi storici non certificano questo commit. |
+
+[Risultati mirati (105 Node, 11 Deno)](admin-v2-evidence/2026-11-09-level-b/validation.json) · [Prerequisiti sanificati](admin-v2-evidence/2026-11-09-level-b/prerequisites.json) · [Runbook e checklist di attivazione](ADMIN-V2-ACTIVATION-RUNBOOK.md). Nessuna nuova certificazione Safari/iOS o accettazione cliente. Gli avvisi build già presenti su Browserslist, classi Tailwind e dimensione chunk non sono errori del delta e restano fuori scope.
+
+---
+
+## Archivio precedente al completamento tecnico del 9 novembre
+
+Le sezioni sottostanti conservano le evidenze storiche. Per stato, sequenza e autorizzazioni vigenti prevale la sezione del 9 novembre sopra. I riferimenti a staging aggiuntivo, export completo o applicazione della patch differita non sono istruzioni attuali.
+
 ## Chiusura definitiva della preparazione — 6 novembre 2026
 
 **Ciclo tecnico/documentale CHIUSO. Livello A CONSEGNATO; Livello B BLOCKED.** La chiusura non equivale ad attivazione completa. Nessun nuovo audit, ambiente, strumento, servizio o test applicativo manuale; nessuna migration, export, modifica di dati/flag/permessi o pubblicazione eseguita in questa chiusura.

@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { useDebounced, useProductList, type ProductFilters } from '../hooks/useAdminData';
+import { useAdminContext, useDebounced, useProductList, type ProductFilters } from '../hooks/useAdminData';
 import { ENTITY_LABEL, formatDate, productStates, stateTone } from '../lib/labels';
 
 const TONE_CLASS: Record<string, string> = {
@@ -29,6 +29,8 @@ const TONE_CLASS: Record<string, string> = {
 };
 
 export default function ProductsPage() {
+  const context = useAdminContext();
+  const canAuthorDraft = context.data?.roles.some(r => ['admin', 'tech_admin', 'editor'].includes(r));
   const [search, setSearch] = useState('');
   const [sku, setSku] = useState('');
   const [gtin, setGtin] = useState('');
@@ -88,7 +90,9 @@ export default function ProductsPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-xl font-semibold">Prodotti</h1>
-        <Button disabled={ADMIN_READ_ONLY_RELEASE} className="my-2 min-h-11">Nuovo prodotto</Button>
+        {canAuthorDraft && (ADMIN_READ_ONLY_RELEASE
+          ? <Button disabled className="my-2 min-h-11">Nuovo prodotto</Button>
+          : <Button asChild className="my-2 min-h-11"><Link to="/admin/products/new">Nuovo prodotto</Link></Button>)}
         {ADMIN_READ_ONLY_RELEASE && <p className="text-sm text-muted-foreground">Creazione bozze non ancora attiva. Il catalogo è disponibile in sola lettura.</p>}
         <p className="text-sm text-muted-foreground">Catalogo interno e modifiche secondo le autorizzazioni del tuo account.</p>
       </div>

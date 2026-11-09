@@ -1,3 +1,90 @@
+# Admin V2 Livello B — change unico pronto nel codice, 9 novembre 2026
+
+**Livello A già live. Livello B implementato nel branch, ancora non operativo in produzione.** Nessuna migration, distribuzione, abilitazione o assegnazione di ruolo eseguita. Il lavoro locale preesistente è preservato: sviluppo in copia separata da `main@885420429986fb2dba739c75d55fe4e8da844ab9`.
+
+| Stato | Contenuto |
+|---|---|
+| Già live | `admin-readonly-20261106-r1`, consultazione. Diagnostica 9/11 ore 14:57:44 CET: master `false`, modo `canary`, sync `false`. |
+| Pronto nel codice | Endpoint operativi e query già collegate, form bozze, accesso “Nuovo prodotto”, categorie non mappate visibili, azioni secondo ruolo, canary server su identità esatta, generatore SQL atomico. |
+| Da attivare | Schema, backend compatibile, build frontend operativa e una capability alla volta, soltanto nel change approvato. |
+| Bloccato da autorizzazioni/evidenze | Recovery effettivo non dimostrato; consenso migration assente; account/ruolo Marco e SKU/operazioni canary non confermati; zero mapping commerciali approvati. |
+
+## Scheda unica da completare e approvare
+
+Il titolare approva un solo change con le fasi elencate e i rispettivi punti di arresto. **Scheda attuale NON approvabile per esecuzione: recovery e identificativi mancanti.** Nessun consenso generico può trasformare una voce mancante in PASS.
+
+- Target: Lovable `95cad199-55fd-4870-9d5c-a2653edf88f5` → Supabase `iekwvvihjwghosqdxrdi`, DB `postgres`, PostgreSQL 17.6. Identità corroborata dal `config.toml` letto tramite il progetto; il solo nome postgres non identifica il target.
+- SQL originale: `docs/release/pending/20261031184521_admin_operational_drafts.sql`; versione `20261031184521`; SHA-256 **`ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328`**. File e logica invariati.
+- Recupero: ultimo snapshot visibile `2026-11-09T05:25:16Z`, **ripristino non dimostrato**. Da compilare: riferimento a prova di recupero realmente riuscita, perimetro coperto/escluso, RPO/RTO e responsabile; accettazione del downtime e dei dati successivi eventualmente persi. Non avviare un restore sul live per “provare” il gate e non esportare account/hash/token.
+- Marco: identificativo account confermato privatamente dal titolare, verifica di esistenza e ruolo effettivo. Non inserirlo nel repository. Nessuna attribuzione automatica di editor/admin/tech_admin.
+- Canary: SKU nuovo o DRAFT esistente esplicitamente approvato, varianti esatte, attore, azioni/campi, requestKey UUID, scadenza UTC entro 24 ore, riferimento approvazione. Per modifica di un DRAFT esistente anche ID interno e Product GID. Nessun prodotto commerciale o pubblicazione inclusi.
+- Rilascio: SHA finale di questa PR e CI/GitGuardian; approvazione delle fasi distribuzione e capability specificate; pacchetto backend precedente e relativo identificativo di deployment recuperabili dal provider prima della distribuzione (l'attuale UI mostra 178 deployment, non uno SHA attestato).
+- Categorie: righe della [tabella commerciale](ADMIN-V2-CATEGORY-RECONCILIATION-PLAN.md) esplicitamente decise. Attualmente 22 residue, zero mapping: l'attivazione delle categorie resta esclusa finché mancano le approvazioni.
+
+Formula di consenso alla **sola migration**, utilizzabile solo dopo la compilazione delle evidenze: «Autorizzo su Lovable 95cad199-55fd-4870-9d5c-a2653edf88f5 / Supabase iekwvvihjwghosqdxrdi la sola migration 20261031184521 con SHA-256 ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328, nel change [riferimento], con piano di recupero [evidenza verificata] e rollback delle sole strutture nuove ancora vuote. Nessuna capability, ruolo o distribuzione è autorizzata da questa frase». Le altre fasi, se richieste nello stesso change, devono essere indicate esplicitamente e restano subordinate ai gate.
+
+## Sequenza eseguibile dopo approvazione
+
+1. Confermare solo identità volatile, checksum, recovery, master/sync OFF e assenza collisioni/history. Generare offline: `node scripts/prepare-admin-v2-activation.mjs /percorso/protetto/change-admin-b`. Lo script non apre connessioni, non applica SQL, non contiene credenziali e non sovrascrive file. Produce `preflight.sql`, `migration.sql`, `postflight.sql`, `rollback-empty.sql`.
+2. Con il canale PostgreSQL autorizzato dal provider, eseguire preflight read-only. Se non esiste un trasporto autorizzato che mantenga una singola connessione/transazione, fermarsi: non suddividere il payload in chiamate autocommit.
+3. Solo con **nuovo consenso esplicito**, usare `psql -X -v ON_ERROR_STOP=1 -v og_approval=RIF_CHANGE -v og_target=iekwvvihjwghosqdxrdi -v og_recovery=RIF_RECOVERY_VERIFICATO -f migration.sql` sulla connessione target preventivamente attestata. Le variabili sono riferimenti al change, non una prova automatica di approvazione o identità. Il file contiene BEGIN, lock timeout, lock cooperativo, collision checks, SQL originale, postcondizioni ACL/RLS/RPC, tabelle vuote e history nella stessa transazione, infine COMMIT. Non usare anche un secondo registratore migration del provider su questo payload.
+4. Eseguire `postflight.sql` read-only: quattro tabelle con RLS senza policy client, quattro RPC invoker/search_path vuoto, privilegi client negati e privilegi service richiesti presenti. Il provider ha default grant service_role più ampi del minimo GRANT: non cambiare default globali o permessi di ruoli. Qualunque errore prima di COMMIT annulla DDL e history; dopo un esito incerto rileggere entrambi prima di agire.
+5. Solo con fasi di deploy approvate e gate completi, distribuire backend `product-admin-api` e la chiusura canary di `product-admin-ai`, con master, sync, drafts, draft-Shopify e categories OFF. Contesto backend atteso: `backendVersion=admin-operational-b-20261109-r1`. I sorgenti sono già collegati: la vecchia patch è ritirata; non serve un'altra fase di progettazione.
+6. Preparare/pubblicare frontend con `VITE_ADMIN_OPERATIONAL_RELEASE=true` solo dopo backend compatibile e approvazione. Il default rimane sola lettura; flag runtime/localStorage non possono cambiare la build. Una build locale di entrambe le modalità non equivale a deploy. Annotare SHA/versione/deployment effettivi.
+7. Verificare Marco con la procedura minima sotto. In canary editor non scrive: usare solo l'operatore admin/tech_admin **esplicitamente approvato**, senza promuovere Marco. Un successivo accesso editor in modo full richiede approvazione dell'ampliamento del perimetro.
+8. Attivare soltanto la fase canary approvata. Per una nuova bozza: master + drafts e scope esatto save/requestKey → una bozza interna → approvazione operativa per operationId/scadenza → flag draft-Shopify per una sola creazione DRAFT → pin degli ID risultanti nello scope → editing dei soli campi autorizzati. Gli altri flag restano OFF. Non modificare il payload salvato prima dell'invio; gli esiti incerti si recuperano sulla stessa operazione senza una seconda creazione.
+9. Categorie solo dopo mapping commercialmente approvati e scope/hash specifici. Sync a campo singolo è separata e rimane OFF salvo esplicita inclusione nel change. Nessuna sync massiva, pubblicazione, modifica varianti esistenti, A/B, checkout, pagamenti o Sendcloud.
+10. Dopo il solo canary autorizzato, master e flag aperti tornano OFF; registrare esito e audit sanificati. Mancata accettazione o scadenza interrompono il passaggio successivo.
+
+## Configurazione server canary: formato esatto
+
+`PRODUCT_ADMIN_CANARY_SCOPE` usa il seguente schema. I valori segnaposto sono volutamente invalidi: compilazione privata nel change, nessuna configurazione live effettuata. Il primo passo può autorizzare soltanto il salvataggio interno; non aggiungere tutte le azioni per comodità.
+
+```json
+{
+  "projectRef": "iekwvvihjwghosqdxrdi",
+  "approvalRef": "RIFERIMENTO_CHANGE_APPROVATO",
+  "actorId": "UUID_OPERATORE_VERIFICATO",
+  "sku": "SKU_APPROVATO",
+  "variantSkus": ["SKU_VARIANTE_APPROVATO"],
+  "requestKey": "UUID_RICHIESTA_APPROVATA",
+  "productId": null,
+  "shopifyProductId": null,
+  "actions": ["save_new_product"],
+  "fieldKeys": [],
+  "expiresAt": "SCADENZA_ISO_UTC_ENTRO_24_ORE"
+}
+```
+
+Per prodotto a formato unico, SKU famiglia e variante coincidono. Per più formati restano i controlli già esistenti: SKU distinti, una opzione Formato, massimo 50 varianti e nessun duplicato case-insensitive. Per create/recover conservare requestKey/SKU/varianti del save, autorizzare solo l'azione prevista e impostare anche l'approvazione operativa esistente `{"action":"create_shopify_draft","target":"UUID_OPERATION_ID_SALVATA","expiresAt":"SCADENZA_UTC"}`. Per editing successivo compilare productId e shopifyProductId con gli ID verificati, actions con i soli comandi approvati e fieldKeys con i soli campi approvati. La sola allowlist non abilita un flag e non approva un mapping.
+
+Le capability booleane effettive sono esposte dal nuovo get_admin_context in `operationalCapabilities`; nessun valore di secret o scope completo viene restituito. Scadenza o master OFF bloccano nuovi comandi; una riconciliazione successiva richiede una nuova finestra approvata della stessa operazione.
+
+## Verifica minima dell'identità di Marco, senza enumerare account
+
+Il titolare identifica privatamente l'account corretto. Con quell'unico UUID, l'operatore autorizzato esegue soltanto `SELECT EXISTS(SELECT 1 FROM auth.users WHERE id = :account_uuid) AS account_exists` e `SELECT role::text FROM public.user_roles WHERE user_id = :account_uuid`. Parametro SQL tipizzato UUID e fornito fuori da Git; nessuna ricerca per nome, lista account o lettura email/hash/sessioni. Marco accede con il proprio account e confronta le azioni con il ruolo restituito dal server. Registrare solo esistenza, ruolo, esito e riferimento al change; non salvare l'UUID nei report condivisi. Se assente o ambiguo, fermarsi senza grant.
+
+## Rollback e verifica conclusiva
+
+Prima del COMMIT: rollback integrale della transazione. Dopo COMMIT e prima di ogni scrittura: solo con consenso, `rollback-empty.sql` verifica la history del medesimo pacchetto, blocca le quattro tabelle, controlla che siano vuote, rimuove quattro funzioni e quattro tabelle con RESTRICT e la sola history 20261031184521. Dati presenti, history divergente o dipendenze inattese causano arresto; nessun CASCADE. Se il provider ha registrato statements con forma diversa, non forzare il controllo: usare la history realmente attestata in una revisione autorizzata.
+
+Dopo una scrittura: capability OFF; preservare journal/link/audit e conservare i valori prima/dopo. Il down-schema non è recupero dati. Un eventuale annullamento usa compensazione esplicita della stessa operazione, nuova verifica versione/identità e rilettura; un timeout Shopify non autorizza reinvio o cancellazione. Restore gestito soltanto con piano già verificato e consenso a downtime/perdita dei dati successivi. Per il codice, chiudere prima i flag, poi ripristinare pacchetto backend precedente e frontend `1ad6182` / deployment `00a243b8-240f-48bf-8507-202d352fc4f4`, verificando consultazione. Nessun rollback eseguito in questa sessione.
+
+- [ ] Recovery realmente dimostrato e change completo/approvato; assenza di dati personali nei report.
+- [ ] Hash originale, target, preflight, transazione/history e postflight coerenti.
+- [ ] Backend e frontend identificati; versione e capability reali rilette, nessun ON involontario.
+- [ ] Account Marco verificato senza nuovi ruoli; azioni UI coerenti con ruolo.
+- [ ] Canary limitato allo SKU/operazione approvati; audit e idempotenza preservati, DRAFT non pubblicato.
+- [ ] Categorie prive di decisione restano non applicabili; journal conservati; nessun duplicato.
+
+GSC, analisi 404 e redirect 301 restano TODO successivi. I precedenti PASS SQL/PostgreSQL/browser restano evidenze riutilizzate; non sono una prova di restore Lovable né una nuova accettazione Safari/cliente.
+
+---
+
+## Archivio precedente al completamento tecnico del 9 novembre
+
+Le sezioni sottostanti conservano le evidenze storiche. Per stato, sequenza e autorizzazioni vigenti prevale la sezione del 9 novembre sopra. I riferimenti a staging aggiuntivo, export completo o applicazione della patch differita non sono istruzioni attuali.
+
 ## Chiusura definitiva della preparazione — 6 novembre 2026
 
 **Ciclo tecnico/documentale CHIUSO. Livello A CONSEGNATO; Livello B BLOCKED.** La chiusura non equivale ad attivazione completa. Nessun nuovo audit, ambiente, strumento, servizio o test applicativo manuale; nessuna migration, export, modifica di dati/flag/permessi o pubblicazione eseguita in questa chiusura.

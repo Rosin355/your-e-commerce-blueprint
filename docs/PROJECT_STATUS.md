@@ -1,3 +1,17 @@
+# Stato Admin V2 — aggiornamento 9 novembre 2026
+
+**Livello A live in sola lettura; Livello B pronto nel codice di una PR dedicata, non attivato.** Base main `8854204`; nessuna modifica a main, dati, ruoli o flag produttivi. Nuovo collegamento endpoint/query operative, protezione server canary per SKU/attore/operazione con verifica DRAFT, accesso al form bozze e categorie senza mapping visibili. Build operativa opzionale, default ancora read-only.
+
+[Runbook vigente e change unico](ADMIN-V2-ACTIVATION-RUNBOOK.md) · [Manifest](release/ADMIN-V2-ACTIVATION-MANIFEST.json). SQL originale invariato, quattro tabelle/RPC/history ancora assenti. Ultimo snapshot Lovable osservato 9/11 05:25:16 UTC; recovery effettivo non dimostrato. Diagnostica live 9/11 14:57:44 CET: false/canary/false. Account/ruolo Marco non verificati, zero privilegi assegnati. Categorie: 22 decisioni residue, nessun mapping approvato/applicato.
+
+Attivazione live BLOCKED fino a recovery dimostrato e scheda change specifica approvata con identità/canary; nessun nuovo audit o ambiente richiesto. CI/GitGuardian e SHA conclusivi fanno riferimento all'HEAD della nuova PR, non ai check storici delle #42/#46. GSC, analisi 404 e redirect 301 restano TODO successivi; checkout, pagamenti, spedizioni A/B e Sendcloud invariati.
+
+---
+
+## Archivio precedente al completamento tecnico del 9 novembre
+
+Le sezioni sottostanti conservano le evidenze storiche. Per stato, sequenza e autorizzazioni vigenti prevale la sezione del 9 novembre sopra. I riferimenti a staging aggiuntivo, export completo o applicazione della patch differita non sono istruzioni attuali.
+
 ## Chiusura definitiva della preparazione — 6 novembre 2026
 
 **Ciclo tecnico/documentale CHIUSO. Livello A CONSEGNATO; Livello B BLOCKED.** La chiusura non equivale ad attivazione completa. Nessun nuovo audit, ambiente, strumento, servizio o test applicativo manuale; nessuna migration, export, modifica di dati/flag/permessi o pubblicazione eseguita in questa chiusura.

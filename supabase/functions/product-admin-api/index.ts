@@ -1,3 +1,7 @@
+import { OPERATION_ACTIONS, OperationalError } from '../_shared/admin-operational-core.ts';
+import { requireCanaryScope } from '../_shared/admin-canary-policy.ts';
+import { handleOperational, operationalFlags } from '../_shared/admin-operational-service.ts';
+import { canaryScope, requireCanaryProduct } from '../_shared/admin-canary-service.ts';
 // F5 — Admin Product API (Online Garden).
 // Letture Shopify e sync esplicita a campo singolo; nessuna pubblicazione automatica.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
@@ -6,6 +10,7 @@ import {
   authorizeAction,
   canManageLockedManualValues,
   canSyncShopify,
+  canWrite,
   canWriteCanary,
   isCommandAction,
   isKnownAction,
@@ -85,10 +90,14 @@ Deno.serve(async (req) => {
       return fail("VALIDATION_ERROR", "Payload non valido");
     }
     action = String(payload.action ?? "");
-    if (!isKnownAction(action)) return fail("VALIDATION_ERROR", "Azione non riconosciuta");
+    if (!(OPERATION_ACTIONS as readonly string[]).includes(action) && !isKnownAction(action)) return fail("VALIDATION_ERROR", "Azione non riconosciuta");
 
     const auth = await authenticate(req);
     actorId = auth.userId;
+    if ((OPERATION_ACTIONS as readonly string[]).includes(action)) {
+      return json(await handleOperational(serviceClient(), auth, payload));
+    }
+    if (!isKnownAction(action)) return fail("VALIDATION_ERROR", "Azione non riconosciuta");
     const authz = authorizeAction(action, auth.roles);
     if (!authz.allowed) return fail("FORBIDDEN", authz.reason ?? "Accesso negato");
 
@@ -99,7 +108,8 @@ Deno.serve(async (req) => {
       const mode = writeMode();
       const enabled = writesEnabled();
       const canaryRole = canWriteCanary(auth.roles);
-      const canWriteNow = enabled && (mode === "full" || canaryRole);
+      const scope = canaryScope();
+      const canWriteNow = enabled && (mode === "full" ? canWrite(auth.roles) : (canaryRole && scope?.actorId === auth.userId));
       // I campi solo-manuali sono editabili a mano anche in canary: la lista arriva dal registro campi.
       let manualKeys: string[] = [];
       if (canWriteNow && mode === "canary") {
@@ -117,19 +127,28 @@ Deno.serve(async (req) => {
         writesEnabled: enabled,
         writeMode: mode,
         canWrite: canWriteNow,
-        canSync: canSyncShopify(auth.roles) && shopifySyncEnabled(),
+        canSync: canSyncShopify(auth.roles) && shopifySyncEnabled() && enabled &&
+          (mode === "full" || (canWriteNow && scope?.actions.includes("sync_field"))),
+        backendVersion: "admin-operational-b-20261109-r1",
+        canaryConfigured: scope !== null,
+        operationalCapabilities: {
+          drafts: operationalFlags().drafts,
+          draftShopify: operationalFlags().shopify,
+          categories: enabled && Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true',
+          approvalConfigured: operationalFlags().approval,
+        },
         shopifySyncEnabled: shopifySyncEnabled(),
-        allowedActions: canWriteNow ? CANARY_ACTIONS : [],
+        allowedActions: canWriteNow ? (mode === "canary" ? CANARY_ACTIONS.filter((a) => scope?.actions.includes(a)) : CANARY_ACTIONS) : [],
         editableFieldKeys:
           canWriteNow && mode === "canary"
-            ? [...new Set([...CANARY_FIELD_KEYS, ...manualKeys])]
+            ? [...new Set([...CANARY_FIELD_KEYS, ...manualKeys])].filter(key => scope?.fieldKeys.includes(key))
             : [],
         canaryManualOnly: mode === "canary",
         readOnlyReason: !enabled
           ? "Le modifiche sono temporaneamente disabilitate."
           : canWriteNow
             ? ""
-            : "Le modifiche sono attive solo per gli amministratori durante la fase di collaudo.",
+            : "Modifiche non autorizzate per questo account o perimetro di collaudo.",
       });
     }
 
@@ -142,18 +161,22 @@ Deno.serve(async (req) => {
     }
 
     if (action === "list_products") {
-      const { productRows, nextCursor } = await listProducts(db, {
+      const { productRows, nextCursor, currentValues } = await listProducts(db, {
         search: typeof payload.search === "string" ? payload.search : undefined,
         sku: typeof payload.sku === "string" ? payload.sku : undefined,
         gtin: typeof payload.gtin === "string" ? payload.gtin : undefined,
         entityType: payload.entityType as never,
+        category: typeof payload.category === "string" ? payload.category : undefined,
+        completeness: (payload.completeness === "complete" || payload.completeness === "incomplete") ? payload.completeness : undefined,
+        origin: (payload.origin === "shopify" || payload.origin === "import") ? payload.origin : undefined,
+        needsClassification: payload.needsClassification === true,
         reviewRequired: payload.reviewRequired === true,
         publishBlocked: payload.publishBlocked === true,
         cursor: typeof payload.cursor === "string" ? payload.cursor : null,
         pageSize: typeof payload.pageSize === "number" ? payload.pageSize : undefined,
       });
       const ids = productRows.map((p: { id: string }) => p.id);
-      const values = await getCurrentValues(db, ids);
+      const values = currentValues;
       const parentIds = [
         ...new Set(
           productRows
@@ -263,6 +286,13 @@ Deno.serve(async (req) => {
           // Il dettaglio resta utilizzabile anche senza credenziali/rete Shopify.
         }
       }
+      let canaryAllowed = writeMode() === "full";
+      if (writesEnabled() && writeMode() === "canary") {
+        try {
+          await requireCanaryProduct(db, auth, product, canaryScope()?.actions.find(a => ["update_field", "confirm_legacy_value", "reject_legacy_value", "sync_field"].includes(a)) ?? "update_field");
+          canaryAllowed = true;
+        } catch { /* Unknown/live/commercial product: capabilities stay closed. */ }
+      }
       const linkedSnapshots = await getSourceSnapshotsByIds(
         db,
         productId,
@@ -289,9 +319,13 @@ Deno.serve(async (req) => {
           product.entity_type as ProductEntityType,
           {
             roles: auth.roles,
-            writesEnabled: writesEnabled(),
+            writesEnabled: writesEnabled() && canaryAllowed,
             writeMode: writeMode(),
             productActive: product.is_active,
+            scopedActions: writeMode() === "canary" ? canaryScope()?.actions ?? [] : undefined,
+            scopedFieldKeys: writeMode() === "canary" ? canaryScope()?.fieldKeys ?? [] : undefined,
+            aiEnabled: writeMode() !== "canary",
+            syncAllowed: writesEnabled() && canaryAllowed && canSyncShopify(auth.roles) && shopifySyncEnabled(),
           },
           { fallbackSnapshot: snapshot, linkedSnapshots, shopifyLiveValues },
         ),
@@ -310,6 +344,12 @@ Deno.serve(async (req) => {
 
     const commandProduct = await getProduct(db, productId);
     if (!commandProduct) return fail("NOT_FOUND", "Prodotto inesistente");
+    // Resolve identity from the DB and re-read Shopify DRAFT before replay or any command.
+    if (action !== "validate_field_update" || writesEnabled()) {
+      await requireCanaryProduct(db, auth, commandProduct,
+        action === "validate_field_update" ? String(payload.targetAction ?? "update_field") : action, fieldKey);
+    }
+    if (action === "sync_field" && !writesEnabled()) return fail("WRITES_DISABLED", "Scritture disabilitate");
     if (!appliesToEntity(def.applies_to, commandProduct.entity_type as ProductEntityType)) {
       if (action === "validate_field_update") {
         return json({
@@ -388,6 +428,7 @@ Deno.serve(async (req) => {
       }
 
       try {
+        if (writeMode() === 'canary') requireCanaryScope(canaryScope(), auth.userId, auth.roles, 'sync_field', fieldKey);
         const result = await syncFieldToShopify({
           db,
           command,
@@ -536,6 +577,7 @@ Deno.serve(async (req) => {
       return fail(check.code ?? "VALIDATION_ERROR", check.message ?? "Validazione fallita");
     }
 
+    if (writeMode() === 'canary') requireCanaryScope(canaryScope(), auth.userId, auth.roles, targetAction, fieldKey);
     const result = await executeCommand(db, commandInput!);
 
     if (result?.ok === false) {
@@ -548,6 +590,10 @@ Deno.serve(async (req) => {
     console.log(redactedLog(action, actorId, String(result?.code ?? "APPLIED")));
     return json({ ok: true, result });
   } catch (err) {
+    if (err instanceof OperationalError) {
+      console.log(redactedLog(action, actorId, err.code));
+      return json({ ok: false, error: { code: err.code, message: err.message } }, err.code === 'FORBIDDEN' ? 403 : 400);
+    }
     if (err instanceof AuthError) return fail(err.code, err.message);
     console.error(redactedLog(action, actorId, "INTERNAL_ERROR", { hint: (err as Error)?.name }));
     return fail("INTERNAL_ERROR", "Errore interno");

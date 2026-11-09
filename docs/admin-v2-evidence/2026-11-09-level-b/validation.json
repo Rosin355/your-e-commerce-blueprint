@@ -1,0 +1,35 @@
+{
+  "mode": "OFFLINE_SYNTHETIC_NO_PRODUCTION_MUTATIONS",
+  "nodeTargetedTests": {
+    "passed": 105,
+    "failed": 0,
+    "suites": [
+      "admin-canary-handler",
+      "admin-activation-package",
+      "admin-v2-field-editing",
+      "admin-ai-field-suggestions",
+      "product-admin-api",
+      "admin-missing-field-create",
+      "admin-readonly-release",
+      "admin-edge-packaging",
+      "admin-catalog-pagination"
+    ]
+  },
+  "denoModifiedServiceTests": {
+    "passed": 11,
+    "failed": 0
+  },
+  "frontendTypecheck": "PASS",
+  "serverTypecheck": "PASS; shared operational graph with frozen CI lock; HTTP entrypoints checked with existing npm cors dependency and --no-lock",
+  "targetedLint": "PASS",
+  "buildDefaultReadOnly": "PASS",
+  "buildOperationalLocalOnly": "PASS",
+  "migrationSha256Unchanged": true,
+  "originalDatabaseSuitesRepeated": false,
+  "newSqlWrapperExecutedAgainstDatabase": false,
+  "liveCanaryExecuted": false,
+  "managedRestoreDemonstrated": false,
+  "marcoIdentityVerified": false,
+  "browserAcceptanceReperformed": false,
+  "ciAndGitGuardian": "See the exact final commit checks in the dedicated pull request; local tests are not CI or release authorization."
+}

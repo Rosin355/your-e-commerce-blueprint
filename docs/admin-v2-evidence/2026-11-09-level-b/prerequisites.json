@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-09",
+  "baseSha": "885420429986fb2dba739c75d55fe4e8da844ab9",
+  "lovableLatestSha": "885420429986fb2dba739c75d55fe4e8da844ab9",
+  "identity": {
+    "lovableProject": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+    "providerConfigRef": "iekwvvihjwghosqdxrdi",
+    "readMethod": "Lovable read_file supabase/config.toml + query_database SELECT",
+    "database": "postgres",
+    "serverVersion": "17.6"
+  },
+  "migrationSha256": "ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328",
+  "fourTablesAbsent": true,
+  "fourRpcAbsent": true,
+  "migrationHistoryAbsent": true,
+  "latestSnapshotObserved": "2026-11-09T05:25:16Z",
+  "restoreVerified": false,
+  "providerApiMetadata": "product-admin-api Active; UI Deployments 178; last updated about one month ago. No source SHA/version proven by this metadata.",
+  "runtime": {
+    "observedAt": "2026-11-09T14:57:44+01:00",
+    "origin": "https://onlinegarden.it",
+    "writesEnabled": false,
+    "writeMode": "canary",
+    "shopifySyncEnabled": false,
+    "isMarcoSession": false,
+    "specificOperationalFlags": "NOT_EXPOSED_BY_CURRENT_LIVE_API; no inference from master flags"
+  },
+  "marcoIdentity": "NOT_VERIFIED; no owner-confirmed identifier supplied; no account/role rows enumerated",
+  "personalDataExported": false,
+  "productionWrites": 0
+}

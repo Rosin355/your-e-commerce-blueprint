@@ -61,7 +61,7 @@ export default function NewProductPage() {
       callAdminApi<{ result: { productId: string; operationId: string; state: string } }>({
         action: 'save_new_product',
         draft,
-        idempotencyKey: key,
+        idempotencyKey: catalogue.data?.canaryRequestKey ?? key,
         confirm: confirmed,
       }),
   });
@@ -103,6 +103,7 @@ export default function NewProductPage() {
         )}
     </label>
   );
+  if (catalogue.data && !catalogue.data.canAuthorDraft) return <p role='status'>Il tuo ruolo consente la consultazione, senza creazione di prodotti.</p>;
   return (
     <div className='max-w-4xl space-y-5'>
       <header>
@@ -163,7 +164,7 @@ export default function NewProductPage() {
               : (
                 <>
                   <p>Selezione proposta: non modifica le collezioni di prodotti già esistenti.</p>
-                  {catalogue.data.categories.filter((c) => c.is_active).map((c) => (
+                  {catalogue.data.categories.filter((c) => c.is_active && c.maps.length > 0 && c.maps.every(m => m.map_status === 'verified')).map((c) => (
                     <label key={c.id} className='flex items-center min-h-11 gap-2'>
                       <Checkbox
                         checked={draft.categoryIds.includes(c.id)}
@@ -418,7 +419,7 @@ export default function NewProductPage() {
           {send.isError && (
             <>
               <p role='alert'>{send.error.message}</p>
-              {canRecoverDraftAfterError(
+              {catalogue.data?.canRecoverDraft && catalogue.data.approvedOperationId === save.data.result.operationId && canRecoverDraftAfterError(
                 adminContext.data,
                 Boolean(save.data?.result.operationId),
                 send.isError,
