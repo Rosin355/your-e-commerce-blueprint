@@ -1,3 +1,13 @@
+## Integrazione sicura PR #47 — attestazione proprietario del 9 novembre 2026
+
+Il proprietario attesta uno screenshot autenticato di `https://onlinegarden.it/admin/settings`, letto il **09/11/2026 alle 19:16:37 CET**: `writesEnabled=false`, `writeMode=canary`, `shopifySyncEnabled=false`, stato **READ-ONLY**. Fonte: dichiarazione esplicita del proprietario in chat; immagine non allegata a questo registro né ispezionata dall’agent. Nessuna email o credenziale registrata. Questa attestazione aggiornata sostituisce il blocco dovuto alla precedente impossibilità di rileggere Chrome; non dimostra una cronologia completa dei secret.
+
+È autorizzata l’integrazione del solo codice tramite [PR #47](https://github.com/Rosin355/your-e-commerce-blueprint/pull/47), senza pubblicazione. **Stato MERGED e commit main effettivo fanno fede nel registro GitHub della PR**; prima del merge questa nota è preparatoria. Il nuovo commit documentale non modifica codice, configurazioni o migration. CI/GitGuardian devono essere verdi sull’HEAD effettivamente integrato.
+
+Dopo l’integrazione, Livello B presente nel codice ma disabilitato; Livello A resta la versione pubblicata `admin-readonly-20261106-r1`. Frontend operativo solo con build esplicita e valore esatto `true`; default read-only, nessuna preferenza locale lo abilita. Migration `20261031184521` invariata e fuori dal percorso automatico; nessun nuovo SQL nel percorso migrations. Workflow GitHub limitato ai check pull_request, senza job deploy. La sincronizzazione del codice Lovable non equivale a pubblicazione, deploy Edge o applicazione SQL; nessuna di queste azioni è autorizzata o eseguita da questa integrazione.
+
+L’ultima lettura attestata mantiene scritture e sync **OFF**. Recovery produttivo **non dimostrato**, identità/ruolo Marco **non verificati**, zero mapping categorie approvati; nessun canary autorizzato. L’attivazione operativa resta BLOCKED dal change operativo e dai suoi prerequisiti; il merge non li chiude. Payments, checkout, spedizioni A/B, Sendcloud, inventario, prodotti e SEO invariati.
+
 ## Gate finali Admin V2 — 9 novembre 2026
 
 PR #47: codice compatibile con Livello A e candidabile al merge solo con CI/GitGuardian finali verdi; **merge non eseguito**, deploy operativo separatamente **BLOCKED**. Corretta soltanto la verifica del Product GID nel recovery e il rifiuto di una nuova create con GID già fissato; due test nuovi mirati, senza ripetere manualmente le suite precedenti. Nessuna altra PR.
