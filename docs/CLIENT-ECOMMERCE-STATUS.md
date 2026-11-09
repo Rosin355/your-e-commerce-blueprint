@@ -1,3 +1,35 @@
+## Integrazione sicura PR #47 — attestazione proprietario del 9 novembre 2026
+
+Il proprietario attesta uno screenshot autenticato di `https://onlinegarden.it/admin/settings`, letto il **09/11/2026 alle 19:16:37 CET**: `writesEnabled=false`, `writeMode=canary`, `shopifySyncEnabled=false`, stato **READ-ONLY**. Fonte: dichiarazione esplicita del proprietario in chat; immagine non allegata a questo registro né ispezionata dall’agent. Nessuna email o credenziale registrata. Questa attestazione aggiornata sostituisce il blocco dovuto alla precedente impossibilità di rileggere Chrome; non dimostra una cronologia completa dei secret.
+
+È autorizzata l’integrazione del solo codice tramite [PR #47](https://github.com/Rosin355/your-e-commerce-blueprint/pull/47), senza pubblicazione. **Stato MERGED e commit main effettivo fanno fede nel registro GitHub della PR**; prima del merge questa nota è preparatoria. Il nuovo commit documentale non modifica codice, configurazioni o migration. CI/GitGuardian devono essere verdi sull’HEAD effettivamente integrato.
+
+Dopo l’integrazione, Livello B presente nel codice ma disabilitato; Livello A resta la versione pubblicata `admin-readonly-20261106-r1`. Frontend operativo solo con build esplicita e valore esatto `true`; default read-only, nessuna preferenza locale lo abilita. Migration `20261031184521` invariata e fuori dal percorso automatico; nessun nuovo SQL nel percorso migrations. Workflow GitHub limitato ai check pull_request, senza job deploy. La sincronizzazione del codice Lovable non equivale a pubblicazione, deploy Edge o applicazione SQL; nessuna di queste azioni è autorizzata o eseguita da questa integrazione.
+
+L’ultima lettura attestata mantiene scritture e sync **OFF**. Recovery produttivo **non dimostrato**, identità/ruolo Marco **non verificati**, zero mapping categorie approvati; nessun canary autorizzato. L’attivazione operativa resta BLOCKED dal change operativo e dai suoi prerequisiti; il merge non li chiude. Payments, checkout, spedizioni A/B, Sendcloud, inventario, prodotti e SEO invariati.
+
+## Gate finali Admin V2 — 9 novembre 2026
+
+PR #47: codice compatibile con Livello A e candidabile al merge solo con CI/GitGuardian finali verdi; **merge non eseguito**, deploy operativo separatamente **BLOCKED**. Corretta soltanto la verifica del Product GID nel recovery e il rifiuto di una nuova create con GID già fissato; due test nuovi mirati, senza ripetere manualmente le suite precedenti. Nessuna altra PR.
+
+Snapshot Lovable riconfermato: 9/11 05:25:16 UTC, ma **RECOVERY NON DIMOSTRATO**; restore in-place non eseguito. Identità e ruolo Marco NON VERIFICATI; letti esclusivamente metadati dello schema. Canary senza SKU/attore/operationId autorizzati, 22 decisioni categorie residue. Runtime 9/11 16:19:57 CET: false/canary/false. Nessuna migration, autorizzazione DDL, assegnazione ruolo, flag ON, sync o distribuzione; pagamenti/checkout/A+B/Sendcloud/inventario invariati. GSC/404/301 restano TODO successivi.
+
+[Change definitivo, metodo autenticato Marco, recovery e STOP](ADMIN-V2-ACTIVATION-RUNBOOK.md). Unico riscontro del titolare: prova recovery pertinente già riuscita e conferma privata di account Marco/SKU/attore/operazioni; niente nuovi audit generali.
+
+# Stato Admin V2 — aggiornamento 9 novembre 2026
+
+**Livello A live in sola lettura; Livello B pronto nel codice di una PR dedicata, non attivato.** Base main `8854204`; nessuna modifica a main, dati, ruoli o flag produttivi. Nuovo collegamento endpoint/query operative, protezione server canary per SKU/attore/operazione con verifica DRAFT, accesso al form bozze e categorie senza mapping visibili. Build operativa opzionale, default ancora read-only.
+
+[Runbook vigente e change unico](ADMIN-V2-ACTIVATION-RUNBOOK.md) · [Manifest](release/ADMIN-V2-ACTIVATION-MANIFEST.json). SQL originale invariato, quattro tabelle/RPC/history ancora assenti. Ultimo snapshot Lovable osservato 9/11 05:25:16 UTC; recovery effettivo non dimostrato. Diagnostica live 9/11 14:57:44 CET: false/canary/false. Account/ruolo Marco non verificati, zero privilegi assegnati. Categorie: 22 decisioni residue, nessun mapping approvato/applicato.
+
+Attivazione live BLOCKED fino a recovery dimostrato e scheda change specifica approvata con identità/canary; nessun nuovo audit o ambiente richiesto. CI/GitGuardian e SHA conclusivi fanno riferimento all'HEAD della nuova PR, non ai check storici delle #42/#46. GSC, analisi 404 e redirect 301 restano TODO successivi; checkout, pagamenti, spedizioni A/B e Sendcloud invariati.
+
+---
+
+## Archivio precedente al completamento tecnico del 9 novembre
+
+Le sezioni sottostanti conservano le evidenze storiche. Per stato, sequenza e autorizzazioni vigenti prevale la sezione del 9 novembre sopra. I riferimenti a staging aggiuntivo, export completo o applicazione della patch differita non sono istruzioni attuali.
+
 ## Chiusura definitiva della preparazione — 6 novembre 2026
 
 **Ciclo tecnico/documentale CHIUSO. Livello A CONSEGNATO; Livello B BLOCKED.** La chiusura non equivale ad attivazione completa. Nessun nuovo audit, ambiente, strumento, servizio o test applicativo manuale; nessuna migration, export, modifica di dati/flag/permessi o pubblicazione eseguita in questa chiusura.

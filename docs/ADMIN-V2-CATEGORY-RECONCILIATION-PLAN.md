@@ -1,3 +1,9 @@
+# Scheda decisionale cliente — istruzioni aggiornate il 9 novembre 2026
+
+Usare i riferimenti **C01–C22** della tabella seguente. Per rispondere basta indicare, per esempio, “C01: approvo la proposta” oppure “C06: scelgo l’alternativa indicata”, o “C22: mantieni senza associazione”, con data e conferma commerciale. Sono esempi di compilazione, **nessuna approvazione reale**. Ogni riga richiede una scelta esplicita; i silenzi restano “Non espressa”. Le quattro categorie senza proposta non obbligano a creare nuove collezioni.
+
+Il team registra le sole decisioni ricevute e prepara l’eventuale applicazione nel change approvato. La scheda non scrive su Supabase/Shopify; i mapping applicabili restano zero. Nell’interfaccia predisposta, ogni categoria senza mapping mostra il motivo del blocco e non può essere assegnata automaticamente. Proposte e conteggi tecnici sotto riutilizzano le evidenze già approvate, senza nuovo audit.
+
 ## Rilascio effettivo verificato — 6 novembre 2026, Admin in sola lettura
 
 **PUBBLICATO, solo consultazione.** PR #42 integrata con merge `1ad61826c01ade2821f6c1577a3bd1555d0ab899`, HEAD revisionato `c35c53ba004bd425c371c369621938bd2f607ffe`; [CI Storefront SUCCESS](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/42256971612) e GitGuardian SUCCESS prima del merge ordinario. Nessuna modifica alla PR #45 o ai servizi shipping.
@@ -22,30 +28,30 @@ Questa è l'unica scheda decisionale cliente: 22 righe riutilizzate dalla matric
 
 Le proposte derivano dalla lettura del 1 novembre, non da una nuova lettura Shopify. Nessuna collezione logistica A/B inclusa o modificata. Le alternative ambigue sono proposte da valutare, non destinazioni automaticamente abilitate. Non creare collezioni o associare prodotti da questa scheda.
 
-| Categoria interna | Collezione proposta | Affidabilità tecnica | Opzioni per Marco (sceglierne una) | Decisione attuale |
-|---|---|---|---|---|
-| Aromatiche | `aromatiche` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Bulbi | `bulbi` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Bulbi → Fioritura Autunnale | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
-| Bulbi → Fioritura Estiva | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
-| Bulbi → Fioritura Primaverile | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
-| Erbacee e Graminacee | `erbacee-perenni-graminacee` | Ambigua | Scegli la proposta / Scegli erbacee-perenni-e-graminacee / Mantieni senza associazione | Non espressa |
-| Grasse e Succulente | `piante-grasse-succulente` | Ambigua | Scegli la proposta / Scegli piante-da-interno-piante-grasse-e-succulente / Mantieni senza associazione | Non espressa |
-| Piante da Esterno | `piante-da-esterno` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Piante da Esterno → Alberi | `alberi` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Piante da Esterno → Arbusti | `arbusti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Piante da Esterno → Conifere | `conifere` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Piante da Esterno → Siepi | `piante-da-siepe` | Media | Approva dopo conferma commerciale dei contenuti / Mantieni senza associazione | Non espressa |
-| Piante da Frutto | `piante-da-frutto` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Piante da Frutto → Alberi da Frutto | `alberi-da-frutto` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Piante da Frutto → Piccoli Frutti | `piccoli-frutti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Rampicanti | `rampicanti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Rose | `rose` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Rose → Rose a Cespuglio | `rose-cespuglio` | Media | Approva dopo conferma commerciale dei contenuti / Mantieni senza associazione | Non espressa |
-| Rose → Rose a Fiore Grande | `rose-fiore-grande` | Media | Approva dopo conferma commerciale dei contenuti / Mantieni senza associazione | Non espressa |
-| Rose → Rose Paesaggistiche | `rose-paesaggistiche` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Rose → Rose Rampicanti | `rose-rampicanti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
-| Rose → Rose Tappezzanti | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
+| Rif. | Categoria interna | Collezione proposta | Affidabilità tecnica | Opzioni per Marco (sceglierne una) | Decisione attuale |
+|---|---|---|---|---|---|
+| C01 | Aromatiche | `aromatiche` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C02 | Bulbi | `bulbi` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C03 | Bulbi → Fioritura Autunnale | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
+| C04 | Bulbi → Fioritura Estiva | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
+| C05 | Bulbi → Fioritura Primaverile | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
+| C06 | Erbacee e Graminacee | `erbacee-perenni-graminacee` | Ambigua | Scegli la proposta / Scegli erbacee-perenni-e-graminacee / Mantieni senza associazione | Non espressa |
+| C07 | Grasse e Succulente | `piante-grasse-succulente` | Ambigua | Scegli la proposta / Scegli piante-da-interno-piante-grasse-e-succulente / Mantieni senza associazione | Non espressa |
+| C08 | Piante da Esterno | `piante-da-esterno` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C09 | Piante da Esterno → Alberi | `alberi` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C10 | Piante da Esterno → Arbusti | `arbusti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C11 | Piante da Esterno → Conifere | `conifere` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C12 | Piante da Esterno → Siepi | `piante-da-siepe` | Media | Approva dopo conferma commerciale dei contenuti / Mantieni senza associazione | Non espressa |
+| C13 | Piante da Frutto | `piante-da-frutto` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C14 | Piante da Frutto → Alberi da Frutto | `alberi-da-frutto` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C15 | Piante da Frutto → Piccoli Frutti | `piccoli-frutti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C16 | Rampicanti | `rampicanti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C17 | Rose | `rose` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C18 | Rose → Rose a Cespuglio | `rose-cespuglio` | Media | Approva dopo conferma commerciale dei contenuti / Mantieni senza associazione | Non espressa |
+| C19 | Rose → Rose a Fiore Grande | `rose-fiore-grande` | Media | Approva dopo conferma commerciale dei contenuti / Mantieni senza associazione | Non espressa |
+| C20 | Rose → Rose Paesaggistiche | `rose-paesaggistiche` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C21 | Rose → Rose Rampicanti | `rose-rampicanti` | Alta tecnica | Approva la proposta / Mantieni senza associazione | Non espressa |
+| C22 | Rose → Rose Tappezzanti | Nessuna proposta certa | Nessuna | Mantieni senza associazione / Decidi una destinazione in seguito | Non espressa |
 
 # Riconciliazione: stato confermato 6 novembre 2026
 

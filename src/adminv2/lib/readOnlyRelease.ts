@@ -1,10 +1,10 @@
 import type { AdminField } from './adminApi';
 import { AdminApiError } from './AdminApiError';
 
-// Immutable release boundary: never enabled through localStorage or a runtime flag.
+// Build-time release boundary, OFF by default. Never enabled through localStorage or runtime flags.
 // Backend flags remain authoritative and are displayed without alteration.
-export const ADMIN_READ_ONLY_RELEASE = true;
-export const ADMIN_READ_ONLY_VERSION = 'admin-readonly-20261106-r1';
+export const ADMIN_READ_ONLY_RELEASE = import.meta.env?.VITE_ADMIN_OPERATIONAL_RELEASE !== 'true';
+export const ADMIN_READ_ONLY_VERSION = ADMIN_READ_ONLY_RELEASE ? 'admin-readonly-20261106-r1' : 'admin-operational-b-20261109-r1';
 export const READ_ONLY_RELEASE_NOTICE = 'Versione in sola lettura: puoi consultare il catalogo. Modifiche, nuove bozze e sincronizzazione non sono attive.';
 
 const READ_ACTIONS = new Set([

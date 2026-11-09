@@ -54,6 +54,10 @@ export interface CapabilityContext {
   writesEnabled: boolean;
   writeMode: WriteMode;
   productActive?: boolean;
+  scopedActions?: string[];
+  scopedFieldKeys?: string[];
+  aiEnabled?: boolean;
+  syncAllowed?: boolean;
 }
 
 /** Simple e variable/parent usano campi product; solo variation usa campi variant. */
@@ -73,6 +77,7 @@ function writeGate(
   context: CapabilityContext,
 ): FieldCapabilityReason {
   if (!context.writesEnabled) return "writes_disabled";
+  if (context.scopedFieldKeys && !context.scopedFieldKeys.includes(def.key)) return "canary_field_not_allowed";
 
   const roleAllowed = context.writeMode === "canary"
     ? canWriteCanary(context.roles)
@@ -102,7 +107,7 @@ export function calculateFieldCapabilities(
   const clientMissingCreate = !def.manual_only &&
     isClientCreatableMissingFieldKey(def.key);
 
-  const updateReason = baseReason !== "allowed"
+  const updateReason = context.scopedActions && !context.scopedActions.includes("update_field") ? "role_forbidden" : baseReason !== "allowed"
     ? baseReason
     : !row && !manualAdmin && !clientMissingCreate
     ? "current_value_missing"
@@ -111,7 +116,7 @@ export function calculateFieldCapabilities(
     : "allowed";
 
   // La RPC consente confirm_legacy_value anche quando is_locked=true.
-  const confirmReason = baseReason !== "allowed"
+  const confirmReason = context.scopedActions && !context.scopedActions.includes("confirm_legacy_value") ? "role_forbidden" : baseReason !== "allowed"
     ? baseReason
     : !row
     ? "current_value_missing"
@@ -120,7 +125,7 @@ export function calculateFieldCapabilities(
     : "allowed";
 
   // La RPC rifiuta reject_legacy_value sui current value locked.
-  const rejectReason = baseReason !== "allowed"
+  const rejectReason = context.scopedActions && !context.scopedActions.includes("reject_legacy_value") ? "role_forbidden" : baseReason !== "allowed"
     ? baseReason
     : !row
     ? "current_value_missing"
@@ -132,7 +137,7 @@ export function calculateFieldCapabilities(
 
   const effectiveAiAllowed = def.ai_allowed && !def.manual_only && applicable;
   const aiEligibility = aiValueEligibility(def, row);
-  const aiReason = context.productActive === false
+  const aiReason = context.aiEnabled === false ? "phase_2c" : context.productActive === false
     ? "product_inactive"
     : baseReason !== "allowed"
     ? baseReason

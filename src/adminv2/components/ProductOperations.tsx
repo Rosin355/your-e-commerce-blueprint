@@ -8,6 +8,7 @@ export default function ProductOperations({ productId }: { productId: string }) 
     queryFn: () =>
       callAdminApi<
         {
+          canManageDraft: boolean;
           canSendDraft: boolean;
           canRecover: boolean;
           approvedOperationId: string | null;
@@ -42,7 +43,7 @@ export default function ProductOperations({ productId }: { productId: string }) 
         <div key={op.id} className='space-y-2'>
           <p>{OPERATION_LABELS[op.state] ?? 'Stato da verificare'}</p>
           <p className='text-sm'>{new Date(op.created_at).toLocaleString('it-IT')}</p>
-          {op.state === 'LOCAL_DRAFT' && (
+          {query.data.canManageDraft && op.state === 'LOCAL_DRAFT' && (
             <div className='space-y-2'>
               <Button
                 disabled={command.isPending || !query.data.canSendDraft || query.data.approvedOperationId !== op.id}
@@ -61,10 +62,10 @@ export default function ProductOperations({ productId }: { productId: string }) 
               )}
             </div>
           )}
-          {['IN_FLIGHT', 'NEEDS_RECONCILIATION'].includes(op.state) && (
+          {query.data.canManageDraft && ['IN_FLIGHT', 'NEEDS_RECONCILIATION'].includes(op.state) && (
             <div className='space-y-2'>
               <Button
-                disabled={command.isPending || !canRecover}
+                disabled={command.isPending || !canRecover || query.data.approvedOperationId !== op.id}
                 onClick={() =>
                   command.mutate({ action: 'recover_shopify_draft', operationId: op.id })}
               >

@@ -17,6 +17,10 @@ export interface CategoryCatalogue {
   observedAt: string;
   notice: string;
   missingCanonicalHandles: string[];
+  canAuthorDraft: boolean;
+  canManageCategories: boolean;
+  canRecoverDraft: boolean;
+  canaryRequestKey: string | null;
   canSaveDraft: boolean;
   canSendDraft: boolean;
   approvedOperationId: string | null;

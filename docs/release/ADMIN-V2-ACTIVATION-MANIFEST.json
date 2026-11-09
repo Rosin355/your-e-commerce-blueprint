@@ -1,6 +1,6 @@
 {
-  "status": "WORK_CYCLE_CLOSED_READONLY_DELIVERED_OPERATIONAL_BLOCKED",
-  "baseMain": "3296a7669216ff1082ff74f5c52cec396af27acf",
+  "status": "LEVEL_B_CODE_READY_LIVE_ACTIVATION_BLOCKED",
+  "baseMain": "885420429986fb2dba739c75d55fe4e8da844ab9",
   "liveFrontend": {
     "commit": "1ad61826c01ade2821f6c1577a3bd1555d0ab899",
     "version": "admin-readonly-20261106-r1",
@@ -49,7 +49,9 @@
     "copyPolicy": "0700 directory / 0600 files; protected persistent copy plus agreed encrypted second copy; no sole /private/tmp copy",
     "requiredToolchain": "PostgreSQL server/pg_dump/psql 17 for prepared plain-SQL structural procedure; tools 16.15 observed only, no new run or installation",
     "scopeLimit": "DDL fixture/archive partial only; not production data/Auth/Storage/managed recovery",
-    "optionalExportFormat": "PLAIN_SQL_SCHEMA_ONLY; owner/comment/security-label output suppressed, ACL retained; never an application-row backup"
+    "optionalExportFormat": "PLAIN_SQL_SCHEMA_ONLY; owner/comment/security-label output suppressed, ACL retained; never an application-row backup",
+    "latestProviderSnapshotObserved": "2026-11-09T05:25:16Z",
+    "snapshotObservedVia": "Lovable project / Database / Manage / Backups; 15 visible points; restore not executed"
   },
   "gates": {
     "migrationApproval": false,
@@ -127,7 +129,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "None to close the documentation and deliver read-only. A future live migration requires separate specific approval naming target, checksum and recovery plan; no full export consent sought.",
+  "authorizationNeededNow": "Approve the single change sheet in ADMIN-V2-ACTIVATION-RUNBOOK.md only after its recovery evidence and owner-confirmed Marco/canary identity fields are complete. Migration consent must explicitly name target, original migration SHA-256 and recovery plan; no writes or deploy while gates remain false.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -142,5 +144,106 @@
     "mergeScope": "Documentation only after final HEAD CI/GitGuardian success; no merge/deploy of operational code",
     "postSessionPromises": false,
     "liveChangesThisExecution": false
+  },
+  "backend": {
+    "plannedVersion": "admin-operational-b-20261109-r1",
+    "sourceIntegrated": true,
+    "deployedThisTask": false,
+    "liveProviderObservation": "product-admin-api Active; UI Deployments 178; last updated about one month ago. No source SHA/version proven by this metadata."
+  },
+  "frontendBuild": {
+    "flag": "VITE_ADMIN_OPERATIONAL_RELEASE",
+    "enabledByDefault": false,
+    "requiresNewBuild": true,
+    "localStorageOverride": false,
+    "operationalPublished": false
+  },
+  "canary": {
+    "serverScopeImplemented": true,
+    "env": "PRODUCT_ADMIN_CANARY_SCOPE",
+    "default": "DENY_WITHOUT_VALID_SCOPE",
+    "exactSku": true,
+    "exactVariantSkus": true,
+    "actorBound": true,
+    "requestKeyBound": true,
+    "existingProductRequiresInternalIdAndShopifyGid": true,
+    "liveDraftStatusRequired": true,
+    "maxApprovalHours": 24,
+    "aiExcluded": true,
+    "liveExecuted": false,
+    "pinnedGidCheckedOnRecovery": true,
+    "freshCreateRejectsPinnedGid": true
+  },
+  "runtimeObservation": {
+    "observedAt": "2026-11-09T14:57:44+01:00",
+    "origin": "https://onlinegarden.it",
+    "writesEnabled": false,
+    "writeMode": "canary",
+    "shopifySyncEnabled": false,
+    "isMarcoSession": false,
+    "specificOperationalFlags": "NOT_EXPOSED_BY_CURRENT_LIVE_API; no inference from master flags"
+  },
+  "package": {
+    "generator": "scripts/prepare-admin-v2-activation.mjs",
+    "offlineOnly": true,
+    "files": [
+      "preflight.sql",
+      "migration.sql",
+      "postflight.sql",
+      "rollback-empty.sql"
+    ],
+    "originalMigrationModified": false,
+    "sqlExecutedLive": false,
+    "wrapperDatabaseExecutionVerified": false,
+    "rollbackRequiresEmptyTablesAndMatchingHistory": true,
+    "providerServiceRoleDefaultsBroaderThanMinimumGrant": true
+  },
+  "categories": {
+    "internal": 22,
+    "technicalUnique": 13,
+    "plausible": 3,
+    "ambiguous": 2,
+    "noMatch": 4,
+    "approved": 0,
+    "applied": 0,
+    "source": "Existing approved reconciliation evidence; not a new Shopify audit"
+  },
+  "currentExecution": {
+    "date": "2026-11-09",
+    "levelA": "LIVE_READONLY_RETAINED",
+    "levelB": "CODE_READY_NOT_OPERATIONAL_LIVE",
+    "workingBranch": "codex/admin-v2-level-b-activation",
+    "cloudResourcesCreated": 0,
+    "productionMutations": 0,
+    "rolesChanged": 0,
+    "migrationApplied": false,
+    "deployExecuted": false,
+    "previousSqlSuitesRepeated": false,
+    "previousClosure": "closure field below is historical evidence for 2026-11-06, not current code status"
+  },
+  "finalReleaseGates": {
+    "date": "2026-11-09",
+    "reviewedCodeSha": "4fe94d164b043ce8a020b82f0025d56491938d2b",
+    "samePr": 47,
+    "newFocusedHttpTestsPassed": 2,
+    "previousPassedSuitesManuallyRepeated": false,
+    "snapshotLatestConfirmed": "2026-11-09T05:25:16Z",
+    "managedRestoreDemonstrated": false,
+    "marcoIdentity": "BLOCKED_NO_OWNER_CONFIRMED_MAPPING",
+    "marcoRole": "NOT_VERIFIED",
+    "identityQueryScope": "COLUMN_METADATA_ONLY_NO_ACCOUNT_ROWS",
+    "canaryExecution": "NOT_AUTHORIZED_NO_APPROVED_SKU_ACTOR_OR_OPERATION_ID",
+    "runtimeObservedAt": "2026-11-09T16:19:57+01:00",
+    "runtimeMaster": false,
+    "runtimeMode": "canary",
+    "runtimeShopifySync": false,
+    "specificOperationalFlags": "NOT_EXPOSED_BY_CURRENT_LIVE_API",
+    "mergeDecision": "CODE_CANDIDATE_AFTER_FINAL_HEAD_CHECKS; NOT_EXECUTED",
+    "deploymentDecision": "BLOCKED",
+    "productionMutations": 0,
+    "sqlExecuted": false,
+    "mergeExecuted": false,
+    "deployExecuted": false,
+    "finalChecks": "Recorded on final PR head; do not reuse prior-SHA checks as final-SHA evidence"
   }
 }

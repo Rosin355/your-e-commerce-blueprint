@@ -1,3 +1,30 @@
+# Livello B — pacchetto integrato del 9 novembre 2026
+
+**Codice pronto per la revisione e l'attivazione condizionata; live ancora sola lettura.** Questo aggiornamento sostituisce le istruzioni precedenti di promozione query/applicazione patch: l'entrypoint ora collega il servizio operativo e la facade query usa l'implementazione già preparata. La patch differita è rimossa perché superata dal codice reale.
+
+[Sequenza unica, scheda approvazione, procedura Marco, rollback e checklist](../ADMIN-V2-ACTIVATION-RUNBOOK.md) · [Manifest corrente](ADMIN-V2-ACTIVATION-MANIFEST.json) · [Prerequisiti minimizzati](../admin-v2-evidence/2026-11-09-level-b/prerequisites.json).
+
+## Delta operativo pronto
+
+- Generatore offline `scripts/prepare-admin-v2-activation.mjs`: SQL originale invariato e checksum verificato, preflight read-only, transazione atomica con history e postcondizioni, postflight read-only e rollback con lock/tabelle vuote/RESTRICT. Non connette il database e non esegue comandi live. La nuova composizione SQL non è stata eseguita contro il database; la suite SQL originale non è stata ripetuta.
+- Canary server `PRODUCT_ADMIN_CANARY_SCOPE`: configurazione assente/invalida/scaduta → rifiuto. Identità attore e ruolo DB, progetto, SKU esatto, varianti esatte, requestKey, operazioni/campi e scadenza entro 24 ore. Modifiche esistenti solo con internal product ID + Product GID approvati e lettura Shopify DRAFT. Il body non può ampliare lo scope. Il significato di DRAFT è verificato nella [documentazione Shopify della versione già usata dal servizio](https://shopify.dev/docs/api/admin-graphql/2026-01/enums/ProductStatus). Lo SKU di una variante non autorizza il parent né altre varianti.
+- Save/create/recover vincolati alla richiesta approvata; claim e idempotenza SQL originali preservati, nessuna seconda create in caso incerto. L'approvazione operativa per operationId rimane richiesta anche per recovery. Le operazioni AI sono escluse dal canary. Gli errori server sono registrati senza payload/credenziali; le operazioni riuscite usano i journal esistenti.
+- Frontend: default read-only; solo build esplicita `VITE_ADMIN_OPERATIONAL_RELEASE=true` dopo gate/deploy backend. Il pulsante Nuovo prodotto raggiunge il form; publisher non riceve azioni di creazione, assegnazione o invio. I campi ricevono capability ristrette ad azioni/campi dello scope; niente sync per prodotti/campi esclusi. Le categorie senza mapping sono visibili con motivo ma non selezionabili per scritture.
+
+## Prerequisiti riletti, senza nuovo audit
+
+Target provider/config `iekwvvihjwghosqdxrdi`, PostgreSQL 17.6; quattro tabelle/RPC e versione history assenti. Migration `20261031184521`, SHA-256 `ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328`. Lovable latest SHA `8854204`, snapshot più recente visibile 9/11 05:25:16 UTC, quindici punti visibili. **Restore non dimostrato**, nessun export/download/restore avviato. Default ACL del provider confermati soltanto nei cataloghi: service_role ha privilegi più ampi del minimo richiesto; le postcondizioni richiedono i grant necessari e vietano accesso PUBLIC/anon/authenticated, senza modificare default globali.
+
+API live Active, UI “Deployments 178”, aggiornamento circa un mese prima; questo dato non attesta uno SHA del pacchetto distribuito. La diagnostica live 9/11 14:57:44 CET conferma master false/canary/sync false, con una sessione amministrativa diversa da Marco. Gli altri flag non sono esposti dal vecchio contesto: non ne inventiamo il valore. Identità Marco non verificata, nessuna riga account/ruolo enumerata. Le categorie riutilizzano la matrice esistente: 13 univoche tecniche, 3 plausibili, 2 ambigue, 4 assenti; zero approvazioni.
+
+**Punto di arresto:** completare e approvare la scheda unica del runbook con recovery effettivo e identità/canary confermati. Nessuna migration, distribuzione operativa, capability, grant o mutation Shopify fino ai gate previsti. Il Livello B non è dichiarato consegnato al cliente finché le operazioni non sono effettivamente disponibili.
+
+---
+
+## Archivio precedente al completamento tecnico del 9 novembre
+
+Le sezioni sottostanti conservano le evidenze storiche. Per stato, sequenza e autorizzazioni vigenti prevale la sezione del 9 novembre sopra. I riferimenti a staging aggiuntivo, export completo o applicazione della patch differita non sono istruzioni attuali.
+
 ## Stato conclusivo: procedura definitiva, nessuna esecuzione live
 
 La preparazione è chiusa con questa PR documentale; non restano nuove analisi o prove applicative da richiedere per chiuderla. Il solo livello read-only è consegnato. Il livello operativo resta BLOCKED: recovery completo non dimostrato, autorizzazione migration mancante, ruolo Marco/canary e decisioni commerciali non approvati. Le procedure sotto sono riferimenti per eventuali operazioni future, non un impegno ad avviarle dopo la sessione. Export completo vietato; nessun nuovo tool/ambiente/servizio proposto per oggi.

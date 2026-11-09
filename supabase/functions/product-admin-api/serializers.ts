@@ -159,6 +159,9 @@ export function serializeField(
   const capabilities = calculateFieldCapabilities(def, row, entityType, capabilityContext);
   const shopifyTarget = resolveShopifyTarget(def);
   return {
+    shopifySyncAllowed: capabilityContext.syncAllowed === true &&
+      (!capabilityContext.scopedFieldKeys || capabilityContext.scopedFieldKeys.includes(def.key)) &&
+      (!capabilityContext.scopedActions || capabilityContext.scopedActions.includes('sync_field')),
     key: def.key,
     label: def.label,
     group: def.field_group,
