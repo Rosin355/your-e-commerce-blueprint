@@ -1,3 +1,9 @@
+## Decisione finale per Marco — 9 novembre 2026
+
+Il catalogo resta consultabile. Le funzioni del Livello B sono predisposte nel codice, ma **non ancora attivate**: mancano una prova reale di recupero e la conferma del tuo account e del prodotto DRAFT autorizzato. Il proprietario deve restituire un’unica scheda decisione; il consenso generale non basta ad accendere le scritture.
+
+Per confermare l’accesso usa personalmente `https://onlinegarden.it/admin/settings`, con il tuo account e un profilo browser dedicato. Il proprietario conferma privatamente che sia l’account concordato; il tecnico legge soltanto i ruoli e lo stato delle capability della tua sessione. Non condividere password, token o schermate con dati personali. Un accesso negato viene registrato e non provoca assegnazioni automatiche di ruoli. Le 22 scelte categorie restano aperte. [Scheda definitiva](ADMIN-V2-ACTIVATION-RUNBOOK.md).
+
 # Aggiornamento per Marco — 9 novembre 2026
 
 **Oggi puoi ancora consultare il catalogo. Il Livello B è pronto nel codice, ma modifiche, bozze e categorie non sono attivate sul sito.** Non occorre ripetere i controlli già svolti o creare altri ambienti. Prima dell'attivazione servono recupero dei dati dimostrato, conferma del tuo account/ruolo e approvazione del prodotto di prova.

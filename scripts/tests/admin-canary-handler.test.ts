@@ -22,7 +22,7 @@ const draft = { title: 'Bozza sintetica', sku: 'QA-DRAFT-ONLY', description: 'Fi
   variants: [{ sku: 'QA-DRAFT-ONLY', price: '10.00', compareAtPrice: null, option: 'Unico' }] };
 
 // Execute the real HTTP entrypoint and local module graph. All I/O is synthetic and closed.
-function load(options: { scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; endpoint?: string } = {}) {
+function load(options: { scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string } = {}) {
   let handler!: (request: Request) => Promise<Response>;
   const calls = { rpc: 0, shopifyMutations: 0, statusReads: 0, events: 0 };
   const env: Record<string, string> = {
@@ -39,7 +39,7 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
       const data = table === 'products' ? product : table === 'product_field_definitions' ? [definition] :
         table === 'product_current_values' ? [{ product_id: productId, field_key: 'title', value_text: 'Prima', version: 1, review_status: 'approved' }] :
         table === 'product_sync_csv_products' ? { sku: product.sku, shopify_product_id: options.mapping ?? 'gid://shopify/Product/123' } :
-        table === 'admin_product_operations' ? { id: operationId, actor, request_key: options.opKey ?? requestKey, product_id: productId, state: 'LOCAL_DRAFT', payload: draft } : null;
+        table === 'admin_product_operations' ? { id: operationId, actor, request_key: options.opKey ?? requestKey, product_id: productId, state: options.opState ?? 'LOCAL_DRAFT', payload: draft } : null;
       const q = { select: () => q, eq: () => q, in: () => q, order: () => q, limit: () => q, gt: () => q,
         maybeSingle: async () => ({ data: Array.isArray(data) ? data[0] ?? null : data, error: null }),
         single: async () => ({ data, error: null }),
@@ -62,6 +62,7 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
         const graphql = async (query: string) => {
           if (query.includes('mutation')) { calls.shopifyMutations++; throw Error('Unexpected external write'); }
           calls.statusReads++;
+          if (query.includes('RecoverDraft')) return { products: { nodes: [{ id: 'gid://shopify/Product/123' }] } };
           return { product: { id: 'gid://shopify/Product/123', status: options.status ?? 'DRAFT' } };
         };
         return { shopifyAdminGraphQL: graphql, shopifyAdminGraphQLAtVersion: (_version: string, query: string) => graphql(query) };
@@ -145,4 +146,21 @@ test('runtime context exposes only capability booleans and version; master OFF k
   assert.equal(context.operationalCapabilities.categories, false);
   assert.equal(JSON.stringify(context).includes(actor), false);
   assert.equal(JSON.stringify(context).includes(requestKey), false);
+});
+
+
+test('final gate: recovery rejects a Shopify Product GID different from the approved pin', async () => {
+  const s = load({ opState: 'NEEDS_RECONCILIATION', scope: { ...scope(), shopifyProductId: 'gid://shopify/Product/999' } });
+  const response = await s.request({ action: 'recover_shopify_draft', operationId });
+  assert.equal(response.status, 403);
+  assert.match((await response.json()).error.message, /Product GID diverso/);
+  assert.equal(s.calls.rpc, 0); assert.equal(s.calls.shopifyMutations, 0);
+});
+
+test('final gate: an already pinned Product GID cannot authorize a fresh Shopify create', async () => {
+  const s = load();
+  const response = await s.request({ action: 'create_shopify_draft', operationId, confirm: true });
+  assert.equal(response.status, 403);
+  assert.match((await response.json()).error.message, /non autorizza una nuova creazione/);
+  assert.equal(s.calls.rpc, 0); assert.equal(s.calls.shopifyMutations, 0); assert.equal(s.calls.statusReads, 0);
 });

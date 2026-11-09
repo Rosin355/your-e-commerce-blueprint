@@ -1,27 +1,50 @@
-# Admin V2 Livello B — change unico pronto nel codice, 9 novembre 2026
+# Admin V2 Livello B — gate finali e change definitivo, 9 novembre 2026
 
 **Livello A già live. Livello B implementato nel branch, ancora non operativo in produzione.** Nessuna migration, distribuzione, abilitazione o assegnazione di ruolo eseguita. Il lavoro locale preesistente è preservato: sviluppo in copia separata da `main@885420429986fb2dba739c75d55fe4e8da844ab9`.
 
 | Stato | Contenuto |
 |---|---|
-| Già live | `admin-readonly-20261106-r1`, consultazione. Diagnostica 9/11 ore 14:57:44 CET: master `false`, modo `canary`, sync `false`. |
+| Già live | `admin-readonly-20261106-r1`, consultazione. Diagnostica riconfermata 9/11 ore 16:19:57 CET: master `false`, modo `canary`, sync `false`. |
 | Pronto nel codice | Endpoint operativi e query già collegate, form bozze, accesso “Nuovo prodotto”, categorie non mappate visibili, azioni secondo ruolo, canary server su identità esatta, generatore SQL atomico. |
 | Da attivare | Schema, backend compatibile, build frontend operativa e una capability alla volta, soltanto nel change approvato. |
 | Bloccato da autorizzazioni/evidenze | Recovery effettivo non dimostrato; consenso migration assente; account/ruolo Marco e SKU/operazioni canary non confermati; zero mapping commerciali approvati. |
 
-## Scheda unica da completare e approvare
+## Scheda change definitiva — evidenze e autorizzazioni ancora bloccanti
 
-Il titolare approva un solo change con le fasi elencate e i rispettivi punti di arresto. **Scheda attuale NON approvabile per esecuzione: recovery e identificativi mancanti.** Nessun consenso generico può trasformare una voce mancante in PASS.
+Il titolare approva un solo change con le fasi elencate e i rispettivi punti di arresto. **Decisione definitiva: codice candidabile al merge con CI/GitGuardian sul nuovo HEAD; rilascio operativo BLOCKED. Scheda NON approvabile per esecuzione: recovery e identificativi mancanti.** Nessun consenso generico può trasformare una voce mancante in PASS.
 
 - Target: Lovable `95cad199-55fd-4870-9d5c-a2653edf88f5` → Supabase `iekwvvihjwghosqdxrdi`, DB `postgres`, PostgreSQL 17.6. Identità corroborata dal `config.toml` letto tramite il progetto; il solo nome postgres non identifica il target.
 - SQL originale: `docs/release/pending/20261031184521_admin_operational_drafts.sql`; versione `20261031184521`; SHA-256 **`ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328`**. File e logica invariati.
 - Recupero: ultimo snapshot visibile `2026-11-09T05:25:16Z`, **ripristino non dimostrato**. Da compilare: riferimento a prova di recupero realmente riuscita, perimetro coperto/escluso, RPO/RTO e responsabile; accettazione del downtime e dei dati successivi eventualmente persi. Non avviare un restore sul live per “provare” il gate e non esportare account/hash/token.
-- Marco: identificativo account confermato privatamente dal titolare, verifica di esistenza e ruolo effettivo. Non inserirlo nel repository. Nessuna attribuzione automatica di editor/admin/tech_admin.
-- Canary: SKU nuovo o DRAFT esistente esplicitamente approvato, varianti esatte, attore, azioni/campi, requestKey UUID, scadenza UTC entro 24 ore, riferimento approvazione. Per modifica di un DRAFT esistente anche ID interno e Product GID. Nessun prodotto commerciale o pubblicazione inclusi.
+- Marco: **identità NON VERIFICATA; ruolo NON VERIFICATO**. Mancano identificativo confermato privatamente dal titolare e attestazione tramite la sua sessione. Non inserirlo nel repository. Nessuna attribuzione automatica di editor/admin/tech_admin.
+- Canary: **SKU NON AUTORIZZATO; operationId NON AUTORIZZATO; attore NON AUTORIZZATO**. Non è stato scelto alcuno SKU. Per l’esecuzione servono SKU nuovo o DRAFT esistente esplicitamente approvato, varianti esatte, attore, azioni/campi, requestKey UUID, scadenza UTC entro 24 ore, riferimento approvazione. Per modifica di un DRAFT esistente anche ID interno e Product GID. Nessun prodotto commerciale o pubblicazione inclusi.
 - Rilascio: SHA finale di questa PR e CI/GitGuardian; approvazione delle fasi distribuzione e capability specificate; pacchetto backend precedente e relativo identificativo di deployment recuperabili dal provider prima della distribuzione (l'attuale UI mostra 178 deployment, non uno SHA attestato).
 - Categorie: righe della [tabella commerciale](ADMIN-V2-CATEGORY-RECONCILIATION-PLAN.md) esplicitamente decise. Attualmente 22 residue, zero mapping: l'attivazione delle categorie resta esclusa finché mancano le approvazioni.
 
 Formula di consenso alla **sola migration**, utilizzabile solo dopo la compilazione delle evidenze: «Autorizzo su Lovable 95cad199-55fd-4870-9d5c-a2653edf88f5 / Supabase iekwvvihjwghosqdxrdi la sola migration 20261031184521 con SHA-256 ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328, nel change [riferimento], con piano di recupero [evidenza verificata] e rollback delle sole strutture nuove ancora vuote. Nessuna capability, ruolo o distribuzione è autorizzata da questa frase». Le altre fasi, se richieste nello stesso change, devono essere indicate esplicitamente e restano subordinate ai gate.
+
+## Esito recovery e confini della decisione
+
+**RECOVERY NON DIMOSTRATO.** UI del progetto riconfermata: 15 snapshot visibili, ultimo **9 novembre 2026, 05:25:16 UTC**. Percorso ufficiale: **Altro/More → Database → Manage → Backups → Restore to this backup**; comando non premuto.
+
+Il provider ripristina struttura e dati nello stesso database, con indisponibilità temporanea e perdita delle modifiche successive; il ripristino non si annulla. Storage resta separato. Il codice non viene riportato automaticamente alla versione compatibile. L’export include account/hash, ma esclude codice Edge, secret, API key e impostazioni dei provider di accesso: resta vietato. La documentazione non dimostra qui recupero operativo di Auth/sessioni/configurazioni. Il restore ordinario è self-service per chi ha accesso di modifica; dopo il recupero è prevista verifica tecnica dell’app e degli eventuali disallineamenti. Non risulta necessaria una richiesta di assistenza per il normale comando; per attestazioni non disponibili servirebbe evidenza del provider, non un altro tentativo sul live. [Fonte ufficiale Lovable](https://docs.lovable.dev/features/database-backups).
+
+Non esiste negli strumenti accessibili una prova read-only di restore riuscito: il solo percorso osservato sostituisce la produzione. Nessun restore, export o contatto all’assistenza eseguito. Questo gate si riapre soltanto con una prova di recupero già riuscita e pertinente al progetto; un consenso generico non è la prova.
+
+| Gate definitivo | Stato reale / evidenza |
+|---|---|
+| Codice PR #47 | Ambito Admin V2, documenti e check pertinenti; nessuna modifica pubblica, dipendenza o migration originale. Compatibilità Livello A preservata dal default read-only. Nuova correzione limitata al Product GID nel recupero/creazione. |
+| Merge del codice | Tecnicamente separabile dal deploy: nessun job di pubblicazione nel workflow; default frontend read-only; SQL fuori dal percorso automatico. Ammissibile soltanto con check finali verdi e master/sync ancora OFF. **Non eseguito da questa verifica**; nessun ulteriore blocco applicativo presunto. |
+| Deploy operativo | **BLOCKED**, distinto dal merge; nessun deploy o flag modificato. |
+| Capability live | 9/11 16:19:57 CET: writesEnabled=false, writeMode=canary, shopifySyncEnabled=false. Flag specifici non esposti dalla vecchia API: non verificati singolarmente, non dedotti. |
+| Recovery | NON DIMOSTRATO; snapshot disponibile non è restore riuscito. |
+| Marco | Identità e ruolo NON VERIFICATI; lette solo definizioni delle colonne profiles/user_roles, zero righe account. |
+| Canary | Codice pronto; esecuzione **NON AUTORIZZATA**, SKU/attore/operationId assenti. Nessuna mutation o sync. |
+| Categorie | 22 decisioni commerciali residue, zero mapping approvati/applicati; capability categorie non attivabile. |
+
+**Unico riscontro richiesto al titolare:** restituire la scheda decisione con riferimento a una prova recovery già riuscita pertinente a questo progetto, conferma privata dell’account Marco e approvazione nominativa di SKU/attore/operazioni canary. Fino a quel riscontro, niente DDL, grant, flag ON o deploy operativo. Non occorre autorizzare nuovi audit o ambienti. Il consenso DDL resta una decisione successiva espressa con la formula specifica sopra e non nasce da questa verifica.
+
+**Criteri STOP vincolanti:** recovery non dimostrato; identità/ruolo o SKU/operationId non attestati; approvazione assente/scaduta; checksum/target/history discordanti; GID diverso dallo scope o stato non DRAFT/non verificabile; campi/varianti fuori allowlist; capability non autorizzata; mapping categorie non approvato; CI/GitGuardian non verdi sullo SHA corrente; trasporto SQL non atomico. Nessun retry automatico di una create incerta. Sequenza e rollback sotto sono già completi: non serve ulteriore progettazione.
 
 ## Sequenza eseguibile dopo approvazione
 
@@ -60,9 +83,13 @@ Per prodotto a formato unico, SKU famiglia e variante coincidono. Per più forma
 
 Le capability booleane effettive sono esposte dal nuovo get_admin_context in `operationalCapabilities`; nessun valore di secret o scope completo viene restituito. Scadenza o master OFF bloccano nuovi comandi; una riconciliazione successiva richiede una nuova finestra approvata della stessa operazione.
 
-## Verifica minima dell'identità di Marco, senza enumerare account
+## Verifica minima di Marco mediante la sua sessione autenticata
 
-Il titolare identifica privatamente l'account corretto. Con quell'unico UUID, l'operatore autorizzato esegue soltanto `SELECT EXISTS(SELECT 1 FROM auth.users WHERE id = :account_uuid) AS account_exists` e `SELECT role::text FROM public.user_roles WHERE user_id = :account_uuid`. Parametro SQL tipizzato UUID e fornito fuori da Git; nessuna ricerca per nome, lista account o lettura email/hash/sessioni. Marco accede con il proprio account e confronta le azioni con il ruolo restituito dal server. Registrare solo esistenza, ruolo, esito e riferimento al change; non salvare l'UUID nei report condivisi. Se assente o ambiguo, fermarsi senza grant.
+Lo schema applicativo identifica gli utenti tramite UUID (`profiles.id`, `user_roles.user_id`), ma non abbiamo una corrispondenza autorizzata persona Marco ↔ UUID. Questo non dimostra che Marco non abbia un account: impedisce soltanto di attribuirgli un ruolo senza il dato confermato. Nessun valore di nome, email, telefono o ruolo di altri utenti è stato letto.
+
+Metodo minimo, già compatibile con l’API disponibile: Marco apre `https://onlinegarden.it/admin/settings` in un profilo browser dedicato e accede personalmente; il titolare conferma privatamente che l’account mostrato è quello concordato. Nella risposta della sua richiesta `get_admin_context`, leggere solo `roles`, `canWrite`, `writesEnabled`, `writeMode` e `shopifySyncEnabled`. Il server verifica il JWT con `auth.getUser()` e legge `user_roles` per il solo utente autenticato; il body non può scegliere identità o ruolo. Registrare nel change soltanto account confermato sì/no, ruolo restituito, ambiente, orario ed esito; non esportare risposta completa, header, token, cookie o HAR. Una sessione admin dell’operatore non vale come sessione di Marco. Accesso negato o risposta incompleta mantiene BLOCKED e non autorizza grant.
+
+Se serve la corroborazione SQL, il titolare identifica privatamente l'account corretto. Con quell'unico UUID, l'operatore autorizzato esegue soltanto `SELECT EXISTS(SELECT 1 FROM auth.users WHERE id = :account_uuid) AS account_exists` e `SELECT role::text FROM public.user_roles WHERE user_id = :account_uuid`. Parametro SQL tipizzato UUID e fornito fuori da Git; nessuna ricerca per nome, lista account o lettura email/hash/sessioni. Marco accede con il proprio account e confronta le azioni con il ruolo restituito dal server. Registrare solo esistenza, ruolo, esito e riferimento al change; non salvare l'UUID nei report condivisi. Se assente o ambiguo, fermarsi senza grant.
 
 ## Rollback e verifica conclusiva
 

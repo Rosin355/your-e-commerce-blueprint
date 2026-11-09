@@ -560,6 +560,9 @@ export async function handleOperational(
       action === 'create_shopify_draft' && op.state === 'LOCAL_DRAFT',
       'Invio già iniziato: usare Recupera stato, senza creare un altro prodotto.',
     );
+    if (canary && scope?.shopifyProductId !== null) {
+      throw new OperationalError('FORBIDDEN', 'Un Product GID già approvato non autorizza una nuova creazione.');
+    }
     demand(approvalMatches(currentApproval(), 'create_shopify_draft', op.id),
       'Approvazione operativa non valida per questa specifica bozza.');
     // The saved request is immutable; refuse later editorial edits rather than silently overwriting them.
@@ -676,6 +679,9 @@ export async function handleOperational(
         'Esito Shopify incerto. Usare Recupera stato; non creare una nuova richiesta.',
       );
     }
+  }
+  if (canary && scope?.shopifyProductId && product.id !== scope.shopifyProductId) {
+    throw new OperationalError('FORBIDDEN', 'Product GID diverso da quello approvato per il canary.');
   }
   const links = verifiedLinks(draft, op.id, product);
   const { data: result, error: completeError } = await db.rpc('admin_complete_draft', {

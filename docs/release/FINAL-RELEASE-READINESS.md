@@ -1,3 +1,11 @@
+## Gate finali Admin V2 — 9 novembre 2026
+
+PR #47: codice compatibile con Livello A e candidabile al merge solo con CI/GitGuardian finali verdi; **merge non eseguito**, deploy operativo separatamente **BLOCKED**. Corretta soltanto la verifica del Product GID nel recovery e il rifiuto di una nuova create con GID già fissato; due test nuovi mirati, senza ripetere manualmente le suite precedenti. Nessuna altra PR.
+
+Snapshot Lovable riconfermato: 9/11 05:25:16 UTC, ma **RECOVERY NON DIMOSTRATO**; restore in-place non eseguito. Identità e ruolo Marco NON VERIFICATI; letti esclusivamente metadati dello schema. Canary senza SKU/attore/operationId autorizzati, 22 decisioni categorie residue. Runtime 9/11 16:19:57 CET: false/canary/false. Nessuna migration, autorizzazione DDL, assegnazione ruolo, flag ON, sync o distribuzione; pagamenti/checkout/A+B/Sendcloud/inventario invariati. GSC/404/301 restano TODO successivi.
+
+[Change definitivo, metodo autenticato Marco, recovery e STOP](../ADMIN-V2-ACTIVATION-RUNBOOK.md). Unico riscontro del titolare: prova recovery pertinente già riuscita e conferma privata di account Marco/SKU/attore/operazioni; niente nuovi audit generali.
+
 # Stato Admin V2 — aggiornamento 9 novembre 2026
 
 **Livello A live in sola lettura; Livello B pronto nel codice di una PR dedicata, non attivato.** Base main `8854204`; nessuna modifica a main, dati, ruoli o flag produttivi. Nuovo collegamento endpoint/query operative, protezione server canary per SKU/attore/operazione con verifica DRAFT, accesso al form bozze e categorie senza mapping visibili. Build operativa opzionale, default ancora read-only.

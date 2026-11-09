@@ -1,3 +1,9 @@
+## Gate finali PR #47 — 9 novembre 2026
+
+Riesaminato solo il perimetro richiesto: check già SUCCESS su `4fe94d1` riutilizzati, nessuna suite precedente rilanciata manualmente. Una lacuna concreta è stata corretta nella stessa PR: recovery confronta anche il Product GID eventualmente fissato; una create nuova viene rifiutata se lo scope identifica già un prodotto Shopify. **Due nuovi test HTTP mirati PASS**, lint dei soli file modificati e check del servizio eseguiti. CI/GitGuardian finali riferiti al nuovo HEAD nella PR; i vecchi successi non vengono attribuiti al nuovo commit.
+
+Snapshot e percorso restore riconfermati senza esecuzione. **RECOVERY NON DIMOSTRATO**; Auth, Storage e codice non dichiarati recuperati. Solo metadati profiles/user_roles letti, identità/ruolo Marco non attestati. Canary pronto nel codice ma non autorizzato. Runtime letto il 9/11 alle 16:19:57 CET: false/canary/false; non è una suite browser. Nessuna scrittura, DDL, grant, sync, merge o deploy. [Scheda definitiva e criteri STOP](ADMIN-V2-ACTIVATION-RUNBOOK.md).
+
 # QA del completamento Livello B — 9 novembre 2026
 
 **Esito tecnico del delta separato dall'attivazione produttiva.** Le prove del SQL originale e i precedenti smoke sono riutilizzati; nessuna suite PostgreSQL precedente, ripristino Lovable o canary live ripetuti.
