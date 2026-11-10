@@ -1,3 +1,44 @@
+## Consegna operativa Admin V2 — esecuzione 10 novembre 2026
+
+Gate prima del master ON: distribuire esclusivamente `product-admin-api` e il guard `product-admin-ai` già integrato, che rifiuta le operazioni AI in modo canary. Il precedente sorgente AI noto permetteva agli admin alcune operazioni con master ON; lasciarlo invariato allargherebbe il perimetro. Nessuna feature AI aggiunta o abilitata; mantenere `PRODUCT_ADMIN_WRITE_MODE=canary` globale. Backend catalogo ordinario deriva dal grant utente esatto, non dal passaggio globale a full.
+
+PR di completamento: [#50](https://github.com/Rosin355/your-e-commerce-blueprint/pull/50), branch `codex/admin-v2-operational-delivery`. CI/GitGuardian e merge da confermare sull’HEAD finale; nessuna operatività live dichiarata.
+
+**Stato corrente: codice di completamento implementato; rilascio produttivo e accettazione NON conclusi.** Questo mandato autorizza migration additiva, backend, build operativa, un solo DRAFT tecnico e capability catalogo minime; supera i precedenti vincoli “solo preparazione” nel solo perimetro dichiarato. Le sezioni successive sono cronologia, salvo evidenze più recenti registrate esplicitamente.
+
+- Partenza dal main effettivo `1324f0536eef3ff33ce43b8d74d84ba5307244a7`; PR #42/#46/#47 già integrate. Una sola PR di completamento; SEO #49 separata.
+- Runtime live autenticato riletto il **10/11/2026 alle 15:18:56 CET**, origine `https://onlinegarden.it`: **false / canary / false**, stato **READ-ONLY**. Sessione tecnica, non sessione Marco. Nessuna attivazione deriva da questa lettura.
+- L’account cliente indicato privatamente non esiste in Auth. Il proprietario ha rinviato registrazione/verifica: nessun account creato, nessuna password/codice richiesti, nessuna capability attribuita ad altri utenti. L’abilitazione cliente resta da eseguire sull’identità verificata.
+- Implementati conferma UI + approvazione server persistita, actor/action/hash/versione/scadenza, claim singolo/audit, immagini da computer e READY, prezzi per variante, categorie editoriali manuali con identità verificata, pubblicazione separata sul canale Headless con controllo A/B. Salvataggio/invio iniziale sempre DRAFT; prodotto tecnico escluso dalla pubblicazione.
+- Nessuna migration applicata, nessun deploy/Publish o flag produttivo modificato, nessun prodotto tecnico/commerciale scritto in questa fase. Il flag Vite nel codice prepara la futura build operativa; il default del codice resta fail-closed se manca l’esatto valore `true`. Merge, editor e sito pubblicato sono verifiche separate.
+- Snapshot gestito osservato **2026-11-10T05:26:11Z**. Il proprietario accetta il rischio senza restore distruttivo di prova; **restoreVerified=false**. Sorgente backend precedente nota conservata e frontend precedente recuperabile; non è disponibile uno SHA attestabile del bundle backend attualmente in esecuzione.
+
+### Change autorizzato e preflight
+
+Riferimento: `OWNER-ADMIN-DELIVERY-20261110`. Target esclusivo Lovable `95cad199-55fd-4870-9d5c-a2653edf88f5` → Supabase `iekwvvihjwghosqdxrdi`, database `postgres`, server 17.6. Verificati tramite connettore del progetto: dipendenze presenti, zero collisioni delle sette nuove tabelle/cinque nuove RPC, zero righe history per le due versioni. La RPC di sync preesistente ha impronta MD5 `31ed209facb8c8f31b1778460f85b7b3`, identica alla definizione originaria ricostruita nella fixture; nessun EXECUTE client e nessuna policy client sul command log.
+
+Migration originale invariata: `20261031184521_admin_operational_drafts.sql`, SHA-256 `ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328`. Delta minimo: `20261110135043_admin_catalog_client_delivery.sql`, SHA-256 `793fdc18a9c34e8575af3f9d74daac5ce0d04e666efccdaf733a3af202ba5d7c`. Entrambe rimangono in `docs/release/pending`, fuori dalle migration automatiche. Il generatore offline `scripts/prepare-admin-catalog-delivery.mjs` produce un unico pacchetto BEGIN/COMMIT: lock, identità/versione, collisioni/history, DDL originale, delta, ACL/RLS/RPC/search_path, history solo dopo postcondizioni. Nessun metacomando psql o autocommit parziale equivalente ammesso. Il trasporto produttivo deve garantire la stessa transazione prima dell’applicazione; il connettore SQL generico non è ancora provato per questo batch.
+
+### Decisione recovery del proprietario
+
+Accettato esplicitamente il rischio di procedere senza restore distruttivo dimostrato, con snapshot identificato, DDL atomico, sorgenti precedenti recuperabili e journal per i soli campi scritti. Archivio protetto del backend noto `4f5bdefdd5e4f482f8fc3d6f5cb8662f2276a666`, SHA-256 archivio `844f6cde25299e678931eff0cc34c118222955168dc464d244a936b602e966ad`: solo codice, nessun ambiente/secret/riga. È l’ultimo sorgente noto da un precedente deploy, non prova dello SHA runtime corrente. Frontend precedente: contenuto `1ad61826c01ade2821f6c1577a3bd1555d0ab899`, deployment `00a243b8-240f-48bf-8507-202d352fc4f4`.
+
+Rollback: revocare solo capability difettose o master in emergenza, ripubblicare pacchetti compatibili, conservare journal/dati; compensazioni solo con confronto delle versioni correnti. Nessun DROP CASCADE, restore storico generale, cancellazione automatica DRAFT o compensazione cieca. Snapshot e fixture non dimostrano ripristino completo: `restoreVerified=false`.
+
+### Capability e sequenza di attivazione
+
+Account ordinario: ruolo reale `editor` più grant service-only su `admin_catalog_capabilities`; intersezione con allowlist server dei campi. Nessun grant per ruolo aggregato, email dal browser, user_metadata, tech_admin o altro account. Ogni comando ordinario richiede conferma UI e `admin_catalog_approvals`: actor, azione, target derivato dal comando, hash, versione/snapshot, scadenza 10 minuti, chiave idempotente, claim atomico e risultato. Revoca capability ricontrollata al claim. Scritture incerte bloccano nuovi invii; recovery DRAFT non ricrea Shopify, usa la stessa operazione ed è distinto dal lock della creazione incerta. Immagini possedute dal medesimo attore, JPEG/PNG <=5 MB, limiti dimensionali, upload server-side e attesa READY; nessuna credenziale inviata al browser.
+
+Il modo globale resta canary per il tecnico, limitato a identità/SKU/ID effettivi. Il modo ordinario deriva solo dal grant esatto e consente il lavoro oltre il canary senza modificare secret per ogni prodotto. Nessun grant attuale: account cliente non ancora registrato. La pubblicazione verifica dati reali, immagini, profilo logistico e classi A/B per variante, canale Headless `338862113108` e lettura Storefront dopo la mutation; ACTIVE da solo non è PASS. Non sono stati pubblicati prodotti reali o tecnici. Nuovi prodotti tracciati, quantità non assegnate e inventoryPolicy DENY; eventuale pubblicazione esaurita richiede conferma esplicita.
+
+Ordine restante: CI/GitGuardian sullo SHA integrabile → applicazione atomica verificata → deploy della sola API catalogo e del guard AI indicato sopra, con capability ordinarie assenti → Publish della build `admin-delivery-20261110-r1` → unico percorso DRAFT tecnico → rimozione sola autorizzazione canary → abilitazione del cliente dopo registrazione verificata. Nessun workflow GitHub pubblica frontend/backend o applica DDL automaticamente.
+
+### Stato connettore Lovable
+
+La verifica read-only del provider non espone lo SHA runtime. Il tool di deploy interno può limitarsi a `product-admin-api`, ma usa il checkout del progetto: verificare SHA/diff prima di distribuirlo. Il riepilogo `plan--show` con `{"path":".lovable/plan.md"}` è stato approvato dal proprietario **solo come riepilogo tecnico**, senza operazioni produttive. Durante la verifica Lovable ha scritto il proprio file di piano e aggiornato file generati di auth preview/tipi. Gli aggiornamenti di main sono conservati; il broker preview non si applica all’host onlinegarden.it. Due dipendenze di sviluppo aggiunte automaticamente ma non usate sono rimosse nel completamento per mantenere package.json coerente con il lockfile, senza nuove dipendenze applicative. Ogni nuovo consenso obbligatorio dello strumento resta distinto dal mandato generale.
+
+---
+
 ## Integrazione sicura PR #47 — attestazione proprietario del 9 novembre 2026
 
 Il proprietario attesta uno screenshot autenticato di `https://onlinegarden.it/admin/settings`, letto il **09/11/2026 alle 19:16:37 CET**: `writesEnabled=false`, `writeMode=canary`, `shopifySyncEnabled=false`, stato **READ-ONLY**. Fonte: dichiarazione esplicita del proprietario in chat; immagine non allegata a questo registro né ispezionata dall’agent. Nessuna email o credenziale registrata. Questa attestazione aggiornata sostituisce il blocco dovuto alla precedente impossibilità di rileggere Chrome; non dimostra una cronologia completa dei secret.

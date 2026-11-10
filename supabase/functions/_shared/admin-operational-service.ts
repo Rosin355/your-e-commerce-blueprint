@@ -1,3 +1,5 @@
+import { editorialCollections } from './admin-catalog-commerce.ts';
+import { catalogAllowed, requireCatalog, CATALOG_MUTATIONS } from './admin-catalog-policy.ts';
 import { canaryScope, requireCanaryProduct } from './admin-canary-service.ts';
 import { requireCanaryScope, requireCanaryDraft } from './admin-canary-policy.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
@@ -142,7 +144,7 @@ function validatedFields(draft: ProductDraft, defs: FieldDefinition[]) {
   });
 }
 const PRODUCT_FIELDS =
-  `id handle status title descriptionHtml vendor tags seo { title description } metafield(namespace:"online_garden",key:"creation_id") { value } variants(first:100) { nodes { id sku price compareAtPrice selectedOptions { name value } } pageInfo { hasNextPage } }`;
+  `id handle status title descriptionHtml vendor tags seo { title description } metafield(namespace:"online_garden",key:"creation_id") { value } media(first:20){nodes{id status ... on MediaImage{image{url}}} pageInfo{hasNextPage}} variants(first:100) { nodes { id sku price compareAtPrice selectedOptions { name value } } pageInfo { hasNextPage } }`;
 interface ShopifyDraft {
   id: string;
   handle: string;
@@ -153,6 +155,7 @@ interface ShopifyDraft {
   tags: string[];
   seo: { title: string | null; description: string | null };
   metafield: { value: string } | null;
+  media?: { nodes: {id:string;status:string;image?:{url:string}|null}[];pageInfo:{hasNextPage:boolean} };
   variants: {
     nodes: { id: string; sku: string; price: string; compareAtPrice: string | null }[];
     pageInfo: { hasNextPage: boolean };
@@ -176,6 +179,7 @@ function verifiedLinks(draft: ProductDraft, opId: string, product: ShopifyDraft)
       ),
     'La bozza Shopify è cambiata: riconciliazione manuale richiesta.',
   );
+  demand(!draft.images.length || (product.media && !product.media.pageInfo.hasNextPage && product.media.nodes.filter(m=>m.status==='READY'&&m.image?.url).length===draft.images.length && draft.images.every(i=>product.media!.nodes.some(m=>m.status==='READY'&&m.image?.url===i.url))), 'Attendere immagini Shopify disponibili: recuperare lo stato senza ricreare.');
   return verifyCreatedMapping(draft, { ...product, variants: product.variants.nodes });
 }
 export async function handleOperational(
@@ -187,40 +191,53 @@ export async function handleOperational(
   const action = String(p.action);
   const flags = operationalFlags();
   const scope = canaryScope();
-  const canary = writeMode() === 'canary';
+  const ordinary = auth.catalogGrant?.enabled === true && auth.roles.includes('editor');
+  const canary = !ordinary;
+  const approval = () => ordinary && auth.catalogApproval ? {action: (action === 'apply_categories' ? 'apply_categories' : 'create_shopify_draft') as 'apply_categories'|'create_shopify_draft', target: action === 'apply_categories' ? String(p.expectedHash) : action === 'recover_shopify_draft' ? auth.catalogApproval.target.replace(/^recovery:/,'') : auth.catalogApproval.target, expiresAt: new Date(Date.now()+60000).toISOString()} : currentApproval();
   const scoped = (a: string) => !canary || Boolean(scope?.actorId === auth.userId && scope?.actions.includes(a));
   if (['save_new_product', 'create_shopify_draft', 'recover_shopify_draft', 'apply_categories'].includes(action) && canary) {
     requireCanaryScope(scope, auth.userId, auth.roles, action);
   }
-  operationalAccess(action, auth.roles, flags, p.confirm === true);
+  if (ordinary) {
+    if (CATALOG_MUTATIONS[action]) {
+      requireCatalog(auth, CATALOG_MUTATIONS[action]);
+      const target = action === 'save_new_product' ? 'new-sku:' + String((p.draft as Record<string,unknown>)?.sku ?? '').toLowerCase()
+        : action === 'recover_shopify_draft' ? 'recovery:' + String(p.operationId)
+        : action === 'create_shopify_draft' ? String(p.operationId) : String(p.productId);
+      demand(auth.catalogApproval?.action === action && auth.catalogApproval.target === target, 'Conferma server specifica mancante.');
+    }
+    if (action === 'save_new_product') demand(flags.drafts && p.confirm === true, 'Salvataggio non abilitato o conferma mancante.');
+    if (action === 'create_shopify_draft') demand(flags.shopify && auth.catalogApproval?.action === action && p.confirm === true, 'Invio non approvato.');
+  } else operationalAccess(action, auth.roles, flags, p.confirm === true);
   // Recovery may complete the internal mapping; the global write switch must stop it too.
   if (action === 'recover_shopify_draft' && !writesEnabled()) {
     throw new OperationalError('WRITES_DISABLED', 'Recupero della bozza non abilitato.');
   }
   if (
     action === 'save_new_product' && writeMode() === 'canary' &&
-    !auth.roles.some((r) => r === 'admin' || r === 'tech_admin')
+    !(catalogAllowed(auth, action.includes('categor')?'categories':'drafts') || auth.roles.some((r) => r === 'admin' || r === 'tech_admin'))
   ) throw new OperationalError('FORBIDDEN', 'Salvataggio riservato al collaudo amministratori.');
   if (action === 'catalog_categories') {
     return {
       ok: true,
       ...await catalogCategories(db),
-      canAuthorDraft: auth.roles.some(r => ['admin', 'tech_admin', 'editor'].includes(r)),
-      canManageCategories: auth.roles.some(r => ['admin', 'tech_admin'].includes(r)),
-      canRecoverDraft: writesEnabled() && scoped('recover_shopify_draft') && currentApproval()?.action === 'create_shopify_draft' && auth.roles.some(r => ['admin', 'tech_admin'].includes(r)),
+      canAuthorDraft: (catalogAllowed(auth,'drafts') || auth.roles.some(r => ['admin', 'tech_admin', 'editor'].includes(r))),
+      canManageCategories: (catalogAllowed(auth,'drafts') || auth.roles.some(r => ['admin', 'tech_admin'].includes(r))),
+      canRecoverDraft: ordinary ? writesEnabled() && catalogAllowed(auth,'drafts') : writesEnabled() && scoped('recover_shopify_draft') && approval()?.action === 'create_shopify_draft' && (catalogAllowed(auth,'drafts') || auth.roles.some(r => ['admin', 'tech_admin'].includes(r))),
+      ordinaryCatalog: ordinary,
       canaryRequestKey: canary && scope?.actorId === auth.userId ? scope.requestKey : null,
-      canSaveDraft: flags.drafts && scoped('save_new_product') &&
+      canSaveDraft: ordinary ? flags.drafts && catalogAllowed(auth,'drafts') : flags.drafts && scoped('save_new_product') &&
         auth.roles.some((r) =>
           r === 'admin' || r === 'tech_admin' || (r === 'editor' && writeMode() === 'full')
         ),
-      canSendDraft: flags.shopify && flags.approval && scoped('create_shopify_draft') &&
-        currentApproval()?.action === 'create_shopify_draft' &&
-        auth.roles.some((r) => r === 'admin' || r === 'tech_admin'),
-      approvedOperationId: currentApproval()?.action === 'create_shopify_draft'
-        ? currentApproval()?.target : null,
+      canSendDraft: ordinary ? flags.shopify && catalogAllowed(auth,'drafts') : flags.shopify && flags.approval && scoped('create_shopify_draft') &&
+        approval()?.action === 'create_shopify_draft' &&
+        (catalogAllowed(auth, action.includes('categor')?'categories':'drafts') || auth.roles.some((r) => r === 'admin' || r === 'tech_admin')),
+      approvedOperationId: approval()?.action === 'create_shopify_draft'
+        ? approval()?.target : null,
       canAssign: writesEnabled() && scoped('apply_categories') && Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true' &&
-        currentApproval()?.action === 'apply_categories' &&
-        auth.roles.some((r) => r === 'admin' || r === 'tech_admin'),
+        approval()?.action === 'apply_categories' &&
+        (catalogAllowed(auth, action.includes('categor')?'categories':'drafts') || auth.roles.some((r) => r === 'admin' || r === 'tech_admin')),
     };
   }
   if (action === 'preview_categories' || action === 'apply_categories') {
@@ -241,7 +258,7 @@ export async function handleOperational(
     const allowed = eligible.map((c) => c.id);
     const diff = categoryDiff(product.categoryIds as string[], p.categoryIds as string[], allowed);
     // Preview remains read-only; application is scoped to this exact DRAFT in canary.
-    if (action === 'apply_categories') await requireCanaryProduct(db, auth, product, action);
+    if (action === 'apply_categories' && canary) await requireCanaryProduct(db, auth, product, action);
     const mapping = await getExactShopifyProductMapping(db, product.sku);
     if (!mapping?.shopify_product_id) {
       demand(action === 'preview_categories', 'Mapping Shopify assente.');
@@ -323,8 +340,8 @@ export async function handleOperational(
       desiredGids,
     });
     let enabled = scoped('apply_categories') && (!canary || product.id === scope?.productId) && writesEnabled() && Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true' &&
-      approvalMatches(currentApproval(), 'apply_categories', hash) &&
-      auth.roles.some((r) => r === 'admin' || r === 'tech_admin');
+      approvalMatches(approval(), 'apply_categories', hash) &&
+      (catalogAllowed(auth, action.includes('categor')?'categories':'drafts') || auth.roles.some((r) => r === 'admin' || r === 'tech_admin'));
     if (action === 'preview_categories') {
       if (enabled && canary) {
         try { await requireCanaryProduct(db, auth, product, 'apply_categories'); }
@@ -370,8 +387,8 @@ export async function handleOperational(
         'Collezione automatica o mapping cambiato.',
       );
     }
-    await requireCanaryProduct(db, auth, product, action);
-    demand(approvalMatches(currentApproval(), 'apply_categories', hash), 'Approvazione categorie scaduta prima dell’applicazione.');
+    if (canary) await requireCanaryProduct(db, auth, product, action);
+    demand(approvalMatches(approval(), 'apply_categories', hash), 'Approvazione categorie scaduta prima dell’applicazione.');
     const { data: operation, error: reserveError } = await db.from('admin_category_operations')
       .insert({
         actor: auth.userId,
@@ -452,6 +469,13 @@ export async function handleOperational(
     if (action === 'save_new_product' && canary) {
       requireCanaryDraft(requireCanaryScope(scope, auth.userId, auth.roles, action), draft, p.idempotencyKey);
     }
+    if (ordinary && draft.images.length) {
+      const {data: media,error: mediaError}=await db.from('admin_catalog_media').select('cdn_url').eq('actor',auth.userId).eq('state','READY').in('cdn_url',draft.images.map(i=>i.url));
+      demand(!mediaError && draft.images.every(i=>media?.some(m=>m.cdn_url===i.url)), 'Attendere il completamento delle immagini caricate dal tuo account.');
+    }
+    demand(!draft.tags.some(t=>/^og(?:qa)?shipping/i.test(t)), 'I tag logistici non sono modificabili da questo flusso.');
+    if(ordinary && (draft.collectionIds?.length || draft.categoryIds.length)) { requireCatalog(auth,'categories'); demand(Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true', 'Categorie disabilitate: puoi salvare la bozza senza assegnazioni.'); }
+    if(draft.collectionIds?.length){const eligible=await editorialCollections();demand(draft.collectionIds.every(id=>eligible.some(c=>c.id===id)),'Collezione editoriale non verificata.');}
     const defs = await getFieldDefinitions(db);
     const fields = validatedFields(draft, defs);
     const catalog = await catalogCategories(db);
@@ -509,15 +533,16 @@ export async function handleOperational(
     return {
       ok: true,
       operations: data,
-      canSendDraft: flags.shopify && scoped('create_shopify_draft') && (!canary || p.productId === scope?.productId) && data?.some((op) =>
-        approvalMatches(currentApproval(), 'create_shopify_draft', op.id)
+      canSendDraft: ordinary ? flags.shopify && catalogAllowed(auth,'drafts') : flags.shopify && scoped('create_shopify_draft') && (!canary || p.productId === scope?.productId) && data?.some((op) =>
+        approvalMatches(approval(), 'create_shopify_draft', op.id)
       ) &&
-        auth.roles.some((r) => r === 'admin' || r === 'tech_admin'),
-      approvedOperationId: currentApproval()?.action === 'create_shopify_draft'
-        ? currentApproval()?.target : null,
-      canManageDraft: auth.roles.some(r => ['admin', 'tech_admin'].includes(r)),
-      canRecover: currentApproval()?.action === 'create_shopify_draft' && writesEnabled() && scoped('recover_shopify_draft') && (!canary || p.productId === scope?.productId) &&
-        auth.roles.some((r) => r === 'admin' || r === 'tech_admin'),
+        (catalogAllowed(auth, action.includes('categor')?'categories':'drafts') || auth.roles.some((r) => r === 'admin' || r === 'tech_admin')),
+      approvedOperationId: approval()?.action === 'create_shopify_draft'
+        ? approval()?.target : null,
+      canManageDraft: (catalogAllowed(auth,'drafts') || auth.roles.some(r => ['admin', 'tech_admin'].includes(r))),
+      ordinaryCatalog: ordinary,
+      canRecover: ordinary ? writesEnabled() && catalogAllowed(auth,'drafts') : approval()?.action === 'create_shopify_draft' && writesEnabled() && scoped('recover_shopify_draft') && (!canary || p.productId === scope?.productId) &&
+        (catalogAllowed(auth, action.includes('categor')?'categories':'drafts') || auth.roles.some((r) => r === 'admin' || r === 'tech_admin')),
     };
   }
   demand(typeof p.operationId === 'string' && UUID.test(p.operationId), 'Operazione non valida.');
@@ -533,7 +558,7 @@ export async function handleOperational(
       throw new OperationalError('FORBIDDEN', 'Operazione diversa dalla bozza approvata.');
     }
   }
-  if (!approvalMatches(currentApproval(), 'create_shopify_draft', op.id)) {
+  if (!approvalMatches(approval(), 'create_shopify_draft', op.id)) {
     throw new OperationalError('FORBIDDEN', 'Approvazione operativa assente o scaduta per questa bozza.');
   }
   if (op.state === 'VERIFIED_DRAFT') {
@@ -563,7 +588,7 @@ export async function handleOperational(
     if (canary && scope?.shopifyProductId !== null) {
       throw new OperationalError('FORBIDDEN', 'Un Product GID già approvato non autorizza una nuova creazione.');
     }
-    demand(approvalMatches(currentApproval(), 'create_shopify_draft', op.id),
+    demand(approvalMatches(approval(), 'create_shopify_draft', op.id),
       'Approvazione operativa non valida per questa specifica bozza.');
     // The saved request is immutable; refuse later editorial edits rather than silently overwriting them.
     const { data: values, error: valuesError } = await db.from('product_current_values').select(
@@ -603,8 +628,9 @@ export async function handleOperational(
         ),
       'Mapping categorie non verificato.',
     );
+    if(draft.categoryIds.length || draft.collectionIds?.length) demand(Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true', 'Assegnazioni categorie disabilitate.');
     const collections = [
-      ...new Set(selected.flatMap((c) => c.maps.map((m) => m.shopify_collection_gid))),
+      ...new Set([...selected.flatMap((c) => c.maps.map((m) => m.shopify_collection_gid)),...(draft.collectionIds??[])]),
     ];
     // Verify manual collections before allowing a mutation.
     for (const id of collections) {
@@ -617,8 +643,14 @@ export async function handleOperational(
         'Collezione mancante o automatica: assegnazione manuale non consentita.',
       );
     }
+    const attachedFiles: {id:string}[]=[];
+    if(draft.images.length){
+      const {data: ready,error: mediaError}=await db.from('admin_catalog_media').select('cdn_url,shopify_file_gid').eq('actor',auth.userId).eq('state','READY').in('cdn_url',draft.images.map(i=>i.url));
+      demand(!mediaError&&draft.images.every(i=>ready?.some(m=>m.cdn_url===i.url&&/^gid:\/\/shopify\/MediaImage\/\d+$/.test(m.shopify_file_gid))), 'Le immagini della bozza devono essere disponibili nella tua libreria.');
+      draft.images.forEach(i=>attachedFiles.push({id:ready!.find(m=>m.cdn_url===i.url)!.shopify_file_gid}));
+    }
     if (canary) requireCanaryDraft(requireCanaryScope(canaryScope(), auth.userId, auth.roles, action), draft, op.request_key);
-    demand(approvalMatches(currentApproval(), 'create_shopify_draft', op.id), 'Approvazione scaduta prima dell’invio.');
+    demand(approvalMatches(approval(), 'create_shopify_draft', op.id), 'Approvazione scaduta prima dell’invio.');
     const { data: claimed, error: claimError } = await db.rpc('admin_claim_draft', {
       p_actor: auth.userId,
       p_id: op.id,
@@ -640,11 +672,13 @@ export async function handleOperational(
       }],
       variants: draft.variants.map((v) => ({
         sku: v.sku,
+        inventoryPolicy: 'DENY',
+        inventoryItem: {tracked:true,requiresShipping:true},
         price: v.price,
         compareAtPrice: v.compareAtPrice,
         optionValues: [{ optionName: 'Formato', name: v.option }],
       })),
-      files: draft.images.map((i) => ({ originalSource: i.url, alt: i.alt, contentType: 'IMAGE' })),
+      files: attachedFiles,
       metafields: [{
         namespace: 'online_garden',
         key: 'creation_id',

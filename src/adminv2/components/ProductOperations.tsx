@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { callAdminApi } from '../lib/adminApi';
+import { callAdminApi, callCatalogCommand } from '../lib/adminApi';
 import { OPERATION_LABELS } from '../lib/operationalApi';
 export default function ProductOperations({ productId }: { productId: string }) {
   const query = useQuery({
@@ -9,6 +9,7 @@ export default function ProductOperations({ productId }: { productId: string }) 
       callAdminApi<
         {
           canManageDraft: boolean;
+          ordinaryCatalog?: boolean;
           canSendDraft: boolean;
           canRecover: boolean;
           approvedOperationId: string | null;
@@ -24,7 +25,7 @@ export default function ProductOperations({ productId }: { productId: string }) 
   });
   const command = useMutation({
     mutationFn: (input: { action: string; operationId: string }) =>
-      callAdminApi({ ...input, confirm: true }),
+      callCatalogCommand({ ...input }),
     onSettled: () => query.refetch(),
   });
   if (query.isError) {
@@ -46,7 +47,7 @@ export default function ProductOperations({ productId }: { productId: string }) 
           {query.data.canManageDraft && op.state === 'LOCAL_DRAFT' && (
             <div className='space-y-2'>
               <Button
-                disabled={command.isPending || !query.data.canSendDraft || query.data.approvedOperationId !== op.id}
+                disabled={command.isPending || !query.data.canSendDraft || (!query.data.ordinaryCatalog && query.data.approvedOperationId !== op.id)}
                 onClick={() => {
                   if (window.confirm('Creare una bozza Shopify senza pubblicarla?')) {
                     command.mutate({ action: 'create_shopify_draft', operationId: op.id });
@@ -55,7 +56,7 @@ export default function ProductOperations({ productId }: { productId: string }) 
               >
                 Crea bozza Shopify
               </Button>
-              {(!query.data.canSendDraft || query.data.approvedOperationId !== op.id) && (
+              {(!query.data.canSendDraft || (!query.data.ordinaryCatalog && query.data.approvedOperationId !== op.id)) && (
                 <p className='text-sm text-muted-foreground'>
                   Invio non disponibile: richiede abilitazione operativa e approvazione di questa bozza.
                 </p>
@@ -65,7 +66,7 @@ export default function ProductOperations({ productId }: { productId: string }) 
           {query.data.canManageDraft && ['IN_FLIGHT', 'NEEDS_RECONCILIATION'].includes(op.state) && (
             <div className='space-y-2'>
               <Button
-                disabled={command.isPending || !canRecover || query.data.approvedOperationId !== op.id}
+                disabled={command.isPending || !canRecover || (!query.data.ordinaryCatalog && query.data.approvedOperationId !== op.id)}
                 onClick={() =>
                   command.mutate({ action: 'recover_shopify_draft', operationId: op.id })}
               >

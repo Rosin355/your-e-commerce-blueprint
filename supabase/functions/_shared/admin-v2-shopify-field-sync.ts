@@ -198,7 +198,7 @@ export async function readExactVariantTarget(
         "Ricerca variante Shopify non conclusiva; sincronizzazione bloccata.",
       );
     }
-  } while (true);
+  } while (pages < 250);
 
   if (matches.length !== 1) {
     throw new ShopifyFieldSyncError(
@@ -247,6 +247,8 @@ export async function readExactShopifyTarget(input: {
   sku: string;
   target: ShopifyFieldTarget;
   graphql?: ShopifyGraphQL;
+  expectedRemote?: unknown;
+  hasExpectedRemote?: boolean;
 }): Promise<ExactShopifyTargetRead> {
   const graphql = input.graphql ?? shopifyAdminGraphQL;
   if (input.target.kind === "product" || input.target.kind === "seo") {
@@ -364,6 +366,8 @@ export async function performVerifiedShopifyFieldWrite(input: {
   expected: string | string[];
   previousVerifiedAt: string | null | undefined;
   previousVerifiedValue: unknown;
+  expectedRemote?: unknown;
+  hasExpectedRemote?: boolean;
   graphql?: ShopifyGraphQL;
 }): Promise<{ verifiedValue: unknown; writePerformed: boolean }> {
   const graphql = input.graphql ?? shopifyAdminGraphQL;
@@ -373,6 +377,8 @@ export async function performVerifiedShopifyFieldWrite(input: {
     target: input.target,
     graphql,
   });
+
+  if (input.hasExpectedRemote && !sameShopifyValue(input.target, before.value, input.expectedRemote)) throw new ShopifyFieldSyncError('STATE_DRIFT','Shopify è cambiato dopo la conferma.');
 
   // Riconcilia un retry dopo timeout/verifica interrotta soltanto se Shopify
   // espone già la rappresentazione canonica richiesta. I valori stagionali
@@ -497,6 +503,8 @@ export async function syncFieldToShopify(input: {
   row: CurrentValueRow;
   sku: string;
   shopifyProductId: string;
+  expectedRemote?: unknown;
+  hasExpectedRemote?: boolean;
 }): Promise<Record<string, unknown>> {
   const target = resolveShopifyTarget(input.definition);
   if (!target) {
@@ -511,6 +519,8 @@ export async function syncFieldToShopify(input: {
     sku: input.sku,
     target,
     expected,
+    expectedRemote: input.expectedRemote,
+    hasExpectedRemote: input.hasExpectedRemote,
     previousVerifiedAt: input.row.shopify_verified_at,
     previousVerifiedValue: input.row.shopify_verified_value,
   });

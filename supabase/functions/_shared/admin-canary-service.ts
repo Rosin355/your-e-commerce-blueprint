@@ -14,7 +14,7 @@ export function canaryScope() {
 export async function requireCanaryProduct(
   db: SupabaseClient, auth: AuthContext, product: { id: string; sku: string }, action: string, fieldKey?: string,
 ) {
-  if (writeMode() !== 'canary') return;
+  if (auth.catalogGrant?.enabled === true && auth.roles.includes('editor')) return;
   const scope = requireCanaryScope(canaryScope(), auth.userId, auth.roles, action, fieldKey);
   // Reject the wrong internal identity before any external lookup.
   requireCanaryIdentity(scope, product, scope.shopifyProductId, 'DRAFT');

@@ -132,6 +132,7 @@ export interface ProductDraft {
   seoTitle: string;
   seoDescription: string;
   botanical: Record<string, unknown>;
+  collectionIds?: string[];
 }
 function text(v: unknown, label: string, max: number, required = false): string {
   demand(
@@ -220,7 +221,9 @@ export function validateDraft(raw: unknown): ProductDraft {
       Object.keys(r.botanical).length <= 40,
     'Contenuti botanici non validi.',
   );
+  demand(r.collectionIds===undefined || (Array.isArray(r.collectionIds) && r.collectionIds.length<=23 && r.collectionIds.every(id=>typeof id==='string' && /^gid:\/\/shopify\/Collection\/\d+$/.test(id)) && new Set(r.collectionIds).size===r.collectionIds.length),'Collezioni non valide.');
   return {
+    ...(r.collectionIds!==undefined ? {collectionIds:r.collectionIds as string[]} : {}),
     title: text(r.title, 'Nome prodotto', 255, true),
     sku: familySku,
     description: text(r.description, 'Descrizione', 20000, true),

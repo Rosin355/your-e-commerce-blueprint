@@ -18,6 +18,7 @@ export interface CategoryCatalogue {
   notice: string;
   missingCanonicalHandles: string[];
   canAuthorDraft: boolean;
+  ordinaryCatalog?: boolean;
   canManageCategories: boolean;
   canRecoverDraft: boolean;
   canaryRequestKey: string | null;
