@@ -1,3 +1,15 @@
+## TODO SEO prioritario — 10 novembre 2026
+
+**P1 — recupero visibilità organica dopo migrazione WooCommerce → Lovable/Shopify.** Il cliente segnala prodotti non più indicizzati e link storici in 404. È un problema da diagnosticare e correggere separatamente da Admin V2: non dedurre lo stato HTTP dal solo report Search Console.
+
+- Fonte collegata: Google Search Console per `sc-domain:onlinegarden.it` tramite Windsor.ai. Prima settimana ottobre 2026: 299 clic e 25.453 impressioni; prima settimana novembre 2026: 155 clic e 10.704 impressioni (dati recenti suscettibili di consolidamento); il confronto segnala un calo, non ne identifica da solo la causa.
+- Esempi di URL storici comparsi in GSC: `/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/`, `/prodotto/rose/rosa-jasmina-rampicante/`, `/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/`. Verificare risposte HTTP reali di host `www` e apex.
+- Fonti di recupero: export Search Console (pagine, query, clic/impressioni), analytics Lovable, backlink, sitemap vecchie, e backup database WooCommerce già segnalato dal proprietario su Drive. Leggere solo quanto necessario; nessun import di clienti o dati personali per il lavoro SEO.
+- Preparare matrice `old_url → current_url | restored_product | genuine_410/404`, con SKU/slug/prodotto realmente corrispondenti. Priorità agli URL con clic/impressioni/link in ingresso. Evitare redirect generici alla homepage, soft 404 e associazioni basate sul solo titolo.
+- Verificare `robots.txt`, sitemap XML, `noindex`, canonical, host `www`/apex, linking interno e Product JSON-LD; per vecchi prodotti equivalenti usare 301/308 server-side diretti alla nuova scheda canonica, solo dopo QA HTTP. Per prodotti rimossi valutare alternative realmente equivalenti, altrimenti 404/410 appropriato.
+- Dopo la pubblicazione autorizzata: inviare sitemap aggiornata a GSC, usare URL Inspection per pagine prioritarie, monitorare 404, clic, impressioni, copertura e posizioni per 4-8 settimane; i ranking non sono garantiti né immediati.
+- **Stato: TODO PRIORITARIO / nessun redirect ancora autorizzato o pubblicato.** Mantenere Admin V2 Livello B, migration, scritture e sync Shopify OFF e separati; preservare tariffe A/B, checkout e Sendcloud.
+
 ## Integrazione sicura PR #47 — attestazione proprietario del 9 novembre 2026
 
 Il proprietario attesta uno screenshot autenticato di `https://onlinegarden.it/admin/settings`, letto il **09/11/2026 alle 19:16:37 CET**: `writesEnabled=false`, `writeMode=canary`, `shopifySyncEnabled=false`, stato **READ-ONLY**. Fonte: dichiarazione esplicita del proprietario in chat; immagine non allegata a questo registro né ispezionata dall’agent. Nessuna email o credenziale registrata. Questa attestazione aggiornata sostituisce il blocco dovuto alla precedente impossibilità di rileggere Chrome; non dimostra una cronologia completa dei secret.
