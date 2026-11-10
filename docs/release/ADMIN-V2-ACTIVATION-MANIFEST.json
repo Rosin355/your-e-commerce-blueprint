@@ -1,5 +1,5 @@
 {
-  "status": "RELEASED_INTERNAL_DRAFT_VERIFIED_EXACT_CREATE_RENEWED_1830_WAITING_NATIVE_CONFIRM_CLIENT_ABSENT",
+  "status": "SHOPIFY_TECH_DRAFT_CREATED_RECOVERY_VENDOR_DEFAULT_DEFECT_FIX_LOCAL_NOT_DEPLOYED_CLIENT_ABSENT",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "version": "admin-delivery-20261110-r1",
@@ -70,11 +70,11 @@
     "master": "TRUE_VERIFIED_TECH_SCOPE_ONLY",
     "shopifySync": "SET_FALSE_AND_RUNTIME_FALSE",
     "drafts": "SET_TRUE_UPLOAD_AND_SAVE_LIVE_PASS",
-    "draftShopify": "SET_TRUE_EXACT_OPERATION_APPROVED_UNTIL_1830_CET",
+    "draftShopify": "SET_FALSE_AFTER_ONE_REMOTE_DRAFT",
     "categories": "SET_FALSE",
-    "operationalApproval": "EXACT_CREATE_OPERATION_APPROVED_UNTIL_1830_CET",
+    "operationalApproval": "EXACT_CREATE_OPERATION_APPROVAL_RETAINED_FOR_RECOVERY_UNTIL_1830_CET",
     "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_EXACT_TECH_CANARY_ONLY_NO_ORDINARY_GRANT",
-    "canaryScope": "EXACT_CREATE_RECOVER_RENEWED_OWNER_CONFIRMED_UNTIL_1830_CET"
+    "canaryScope": "RECOVER_ONLY_PINNED_REMOTE_GID_UNTIL_1830_CET"
   },
   "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
   "cloudResourcesCreated": 0,
@@ -135,7 +135,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "Manual OK in already open native Chrome confirmation for the same exact DRAFT; flag renewal already authorized and saved. Do not click create again. Client registration deferred.",
+  "authorizationNeededNow": "Owner exception to one-completion-PR limit for the tested minimal vendor-default fix; no new PR or deploy performed.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -203,7 +203,7 @@
     "expiresAt": "2026-11-10T17:30:00.000Z",
     "technicalSku": "OG-ADMIN-CHECK-20261110-63B3FD",
     "draftPersisted": true,
-    "shopifyDraftCreated": false,
+    "shopifyDraftCreated": true,
     "scopeCurrentlyValid": true,
     "scopeRevoked": false,
     "restorePreparedNotSaved": false,
@@ -215,7 +215,13 @@
     "renewalPreparedNotSaved": false,
     "proposedRenewalExpiresAt": "2026-11-10T17:30:00.000Z",
     "renewalSaved": true,
-    "nativeCreateConfirmationOpen": true
+    "nativeCreateConfirmationOpen": false,
+    "shopifyProductId": "gid://shopify/Product/15963458797908",
+    "nativeDialogManuallyConfirmed": true,
+    "remoteDraftCount": 1,
+    "currentActions": [
+      "recover_shopify_draft"
+    ]
   },
   "runtimeObservation": {
     "observedAt": "2026-11-10T17:04:03+01:00",
@@ -262,7 +268,7 @@
   "currentExecution": {
     "date": "2026-11-10",
     "levelA": "READ_ACCESS_PRESERVED_NEW_UI_PUBLISHED",
-    "levelB": "TECH_EXACT_CREATE_RENEWED_NO_CLIENT_GRANTS",
+    "levelB": "ONE_TECH_REMOTE_DRAFT_RECOVERY_BLOCKED_FIX_NOT_DEPLOYED_NO_CLIENT_GRANTS",
     "workingBranch": "codex/admin-v2-operational-delivery",
     "cloudResourcesCreated": 0,
     "rolesChanged": 0,
@@ -287,7 +293,7 @@
     "technicalDraftCreated": true,
     "ordinaryCapabilitiesAssigned": 0,
     "masterEnable": "OWNER_CONFIRMED_AND_RUNTIME_TRUE",
-    "integratedAcceptance": "PARTIAL_IMAGE_INTERNAL_SAVE_PASS_WAITING_MANUAL_NATIVE_CONFIRMATION"
+    "integratedAcceptance": "PARTIAL_IMAGE_INTERNAL_SAVE_REMOTE_DRAFT_PASS_MAPPING_VENDOR_DEFAULT_FAILURE"
   },
   "finalReleaseGates": {
     "date": "2026-11-09",
@@ -378,23 +384,41 @@
     "replayLayer": "DATABASE_RPC_NOT_HTTP_OR_UI",
     "replayed": true,
     "sameIds": true,
-    "shopifyProductCreated": false,
+    "shopifyProductCreated": true,
     "categoryIds": [],
-    "shopifyExactSkuCountAfterAttempt": 0,
+    "shopifyExactSkuCountAfterAttempt": 1,
     "shopifyStoreVerified": "ecom-blueprint-gen-6ud1s.myshopify.com",
-    "operationStateAfterAttempt": "LOCAL_DRAFT",
+    "operationStateAfterAttempt": "IN_FLIGHT",
     "mappingCount": 0,
-    "journalEvents": 1,
+    "journalEvents": 2,
     "temporaryCreateConfigSavedThenClosed": true,
     "requestOutcomeInferredFromClick": false,
     "operationStateObservedAt": "2026-11-10T17:49:23+01:00",
     "nativeDialogOpened": true,
-    "nativeDialogManuallyConfirmed": false
+    "nativeDialogManuallyConfirmed": true,
+    "shopifyProductStatus": "DRAFT",
+    "shopifyProductGid": "gid://shopify/Product/15963458797908",
+    "shopifyVariantGid": "gid://shopify/ProductVariant/58250808787284"
   },
   "effectiveAccessAfterCleanup": {
     "source": "Fresh authenticated product page after native Lovable secret update",
     "canCreateDraft": false,
     "canWrite": false,
     "message": "Modifiche non autorizzate per questo account o perimetro di collaudo."
+  },
+  "pendingVendorFix": {
+    "deployed": false,
+    "newPrOpened": false,
+    "additionalPrOwnerExceptionNeeded": true,
+    "serviceTestsPassed": 14,
+    "newRegressionCases": 3,
+    "denoCheckPassed": true,
+    "serviceLintPassed": true,
+    "fixtureLintExistingExclusions": [
+      "no-unversioned-import",
+      "require-await"
+    ],
+    "noNewGraphqlFields": true,
+    "noFrontendOrDdlChange": true
   }
 }
