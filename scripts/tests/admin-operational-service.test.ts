@@ -12,6 +12,8 @@ function simulation(
     skuConflict?: boolean | 'parent';
     multiVariant?: boolean;
     currency?: string;
+    requestedVendor?: string;
+    remoteVendor?: string;
   } = {},
 ) {
   const draft: ProductDraft = {
@@ -19,7 +21,7 @@ function simulation(
     sku: 'QA-001',
     description: 'Test',
     currency: 'EUR',
-    vendor: '',
+    vendor: options.requestedVendor ?? '',
     tags: [],
     categoryIds: [],
     images: [],
@@ -44,7 +46,7 @@ function simulation(
     status: 'DRAFT',
     handle: `og-draft-${id}`,
     title: draft.title,
-    vendor: '',
+    vendor: options.remoteVendor ?? draft.vendor,
     metafield: { value: id },
     variants: {
       nodes: [{
@@ -58,6 +60,7 @@ function simulation(
   };
   let mutations = 0;
   let completeCalls = 0;
+  let createdInput: Record<string, unknown> | undefined;
   const db = {
     from(table: string) {
       let update: Record<string, unknown> | undefined;
@@ -125,6 +128,7 @@ function simulation(
     }
     if (query.includes('mutation AdminCreateDraft')) {
       mutations++;
+      createdInput = variables.input as Record<string, unknown>;
       assertEquals((variables.input as { status: string }).status, 'DRAFT');
       if (options.timeout) throw Error('simulated timeout after remote commit');
       return { productSet: { product, userErrors: [] } } as T;
@@ -140,6 +144,8 @@ function simulation(
     get mutations() {
       return mutations;
     },
+    get input() { return createdInput; },
+    get completions() { return completeCalls; },
   };
 }
 async function withFlags(run: () => Promise<void>) {
@@ -176,6 +182,47 @@ Deno.test('creazione simulata: claim, unica mutation DRAFT, rilettura e mapping'
       operationId: id,
       confirm: true,
     }, s.shopify);
+    assertEquals(s.mutations, 1);
+  }));
+Deno.test('fornitore facoltativo: default Shopify consentito, recupero senza seconda create', () =>
+  withFlags(async () => {
+    const s = simulation({ remoteVendor: 'Online Garden' });
+    await handleOperational(s.db, actor, {
+      action: 'create_shopify_draft', operationId: id, confirm: true,
+    }, s.shopify);
+    assertEquals(Object.hasOwn(s.input!, 'vendor'), false);
+    assertEquals(s.op.state, 'VERIFIED_DRAFT');
+    s.op.state = 'IN_FLIGHT';
+    await handleOperational(s.db, {
+      ...actor, catalogApproval: {
+        ...actor.catalogApproval!, action: 'recover_shopify_draft', target: 'recovery:' + id,
+      },
+    }, { action: 'recover_shopify_draft', operationId: id }, s.shopify);
+    assertEquals(s.mutations, 1);
+    assertEquals(s.op.state, 'VERIFIED_DRAFT');
+  }));
+Deno.test('fornitore esplicito: un valore remoto diverso blocca il mapping', () =>
+  withFlags(async () => {
+    const s = simulation({ requestedVendor: 'Vivaio richiesto', remoteVendor: 'Altro fornitore' });
+    s.op.state = 'IN_FLIGHT';
+    await assertRejects(() => handleOperational(s.db, {
+      ...actor, catalogApproval: {
+        ...actor.catalogApproval!, action: 'recover_shopify_draft', target: 'recovery:' + id,
+      },
+    }, { action: 'recover_shopify_draft', operationId: id }, s.shopify),
+    OperationalError, 'La bozza Shopify è cambiata');
+    assertEquals(s.mutations, 0);
+    assertEquals(s.completions, 0);
+    assertEquals(s.op.state, 'IN_FLIGHT');
+  }));
+Deno.test('fornitore esplicito: invio e verifica mantengono il valore richiesto', () =>
+  withFlags(async () => {
+    const s = simulation({ requestedVendor: 'Vivaio richiesto', remoteVendor: 'Vivaio richiesto' });
+    await handleOperational(s.db, actor, {
+      action: 'create_shopify_draft', operationId: id, confirm: true,
+    }, s.shopify);
+    assertEquals(s.input?.vendor, 'Vivaio richiesto');
+    assertEquals(s.op.state, 'VERIFIED_DRAFT');
     assertEquals(s.mutations, 1);
   }));
 Deno.test('richiesta costruita manualmente con approvazione per un’altra bozza non crea prodotti', () =>
