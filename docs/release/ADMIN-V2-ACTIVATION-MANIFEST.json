@@ -224,7 +224,9 @@
     "marcoRegistration": "DEFERRED_BY_OWNER_ACCOUNT_NOT_PRESENT",
     "capabilitiesAssigned": false,
     "applicationApproval": "OWNER-ADMIN-DELIVERY-20261110",
-    "restoreVerified": false
+    "restoreVerified": false,
+    "completionPr": 50,
+    "releaseChecks": "PENDING_FINAL_HEAD_CI_AND_GITGUARDIAN"
   },
   "finalReleaseGates": {
     "date": "2026-11-09",

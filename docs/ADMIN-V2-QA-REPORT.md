@@ -1,5 +1,7 @@
 ## QA consegna operativa — 10 novembre 2026
 
+PR di completamento: [#50](https://github.com/Rosin355/your-e-commerce-blueprint/pull/50), branch `codex/admin-v2-operational-delivery`. CI/GitGuardian e merge da confermare sull’HEAD finale; nessuna operatività live dichiarata.
+
 **Stato corrente: prove locali del codice, non accettazione produttiva.** Frontend/backend TypeScript e lint mirato PASS; build operativa locale PASS. Test HTTP/policy mirati: 30 PASS (approvazioni persistite, revoca/scadenza, payload alterato, replay, prezzi esatti, drift, blocco pubblicazione tecnica, upload server-side e retry senza doppio file). Servizio bozze: 11 test di creazione/recovery/categorie aggiornati per i nuovi grant PASS. La CI verificherà lo SHA finale. Fixture SQL isolata PostgreSQL 16.15: atomicità con errore intermedio, ACL/RLS, claim singolo e grant editor PASS; aggiunto job CI PostgreSQL 17.6 per il target corretto. Nessuna fixture equivale a Supabase Auth o restore gestito.
 
 Validatore ufficiale Shopify: query/mutation nuove validate su Admin 2026-01/2026-10; nuove letture Storefront pin 2026-01, mantenendo il default degli altri chiamanti. Dipendenze applicative invariate. Il codice sorgente della RPC di sync precedente corrisponde all’impronta letta sul backend del progetto.

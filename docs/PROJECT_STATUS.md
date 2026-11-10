@@ -1,5 +1,7 @@
 ## Consegna operativa Admin V2 — esecuzione 10 novembre 2026
 
+PR di completamento: [#50](https://github.com/Rosin355/your-e-commerce-blueprint/pull/50), branch `codex/admin-v2-operational-delivery`. CI/GitGuardian e merge da confermare sull’HEAD finale; nessuna operatività live dichiarata.
+
 **Stato corrente: codice di completamento implementato; rilascio produttivo e accettazione NON conclusi.** Questo mandato autorizza migration additiva, backend, build operativa, un solo DRAFT tecnico e capability catalogo minime; supera i precedenti vincoli “solo preparazione” nel solo perimetro dichiarato. Le sezioni successive sono cronologia, salvo evidenze più recenti registrate esplicitamente.
 
 - Partenza dal main effettivo `1324f0536eef3ff33ce43b8d74d84ba5307244a7`; PR #42/#46/#47 già integrate. Una sola PR di completamento; SEO #49 separata.
