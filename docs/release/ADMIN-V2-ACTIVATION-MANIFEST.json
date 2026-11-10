@@ -1,5 +1,5 @@
 {
-  "status": "RELEASED_TECH_CANARY_STAGE1_ON_INPUT_BLOCKED_CLIENT_ACCOUNT_ABSENT",
+  "status": "RELEASED_CANARY_SCOPE_REVOKED_FILE_PERMISSION_PENDING_CLIENT_ACCOUNT_ABSENT",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "version": "admin-delivery-20261110-r1",
@@ -69,15 +69,14 @@
   "writes": {
     "master": "TRUE_VERIFIED_TECH_SCOPE_ONLY",
     "shopifySync": "SET_FALSE_AND_RUNTIME_FALSE",
-    "drafts": "REQUESTED_TRUE_MASTER_STILL_OFF_LAST_VERIFIED",
+    "drafts": "SET_TRUE_MASTER_ON_SCOPE_REVOKED",
     "draftShopify": "SET_FALSE",
     "categories": "SET_FALSE",
     "operationalApproval": "SET_JSON_NULL",
-    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_SERVER_WRITES_OFF",
-    "canaryScope": "EXACT_TECHNICAL_ACTOR_SKU_REQUEST_ONLY_UPLOAD_AND_SAVE_EXPIRES"
+    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_EFFECTIVE_WRITES_DENIED_WITHOUT_SCOPE_OR_GRANT",
+    "canaryScope": "SET_JSON_NULL_REVOKED_RUNTIME_ACCESS_DENIED"
   },
   "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
-  "productionMutationsThisTask": 0,
   "cloudResourcesCreated": 0,
   "manualPassedSuitesRepeated": 0,
   "recoveryPolicy": {
@@ -136,7 +135,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "Enable native Computer Use for Chrome to complete GUI canary; action-time master approval already received. Client registration remains deferred.",
+  "authorizationNeededNow": "Chrome extension file URL permission and action-time confirmation before restoring exact upload/save canary scope. Client registration deferred by owner.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -204,16 +203,21 @@
     "expiresAt": "2026-11-10T16:40:01.867Z",
     "technicalSku": "OG-ADMIN-CHECK-20261110-63B3FD",
     "draftPersisted": false,
-    "shopifyDraftCreated": false
+    "shopifyDraftCreated": false,
+    "scopeCurrentlyValid": false,
+    "scopeRevoked": true,
+    "restorePreparedNotSaved": true
   },
   "runtimeObservation": {
-    "observedAt": "2026-11-10T16:32:54+01:00",
+    "observedAt": "2026-11-10T17:04:03+01:00",
     "origin": "https://onlinegarden.it",
     "writesEnabled": true,
     "writeMode": "canary",
     "shopifySyncEnabled": false,
     "isMarcoSession": false,
-    "source": "Authenticated browser UI, published release marker verified"
+    "source": "Authenticated browser UI, published release marker verified",
+    "effectiveEditorAuthorized": false,
+    "effectiveAccessMessage": "Modifiche non autorizzate per questo account o perimetro di collaudo."
   },
   "package": {
     "generator": "scripts/prepare-admin-v2-activation.mjs",
@@ -249,7 +253,7 @@
   "currentExecution": {
     "date": "2026-11-10",
     "levelA": "READ_ACCESS_PRESERVED_NEW_UI_PUBLISHED",
-    "levelB": "TECH_SCOPE_UPLOAD_SAVE_ONLY_NO_CLIENT_GRANTS",
+    "levelB": "RELEASED_NO_VALID_CANARY_SCOPE_NO_CLIENT_GRANTS",
     "workingBranch": "codex/admin-v2-operational-delivery",
     "cloudResourcesCreated": 0,
     "rolesChanged": 0,
@@ -274,7 +278,7 @@
     "technicalDraftCreated": false,
     "ordinaryCapabilitiesAssigned": 0,
     "masterEnable": "OWNER_CONFIRMED_AND_RUNTIME_TRUE",
-    "integratedAcceptance": "BLOCKED_BROWSER_INPUT_NATIVE_PERMISSION_REQUIRED"
+    "integratedAcceptance": "BLOCKED_FILE_URL_PERMISSION_AND_SCOPE_RESTORE_CONFIRMATION"
   },
   "finalReleaseGates": {
     "date": "2026-11-09",
@@ -351,5 +355,7 @@
     },
     "cartOrCheckoutActions": 0,
     "safariOrIosVerified": false
-  }
+  },
+  "productionCatalogMutationsThisTask": 0,
+  "productionInfrastructureChangedThisTask": true
 }
