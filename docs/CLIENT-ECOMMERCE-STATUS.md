@@ -1,3 +1,13 @@
+## Aggiornamento runtime — master tecnico attivo, collaudo sospeso sull’input
+
+Il proprietario ha confermato il solo salvataggio di `PRODUCT_ADMIN_WRITES_ENABLED=true` per il canary esatto. La UI Lovable conferma l’aggiornamento del nome esistente senza eliminarlo. Diagnostica live autenticata **10/11/2026 16:32:54 CET: true / canary / false**. Questo abilita soltanto upload/salvataggio sullo SKU tecnico autorizzato all’operatore verificato; **non** assegna capability ordinarie e non apre Shopify create/sync o categorie. Scope temporaneo con scadenza **17:40 CET**; dopo la scadenza il parser rifiuta lo scope.
+
+Il percorso tecnico è aperto ma non è stato salvato alcun prodotto né caricato alcun file. Il browser restituisce timeout sugli eventi mouse/tastiera; un reload ha consentito una sola navigazione, poi il limite è ricomparso. Il controllo desktop alternativo risulta non autorizzato. Nessun errore applicativo trovato nei log letti; soli avvisi di un’estensione browser, senza attribuirle una causa certa. Richiesto il permesso nativo solo per Chrome, senza aggirare autenticazione o ricavare token dalla sessione. **Collaudo integrato NON PASS, nessuna attivazione cliente dichiarata.** Registrazione cliente ancora rinviata dal proprietario.
+
+Controllo pubblico essenziale della nuova build: homepage desktop 1512×771 e mobile 390×844, menu mobile, catalogo “Piante da esterno” e una scheda pubblica caricati; nessun overflow orizzontale nei viewport osservati, nessuna immagine rotta visibile in homepage. Nessuna azione carrello/checkout. Screenshot conservati localmente; Safari/iOS e il flusso Admin completo restano da attestare.
+
+---
+
 ## Stato live dopo il Publish — 10 novembre 2026, canary non ancora eseguito
 
 **Migration e backend distribuiti; frontend pubblicato. Consegna operativa al cliente NON conclusa.** PR [#50](https://github.com/Rosin355/your-e-commerce-blueprint/pull/50) MERGED con commit di integrazione `096a435f0c0f6ba9722c67fbba2d1b8508678bc3`. CI applicativa, PostgreSQL 17.6 e GitGuardian SUCCESS sul candidato `5fbab624c60e81f7f90e72cbe3a740e3d97c662f` ([run](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/42837086444)). Non esiste CI push su main: non attribuire al merge un check non eseguito.

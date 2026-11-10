@@ -1,5 +1,5 @@
 {
-  "status": "MIGRATION_BACKEND_FRONTEND_RELEASED_CANARY_AND_CLIENT_ACCEPTANCE_PENDING",
+  "status": "RELEASED_TECH_CANARY_STAGE1_ON_INPUT_BLOCKED_CLIENT_ACCOUNT_ABSENT",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "version": "admin-delivery-20261110-r1",
@@ -67,7 +67,7 @@
     "categoryMappingsApproved": 0
   },
   "writes": {
-    "master": "OFF_LAST_VERIFIED",
+    "master": "TRUE_VERIFIED_TECH_SCOPE_ONLY",
     "shopifySync": "SET_FALSE_AND_RUNTIME_FALSE",
     "drafts": "REQUESTED_TRUE_MASTER_STILL_OFF_LAST_VERIFIED",
     "draftShopify": "SET_FALSE",
@@ -136,7 +136,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "Mandatory browser action-time confirmation to save master true for exact technical canary; client registration deferred by owner. No credentials requested.",
+  "authorizationNeededNow": "Enable native Computer Use for Chrome to complete GUI canary; action-time master approval already received. Client registration remains deferred.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -195,12 +195,21 @@
     "aiExcluded": true,
     "liveExecuted": false,
     "pinnedGidCheckedOnRecovery": true,
-    "freshCreateRejectsPinnedGid": true
+    "freshCreateRejectsPinnedGid": true,
+    "initialScopeSaved": true,
+    "initialActions": [
+      "upload_catalog_image",
+      "save_new_product"
+    ],
+    "expiresAt": "2026-11-10T16:40:01.867Z",
+    "technicalSku": "OG-ADMIN-CHECK-20261110-63B3FD",
+    "draftPersisted": false,
+    "shopifyDraftCreated": false
   },
   "runtimeObservation": {
-    "observedAt": "2026-11-10T16:07:40+01:00",
+    "observedAt": "2026-11-10T16:32:54+01:00",
     "origin": "https://onlinegarden.it",
-    "writesEnabled": false,
+    "writesEnabled": true,
     "writeMode": "canary",
     "shopifySyncEnabled": false,
     "isMarcoSession": false,
@@ -240,7 +249,7 @@
   "currentExecution": {
     "date": "2026-11-10",
     "levelA": "READ_ACCESS_PRESERVED_NEW_UI_PUBLISHED",
-    "levelB": "RELEASED_CODE_CANARY_PENDING_CLIENT_ACCOUNT_ABSENT",
+    "levelB": "TECH_SCOPE_UPLOAD_SAVE_ONLY_NO_CLIENT_GRANTS",
     "workingBranch": "codex/admin-v2-operational-delivery",
     "cloudResourcesCreated": 0,
     "rolesChanged": 0,
@@ -264,7 +273,8 @@
     "uploadedFiles": 0,
     "technicalDraftCreated": false,
     "ordinaryCapabilitiesAssigned": 0,
-    "masterEnable": "PENDING_BROWSER_ACTION_TIME_CONSENT"
+    "masterEnable": "OWNER_CONFIRMED_AND_RUNTIME_TRUE",
+    "integratedAcceptance": "BLOCKED_BROWSER_INPUT_NATIVE_PERMISSION_REQUIRED"
   },
   "finalReleaseGates": {
     "date": "2026-11-09",
@@ -319,5 +329,27 @@
     "publicationChannel": "gid://shopify/Publication/338862113108",
     "logistics": "Validate native A/B per variant; no tariff/collection mutations",
     "integratedAcceptanceLive": false
+  },
+  "publicSmoke": {
+    "browser": "Chrome",
+    "desktop": {
+      "width": 1512,
+      "height": 771,
+      "homepageLoaded": true,
+      "horizontalOverflow": false,
+      "visibleBrokenImages": 0
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "homepageLoaded": true,
+      "menuOpened": true,
+      "collectionLoaded": true,
+      "publicProductLoaded": true,
+      "horizontalOverflow": false,
+      "visibleBrokenImagesOnHomepage": 0
+    },
+    "cartOrCheckoutActions": 0,
+    "safariOrIosVerified": false
   }
 }
