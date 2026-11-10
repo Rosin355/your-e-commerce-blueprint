@@ -1,5 +1,5 @@
 {
-  "status": "RELEASED_INTERNAL_DRAFT_AND_IMAGE_VERIFIED_SHOPIFY_APPROVAL_PENDING_CLIENT_ACCOUNT_ABSENT",
+  "status": "RELEASED_INTERNAL_DRAFT_VERIFIED_SHOPIFY_CREATE_NOT_COMPLETED_CANARY_CLOSED_CLIENT_ACCOUNT_ABSENT",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "version": "admin-delivery-20261110-r1",
@@ -70,11 +70,11 @@
     "master": "TRUE_VERIFIED_TECH_SCOPE_ONLY",
     "shopifySync": "SET_FALSE_AND_RUNTIME_FALSE",
     "drafts": "SET_TRUE_UPLOAD_AND_SAVE_LIVE_PASS",
-    "draftShopify": "SET_FALSE",
+    "draftShopify": "SET_FALSE_AFTER_AUTHORIZED_CREATE_ATTEMPT",
     "categories": "SET_FALSE",
-    "operationalApproval": "SET_JSON_NULL",
-    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_EXACT_CANARY_ONLY_NO_ORDINARY_GRANTS",
-    "canaryScope": "EXACT_UPLOAD_SAVE_SCOPE_RESTORED_OWNER_CONFIRMED_EXPIRES_1740_CET"
+    "operationalApproval": "SET_JSON_NULL_AFTER_EXPIRY",
+    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_NO_VALID_CANARY_OR_ORDINARY_GRANT",
+    "canaryScope": "SET_JSON_NULL_AFTER_EXPIRY_RUNTIME_ACCESS_DENIED"
   },
   "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
   "cloudResourcesCreated": 0,
@@ -135,7 +135,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "Action-time confirmation for exact DRAFT Shopify create/recover on saved operation; expiry 17:40 CET. Client registration deferred.",
+  "authorizationNeededNow": "New action-time confirmation for same exact DRAFT create/recover scope until 18:30 CET; prior 17:40 scope expired and closed. Client registration deferred.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -204,14 +204,16 @@
     "technicalSku": "OG-ADMIN-CHECK-20261110-63B3FD",
     "draftPersisted": true,
     "shopifyDraftCreated": false,
-    "scopeCurrentlyValid": true,
-    "scopeRevoked": false,
+    "scopeCurrentlyValid": false,
+    "scopeRevoked": true,
     "restorePreparedNotSaved": false,
     "liveStage": "UPLOAD_AND_INTERNAL_SAVE_ONLY",
     "productId": "9598b858-0b18-4906-9d19-d3057712510f",
     "operationId": "b53c9f25-d769-4ecc-a185-b41c3bfe4ceb",
     "imageReady": true,
-    "shopifyEnablePreparedNotSaved": true
+    "shopifyEnablePreparedNotSaved": false,
+    "renewalPreparedNotSaved": true,
+    "proposedRenewalExpiresAt": "2026-11-10T17:30:00.000Z"
   },
   "runtimeObservation": {
     "observedAt": "2026-11-10T17:04:03+01:00",
@@ -258,7 +260,7 @@
   "currentExecution": {
     "date": "2026-11-10",
     "levelA": "READ_ACCESS_PRESERVED_NEW_UI_PUBLISHED",
-    "levelB": "TECHNICAL_INTERNAL_DRAFT_VERIFIED_NO_CLIENT_GRANTS",
+    "levelB": "INTERNAL_DRAFT_PASS_TECH_CANARY_CLOSED_NO_CLIENT_GRANTS",
     "workingBranch": "codex/admin-v2-operational-delivery",
     "cloudResourcesCreated": 0,
     "rolesChanged": 0,
@@ -283,7 +285,7 @@
     "technicalDraftCreated": true,
     "ordinaryCapabilitiesAssigned": 0,
     "masterEnable": "OWNER_CONFIRMED_AND_RUNTIME_TRUE",
-    "integratedAcceptance": "PARTIAL_UPLOAD_INTERNAL_SAVE_REREAD_DB_REPLAY_PASS_SHOPIFY_PENDING"
+    "integratedAcceptance": "PARTIAL_IMAGE_INTERNAL_SAVE_PASS_CREATE_NOT_COMPLETED_BROWSER_CONFIRM_FAILURE"
   },
   "finalReleaseGates": {
     "date": "2026-11-09",
@@ -375,6 +377,19 @@
     "replayed": true,
     "sameIds": true,
     "shopifyProductCreated": false,
-    "categoryIds": []
+    "categoryIds": [],
+    "shopifyExactSkuCountAfterAttempt": 0,
+    "shopifyStoreVerified": "ecom-blueprint-gen-6ud1s.myshopify.com",
+    "operationStateAfterAttempt": "LOCAL_DRAFT",
+    "mappingCount": 0,
+    "journalEvents": 1,
+    "temporaryCreateConfigSavedThenClosed": true,
+    "requestOutcomeInferredFromClick": false
+  },
+  "effectiveAccessAfterCleanup": {
+    "source": "Fresh authenticated product page after native Lovable secret update",
+    "canCreateDraft": false,
+    "canWrite": false,
+    "message": "Modifiche non autorizzate per questo account o perimetro di collaudo."
   }
 }
