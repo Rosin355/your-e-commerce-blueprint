@@ -1,0 +1,281 @@
+{
+  "data": {
+    "nodes": [
+      {
+        "id": "gid://shopify/Product/15836783116628",
+        "title": "Kalanchoe “Calandiva bianco\"",
+        "handle": "kalanchoe-calandiva-bianco",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_182937-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836800614740",
+        "title": "Elaeagnus Ebbingei Aurea - Eleagno",
+        "handle": "elaeagnus-ebbingei-aurea-eleagno",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_287827-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836802220372",
+        "title": "Agave Americana Verde",
+        "handle": "agave-americana-verde",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_317782-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836802941268",
+        "title": "Prunus Avium Lapins - Ciliegio",
+        "handle": "prunus-avium-lapins-ciliegio",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_326285-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836803465556",
+        "title": "Castanea Sativa Marrone Di Marradi - Castagno Marrone",
+        "handle": "castanea-sativa-marrone-di-marradi-castagno-marrone",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_334361-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836804546900",
+        "title": "Fagus Sylvatica Dawyck Purple - Faggio",
+        "handle": "fagus-sylvatica-dawyck-purple-faggio",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_349957-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836806578516",
+        "title": "Paulownia Tomentosa - Paulonia",
+        "handle": "paulownia-tomentosa-paulonia",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_371278-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836809494868",
+        "title": "Rosa Jasmina - Rampicante",
+        "handle": "rosa-jasmina-rampicante",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_436162-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836810477908",
+        "title": "Parrotia Persica Bella - Albero Pagoda",
+        "handle": "parrotia-persica-bella-albero-pagoda",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_455857-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836815130964",
+        "title": "Calycanthus Venus - Calicanto Estivo",
+        "handle": "calycanthus-venus-calicanto-estivo",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_575973-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15357645914452",
+        "title": "Kalanchoe Tetraphylla - Kalanchoe a Quattro Foglie",
+        "handle": "kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_631727"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836819849556",
+        "title": "Rhyncospermum Asiaticum Tricolor - Gelsomino",
+        "handle": "rhyncospermum-asiaticum-tricolor-gelsomino",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_689687-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836827156820",
+        "title": "Calycanthus Floridus - Calicanto Estivo",
+        "handle": "calycanthus-floridus-calicanto-estivo",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_737951-01"
+            },
+            {
+              "sku": "OG_737951-02"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836830925140",
+        "title": "Tradescantia Nanouk",
+        "handle": "tradescantia-nanouk",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_748228-01"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15357649813844",
+        "title": "Ginkgo Biloba Menhir: L'albero Antico dal Portamento Elegante",
+        "handle": "ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_818665"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15357650272596",
+        "title": "Ginkgo Biloba Mariken: Albero Nano da Giardino e Terrazzo",
+        "handle": "ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_839828"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      },
+      {
+        "id": "gid://shopify/Product/15836864676180",
+        "title": "Viburnum Odoratissimum ‘Coppertop’ - Viburno",
+        "handle": "viburnum-odoratissimum-coppertop-viburno",
+        "status": "ACTIVE",
+        "variants": {
+          "nodes": [
+            {
+              "sku": "OG_924853-2-1-01-1-1"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false
+          }
+        }
+      }
+    ]
+  }
+}

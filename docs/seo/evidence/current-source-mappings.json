@@ -1,0 +1,139 @@
+{
+  "checked_at": "2026-11-10T10:30:03.762Z",
+  "source": "Supabase product_sync_csv_products, read-only SELECT",
+  "rows": [
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836783116628",
+      "sku": "OG_182937",
+      "title": "Kalanchoe “Calandiva bianco\""
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836800614740",
+      "sku": "OG_287827",
+      "title": "Elaeagnus Ebbingei Aurea - Eleagno"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836802220372",
+      "sku": "OG_317782",
+      "title": "Agave Americana Verde"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836802941268",
+      "sku": "OG_326285",
+      "title": "Prunus Avium Lapins - Ciliegio"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836803465556",
+      "sku": "OG_334361",
+      "title": "Castanea Sativa Marrone Di Marradi - Castagno Marrone"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836804546900",
+      "sku": "OG_349957",
+      "title": "Fagus Sylvatica Dawyck Purple - Faggio"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836806578516",
+      "sku": "OG_371278",
+      "title": "Paulownia Tomentosa - Paulonia"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836809494868",
+      "sku": "OG_436162",
+      "title": "Rosa Jasmina - Rampicante"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836810477908",
+      "sku": "OG_455857",
+      "title": "Parrotia Persica Bella - Albero Pagoda"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": null,
+      "sku": "OG_557118",
+      "title": "Magnolia Grandiflora Little Gem"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836815130964",
+      "sku": "OG_575973",
+      "title": "Calycanthus Venus - Calicanto Estivo"
+    },
+    {
+      "handle": "kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie",
+      "parent_sku": null,
+      "shopify_product_id": "15357645914452",
+      "sku": "OG_631727",
+      "title": "Kalanchoe Tetraphylla - Kalanchoe a Quattro Foglie"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836819849556",
+      "sku": "OG_689687",
+      "title": "Rhyncospermum Asiaticum Tricolor - Gelsomino"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836827156820",
+      "sku": "OG_737951",
+      "title": "Calycanthus Floridus - Calicanto Estivo"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836830925140",
+      "sku": "OG_748228",
+      "title": "Tradescantia Nanouk"
+    },
+    {
+      "handle": "ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante",
+      "parent_sku": null,
+      "shopify_product_id": "15357649813844",
+      "sku": "OG_818665",
+      "title": "Ginkgo Biloba Menhir: L'albero Antico dal Portamento Elegante"
+    },
+    {
+      "handle": "ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo",
+      "parent_sku": null,
+      "shopify_product_id": "15357650272596",
+      "sku": "OG_839828",
+      "title": "Ginkgo Biloba Mariken: Albero Nano da Giardino e Terrazzo"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": "gid://shopify/Product/15836864676180",
+      "sku": "OG_924853-2-1-1-1",
+      "title": "Viburnum Odoratissimum ‘Coppertop’ - Viburno"
+    },
+    {
+      "handle": null,
+      "parent_sku": null,
+      "shopify_product_id": null,
+      "sku": "OG_939693",
+      "title": "Celtis australis - Bagolaro"
+    }
+  ]
+}

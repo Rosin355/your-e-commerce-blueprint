@@ -1,0 +1,56 @@
+{
+  "checked_at": "2026-11-10T10:36:27.053030+00:00",
+  "method": "local Vite branch; Chrome public fresh profile; no admin login",
+  "responses": [
+    {
+      "path": "/products/tradescantia-nanouk",
+      "exit_code": 0,
+      "title": [
+        "Tradescantia Nanouk | Online Garden"
+      ],
+      "canonical": [
+        "<link rel=\"canonical\" href=\"https://onlinegarden.it/products/tradescantia-nanouk\">"
+      ],
+      "robots": [
+        "<meta name=\"robots\" content=\"index,follow\">"
+      ],
+      "h1": [
+        "Tradescantia Nanouk"
+      ],
+      "product_links": [
+        "/products/rosa-maizner-fastnacht",
+        "/products/osmanthus-armatus-osmanto",
+        "/products/hydrangea-macrophylla-king-george-ortensia",
+        "/products/prunus-subhirtella-autumnalis-rosea-ciliegio-da-fiore"
+      ],
+      "product_offers": [
+        [
+          {
+            "@type": "Offer",
+            "url": "https://onlinegarden.it/products/tradescantia-nanouk",
+            "price": "13.2",
+            "priceCurrency": "EUR"
+          }
+        ]
+      ]
+    },
+    {
+      "path": "/products/seo-missing-product-p1-20261110",
+      "exit_code": 0,
+      "title": [
+        "Prodotto non trovato | Online Garden"
+      ],
+      "canonical": [
+        "<link rel=\"canonical\" href=\"https://onlinegarden.it/products/seo-missing-product-p1-20261110\">"
+      ],
+      "robots": [
+        "<meta name=\"robots\" content=\"noindex,follow\">"
+      ],
+      "h1": [
+        "Prodotto non trovato"
+      ],
+      "product_links": [],
+      "product_offers": []
+    }
+  ]
+}

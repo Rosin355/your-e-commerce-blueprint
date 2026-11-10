@@ -1,3 +1,4 @@
+import { STOREFRONT_ORIGIN } from '@/lib/storefront-indexing';
 import { useEffect } from 'react';
 import { productStructuredData, serializeStructuredData, type ProductStructuredDataSource } from '@/lib/storefront-structured-data';
 
@@ -6,7 +7,7 @@ export function useProductStructuredData(product: ProductStructuredDataSource | 
   const source = product ? JSON.stringify(product) : null;
   useEffect(() => {
     if (!source) return;
-    const origin = import.meta.env.VITE_SITE_URL || window.location.origin;
+    const origin = import.meta.env.VITE_SITE_URL || STOREFRONT_ORIGIN;
     const script = document.createElement('script');
     script.type = 'application/ld+json';
     script.dataset.storefrontProduct = 'true';

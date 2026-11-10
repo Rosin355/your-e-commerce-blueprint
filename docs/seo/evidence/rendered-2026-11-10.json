@@ -1,0 +1,109 @@
+{
+  "checked_at": "2026-11-10T10:28:45.166920+00:00",
+  "method": "headless Chrome fresh profile; no authenticated session; 15s virtual budget; no Googlebot verification",
+  "responses": [
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/",
+      "exit_code": 0,
+      "title": [
+        "Pagina non trovata | Online Garden"
+      ],
+      "canonical": [
+        "<link rel=\"canonical\" href=\"https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/\">"
+      ],
+      "robots": [
+        "<meta name=\"robots\" content=\"noindex,follow\">"
+      ],
+      "h1": [
+        "404"
+      ],
+      "jsonld": [],
+      "text_length": 14865,
+      "product_links": []
+    },
+    {
+      "url": "https://onlinegarden.it/products/tradescantia-nanouk",
+      "exit_code": 0,
+      "title": [
+        "Tradescantia Nanouk | Online Garden"
+      ],
+      "canonical": [
+        "<link rel=\"canonical\" href=\"https://onlinegarden.it/products/tradescantia-nanouk\">"
+      ],
+      "robots": [
+        "<meta name=\"robots\" content=\"index,follow\">"
+      ],
+      "h1": [
+        "Tradescantia Nanouk"
+      ],
+      "jsonld": [
+        "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Product\",\"@id\":\"https://onlinegarden.it/products/tradescantia-nanouk#product\",\"url\":\"https://onlinegarden.it/products/tradescantia-nanouk\",\"name\":\"Tradescantia Nanouk\",\"description\":\"La Tradescantia Nanouk, conosciuta anche come Tradescantia Albiflora, \u00e8 una pianta d'appartamento affascinante e di facile cura, appartenente alla famiglia delle Commelinacee. Originaria delle regioni tropicali dell'America centrale e meridionale, in particolare del Messico, questa pianta \u00e8 apprezzata per il suo fogliame variegato e colorato, che si adatta perfettamente a qualsiasi ambiente interno.Esposizione e TerrenoLa Tradescantia Nanouk prospera in condizioni di mezz'ombra, preferendo la luce indiretta per evitare danni alle foglie. \u00c8 fondamentale utilizzare un terreno ben drenato e ricco di nutrienti per garantire una crescita sana. Assicurati che il vaso abbia fori di drenaggio per prevenire ristagni d'acqua, che possono portare a malattie fungine come il marciume radicale.Irrigazione e ManutenzioneIrriga la Tradescantia Nanouk quando il terriccio superficiale \u00e8 asciutto, generalmente ogni 5-7 giorni in estate e ogni 10-14 giorni in inverno. Utilizza acqua a temperatura ambiente e annaffia abbondantemente fino a quando l'acqua fuoriesce dai fori di drenaggio, eliminando l'acqua in eccesso dal sottovaso. Nebulizza le foglie regolarmente per aumentare l'umidit\u00e0, particolarmente utile in ambienti secchi. Durante la stagione di crescita (primavera e estate), concima ogni 4-6 settimane con un fertilizzante liquido bilanciato, diluendolo secondo le istruzioni del produttore.Parassiti e MalattieLa Tradescantia Nanouk \u00e8 generalmente resistente, ma pu\u00f2 essere soggetta a parassiti come afidi e cocciniglie. Controlla regolarmente la pianta per prevenire infestazioni e malattie. Mantenere un buon drainaggio e una corretta irrigazione \u00e8 essenziale per la salute della pianta.Caratteristiche e BeneficiQuesta pianta \u00e8 sempreverde e presenta foglie ovate con margini lisci, che possono raggiungere un'altezza massima di 30 cm. La Tradescantia Nanouk \u00e8 nota per la sua velocit\u00e0 di crescita e la sua capacit\u00e0 di purificare l'aria, rendendola un'ottima scelta per gli interni. Inoltre, \u00e8 attraente per gli impollinatori e fornisce un habitat per la fauna.Curiosit\u00e0Una delle caratteristiche pi\u00f9 affascinanti della Tradescantia Nanouk \u00e8 la sua capacit\u00e0 di cambiare colore. Le foglie presentano una combinazione unica di verde, bianco e rosa, che varia a seconda della luce e delle condizioni ambientali, grazie alla presenza di antociani. Questo spettacolo di colori dinamico rende la pianta un elemento decorativo straordinario per qualsiasi spazio.Tossicit\u00e0La Tradescantia Nanouk non \u00e8 tossica per gli esseri umani e gli animali domestici, ma \u00e8 consigliabile evitare l'ingestione di qualsiasi parte della pianta, poich\u00e9 potrebbe causare lievi disturbi gastrointestinali.Con la sua bellezza e facilit\u00e0 di cura, la Tradescantia Nanouk \u00e8 una scelta ideale per chi desidera arricchire il proprio ambiente con una pianta decorativa e vivace.\",\"image\":[\"https://cdn.shopify.com/s/files/1/1026/0096/6484/files/tradescantia-nanouk-1.jpg?v=1791072197\"]},{\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https://onlinegarden.it/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Tutti i prodotti\",\"item\":\"https://onlinegarden.it/collections/all\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"Tradescantia Nanouk\",\"item\":\"https://onlinegarden.it/products/tradescantia-nanouk\"}]}]}"
+      ],
+      "text_length": 21069,
+      "product_links": []
+    },
+    {
+      "url": "https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo",
+      "exit_code": 0,
+      "title": [
+        "Ginkgo Biloba Mariken | Albero Nano da Giardino e Vaso | Online Garden"
+      ],
+      "canonical": [
+        "<link rel=\"canonical\" href=\"https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo\">"
+      ],
+      "robots": [
+        "<meta name=\"robots\" content=\"index,follow\">"
+      ],
+      "h1": [
+        "Ginkgo Biloba Mariken: Albero Nano da Giardino e Terrazzo"
+      ],
+      "jsonld": [
+        "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Product\",\"@id\":\"https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo#product\",\"url\":\"https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo\",\"name\":\"Ginkgo Biloba Mariken: Albero Nano da Giardino e Terrazzo\",\"description\":\"Il fascino millenario del Ginkgo in versione nana Il Ginkgo Biloba Mariken \u00e8 un vero gioiello botanico, una selezione nana della pianta pi\u00f9 antica del mondo. Se desideri il fascino storico e la bellezza estetica del Ginkgo ma non hai lo spazio necessario per un albero ad alto fusto, la variet\u00e0 Mariken \u00e8 la soluzione perfetta. Questa pianta mantiene una forma globosa naturale e ordinata, crescendo con estrema lentezza, il che la rende ideale per chi cerca un elemento decorativo senza l'onere di potature costanti. Colori spettacolari per il tuo terrazzo Una delle caratteristiche pi\u00f9 amate del Ginkgo Mariken \u00e8 il suo ciclo stagionale. In primavera e estate, le sue foglie a ventaglio mostrano un verde smeraldo vibrante che dona freschezza a balconi e vasi. Tuttavia, \u00e8 in autunno che avviene la vera magia: il fogliame si tinge di un giallo dorato puro e brillante, creando un punto focale luminoso capace di trasformare l'atmosfera di qualsiasi spazio esterno prima della caduta invernale. Consigli per una coltivazione di successo Il Ginkgo Biloba Mariken \u00e8 una pianta incredibilmente rustica e adattabile. Online Garden seleziona esemplari robusti pronti per essere messi a dimora. Predilige un'esposizione soleggiata per garantire la migliore colorazione autunnale, ma \u00e8 capace di tollerare anche posizioni pi\u00f9 ombreggiate. \u00c8 un compagno di giardino fedele che resiste ottimamente sia alle temperature polari che alla siccit\u00e0 moderata, una volta stabilizzato. La sua adattabilit\u00e0 lo rende perfetto anche per i pollici verdi meno esperti o per chi ha poco tempo da dedicare alla cura del verde. Perch\u00e9 scegliere Online Garden Acquistare il tuo Ginkgo Mariken su Online Garden significa scegliere qualit\u00e0 e sicurezza. Ogni pianta viene preparata con cura artigianale per il trasporto, assicurando che arrivi a casa tua in condizioni eccellenti. La nostra spedizione protetta garantisce che la struttura delicata dell'albero nano sia preservata, cos\u00ec da poterlo inserire immediatamente nel tuo progetto di verde domestico. Scegli la longevit\u00e0 e l'eleganza di un fossile vivente in miniatura.\",\"image\":[\"https://cdn.shopify.com/s/files/1/1026/0096/6484/files/ginkgo-biloba-mariken-1.jpg?v=1775812910\"]},{\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https://onlinegarden.it/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Tutti i prodotti\",\"item\":\"https://onlinegarden.it/collections/all\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"Ginkgo Biloba Mariken: Albero Nano da Giardino e Terrazzo\",\"item\":\"https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo\"}]}]}"
+      ],
+      "text_length": 23903,
+      "product_links": []
+    },
+    {
+      "url": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+      "exit_code": 0,
+      "title": [
+        "Rosa Jasmina - Rampicante | Online Garden"
+      ],
+      "canonical": [
+        "<link rel=\"canonical\" href=\"https://onlinegarden.it/products/rosa-jasmina-rampicante\">"
+      ],
+      "robots": [
+        "<meta name=\"robots\" content=\"index,follow\">"
+      ],
+      "h1": [
+        "Rosa Jasmina - Rampicante"
+      ],
+      "jsonld": [
+        "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Product\",\"@id\":\"https://onlinegarden.it/products/rosa-jasmina-rampicante#product\",\"url\":\"https://onlinegarden.it/products/rosa-jasmina-rampicante\",\"name\":\"Rosa Jasmina - Rampicante\",\"description\":\"Rosa Jasmina - Rampicante \u2013 Un rampicante delizioso, con grandi fiori a corolla di colore rosa intenso e profumati. La Rosa Jasmina cresce rapidamente fino a 3 m di altezza e molto vigorosamente su fusti spinosi. Dispone di foglie di medie grandezze color verde lucido con margini seghettati.Coltivazione \u2013 La Rosa Jasmina adatta bene anche la realizzazione di piccole siepi, Predilige un terreno fertile e drenato ed \u00e8 abbastanza resistente. Per renderla pi\u00f9 forte bisogna fertilizzarla regolarmente \u2013 specialmente se le sorgenti di nutrimenti sono ridotte. Questo tipo di pianta deve essere annaffiato regolarmente ogni settimana e bisogna evitare l'accumulo di acqua nelle radici.Gli effetti \u2013 La Rosa Jasmina - Rampicante, grazie alla sua crescita vigorosa, dona un effetto scenografico a qualsiasi giardino, patios o terrazzi. Regala numerosi fiori a corolla che, durante tutta l'estate, profumano l'ambiente circostante, rallegrando la vista con la loro bella tonalit\u00e0 di color rosa. Ottima resistenza a parassiti e malattie rende la Rosa Jasmina - Rampicante un\u2019ottima soluzione sia per giardini privati che per aree pubbliche.\",\"image\":[\"https://cdn.shopify.com/s/files/1/1026/0096/6484/files/rosa-jasmina-rampicante-1.jpg?v=1791069885\"]},{\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https://onlinegarden.it/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Tutti i prodotti\",\"item\":\"https://onlinegarden.it/collections/all\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"Rosa Jasmina - Rampicante\",\"item\":\"https://onlinegarden.it/products/rosa-jasmina-rampicante\"}]}]}"
+      ],
+      "text_length": 19315,
+      "product_links": []
+    },
+    {
+      "url": "https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone",
+      "exit_code": 0,
+      "title": [
+        "Castanea Sativa Marrone Di Marradi - Castagno Marrone | Online Garden"
+      ],
+      "canonical": [
+        "<link rel=\"canonical\" href=\"https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone\">"
+      ],
+      "robots": [
+        "<meta name=\"robots\" content=\"index,follow\">"
+      ],
+      "h1": [
+        "Castanea Sativa Marrone Di Marradi - Castagno Marrone"
+      ],
+      "jsonld": [
+        "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Product\",\"@id\":\"https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone#product\",\"url\":\"https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone\",\"name\":\"Castanea Sativa Marrone Di Marradi - Castagno Marrone\",\"description\":\"La Castanea Sativa Marrone di Marradi, comunemente conosciuta come Castagno Marrone, \u00e8 un albero maestoso che pu\u00f2 raggiungere un'altezza di fino a 3000 metri. Originario delle regioni temperate dell'Europa e dell'Asia Minore, questo castagno si \u00e8 adattato perfettamente al clima montano dell'Appennino Tosco-Emiliano, dove \u00e8 diventato un simbolo della biodiversit\u00e0 e della cultura agroalimentare locale.Esposizione e TerrenoQuesta pianta prospera in pieno sole e richiede un terreno ben drenato e sabbioso, ricco di sostanze nutritive. \u00c8 fondamentale mantenere il pH del suolo tra 5.5 e 6.5 per garantire una crescita sana. La Castanea sativa \u00e8 adatta a giardini rocciosi e come albero ombreggiante, offrendo anche un habitat ideale per la fauna.Irrigazione e ColtivazioneL'irrigazione deve essere moderata, specialmente nei primi anni dopo l'impianto. Si consiglia di irrigare ogni 7-10 giorni durante la stagione di crescita, fornendo circa 20-30 litri per pianta. Le piante adulte sono pi\u00f9 resistenti alla siccit\u00e0, ma beneficiano di irrigazioni occasionali durante periodi secchi. \u00c8 importante evitare ristagni idrici e monitorare l'umidit\u00e0 del suolo. Durante la stagione vegetativa, \u00e8 consigliabile somministrare un concime bilanciato (NPK 10-10-10) ogni 6-8 settimane e utilizzare un concime organico in primavera.Cura e ManutenzionePer mantenere la Castanea sativa in salute, \u00e8 essenziale effettuare potature regolari per rimuovere rami secchi e favorire una buona circolazione dell'aria. Monitorare la pianta per eventuali malattie fungine e parassiti \u00e8 cruciale. Tra le malattie pi\u00f9 comuni ci sono il cancro del castagno e il marciume radicale, mentre il punteruolo del castagno \u00e8 uno dei parassiti pi\u00f9 dannosi. Interventi tempestivi possono prevenire infestazioni e malattie.Frutti e BeneficiLa Castanea sativa \u00e8 una pianta da frutto che produce castagne commestibili, ricche di nutrienti. I frutti maturano nei mesi di marzo, aprile, giugno e settembre. Oltre a fornire frutti deliziosi, questa pianta offre numerosi benefici ecologici, come il controllo dell'erosione, la purificazione dell'aria e l'attrazione di impollinatori.Curiosit\u00e0La Castanea sativa \u00e8 nota per la sua longevit\u00e0, potendo vivere fino a 1000 anni. Il Marrone di Marradi \u00e8 particolarmente apprezzato per il suo sapore dolce e la sua resistenza a malattie e parassiti, rendendolo un simbolo di sostenibilit\u00e0 e tradizione nelle coltivazioni italiane.Acquistare un Castagno Marrone di Marradi significa non solo arricchire il proprio giardino, ma anche contribuire alla conservazione di una tradizione agricola preziosa.\",\"image\":[\"https://cdn.shopify.com/s/files/1/1026/0096/6484/files/castanea-sativa-marrone-di-marradi-castagno-marrone-1.jpg?v=1791069251\"]},{\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https://onlinegarden.it/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Tutti i prodotti\",\"item\":\"https://onlinegarden.it/collections/all\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"Castanea Sativa Marrone Di Marradi - Castagno Marrone\",\"item\":\"https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone\"}]}]}"
+      ],
+      "text_length": 21161,
+      "product_links": []
+    }
+  ]
+}

@@ -1,0 +1,1006 @@
+{
+  "checked_at": "2026-11-10T10:26:45.939812+00:00",
+  "method": "curl GET follow redirects max 6; standard user agent; no browser rendering",
+  "legacy_paths_checked": 21,
+  "responses": [
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "e27d4e67a0b00d7be20e519d04a52363de651fb843371cd0b4e9c6e6202c5b55",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "e27d4e67a0b00d7be20e519d04a52363de651fb843371cd0b4e9c6e6202c5b55",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "e27d4e67a0b00d7be20e519d04a52363de651fb843371cd0b4e9c6e6202c5b55",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "e27d4e67a0b00d7be20e519d04a52363de651fb843371cd0b4e9c6e6202c5b55",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "e27d4e67a0b00d7be20e519d04a52363de651fb843371cd0b4e9c6e6202c5b55",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "e27d4e67a0b00d7be20e519d04a52363de651fb843371cd0b4e9c6e6202c5b55",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "e27d4e67a0b00d7be20e519d04a52363de651fb843371cd0b4e9c6e6202c5b55",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "e27d4e67a0b00d7be20e519d04a52363de651fb843371cd0b4e9c6e6202c5b55",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "e27d4e67a0b00d7be20e519d04a52363de651fb843371cd0b4e9c6e6202c5b55",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/magnolia-grandiflora-little-gem/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/magnolia-grandiflora-little-gem/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/magnolia-grandiflora-little-gem/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/magnolia-grandiflora-little-gem/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/magnolia-grandiflora-little-gem/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/celtis-australis-bagolaro/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/celtis-australis-bagolaro/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/alberi/celtis-australis-bagolaro/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/celtis-australis-bagolaro/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/celtis-australis-bagolaro/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "0523a30ae954a117155118c50d32ee1bef97c5f6098a5e5732a0dcd3e0e4e66c",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/phlebodium-aureum-davana/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/phlebodium-aureum-davana/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/phlebodium-aureum-davana/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/phlebodium-aureum-davana/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/phlebodium-aureum-davana/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/peperomia-caperata-rosso/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/peperomia-caperata-rosso/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/peperomia-caperata-rosso/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/peperomia-caperata-rosso/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/peperomia-caperata-rosso/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/da-frutto/prunus-avium-lapins-ciliegio/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/da-frutto/prunus-avium-lapins-ciliegio/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "f9deb8f65f78f24306491d3e1b72e12b55179eb6418b4487ca77acdbc81660c9",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/da-frutto/prunus-avium-lapins-ciliegio/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/da-frutto/prunus-avium-lapins-ciliegio/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/da-frutto/prunus-avium-lapins-ciliegio/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/viburnum-odoratissimum-coppertop-viburno/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/viburnum-odoratissimum-coppertop-viburno/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/viburnum-odoratissimum-coppertop-viburno/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/viburnum-odoratissimum-coppertop-viburno/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/viburnum-odoratissimum-coppertop-viburno/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/"
+      ]
+    },
+    {
+      "url": "http://onlinegarden.it/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 301,
+      "first_location": [
+        "https://onlinegarden.it/"
+      ]
+    },
+    {
+      "url": "http://www.onlinegarden.it/",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/",
+      "redirects": 1,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/robots.txt",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/robots.txt",
+      "redirects": 0,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "a3d27b3ca5ce32341fa9f96f01169b521b1657c05d1860c45d1e53a6258e9e8b",
+      "title": [],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": false,
+      "body": "User-agent: Googlebot\nAllow: /\n\nUser-agent: Bingbot\nAllow: /\n\nUser-agent: Twitterbot\nAllow: /\n\nUser-agent: facebookexternalhit\nAllow: /\n\nUser-agent: *\nAllow: /\n",
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://onlinegarden.it/sitemap.xml",
+      "status": 404,
+      "final_url": "https://onlinegarden.it/sitemap.xml",
+      "redirects": 0,
+      "content_type": "text/plain; charset=UTF-8",
+      "sha256": "e3ebaa16dd9d9b9fc107c42183fb6cf9d22927e1af03dbbdfa0ccc38e4e4ac31",
+      "title": [],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": false,
+      "body": "Not found",
+      "first_status": 404,
+      "first_location": []
+    },
+    {
+      "url": "https://www.onlinegarden.it/sitemap.xml",
+      "status": 404,
+      "final_url": "https://onlinegarden.it/sitemap.xml",
+      "redirects": 1,
+      "content_type": "text/plain; charset=UTF-8",
+      "sha256": "e3ebaa16dd9d9b9fc107c42183fb6cf9d22927e1af03dbbdfa0ccc38e4e4ac31",
+      "title": [],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": false,
+      "body": "Not found",
+      "first_status": 302,
+      "first_location": [
+        "https://onlinegarden.it/sitemap.xml"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/sitemap_index.xml",
+      "status": 404,
+      "final_url": "https://onlinegarden.it/sitemap_index.xml",
+      "redirects": 0,
+      "content_type": "text/plain; charset=UTF-8",
+      "sha256": "e3ebaa16dd9d9b9fc107c42183fb6cf9d22927e1af03dbbdfa0ccc38e4e4ac31",
+      "title": [],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": false,
+      "body": "Not found",
+      "first_status": 404,
+      "first_location": []
+    },
+    {
+      "url": "https://onlinegarden.it/wp-sitemap.xml",
+      "status": 404,
+      "final_url": "https://onlinegarden.it/wp-sitemap.xml",
+      "redirects": 0,
+      "content_type": "text/plain; charset=UTF-8",
+      "sha256": "e3ebaa16dd9d9b9fc107c42183fb6cf9d22927e1af03dbbdfa0ccc38e4e4ac31",
+      "title": [],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": false,
+      "body": "Not found",
+      "first_status": 404,
+      "first_location": []
+    },
+    {
+      "url": "https://onlinegarden.it/products/seo-missing-product-p1-20261110",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/products/seo-missing-product-p1-20261110",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    },
+    {
+      "url": "https://onlinegarden.it/seo-missing-page-p1-20261110",
+      "status": 200,
+      "final_url": "https://onlinegarden.it/seo-missing-page-p1-20261110",
+      "redirects": 0,
+      "content_type": "text/html; charset=utf-8",
+      "sha256": "b0df25b93882b14ef744463d4de9d939bbd43d28b1bb03618755d74c2f30d953",
+      "title": [
+        "Online Garden - Vendita Piante Online"
+      ],
+      "canonical": [],
+      "robots": [],
+      "h1": [],
+      "product_jsonld": false,
+      "root_empty": true,
+      "first_status": 200,
+      "first_location": []
+    }
+  ]
+}

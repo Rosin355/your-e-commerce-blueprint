@@ -1,14 +1,15 @@
-## TODO SEO prioritario — 10 novembre 2026
+## SEO Recovery P1 — preparato per revisione, 10 novembre 2026
 
-**P1 — recupero visibilità organica dopo migrazione WooCommerce → Lovable/Shopify.** Il cliente segnala prodotti non più indicizzati e link storici in 404. È un problema da diagnosticare e correggere separatamente da Admin V2: non dedurre lo stato HTTP dal solo report Search Console.
+**Diagnosi mirata completata sul branch `codex/seo-recovery-p1`, base main `e111ecf`; nessun merge o deploy SEO.** Baseline GSC riconfermata: 299 → 155 clic (−48,16%), 25.353 → 10.704 impressioni (−57,78%) fra 1–7 ottobre e 1–7 novembre; il confronto non dimostra la causa del calo.
 
-- Fonte collegata: Google Search Console per `sc-domain:onlinegarden.it` tramite Windsor.ai. Prima settimana ottobre 2026: 299 clic e 25.353 impressioni; prima settimana novembre 2026: 155 clic e 10.704 impressioni (dati recenti suscettibili di consolidamento); il confronto segnala un calo, non ne identifica da solo la causa.
-- Esempi di URL storici comparsi in GSC: `/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/`, `/prodotto/rose/rosa-jasmina-rampicante/`, `/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/`. Verificare risposte HTTP reali di host `www` e apex.
-- Fonti di recupero: export Search Console (pagine, query, clic/impressioni), analytics Lovable, backlink, sitemap vecchie, e backup database WooCommerce già segnalato dal proprietario su Drive. Leggere solo quanto necessario; nessun import di clienti o dati personali per il lavoro SEO.
-- Preparare matrice `old_url → current_url | restored_product | genuine_410/404`, con SKU/slug/prodotto realmente corrispondenti. Priorità agli URL con clic/impressioni/link in ingresso. Evitare redirect generici alla homepage, soft 404 e associazioni basate sul solo titolo.
-- Verificare `robots.txt`, sitemap XML, `noindex`, canonical, host `www`/apex, linking interno e Product JSON-LD; per vecchi prodotti equivalenti usare 301/308 server-side diretti alla nuova scheda canonica, solo dopo QA HTTP. Per prodotti rimossi valutare alternative realmente equivalenti, altrimenti 404/410 appropriato.
-- Dopo la pubblicazione autorizzata: inviare sitemap aggiornata a GSC, usare URL Inspection per pagine prioritarie, monitorare 404, clic, impressioni, copertura e posizioni per 4-8 settimane; i ranking non sono garantiti né immediati.
-- **Stato: TODO PRIORITARIO / nessun redirect ancora autorizzato o pubblicato.** Mantenere Admin V2 Livello B, migration, scritture e sync Shopify OFF e separati; preservare tariffe A/B, checkout e Sendcloud.
+- Matrice: **1.380 URL storici / 1.274 percorsi**; 21 percorsi verificati su apex/www, zero 404 HTTP prodotto nel campione. I 4 URL iniziali sono soft 404 confermate nel rendering (HTTP 200 + pagina 404/noindex). Gli altri URL non testati sono marcati esplicitamente.
+- **16 mapping tecnici ad alta confidenza**, correlati per Woo ID/SKU, categoria/immagini, GID/varianti e catalogo pubblico; tutti da revisionare, **zero redirect pubblicati**. Tre casi del campione richiedono identità/decisione aggiuntiva; 1.255 percorsi restano da riconciliare. Nessuna destinazione inventata o redirect generico.
+- Sitemap standard live assenti (404). Preparata sitemap XML con **1.346 prodotti pubblici + 3 rotte**, direttiva robots, canonical apex coerente, meta robots corretto durante caricamento, offerte JSON-LD da prezzi reali e link PDP href. Nessun dato commerciale Shopify modificato.
+- I veri 301 richiedono un livello HTTP configurabile prima di Lovable; la disponibilità del provider esistente e la precedenza sul 302 www devono essere confermate nel change. Adattatore offline disabilitato, nessun DNS o workflow deploy.
+- [Piano e limiti](seo/SEO-RECOVERY-PLAN.md), [baseline e monitoraggio 7/14/30/60 giorni](seo/GSC-BASELINE.md), [matrice](seo/LEGACY-URL-REDIRECT-MAP.csv). Test mirati/lint/typecheck/build eseguiti; CI/GitGuardian e SHA finali nel registro della singola PR SEO.
+- **Prossimo passo:** revisione della PR e dei 16 mapping con autorizzazione specifica a un successivo change SEO sul livello HTTP confermato. Nessun merge/deploy automatico e nessuna promessa di ranking.
+
+**Continuità Admin:** PR #47 MERGED, commit `b56d421b8c30fbf74e4768c112acbdc6e874fd08`; Livello B nel main ma disabilitato, Livello A live di riferimento `admin-readonly-20261106-r1`. Ultima lettura attestata 09/11 19:16:37 CET: scritture e Shopify sync OFF; nessuna nuova lettura runtime dichiarata. Migration operativa non applicata da questo intervento; file/flag Admin invariati. Recovery non dimostrato, identità/ruolo Marco non verificati, zero mapping categorie approvati. Nessun canary, prodotto, ruolo, secret, inventario, Payments, checkout, tariffe A/B o Sendcloud modificato. Le sezioni seguenti conservano la cronologia Admin.
 
 ## Integrazione sicura PR #47 — attestazione proprietario del 9 novembre 2026
 

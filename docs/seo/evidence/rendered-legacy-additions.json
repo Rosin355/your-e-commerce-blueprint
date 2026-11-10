@@ -1,0 +1,45 @@
+{
+  "checked_at": "2026-11-10T10:35:29.641119+00:00",
+  "method": "headless Chrome, fresh public session, no login",
+  "responses": [
+    {
+      "url": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/",
+      "exit_code": 0,
+      "title": [
+        "Pagina non trovata | Online Garden"
+      ],
+      "h1": [
+        "404"
+      ],
+      "robots": [
+        "<meta name=\"robots\" content=\"noindex,follow\">"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/",
+      "exit_code": 0,
+      "title": [
+        "Pagina non trovata | Online Garden"
+      ],
+      "h1": [
+        "404"
+      ],
+      "robots": [
+        "<meta name=\"robots\" content=\"noindex,follow\">"
+      ]
+    },
+    {
+      "url": "https://onlinegarden.it/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/",
+      "exit_code": 0,
+      "title": [
+        "Pagina non trovata | Online Garden"
+      ],
+      "h1": [
+        "404"
+      ],
+      "robots": [
+        "<meta name=\"robots\" content=\"noindex,follow\">"
+      ]
+    }
+  ]
+}
