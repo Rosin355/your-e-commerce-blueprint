@@ -1,10 +1,14 @@
 {
-  "status": "DELIVERY_CODE_IMPLEMENTED_PRODUCTION_NOT_ACTIVATED",
+  "status": "MIGRATION_BACKEND_FRONTEND_RELEASED_CANARY_AND_CLIENT_ACCEPTANCE_PENDING",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
-    "commit": "1ad61826c01ade2821f6c1577a3bd1555d0ab899",
-    "version": "admin-readonly-20261106-r1",
-    "changedThisTask": false
+    "version": "admin-delivery-20261110-r1",
+    "changedThisTask": true,
+    "deploymentId": "885640f0-b94e-4220-989c-dff4677b8125",
+    "markerVerifiedAt": "2026-11-10T16:07:40+01:00",
+    "releaseSourceIntegration": "096a435f0c0f6ba9722c67fbba2d1b8508678bc3",
+    "latestGeneratedCheckoutObserved": "d9ad4902afeaae954bef56d1da0281cd2f17da57",
+    "previousContentCommit": "1ad61826c01ade2821f6c1577a3bd1555d0ab899"
   },
   "target": {
     "lovableProject": "95cad199-55fd-4870-9d5c-a2653edf88f5",
@@ -19,7 +23,7 @@
     "path": "docs/release/pending/20261031184521_admin_operational_drafts.sql",
     "sha256": "ce63ea211dd7b5f08e222f7b462afc5719a276782a80bca52c1b69abd29cf328",
     "changed": false,
-    "execution": "Single explicit transaction; error stops and rolls back; history recorded only with successful DDL",
+    "execution": "Single native Lovable transaction; only outer BEGIN/COMMIT removed because migration tool owns transaction; preflight, DDL, postconditions, history same transaction",
     "tables": [
       "admin_product_operations",
       "admin_product_shopify_links",
@@ -32,7 +36,8 @@
       "admin_complete_draft",
       "admin_finish_categories"
     ],
-    "applyNow": false
+    "applyNow": false,
+    "applied": true
   },
   "backup": {
     "providerBackupPreviouslyObserved": "2026-11-06T05:25:08Z",
@@ -63,12 +68,13 @@
   },
   "writes": {
     "master": "OFF_LAST_VERIFIED",
-    "shopifySync": "OFF_LAST_VERIFIED",
-    "drafts": "NOT_ACTIVATED_THIS_EXECUTION",
-    "draftShopify": "NOT_ACTIVATED_THIS_EXECUTION",
-    "categories": "NOT_ACTIVATED_THIS_EXECUTION",
-    "operationalApproval": "NO_CANARY_SET_THIS_EXECUTION",
-    "frontendReadOnly": "LIVE_RETAINED; explicit operational build prepared separately"
+    "shopifySync": "SET_FALSE_AND_RUNTIME_FALSE",
+    "drafts": "REQUESTED_TRUE_MASTER_STILL_OFF_LAST_VERIFIED",
+    "draftShopify": "SET_FALSE",
+    "categories": "SET_FALSE",
+    "operationalApproval": "SET_JSON_NULL",
+    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_SERVER_WRITES_OFF",
+    "canaryScope": "EXACT_TECHNICAL_ACTOR_SKU_REQUEST_ONLY_UPLOAD_AND_SAVE_EXPIRES"
   },
   "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
   "productionMutationsThisTask": 0,
@@ -130,7 +136,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "Production actions already authorized within owner mandate. Honor mandatory tool approvals; client registration deferred. Never infer runtime activation from merge or plan approval.",
+  "authorizationNeededNow": "Mandatory browser action-time confirmation to save master true for exact technical canary; client registration deferred by owner. No credentials requested.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -149,21 +155,31 @@
   "backend": {
     "plannedVersion": "admin-delivery-20261110-r1",
     "sourceIntegrated": true,
-    "deployedThisTask": false,
+    "deployedThisTask": true,
     "liveProviderObservation": "product-admin-api Active; UI Deployments 178; last updated about one month ago. No source SHA/version proven by this metadata.",
     "deploymentAllowlist": [
       "product-admin-api",
       "product-admin-ai"
     ],
-    "aiDeploymentPurpose": "Existing deny-in-canary guard must be live before master ON; no AI activation"
+    "aiDeploymentPurpose": "Existing deny-in-canary guard must be live before master ON; no AI activation",
+    "sourceCodeMatchesReviewedHead": true,
+    "runtimeBytecodeExportAvailable": false,
+    "packageFingerprints": {
+      "product-admin-api": "b5b28ad35801dbf53de92d78997e157a5e26a36386635a11f18acb83727ed352",
+      "product-admin-ai": "a52a2ac830a5e108421b4926b7a3bf4cfd93fb9b9055094bb89f7f78a24c73b0"
+    },
+    "unauthenticatedLiveProbe": "401 UNAUTHENTICATED / Token mancante, before action dispatch",
+    "aiAuthenticatedLiveProbe": false
   },
   "frontendBuild": {
     "flag": "VITE_ADMIN_OPERATIONAL_RELEASE",
     "enabledByDefault": false,
     "requiresNewBuild": true,
     "localStorageOverride": false,
-    "operationalPublished": false,
-    "explicitReleaseBuildConfigured": true
+    "operationalPublished": true,
+    "explicitReleaseBuildConfigured": true,
+    "localAssetCount": 68,
+    "localArtifactsIdenticalAfterGeneratedTypes": true
   },
   "canary": {
     "serverScopeImplemented": true,
@@ -182,13 +198,13 @@
     "freshCreateRejectsPinnedGid": true
   },
   "runtimeObservation": {
-    "observedAt": "2026-11-10T15:18:56+01:00",
+    "observedAt": "2026-11-10T16:07:40+01:00",
     "origin": "https://onlinegarden.it",
     "writesEnabled": false,
     "writeMode": "canary",
     "shopifySyncEnabled": false,
     "isMarcoSession": false,
-    "source": "Authenticated UI read via Chrome by release operator"
+    "source": "Authenticated browser UI, published release marker verified"
   },
   "package": {
     "generator": "scripts/prepare-admin-v2-activation.mjs",
@@ -200,11 +216,16 @@
       "rollback-empty.sql"
     ],
     "originalMigrationModified": false,
-    "sqlExecutedLive": false,
-    "wrapperDatabaseExecutionVerified": false,
+    "sqlExecutedLive": true,
+    "wrapperDatabaseExecutionVerified": true,
     "rollbackRequiresEmptyTablesAndMatchingHistory": true,
-    "providerServiceRoleDefaultsBroaderThanMinimumGrant": true,
-    "deliveryGenerator": "scripts/prepare-admin-catalog-delivery.mjs"
+    "providerServiceRoleDefaultsBroaderThanMinimumGrant": false,
+    "deliveryGenerator": "scripts/prepare-admin-catalog-delivery.mjs",
+    "nativeMigrationFile": "drizzle/migrations/0015_admin_catalog_atomic_delivery.sql",
+    "nativeFileSha256": "ee58531550b7e27c4003be80b5c9c43bbca7f689bc24f07d7f881669fceaa2b6",
+    "nativeBodyMatchesApprovedExceptFinalNewline": true,
+    "historySourceSha256Verified": true,
+    "platformSandboxRolesNotClient": true
   },
   "categories": {
     "internal": 22,
@@ -218,20 +239,32 @@
   },
   "currentExecution": {
     "date": "2026-11-10",
-    "levelA": "LIVE_READONLY_RETAINED",
-    "levelB": "IMPLEMENTED_NOT_ACTIVATED",
+    "levelA": "READ_ACCESS_PRESERVED_NEW_UI_PUBLISHED",
+    "levelB": "RELEASED_CODE_CANARY_PENDING_CLIENT_ACCOUNT_ABSENT",
     "workingBranch": "codex/admin-v2-operational-delivery",
     "cloudResourcesCreated": 0,
-    "productionMutations": 0,
     "rolesChanged": 0,
-    "migrationApplied": false,
-    "deployExecuted": false,
+    "migrationApplied": true,
+    "deployExecuted": true,
     "marcoRegistration": "DEFERRED_BY_OWNER_ACCOUNT_NOT_PRESENT",
     "capabilitiesAssigned": false,
     "applicationApproval": "OWNER-ADMIN-DELIVERY-20261110",
     "restoreVerified": false,
     "completionPr": 50,
-    "releaseChecks": "PENDING_FINAL_HEAD_CI_AND_GITGUARDIAN"
+    "releaseChecks": "PASS_CI_APPLICATION_POSTGRES17_GITGUARDIAN",
+    "prState": "MERGED",
+    "mergedMain": "096a435f0c0f6ba9722c67fbba2d1b8508678bc3",
+    "reviewedHead": "5fbab624c60e81f7f90e72cbe3a740e3d97c662f",
+    "ciRun": "https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/42837086444",
+    "backendCodeIdenticalToReviewedHead": true,
+    "backendExecution": "PROVIDER_DEPLOY_SUCCESS_AND_LIVE_AUTH_REJECTION",
+    "runtimePreMigrationRead": "2026-11-10T15:46:44+01:00",
+    "frontendPublished": true,
+    "catalogMutations": 0,
+    "uploadedFiles": 0,
+    "technicalDraftCreated": false,
+    "ordinaryCapabilitiesAssigned": 0,
+    "masterEnable": "PENDING_BROWSER_ACTION_TIME_CONSENT"
   },
   "finalReleaseGates": {
     "date": "2026-11-09",
@@ -262,7 +295,7 @@
     "version": "20261110135043",
     "path": "docs/release/pending/20261110135043_admin_catalog_client_delivery.sql",
     "sha256": "793fdc18a9c34e8575af3f9d74daac5ce0d04e666efccdaf733a3af202ba5d7c",
-    "applied": false,
+    "applied": true,
     "automaticDeployment": false
   },
   "ordinaryCatalog": {

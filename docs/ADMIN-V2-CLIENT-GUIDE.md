@@ -1,6 +1,6 @@
 # Admin Online Garden — guida cliente
 
-**Stato al 10 novembre 2026:** il sito pubblico offre ancora la consultazione. Le funzioni descritte sotto sono implementate nel rilascio di completamento, ma non vanno considerate disponibili finché non viene registrata la pubblicazione e la prova live. La registrazione del tuo account è stata rinviata: nessuna sessione cliente è stata collaudata o abilitata.
+**Stato al 10 novembre 2026:** la nuova interfaccia `admin-delivery-20261110-r1` è pubblicata su https://onlinegarden.it/admin. Migration e backend sono distribuiti; le scritture restano OFF all’ultima lettura verificata, prima del collaudo tecnico DRAFT. La registrazione del tuo account è stata rinviata: nessuna sessione cliente è stata collaudata o abilitata. Le istruzioni operative sotto valgono quando le tue capability saranno assegnate; il solo Publish non le assegna.
 
 1. **Accedi.** Completa registrazione e verifica dell’indirizzo concordato su https://onlinegarden.it/auth. Dopo l’abilitazione del responsabile apri https://onlinegarden.it/admin. Non condividere password o codici. Un accesso Shopify non attribuisce automaticamente accesso all’Admin.
 2. **Cerca e modifica.** In Prodotti cerca lo SKU o il nome e apri la scheda corretta. Usa Modifica soltanto sui campi disponibili. Salva nell’Admin; il salvataggio non modifica automaticamente Shopify. Se i dati sono cambiati, ricarica e confronta prima di confermare.
