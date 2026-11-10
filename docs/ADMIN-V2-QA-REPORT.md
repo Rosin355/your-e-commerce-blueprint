@@ -1,3 +1,15 @@
+## QA consegna operativa — 10 novembre 2026
+
+**Stato corrente: prove locali del codice, non accettazione produttiva.** Frontend/backend TypeScript e lint mirato PASS; build operativa locale PASS. Test HTTP/policy mirati: 30 PASS (approvazioni persistite, revoca/scadenza, payload alterato, replay, prezzi esatti, drift, blocco pubblicazione tecnica, upload server-side e retry senza doppio file). Servizio bozze: 11 test di creazione/recovery/categorie aggiornati per i nuovi grant PASS. La CI verificherà lo SHA finale. Fixture SQL isolata PostgreSQL 16.15: atomicità con errore intermedio, ACL/RLS, claim singolo e grant editor PASS; aggiunto job CI PostgreSQL 17.6 per il target corretto. Nessuna fixture equivale a Supabase Auth o restore gestito.
+
+Validatore ufficiale Shopify: query/mutation nuove validate su Admin 2026-01/2026-10; nuove letture Storefront pin 2026-01, mantenendo il default degli altri chiamanti. Dipendenze applicative invariate. Il codice sorgente della RPC di sync precedente corrisponde all’impronta letta sul backend del progetto.
+
+Live: sola lettura diagnostica autenticata 10/11 15:18:56 CET false/canary/false. Non eseguiti: migration, deploy, percorso integrato DRAFT, browser del nuovo rilascio, login Marco, pubblicazione commerciale. Nessun PASS live derivato da test simulati, pulsanti o merge. Registrazione cliente rinviata dal proprietario.
+
+CI/GitGuardian e risultati sullo SHA finale da registrare nella PR di completamento. Snapshot 10/11 05:26:11 UTC disponibile, restore non dimostrato; accettazione rischio del proprietario registrata nel runbook. SEO #49 separata; nessuna modifica a checkout, A/B, Sendcloud, inventario commerciale o ordini.
+
+---
+
 ## Gate finali PR #47 — 9 novembre 2026
 
 Riesaminato solo il perimetro richiesto: check già SUCCESS su `4fe94d1` riutilizzati, nessuna suite precedente rilanciata manualmente. Una lacuna concreta è stata corretta nella stessa PR: recovery confronta anche il Product GID eventualmente fissato; una create nuova viene rifiutata se lo scope identifica già un prodotto Shopify. **Due nuovi test HTTP mirati PASS**, lint dei soli file modificati e check del servizio eseguiti. CI/GitGuardian finali riferiti al nuovo HEAD nella PR; i vecchi successi non vengono attribuiti al nuovo commit.

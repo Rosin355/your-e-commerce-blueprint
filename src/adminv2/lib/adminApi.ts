@@ -9,6 +9,10 @@ export type EntityType = 'simple' | 'variable' | 'variation';
 
 export interface AdminContext {
   roles: string[];
+  ordinaryCatalog?: boolean;
+  canUploadImages?: boolean;
+  canManagePrices?: boolean;
+  canPublish?: boolean;
   writesEnabled: boolean;
   writeMode?: 'canary' | 'full';
   canWrite: boolean;
@@ -82,6 +86,7 @@ export interface AdminField {
   syncErrorMessage: string | null;
   shopifyVerifiedAt: string | null;
   shopifyLiveValue: unknown;
+  shopifyBaselineHash?: string;
   storefrontPlacement: string;
   formatHint: string;
   editable: boolean;
@@ -251,6 +256,33 @@ export async function callAdminApi<T = unknown>(
   return invokeWithAdminSession<T>('product-admin-api', ADMIN_READ_ONLY_RELEASE ? readOnlyRequest(body) : body, signal);
 }
 
+/** An uncertain retry reuses the same server request, rather than issuing a new write. */
+const catalogRequests = new Map<string, string>();
+export async function callCatalogCommand<T = unknown>(body: Record<string, unknown>): Promise<T> {
+  const { idempotencyKey: supplied, ...identity } = body;
+  const fingerprint = JSON.stringify(identity);
+  let key = catalogRequests.get(fingerprint);
+  if (!key) {
+    key = typeof supplied === 'string' ? supplied : crypto.randomUUID();
+    if (catalogRequests.size >= 100) catalogRequests.delete(catalogRequests.keys().next().value!);
+    catalogRequests.set(fingerprint, key);
+  }
+  const command = { ...body, idempotencyKey: key };
+  const context = await callAdminApi<AdminContext>({ action: 'get_admin_context' });
+  if (!context.ordinaryCatalog) return callAdminApi<T>({ ...command, confirm: true });
+  if (!window.confirm('Confermi questa operazione sui dati visualizzati? Il server registrerà la conferma e controllerà che i dati non siano cambiati.')) {
+    throw new AdminApiError('CANCELLED', 'Operazione annullata. Nessun dato modificato.');
+  }
+  try {
+    const approval = await callAdminApi<{ approvalId: string }>({ action: 'prepare_catalog_approval', command, confirm: true });
+    return await callAdminApi<T>({ ...command, approvalId: approval.approvalId, confirm: true });
+  } catch (error) {
+    // Recovery never creates remotely and may need a fresh confirmation after expiry.
+    if (body.action === 'recover_shopify_draft') catalogRequests.delete(fingerprint);
+    throw error;
+  }
+}
+
 export async function callAdminAiApi<T = unknown>(body: Record<string, unknown>): Promise<T> {
   if (ADMIN_READ_ONLY_RELEASE) throw new AdminApiError('WRITES_DISABLED', READ_ONLY_RELEASE_NOTICE);
   return invokeWithAdminSession<T>('product-admin-ai', body);
@@ -298,7 +330,7 @@ export async function sendFieldCommand(input: {
   value?: unknown;
   expectedVersion: number;
 }): Promise<{ ok: boolean; code?: string; result?: Record<string, unknown> }> {
-  return callAdminApi({
+  return callCatalogCommand({
     action: input.action,
     productId: input.productId,
     fieldKey: input.fieldKey,
@@ -313,9 +345,11 @@ export async function sendFieldSyncCommand(input: {
   fieldKey: string;
   expectedVersion: number;
   idempotencyKey?: string;
+  expectedShopifyHash?: string;
 }): Promise<{ ok: boolean; result?: Record<string, unknown> }> {
-  return callAdminApi({
+  return callCatalogCommand({
     action: 'sync_field',
+    expectedShopifyHash: input.expectedShopifyHash,
     productId: input.productId,
     fieldKey: input.fieldKey,
     expectedVersion: input.expectedVersion,

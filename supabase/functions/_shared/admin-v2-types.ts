@@ -48,6 +48,8 @@ export type ApiErrorCode =
 export interface AuthContext {
   userId: string;
   roles: AppRole[];
+  catalogApproval?: { action: string; target: string; before: Record<string, unknown> };
+  catalogGrant?: { enabled: boolean; capabilities: string[]; fieldKeys: string[] };
 }
 
 export interface FieldDefinition {

@@ -2,7 +2,7 @@ import { OperationalError, UUID, type ProductDraft } from './admin-operational-c
 
 export const CANARY_SCOPED_ACTIONS = [
   'update_field', 'confirm_legacy_value', 'reject_legacy_value', 'sync_field',
-  'save_new_product', 'create_shopify_draft', 'recover_shopify_draft', 'apply_categories',
+  'upload_catalog_image', 'save_new_product', 'create_shopify_draft', 'recover_shopify_draft', 'apply_categories',
 ] as const;
 
 export interface CanaryScope {

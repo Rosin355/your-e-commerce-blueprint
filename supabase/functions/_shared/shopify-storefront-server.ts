@@ -32,9 +32,10 @@ export function isHeadlessStorefrontConfigured(): boolean {
 export async function shopifyStorefrontGraphQL<T = any>(
   query: string,
   variables: Record<string, unknown> = {},
+  apiVersion: string = SHOPIFY_STOREFRONT_API_VERSION,
 ): Promise<T> {
   const cfg = getStorefrontConfig();
-  const url = `https://${cfg.shop}/api/${cfg.apiVersion}/graphql.json`;
+  const url = `https://${cfg.shop}/api/${apiVersion}/graphql.json`;
 
   let attempts = 0;
   while (attempts < 3) {

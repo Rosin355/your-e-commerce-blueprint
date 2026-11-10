@@ -1,6 +1,6 @@
 {
-  "status": "LEVEL_B_CODE_READY_LIVE_ACTIVATION_BLOCKED",
-  "baseMain": "885420429986fb2dba739c75d55fe4e8da844ab9",
+  "status": "DELIVERY_CODE_IMPLEMENTED_PRODUCTION_NOT_ACTIVATED",
+  "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "commit": "1ad61826c01ade2821f6c1577a3bd1555d0ab899",
     "version": "admin-readonly-20261106-r1",
@@ -50,24 +50,25 @@
     "requiredToolchain": "PostgreSQL server/pg_dump/psql 17 for prepared plain-SQL structural procedure; tools 16.15 observed only, no new run or installation",
     "scopeLimit": "DDL fixture/archive partial only; not production data/Auth/Storage/managed recovery",
     "optionalExportFormat": "PLAIN_SQL_SCHEMA_ONLY; owner/comment/security-label output suppressed, ACL retained; never an application-row backup",
-    "latestProviderSnapshotObserved": "2026-11-09T05:25:16Z",
-    "snapshotObservedVia": "Lovable project / Database / Manage / Backups; 15 visible points; restore not executed"
+    "latestProviderSnapshotObserved": "2026-11-10T05:26:11Z",
+    "snapshotObservedVia": "Lovable project / Database / Manage / Backups; 15 visible points; restore not executed",
+    "ownerAcceptedNoDestructiveRestoreTest": true
   },
   "gates": {
-    "migrationApproval": false,
+    "migrationApproval": true,
     "backupRecovery": false,
     "marcoIdentityAndRole": false,
     "approvedCanaryDraftSku": null,
     "categoryMappingsApproved": 0
   },
   "writes": {
-    "master": "KEEP_OFF",
-    "shopifySync": "KEEP_OFF",
-    "drafts": "KEEP_OFF",
-    "draftShopify": "KEEP_OFF",
-    "categories": "KEEP_OFF",
-    "operationalApproval": "DO_NOT_SET",
-    "frontendReadOnly": "KEEP_TRUE"
+    "master": "OFF_LAST_VERIFIED",
+    "shopifySync": "OFF_LAST_VERIFIED",
+    "drafts": "NOT_ACTIVATED_THIS_EXECUTION",
+    "draftShopify": "NOT_ACTIVATED_THIS_EXECUTION",
+    "categories": "NOT_ACTIVATED_THIS_EXECUTION",
+    "operationalApproval": "NO_CANARY_SET_THIS_EXECUTION",
+    "frontendReadOnly": "LIVE_RETAINED; explicit operational build prepared separately"
   },
   "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
   "productionMutationsThisTask": 0,
@@ -129,7 +130,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "Approve the single change sheet in ADMIN-V2-ACTIVATION-RUNBOOK.md only after its recovery evidence and owner-confirmed Marco/canary identity fields are complete. Migration consent must explicitly name target, original migration SHA-256 and recovery plan; no writes or deploy while gates remain false.",
+  "authorizationNeededNow": "Production actions already authorized within owner mandate. Honor mandatory tool approvals; client registration deferred. Never infer runtime activation from merge or plan approval.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -146,7 +147,7 @@
     "liveChangesThisExecution": false
   },
   "backend": {
-    "plannedVersion": "admin-operational-b-20261109-r1",
+    "plannedVersion": "admin-delivery-20261110-r1",
     "sourceIntegrated": true,
     "deployedThisTask": false,
     "liveProviderObservation": "product-admin-api Active; UI Deployments 178; last updated about one month ago. No source SHA/version proven by this metadata."
@@ -156,7 +157,8 @@
     "enabledByDefault": false,
     "requiresNewBuild": true,
     "localStorageOverride": false,
-    "operationalPublished": false
+    "operationalPublished": false,
+    "explicitReleaseBuildConfigured": true
   },
   "canary": {
     "serverScopeImplemented": true,
@@ -175,13 +177,13 @@
     "freshCreateRejectsPinnedGid": true
   },
   "runtimeObservation": {
-    "observedAt": "2026-11-09T14:57:44+01:00",
+    "observedAt": "2026-11-10T15:18:56+01:00",
     "origin": "https://onlinegarden.it",
     "writesEnabled": false,
     "writeMode": "canary",
     "shopifySyncEnabled": false,
     "isMarcoSession": false,
-    "specificOperationalFlags": "NOT_EXPOSED_BY_CURRENT_LIVE_API; no inference from master flags"
+    "source": "Authenticated UI read via Chrome by release operator"
   },
   "package": {
     "generator": "scripts/prepare-admin-v2-activation.mjs",
@@ -196,7 +198,8 @@
     "sqlExecutedLive": false,
     "wrapperDatabaseExecutionVerified": false,
     "rollbackRequiresEmptyTablesAndMatchingHistory": true,
-    "providerServiceRoleDefaultsBroaderThanMinimumGrant": true
+    "providerServiceRoleDefaultsBroaderThanMinimumGrant": true,
+    "deliveryGenerator": "scripts/prepare-admin-catalog-delivery.mjs"
   },
   "categories": {
     "internal": 22,
@@ -209,17 +212,19 @@
     "source": "Existing approved reconciliation evidence; not a new Shopify audit"
   },
   "currentExecution": {
-    "date": "2026-11-09",
+    "date": "2026-11-10",
     "levelA": "LIVE_READONLY_RETAINED",
-    "levelB": "CODE_READY_NOT_OPERATIONAL_LIVE",
-    "workingBranch": "codex/admin-v2-level-b-activation",
+    "levelB": "IMPLEMENTED_NOT_ACTIVATED",
+    "workingBranch": "codex/admin-v2-operational-delivery",
     "cloudResourcesCreated": 0,
     "productionMutations": 0,
     "rolesChanged": 0,
     "migrationApplied": false,
     "deployExecuted": false,
-    "previousSqlSuitesRepeated": false,
-    "previousClosure": "closure field below is historical evidence for 2026-11-06, not current code status"
+    "marcoRegistration": "DEFERRED_BY_OWNER_ACCOUNT_NOT_PRESENT",
+    "capabilitiesAssigned": false,
+    "applicationApproval": "OWNER-ADMIN-DELIVERY-20261110",
+    "restoreVerified": false
   },
   "finalReleaseGates": {
     "date": "2026-11-09",
@@ -245,5 +250,34 @@
     "mergeExecuted": false,
     "deployExecuted": false,
     "finalChecks": "Recorded on final PR head; do not reuse prior-SHA checks as final-SHA evidence"
+  },
+  "deliveryDelta": {
+    "version": "20261110135043",
+    "path": "docs/release/pending/20261110135043_admin_catalog_client_delivery.sql",
+    "sha256": "793fdc18a9c34e8575af3f9d74daac5ce0d04e666efccdaf733a3af202ba5d7c",
+    "applied": false,
+    "automaticDeployment": false
+  },
+  "ordinaryCatalog": {
+    "authorization": "Exact persisted grant plus real editor role; no user_metadata",
+    "capabilities": [
+      "edit",
+      "sync",
+      "drafts",
+      "images",
+      "categories",
+      "prices",
+      "publish"
+    ],
+    "assignedAccounts": 0,
+    "persistentApproval": true,
+    "approvalMinutes": 10,
+    "fieldAllowlist": true,
+    "auditAndIdempotency": true,
+    "newProductsAlwaysDraft": true,
+    "technicalProductPublishForbidden": true,
+    "publicationChannel": "gid://shopify/Publication/338862113108",
+    "logistics": "Validate native A/B per variant; no tariff/collection mutations",
+    "integratedAcceptanceLive": false
   }
 }

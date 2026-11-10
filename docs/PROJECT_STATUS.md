@@ -1,3 +1,14 @@
+## Consegna operativa Admin V2 — esecuzione 10 novembre 2026
+
+**Stato corrente: codice di completamento implementato; rilascio produttivo e accettazione NON conclusi.** Questo mandato autorizza migration additiva, backend, build operativa, un solo DRAFT tecnico e capability catalogo minime; supera i precedenti vincoli “solo preparazione” nel solo perimetro dichiarato. Le sezioni successive sono cronologia, salvo evidenze più recenti registrate esplicitamente.
+
+- Partenza dal main effettivo `1324f0536eef3ff33ce43b8d74d84ba5307244a7`; PR #42/#46/#47 già integrate. Una sola PR di completamento; SEO #49 separata.
+- Runtime live autenticato riletto il **10/11/2026 alle 15:18:56 CET**, origine `https://onlinegarden.it`: **false / canary / false**, stato **READ-ONLY**. Sessione tecnica, non sessione Marco. Nessuna attivazione deriva da questa lettura.
+- L’account cliente indicato privatamente non esiste in Auth. Il proprietario ha rinviato registrazione/verifica: nessun account creato, nessuna password/codice richiesti, nessuna capability attribuita ad altri utenti. L’abilitazione cliente resta da eseguire sull’identità verificata.
+- Implementati conferma UI + approvazione server persistita, actor/action/hash/versione/scadenza, claim singolo/audit, immagini da computer e READY, prezzi per variante, categorie editoriali manuali con identità verificata, pubblicazione separata sul canale Headless con controllo A/B. Salvataggio/invio iniziale sempre DRAFT; prodotto tecnico escluso dalla pubblicazione.
+- Nessuna migration applicata, nessun deploy/Publish o flag produttivo modificato, nessun prodotto tecnico/commerciale scritto in questa fase. Il flag Vite nel codice prepara la futura build operativa; il default del codice resta fail-closed se manca l’esatto valore `true`. Merge, editor e sito pubblicato sono verifiche separate.
+- Snapshot gestito osservato **2026-11-10T05:26:11Z**. Il proprietario accetta il rischio senza restore distruttivo di prova; **restoreVerified=false**. Sorgente backend precedente nota conservata e frontend precedente recuperabile; non è disponibile uno SHA attestabile del bundle backend attualmente in esecuzione.
+
 ## TODO SEO prioritario — 10 novembre 2026
 
 **P1 — recupero visibilità organica dopo migrazione WooCommerce → Lovable/Shopify.** Il cliente segnala prodotti non più indicizzati e link storici in 404. È un problema da diagnosticare e correggere separatamente da Admin V2: non dedurre lo stato HTTP dal solo report Search Console.

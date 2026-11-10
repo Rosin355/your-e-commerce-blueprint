@@ -1,9 +1,10 @@
 import { assertEquals, assertRejects } from 'jsr:@std/assert';
 import { handleOperational } from '../../supabase/functions/_shared/admin-operational-service.ts';
 import { OperationalError, type ProductDraft } from '../../supabase/functions/_shared/admin-operational-core.ts';
+import type { AuthContext } from '../../supabase/functions/_shared/admin-v2-types.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
 const id = '40000000-0000-4000-8000-000000000001',
-  actor = { userId: '00000000-0000-4000-8000-000000000001', roles: ['admin'] as ['admin'] };
+  actor: AuthContext = { userId: '00000000-0000-4000-8000-000000000001', roles: ['editor'], catalogGrant: { enabled: true, capabilities: ['drafts','categories'], fieldKeys: [] }, catalogApproval: { action: 'create_shopify_draft', target: id, before: {} } };
 function simulation(
   options: {
     timeout?: boolean;
@@ -180,12 +181,8 @@ Deno.test('creazione simulata: claim, unica mutation DRAFT, rilettura e mapping'
 Deno.test('richiesta costruita manualmente con approvazione per un’altra bozza non crea prodotti', () =>
   withFlags(async () => {
     const s = simulation();
-    Deno.env.set('PRODUCT_ADMIN_OPERATIONAL_APPROVAL', JSON.stringify({
-      action: 'create_shopify_draft',
-      target: '40000000-0000-4000-8000-000000000002',
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-    }));
-    await assertRejects(() => handleOperational(s.db, actor, {
+    const wrongApproval = { ...actor, catalogApproval: { action: 'create_shopify_draft', target: '40000000-0000-4000-8000-000000000002', before: {} } };
+    await assertRejects(() => handleOperational(s.db, wrongApproval, {
       action: 'create_shopify_draft', operationId: id, confirm: true,
     }, s.shopify));
     assertEquals(s.mutations, 0);
@@ -206,7 +203,7 @@ Deno.test('interruttore generale OFF blocca anche il recupero che scriverebbe il
     const s = simulation();
     s.op.state = 'NEEDS_RECONCILIATION';
     Deno.env.set('PRODUCT_ADMIN_WRITES_ENABLED', 'false');
-    const error = await assertRejects(() => handleOperational(s.db, actor, {
+    const error = await assertRejects(() => handleOperational(s.db, {...actor,catalogApproval:{...actor.catalogApproval!,action:'recover_shopify_draft',target:'recovery:'+id}}, {
       action: 'recover_shopify_draft', operationId: id,
     }, s.shopify), OperationalError, 'Recupero della bozza non abilitato.');
     assertEquals(error.code, 'WRITES_DISABLED');
@@ -233,7 +230,7 @@ Deno.test('timeout dopo creazione Shopify: retry non ricrea; recupero solo query
     );
     await handleOperational(
       s.db,
-      actor,
+      {...actor,catalogApproval:{...actor.catalogApproval!,action:'recover_shopify_draft',target:'recovery:'+id}},
       { action: 'recover_shopify_draft', operationId: id },
       s.shopify,
     );
@@ -252,7 +249,7 @@ Deno.test('Shopify riuscito e mapping DB fallito: recupero idempotente senza sec
     );
     await handleOperational(
       s.db,
-      actor,
+      {...actor,catalogApproval:{...actor.catalogApproval!,action:'recover_shopify_draft',target:'recovery:'+id}},
       { action: 'recover_shopify_draft', operationId: id },
       s.shopify,
     );
@@ -322,7 +319,8 @@ Deno.test('drift categorie: anteprima non eseguibile e richiesta manuale non rim
       pageInfo: { hasNextPage: false },
     } } } as T;
   };
-  const preview = await handleOperational(db, actor, {
+  const categoryActor = { ...actor, catalogApproval: { action: 'apply_categories', target: productId, before: {} } };
+  const preview = await handleOperational(db, categoryActor, {
     action: 'preview_categories', productId, categoryIds: [],
   }, shopify) as { executable: boolean };
   assertEquals(preview.executable, false);
@@ -407,7 +405,8 @@ Deno.test('rimozione collezione: finalizzazione DB solo dopo job Shopify complet
     }
     throw Error('Unexpected operation');
   };
-  const preview = await handleOperational(db, actor, {
+  const categoryActor = { ...actor, catalogApproval: { action: 'apply_categories', target: productId, before: {} } };
+  const preview = await handleOperational(db, categoryActor, {
     action: 'preview_categories', productId, categoryIds: [],
   }, shopify) as { expectedHash: string };
   const keys = ['PRODUCT_ADMIN_WRITES_ENABLED', 'PRODUCT_ADMIN_CATEGORIES_ENABLED',
@@ -419,7 +418,7 @@ Deno.test('rimozione collezione: finalizzazione DB solo dopo job Shopify complet
   Deno.env.set(keys[2], JSON.stringify({ action: 'apply_categories',
     target: preview.expectedHash, expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString() }));
   try {
-    const result = await handleOperational(db, actor, {
+    const result = await handleOperational(db, categoryActor, {
       action: 'apply_categories', productId, categoryIds: [], confirm: true,
       expectedHash: preview.expectedHash, idempotencyKey: id,
     }, shopify) as { state: string };

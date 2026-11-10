@@ -56,7 +56,7 @@ const SYNC_STATE: Record<AdminField['syncState'], { label: string; variant: 'out
 export interface FieldCardProps {
   field: AdminField;
   onCommand?: (input: { action: FieldCommandAction; fieldKey: string; value?: unknown; expectedVersion: number }) => Promise<{ ok: boolean; code?: string; result?: Record<string, unknown> }>;
-  onSync?: (input: { fieldKey: string; expectedVersion: number; idempotencyKey?: string }) => Promise<{ ok: boolean; result?: Record<string, unknown> }>;
+  onSync?: (input: { fieldKey: string; expectedVersion: number; expectedShopifyHash?: string; idempotencyKey?: string }) => Promise<{ ok: boolean; result?: Record<string, unknown> }>;
   syncEnabled?: boolean;
   onConflict?: () => Promise<unknown> | unknown;
   aiSuggestion?: AdminAiSuggestion;
@@ -139,7 +139,7 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
         : field.version + 1;
       if (syncAfterSave) {
         if (!onSync) throw new Error('Sincronizzazione non disponibile.');
-        await onSync({ fieldKey: field.key, expectedVersion: nextVersion });
+        await onSync({ fieldKey: field.key, expectedVersion: nextVersion, expectedShopifyHash: field.shopifyBaselineHash });
         toast({ title: 'Salvato e sincronizzato', description: `${field.label} verificato su Shopify.` });
       } else {
         toast(saved.code === 'NO_CHANGE'
@@ -166,7 +166,7 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
     if (!onSync || field.version === null) return;
     setBusy('sync_field');
     try {
-      await onSync({ fieldKey: field.key, expectedVersion: field.version });
+      await onSync({ fieldKey: field.key, expectedVersion: field.version, expectedShopifyHash: field.shopifyBaselineHash });
       toast({ title: 'Campo sincronizzato', description: `${field.label} verificato su Shopify.` });
     } catch (err) {
       const message = err instanceof AdminApiError ? err.message : 'Sincronizzazione non completata.';
