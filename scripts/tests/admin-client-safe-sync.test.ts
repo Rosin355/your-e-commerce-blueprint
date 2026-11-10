@@ -589,3 +589,15 @@ test("migration rende il save PENDING_SYNC e la completion verifica la versione"
   assert.match(sql, /WHEN p_success THEN 'published' ELSE 'failed'/);
   assert.match(sql, /product_admin_command_log/);
 });
+
+
+test('first Shopify sync rejects drift after confirmation even without an earlier sync timestamp', async () => {
+  const target = resolveShopifyTarget(definition()); assert.ok(target);
+  let writes = 0;
+  const graphql: ShopifyGraphQL = async <T>(query) => {
+    if (query.includes('mutation')) writes++;
+    return {product:{id:'gid://shopify/Product/1',metafield:{namespace:'custom',key:'periodo_di_fioritura',type:'single_line_text_field',value:'Aprile'}}} as T;
+  };
+  await assert.rejects(() => performVerifiedShopifyFieldWrite({productId:'1',sku:'OG_1',target,expected:'Marzo',previousVerifiedAt:null,previousVerifiedValue:null,expectedRemote:'Febbraio',hasExpectedRemote:true,graphql}), (error:unknown) => error instanceof ShopifyFieldSyncError && error.code === 'STATE_DRIFT');
+  assert.equal(writes,0);
+});

@@ -31,7 +31,7 @@ Ordine restante: CI/GitGuardian sullo SHA integrabile → applicazione atomica v
 
 ### Stato connettore Lovable
 
-La verifica read-only del provider non espone lo SHA runtime. Il tool di deploy interno può limitarsi a `product-admin-api`, ma usa il checkout del progetto: verificare SHA/diff prima di distribuirlo. Il riepilogo `plan--show` con `{"path":".lovable/plan.md"}` è stato approvato dal proprietario **solo come riepilogo tecnico**, senza operazioni produttive. Durante la verifica Lovable ha scritto il proprio file di piano e aggiunto due dipendenze di sviluppo a package.json: il rilascio deve conservare la cronologia e ripristinare la coerenza con il lockfile, senza includere dipendenze non usate. Ogni nuovo consenso obbligatorio dello strumento resta distinto dal mandato generale.
+La verifica read-only del provider non espone lo SHA runtime. Il tool di deploy interno può limitarsi a `product-admin-api`, ma usa il checkout del progetto: verificare SHA/diff prima di distribuirlo. Il riepilogo `plan--show` con `{"path":".lovable/plan.md"}` è stato approvato dal proprietario **solo come riepilogo tecnico**, senza operazioni produttive. Durante la verifica Lovable ha scritto il proprio file di piano e aggiornato file generati di auth preview/tipi. Gli aggiornamenti di main sono conservati; il broker preview non si applica all’host onlinegarden.it. Due dipendenze di sviluppo aggiunte automaticamente ma non usate sono rimosse nel completamento per mantenere package.json coerente con il lockfile, senza nuove dipendenze applicative. Ogni nuovo consenso obbligatorio dello strumento resta distinto dal mandato generale.
 
 ---
 
