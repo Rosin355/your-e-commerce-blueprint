@@ -1,5 +1,5 @@
 {
-  "status": "TECH_DRAFT_VERIFIED_AFTER_VENDOR_FIX_SINGLE_FIELD_SYNC_APPROVAL_PENDING_CLIENT_ABSENT",
+  "status": "TECH_SINGLE_FIELD_SYNC_VERIFIED_CANARY_CLOSED_SEO_PAIR_GUARD_PENDING_RELEASE_CLIENT_ABSENT",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "version": "admin-delivery-20261110-r1",
@@ -68,13 +68,13 @@
   },
   "writes": {
     "master": "TRUE_VERIFIED_TECH_SCOPE_ONLY",
-    "shopifySync": "SET_FALSE_AND_RUNTIME_FALSE",
+    "shopifySync": "SET_FALSE_AFTER_APPROVED_SINGLE_FIELD_TEST",
     "drafts": "SET_TRUE_UPLOAD_AND_SAVE_LIVE_PASS",
     "draftShopify": "SET_FALSE_AFTER_ONE_REMOTE_DRAFT",
     "categories": "SET_FALSE",
-    "operationalApproval": "EXACT_CREATE_OPERATION_APPROVAL_RETAINED_FOR_RECOVERY_UNTIL_1830_CET",
-    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_EXACT_TECH_CANARY_ONLY_NO_ORDINARY_GRANT",
-    "canaryScope": "RECOVER_ONLY_PINNED_REMOTE_GID_UNTIL_1830_CET"
+    "operationalApproval": "SET_JSON_NULL_AFTER_TEST",
+    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_EFFECTIVE_WRITES_DENIED_WITHOUT_SCOPE_OR_GRANT",
+    "canaryScope": "SET_JSON_NULL_AFTER_TEST"
   },
   "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
   "cloudResourcesCreated": 0,
@@ -135,7 +135,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "Action-time confirmation for exact seo_description update/sync scope on verified technical DRAFT until 18:30 CET; prepared not saved. Client registration deferred.",
+  "authorizationNeededNow": "Owner authorization for one further narrowly scoped SEO pair preservation PR; no new PR or guard deployment performed. Client registration remains deferred.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -213,8 +213,8 @@
     "technicalSku": "OG-ADMIN-CHECK-20261110-63B3FD",
     "draftPersisted": true,
     "shopifyDraftCreated": true,
-    "scopeCurrentlyValid": true,
-    "scopeRevoked": false,
+    "scopeCurrentlyValid": false,
+    "scopeRevoked": true,
     "restorePreparedNotSaved": false,
     "liveStage": "UPLOAD_AND_INTERNAL_SAVE_ONLY",
     "productId": "9598b858-0b18-4906-9d19-d3057712510f",
@@ -228,11 +228,10 @@
     "shopifyProductId": "gid://shopify/Product/15963458797908",
     "nativeDialogManuallyConfirmed": true,
     "remoteDraftCount": 1,
-    "currentActions": [
-      "recover_shopify_draft"
-    ],
+    "currentActions": [],
     "remoteStatus": "DRAFT",
-    "fieldScopePreparedNotSaved": true
+    "fieldScopePreparedNotSaved": false,
+    "singleFieldSyncExecuted": true
   },
   "runtimeObservation": {
     "observedAt": "2026-11-10T17:04:03+01:00",
@@ -279,7 +278,7 @@
   "currentExecution": {
     "date": "2026-11-10",
     "levelA": "READ_ACCESS_PRESERVED_NEW_UI_PUBLISHED",
-    "levelB": "TECH_DRAFT_VERIFIED_FIELD_SYNC_PENDING_NO_CLIENT_GRANTS",
+    "levelB": "TECH_PATH_EXECUTED_SEO_PAIR_GUARD_PENDING_NO_CLIENT_GRANTS",
     "workingBranch": "codex/admin-v2-operational-delivery",
     "cloudResourcesCreated": 0,
     "rolesChanged": 0,
@@ -304,7 +303,7 @@
     "technicalDraftCreated": true,
     "ordinaryCapabilitiesAssigned": 0,
     "masterEnable": "OWNER_CONFIRMED_AND_RUNTIME_TRUE",
-    "integratedAcceptance": "PARTIAL_UPLOAD_SAVE_REMOTE_CREATE_RECOVERY_PASS_FIELD_SYNC_PENDING",
+    "integratedAcceptance": "TARGET_FIELD_SYNC_PASS_ADJACENT_SEO_GUARD_NOT_RELEASED_CLIENT_NOT_ACCEPTED",
     "correctivePr": 51,
     "correctiveMain": "ebf096882fd0210122d09cafb230b1e00c1a8467"
   },
@@ -414,7 +413,13 @@
     "publishedOnHeadless": false,
     "storefrontMessage": "Prodotto non trovato",
     "recoveryCreatedAnotherProduct": false,
-    "journalEventsBeforeRecovery": 2
+    "journalEventsBeforeRecovery": 2,
+    "singleField": "seo_description",
+    "fieldVersion": 2,
+    "singleFieldSavedAt": "2026-11-10T18:16:17+01:00",
+    "singleFieldVerifiedAt": "2026-11-10T18:16:56+01:00",
+    "singleFieldSyncError": null,
+    "technicalScopeClosed": true
   },
   "effectiveAccessAfterCleanup": {
     "source": "Fresh authenticated product page after native Lovable secret update",
@@ -445,5 +450,32 @@
     "gitGuardian": "SUCCESS",
     "uploadedPackageSha256": "907257c1a63a0e93be48ab6f569827a9fdfd35ccfd3cde7d976a8a9ecd50267d",
     "runtimeRecoveryVerified": true
+  },
+  "seoPairObservation": {
+    "rawTitleBefore": "TEST ADMIN — NON PUBBLICARE",
+    "rawTitleAfter": null,
+    "productTitle": "TEST ADMIN — NON PUBBLICARE",
+    "siteFallback": "seo.title || product.title",
+    "effectiveTitleSameForThisDraft": true,
+    "personalizedTitlePreservationProvenLive": false,
+    "compensationAcknowledged": true,
+    "explicitRawRestorationVerified": false,
+    "normalizationIsInference": true
+  },
+  "pendingSeoGuard": {
+    "deployed": false,
+    "prOpened": false,
+    "newFocusedTestsPassed": 7,
+    "relevantRegressionTestsPassed": 2,
+    "denoCheckPassed": true,
+    "moduleLintPassed": true,
+    "additionalPrOwnerExceptionNeeded": true
+  },
+  "adminResponsiveObservation": {
+    "attemptedWidth": 390,
+    "actualWidth": 1512,
+    "mobileAdminPassed": false,
+    "overrideReset": true,
+    "publicMobileEvidenceReused": true
   }
 }
