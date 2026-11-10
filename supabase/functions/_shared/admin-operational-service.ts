@@ -168,7 +168,7 @@ function verifiedLinks(draft: ProductDraft, opId: string, product: ShopifyDraft)
     'Identità della bozza non verificata.',
   );
   demand(
-    product.title === draft.title && product.vendor === draft.vendor &&
+    product.title === draft.title && (!draft.vendor || product.vendor === draft.vendor) &&
       product.variants.nodes.every((v) =>
         draft.variants.some((x) =>
           x.sku === v.sku && Number(x.price) === Number(v.price) &&
@@ -661,7 +661,8 @@ export async function handleOperational(
       status: 'DRAFT',
       handle: `og-draft-${op.id}`,
       descriptionHtml: escapeHtml(draft.description).replace(/\n/g, '<br>'),
-      vendor: draft.vendor,
+      // An empty optional vendor leaves Shopify's own default untouched.
+      ...(draft.vendor ? { vendor: draft.vendor } : {}),
       tags: draft.tags,
       seo: { title: draft.seoTitle, description: draft.seoDescription },
       collections,
