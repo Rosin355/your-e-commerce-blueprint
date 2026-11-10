@@ -150,7 +150,12 @@
     "plannedVersion": "admin-delivery-20261110-r1",
     "sourceIntegrated": true,
     "deployedThisTask": false,
-    "liveProviderObservation": "product-admin-api Active; UI Deployments 178; last updated about one month ago. No source SHA/version proven by this metadata."
+    "liveProviderObservation": "product-admin-api Active; UI Deployments 178; last updated about one month ago. No source SHA/version proven by this metadata.",
+    "deploymentAllowlist": [
+      "product-admin-api",
+      "product-admin-ai"
+    ],
+    "aiDeploymentPurpose": "Existing deny-in-canary guard must be live before master ON; no AI activation"
   },
   "frontendBuild": {
     "flag": "VITE_ADMIN_OPERATIONAL_RELEASE",

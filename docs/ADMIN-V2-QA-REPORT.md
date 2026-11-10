@@ -1,5 +1,7 @@
 ## QA consegna operativa — 10 novembre 2026
 
+Gate prima del master ON: distribuire esclusivamente `product-admin-api` e il guard `product-admin-ai` già integrato, che rifiuta le operazioni AI in modo canary. Il precedente sorgente AI noto permetteva agli admin alcune operazioni con master ON; lasciarlo invariato allargherebbe il perimetro. Nessuna feature AI aggiunta o abilitata; mantenere `PRODUCT_ADMIN_WRITE_MODE=canary` globale. Backend catalogo ordinario deriva dal grant utente esatto, non dal passaggio globale a full.
+
 PR di completamento: [#50](https://github.com/Rosin355/your-e-commerce-blueprint/pull/50), branch `codex/admin-v2-operational-delivery`. CI/GitGuardian e merge da confermare sull’HEAD finale; nessuna operatività live dichiarata.
 
 **Stato corrente: prove locali del codice, non accettazione produttiva.** Frontend/backend TypeScript e lint mirato PASS; build operativa locale PASS. Test HTTP/policy mirati: 30 PASS (approvazioni persistite, revoca/scadenza, payload alterato, replay, prezzi esatti, drift, blocco pubblicazione tecnica, upload server-side e retry senza doppio file). Servizio bozze: 11 test di creazione/recovery/categorie aggiornati per i nuovi grant PASS. La CI verificherà lo SHA finale. Fixture SQL isolata PostgreSQL 16.15: atomicità con errore intermedio, ACL/RLS, claim singolo e grant editor PASS; aggiunto job CI PostgreSQL 17.6 per il target corretto. Nessuna fixture equivale a Supabase Auth o restore gestito.

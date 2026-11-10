@@ -1,5 +1,7 @@
 ## Consegna operativa Admin V2 — esecuzione 10 novembre 2026
 
+Gate prima del master ON: distribuire esclusivamente `product-admin-api` e il guard `product-admin-ai` già integrato, che rifiuta le operazioni AI in modo canary. Il precedente sorgente AI noto permetteva agli admin alcune operazioni con master ON; lasciarlo invariato allargherebbe il perimetro. Nessuna feature AI aggiunta o abilitata; mantenere `PRODUCT_ADMIN_WRITE_MODE=canary` globale. Backend catalogo ordinario deriva dal grant utente esatto, non dal passaggio globale a full.
+
 PR di completamento: [#50](https://github.com/Rosin355/your-e-commerce-blueprint/pull/50), branch `codex/admin-v2-operational-delivery`. CI/GitGuardian e merge da confermare sull’HEAD finale; nessuna operatività live dichiarata.
 
 **Stato corrente: codice di completamento implementato; rilascio produttivo e accettazione NON conclusi.** Questo mandato autorizza migration additiva, backend, build operativa, un solo DRAFT tecnico e capability catalogo minime; supera i precedenti vincoli “solo preparazione” nel solo perimetro dichiarato. Le sezioni successive sono cronologia, salvo evidenze più recenti registrate esplicitamente.
@@ -29,7 +31,7 @@ Account ordinario: ruolo reale `editor` più grant service-only su `admin_catalo
 
 Il modo globale resta canary per il tecnico, limitato a identità/SKU/ID effettivi. Il modo ordinario deriva solo dal grant esatto e consente il lavoro oltre il canary senza modificare secret per ogni prodotto. Nessun grant attuale: account cliente non ancora registrato. La pubblicazione verifica dati reali, immagini, profilo logistico e classi A/B per variante, canale Headless `338862113108` e lettura Storefront dopo la mutation; ACTIVE da solo non è PASS. Non sono stati pubblicati prodotti reali o tecnici. Nuovi prodotti tracciati, quantità non assegnate e inventoryPolicy DENY; eventuale pubblicazione esaurita richiede conferma esplicita.
 
-Ordine restante: CI/GitGuardian sullo SHA integrabile → applicazione atomica verificata → deploy della sola `product-admin-api`, con capability ordinarie assenti → Publish della build `admin-delivery-20261110-r1` → unico percorso DRAFT tecnico → rimozione sola autorizzazione canary → abilitazione del cliente dopo registrazione verificata. Nessun workflow GitHub pubblica frontend/backend o applica DDL automaticamente.
+Ordine restante: CI/GitGuardian sullo SHA integrabile → applicazione atomica verificata → deploy della sola API catalogo e del guard AI indicato sopra, con capability ordinarie assenti → Publish della build `admin-delivery-20261110-r1` → unico percorso DRAFT tecnico → rimozione sola autorizzazione canary → abilitazione del cliente dopo registrazione verificata. Nessun workflow GitHub pubblica frontend/backend o applica DDL automaticamente.
 
 ### Stato connettore Lovable
 
