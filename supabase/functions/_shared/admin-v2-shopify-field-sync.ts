@@ -57,6 +57,8 @@ export interface ShopifyGraphQL {
 
 export interface ExactShopifyTargetRead {
   value: unknown;
+  seo?: ShopifyProductCoreSnapshot["seo"];
+  productTitle?: string;
   variant?: ShopifyVariantSnapshot;
   metafield?: ShopifyMetafieldSnapshot | null;
 }
@@ -238,7 +240,9 @@ export function readProductCoreTargetValue(
   target: ShopifyFieldTarget,
 ): unknown {
   if (target.kind === "product") return snapshot[target.field];
-  if (target.kind === "seo") return snapshot.seo?.[target.field] ?? null;
+  if (target.kind === "seo") return target.field === "title"
+    ? snapshot.seo?.title || snapshot.title
+    : snapshot.seo?.description ?? null;
   throw new ShopifyFieldSyncError("BLOCK_SYNC", "Il target non è un campo prodotto core.");
 }
 
@@ -253,7 +257,14 @@ export async function readExactShopifyTarget(input: {
   const graphql = input.graphql ?? shopifyAdminGraphQL;
   if (input.target.kind === "product" || input.target.kind === "seo") {
     const core = await readProductCoreSnapshot(input.productId, graphql);
-    return { value: readProductCoreTargetValue(core, input.target) };
+    if (input.target.kind === "seo" && (!core.seo ||
+      !Object.hasOwn(core.seo, "title") || !Object.hasOwn(core.seo, "description"))) {
+      throw new ShopifyFieldSyncError("BLOCK_SYNC", "Snapshot SEO live incompleto.");
+    }
+    return {
+      value: readProductCoreTargetValue(core, input.target),
+      ...(input.target.kind === "seo" ? { seo: core.seo, productTitle: core.title } : {}),
+    };
   }
   if (input.target.kind === "variant") {
     const variant = await readExactVariantTarget(input.productId, input.sku, graphql);
@@ -271,7 +282,7 @@ export type ShopifyWritePlan =
   }
   | { operation: "metafieldsSet"; variables: { metafields: Array<Record<string, unknown>> } };
 
-/** Costruisce una mutation a campo singolo: nessun attributo non correlato viene incluso. */
+/** Un solo target; per SEO conserva il campo adiacente dal medesimo snapshot live. */
 export function buildShopifyWritePlan(input: {
   productId: string;
   target: ShopifyFieldTarget;
@@ -286,10 +297,14 @@ export function buildShopifyWritePlan(input: {
     };
   }
   if (input.target.kind === "seo") {
+    const seo = input.resolvedTarget?.seo;
+    if (!seo || !Object.hasOwn(seo, "title") || !Object.hasOwn(seo, "description")) {
+      throw new ShopifyFieldSyncError("BLOCK_SYNC", "Snapshot SEO live necessario prima della scrittura.");
+    }
     return {
       operation: "productUpdate",
       variables: {
-        product: { id: productId, seo: { [input.target.field]: input.value } },
+        product: { id: productId, seo: { ...seo, [input.target.field]: input.value } },
       },
     };
   }
@@ -416,6 +431,15 @@ export async function performVerifiedShopifyFieldWrite(input: {
       "SYNC_VERIFY_FAILED",
       "Shopify non restituisce il valore appena scritto.",
     );
+  }
+  if (input.target.kind === "seo") {
+    const companion = input.target.field === "title" ? "description" : "title";
+    const companionValue = (read: ExactShopifyTargetRead) => companion === "title"
+      ? read.seo?.title || read.productTitle || null
+      : read.seo?.description || null;
+    if (!after.seo || companionValue(before) !== companionValue(after)) {
+      throw new ShopifyFieldSyncError("SYNC_VERIFY_FAILED", "Shopify ha modificato il campo SEO adiacente.");
+    }
   }
   return { verifiedValue: after.value, writePerformed: true };
 }
