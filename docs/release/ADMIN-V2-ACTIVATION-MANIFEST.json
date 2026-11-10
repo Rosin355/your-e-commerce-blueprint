@@ -1,5 +1,5 @@
 {
-  "status": "RELEASED_CANARY_SCOPE_REVOKED_FILE_PERMISSION_PENDING_CLIENT_ACCOUNT_ABSENT",
+  "status": "RELEASED_INTERNAL_DRAFT_AND_IMAGE_VERIFIED_SHOPIFY_APPROVAL_PENDING_CLIENT_ACCOUNT_ABSENT",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "version": "admin-delivery-20261110-r1",
@@ -63,18 +63,18 @@
     "migrationApproval": true,
     "backupRecovery": false,
     "marcoIdentityAndRole": false,
-    "approvedCanaryDraftSku": null,
+    "approvedCanaryDraftSku": "OG-ADMIN-CHECK-20261110-63B3FD",
     "categoryMappingsApproved": 0
   },
   "writes": {
     "master": "TRUE_VERIFIED_TECH_SCOPE_ONLY",
     "shopifySync": "SET_FALSE_AND_RUNTIME_FALSE",
-    "drafts": "SET_TRUE_MASTER_ON_SCOPE_REVOKED",
+    "drafts": "SET_TRUE_UPLOAD_AND_SAVE_LIVE_PASS",
     "draftShopify": "SET_FALSE",
     "categories": "SET_FALSE",
     "operationalApproval": "SET_JSON_NULL",
-    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_EFFECTIVE_WRITES_DENIED_WITHOUT_SCOPE_OR_GRANT",
-    "canaryScope": "SET_JSON_NULL_REVOKED_RUNTIME_ACCESS_DENIED"
+    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_EXACT_CANARY_ONLY_NO_ORDINARY_GRANTS",
+    "canaryScope": "EXACT_UPLOAD_SAVE_SCOPE_RESTORED_OWNER_CONFIRMED_EXPIRES_1740_CET"
   },
   "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
   "cloudResourcesCreated": 0,
@@ -135,7 +135,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "Chrome extension file URL permission and action-time confirmation before restoring exact upload/save canary scope. Client registration deferred by owner.",
+  "authorizationNeededNow": "Action-time confirmation for exact DRAFT Shopify create/recover on saved operation; expiry 17:40 CET. Client registration deferred.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -192,7 +192,7 @@
     "liveDraftStatusRequired": true,
     "maxApprovalHours": 24,
     "aiExcluded": true,
-    "liveExecuted": false,
+    "liveExecuted": true,
     "pinnedGidCheckedOnRecovery": true,
     "freshCreateRejectsPinnedGid": true,
     "initialScopeSaved": true,
@@ -202,11 +202,16 @@
     ],
     "expiresAt": "2026-11-10T16:40:01.867Z",
     "technicalSku": "OG-ADMIN-CHECK-20261110-63B3FD",
-    "draftPersisted": false,
+    "draftPersisted": true,
     "shopifyDraftCreated": false,
-    "scopeCurrentlyValid": false,
-    "scopeRevoked": true,
-    "restorePreparedNotSaved": true
+    "scopeCurrentlyValid": true,
+    "scopeRevoked": false,
+    "restorePreparedNotSaved": false,
+    "liveStage": "UPLOAD_AND_INTERNAL_SAVE_ONLY",
+    "productId": "9598b858-0b18-4906-9d19-d3057712510f",
+    "operationId": "b53c9f25-d769-4ecc-a185-b41c3bfe4ceb",
+    "imageReady": true,
+    "shopifyEnablePreparedNotSaved": true
   },
   "runtimeObservation": {
     "observedAt": "2026-11-10T17:04:03+01:00",
@@ -253,7 +258,7 @@
   "currentExecution": {
     "date": "2026-11-10",
     "levelA": "READ_ACCESS_PRESERVED_NEW_UI_PUBLISHED",
-    "levelB": "RELEASED_NO_VALID_CANARY_SCOPE_NO_CLIENT_GRANTS",
+    "levelB": "TECHNICAL_INTERNAL_DRAFT_VERIFIED_NO_CLIENT_GRANTS",
     "workingBranch": "codex/admin-v2-operational-delivery",
     "cloudResourcesCreated": 0,
     "rolesChanged": 0,
@@ -273,12 +278,12 @@
     "backendExecution": "PROVIDER_DEPLOY_SUCCESS_AND_LIVE_AUTH_REJECTION",
     "runtimePreMigrationRead": "2026-11-10T15:46:44+01:00",
     "frontendPublished": true,
-    "catalogMutations": 0,
-    "uploadedFiles": 0,
-    "technicalDraftCreated": false,
+    "catalogMutations": 1,
+    "uploadedFiles": 1,
+    "technicalDraftCreated": true,
     "ordinaryCapabilitiesAssigned": 0,
     "masterEnable": "OWNER_CONFIRMED_AND_RUNTIME_TRUE",
-    "integratedAcceptance": "BLOCKED_FILE_URL_PERMISSION_AND_SCOPE_RESTORE_CONFIRMATION"
+    "integratedAcceptance": "PARTIAL_UPLOAD_INTERNAL_SAVE_REREAD_DB_REPLAY_PASS_SHOPIFY_PENDING"
   },
   "finalReleaseGates": {
     "date": "2026-11-09",
@@ -356,6 +361,20 @@
     "cartOrCheckoutActions": 0,
     "safariOrIosVerified": false
   },
-  "productionCatalogMutationsThisTask": 0,
-  "productionInfrastructureChangedThisTask": true
+  "productionCatalogMutationsThisTask": 1,
+  "productionInfrastructureChangedThisTask": true,
+  "productionCatalogMutationUnit": "ONE_TECHNICAL_PRODUCT_CREATED_NO_COMMERCIAL_PRODUCT_CHANGES",
+  "technicalCanaryEvidence": {
+    "savedAt": "2026-11-10T17:22:14+01:00",
+    "state": "LOCAL_DRAFT",
+    "skuCount": 1,
+    "operationCount": 1,
+    "mediaCount": 1,
+    "mediaState": "READY",
+    "replayLayer": "DATABASE_RPC_NOT_HTTP_OR_UI",
+    "replayed": true,
+    "sameIds": true,
+    "shopifyProductCreated": false,
+    "categoryIds": []
+  }
 }
