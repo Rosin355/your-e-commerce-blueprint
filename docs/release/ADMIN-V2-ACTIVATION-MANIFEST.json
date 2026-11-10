@@ -1,5 +1,5 @@
 {
-  "status": "SHOPIFY_TECH_DRAFT_CREATED_RECOVERY_VENDOR_DEFAULT_DEFECT_FIX_LOCAL_NOT_DEPLOYED_CLIENT_ABSENT",
+  "status": "TECH_DRAFT_VERIFIED_AFTER_VENDOR_FIX_SINGLE_FIELD_SYNC_APPROVAL_PENDING_CLIENT_ABSENT",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "version": "admin-delivery-20261110-r1",
@@ -135,7 +135,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "Owner exception to one-completion-PR limit for the tested minimal vendor-default fix; no new PR or deploy performed.",
+  "authorizationNeededNow": "Action-time confirmation for exact seo_description update/sync scope on verified technical DRAFT until 18:30 CET; prepared not saved. Client registration deferred.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -168,7 +168,16 @@
       "product-admin-ai": "a52a2ac830a5e108421b4926b7a3bf4cfd93fb9b9055094bb89f7f78a24c73b0"
     },
     "unauthenticatedLiveProbe": "401 UNAUTHENTICATED / Token mancante, before action dispatch",
-    "aiAuthenticatedLiveProbe": false
+    "aiAuthenticatedLiveProbe": false,
+    "latestCorrectiveRelease": {
+      "merge": "ebf096882fd0210122d09cafb230b1e00c1a8467",
+      "onlyFunction": "product-admin-api",
+      "entrySha256": "b15a7175bb89e6a5a0f20281ea4b678aa1778b7e7b48ebaf439e1e8913c14a9d",
+      "modifiedSharedSha256": "0c37aecb3d0c1147ad4b7fb2eaf9cd984e378e53eebb9b5e5263eba8fef84ccc",
+      "uploadedPackageSha256": "907257c1a63a0e93be48ab6f569827a9fdfd35ccfd3cde7d976a8a9ecd50267d",
+      "runtimeBytecodeExported": false,
+      "functionalRecoveryPassed": true
+    }
   },
   "frontendBuild": {
     "flag": "VITE_ADMIN_OPERATIONAL_RELEASE",
@@ -221,7 +230,9 @@
     "remoteDraftCount": 1,
     "currentActions": [
       "recover_shopify_draft"
-    ]
+    ],
+    "remoteStatus": "DRAFT",
+    "fieldScopePreparedNotSaved": true
   },
   "runtimeObservation": {
     "observedAt": "2026-11-10T17:04:03+01:00",
@@ -268,7 +279,7 @@
   "currentExecution": {
     "date": "2026-11-10",
     "levelA": "READ_ACCESS_PRESERVED_NEW_UI_PUBLISHED",
-    "levelB": "ONE_TECH_REMOTE_DRAFT_RECOVERY_BLOCKED_FIX_NOT_DEPLOYED_NO_CLIENT_GRANTS",
+    "levelB": "TECH_DRAFT_VERIFIED_FIELD_SYNC_PENDING_NO_CLIENT_GRANTS",
     "workingBranch": "codex/admin-v2-operational-delivery",
     "cloudResourcesCreated": 0,
     "rolesChanged": 0,
@@ -293,7 +304,9 @@
     "technicalDraftCreated": true,
     "ordinaryCapabilitiesAssigned": 0,
     "masterEnable": "OWNER_CONFIRMED_AND_RUNTIME_TRUE",
-    "integratedAcceptance": "PARTIAL_IMAGE_INTERNAL_SAVE_REMOTE_DRAFT_PASS_MAPPING_VENDOR_DEFAULT_FAILURE"
+    "integratedAcceptance": "PARTIAL_UPLOAD_SAVE_REMOTE_CREATE_RECOVERY_PASS_FIELD_SYNC_PENDING",
+    "correctivePr": 51,
+    "correctiveMain": "ebf096882fd0210122d09cafb230b1e00c1a8467"
   },
   "finalReleaseGates": {
     "date": "2026-11-09",
@@ -388,17 +401,20 @@
     "categoryIds": [],
     "shopifyExactSkuCountAfterAttempt": 1,
     "shopifyStoreVerified": "ecom-blueprint-gen-6ud1s.myshopify.com",
-    "operationStateAfterAttempt": "IN_FLIGHT",
-    "mappingCount": 0,
-    "journalEvents": 2,
+    "operationStateAfterAttempt": "VERIFIED_DRAFT",
+    "mappingCount": 1,
     "temporaryCreateConfigSavedThenClosed": true,
     "requestOutcomeInferredFromClick": false,
-    "operationStateObservedAt": "2026-11-10T17:49:23+01:00",
+    "operationStateObservedAt": "2026-11-10T18:08:46+01:00",
     "nativeDialogOpened": true,
     "nativeDialogManuallyConfirmed": true,
     "shopifyProductStatus": "DRAFT",
     "shopifyProductGid": "gid://shopify/Product/15963458797908",
-    "shopifyVariantGid": "gid://shopify/ProductVariant/58250808787284"
+    "shopifyVariantGid": "gid://shopify/ProductVariant/58250808787284",
+    "publishedOnHeadless": false,
+    "storefrontMessage": "Prodotto non trovato",
+    "recoveryCreatedAnotherProduct": false,
+    "journalEventsBeforeRecovery": 2
   },
   "effectiveAccessAfterCleanup": {
     "source": "Fresh authenticated product page after native Lovable secret update",
@@ -407,9 +423,9 @@
     "message": "Modifiche non autorizzate per questo account o perimetro di collaudo."
   },
   "pendingVendorFix": {
-    "deployed": false,
-    "newPrOpened": false,
-    "additionalPrOwnerExceptionNeeded": true,
+    "deployed": true,
+    "newPrOpened": true,
+    "additionalPrOwnerExceptionNeeded": false,
     "serviceTestsPassed": 14,
     "newRegressionCases": 3,
     "denoCheckPassed": true,
@@ -419,6 +435,15 @@
       "require-await"
     ],
     "noNewGraphqlFields": true,
-    "noFrontendOrDdlChange": true
+    "noFrontendOrDdlChange": true,
+    "pr": 51,
+    "prState": "MERGED",
+    "candidate": "f335a2fb7835e5fa825ba1ddc6cf863791c81189",
+    "merge": "ebf096882fd0210122d09cafb230b1e00c1a8467",
+    "ciRun": "https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/42861199048",
+    "ci": "SUCCESS",
+    "gitGuardian": "SUCCESS",
+    "uploadedPackageSha256": "907257c1a63a0e93be48ab6f569827a9fdfd35ccfd3cde7d976a8a9ecd50267d",
+    "runtimeRecoveryVerified": true
   }
 }
