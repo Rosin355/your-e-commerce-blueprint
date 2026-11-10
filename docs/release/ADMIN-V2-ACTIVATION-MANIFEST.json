@@ -1,5 +1,5 @@
 {
-  "status": "TECH_SINGLE_FIELD_SYNC_VERIFIED_CANARY_CLOSED_SEO_PAIR_GUARD_PENDING_RELEASE_CLIENT_ABSENT",
+  "status": "ADMIN_CODE_RELEASED_SEO_GUARD_DEPLOYED_TECH_PATH_EXECUTED_CLIENT_REGISTRATION_DEFERRED",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "version": "admin-delivery-20261110-r1",
@@ -67,7 +67,7 @@
     "categoryMappingsApproved": 0
   },
   "writes": {
-    "master": "TRUE_VERIFIED_TECH_SCOPE_ONLY",
+    "master": "TRUE_GLOBAL_CANARY_NO_VALID_SCOPE_OR_ORDINARY_GRANT",
     "shopifySync": "SET_FALSE_AFTER_APPROVED_SINGLE_FIELD_TEST",
     "drafts": "SET_TRUE_UPLOAD_AND_SAVE_LIVE_PASS",
     "draftShopify": "SET_FALSE_AFTER_ONE_REMOTE_DRAFT",
@@ -135,7 +135,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "Owner authorization for one further narrowly scoped SEO pair preservation PR; no new PR or guard deployment performed. Client registration remains deferred.",
+  "authorizationNeededNow": "No approval pending for the released guard. Client registration deferred by owner; catalog capability assignment awaits the exact verified client account.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -164,12 +164,25 @@
     "sourceCodeMatchesReviewedHead": true,
     "runtimeBytecodeExportAvailable": false,
     "packageFingerprints": {
-      "product-admin-api": "b5b28ad35801dbf53de92d78997e157a5e26a36386635a11f18acb83727ed352",
+      "product-admin-api": "8db90d7a67caacc580397e37db41f005605a08990adb4a2b624d55421224c91e",
       "product-admin-ai": "a52a2ac830a5e108421b4926b7a3bf4cfd93fb9b9055094bb89f7f78a24c73b0"
     },
     "unauthenticatedLiveProbe": "401 UNAUTHENTICATED / Token mancante, before action dispatch",
     "aiAuthenticatedLiveProbe": false,
     "latestCorrectiveRelease": {
+      "pr": 52,
+      "merge": "cb7fc573e2b8c8d4838bb49cec38b74961d39e78",
+      "candidate": "e54d4d98ee09afac7bf79d3116074706370af11f",
+      "onlyFunction": "product-admin-api",
+      "entrySha256": "b15a7175bb89e6a5a0f20281ea4b678aa1778b7e7b48ebaf439e1e8913c14a9d",
+      "modifiedSharedSha256": "5f994970abfe1c032686df1e2a14e156ce3605d0e305e3d7f445904c3753faa6",
+      "uploadedPackageSha256": "8db90d7a67caacc580397e37db41f005605a08990adb4a2b624d55421224c91e",
+      "runtimeBytecodeExported": false,
+      "nativeDeployCompleted": true,
+      "newCanaryPerformed": false,
+      "flagsChanged": false
+    },
+    "vendorCorrectiveRelease": {
       "merge": "ebf096882fd0210122d09cafb230b1e00c1a8467",
       "onlyFunction": "product-admin-api",
       "entrySha256": "b15a7175bb89e6a5a0f20281ea4b678aa1778b7e7b48ebaf439e1e8913c14a9d",
@@ -177,6 +190,10 @@
       "uploadedPackageSha256": "907257c1a63a0e93be48ab6f569827a9fdfd35ccfd3cde7d976a8a9ecd50267d",
       "runtimeBytecodeExported": false,
       "functionalRecoveryPassed": true
+    },
+    "initialPackageFingerprints": {
+      "product-admin-api": "b5b28ad35801dbf53de92d78997e157a5e26a36386635a11f18acb83727ed352",
+      "product-admin-ai": "a52a2ac830a5e108421b4926b7a3bf4cfd93fb9b9055094bb89f7f78a24c73b0"
     }
   },
   "frontendBuild": {
@@ -278,7 +295,7 @@
   "currentExecution": {
     "date": "2026-11-10",
     "levelA": "READ_ACCESS_PRESERVED_NEW_UI_PUBLISHED",
-    "levelB": "TECH_PATH_EXECUTED_SEO_PAIR_GUARD_PENDING_NO_CLIENT_GRANTS",
+    "levelB": "CODE_AND_GUARDS_DEPLOYED_CLIENT_NOT_ENABLED",
     "workingBranch": "codex/admin-v2-operational-delivery",
     "cloudResourcesCreated": 0,
     "rolesChanged": 0,
@@ -303,9 +320,13 @@
     "technicalDraftCreated": true,
     "ordinaryCapabilitiesAssigned": 0,
     "masterEnable": "OWNER_CONFIRMED_AND_RUNTIME_TRUE",
-    "integratedAcceptance": "TARGET_FIELD_SYNC_PASS_ADJACENT_SEO_GUARD_NOT_RELEASED_CLIENT_NOT_ACCEPTED",
+    "integratedAcceptance": "ONE_TECH_PATH_EXECUTED_WITH_DOCUMENTED_LIMITS_CLIENT_SESSION_NOT_ACCEPTED",
     "correctivePr": 51,
-    "correctiveMain": "ebf096882fd0210122d09cafb230b1e00c1a8467"
+    "correctiveMain": "ebf096882fd0210122d09cafb230b1e00c1a8467",
+    "seoGuardPr": 52,
+    "seoGuardMain": "cb7fc573e2b8c8d4838bb49cec38b74961d39e78",
+    "clientDeliveryComplete": false,
+    "newCanaryAfterSeoGuard": false
   },
   "finalReleaseGates": {
     "date": "2026-11-09",
@@ -463,13 +484,24 @@
     "normalizationIsInference": true
   },
   "pendingSeoGuard": {
-    "deployed": false,
-    "prOpened": false,
+    "deployed": true,
+    "prOpened": true,
     "newFocusedTestsPassed": 7,
     "relevantRegressionTestsPassed": 2,
     "denoCheckPassed": true,
     "moduleLintPassed": true,
-    "additionalPrOwnerExceptionNeeded": true
+    "additionalPrOwnerExceptionNeeded": false,
+    "pending": false,
+    "pr": 52,
+    "prState": "MERGED",
+    "candidate": "e54d4d98ee09afac7bf79d3116074706370af11f",
+    "merge": "cb7fc573e2b8c8d4838bb49cec38b74961d39e78",
+    "ci": "SUCCESS",
+    "gitGuardian": "SUCCESS",
+    "ciRun": "https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/42874590567",
+    "moduleSha256": "5f994970abfe1c032686df1e2a14e156ce3605d0e305e3d7f445904c3753faa6",
+    "uploadedPackageSha256": "8db90d7a67caacc580397e37db41f005605a08990adb4a2b624d55421224c91e",
+    "additionalLiveWriteTestPerformed": false
   },
   "adminResponsiveObservation": {
     "attemptedWidth": 390,
@@ -477,5 +509,18 @@
     "mobileAdminPassed": false,
     "overrideReset": true,
     "publicMobileEvidenceReused": true
+  },
+  "finalReadonlyVerification": {
+    "ordinaryGrants": 0,
+    "internalTechnicalProducts": 1,
+    "technicalOperations": 1,
+    "mappings": 1,
+    "state": "VERIFIED_DRAFT",
+    "remoteStatus": "DRAFT",
+    "publishedOnHeadless": false,
+    "variantCount": 1,
+    "mediaCount": 1,
+    "newCatalogWritesInSeoGuardRelease": 0,
+    "frontendRepublished": false
   }
 }
