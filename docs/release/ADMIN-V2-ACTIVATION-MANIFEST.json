@@ -1,5 +1,5 @@
 {
-  "status": "RELEASED_INTERNAL_DRAFT_VERIFIED_SHOPIFY_CREATE_NOT_COMPLETED_CANARY_CLOSED_CLIENT_ACCOUNT_ABSENT",
+  "status": "RELEASED_INTERNAL_DRAFT_VERIFIED_EXACT_CREATE_RENEWED_1830_WAITING_NATIVE_CONFIRM_CLIENT_ABSENT",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "version": "admin-delivery-20261110-r1",
@@ -70,11 +70,11 @@
     "master": "TRUE_VERIFIED_TECH_SCOPE_ONLY",
     "shopifySync": "SET_FALSE_AND_RUNTIME_FALSE",
     "drafts": "SET_TRUE_UPLOAD_AND_SAVE_LIVE_PASS",
-    "draftShopify": "SET_FALSE_AFTER_AUTHORIZED_CREATE_ATTEMPT",
+    "draftShopify": "SET_TRUE_EXACT_OPERATION_APPROVED_UNTIL_1830_CET",
     "categories": "SET_FALSE",
-    "operationalApproval": "SET_JSON_NULL_AFTER_EXPIRY",
-    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_NO_VALID_CANARY_OR_ORDINARY_GRANT",
-    "canaryScope": "SET_JSON_NULL_AFTER_EXPIRY_RUNTIME_ACCESS_DENIED"
+    "operationalApproval": "EXACT_CREATE_OPERATION_APPROVED_UNTIL_1830_CET",
+    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_EXACT_TECH_CANARY_ONLY_NO_ORDINARY_GRANT",
+    "canaryScope": "EXACT_CREATE_RECOVER_RENEWED_OWNER_CONFIRMED_UNTIL_1830_CET"
   },
   "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
   "cloudResourcesCreated": 0,
@@ -135,7 +135,7 @@
   },
   "managedRecoverySource": "https://docs.lovable.dev/features/database-backups",
   "pgDumpLimitSource": "https://www.postgresql.org/docs/17/app-pgdump.html",
-  "authorizationNeededNow": "New action-time confirmation for same exact DRAFT create/recover scope until 18:30 CET; prior 17:40 scope expired and closed. Client registration deferred.",
+  "authorizationNeededNow": "Manual OK in already open native Chrome confirmation for the same exact DRAFT; flag renewal already authorized and saved. Do not click create again. Client registration deferred.",
   "closure": {
     "date": "2026-11-06",
     "targetDeadline": "2026-11-06T19:45:00+01:00",
@@ -200,20 +200,22 @@
       "upload_catalog_image",
       "save_new_product"
     ],
-    "expiresAt": "2026-11-10T16:40:01.867Z",
+    "expiresAt": "2026-11-10T17:30:00.000Z",
     "technicalSku": "OG-ADMIN-CHECK-20261110-63B3FD",
     "draftPersisted": true,
     "shopifyDraftCreated": false,
-    "scopeCurrentlyValid": false,
-    "scopeRevoked": true,
+    "scopeCurrentlyValid": true,
+    "scopeRevoked": false,
     "restorePreparedNotSaved": false,
     "liveStage": "UPLOAD_AND_INTERNAL_SAVE_ONLY",
     "productId": "9598b858-0b18-4906-9d19-d3057712510f",
     "operationId": "b53c9f25-d769-4ecc-a185-b41c3bfe4ceb",
     "imageReady": true,
     "shopifyEnablePreparedNotSaved": false,
-    "renewalPreparedNotSaved": true,
-    "proposedRenewalExpiresAt": "2026-11-10T17:30:00.000Z"
+    "renewalPreparedNotSaved": false,
+    "proposedRenewalExpiresAt": "2026-11-10T17:30:00.000Z",
+    "renewalSaved": true,
+    "nativeCreateConfirmationOpen": true
   },
   "runtimeObservation": {
     "observedAt": "2026-11-10T17:04:03+01:00",
@@ -260,7 +262,7 @@
   "currentExecution": {
     "date": "2026-11-10",
     "levelA": "READ_ACCESS_PRESERVED_NEW_UI_PUBLISHED",
-    "levelB": "INTERNAL_DRAFT_PASS_TECH_CANARY_CLOSED_NO_CLIENT_GRANTS",
+    "levelB": "TECH_EXACT_CREATE_RENEWED_NO_CLIENT_GRANTS",
     "workingBranch": "codex/admin-v2-operational-delivery",
     "cloudResourcesCreated": 0,
     "rolesChanged": 0,
@@ -285,7 +287,7 @@
     "technicalDraftCreated": true,
     "ordinaryCapabilitiesAssigned": 0,
     "masterEnable": "OWNER_CONFIRMED_AND_RUNTIME_TRUE",
-    "integratedAcceptance": "PARTIAL_IMAGE_INTERNAL_SAVE_PASS_CREATE_NOT_COMPLETED_BROWSER_CONFIRM_FAILURE"
+    "integratedAcceptance": "PARTIAL_IMAGE_INTERNAL_SAVE_PASS_WAITING_MANUAL_NATIVE_CONFIRMATION"
   },
   "finalReleaseGates": {
     "date": "2026-11-09",
@@ -384,7 +386,10 @@
     "mappingCount": 0,
     "journalEvents": 1,
     "temporaryCreateConfigSavedThenClosed": true,
-    "requestOutcomeInferredFromClick": false
+    "requestOutcomeInferredFromClick": false,
+    "operationStateObservedAt": "2026-11-10T17:49:23+01:00",
+    "nativeDialogOpened": true,
+    "nativeDialogManuallyConfirmed": false
   },
   "effectiveAccessAfterCleanup": {
     "source": "Fresh authenticated product page after native Lovable secret update",
