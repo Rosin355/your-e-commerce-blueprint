@@ -23,6 +23,20 @@ Questa sezione aggiorna il brief preparatorio conservato sotto. Le richieste sto
 
 Questa nota è solo documentale: non crea account, non invia inviti, non cambia ruoli, grant, flag o dati. Checkout, spedizioni A/B, Sendcloud, catalogo commerciale e PR SEO #49 restano invariati.
 
+## Dopo la registrazione — compiti del proprietario e chiusura della consegna
+
+Chiarimento dell'11 novembre 2026, basato sullo stato documentato sopra; nessuna nuova verifica runtime o abilitazione eseguita.
+
+Il proprietario deve confermare privatamente al responsabile tecnico l'indirizzo usato da Marco, che l'email sia verificata e quali operazioni catalogo autorizza: modifica/salvataggio, sincronizzazione esplicita, immagini, nuove bozze e, se previsto, categorie verificate e pubblicazione manuale. Non serve ricevere password o codici, fare Publish, cambiare secret a mano o attribuire un generico ruolo amministratore.
+
+Il tecnico verifica l'UUID dell'account, applica le sole capability ordinarie autorizzate e gli interruttori strettamente necessari, poi rilegge le autorizzazioni effettive dal server. Non estende i diritti agli altri utenti e non sostituisce la sessione di Marco con quella del tecnico.
+
+La registrazione chiude soltanto il requisito identità; l'abilitazione chiude quello di accesso. Per la consegna operativa verificare un percorso ordinario con Marco: apertura prodotto, campo consentito salvato/riletto e sincronizzato esplicitamente; nuova bozza con immagine ritrovabile dopo ricaricamento; categoria editoriale verificata quando richiesta. La pubblicazione commerciale resta da provare su un vero prodotto approvato dal proprietario: mai pubblicare la DRAFT tecnica. Registrare separatamente esiti tecnici precedenti, operazioni ordinarie cliente riuscite e azioni non provate. Non rifare indiscriminatamente i test di migration o tutte le suite.
+
+La prova sulla sola descrizione SEO non dimostra prezzi, categorie o pubblicazione. Le 22 corrispondenze storiche ancora aperte non devono bloccare editing e bozze indipendenti, ma nessuna categoria ambigua va associata senza conferma. Il salvataggio interno non equivale a disponibilità sul sito.
+
+La frase 'Admin consegnato' è corretta solo per il perimetro realmente abilitato e verificato con il cliente, con limiti espliciti. 'Progetto interamente concluso' è una decisione distinta: SEO/redirect/sitemap nel relativo rilascio, categorie storiche, eccezioni di spedizione e verifiche mobile/Safari mantengono il proprio stato e non diventano PASS per effetto della registrazione. Non riaprire in questa nota attività già completate né dichiarare chiusi i filoni non verificati.
+
 <details>
 <summary>Brief preparatorio del 10 novembre — storico precedente al rilascio</summary>
 
