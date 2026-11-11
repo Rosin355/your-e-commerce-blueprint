@@ -1,6 +1,30 @@
 # Admin V2 — consegna operativa richiesta
 
-Data: 10 novembre 2026.
+Aggiornamento: 10 novembre 2026, dopo il rilascio della PR #52.
+
+## Stato vigente — distribuzione tecnica effettuata, consegna cliente aperta
+
+Questa sezione aggiorna il brief preparatorio conservato sotto. Le richieste storiche di migration, upload o nuove finestre canary non sono nuove operazioni da ripetere.
+
+- PR #52 verificata MERGED, candidato `e54d4d98ee09afac7bf79d3116074706370af11f`, merge `cb7fc573e2b8c8d4838bb49cec38b74961d39e78`. Il fix riguarda la preservazione della coppia titolo/descrizione SEO, non una nuova guardia TTL. Main prima di questa nota: `dab9154ff05b4c62ef08be070e8d4069c088321e`.
+- Migration originale e delta già applicati e backend distribuito secondo il [report QA corrente](ADMIN-V2-QA-REPORT.md). Frontend pubblicato `admin-delivery-20261110-r1`; il deploy finale #52 riguarda soltanto `product-admin-api`. Non rieseguire migration o Publish per la sola registrazione cliente.
+- Il percorso tecnico ha verificato upload/media READY, una bozza interna, una sola DRAFT Shopify, recupero senza ricreazione, modifica e sincronizzazione di una descrizione SEO. La protezione finale della coppia SEO è coperta dai test e dalla CI, non da un nuovo canary live. Nessun prodotto tecnico pubblicato.
+- Ultimo stato documentato: master true/canary, scope e approvazione temporanei nulli, sync e nuove creazioni Shopify OFF, zero grant ordinari. Non è una nuova lettura runtime eseguita con questa nota; non chiamare il master OFF e non confondere master true con autorizzazione generale.
+- Registrazione dell'account Marco rinviata; account/capability ordinari non abilitati e sessione cliente non collaudata. La consegna NON è completa. Non basta la registrazione per attribuire permessi catalogo.
+- Categorie editoriali e pubblicazione presenti nel codice, ma assegnazioni e pubblicazione commerciale non collaudate live; zero mapping storici approvati. Safari/iOS e Admin mobile non attestati. `restoreVerified=false` rimane tale, con rischio residuo già accettato nel mandato.
+
+## Prossima attività circoscritta — registrazione, abilitazione e accesso cliente
+
+1. Marco completa personalmente registrazione e verifica dell'email concordata tramite `https://onlinegarden.it/auth`, secondo la [guida cliente vigente](ADMIN-V2-CLIENT-GUIDE.md). Non usare credenziali del tecnico, condividere password/codici, duplicare un account esistente o aggirare verifica email.
+2. Dopo la conferma del proprietario, identificare l'account esatto e verificato; applicare solo i grant catalogo previsti dal modello ordinario già distribuito e dal mandato. Non attribuire automaticamente tech_admin o poteri su utenti, ordini, pagamenti, spedizioni, secret o infrastruttura. Se lo strumento richiede consenso puntuale, raccoglierlo per i soli valori/permessi necessari.
+3. Seguire il percorso ordinario account-specifico documentato nel runbook corrente. Non riaprire le finestre canary scadute delle 17:40/18:30, non ricreare la DRAFT tecnica e non portare globalmente il sistema in full per comodità. Determinare dal codice distribuito quali interruttori restano necessari insieme ai grant, senza presumere che il solo login abiliti sync o bozze.
+4. Verificare dalla sessione autentica del cliente accesso, capability effettive e azioni consentite. La consultazione o la presenza dei pulsanti non certificano le scritture: distinguere i test tecnici già eseguiti dall'accettazione del flusso ordinario del cliente. Usare una bozza non pubblicata soltanto se serve una verifica mirata autorizzata; non ripetere l'intera suite o creare prodotti commerciali di prova.
+5. Aggiornare lo stato dopo l'abilitazione effettiva, indicando limiti residui e senza presentare prezzi, categorie o pubblicazione come collaudati se non lo sono. Nessun nuovo sviluppo o deploy salvo difetto riproducibile.
+
+Questa nota è solo documentale: non crea account, non invia inviti, non cambia ruoli, grant, flag o dati. Checkout, spedizioni A/B, Sendcloud, catalogo commerciale e PR SEO #49 restano invariati.
+
+<details>
+<summary>Brief preparatorio del 10 novembre — storico precedente al rilascio</summary>
 
 ## Obiettivo del proprietario
 
@@ -47,3 +71,5 @@ Preservare checkout, tariffe A/B, Sendcloud, stock reale, SKU/handle esistenti e
 Tenere separata la PR SEO #49: conservare il primo rilascio SEO gia autorizzato senza confonderlo con l'operativita Admin. Non usare redirect, recupero backup legacy o completamento di tutta la tassonomia come prerequisiti per ogni modifica prodotto.
 
 Risultato da consegnare: URL, versione, account/capability attestati senza dati personali nel repository, operazioni effettivamente provate, guida breve per Marco, rollback e limiti rimasti. Nessuna percentuale o dichiarazione COMPLETATO basata sul solo merge o sui documenti.
+
+</details>
