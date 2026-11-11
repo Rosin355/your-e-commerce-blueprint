@@ -1,0 +1,33 @@
+{
+  "observedOn": "2026-11-11",
+  "subject": "Owner-confirmed Marco account; personal identifiers intentionally omitted",
+  "target": {
+    "lovableProject": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+    "backend": "Existing project-managed Supabase"
+  },
+  "source": "Read-only SQL through the connected Lovable project",
+  "lookup": {
+    "method": "Exact case-insensitive match on the email supplied privately by the owner",
+    "matchingAccounts": 1,
+    "emailVerified": true,
+    "passwordsTokensOrHashesRead": false
+  },
+  "authorization": {
+    "assignedRoles": [],
+    "catalogCapabilityRecords": 0,
+    "clientOperationalAccessEnabled": false,
+    "clientSessionTested": false,
+    "runtimeFlagsReadThisCheck": false
+  },
+  "changes": {
+    "accountsCreated": 0,
+    "rolesAssigned": 0,
+    "capabilitiesGranted": 0,
+    "flagsChanged": 0,
+    "catalogWrites": 0,
+    "deploys": 0,
+    "documentationOnly": true
+  },
+  "nextStep": "Use the existing ordinary authorization flow to grant the owner-approved catalog capabilities to this exact verified account, after the relevant consent. Recheck effective server authorization; do not infer success from signup or database rows alone. No new registration, migration, expired canary or blanket admin privileges.",
+  "handoffStatus": "REGISTRATION_CONFIRMED_CATALOG_ACTIVATION_PENDING"
+}
