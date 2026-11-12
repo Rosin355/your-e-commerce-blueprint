@@ -2,6 +2,27 @@
 
 Aggiornamento: 12 novembre 2026. Questa checklist distingue la consegna del gestionale a Marco dalla chiusura del sito ecommerce. Non autorizza nuove scritture, pubblicazioni, ordini, cambi di configurazione o spese. Nessuna prova operativa eseguita durante questo aggiornamento documentale.
 
+## Scadenza del proprietario — venerdi 13 novembre 2026
+
+Il proprietario richiede di concludere la consegna entro domani, 13 novembre, fuso Europe/Rome. Nessun orario preciso nuovo e stato indicato. E una scadenza di progetto, non una garanzia di esito o una promessa di lavoro in background.
+
+**Perimetro congelato:** completare i requisiti gia concordati, non nuovi redesign, AI, campagne, infrastrutture o funzionalita. Non spostare unilateralmente fra i miglioramenti futuri un requisito ancora mancante. Non riaprire registrazione, grant, migration e canary gia conclusi. Correggere soltanto difetti riproducibili e fare un controllo finale integrato, oltre ai test automatici relativi al codice modificato.
+
+| Quando | Attivita | Responsabile | Uscita richiesta |
+| --- | --- | --- | --- |
+| 12 novembre, subito | Riallineare PR #49 al main corrente e completare il primo rilascio SEO gia autorizzato, senza regressione Admin | Developer/Codex | Check dello SHA finale, merge e versione pubblicata verificati; sitemap HTTP 200 e schede coerenti |
+| 12 novembre, senza aspettare la riconciliazione completa SEO | Un primo lavoro reale di Marco: modifica, bozza con immagine, categoria verificata; pubblicazione solo del prodotto commerciale da lui approvato | Marco + proprietario, assistenza tecnica sui difetti | Percorso cliente documentato, nessuna impersonificazione o DRAFT tecnica pubblicata |
+| 12 novembre, prima di impegnare ulteriori tentativi | Riunire in una sola richiesta gli eventuali dati/accessi mancanti: provider HTTP, mapping incerti, geografia isole minori, policy e dati societari approvati | Proprietario/Marco/collega tecnico | Responsabile e decisione concreta per ogni dipendenza; nessun rinvio silenzioso a domani |
+| 13 novembre | Chiudere le correzioni residue autorizzate, controllo integrato pubblico/Admin, guida e verbale unico | Developer + proprietario + Marco | Checklist con evidenze live, stato completo oppure elenco esplicito delle eccezioni non accettate |
+
+I lavori indipendenti possono procedere mentre Marco usa il proprio browser, ma un solo operatore coordina merge, deploy e modifiche alla configurazione live. Non pubblicare una vecchia build SEO che riporta l'Admin in sola lettura. Non presumere che il consenso al primo rilascio SEO autorizzi cambi DNS, app a pagamento, tutti i redirect o modifiche commerciali non specificate.
+
+**Dipendenze da rendere visibili subito:** l'adattatore redirect non e ancora un livello HTTP installato; la tariffa speciale delle isole minori non e attestata; i testi legali devono provenire da una fonte approvata; una pubblicazione reale richiede un prodotto e dati commerciali concordati. Se non risolvibili con strumenti/accessi correnti, chiedere la sola decisione necessaria e continuare gli altri filoni. Un blocco non e un PASS e una nota TODO non sostituisce il requisito.
+
+**Chiusura onesta:** l'Admin puo essere consegnato per il perimetro verificato mentre un filone separato resta aperto, ma la dicitura 'tutto concluso' richiede che nessun requisito concordato rimanga irrisolto. Non promettere un recupero del ranking entro il 13 novembre: il risultato della consegna SEO e la correzione tecnica pubblicata e verificata. Le eccezioni possono essere differite soltanto con accettazione esplicita del proprietario/cliente.
+
+Usare questa stessa checklist e i registri esistenti per l'esito finale, senza produrre altri piani generici o duplicare file di stato. Nessuna nuova modifica runtime effettuata dalla registrazione della scadenza.
+
 ## Stato gia acquisito
 
 Il [registro cliente](../CLIENT-ECOMMERCE-STATUS.md), aggiornato al 12 novembre, conferma account unico con email verificata, ruolo editor, sette capability catalogo e quattordici campi consentiti. Accesso personale e dicitura modifica abilitata sono confermati dal proprietario tramite il riscontro di Marco. Non richiedere di nuovo registrazione, screenshot di login o assegnazione degli stessi permessi.
@@ -19,7 +40,7 @@ La prima bozza riuscita di Marco chiude il relativo percorso, non automaticament
 | Categoria e pubblicazione | Scelta di collezione editoriale verificata; pubblicazione manuale di un prodotto reale approvato, visibile nella scheda e nel catalogo corretti | Non collaudato commercialmente |
 | UI e passaggio di consegne | Controllo mirato nel browser di Marco e mobile/Safari per il perimetro concordato; guida esistente e limiti consegnati; conferma cliente | Accesso desktop confermato; operazioni e mobile/Safari non attestati |
 
-Non pubblicare la DRAFT tecnica TEST ADMIN. Non inventare stock, prezzi o dati commerciali. La disponibilita pubblica richiede il canale effettivo del sito e non il solo stato ACTIVE. Prezzi e categorie non diventano PASS per il solo funzionamento di seo_description.
+Non pubblicare la DRAFT tecnica TEST ADMIN. Non inventare stock, prezzi o dati commerciali. La disponibilita pubblica richiedeere il canale effettivo del sito e non il solo stato ACTIVE. Prezzi e categorie non diventano PASS per il solo funzionamento di seo_description.
 
 Le 22 associazioni delle categorie interne storiche sono una riconciliazione distinta dalla scelta di collezioni editoriali verificate: non devono bloccare ogni bozza o l'editing indipendente, ma non vanno approvate in massa. Registrare i casi aperti e le decisioni di Marco.
 
