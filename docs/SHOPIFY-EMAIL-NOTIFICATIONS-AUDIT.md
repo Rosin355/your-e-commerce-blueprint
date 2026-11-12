@@ -1,3 +1,11 @@
+# Aggiornamento in sola lettura — 12 novembre 2026
+
+Su tre ordini già esistenti del 5–6 novembre, Shopify registra **tre eventi `mail_sent` con messaggio di conferma ordine**. Questo è un riscontro positivo dell’invio registrato dalla piattaforma, non della ricezione in casella. I messaggi sono stati classificati in memoria e soltanto l’esito sanitizzato è conservato nella [release evidence](seo/evidence/release-2026-11-12.json); nessun destinatario, ID ordine o URL firmato è copiato nel repository.
+
+Ricerca mirata nella Gmail collegata: zero risultati, che non prova un guasto né l’assenza delle notifiche nelle caselle cliente/staff. Ricezione effettiva cliente/staff, mittente autenticato, contenuto template, spedizione/tracking restano non verificati. Nessun ordine, email o notifica di test creati; nessun destinatario, mittente o DNS modificato. Le procedure storiche sotto richiedono un consenso separato prima di generare ordini/invii e non sono attività eseguite in questa chiusura.
+
+---
+
 # Audit notifiche email Shopify — 31 ottobre 2026
 
 **STATO: DOCUMENTATO; configurazione e consegna NON LIVE VERIFIED.** A fine sessione si è resa disponibile una connessione Admin autorizzata: confermati store, valuta, lingua principale e modello account. Il pannello delle notifiche, i template, il mittente autenticato e i destinatari staff non sono stati verificati. Nessuna email, ordine, modifica mittente, DNS o dominio effettuata. Il trasferimento del dominio resta un vincolo operativo.

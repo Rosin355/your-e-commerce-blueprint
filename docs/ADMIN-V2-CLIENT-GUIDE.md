@@ -13,6 +13,12 @@
 
 Le conferme delle normali operazioni vengono registrate dall’Admin: non devi richiedere un’autorizzazione tecnica per ogni prodotto. Il ruolo cliente comprende solo le operazioni catalogo assegnate; pagamenti, spedizioni, Sendcloud, inventario, clienti, ordini e amministrazione generale restano fuori da questo flusso. La pubblicazione di un prodotto commerciale non è stata provata durante il collaudo tecnico.
 
+## Aggiornamento del sito del 12 novembre
+
+Il rilascio SEO `seo-p1-20261112-r1` è online e conserva l’Admin operativo e i tuoi permessi. Non serve registrarsi o confermare nuovamente il login. Per chiudere l’accettazione manca un lavoro reale concordato: indica il prodotto/campo da modificare e i dati del nuovo articolo, usando anche l’upload immagini dal computer. Il prodotto da pubblicare e i dati commerciali devono essere approvati; il tecnico non sceglie articoli o prezzi per ottenere un test positivo. La DRAFT tecnica resta non pubblicata. Le normali funzioni già abilitate non sono state richiuse.
+
+Dopo una nuova pubblicazione o un cambio indirizzo, segnala al responsabile tecnico l’aggiornamento della sitemap: la scheda può essere visibile prima che la fotografia SEO venga rigenerata e ripubblicata.
+
 ## Accettazione da completare
 
 - [x] Account esistente e verifica email ricontrollati; permessi catalogo assegnati.

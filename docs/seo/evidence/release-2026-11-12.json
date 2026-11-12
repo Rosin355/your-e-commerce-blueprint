@@ -1,6 +1,6 @@
 {
   "date": "2026-11-12",
-  "phase": "PRE_MERGE_LOCAL_CHECKS_PASSED_CI_PENDING",
+  "phase": "MERGED_PUBLISHED_VERIFIED",
   "baseMain": "41e53339e647c23ea80e69f3c66fec383ee8ad30",
   "initialPrHead": "08b3cfa3afab17dfe29fa6a2d8d130cab81ca63d",
   "frontendRelease": "seo-p1-20261112-r1",
@@ -14,10 +14,10 @@
   "typecheck": "PASS",
   "changedScopeLint": "PASS",
   "operationalBuild": "PASS",
-  "ciFinalHead": "PENDING",
-  "gitGuardianFinalHead": "PENDING",
-  "mergeExecuted": false,
-  "publishExecuted": false,
+  "ciFinalHead": "SUCCESS",
+  "gitGuardianFinalHead": "SUCCESS",
+  "mergeExecuted": true,
+  "publishExecuted": true,
   "snapshot": {
     "source": "Shopify public Storefront publication",
     "generatedAt": "2026-11-12T16:27:20.646Z",
@@ -33,277 +33,130 @@
         "id": "gid://shopify/Product/15836809494868",
         "handle": "rosa-jasmina-rampicante",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407776358740",
-              "sku": "OG_436162-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzc3NjM1ODc0MCwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_436162-01"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836802220372",
         "handle": "agave-americana-verde",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407744475476",
-              "sku": "OG_317782-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzc0NDQ3NTQ3NiwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_317782-01"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836783116628",
         "handle": "kalanchoe-calandiva-bianco",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407679791444",
-              "sku": "OG_182937-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzY3OTc5MTQ0NCwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_182937-01"
+        ]
       },
       {
         "id": "gid://shopify/Product/15357645914452",
         "handle": "kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/55507173114196",
-              "sku": "OG_631727"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NTUwNzE3MzExNDE5NiwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_631727"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836803465556",
         "handle": "castanea-sativa-marrone-di-marradi-castagno-marrone",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407748899156",
-              "sku": "OG_334361-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzc0ODg5OTE1NiwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_334361-01"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836802941268",
         "handle": "prunus-avium-lapins-ciliegio",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407747391828",
-              "sku": "OG_326285-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzc0NzM5MTgyOCwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_326285-01"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836827156820",
         "handle": "calycanthus-floridus-calicanto-estivo",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407828394324",
-              "sku": "OG_737951-01"
-            },
-            {
-              "id": "gid://shopify/ProductVariant/57407828427092",
-              "sku": "OG_737951-02"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzgyODQyNzA5MiwibGFzdF92YWx1ZSI6Mn0="
-          }
-        }
+        "variantSkus": [
+          "OG_737951-01",
+          "OG_737951-02"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836815130964",
         "handle": "calycanthus-venus-calicanto-estivo",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407796183380",
-              "sku": "OG_575973-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzc5NjE4MzM4MCwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_575973-01"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836819849556",
         "handle": "rhyncospermum-asiaticum-tricolor-gelsomino",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407813452116",
-              "sku": "OG_689687-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzgxMzQ1MjExNiwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_689687-01"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836800614740",
         "handle": "elaeagnus-ebbingei-aurea-eleagno",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407732154708",
-              "sku": "OG_287827-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzczMjE1NDcwOCwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_287827-01"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836804546900",
         "handle": "fagus-sylvatica-dawyck-purple-faggio",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407755944276",
-              "sku": "OG_349957-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzc1NTk0NDI3NiwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_349957-01"
+        ]
       },
       {
         "id": "gid://shopify/Product/15357650272596",
         "handle": "ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/55507179471188",
-              "sku": "OG_839828"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NTUwNzE3OTQ3MTE4OCwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_839828"
+        ]
       },
       {
         "id": "gid://shopify/Product/15357649813844",
         "handle": "ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/55507178815828",
-              "sku": "OG_818665"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NTUwNzE3ODgxNTgyOCwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_818665"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836810477908",
         "handle": "parrotia-persica-bella-albero-pagoda",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407778423124",
-              "sku": "OG_455857-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzc3ODQyMzEyNCwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_455857-01"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836806578516",
         "handle": "paulownia-tomentosa-paulonia",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407764431188",
-              "sku": "OG_371278-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzc2NDQzMTE4OCwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_371278-01"
+        ]
       },
       {
         "id": "gid://shopify/Product/15836830925140",
         "handle": "tradescantia-nanouk",
         "status": "ACTIVE",
-        "variants": {
-          "nodes": [
-            {
-              "id": "gid://shopify/ProductVariant/57407833276756",
-              "sku": "OG_748228-01"
-            }
-          ],
-          "pageInfo": {
-            "hasNextPage": false,
-            "endCursor": "eyJsYXN0X2lkIjo1NzQwNzgzMzI3Njc1NiwibGFzdF92YWx1ZSI6MX0="
-          }
-        }
+        "variantSkus": [
+          "OG_748228-01"
+        ]
       }
     ]
   },
@@ -312,7 +165,14 @@
     "installedHttpLayer": false,
     "newProviderDnsProxyChanges": false,
     "remainingPathsNotReconciled": 1255,
-    "ambiguousSampleCases": 3
+    "ambiguousSampleCases": 3,
+    "proposedMappings": 16,
+    "approvedMappings": 0,
+    "publishedMappings": 0,
+    "legacySampleStatus": "Apex GET/HEAD 200 without Location; www GET/HEAD 302 to same legacy path on apex",
+    "backupRequiredForExistingDemonstrableMappings": false,
+    "dnsProviderObserved": "IONOS, ui-dns authoritative nameservers",
+    "controlledHttp301LayerDemonstrated": false
   },
   "commercialRead": {
     "policies": [
@@ -332,6 +192,70 @@
       "deliveryFailureInferred": false,
       "ordersCreated": 0,
       "testEmailsSent": 0
+    },
+    "notifications": {
+      "source": "Read-only Shopify events on three existing orders, 5-6 November 2026",
+      "sanitizedEvents": [
+        {
+          "action": "mail_sent",
+          "orderConfirmationWording": true,
+          "staffWording": false,
+          "deliveredWording": false,
+          "criticalAlert": false
+        },
+        {
+          "action": "mail_sent",
+          "orderConfirmationWording": true,
+          "staffWording": false,
+          "deliveredWording": false,
+          "criticalAlert": false
+        },
+        {
+          "action": "mail_sent",
+          "orderConfirmationWording": true,
+          "staffWording": false,
+          "deliveredWording": false,
+          "criticalAlert": false
+        }
+      ],
+      "platformOrderConfirmationSends": 3,
+      "inboxDeliveryVerified": false,
+      "staffDeliveryVerified": false,
+      "ordersCreated": 0,
+      "testEmailsSent": 0
+    },
+    "shipping": {
+      "carrierServiceCount": 0,
+      "islandMarketSubdivisions": [
+        "AG",
+        "CL",
+        "CT",
+        "EN",
+        "ME",
+        "PA",
+        "RG",
+        "SR",
+        "TP",
+        "CA",
+        "SS",
+        "NU",
+        "OR",
+        "OG",
+        "VS",
+        "OT",
+        "CI"
+      ],
+      "minorIslandPostalMechanismDemonstrated": false,
+      "provinceSurchargeExpanded": false,
+      "ratesChanged": false,
+      "sendcloudChanged": false,
+      "existingDeliveryCustomizationsRead": {
+        "result": "ACCESS_DENIED",
+        "requiredScope": "read_delivery_customizations",
+        "absenceOfCustomizationsInferred": false,
+        "scopeExpansionRequested": false,
+        "nextReadOnlySource": "Existing Shopify account owner can inspect installed delivery customizations; no new app or activation authorized"
+      }
     }
   },
   "rollback": {
@@ -366,10 +290,14 @@
     "testEmails": 0
   },
   "limitations": [
-    "Client product/data/publication approval requested once; no business product chosen by agent.",
-    "Policy sources and current HTTP provider/mechanism requested once.",
-    "Client catalogue acceptance not established by login confirmation.",
-    "Sitemap is a static snapshot; refresh requires manual generator and frontend Publish after product publication/handle changes.",
+    "Real client catalogue acceptance awaits owner-selected existing product/field/value, real new-product data and explicit publication approval; no business product chosen by agent.",
+    "Sixteen technically corroborated mappings remain unapproved and unpublished; three uncertain cases and 1255 other paths remain separate.",
+    "Existing GSC/product exports remain usable independently of the truncated archive; no complete URL recovery claimed.",
+    "Provided legacy backup is structurally truncated; zero policy/database/permalink recovery. Current texts/company details still require approval.",
+    "Minor islands special tariff not demonstrated; no continental province surcharge or new service introduced.",
+    "Shopify recorded three existing order-confirmation sends; inbox/staff receipt and sender/templates not verified.",
+    "Safari/iOS not verified.",
+    "Static sitemap requires manual regeneration and frontend Publish after publication/handle changes.",
     "Full database restore remains unverified."
   ],
   "concurrentMainPreviewDrift": {
@@ -379,7 +307,270 @@
       "@lovable.dev/vite-plugin-hmr-gate"
     ],
     "lockUpdatedByProvider": false,
-    "correction": "Only the two unused preview dependencies removed; package and lock identical to previously validated bd9b9d6. New SHA requires fresh CI/GitGuardian.",
+    "correction": "Only the two unused preview dependencies removed; package/lock identical to validated bd9b9d6. Fresh CI/GitGuardian SUCCESS on final head 91c26c1.",
     "otherSourceChanges": false
+  },
+  "finalPrHead": "91c26c11a47951b0bf822a644fd42428e8c9ae18",
+  "mergedMain": "2d1cee558ff1e292f5d8f34e9d0f86b87b5ce6fb",
+  "ci": {
+    "runId": 43261015209,
+    "url": "https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/43261015209",
+    "jobs": {
+      "Storefront / pull-request": "SUCCESS",
+      "Admin catalog / PostgreSQL 17": "SUCCESS",
+      "GitGuardian Security Checks": "SUCCESS"
+    },
+    "sourceHead": "91c26c11a47951b0bf822a644fd42428e8c9ae18",
+    "mainPushCiConfigured": false,
+    "mergeSourceDiffFromCandidate": false
+  },
+  "publish": {
+    "deploymentId": "539ca523-c5ec-4fd0-b5de-3792c605d28d",
+    "providerInitialResponse": "pending",
+    "verifiedOnDomain": "https://onlinegarden.it",
+    "liveRelease": "seo-p1-20261112-r1",
+    "entryAsset": "/assets/index-7LGwLIzQ.js",
+    "verification": "Actual HTTP responses and rendered UI; not inferred from editor synchronization"
+  },
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "finalUrl": "https://onlinegarden.it/",
+      "sha256": "48f78bd2561ee297af87d1bd7ef482c166fd23100114638300120c1078f41398",
+      "releaseMarkers": [
+        "seo-p1-20261112-r1"
+      ],
+      "scriptAssets": [
+        "/assets/index-7LGwLIzQ.js",
+        "/__l5e/events.270c78a44fc53e7b.js"
+      ]
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "contentType": "application/xml",
+      "finalUrl": "https://onlinegarden.it/sitemap.xml",
+      "sha256": "c98da0f9044622456e68468bb5ac405726a0998ffb7bea8daf37886e0e01d118",
+      "xmlValid": true,
+      "urlCount": 1349,
+      "technicalDraftFound": false
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "finalUrl": "https://onlinegarden.it/robots.txt",
+      "sha256": "2239b8d891a0481a48185f5855ed397e8510279a001ec75f8e2f9ae5b0ce3dac",
+      "sitemapDirective": true
+    }
+  ],
+  "finalSafetyRead": {
+    "checkedAt": "2026-11-12T17:11:08.696680+00:00",
+    "requests": [
+      {
+        "url": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/",
+        "method": "GET",
+        "status": 200,
+        "location": null
+      },
+      {
+        "url": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/",
+        "method": "HEAD",
+        "status": 200,
+        "location": null
+      },
+      {
+        "url": "https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/",
+        "method": "GET",
+        "status": 302,
+        "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/"
+      },
+      {
+        "url": "https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/",
+        "method": "HEAD",
+        "status": 302,
+        "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/"
+      }
+    ],
+    "adminModule": {
+      "path": "/assets/readOnlyRelease-DRvoVRBm.js",
+      "status": 200,
+      "sha256": "23d3fd78208fad3e9304c1d40661ad36538562cf68bcf867f528d71268b982b1",
+      "module": "const A=!1,E=\"admin-delivery-20261110-r1\";export{E as A,A as a};",
+      "matchesValidatedBuild": true,
+      "deploymentIdMatches": true
+    }
+  },
+  "uncertainSkuLookup": {
+    "query": "sku:OG_557118* OR sku:OG_939693* OR sku:OG_924853*",
+    "hasNextPage": false,
+    "variants": [
+      {
+        "sku": "OG_924853-01",
+        "product": {
+          "id": "gid://shopify/Product/15836864414036",
+          "handle": "viburnum-tinus-laurotino-viburno-tino",
+          "status": "ACTIVE"
+        }
+      },
+      {
+        "sku": "OG_924853-01-1",
+        "product": {
+          "id": "gid://shopify/Product/15836864446804",
+          "handle": "viburnum-tinus-giganteum-laurotino-viburno-tino-gigante",
+          "status": "ACTIVE"
+        }
+      },
+      {
+        "sku": "OG_924853-2-01",
+        "product": {
+          "id": "gid://shopify/Product/15836864545108",
+          "handle": "viburnum-opulus-roseum-viburno-palla-di-neve",
+          "status": "ACTIVE"
+        }
+      },
+      {
+        "sku": "OG_924853-2-1-01",
+        "product": {
+          "id": "gid://shopify/Product/15836864577876",
+          "handle": "viburnum-opulus-viburno",
+          "status": "ACTIVE"
+        }
+      },
+      {
+        "sku": "OG_924853-2-1-01-1",
+        "product": {
+          "id": "gid://shopify/Product/15836864610644",
+          "handle": "viburnum-farreri-viburnum-fragrans-viburno",
+          "status": "ACTIVE"
+        }
+      },
+      {
+        "sku": "OG_924853-2-1-01-1-1",
+        "product": {
+          "id": "gid://shopify/Product/15836864676180",
+          "handle": "viburnum-odoratissimum-coppertop-viburno",
+          "status": "ACTIVE"
+        }
+      },
+      {
+        "sku": "OG_924853-2-1-01-1-1-1",
+        "product": {
+          "id": "gid://shopify/Product/15836864708948",
+          "handle": "potentilla-fruticosa-abbotswood",
+          "status": "ACTIVE"
+        }
+      },
+      {
+        "sku": "OG_924853-2-1-1-1-1-1-01",
+        "product": {
+          "id": "gid://shopify/Product/15836864741716",
+          "handle": "potentilla-fruticosa-goldfinger",
+          "status": "ACTIVE"
+        }
+      },
+      {
+        "sku": "OG_924853-2-1-1-1-1-1-01-1",
+        "product": {
+          "id": "gid://shopify/Product/15836864774484",
+          "handle": "potentilla-fruticosa-red-ace",
+          "status": "ACTIVE"
+        }
+      },
+      {
+        "sku": "OG_924853-2-1-1-1-1-1-01-1-1",
+        "product": {
+          "id": "gid://shopify/Product/15836864807252",
+          "handle": "potentilla-fruticosa-double-punch-gold",
+          "status": "ACTIVE"
+        }
+      },
+      {
+        "sku": "OG_924853-2-1-1-1-1-1-01-1-1-1",
+        "product": {
+          "id": "gid://shopify/Product/15836864840020",
+          "handle": "potentilla-fruticosa-double-punch-cream",
+          "status": "ACTIVE"
+        }
+      },
+      {
+        "sku": "OG_924853-01-2",
+        "product": {
+          "id": "gid://shopify/Product/15836864872788",
+          "handle": "viburnum-tinus-gwenllian-laurotino-viburno",
+          "status": "ACTIVE"
+        }
+      }
+    ]
+  },
+  "browserQa": {
+    "date": "2026-11-12",
+    "browser": "ChatGPT in-app browser, Chromium",
+    "desktopViewport": {
+      "width": 1280,
+      "height": 720,
+      "overflow": false
+    },
+    "mobileViewport": {
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "actuallyApplied": true,
+      "resetAfterQa": true
+    },
+    "checks": {
+      "home": "PASS: rendered, release marker, canonical apex, index/follow",
+      "catalog": "PASS: 1346 products, actual product links",
+      "search": "PASS: Rosa Jasmina, one result, query route noindex/follow",
+      "pdp": "PASS: title, price 18.50 EUR, real variant offer, canonical self, index/follow, breadcrumb and related hrefs",
+      "cart": "PASS: one unit and correct variant/subtotal; removed after quote and empty cart observed",
+      "checkoutHandoff": "PASS: Shopify native checkout loaded",
+      "standardShippingQuote": "PASS: 18.50 product + 8.90 Standard = 27.40 EUR, Roma 00186",
+      "contacts": "PASS: heading, approved business mailto, privacy footer link"
+    },
+    "checkoutLimit": "No recipient name/email/phone/card provided, no complete_checkout, no order or payment. Contact/name validation intentionally left incomplete; one generic recoverable warning was not an end-to-end payment test. Public municipal address used only for quote.",
+    "safariIos": "NOT_VERIFIED: native Safari access attempt timed out; Chromium is not Safari",
+    "adminClientAcceptance": "NOT_REPEATED: existing personal access/permissions confirmation preserved; no client product operation performed",
+    "screenshots": [
+      "2026-11-12/pdp-desktop.jpg",
+      "2026-11-12/pdp-mobile-390.jpg",
+      "2026-11-12/cart-mobile-390.jpg",
+      "2026-11-12/cart-cleanup-mobile.jpg",
+      "2026-11-12/checkout-rate-roma.jpg",
+      "2026-11-12/contacts-desktop.jpg"
+    ]
+  },
+  "postPublishServerAccountRead": {
+    "allowed_field_count": 14,
+    "capabilities": [
+      "edit",
+      "sync",
+      "drafts",
+      "images",
+      "categories",
+      "prices",
+      "publish"
+    ],
+    "catalog_client_table_privileges": 0,
+    "catalog_rls_enabled": true,
+    "checked_at": "2026-11-12 17:17:47.533782+00",
+    "email_verified": true,
+    "grant_enabled": true,
+    "matching_accounts": 1,
+    "other_active_grants": 0,
+    "roles": [
+      "editor"
+    ],
+    "scope": "Read-only aggregate, exact owner-designated account; no email or personal UUID returned/exported, no role/grant reassignment"
+  },
+  "shopifyQueryValidation": {
+    "api": "Admin",
+    "resolvedVersion": "2026-10",
+    "artifactId": "online-garden-closeout-readonly",
+    "revision": 3,
+    "status": "PASS",
+    "mutationsGenerated": false
   }
 }

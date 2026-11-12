@@ -1,3 +1,9 @@
+## Stato corrente successivo alla preparazione — 12 novembre 2026
+
+Le sezioni del 9 novembre sotto sono cronologia. Migration/backend e Admin sono stati distribuiti; account cliente editor con capability nominative e accesso personale confermato. Primo rilascio SEO #49 MERGED e pubblicato: `seo-p1-20261112-r1`, main applicativo `2d1cee558ff1e292f5d8f34e9d0f86b87b5ce6fb`; Admin operativo preservato. Consegna complessiva parziale: accettazione cliente su dati reali, redirect HTTP, isole minori e contenuti/notifiche rimangono distinti. Non riaprire registrazione/grant/migration/canary. `restoreVerified=false`. Prevalgono [checklist unica](PROJECT-CLOSEOUT-CHECKLIST.md), [stato cliente](../CLIENT-ECOMMERCE-STATUS.md) ed [evidenza del rilascio](../seo/evidence/release-2026-11-12.json).
+
+---
+
 ## Stato corrente — 12 novembre 2026
 
 Admin operativo già pubblicato, account editor/capability nominative e accesso personale confermato; nessuna riapertura di registrazione, grant, migration o canary. La chiusura complessiva segue soltanto [PROJECT-CLOSEOUT-CHECKLIST.md](PROJECT-CLOSEOUT-CHECKLIST.md). Il rilascio SEO #49 è autorizzato e in esecuzione; non deve disabilitare l’Admin. Le prove operative cliente e le eccezioni commerciali restano distinte dal login. `restoreVerified=false` resta invariato.

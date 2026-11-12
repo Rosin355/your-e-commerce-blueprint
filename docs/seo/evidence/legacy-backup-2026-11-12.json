@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-12",
+  "source": "Owner-provided Drive archive, authenticated connector",
+  "driveFileId": "1jfOnb3yPBnkKRC06hz9pd0uBFzo3WZ6D",
+  "fileName": "CORRUPT.backup-11.3.2026_15-00-06_vyonline.tar",
+  "bytes": 20447232,
+  "sha256": "d25c3f1a96ac330f6d4aae28639fbba6af531865cf6eda6c6f9d772cde8a1880",
+  "tarReadableHeaders": 16,
+  "tarIntegrity": "TRUNCATED_UNEXPECTED_END_OF_DATA",
+  "lastMember": "bandwidth_db_data.json",
+  "lastMemberDeclaredBytes": 57723050,
+  "lastMemberAvailableBytes": 20435456,
+  "resynchronizationMethod": "512-byte aligned ustar magic and valid TAR checksums; metadata only",
+  "validLaterTarHeaders": 0,
+  "sqlMembersReached": 0,
+  "wordpressPageOrProductMembersReached": 0,
+  "legalTextsRecovered": 0,
+  "accountsPasswordsCustomersExtracted": false,
+  "productionRestoreAttempted": false,
+  "restoreVerified": false,
+  "conclusion": "The provided fragment ends inside hosting traffic statistics before any readable WordPress SQL/page content. No terms, returns, shipping policy, company details or permalinks can be established from this fragment. A complete source archive or selective page/product export from the old cPanel hosting contact is required; current policy approval remains separate."
+}

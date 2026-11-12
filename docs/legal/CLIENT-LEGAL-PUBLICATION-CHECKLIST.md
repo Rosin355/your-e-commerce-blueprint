@@ -2,6 +2,14 @@
 
 1 novembre 2026. Documento operativo interno, non una policy del negozio. **Footer pubblicato e verificato** su https://onlinegarden.it dopo il merge della PR #43. Commit di produzione `8d2a160917895735658e34a37d6b337733a32649`. Il rilascio tecnico non certifica la readiness legale/commerciale.
 
+## Riscontro corrente — 12 novembre 2026
+
+Rilettura Shopify: soltanto Privacy Policy presente, aggiornata il 30 ottobre; contatti e collegamento Privacy sono ancora visibili dopo il Publish SEO. Ricerca mirata di documenti legali nella cartella Drive del progetto: nessun testo utile individuato, senza leggere file clienti. Non equivale alla prova che nessun altro archivio esista.
+
+Il backup Drive indicato dal proprietario è troncato: **20.447.232 byte**, interruzione nel membro `bandwidth_db_data.json` (57.723.050 byte dichiarati; 20.435.456 disponibili), prima di contenuti SQL/pagine leggibili. Zero testi, database o permalink recuperati; nessun restore/estrazione account/clienti. [Evidenza strutturale](../seo/evidence/legacy-backup-2026-11-12.json). Non ripetere gli stessi tentativi. La richiesta precisa al vecchio hosting è nella [checklist unica](../release/PROJECT-CLOSEOUT-CHECKLIST.md). Un testo eventualmente recuperato rimane da verificare e approvare prima della pubblicazione.
+
+Termini, cookie, spedizioni/resi e dati societari attuali approvati restano necessari. Il file eventi hosting è ancora referenziato nell’HTML live: questo riscontro non dimostra da solo una nuova trasmissione né chiude il controllo consenso. Nessun testo inventato/pubblicato, nessuna CMP o telemetria modificata.
+
 ## Disponibile e utilizzabile
 
 - [x] Privacy Policy Shopify esistente in italiano, aggiornata il 30 ottobre 2026: [apri informativa ufficiale](https://checkout.shopify.com/102600966484/policies/56892817748.html?locale=it). Pubblicata e verificata; collegamento autorizzato nella richiesta. Non equivale a una nuova revisione legale del testo.

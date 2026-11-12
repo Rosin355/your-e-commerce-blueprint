@@ -1,3 +1,11 @@
+## Continuità dopo il Publish SEO — 12 novembre 2026
+
+Sito live `seo-p1-20261112-r1`, deployment `539ca523-c5ec-4fd0-b5de-3792c605d28d`, main applicativo `2d1cee558ff1e292f5d8f34e9d0f86b87b5ce6fb`. Modulo Admin pubblico identico alla build validata: `readOnly=false`, marker `admin-delivery-20261110-r1`. Nessun backend, grant, flag o migration modificati dal rilascio SEO. Account Marco/accesso già confermati: non ripetere l’abilitazione o il canary. Resta aperta l’accettazione su prodotti reali concordati; DRAFT tecnica sempre non pubblicata, `restoreVerified=false`. [Checklist corrente](release/PROJECT-CLOSEOUT-CHECKLIST.md) e [prove](seo/evidence/release-2026-11-12.json). Le note datate sotto conservano la cronologia.
+
+**Postcondizione server dopo il Publish, 12/11 ore 18:17:47 CET:** un solo account corrispondente, email verificata, solo ruolo `editor`, grant attivo con le sette capability e 14 campi; zero altri grant attivi. RLS sulle tre tabelle catalogo attiva e zero privilegi client. Lettura aggregata tramite connettore Lovable sul progetto corretto, senza email/UUID personali nell’output o nel repository; nessuna assegnazione ripetuta. Non è una nuova sessione cliente né una prova di scrittura.
+
+---
+
 ## Abilitazione account cliente — 12 novembre 2026
 
 **Abilitazione account conclusa; accesso personale e permesso di modifica confermati dal proprietario. Collaudo operativo cliente non eseguito.** Lookup esatto ripetuto nel backend Lovable: un solo account e email verificata. Alle **10:13:55 CET**, transazione unica con ruolo minimo `editor` e grant catalogo nominativo attivo: `edit`, `sync`, `drafts`, `images`, `categories`, `prices`, `publish`; editing limitato ai 14 campi consentiti dal server. Nessun `admin` o `tech_admin`, nessuna variazione agli altri account.

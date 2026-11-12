@@ -1,121 +1,98 @@
-# Online Garden checklist di chiusura
+# Online Garden — checklist unica di chiusura
 
-Aggiornamento: 12 novembre 2026. Questa checklist distingue la consegna del gestionale a Marco dalla chiusura del sito ecommerce. Il mandato del proprietario del 12 novembre autorizza ora le attività di chiusura qui delimitate: riallineamento/merge PR #49 dopo review e CI/GitGuardian, Publish frontend SEO e accettazione di soli prodotti reali approvati. Restano esclusi ordini/addebiti/invii di prova, nuovi costi/ambienti/app, cambi DNS/proxy e mapping non approvati. Le note precedenti di sola preparazione non prevalgono sul mandato attuale.
+Aggiornamento: **12 novembre 2026, dopo il Publish e il controllo finale**. Scadenza richiesta dal proprietario: venerdì 13 novembre, Europe/Rome, senza un orario preciso. Nessuna promessa di lavoro in background o di ranking. Il mandato corrente autorizza il primo rilascio SEO e conserva l’Admin già operativo; nuovi prodotti, valori/prezzi e pubblicazioni commerciali richiedono una scelta esplicita. Nessun nuovo ambiente, costo, app, DNS/proxy o redesign autorizzato implicitamente.
 
-## Scadenza del proprietario — venerdi 13 novembre 2026
+## Concluso e realmente pubblicato
 
-Il proprietario richiede di concludere la consegna entro domani, 13 novembre, fuso Europe/Rome. Nessun orario preciso nuovo e stato indicato. E una scadenza di progetto, non una garanzia di esito o una promessa di lavoro in background.
+**Primo rilascio SEO concluso e verificato live il 12 novembre 2026.** [PR #49](https://github.com/Rosin355/your-e-commerce-blueprint/pull/49) MERGED, HEAD validato `91c26c11a47951b0bf822a644fd42428e8c9ae18`, main applicativo `2d1cee558ff1e292f5d8f34e9d0f86b87b5ce6fb`. [CI Storefront/PostgreSQL 17 e GitGuardian](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/43261015209) SUCCESS sul candidato; nessuna CI push main configurata. Publish Lovable `539ca523-c5ec-4fd0-b5de-3792c605d28d`, versione realmente servita su `onlinegarden.it`: **`seo-p1-20261112-r1`**, asset `/assets/index-7LGwLIzQ.js`. Il merge GitHub e il Publish sono stati verificati separatamente.
 
-**Perimetro congelato:** completare i requisiti gia concordati, non nuovi redesign, AI, campagne, infrastrutture o funzionalita. Non spostare unilateralmente fra i miglioramenti futuri un requisito ancora mancante. Non riaprire registrazione, grant, migration e canary gia conclusi. Correggere soltanto difetti riproducibili e fare un controllo finale integrato, oltre ai test automatici relativi al codice modificato.
+**Admin operativo preservato:** modulo live `readOnlyRelease-DRvoVRBm.js` HTTP 200, byte identici alla build validata, `readOnly=false`, marker `admin-delivery-20261110-r1`. Nessun cambiamento a sorgenti Admin/backend, configurazione operativa, grant, flag, migration o prodotti. Ruolo editor e sette capability nominative di Marco restano quelli già assegnati; accesso personale già confermato, senza ripetere login o canary. Questa verifica di continuità non certifica nuove operazioni dalla sessione cliente.
 
-| Quando | Attivita | Responsabile | Uscita richiesta |
-| --- | --- | --- | --- |
-| 12 novembre, subito | Riallineare PR #49 al main corrente e completare il primo rilascio SEO gia autorizzato, senza regressione Admin | Developer/Codex | Check dello SHA finale, merge e versione pubblicata verificati; sitemap HTTP 200 e schede coerenti |
-| 12 novembre, senza aspettare la riconciliazione completa SEO | Un primo lavoro reale di Marco: modifica, bozza con immagine, categoria verificata; pubblicazione solo del prodotto commerciale da lui approvato | Marco + proprietario, assistenza tecnica sui difetti | Percorso cliente documentato, nessuna impersonificazione o DRAFT tecnica pubblicata |
-| 12 novembre, prima di impegnare ulteriori tentativi | Riunire in una sola richiesta gli eventuali dati/accessi mancanti: provider HTTP, mapping incerti, geografia isole minori, policy e dati societari approvati | Proprietario/Marco/collega tecnico | Responsabile e decisione concreta per ogni dipendenza; nessun rinvio silenzioso a domani |
-| 13 novembre | Chiudere le correzioni residue autorizzate, controllo integrato pubblico/Admin, guida e verbale unico | Developer + proprietario + Marco | Checklist con evidenze live, stato completo oppure elenco esplicito delle eccezioni non accettate |
+**Postcondizione server dopo il Publish, 12/11 ore 18:17:47 CET:** un solo account corrispondente, email verificata, solo ruolo `editor`, grant attivo con le sette capability e 14 campi; zero altri grant attivi. RLS sulle tre tabelle catalogo attiva e zero privilegi client. Lettura aggregata tramite connettore Lovable sul progetto corretto, senza email/UUID personali nell’output o nel repository; nessuna assegnazione ripetuta. Non è una nuova sessione cliente né una prova di scrittura.
 
-I lavori indipendenti possono procedere mentre Marco usa il proprio browser, ma un solo operatore coordina merge, deploy e modifiche alla configurazione live. Non pubblicare una vecchia build SEO che riporta l'Admin in sola lettura. Non presumere che il consenso al primo rilascio SEO autorizzi cambi DNS, app a pagamento, tutti i redirect o modifiche commerciali non specificate.
+**Sitemap e robots:** `/sitemap.xml` HTTP 200, XML valido con **1.349 URL (1.346 prodotti pubblici + 3 pagine)**, DRAFT tecnica esclusa. `/robots.txt` HTTP 200 con direttiva sitemap apex. Canonical renderizzati autoriferiti su catalogo/PDP/contatti; ricerca `noindex,follow`, PDP pubblica `index,follow`. Fotografia generata il 12/11 alle 16:27:20 UTC. Non è una garanzia di indicizzazione/ranking o una nuova URL Inspection Google.
 
-**Dipendenze da rendere visibili subito:** l'adattatore redirect non e ancora un livello HTTP installato; la tariffa speciale delle isole minori non e attestata; i testi legali devono provenire da una fonte approvata; una pubblicazione reale richiede un prodotto e dati commerciali concordati. Se non risolvibili con strumenti/accessi correnti, chiedere la sola decisione necessaria e continuare gli altri filoni. Un blocco non e un PASS e una nota TODO non sostituisce il requisito.
+**Verifica finale:** home, catalogo (1.346 prodotti), ricerca, PDP Rosa Jasmina, canonical/indexazione, offerte JSON-LD reali, breadcrumb/correlati con href, carrello e apertura checkout PASS. Desktop 1280×720 e mobile reale 390×844 senza overflow; override ripristinato. Preventivo standard Roma: €18,50 + €8,90 = €27,40, senza ordine/addebito o dati di contatto; carrello svuotato. Contatti e link Privacy presenti. Safari/iOS non verificati: il controllo Safari non ha risposto. Nessuna nuova prova di pagamento, consegna email o pubblicazione commerciale.
 
-**Chiusura onesta:** l'Admin puo essere consegnato per il perimetro verificato mentre un filone separato resta aperto, ma la dicitura 'tutto concluso' richiede che nessun requisito concordato rimanga irrisolto. Non promettere un recupero del ranking entro il 13 novembre: il risultato della consegna SEO e la correzione tecnica pubblicata e verificata. Le eccezioni possono essere differite soltanto con accettazione esplicita del proprietario/cliente.
+Il sorgente applicativo distribuito è il merge sopra. Gli aggiornamenti documentali successivi non sono un secondo Publish e non cambiano il backend. L’HTML/modulo pubblico è stato associato al deployment reale, non alla sola anteprima Lovable. Le impronte e gli screenshot sono nella [release evidence](../seo/evidence/release-2026-11-12.json).
 
-Usare questa stessa checklist e i registri esistenti per l'esito finale, senza produrre altri piani generici o duplicare file di stato. Nessuna nuova modifica runtime effettuata dalla registrazione della scadenza.
+## Stato dei requisiti e dipendenze effettive
 
-
-## Esecuzione corrente — 12 novembre 2026
-
-- Main letto: `41e53339e647c23ea80e69f3c66fec383ee8ad30`; PR #49 OPEN, HEAD iniziale `08b3cfa3afab17dfe29fa6a2d8d130cab81ca63d`, due conflitti nei documenti di stato. Riallineamento locale completato, due conflitti documentali risolti preservando codice/configurazione Admin e cronologia recenti; controlli locali SEO 8/8, lint, typecheck e build operativa PASS. Nessun nuovo canary/grant/migration.
-- Policy Shopify rilette: soltanto Privacy Policy pubblicata, aggiornamento 30 ottobre 2026. Non risultano altre policy nel servizio; i contenuti pubblici del frontend saranno confrontati separatamente. Nessuna policy inventata.
-- Servizi tariffari esterni Shopify: elenco vuoto in lettura. A/B e Sicilia/Sardegna preservate; nessuna tariffa speciale delle isole minori dichiarata verificata.
-- HTTP: hosting Lovable, primary domain 302/307 e assenza di supporto 301 fra domini confermati nelle [istruzioni provider](https://docs.lovable.dev/features/custom-domain#primary-domain). Un 301 path-level controllabile non è ancora dimostrato; nessuna route/proxy/DNS modificata. La verifica non blocca il rilascio sitemap.
-
-Main concorrente `8d912b7` ha aggiunto automaticamente due dipendenze preview Lovable senza lockfile: integrate e rimosse soltanto quelle due voci, ripristinando package/lock identici al candidato già validato. Nuova CI/GitGuardian richiesta sul nuovo SHA; nessuna modifica funzionale o costo.
-
-Sitemap rigenerata: 1.346 prodotti pubblici + 3 pagine, 1.349 URL; DRAFT tecnica assente. I 16 GID/handle sono ancora pubblici e ACTIVE, SKU varianti ricontrollati. Il file è statico: dopo nuove pubblicazioni/handle il responsabile tecnico deve rigenerarlo e pubblicare il frontend. Nessun automatismo dichiarato. [Evidenza corrente](../seo/evidence/release-2026-11-12.json).
-
-### Unica approvazione dei 16 mapping pronti
-
-Questa tabella riprende i mapping corroborati della PR #49; **nessuno è ancora approvato o attivo**. L’approvazione deve riferirsi all’intero elenco o precisare le sole righe approvate. Le destinazioni saranno ricontrollate sul catalogo pubblico prima dell’attivazione. Ogni riga ha riscontro Woo ID/SKU → GID Shopify nelle evidenze SEO; non è un abbinamento per solo titolo. L’approvazione dei mapping non autorizza automaticamente modifiche DNS/proxy.
-
-| Vecchio URL (host apex e www) | Destinazione canonica | Identità corroborata |
+| Attività | Stato alla chiusura di questa sessione | Prova / azione necessaria |
 | --- | --- | --- |
-| `/prodotto/rose/rosa-jasmina-rampicante/` | [rosa-jasmina-rampicante](https://onlinegarden.it/products/rosa-jasmina-rampicante) | SKU `OG_436162`; Woo `14180`; Shopify `15836809494868` |
-| `/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/` | [agave-americana-verde](https://onlinegarden.it/products/agave-americana-verde) | SKU `OG_317782`; Woo `12457`; Shopify `15836802220372` |
-| `/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/` | [kalanchoe-calandiva-bianco](https://onlinegarden.it/products/kalanchoe-calandiva-bianco) | SKU `OG_182937`; Woo `13302`; Shopify `15836783116628` |
-| `/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/` | [kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie](https://onlinegarden.it/products/kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie) | SKU `OG_631727`; Woo `13943`; Shopify `15357645914452` |
-| `/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/` | [castanea-sativa-marrone-di-marradi-castagno-marrone](https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone) | SKU `OG_334361`; Woo `12930`; Shopify `15836803465556` |
-| `/prodotto/da-frutto/prunus-avium-lapins-ciliegio/` | [prunus-avium-lapins-ciliegio](https://onlinegarden.it/products/prunus-avium-lapins-ciliegio) | SKU `OG_326285`; Woo `16228`; Shopify `15836802941268` |
-| `/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/` | [calycanthus-floridus-calicanto-estivo](https://onlinegarden.it/products/calycanthus-floridus-calicanto-estivo) | SKU `OG_737951`; Woo `12821`; Shopify `15836827156820` |
-| `/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/` | [calycanthus-venus-calicanto-estivo](https://onlinegarden.it/products/calycanthus-venus-calicanto-estivo) | SKU `OG_575973`; Woo `12830`; Shopify `15836815130964` |
-| `/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/` | [rhyncospermum-asiaticum-tricolor-gelsomino](https://onlinegarden.it/products/rhyncospermum-asiaticum-tricolor-gelsomino) | SKU `OG_689687`; Woo `14409`; Shopify `15836819849556` |
-| `/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/` | [elaeagnus-ebbingei-aurea-eleagno](https://onlinegarden.it/products/elaeagnus-ebbingei-aurea-eleagno) | SKU `OG_287827`; Woo `14764`; Shopify `15836800614740` |
-| `/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/` | [fagus-sylvatica-dawyck-purple-faggio](https://onlinegarden.it/products/fagus-sylvatica-dawyck-purple-faggio) | SKU `OG_349957`; Woo `14964`; Shopify `15836804546900` |
-| `/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/` | [ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo](https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo) | SKU `OG_839828`; Woo `15120`; Shopify `15357650272596` |
-| `/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/` | [ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante](https://onlinegarden.it/products/ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante) | SKU `OG_818665`; Woo `15121`; Shopify `15357649813844` |
-| `/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/` | [parrotia-persica-bella-albero-pagoda](https://onlinegarden.it/products/parrotia-persica-bella-albero-pagoda) | SKU `OG_455857`; Woo `16976`; Shopify `15836810477908` |
-| `/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/` | [paulownia-tomentosa-paulonia](https://onlinegarden.it/products/paulownia-tomentosa-paulonia) | SKU `OG_371278`; Woo `17011`; Shopify `15836806578516` |
-| `/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/` | [tradescantia-nanouk](https://onlinegarden.it/products/tradescantia-nanouk) | SKU `OG_748228`; Woo `15466`; Shopify `15836830925140` |
+| PR #49, build SEO, sitemap/robots/canonical | **Concluso e pubblicato** | CI/GitGuardian sullo SHA finale, merge e versione live distinti; 1.349 URL HTTP 200 |
+| Account Marco e permessi | **Concluso, preservato** | Account verificato, solo editor, sette capability/14 campi; accesso personale già confermato. Nessuna nuova richiesta login |
+| Editing/sync/prezzi, bozza reale con immagine, categoria e pubblicazione cliente | **Accettazione operativa aperta** | Proprietario non ha ancora scelto prodotto/campo/valore, dati reali del nuovo articolo o prodotto da pubblicare. Non sceglierli al suo posto; prezzo solo se richiesto. Upload computer già disponibile |
+| Collaudo tecnico precedente | **Acquisito, non riaperto** | Una sola DRAFT tecnica, immagine/recovery/sync già verificati; non pubblicarla né ricrearla |
+| 16 mapping dimostrabili | **Proposti; 0 approvati; 0 pubblicati** | Tabella seguente; fonti GSC/export e GID/varianti/publicazione ricontrollati senza dipendere dal TAR |
+| 3 identità incerte e altri 1.255 percorsi | **Riconciliazione proseguibile con fonti disponibili** | Separare i casi; nessuna identità dedotta da prefisso o nome. La verifica mirata corrente non ha risolto i tre casi |
+| Livello HTTP redirect | **Dipendenza infrastrutturale aperta** | Lovable non espone path-level 301; DNS IONOS identificato, nessun proxy controllato dimostrato. Serve titolare/referente DNS IONOS per una proposta e consenso specifico a eventuali cambi |
+| Spedizioni A/B, Sicilia/Sardegna | **Preservate** | Riusati sei casi precedenti; preventivo Roma attuale €8,90. Nessun importo/regola cambiato |
+| Tutte le isole minori con tariffa speciale | **Copertura non dimostrata** | Zero carrier services Shopify; market isole basato su province. Lettura delle personalizzazioni negata per scope `read_delivery_customizations` assente; non si conclude che nessuna personalizzazione esista. Non dimostrato un meccanismo CAP/località: nessun supplemento alle province continentali, vecchia deroga o nuova app attivati |
+| Privacy e contatti | **Pubblicati e ricontrollati** | Shopify Privacy 30/10, contatti e footer live |
+| Termini, cookie, spedizioni/resi e dati societari | **Contenuti attuali approvati mancanti** | Recupero selettivo dal vecchio hosting oppure testi/dati approvati. Qualunque testo recuperato resta da validare |
+| Backup fornito | **Esame concluso: troncato, non utilizzabile per recuperare i contenuti richiesti** | Dimensione, hash e interruzione sotto; non ripetere tentativi identici né dichiarare recuperati DB/testi/permalink |
+| Notifiche | **Invio piattaforma parzialmente attestato** | Tre conferme ordine `mail_sent` su ordini esistenti; ricezione cliente/staff, mittente e template non provati. Nessun ordine/invio test |
+| Desktop/mobile e Safari | **Storefront desktop/mobile PASS; Safari/iOS non verificati** | 1280×720 e 390×844 effettivi; controllo Safari senza risposta. Non equivale a QA Admin nella sessione Marco |
+| Recovery | **Limite invariato** | Sorgente frontend precedente recuperabile e snapshot gestito già identificato; nessun rollback/restore eseguito, `restoreVerified=false` |
 
-Tre casi campione ambigui e gli altri percorsi restano separati: nessuna approvazione in massa, nessun reindirizzamento alla homepage.
+## Sedici corrispondenze da approvare — soltanto proposte
 
-## Stato gia acquisito
+**Il proprietario ha chiesto di non registrare ancora l’approvazione.** Ogni riga usa URL GSC + identità Woo ID/SKU/categoria/immagine, poi GID e SKU attuali. Gli export non contengono un permalink autorevole: confidenza tecnica alta non è consenso commerciale. I dettagli degli ID restano nelle [evidenze originarie](../seo/evidence/mapping-evidence.json) e nella lettura corrente. L’approvazione della tabella non autorizza DNS/proxy. Manifest `enabled=false`, `approvalReference=null`, `reviewApproved=false`.
 
-Il [registro cliente](../CLIENT-ECOMMERCE-STATUS.md), aggiornato al 12 novembre, conferma account unico con email verificata, ruolo editor, sette capability catalogo e quattordici campi consentiti. Accesso personale e dicitura modifica abilitata sono confermati dal proprietario tramite il riscontro di Marco. Non richiedere di nuovo registrazione, screenshot di login o assegnazione degli stessi permessi.
-
-Migration e backend sono distribuiti, frontend `admin-delivery-20261110-r1` pubblicato. Il precedente collaudo tecnico ha verificato immagine, bozza unica Shopify, recovery e sincronizzazione di una descrizione SEO. Questa prova non dimostra tutte le operazioni dalla sessione cliente. I controlli server ordinari non vanno sostituiti riaprendo le vecchie finestre canary.
-
-## Chiusura del gestionale
-
-La prima bozza riuscita di Marco chiude il relativo percorso, non automaticamente prezzi, categorie e pubblicazione. Raggruppare le verifiche mancanti in una sola sessione di lavoro utile, evitando nuove prove artificiali o l'intera ripetizione delle suite.
-
-| Punto | Criterio di uscita | Stato documentato |
+| Vecchio URL (apex e www) | Prodotto / SKU storico | Nuova destinazione proposta |
 | --- | --- | --- |
-| Modifica e sincronizzazione | Campo autorizzato e, se parte della consegna, prezzo di variante salvati, riletti e sincronizzati dal cliente con esito corretto | Accettazione cliente da attestare |
-| Nuovo prodotto con immagine | Bozza reale concordata, SKU e varianti corretti, media disponibile, salvataggio e riapertura senza duplicati | Prova tecnica acquisita; percorso cliente da attestare |
-| Categoria e pubblicazione | Scelta di collezione editoriale verificata; pubblicazione manuale di un prodotto reale approvato, visibile nella scheda e nel catalogo corretti | Non collaudato commercialmente |
-| UI e passaggio di consegne | Controllo mirato nel browser di Marco e mobile/Safari per il perimetro concordato; guida esistente e limiti consegnati; conferma cliente | Accesso desktop confermato; operazioni e mobile/Safari non attestati |
+| `/prodotto/rose/rosa-jasmina-rampicante/` | Rosa Jasmina - Rampicante — `OG_436162` | [rosa-jasmina-rampicante](https://onlinegarden.it/products/rosa-jasmina-rampicante) |
+| `/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/` | Agave Americana Verde — `OG_317782` | [agave-americana-verde](https://onlinegarden.it/products/agave-americana-verde) |
+| `/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/` | Kalanchoe “Calandiva bianco" — `OG_182937` | [kalanchoe-calandiva-bianco](https://onlinegarden.it/products/kalanchoe-calandiva-bianco) |
+| `/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/` | kalanchoe Tetraphylla — `OG_631727` | [kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie](https://onlinegarden.it/products/kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie) |
+| `/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/` | Castanea Sativa Marrone Di Marradi - Castagno Marrone — `OG_334361` | [castanea-sativa-marrone-di-marradi-castagno-marrone](https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone) |
+| `/prodotto/da-frutto/prunus-avium-lapins-ciliegio/` | Prunus Avium Lapins - Ciliegio — `OG_326285` | [prunus-avium-lapins-ciliegio](https://onlinegarden.it/products/prunus-avium-lapins-ciliegio) |
+| `/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/` | Calycanthus Floridus - Calicanto Estivo — `OG_737951` | [calycanthus-floridus-calicanto-estivo](https://onlinegarden.it/products/calycanthus-floridus-calicanto-estivo) |
+| `/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/` | Calycanthus Venus - Calicanto Estivo — `OG_575973` | [calycanthus-venus-calicanto-estivo](https://onlinegarden.it/products/calycanthus-venus-calicanto-estivo) |
+| `/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/` | Rhyncospermum Asiaticum Tricolor - Gelsomino — `OG_689687` | [rhyncospermum-asiaticum-tricolor-gelsomino](https://onlinegarden.it/products/rhyncospermum-asiaticum-tricolor-gelsomino) |
+| `/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/` | Elaeagnus Ebbingei Aurea - Eleagno — `OG_287827` | [elaeagnus-ebbingei-aurea-eleagno](https://onlinegarden.it/products/elaeagnus-ebbingei-aurea-eleagno) |
+| `/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/` | Fagus Sylvatica Dawyck Purple - Faggio — `OG_349957` | [fagus-sylvatica-dawyck-purple-faggio](https://onlinegarden.it/products/fagus-sylvatica-dawyck-purple-faggio) |
+| `/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/` | Ginkgo Biloba Mariken — `OG_839828` | [ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo](https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo) |
+| `/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/` | Ginkgo Biloba Menhir — `OG_818665` | [ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante](https://onlinegarden.it/products/ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante) |
+| `/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/` | Parrotia Persica Bella - Albero Pagoda — `OG_455857` | [parrotia-persica-bella-albero-pagoda](https://onlinegarden.it/products/parrotia-persica-bella-albero-pagoda) |
+| `/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/` | Paulownia Tomentosa - Paulonia — `OG_371278` | [paulownia-tomentosa-paulonia](https://onlinegarden.it/products/paulownia-tomentosa-paulonia) |
+| `/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/` | Tradescantia Nanouk — `OG_748228` | [tradescantia-nanouk](https://onlinegarden.it/products/tradescantia-nanouk) |
 
-Non pubblicare la DRAFT tecnica TEST ADMIN. Non inventare stock, prezzi o dati commerciali. La disponibilita pubblica richiedeere il canale effettivo del sito e non il solo stato ACTIVE. Prezzi e categorie non diventano PASS per il solo funzionamento di seo_description.
+### Tre casi separati, nessuna destinazione inventata
 
-Le 22 associazioni delle categorie interne storiche sono una riconciliazione distinta dalla scelta di collezioni editoriali verificate: non devono bloccare ogni bozza o l'editing indipendente, ma non vanno approvate in massa. Registrare i casi aperti e le decisioni di Marco.
+| Caso | Identità storica disponibile | Esito della verifica mirata corrente |
+| --- | --- | --- |
+| Magnolia Grandiflora Little Gem | Woo 16546, SKU `OG_557118` | Nessuna variante trovata per quel prefisso nella ricerca Shopify; nessun GID attuale certo. Non dichiarato prodotto eliminato |
+| Celtis australis / Bagolaro | Woo 20689, SKU `OG_939693` | Nessuna variante trovata per quel prefisso nella ricerca Shopify; nessun GID attuale certo. Non dichiarato prodotto eliminato |
+| Viburnum Coppertop | Woo 26964, SKU storico `OG_924853-2-1-1-1` | Variante candidata `OG_924853-2-1-01-1-1`, famiglia condivisa con 12 varianti anche di Potentilla: prefisso/nome non bastano a confermare il mapping |
 
-**Criterio di consegna Admin:** operazioni concordate utilizzabili da Marco dal suo account, esiti riletti, guida e limiti accettati. Nessun nuovo sviluppo o deploy se non emerge un difetto riproducibile; se emerge, correggere solo quel difetto e riprovare il caso interessato. Non promettere una data o una percentuale di completamento dai soli documenti.
+GSC già collegata non viene ricollegata. Export GSC del 10/11 e fonti prodotto restano disponibili per nuove corrispondenze puntuali anche senza backup integro. I 1.255 percorsi rimanenti sono un insieme ancora non riconciliato, non rimozioni certificate. Nessun nuovo audit generale o inoltro alla homepage eseguito. URL Inspection e invio sitemap Google non sono attestati da un connettore Search Analytics.
 
-## Chiusura del sito ecommerce
+**HTTP dopo il rilascio:** sul vecchio percorso Rosa Jasmina GET e HEAD apex restituiscono 200 senza Location; www restituisce 302 verso lo stesso vecchio percorso apex. Nessun recupero dei vecchi link dichiarato. Nameserver `ns1098.ui-dns.de`, `ns1041.ui-dns.biz`, `ns1126.ui-dns.com`, `ns1037.ui-dns.org` identificano [DNS IONOS](https://www.ionos.it/aiuto/e-mail/risoluzione-di-problemi-per-mail-basicmail-business/modificare-i-record-mx-per-la-ricezione-di-e-mail-con-i-server-di-posta-di-ionos/); apex A `185.158.133.1`, hosting Lovable. Questo non dimostra che IONOS fosse il vecchio hosting cPanel. [Limiti primary-domain Lovable](https://docs.lovable.dev/features/custom-domain#primary-domain). Nessuna route/DNS installata o modificata.
 
-### SEO e vecchi URL
+## Backup legacy: risultato e richiesta pronta per il referente
 
-Lettura GitHub del 12 novembre: [PR #49](https://github.com/Rosin355/your-e-commerce-blueprint/pull/49) ancora open, merged=false, mergeable=false, HEAD `08b3cfa3afab17dfe29fa6a2d8d130cab81ca63d`. Il corpo della PR conserva riferimenti storici a mergeability positiva e Admin non attivato: prevalgono i metadati correnti e il registro cliente piu recente. Non attribuire controlli del vecchio SHA a una futura revisione.
+Fonte: archivio Drive indicato dal proprietario, `CORRUPT.backup-11.3.2026_15-00-06_vyonline.tar`, **20.447.232 byte**, SHA-256 `d25c3f1a96ac330f6d4aae28639fbba6af531865cf6eda6c6f9d772cde8a1880`. Sono leggibili 16 intestazioni TAR; il file termina dentro `bandwidth_db_data.json`: dimensione dichiarata **57.723.050 byte**, disponibili **20.435.456**, payload dall’offset 11.776. Il parser segnala fine inattesa; nessuna ulteriore intestazione TAR valida trovata ai confini di blocco. Nessun membro SQL/pagina/prodotto raggiunto. Analizzati soltanto metadati, non estratti contenuti account/clienti/credenziali né ripristinato il sito. **Zero database, testi e permalink recuperati**. [Evidenza sanitizzata](../seo/evidence/legacy-backup-2026-11-12.json).
 
-Riallineare la PR all'attuale main preservando Admin e capability correnti, poi completare il primo rilascio SEO gia autorizzato: sitemap, robots, canonical, noindex transitorio, link e dati strutturati. Questa checklist non attesta pubblicazione o nuove risposte HTTP live.
+Testo da consegnare al referente del **vecchio hosting cPanel** (preparato, non inviato a terzi):
 
-I 16 redirect proposti richiedono ancora approvazione dei mapping, livello HTTP effettivo e verifica del rilascio. Il primo rilascio frontend non attiva automaticamente i redirect. Tre casi incerti e 1.255 percorsi restano nel backlog secondo il report del 10 novembre; non sono prodotti dichiarati rimossi. GSC e gia collegata: non ripetere il collegamento. Dopo il rilascio verificare sitemap pubblica, indicizzazione e andamento; recupero del ranking non e una condizione a data garantita della consegna tecnica.
+> Occorre l’archivio integro dello stesso backup `backup-11.3.2026_15-00-06_vyonline`, con dimensione e SHA-256 per verificarne l’integrità. In alternativa, fornire un export selettivo delle sole pagine pubbliche (termini, cookie, spedizioni/consegne, resi/rimborsi e dati societari) e dei prodotti/varianti: ID originale, ID padre, SKU, slug/post_name, permalink originale ed eventuali URL storici, gerarchia delle categorie con relativi ID/slug necessari a ricostruire gli indirizzi. Per le pagine includere titolo, contenuto pubblico, stato e date di modifica. Escludere utenti, clienti, ordini, password/hash, token, secret e dati di pagamento. Non ripristinare il vecchio sito in produzione. L’export è una fonte da verificare: i testi commerciali devono essere confermati e approvati prima di una nuova pubblicazione.
 
-### Spedizioni
+**Dipende davvero dalla nuova fonte:** recuperare contenuti/permalink non presenti negli export attuali e chiarire identità mancanti quando le fonti disponibili non bastano. **Non dipende dal nuovo archivio:** rilascio SEO già concluso, controlli pubblici, 16 mapping corroborati, ulteriori corrispondenze dimostrabili GSC/export e lavoro reale di Marco su dati approvati.
 
-La [guida shipping nel branch dedicato](https://github.com/Rosin355/your-e-commerce-blueprint/blob/codex/shopify-shipping-rates/docs/SHIPPING-CLIENT-MANAGEMENT.md) documenta A/B e Sicilia/Sardegna operative nel collaudo precedente. Elba, Lido, Pellestrina e altre isole minori restano senza copertura speciale verificata. E un requisito aperto della tariffazione completa: non basta che la tariffa standard funzioni. Non inventare CAP, estendere supplementi a province continentali o introdurre costi/app senza decisione. Questa nota non ripete il test checkout.
+## Limiti commerciali e responsabilità
 
-### Contenuti legali e consenso
+Marco/proprietario deve scegliere prodotto, valori, dati reali del nuovo articolo, categoria certa e pubblicazione esplicita. Non sono stati chiesti nuovamente registrazione o login; nessuna sua sessione è stata impersonata. Il prezzo non va modificato solo per un test. Le 22 associazioni interne storiche rimangono distinte: non bloccano tutte le bozze e non sono approvate in massa.
 
-La [checklist legale del 1 novembre](../legal/CLIENT-LEGAL-PUBLICATION-CHECKLIST.md) registra footer, contatti e privacy pubblicati, ma lascia aperti testi approvati di termini, cookie, spedizioni/resi, dati societari e gestione della telemetria/consenso. Stato da riconciliare con eventuali interventi successivi prima di assegnare nuovo lavoro: questa nota non e una verifica legale o un audit live e non dichiara che ogni documento sia ancora assente oggi. Non presentare il footer online come conformita completa.
+Shopify/checkout e Sendcloud restano i sistemi noti. Il market Sicilia/Sardegna contiene province, non dimostra copertura delle isole minori in province continentali. La decisione commerciale è tariffa speciale per **tutte** le isole: resta un requisito aperto, non rinviato fra miglioramenti facoltativi. Il connettore ha negato la lettura delle personalizzazioni di consegna per scope `read_delivery_customizations` mancante: serve il titolare Shopify per ispezionare in sola lettura le eventuali personalizzazioni già installate. Non è stata richiesta un’estensione dei privilegi e non se ne presume l’assenza. Nessuna tariffa/app o costo introdotto; eventuale soluzione richiede proposta concreta e consenso.
 
-### Ordini e notifiche
+Tre invii conferma ordine registrati da Shopify non dimostrano recapito cliente/staff. [Registro notifiche aggiornato](../SHOPIFY-EMAIL-NOTIFICATIONS-AUDIT.md). Solo Privacy/contatti sono confermati; [checklist testi/consenso](../legal/CLIENT-LEGAL-PUBLICATION-CHECKLIST.md). Nessuna policy inventata, obsoleta o soltanto recuperata è stata pubblicata. Telemetria/consenso rimangono da decidere/validare; presenza dello script hosting non è una prova nuova di trasmissione.
 
-L'[audit notifiche del 31 ottobre](../SHOPIFY-EMAIL-NOTIFICATIONS-AUDIT.md) non attesta ricezione cliente/staff, tracking e mittente. Prima della chiusura commerciale raccogliere le evidenze gia disponibili, anche relative a ordini realmente ricevuti con accesso autorizzato, senza generare acquisti, email o addebiti per questa checklist. Se manca una verifica, pianificare soltanto quella e con consenso specifico. Non dedurre un guasto dalla sola assenza di documentazione.
+## Manutenzione, rollback ed esito
 
-## Responsabilita e ordine di lavoro
+La sitemap è statica. Dopo nuove pubblicazioni/cambi handle: responsabile tecnico esegue `node --import tsx scripts/prepare-seo-sitemap.ts`, controlla la fotografia e pubblica il frontend. Il comando Pubblica dell’Admin non aggiorna automaticamente questo file. Nessun cron o automatismo dichiarato.
 
-- Marco: dati prodotto reali, scelte di categoria, conferme di pubblicazione, contenuti commerciali e accettazione della guida.
-- Developer: eventuali difetti puntuali del percorso cliente, rilascio SEO separato, redirect HTTP e integrita di prezzi/varianti/identita.
-- Designer: rifiniture mirate emerse nell'uso reale; nessun redesign necessario per chiudere la consegna.
-- Proprietario: approvazione dei perimetri e degli eventuali costi; coordinamento del collega sul backup legacy se necessario, senza restaurare dati clienti in produzione.
+Rollback circoscritto disponibile: sorgente frontend precedente main `41e53339e647c23ea80e69f3c66fec383ee8ad30`, release `admin-delivery-20261110-r1`, deployment precedente `885640f0-b94e-4220-989c-dff4677b8125`; archivio sorgenti protetto già identificato nelle evidenze, senza secret. Eventuale ripubblicazione compatibile conserva grant e configurazione, senza restore DB o backend generale. Non è stata eseguita né certificata una prova di restore; `restoreVerified=false` resta esplicito.
 
-Ordine proposto: completare il percorso quotidiano di Marco e firmare il perimetro Admin; portare avanti subito il recupero SEO senza attendere tutta la tassonomia; chiudere le eccezioni commerciali gia note con relative approvazioni. Nessuno di questi punti autorizza ad abbassare le protezioni gia attive.
-
-## Manutenzione successiva e limiti
-
-Crescita del ranking, nuovi articoli, ottimizzazione campagne e miglioramenti futuri sono manutenzione/marketing, non un motivo per tenere aperta senza termine la consegna tecnica. Restano da programmare gli aggiornamenti della sitemap quando cambia il catalogo, il monitoraggio errori e il recupero dei dati. Il restore completo rimane non dimostrato secondo la precedente decisione di rischio; non viene certificato o trasformato qui in una nuova migration obbligatoria.
-
-Il file storico FINAL-RELEASE-READINESS contiene ancora in testa stati del 9 novembre superati dal rilascio e dall'abilitazione del 12 novembre. Per l'account prevalgono CLIENT-ECOMMERCE-STATUS e la guida aggiornata; non usare lo storico per riaprire automaticamente l'attivazione gia conclusa.
+**Esito: CONSEGNA PARZIALE.** Primo rilascio SEO pubblicato e Admin preservato; accettazione commerciale cliente, redirect HTTP, tariffa isole minori, testi/consenso e recapito notifiche/Safari restano aperti con i limiti sopra. Nessuna eccezione è stata automaticamente accettata o spostata a manutenzione futura. Questa checklist sostituisce le note preparatorie del 12/11 per lo stato corrente; la cronologia di abilitazione e preparazione resta nei registri collegati e in Git.

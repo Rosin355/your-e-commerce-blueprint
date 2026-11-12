@@ -1,3 +1,19 @@
+## Rilascio SEO P1 pubblicato — 12 novembre 2026
+
+**Primo rilascio SEO concluso e verificato live il 12 novembre 2026.** [PR #49](https://github.com/Rosin355/your-e-commerce-blueprint/pull/49) MERGED, HEAD validato `91c26c11a47951b0bf822a644fd42428e8c9ae18`, main applicativo `2d1cee558ff1e292f5d8f34e9d0f86b87b5ce6fb`. [CI Storefront/PostgreSQL 17 e GitGuardian](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/43261015209) SUCCESS sul candidato; nessuna CI push main configurata. Publish Lovable `539ca523-c5ec-4fd0-b5de-3792c605d28d`, versione realmente servita su `onlinegarden.it`: **`seo-p1-20261112-r1`**, asset `/assets/index-7LGwLIzQ.js`. Il merge GitHub e il Publish sono stati verificati separatamente.
+
+**Admin operativo preservato:** modulo live `readOnlyRelease-DRvoVRBm.js` HTTP 200, byte identici alla build validata, `readOnly=false`, marker `admin-delivery-20261110-r1`. Nessun cambiamento a sorgenti Admin/backend, configurazione operativa, grant, flag, migration o prodotti. Ruolo editor e sette capability nominative di Marco restano quelli già assegnati; accesso personale già confermato, senza ripetere login o canary. Questa verifica di continuità non certifica nuove operazioni dalla sessione cliente.
+
+**Postcondizione server dopo il Publish, 12/11 ore 18:17:47 CET:** un solo account corrispondente, email verificata, solo ruolo `editor`, grant attivo con le sette capability e 14 campi; zero altri grant attivi. RLS sulle tre tabelle catalogo attiva e zero privilegi client. Lettura aggregata tramite connettore Lovable sul progetto corretto, senza email/UUID personali nell’output o nel repository; nessuna assegnazione ripetuta. Non è una nuova sessione cliente né una prova di scrittura.
+
+**Sitemap e robots:** `/sitemap.xml` HTTP 200, XML valido con **1.349 URL (1.346 prodotti pubblici + 3 pagine)**, DRAFT tecnica esclusa. `/robots.txt` HTTP 200 con direttiva sitemap apex. Canonical renderizzati autoriferiti su catalogo/PDP/contatti; ricerca `noindex,follow`, PDP pubblica `index,follow`. Fotografia generata il 12/11 alle 16:27:20 UTC. Non è una garanzia di indicizzazione/ranking o una nuova URL Inspection Google.
+
+**Verifica finale:** home, catalogo (1.346 prodotti), ricerca, PDP Rosa Jasmina, canonical/indexazione, offerte JSON-LD reali, breadcrumb/correlati con href, carrello e apertura checkout PASS. Desktop 1280×720 e mobile reale 390×844 senza overflow; override ripristinato. Preventivo standard Roma: €18,50 + €8,90 = €27,40, senza ordine/addebito o dati di contatto; carrello svuotato. Contatti e link Privacy presenti. Safari/iOS non verificati: il controllo Safari non ha risposto. Nessuna nuova prova di pagamento, consegna email o pubblicazione commerciale.
+
+**Consegna complessiva PARZIALE:** accettazione su prodotti reali ancora da concordare; redirect 16 proposti/0 approvati/0 pubblicati; tariffa isole minori, testi societari/policy e ricezione notifiche da chiudere. Backup Drive verificato troncato: nessun database/testo/permalink recuperato. Le fonti GSC/export prodotto restano utilizzabili. `restoreVerified=false`. Stato e dipendenze nella [checklist unica](release/PROJECT-CLOSEOUT-CHECKLIST.md), prove in [release sanitizzata](seo/evidence/release-2026-11-12.json). I paragrafi datati sotto conservano la cronologia.
+
+---
+
 ## Abilitazione account cliente — 12 novembre 2026
 
 **Abilitazione account conclusa; accesso personale e permesso di modifica confermati dal proprietario. Collaudo operativo cliente non eseguito.** Lookup esatto ripetuto nel backend Lovable: un solo account e email verificata. Alle **10:13:55 CET**, transazione unica con ruolo minimo `editor` e grant catalogo nominativo attivo: `edit`, `sync`, `drafts`, `images`, `categories`, `prices`, `publish`; editing limitato ai 14 campi consentiti dal server. Nessun `admin` o `tech_admin`, nessuna variazione agli altri account.

@@ -762,5 +762,20 @@
       "effectiveEditorAuthorized": false,
       "effectiveAccessMessage": "Modifiche non autorizzate per questo account o perimetro di collaudo."
     }
-  ]
+  ],
+  "latestSitePublish": {
+    "date": "2026-11-12",
+    "siteRelease": "seo-p1-20261112-r1",
+    "sourceMain": "2d1cee558ff1e292f5d8f34e9d0f86b87b5ce6fb",
+    "deploymentId": "539ca523-c5ec-4fd0-b5de-3792c605d28d",
+    "adminReleasePreserved": "admin-delivery-20261110-r1",
+    "adminReadOnly": false,
+    "servedModuleMatchesValidatedBuild": true,
+    "backendRolesFlagsMigrationsChanged": false,
+    "evidence": "docs/seo/evidence/release-2026-11-12.json",
+    "previousLiveFrontendRecord": "liveFrontend below preserves the historical 10 November Admin release/deployment",
+    "postPublishAccountReadAt": "2026-11-12T18:17:47+01:00",
+    "accountGrantStillEnabled": true,
+    "otherActiveCatalogGrants": 0
+  }
 }
