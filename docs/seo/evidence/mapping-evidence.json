@@ -1,0 +1,402 @@
+{
+  "checked_at": "2026-11-10T10:40:38.945898+00:00",
+  "method": "Technical confidence only; original CSV does not include permalink/post_name. GSC path is corroborated by source category/image basename, then joined by SKU and GID; owner review required.",
+  "mappings": [
+    {
+      "path": "/prodotto/rose/rosa-jasmina-rampicante/",
+      "woo_id": "14180",
+      "sku": "OG_436162",
+      "source_title": "Rosa Jasmina - Rampicante",
+      "source_categories": "Rose",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/rosa-jasmina-rampicante-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/rosa-jasmina-rampicante.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785164449980.csv",
+      "source_sha256": "8568fb4d3d2e6065a72f5e440c1279f30367bc4f2c0713d27f99d1e673c16c24",
+      "new_url": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+      "shopify_gid": "gid://shopify/Product/15836809494868",
+      "current_variant_skus": [
+        "OG_436162-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/",
+      "woo_id": "12457",
+      "sku": "OG_317782",
+      "source_title": "Agave Americana Verde",
+      "source_categories": "Piante da Interno > Piante Grasse e Succulente",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/agave-americana-verde-1-e1675715966790.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785164253248.csv",
+      "source_sha256": "cb253c8512100a0fc14825dcc39fe25c3a8533b5477daf6b6ef0ea97904a648d",
+      "new_url": "https://onlinegarden.it/products/agave-americana-verde",
+      "shopify_gid": "gid://shopify/Product/15836802220372",
+      "current_variant_skus": [
+        "OG_317782-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/",
+      "woo_id": "13302",
+      "sku": "OG_182937",
+      "source_title": "Kalanchoe \u201cCalandiva bianco\"",
+      "source_categories": "Piante da Interno > Piante da Appartamento, Piante da Interno > Piante Grasse e Succulente",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/kalanchoe-calandiva-bianco-1.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785164253248.csv",
+      "source_sha256": "cb253c8512100a0fc14825dcc39fe25c3a8533b5477daf6b6ef0ea97904a648d",
+      "new_url": "https://onlinegarden.it/products/kalanchoe-calandiva-bianco",
+      "shopify_gid": "gid://shopify/Product/15836783116628",
+      "current_variant_skus": [
+        "OG_182937-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/",
+      "woo_id": "13943",
+      "sku": "OG_631727",
+      "source_title": "kalanchoe Tetraphylla",
+      "source_categories": "Piante da Interno > Piante Grasse e Succulente",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/kalanchoe-tetraphylla.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785164253248.csv",
+      "source_sha256": "cb253c8512100a0fc14825dcc39fe25c3a8533b5477daf6b6ef0ea97904a648d",
+      "new_url": "https://onlinegarden.it/products/kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie",
+      "shopify_gid": "gid://shopify/Product/15357645914452",
+      "current_variant_skus": [
+        "OG_631727"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/",
+      "woo_id": "12930",
+      "sku": "OG_334361",
+      "source_title": "Castanea Sativa Marrone Di Marradi - Castagno Marrone",
+      "source_categories": "Piante da Frutto",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/castanea-sativa-marrone-di-marradi-castagno-marrone-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/castanea-sativa-marrone-di-marradi-castagno-marrone.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/castanea-sativa-marrone-di-marradi-castagno-marrone-3-e1678019798599.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163759646.csv",
+      "source_sha256": "37462ab899415030c8d030232b90c6767010222842c7d7626bf9aeea73e37c2d",
+      "new_url": "https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone",
+      "shopify_gid": "gid://shopify/Product/15836803465556",
+      "current_variant_skus": [
+        "OG_334361-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/da-frutto/prunus-avium-lapins-ciliegio/",
+      "woo_id": "16228",
+      "sku": "OG_326285",
+      "source_title": "Prunus Avium Lapins - Ciliegio",
+      "source_categories": "Piante da Frutto",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/prunus-avium-lapins-ciliegio-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/prunus-avium-lapins-ciliegio.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163759646.csv",
+      "source_sha256": "37462ab899415030c8d030232b90c6767010222842c7d7626bf9aeea73e37c2d",
+      "new_url": "https://onlinegarden.it/products/prunus-avium-lapins-ciliegio",
+      "shopify_gid": "gid://shopify/Product/15836802941268",
+      "current_variant_skus": [
+        "OG_326285-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/",
+      "woo_id": "12821",
+      "sku": "OG_737951",
+      "source_title": "Calycanthus Floridus - Calicanto Estivo",
+      "source_categories": "Piante da Esterno > Arbusti",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/calycanthus-floridus-calicanto-estivo-2.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/calycanthus-floridus-calicanto-estivo-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/calycanthus-floridus-calicanto-estivo.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/calycanthus-floridus-calicanto-estivo-4.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "https://onlinegarden.it/products/calycanthus-floridus-calicanto-estivo",
+      "shopify_gid": "gid://shopify/Product/15836827156820",
+      "current_variant_skus": [
+        "OG_737951-01",
+        "OG_737951-02"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/",
+      "woo_id": "12830",
+      "sku": "OG_575973",
+      "source_title": "Calycanthus Venus - Calicanto Estivo",
+      "source_categories": "Piante da Esterno > Arbusti",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/calycanthus-venus-calicanto-estivo.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/calycanthus-venus-calicanto-estivo-2.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "https://onlinegarden.it/products/calycanthus-venus-calicanto-estivo",
+      "shopify_gid": "gid://shopify/Product/15836815130964",
+      "current_variant_skus": [
+        "OG_575973-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/",
+      "woo_id": "14409",
+      "sku": "OG_689687",
+      "source_title": "Rhyncospermum Asiaticum Tricolor - Gelsomino",
+      "source_categories": "Piante da Esterno > Arbusti",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/rhyncospermum-asiaticum-tricolor-gelsomino-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/rhyncospermum-asiaticum-tricolor-gelsomino.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "https://onlinegarden.it/products/rhyncospermum-asiaticum-tricolor-gelsomino",
+      "shopify_gid": "gid://shopify/Product/15836819849556",
+      "current_variant_skus": [
+        "OG_689687-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/",
+      "woo_id": "14764",
+      "sku": "OG_287827",
+      "source_title": "Elaeagnus Ebbingei Aurea - Eleagno",
+      "source_categories": "Piante da Esterno > Arbusti, Piante da Esterno > Siepi",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/elaeagnus-ebbingei-aurea-eleagno-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/elaeagnus-ebbingei-aurea-eleagno.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "https://onlinegarden.it/products/elaeagnus-ebbingei-aurea-eleagno",
+      "shopify_gid": "gid://shopify/Product/15836800614740",
+      "current_variant_skus": [
+        "OG_287827-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/",
+      "woo_id": "14964",
+      "sku": "OG_349957",
+      "source_title": "Fagus Sylvatica Dawyck Purple - Faggio",
+      "source_categories": "Piante da Esterno > Alberi",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/fagus-sylvatica-dawyck-purple-faggio-4.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/fagus-sylvatica-dawyck-purple-faggio-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/fagus-sylvatica-dawyck-purple-faggio-2.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "https://onlinegarden.it/products/fagus-sylvatica-dawyck-purple-faggio",
+      "shopify_gid": "gid://shopify/Product/15836804546900",
+      "current_variant_skus": [
+        "OG_349957-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/",
+      "woo_id": "15120",
+      "sku": "OG_839828",
+      "source_title": "Ginkgo Biloba Mariken",
+      "source_categories": "Piante da Esterno > Alberi",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/ginkgo-biloba-mariken-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/ginkgo-biloba-mariken.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo",
+      "shopify_gid": "gid://shopify/Product/15357650272596",
+      "current_variant_skus": [
+        "OG_839828"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/",
+      "woo_id": "15121",
+      "sku": "OG_818665",
+      "source_title": "Ginkgo Biloba Menhir",
+      "source_categories": "Piante da Esterno > Alberi",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/ginkgo-biloba-menhir-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/ginkgo-biloba-menhir.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "https://onlinegarden.it/products/ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante",
+      "shopify_gid": "gid://shopify/Product/15357649813844",
+      "current_variant_skus": [
+        "OG_818665"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/arbusti/magnolia-grandiflora-little-gem/",
+      "woo_id": "16546",
+      "sku": "OG_557118",
+      "source_title": "Magnolia Grandiflora Little Gem",
+      "source_categories": "Piante da Esterno > Arbusti",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/magnolia-grandiflora-little-gem-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/magnolia-grandiflora-little-gem.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "",
+      "shopify_gid": null,
+      "current_variant_skus": [],
+      "confidence": "UNRESOLVED",
+      "reason": "No verified current GID; do not guess destination",
+      "destination_status": null
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/",
+      "woo_id": "16976",
+      "sku": "OG_455857",
+      "source_title": "Parrotia Persica Bella - Albero Pagoda",
+      "source_categories": "Piante da Esterno > Arbusti",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/parrotia-persica-bella-albero-pagoda-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/parrotia-persica-bella-albero-pagoda-2-1.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "https://onlinegarden.it/products/parrotia-persica-bella-albero-pagoda",
+      "shopify_gid": "gid://shopify/Product/15836810477908",
+      "current_variant_skus": [
+        "OG_455857-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/",
+      "woo_id": "17011",
+      "sku": "OG_371278",
+      "source_title": "Paulownia Tomentosa - Paulonia",
+      "source_categories": "Piante da Esterno > Alberi",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/paulownia-tomentosa-paulonia-1-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/paulownia-tomentosa-paulonia-3-1.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "https://onlinegarden.it/products/paulownia-tomentosa-paulonia",
+      "shopify_gid": "gid://shopify/Product/15836806578516",
+      "current_variant_skus": [
+        "OG_371278-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/alberi/celtis-australis-bagolaro/",
+      "woo_id": "20689",
+      "sku": "OG_939693",
+      "source_title": "Celtis australis - Bagolaro",
+      "source_categories": "Piante da Esterno > Alberi",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/11/Celtis-australis-Bagolaro.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "",
+      "shopify_gid": null,
+      "current_variant_skus": [],
+      "confidence": "UNRESOLVED",
+      "reason": "No verified current GID; do not guess destination",
+      "destination_status": null
+    },
+    {
+      "path": "/prodotto/piante-da-esterno/arbusti/viburnum-odoratissimum-coppertop-viburno/",
+      "woo_id": "26964",
+      "sku": "OG_924853-2-1-1-1",
+      "source_title": "Viburnum Odoratissimum \u2018Coppertop\u2019 - Viburno",
+      "source_categories": "Piante da Esterno > Arbusti, Piante da Esterno > Siepi",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2026/02/viburnum_odoratissimum_coppertop.jpg"
+      ],
+      "source_file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "source_sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e",
+      "new_url": "https://onlinegarden.it/products/viburnum-odoratissimum-coppertop-viburno",
+      "shopify_gid": "gid://shopify/Product/15836864676180",
+      "current_variant_skus": [
+        "OG_924853-2-1-01-1-1"
+      ],
+      "confidence": "MEDIUM",
+      "reason": "Variant SKU conflict: owner decision",
+      "destination_status": 200
+    },
+    {
+      "path": "/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/",
+      "woo_id": "15466",
+      "sku": "OG_748228",
+      "source_title": "Tradescantia Nanouk",
+      "source_categories": "Piante da Interno > Piante da Appartamento",
+      "source_images": [
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/tradescantia-nanouk-1.jpg",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/tradescantia-nanouk.jpg"
+      ],
+      "source_file": "Google Sheets: 1jwHC8GP-A6f_g5j-7fgBPoIt4_12IQ5rFieTVsqroNU / wc-product-export-28-2-2026-1772300858057",
+      "source_range": "A1301:E1301; AB1301:AE1301",
+      "source_sha256": null,
+      "new_url": "https://onlinegarden.it/products/tradescantia-nanouk",
+      "shopify_gid": "gid://shopify/Product/15836830925140",
+      "current_variant_skus": [
+        "OG_748228-01"
+      ],
+      "confidence": "HIGH",
+      "reason": "Woo ID + SKU lineage + original category/image slug + live Shopify GID/variant SKU + public Storefront + HTTP 200",
+      "destination_status": 200
+    }
+  ]
+}

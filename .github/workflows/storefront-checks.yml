@@ -66,6 +66,12 @@ jobs:
           npx --no-install eslint src/components/CartDrawer.tsx src/components/ProductCard.tsx src/components/storefront/CatalogProductCard.tsx src/components/storefront/HomeHeaderOverlay.tsx src/components/storefront/HomeHero.tsx src/components/storefront/HomepageV3.tsx src/components/storefront/Pdp.tsx src/hooks/useProduct.ts src/lib/shopify.ts src/pages/AllProducts.tsx
           if test -f src/lib/storefront-money.ts; then npx --no-install eslint src/lib/storefront-money.ts; fi
           if test -f scripts/tests/storefront-money.test.ts; then npx --no-install eslint --no-ignore scripts/tests/storefront-money.test.ts; fi
+      - name: Lint SEO recovery scope
+        run: |
+          if test -f scripts/tests/seo-recovery.test.ts; then
+            npx --no-install eslint src/lib/storefront-indexing.ts src/lib/storefront-structured-data.ts src/hooks/useProductStructuredData.ts src/hooks/useStorefrontSeo.ts src/pages/ProductDetail.tsx
+            npx --no-install eslint --no-ignore scripts/tests/seo-recovery.test.ts scripts/prepare-seo-sitemap.ts infra/seo/legacy-redirects.mjs infra/seo/worker.mjs
+          fi
       - name: Lint Admin operational scope
         run: |
           if test -f src/adminv2/pages/NewProductPage.tsx; then

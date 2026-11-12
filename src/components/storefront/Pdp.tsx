@@ -1,7 +1,7 @@
 import { formatMoney, formatProductPrice } from "@/lib/storefront-money";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { PaymentInformation } from "./PaymentInformation";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -96,7 +96,6 @@ const colorSwatchMap: Record<string, string> = {
 };
 
 export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoContent }: PdpProps) => {
-  const navigate = useNavigate();
   const addItem = useCartStore((state) => state.addItem);
   const isCheckingOut = useCartStore((state) => state.isLoading);
   const buyAttempt = useRef<string | null>(null);
@@ -290,13 +289,13 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
       <div className="container mx-auto max-w-[1200px] px-4 pt-6 md:pt-8">
         <nav className="flex items-center gap-2 text-xs text-muted-foreground">
-          <button type="button" onClick={() => navigate("/")} className="hover:text-foreground">
+          <Link to="/" className="hover:text-foreground">
             Home
-          </button>
+          </Link>
           <ChevronRight className="h-3 w-3 opacity-60" />
-          <button type="button" onClick={() => navigate("/collections/all")} className="hover:text-foreground">
+          <Link to="/collections/all" className="hover:text-foreground">
             Tutti i prodotti
-          </button>
+          </Link>
           <ChevronRight className="h-3 w-3 opacity-60" />
           <span className="truncate text-foreground">{node.title}</span>
         </nav>
@@ -738,10 +737,9 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               <p className="text-sm font-semibold text-foreground">Potrebbero interessarti</p>
               <div className="mt-2.5 flex flex-wrap gap-2">
                 {relatedProducts.map((item) => (
-                  <button
+                  <Link
                     key={item.node.id}
-                    type="button"
-                    onClick={() => navigate(`/products/${item.node.handle}`)}
+                    to={`/products/${item.node.handle}`}
                     className="inline-flex items-center gap-2 border border-border bg-background px-3 py-1.5 text-xs text-foreground/85 hover:border-foreground/60"
                   >
                     {item.node.images.edges[0]?.node?.url ? (
@@ -754,7 +752,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                       <span className="h-6 w-6 rounded-full bg-muted" />
                     )}
                     <span className="truncate max-w-[140px]">{item.node.title}</span>
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -920,10 +918,9 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
         ) : relatedProducts.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {relatedProducts.map((item) => (
-              <button
+              <Link
                 key={item.node.id}
-                type="button"
-                onClick={() => navigate(`/products/${item.node.handle}`)}
+                to={`/products/${item.node.handle}`}
                 className="group h-auto overflow-hidden border border-border bg-card p-0 text-left shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated"
               >
                 <div className="aspect-square w-full overflow-hidden bg-muted">
@@ -943,7 +940,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                     {formatProductPrice(item.node.priceRange)}
                   </p>
                 </div>
-              </button>
+              </Link>
             ))}
           </div>
         ) : (

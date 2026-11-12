@@ -1,0 +1,182 @@
+{
+  "enabled": false,
+  "approvalReference": null,
+  "rules": [
+    {
+      "oldPath": "/prodotto/rose/rosa-jasmina-rampicante/",
+      "newUrl": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_436162",
+      "wooId": "14180",
+      "shopifyGid": "gid://shopify/Product/15836809494868"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/",
+      "newUrl": "https://onlinegarden.it/products/agave-americana-verde",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_317782",
+      "wooId": "12457",
+      "shopifyGid": "gid://shopify/Product/15836802220372"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/",
+      "newUrl": "https://onlinegarden.it/products/kalanchoe-calandiva-bianco",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_182937",
+      "wooId": "13302",
+      "shopifyGid": "gid://shopify/Product/15836783116628"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/",
+      "newUrl": "https://onlinegarden.it/products/kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_631727",
+      "wooId": "13943",
+      "shopifyGid": "gid://shopify/Product/15357645914452"
+    },
+    {
+      "oldPath": "/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/",
+      "newUrl": "https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_334361",
+      "wooId": "12930",
+      "shopifyGid": "gid://shopify/Product/15836803465556"
+    },
+    {
+      "oldPath": "/prodotto/da-frutto/prunus-avium-lapins-ciliegio/",
+      "newUrl": "https://onlinegarden.it/products/prunus-avium-lapins-ciliegio",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_326285",
+      "wooId": "16228",
+      "shopifyGid": "gid://shopify/Product/15836802941268"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/",
+      "newUrl": "https://onlinegarden.it/products/calycanthus-floridus-calicanto-estivo",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_737951",
+      "wooId": "12821",
+      "shopifyGid": "gid://shopify/Product/15836827156820"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/",
+      "newUrl": "https://onlinegarden.it/products/calycanthus-venus-calicanto-estivo",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_575973",
+      "wooId": "12830",
+      "shopifyGid": "gid://shopify/Product/15836815130964"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/",
+      "newUrl": "https://onlinegarden.it/products/rhyncospermum-asiaticum-tricolor-gelsomino",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_689687",
+      "wooId": "14409",
+      "shopifyGid": "gid://shopify/Product/15836819849556"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/",
+      "newUrl": "https://onlinegarden.it/products/elaeagnus-ebbingei-aurea-eleagno",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_287827",
+      "wooId": "14764",
+      "shopifyGid": "gid://shopify/Product/15836800614740"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/",
+      "newUrl": "https://onlinegarden.it/products/fagus-sylvatica-dawyck-purple-faggio",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_349957",
+      "wooId": "14964",
+      "shopifyGid": "gid://shopify/Product/15836804546900"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/",
+      "newUrl": "https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_839828",
+      "wooId": "15120",
+      "shopifyGid": "gid://shopify/Product/15357650272596"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/",
+      "newUrl": "https://onlinegarden.it/products/ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_818665",
+      "wooId": "15121",
+      "shopifyGid": "gid://shopify/Product/15357649813844"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/",
+      "newUrl": "https://onlinegarden.it/products/parrotia-persica-bella-albero-pagoda",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_455857",
+      "wooId": "16976",
+      "shopifyGid": "gid://shopify/Product/15836810477908"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/",
+      "newUrl": "https://onlinegarden.it/products/paulownia-tomentosa-paulonia",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_371278",
+      "wooId": "17011",
+      "shopifyGid": "gid://shopify/Product/15836806578516"
+    },
+    {
+      "oldPath": "/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/",
+      "newUrl": "https://onlinegarden.it/products/tradescantia-nanouk",
+      "confidence": "HIGH",
+      "destinationStatus": 200,
+      "qaStatus": "PASS",
+      "reviewApproved": false,
+      "sourceSku": "OG_748228",
+      "wooId": "15466",
+      "shopifyGid": "gid://shopify/Product/15836830925140"
+    }
+  ]
+}

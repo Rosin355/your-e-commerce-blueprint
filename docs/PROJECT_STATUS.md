@@ -16,7 +16,7 @@ Codice funzioni e Admin identico tra main di partenza `6578dcdf5334b4d7fc33ac2e5
 
 ---
 
-## Stato corrente — guard Admin #52 integrato e distribuito; cliente non ancora abilitato
+## Cronologia del 10 novembre — guard Admin #52 integrato e distribuito; abilitazione cliente allora pendente
 
 **10 novembre 2026: rilascio del guard completato, consegna operativa a Marco ancora NON conclusa.** PR [#52](https://github.com/Rosin355/your-e-commerce-blueprint/pull/52) MERGED con commit di integrazione **`cb7fc573e2b8c8d4838bb49cec38b74961d39e78`** il 10/11 alle **19:24:21 CET**, dopo autorizzazione puntuale del proprietario. CI applicativa, PostgreSQL 17 e GitGuardian **SUCCESS** sul candidato **`e54d4d98ee09afac7bf79d3116074706370af11f`** ([run](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/42874590567)); sorgenti funzioni identici nel merge, nessun bypass. I commit documentali successivi non cambiano il codice distribuito; il workflow non esegue CI push su main.
 
@@ -715,3 +715,22 @@ Draft PR [#42](https://github.com/Rosin355/your-e-commerce-blueprint/pull/42) pu
 
 
 **Addendum finale, connessione Shopify resa disponibile:** sola lettura sullo store corretto conferma EUR, italiano principale pubblicato, nuovi account cliente facoltativi, 1.348 prodotti ACTIVE, 16 DRAFT e 55 collezioni. Nessuna scrittura effettuata. Mapping Supabase, riconciliazione storica, autorizzazioni Marco, template/mittente/staff e recapito email restano non verificati. I gate di attivazione non cambiano.
+
+
+<details>
+<summary>Cronologia della preparazione SEO — non descrive lo stato Admin corrente</summary>
+
+## Preparazione SEO del 10 novembre 2026 — cronologia superata dal mandato del 12 novembre
+
+**Diagnosi mirata completata sul branch `codex/seo-recovery-p1`, base main `e111ecf`; nessun merge o deploy SEO.** Baseline GSC riconfermata: 299 → 155 clic (−48,16%), 25.353 → 10.704 impressioni (−57,78%) fra 1–7 ottobre e 1–7 novembre; il confronto non dimostra la causa del calo.
+
+- Matrice: **1.380 URL storici / 1.274 percorsi**; 21 percorsi verificati su apex/www, zero 404 HTTP prodotto nel campione. I 4 URL iniziali sono soft 404 confermate nel rendering (HTTP 200 + pagina 404/noindex). Gli altri URL non testati sono marcati esplicitamente.
+- **16 mapping tecnici ad alta confidenza**, correlati per Woo ID/SKU, categoria/immagini, GID/varianti e catalogo pubblico; tutti da revisionare, **zero redirect pubblicati**. Tre casi del campione richiedono identità/decisione aggiuntiva; 1.255 percorsi restano da riconciliare. Nessuna destinazione inventata o redirect generico.
+- Sitemap standard live assenti (404). Preparata sitemap XML con **1.346 prodotti pubblici + 3 rotte**, direttiva robots, canonical apex coerente, meta robots corretto durante caricamento, offerte JSON-LD da prezzi reali e link PDP href. Nessun dato commerciale Shopify modificato.
+- I veri 301 richiedono un livello HTTP configurabile prima di Lovable; la disponibilità del provider esistente e la precedenza sul 302 www devono essere confermate nel change. Adattatore offline disabilitato, nessun DNS o workflow deploy.
+- [Piano e limiti](seo/SEO-RECOVERY-PLAN.md), [baseline e monitoraggio 7/14/30/60 giorni](seo/GSC-BASELINE.md), [matrice](seo/LEGACY-URL-REDIRECT-MAP.csv). Test mirati/lint/typecheck/build eseguiti; CI/GitGuardian e SHA finali nel registro della singola PR SEO.
+- **Prossimo passo:** revisione della PR e dei 16 mapping con autorizzazione specifica a un successivo change SEO sul livello HTTP confermato. Nessun merge/deploy automatico e nessuna promessa di ranking.
+
+**Continuità Admin:** PR #47 MERGED, commit `b56d421b8c30fbf74e4768c112acbdc6e874fd08`; Livello B nel main ma disabilitato, Livello A live di riferimento `admin-readonly-20261106-r1`. Ultima lettura attestata 09/11 19:16:37 CET: scritture e Shopify sync OFF; nessuna nuova lettura runtime dichiarata. Migration operativa non applicata da questo intervento; file/flag Admin invariati. Recovery non dimostrato, identità/ruolo Marco non verificati, zero mapping categorie approvati. Nessun canary, prodotto, ruolo, secret, inventario, Payments, checkout, tariffe A/B o Sendcloud modificato. Le sezioni seguenti conservano la cronologia Admin.
+
+</details>

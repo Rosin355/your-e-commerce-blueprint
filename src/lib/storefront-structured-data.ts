@@ -5,9 +5,11 @@ export interface ProductStructuredDataSource {
   description?: string;
   handle: string;
   images: { edges: Array<{ node: { url: string } }> };
+  variants?: { edges: Array<{ node: { id: string; price: { amount: string; currencyCode: string }; availableForSale: boolean } }> };
+
 }
 
-/** Only descriptive merchant data. No inference of brand, offers, reviews or stock. */
+/** Merchant text and actual Storefront prices only; availabilityForSale is not inventory. */
 export function productStructuredData(origin: string, product: ProductStructuredDataSource) {
   const url = canonicalUrl(origin, `/products/${encodeURIComponent(product.handle)}`);
   const image = product.images.edges.flatMap(({ node }) => {
@@ -17,6 +19,17 @@ export function productStructuredData(origin: string, product: ProductStructured
       return ['https:', 'http:'].includes(imageUrl.protocol) ? [imageUrl.href] : [];
     } catch { return []; }
   });
+  const offers = (product.variants?.edges ?? []).flatMap(({ node }) => {
+    const amount = node.price?.amount;
+    const currency = node.price?.currencyCode;
+    if (!/^\d+(?:\.\d+)?$/.test(amount ?? '') || !Number.isFinite(Number(amount)) || Number(amount) <= 0 || !/^[A-Z]{3}$/.test(currency ?? '') || typeof node.availableForSale !== 'boolean') return [];
+    return [{
+      '@type': 'Offer',
+      url,
+      price: amount,
+      priceCurrency: currency,
+    }];
+  });
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -25,6 +38,7 @@ export function productStructuredData(origin: string, product: ProductStructured
         '@id': `${url}#product`,
         url,
         name: product.title,
+        ...(offers.length ? { offers } : {}),
         ...(product.description?.trim() ? { description: product.description.trim() } : {}),
         ...(image.length ? { image } : {}),
       },

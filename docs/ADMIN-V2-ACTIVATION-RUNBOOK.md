@@ -20,7 +20,7 @@ Rollback mirato: disabilitare soltanto il grant di questo change dopo confronto 
 
 ---
 
-## Stato corrente — guard Admin #52 integrato e distribuito; cliente non ancora abilitato
+## Cronologia del 10 novembre — guard Admin #52 integrato e distribuito; abilitazione cliente allora pendente
 
 **10 novembre 2026: rilascio del guard completato, consegna operativa a Marco ancora NON conclusa.** PR [#52](https://github.com/Rosin355/your-e-commerce-blueprint/pull/52) MERGED con commit di integrazione **`cb7fc573e2b8c8d4838bb49cec38b74961d39e78`** il 10/11 alle **19:24:21 CET**, dopo autorizzazione puntuale del proprietario. CI applicativa, PostgreSQL 17 e GitGuardian **SUCCESS** sul candidato **`e54d4d98ee09afac7bf79d3116074706370af11f`** ([run](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/42874590567)); sorgenti funzioni identici nel merge, nessun bypass. I commit documentali successivi non cambiano il codice distribuito; il workflow non esegue CI push su main.
 

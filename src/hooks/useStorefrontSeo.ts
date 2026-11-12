@@ -1,3 +1,4 @@
+import { STOREFRONT_ORIGIN } from '@/lib/storefront-indexing';
 import { useEffect } from 'react';
 import { canonicalUrl, seoDescription, type StorefrontSeo } from '@/lib/storefront-seo';
 
@@ -6,7 +7,7 @@ export function useStorefrontSeo({ title, description, path, image, type = 'webs
   useEffect(() => {
     const originalTitle = document.title;
     const restore: Array<() => void> = [];
-    const canonical = canonicalUrl(import.meta.env.VITE_SITE_URL || window.location.origin, path);
+    const canonical = canonicalUrl(import.meta.env.VITE_SITE_URL || STOREFRONT_ORIGIN, path);
     const socialImage = image ? new URL(image, canonical).href : undefined;
     const meta = (attribute: 'name' | 'property', key: string, content?: string) => {
       const existing = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);

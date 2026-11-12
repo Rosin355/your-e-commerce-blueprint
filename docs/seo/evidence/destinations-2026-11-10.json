@@ -1,0 +1,125 @@
+{
+  "checked_at": "2026-11-10T10:32:36.985841+00:00",
+  "method": "GET without follow; canonical path from live Shopify GID and public Storefront presence",
+  "responses": [
+    {
+      "url": "https://onlinegarden.it/products/kalanchoe-calandiva-bianco",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/elaeagnus-ebbingei-aurea-eleagno",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/agave-americana-verde",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/prunus-avium-lapins-ciliegio",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/fagus-sylvatica-dawyck-purple-faggio",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/paulownia-tomentosa-paulonia",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/parrotia-persica-bella-albero-pagoda",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/calycanthus-venus-calicanto-estivo",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/rhyncospermum-asiaticum-tricolor-gelsomino",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/calycanthus-floridus-calicanto-estivo",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/tradescantia-nanouk",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    },
+    {
+      "url": "https://onlinegarden.it/products/viburnum-odoratissimum-coppertop-viburno",
+      "status": 200,
+      "location": [],
+      "x_robots_tag": [],
+      "error": null
+    }
+  ]
+}

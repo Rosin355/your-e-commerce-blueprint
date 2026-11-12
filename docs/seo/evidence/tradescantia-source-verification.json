@@ -1,0 +1,48 @@
+{
+  "source": "Google Drive / native WooCommerce product export; read-only",
+  "spreadsheetId": "1jwHC8GP-A6f_g5j-7fgBPoIt4_12IQ5rFieTVsqroNU",
+  "sheetId": 1879789133,
+  "tab": "wc-product-export-28-2-2026-1772300858057",
+  "query": "OG_748228",
+  "checked_at": "2026-11-10T10:37:08.694Z",
+  "bounded_lookup": {
+    "markdown": "| Row | ID | Tipo | SKU | Nome |\n| --- | --- | --- | --- | --- |\n|  | ID | Tipo | SKU | Nome |\n| 1301 | 15466 | variable | OG_748228 | Tradescantia Nanouk |\n| 2133 | 17583 | variation | OG_748228-01 | Tradescantia Nanouk - \u00d8 Vaso: 12cm - Altezza Pianta: 10cm |",
+    "scanned_range": "A1:E2721",
+    "scanned_row_count": 2721,
+    "scanned_column_count": 5,
+    "matched_row_count": 2,
+    "returned_matching_row_count": 2,
+    "truncated": false,
+    "truncated_rows": false,
+    "truncated_columns": false,
+    "truncated_row_count": 0,
+    "truncated_column_count": 0
+  },
+  "current_source": {
+    "rows": [
+      {
+        "image_urls": [
+          "http://www.onlinegarden.it/wp-content/uploads/2023/01/tradescantia-nanouk-1.jpg",
+          "http://www.onlinegarden.it/wp-content/uploads/2023/01/tradescantia-nanouk.jpg"
+        ],
+        "product_category": "Piante da Interno > Piante da Appartamento",
+        "shopify_product_id": "gid://shopify/Product/15836830925140",
+        "sku": "OG_748228",
+        "source_file": "Prodotti wp import - wc-product-export-28-2-2026-1772300858057 (1).csv",
+        "title": "Tradescantia Nanouk"
+      }
+    ]
+  },
+  "category_and_images": {
+    "range": "'wc-product-export-28-2-2026-1772300858057'!AB1301:AE1301",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "Piante da Interno > Piante da Appartamento",
+        null,
+        "Pesante",
+        "http://www.onlinegarden.it/wp-content/uploads/2023/01/tradescantia-nanouk-1.jpg, http://www.onlinegarden.it/wp-content/uploads/2023/01/tradescantia-nanouk.jpg"
+      ]
+    ]
+  }
+}

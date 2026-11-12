@@ -1,3 +1,4 @@
+import { productNoindex } from "@/lib/storefront-indexing";
 import { useProductStructuredData } from "@/hooks/useProductStructuredData";
 import { useStorefrontSeo } from "@/hooks/useStorefrontSeo";
 import { useNavigate, useParams } from "react-router-dom";
@@ -34,20 +35,22 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { handle } = useParams<{ handle: string }>();
   const { product, loading, error, retry, selectedVariant, setSelectedVariant } = useProduct(handle);
-  useProductStructuredData(!loading && !error && product?.node.handle === handle ? {
+  const currentProduct = product?.node.handle === handle && !error ? product : null;
+  useProductStructuredData(!loading && currentProduct ? {
     title: product.node.title,
     description: product.node.description,
     handle: product.node.handle,
     images: product.node.images,
+    variants: product.node.variants,
   } : null);
   const fallbackTitle = error ? 'Prodotto non disponibile' : loading ? 'Caricamento prodotto' : 'Prodotto non trovato';
   useStorefrontSeo({
-    title: `${product?.node.seo?.title || product?.node.title || fallbackTitle} | Online Garden`,
-    description: product?.node.seo?.description || product?.node.description,
+    title: `${currentProduct?.node.seo?.title || currentProduct?.node.title || fallbackTitle} | Online Garden`,
+    description: currentProduct?.node.seo?.description || currentProduct?.node.description,
     path: `/products/${encodeURIComponent(handle ?? '')}`,
-    image: product?.node.images.edges[0]?.node.url,
-    type: product ? 'product' : 'website',
-    noindex: !product || !!error,
+    image: currentProduct?.node.images.edges[0]?.node.url,
+    type: currentProduct ? 'product' : 'website',
+    noindex: productNoindex(loading, !!currentProduct, error),
   });
   const goToHomepage = () => navigate("/");
 
