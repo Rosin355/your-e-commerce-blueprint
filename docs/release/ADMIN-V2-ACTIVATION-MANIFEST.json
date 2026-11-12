@@ -1,5 +1,5 @@
 {
-  "status": "ADMIN_CODE_RELEASED_SEO_GUARD_DEPLOYED_TECH_PATH_EXECUTED_CLIENT_REGISTRATION_DEFERRED",
+  "status": "ACCOUNT_CONFIGURED_REQUIRED_FLAGS_PENDING_CLIENT_ACCESS_NOT_VERIFIED",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "version": "admin-delivery-20261110-r1",
@@ -62,18 +62,18 @@
   "gates": {
     "migrationApproval": true,
     "backupRecovery": false,
-    "marcoIdentityAndRole": false,
+    "marcoIdentityAndRole": true,
     "approvedCanaryDraftSku": "OG-ADMIN-CHECK-20261110-63B3FD",
     "categoryMappingsApproved": 0
   },
   "writes": {
-    "master": "TRUE_GLOBAL_CANARY_NO_VALID_SCOPE_OR_ORDINARY_GRANT",
-    "shopifySync": "SET_FALSE_AFTER_APPROVED_SINGLE_FIELD_TEST",
+    "master": "TRUE_GLOBAL_CANARY_ONE_OWNER_APPROVED_CATALOG_GRANT",
+    "shopifySync": "FALSE_AT_2026_11_12_TECH_RUNTIME_READ_REQUIRED_UPDATE_PENDING",
     "drafts": "SET_TRUE_UPLOAD_AND_SAVE_LIVE_PASS",
     "draftShopify": "SET_FALSE_AFTER_ONE_REMOTE_DRAFT",
     "categories": "SET_FALSE",
     "operationalApproval": "SET_JSON_NULL_AFTER_TEST",
-    "frontendReadOnly": "OPERATIONAL_BUILD_LIVE_EFFECTIVE_WRITES_DENIED_WITHOUT_SCOPE_OR_GRANT",
+    "frontendReadOnly": "OPERATIONAL_BUILD_ALREADY_LIVE_CLIENT_GRANT_ASSIGNED_FLAGS_PENDING",
     "canaryScope": "SET_JSON_NULL_AFTER_TEST"
   },
   "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
@@ -371,7 +371,7 @@
       "prices",
       "publish"
     ],
-    "assignedAccounts": 0,
+    "assignedAccounts": 1,
     "persistentApproval": true,
     "approvalMinutes": 10,
     "fieldAllowlist": true,
@@ -380,7 +380,8 @@
     "technicalProductPublishForbidden": true,
     "publicationChannel": "gid://shopify/Publication/338862113108",
     "logistics": "Validate native A/B per variant; no tariff/collection mutations",
-    "integratedAcceptanceLive": false
+    "integratedAcceptanceLive": false,
+    "clientSessionVerified": false
   },
   "publicSmoke": {
     "browser": "Chrome",
@@ -522,5 +523,154 @@
     "mediaCount": 1,
     "newCatalogWritesInSeoGuardRelease": 0,
     "frontendRepublished": false
+  },
+  "clientAccountActivation": {
+    "observedOn": "2026-11-12",
+    "changeReference": "OWNER-ADMIN-MARCO-ACTIVATION-20261112",
+    "target": {
+      "lovableProject": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+      "backend": "Existing project-managed Supabase"
+    },
+    "source": "Exact case-insensitive owner-supplied identity lookup through connected Lovable SQL; no credentials or Auth export",
+    "lookup": {
+      "matchingAccounts": 1,
+      "emailVerified": true,
+      "personalIdentifiersOmitted": true,
+      "passwordTokensHashesRead": false
+    },
+    "before": {
+      "roles": [],
+      "catalogCapabilityRecords": 0
+    },
+    "accountConfiguration": {
+      "configuredAt": "2026-11-12 09:13:55.220093+00",
+      "roles": [
+        "editor"
+      ],
+      "enabled": true,
+      "capabilities": [
+        "edit",
+        "sync",
+        "drafts",
+        "images",
+        "categories",
+        "prices",
+        "publish"
+      ],
+      "fieldKeys": [
+        "title",
+        "description",
+        "short_description",
+        "optimized_description",
+        "seo_title",
+        "seo_description",
+        "nome_botanico",
+        "nome_comune",
+        "periodo_di_fioritura",
+        "periodo_di_messa_a_dimora",
+        "periodo_di_raccolta",
+        "periodo_ottimale_di_potatura",
+        "difficolta_di_coltivazione",
+        "faq"
+      ],
+      "approvedReference": "OWNER-ADMIN-MARCO-ACTIVATION-20261112"
+    },
+    "serverAuthorization": {
+      "verifiedAt": "2026-11-12 09:15:05.695495+00",
+      "admin": false,
+      "capabilities": {
+        "categories": true,
+        "drafts": true,
+        "edit": true,
+        "images": true,
+        "prices": true,
+        "publish": true,
+        "sync": true
+      },
+      "catalog_grants_client_policies": 0,
+      "catalog_grants_client_write_privileges": 0,
+      "catalog_grants_rls": true,
+      "claim_client_execute": 0,
+      "editor": true,
+      "enabled_grants_other_accounts": 0,
+      "field_keys": [
+        "title",
+        "description",
+        "short_description",
+        "optimized_description",
+        "seo_title",
+        "seo_description",
+        "nome_botanico",
+        "nome_comune",
+        "periodo_di_fioritura",
+        "periodo_di_messa_a_dimora",
+        "periodo_di_raccolta",
+        "periodo_ottimale_di_potatura",
+        "difficolta_di_coltivazione",
+        "faq"
+      ],
+      "grant_enabled": true,
+      "grant_reference": "OWNER-ADMIN-MARCO-ACTIVATION-20261112",
+      "tech_admin": false,
+      "verified_unique_account": true,
+      "verificationLimit": "Database role/grant evaluation and service-only ACL/RLS/RPC checks; not an HTTP request authenticated as the client"
+    },
+    "runtime": {
+      "observedAt": "2026-11-12T10:09:13+01:00",
+      "origin": "https://onlinegarden.it",
+      "source": "Authenticated technical browser session /admin/settings",
+      "writesEnabled": true,
+      "writeMode": "canary",
+      "shopifySyncEnabled": false,
+      "effectiveTechnicalWriteAllowed": false,
+      "isClientSession": false
+    },
+    "configuration": {
+      "changedFlags": [],
+      "requiredPendingFlags": [
+        "PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED",
+        "PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED",
+        "PRODUCT_ADMIN_CATEGORIES_ENABLED"
+      ],
+      "draftsPrerequisite": "Previously configured true; current runtime value not independently reread",
+      "canaryPolicy": "Do not reopen technical scope; global canary remains",
+      "pendingDesiredValues": {
+        "PRODUCT_ADMIN_DRAFTS_ENABLED": "true",
+        "PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED": "true",
+        "PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED": "true",
+        "PRODUCT_ADMIN_CATEGORIES_ENABLED": "true",
+        "PRODUCT_ADMIN_CANARY_SCOPE": "null",
+        "PRODUCT_ADMIN_OPERATIONAL_APPROVAL": "null"
+      },
+      "updateTransport": "Native tools confirmed create-only; manual normal Lovable Secrets editor requested. No configuration mutation by agent."
+    },
+    "codeContinuity": {
+      "sourceMain": "6578dcdf5334b4d7fc33ac2e51f5a1d777f222b0",
+      "lastNativeDeployedSource": "cb7fc573e2b8c8d4838bb49cec38b74961d39e78",
+      "functionAndAdminSourceDiffEmpty": true,
+      "runtimeBytecodeReread": false,
+      "newDeployNeeded": false
+    },
+    "changes": {
+      "rolesInserted": 1,
+      "capabilityRecordsInserted": 1,
+      "otherAccountsChanged": 0,
+      "accountsCreated": 0,
+      "authCredentialsChanged": 0,
+      "catalogWrites": 0,
+      "technicalDraftWrites": 0,
+      "canaryReopened": false,
+      "migrations": 0,
+      "deploys": 0,
+      "frontendPublishes": 0
+    },
+    "clientSession": {
+      "verified": false,
+      "impersonated": false,
+      "credentialsRequested": false
+    },
+    "deliveryStatus": "ACCOUNT_CONFIGURED_REQUIRED_FLAGS_PENDING_CLIENT_ACCESS_NOT_VERIFIED",
+    "restoreVerified": false,
+    "rollback": "Disable only the exact catalog grant linked to this change after comparing its current state; revoke only this change's editor role if needed. Preserve product and approval journals; no general restore."
   }
 }

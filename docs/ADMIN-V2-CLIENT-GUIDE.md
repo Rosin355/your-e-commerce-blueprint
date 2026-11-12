@@ -1,8 +1,8 @@
 # Admin Online Garden — guida cliente
 
-**Stato al 10 novembre 2026:** l’interfaccia `admin-delivery-20261110-r1` è pubblicata su https://onlinegarden.it/admin; migration e backend sono distribuiti. Il collaudo tecnico ha verificato immagine, bozza unica, collegamento DRAFT Shopify e modifica/sync di una descrizione SEO. È stata distribuita anche la protezione che conserva e verifica insieme titolo e descrizione SEO, con test automatici e CI positivi. Il prodotto tecnico è rimasto non pubblicato. La registrazione del tuo account è stata rinviata: la tua sessione e le tue capability non sono ancora abilitate o collaudate. Le istruzioni sotto valgono dopo tale abilitazione; il solo Publish non la assegna.
+**Stato al 12 novembre 2026:** il tuo account esistente è verificato e ha ricevuto i permessi per lavorare sul catalogo. L'abilitazione delle funzioni sul servizio è ancora da completare: sincronizzazione, invio delle nuove bozze e categorie non sono ancora confermati disponibili. **Account configurato; accesso dalla tua sessione non ancora verificato.** Non occorre registrarsi di nuovo. Le istruzioni qui sotto descrivono il percorso previsto; usa soltanto le azioni disponibili, senza aggirare eventuali blocchi. Il prodotto tecnico di collaudo resta escluso dalla pubblicazione.
 
-1. **Accedi.** Completa registrazione e verifica dell’indirizzo concordato su https://onlinegarden.it/auth. Dopo l’abilitazione del responsabile apri https://onlinegarden.it/admin. Non condividere password o codici. Un accesso Shopify non attribuisce automaticamente accesso all’Admin.
+1. **Accedi con il tuo account già verificato.** Apri https://onlinegarden.it/admin e usa le tue credenziali nella tua sessione personale. Se serve, accedi da https://onlinegarden.it/auth e poi riapri l’Admin. In Impostazioni verifica i permessi del tuo account. Non condividere password o codici e non creare un secondo account. Un accesso Shopify non attribuisce automaticamente accesso all’Admin.
 2. **Cerca e modifica.** In Prodotti cerca lo SKU o il nome e apri la scheda corretta. Usa Modifica soltanto sui campi disponibili. Salva nell’Admin; il salvataggio non modifica automaticamente Shopify. Se i dati sono cambiati, ricarica e confronta prima di confermare.
 3. **Sincronizza esplicitamente.** Confronta il valore Shopify live e usa Sincronizza sul singolo campo. Conferma l’operazione e attendi la verifica. Per i prezzi apri Prezzi e formati, modifica gli importi delle varianti interessate e usa Conferma e sincronizza prezzi. SKU e inventario non vengono cambiati.
 4. **Crea una bozza.** Apri Nuovo prodotto; inserisci titolo, SKU univoci, dati reali, varianti/formati e prezzi consentiti. Le informazioni botaniche e SEO si compilano manualmente, senza dati inventati. Verifica l’anteprima, conferma i dati e salva la bozza nell’Admin. Apri la scheda salvata per ritrovarla. Usa poi Crea bozza Shopify: il prodotto resta DRAFT, non pubblicato.
@@ -15,7 +15,8 @@ Le conferme delle normali operazioni vengono registrate dall’Admin: non devi r
 
 ## Accettazione da completare
 
-- [ ] Registrazione verificata, capability minime assegnate e accesso dalla tua sessione.
+- [x] Account esistente e verifica email ricontrollati; permessi catalogo assegnati.
+- [ ] Accesso dalla tua sessione personale e disponibilità effettiva delle funzioni.
 - [ ] Ricerca, apertura prodotto e comprensione di salvataggio/sincronizzazione.
 - [ ] Bozza unica con immagine, salvataggio e rilettura, recupero senza duplicati.
 - [ ] Categoria verificata o bozza volutamente da classificare.
@@ -24,6 +25,8 @@ Le conferme delle normali operazioni vengono registrate dall’Admin: non devi r
 
 <details>
 <summary>Cronologia delle guide precedenti — non descrive l’abilitazione corrente</summary>
+
+**Stato al 10 novembre 2026:** l’interfaccia `admin-delivery-20261110-r1` è pubblicata su https://onlinegarden.it/admin; migration e backend sono distribuiti. Il collaudo tecnico ha verificato immagine, bozza unica, collegamento DRAFT Shopify e modifica/sync di una descrizione SEO. È stata distribuita anche la protezione che conserva e verifica insieme titolo e descrizione SEO, con test automatici e CI positivi. Il prodotto tecnico è rimasto non pubblicato. La registrazione del tuo account è stata rinviata: la tua sessione e le tue capability non sono ancora abilitate o collaudate. Le istruzioni sotto valgono dopo tale abilitazione; il solo Publish non la assegna.
 
 ## Decisione finale per Marco — 9 novembre 2026
 

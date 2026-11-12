@@ -1,3 +1,21 @@
+## Abilitazione account cliente — 12 novembre 2026
+
+**Account configurato; flag ordinari da completare; accesso cliente non ancora verificato.** Lookup esatto ripetuto nel backend Lovable: un solo account e email verificata. Alle **10:13:55 CET**, transazione unica con ruolo minimo `editor` e grant catalogo nominativo attivo: `edit`, `sync`, `drafts`, `images`, `categories`, `prices`, `publish`; editing limitato ai 14 campi consentiti dal server. Nessun `admin` o `tech_admin`, nessuna variazione agli altri account.
+
+Postcondizioni server delle **10:15:05 CET**: ruolo/grant effettivi confermati, zero grant attivi per altri utenti, RLS attiva, zero privilegi client sulle tabelle di capability e nessun EXECUTE client sulla RPC di approvazione. È una verifica delle autorizzazioni persistite e delle ACL/RPC, non una richiesta HTTP autenticata come cliente. Nessuna impersonificazione o credenziale richiesta.
+
+Runtime tecnico letto su `onlinegarden.it/admin/settings` alle **10:09:13 CET**: master true, modalità globale canary, sync false, modifiche negate al tecnico. Per completare l'operatività ordinaria sono ancora da salvare i flag specifici DRAFT/sync/categorie; nessun flag modificato in questa attività. Il collegamento Chrome resta indisponibile anche dopo la riattivazione dichiarata; lo strumento nativo Lovable consente solo la creazione di nomi nuovi. Richiesto al proprietario il solo salvataggio dei valori indispensabili e della chiusura del vecchio canary. L'inventario dei nomi non prova i valori runtime.
+
+Codice funzioni e Admin identico tra main di partenza `6578dcdf5334b4d7fc33ac2e51f5a1d777f222b0` e sorgente dell'ultimo deploy `cb7fc573e2b8c8d4838bb49cec38b74961d39e78`. Nessun deploy/Publish, migration, nuovo canary o test applicativo ripetuto. Nessun prodotto tecnico o commerciale modificato/pubblicato, nessun ordine o dato cliente letto. Versione frontend già pubblicata `admin-delivery-20261110-r1`; nessuna nuova attestazione del bundle runtime. `restoreVerified=false` resta invariato.
+
+Change `OWNER-ADMIN-MARCO-ACTIVATION-20261112`: prima della scrittura conservato un journal protetto del solo stato autorizzativo precedente (nessun ruolo/grant); nessun export Auth. La transazione ha bloccato la sola identità esatta, ricontrollato unicità/email verificata/assenza di autorizzazioni concorrenti, inserito un ruolo e un grant, verificato postcondizioni e impronte invariate delle autorizzazioni degli altri account. Nessun DDL. La conferma UI ordinaria resta legata a utente/azione/target/hash/versione/scadenza/idempotenza; il grant non sostituisce l'approvazione per operazione. Prezzi nel percorso dedicato; SKU/handle/inventario e amministrazione generale esclusi. Categorie nuove soltanto da identità editoriali verificate e scelta esplicita; zero mapping storici approvati, bozze senza categoria consentite. Pubblicazione separata sul canale Headless con controlli dati/A-B/visibilità; la DRAFT tecnica resta vietata.
+
+Rollback mirato: disabilitare soltanto il grant di questo change dopo confronto dello stato corrente; revocare il solo ruolo `editor` inserito da questa operazione, se necessario e senza sovrascrivere modifiche concorrenti. Conservare journal e dati prodotto. Nessun ripristino generale o rimozione di strutture.
+
+[Evidenza sanitizzata](admin-v2-evidence/2026-11-12/client-account-activation.json). Le sezioni successive conservano la cronologia e non descrivono lo stato corrente dell'account.
+
+---
+
 ## Stato corrente — guard Admin #52 integrato e distribuito; cliente non ancora abilitato
 
 **10 novembre 2026: rilascio del guard completato, consegna operativa a Marco ancora NON conclusa.** PR [#52](https://github.com/Rosin355/your-e-commerce-blueprint/pull/52) MERGED con commit di integrazione **`cb7fc573e2b8c8d4838bb49cec38b74961d39e78`** il 10/11 alle **19:24:21 CET**, dopo autorizzazione puntuale del proprietario. CI applicativa, PostgreSQL 17 e GitGuardian **SUCCESS** sul candidato **`e54d4d98ee09afac7bf79d3116074706370af11f`** ([run](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/42874590567)); sorgenti funzioni identici nel merge, nessun bypass. I commit documentali successivi non cambiano il codice distribuito; il workflow non esegue CI push su main.
