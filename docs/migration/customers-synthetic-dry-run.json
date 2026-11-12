@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "mode": "offline-dry-run",
+  "dataKind": "synthetic",
+  "productionAuthorized": false,
+  "networkRequests": 0,
+  "customerWrites": 0,
+  "personalArtifactsWritten": 0,
+  "expected": {
+    "accountsWithOrders": 858,
+    "historicalOrders": 953
+  },
+  "observed": {
+    "sourceRows": 1108,
+    "accountsWithOrders": 858,
+    "historicalOrders": 953
+  },
+  "outcomes": {
+    "excludedPrivileged": 2,
+    "excludedOtherRole": 0,
+    "excludedNoOrders": 248,
+    "quarantined": 0,
+    "existingEmailSkipped": 1,
+    "existingPhoneSkipped": 0,
+    "unmatchedAwaitingSnapshot": 0,
+    "proposedNew": 857
+  },
+  "reasons": {
+    "invalidRole": 0,
+    "invalidOrders": 0,
+    "invalidId": 0,
+    "duplicateId": 0,
+    "invalidOrConflictingEmail": 0,
+    "duplicateEmail": 0,
+    "invalidPhone": 0,
+    "duplicatePhone": 0,
+    "invalidProfile": 0
+  },
+  "collisions": {
+    "duplicateEmailGroups": 0
+  },
+  "shopifySnapshot": {
+    "supplied": true,
+    "verified": true,
+    "rows": 1
+  },
+  "marketing": {
+    "emailEnabled": 0,
+    "smsEnabled": 0,
+    "whatsappEnabled": 0
+  },
+  "blockers": [],
+  "status": "OFFLINE_REVIEW_COMPLETE"
+}

@@ -1,0 +1,35 @@
+name: Customers offline preflight
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sync/customers-*.mjs'
+      - 'sync/lib/customer-preflight*.mjs'
+      - 'sync/tests/customer-*.mjs'
+      - 'docs/migration/customers-*'
+      - '.github/workflows/customers-offline-checks.yml'
+      - 'ci/offline-network.cjs'
+      - 'package.json'
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 22.22.3
+          package-manager-cache: false
+      - name: Synthetic tests with network denied and no dependencies or secrets
+        run: npm run test:customers
+      - name: Verify reproducible aggregate report
+        run: |
+          node --require ./ci/offline-network.cjs sync/customers-convert.mjs --synthetic > /tmp/customers-synthetic-report.json
+          cmp /tmp/customers-synthetic-report.json docs/migration/customers-synthetic-dry-run.json

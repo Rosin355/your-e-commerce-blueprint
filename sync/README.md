@@ -83,3 +83,19 @@ Minimo per push Shopify:
 - `npm run sync:woo-to-shopify:dry-run`
 
 Il file `sync/woocommerce-to-shopify-template.mjs` ora delega alla nuova pipeline draft CSV.
+
+## Clienti WooCommerce → Shopify: solo preflight offline
+
+I comandi `sync:customers:convert`, `sync:customers:shopify` e
+`sync:customers:shopify:dry-run` ora producono **solo report aggregati**, senza rete,
+lettura `.env`, CSV importabile o write Shopify. La precedente sincronizzazione
+create/update è stata rimossa intenzionalmente. Nessun flag la riattiva.
+
+- Demo senza dati reali: `npm run sync:customers:preflight -- --synthetic`
+- Test senza rete: `npm run test:customers`
+- [Procedura developer, schema, controlli e rollback](../docs/migration/customers-offline-developer.md)
+- [Guida cliente e autorizzazione della fase successiva](../docs/migration/customers-offline-client.md)
+
+Prima coorte: 858 account con ordini, da riconciliare con i 953 ordini storici
+documentati nella PR #48. Il report sintetico non prova l'esito sui dati reali.
+Questo lavoro non cambia le pipeline prodotti, la PR #47 o i gate runtime.
