@@ -1,0 +1,40 @@
+{
+  "recordedOn": "2026-11-12",
+  "subject": "Marco client access; personal identifiers omitted",
+  "source": {
+    "type": "Owner-supplied screenshot forwarded from Marco",
+    "independentAuthenticatedApiRead": false,
+    "exactCaptureTimeVerified": false,
+    "rawScreenshotCommitted": false
+  },
+  "observed": {
+    "browserAddress": "https://onlinegarden.it/admin/settings",
+    "signedInAccountMatchesOwnerConfirmedClient": true,
+    "accountEmailRecordedInRepository": false,
+    "settingsPageVisible": true,
+    "permissionText": "Permessi del tuo account: modifica campi abilitata",
+    "bannerText": "Modifiche field-by-field controllate dal server; nessuna pubblicazione automatica."
+  },
+  "conclusion": {
+    "clientAccessAndDisplayedEditPermission": "CONFIRMED_BY_CLIENT_SCREENSHOT",
+    "applicableCodexResponse": "Accesso personale riuscito, modifica abilitata",
+    "ordinaryClientWritesProvenByThisEvidence": false,
+    "fullAdminHandoffCompletedByThisEvidence": false
+  },
+  "notEstablishedByThisScreenshot": [
+    "Successful save or Shopify synchronization from Marco's session",
+    "Creation and retrieval of a new draft from Marco's session",
+    "Price changes, category assignment or commercial publication",
+    "Exact runtime flags or a full security audit",
+    "Mobile or Safari acceptance"
+  ],
+  "previousTechnicalEvidence": "Preserved; this screenshot adds client login/UI evidence and does not repeat or invalidate the earlier technical canary.",
+  "changesThisRecord": {
+    "documentationOnly": true,
+    "rolesOrCapabilitiesChanged": false,
+    "secretsOrFlagsChanged": false,
+    "catalogWrites": false,
+    "deployExecuted": false
+  },
+  "nextStep": "Report option 1 in the pending Codex question. Record the client access check as complete without declaring unperformed catalog operations tested. Do not request another screenshot for this same login check."
+}
