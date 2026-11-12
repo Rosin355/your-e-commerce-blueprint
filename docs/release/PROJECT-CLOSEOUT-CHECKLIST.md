@@ -31,6 +31,8 @@ Usare questa stessa checklist e i registri esistenti per l'esito finale, senza p
 - Servizi tariffari esterni Shopify: elenco vuoto in lettura. A/B e Sicilia/Sardegna preservate; nessuna tariffa speciale delle isole minori dichiarata verificata.
 - HTTP: hosting Lovable, primary domain 302/307 e assenza di supporto 301 fra domini confermati nelle [istruzioni provider](https://docs.lovable.dev/features/custom-domain#primary-domain). Un 301 path-level controllabile non è ancora dimostrato; nessuna route/proxy/DNS modificata. La verifica non blocca il rilascio sitemap.
 
+Main concorrente `8d912b7` ha aggiunto automaticamente due dipendenze preview Lovable senza lockfile: integrate e rimosse soltanto quelle due voci, ripristinando package/lock identici al candidato già validato. Nuova CI/GitGuardian richiesta sul nuovo SHA; nessuna modifica funzionale o costo.
+
 Sitemap rigenerata: 1.346 prodotti pubblici + 3 pagine, 1.349 URL; DRAFT tecnica assente. I 16 GID/handle sono ancora pubblici e ACTIVE, SKU varianti ricontrollati. Il file è statico: dopo nuove pubblicazioni/handle il responsabile tecnico deve rigenerarlo e pubblicare il frontend. Nessun automatismo dichiarato. [Evidenza corrente](../seo/evidence/release-2026-11-12.json).
 
 ### Unica approvazione dei 16 mapping pronti

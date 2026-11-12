@@ -371,5 +371,15 @@
     "Client catalogue acceptance not established by login confirmation.",
     "Sitemap is a static snapshot; refresh requires manual generator and frontend Publish after product publication/handle changes.",
     "Full database restore remains unverified."
-  ]
+  ],
+  "concurrentMainPreviewDrift": {
+    "main": "8d912b734b9420c9fe570dfec4907eb21b5e92ce",
+    "automaticPreviewDevDependencies": [
+      "@lovable.dev/vite-plugin-dev-server-bridge",
+      "@lovable.dev/vite-plugin-hmr-gate"
+    ],
+    "lockUpdatedByProvider": false,
+    "correction": "Only the two unused preview dependencies removed; package and lock identical to previously validated bd9b9d6. New SHA requires fresh CI/GitGuardian.",
+    "otherSourceChanges": false
+  }
 }
