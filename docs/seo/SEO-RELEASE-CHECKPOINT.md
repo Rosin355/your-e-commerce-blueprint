@@ -1,3 +1,16 @@
+# SEO P1 — checkpoint corrente del 12 novembre 2026
+
+Prevalgono il mandato di chiusura del 12 novembre e lo stato corrente: Marco ha account editor/capability nominative e accesso personale confermato. Il Publish SEO deve preservare la build operativa e tutti i grant/flag, senza riportare l’Admin in sola lettura o distribuire backend. La proposta storica di usare normalmente Shopify Admin non descrive la consegna attuale.
+
+**Esecuzione:** main di partenza `41e53339e647c23ea80e69f3c66fec383ee8ad30`; due conflitti risolti nei soli documenti di stato mantenendo la cronologia. Sitemap rigenerata dal catalogo pubblico: 1.346 prodotti + 3 pagine, DRAFT tecnica esclusa, tutti i 16 target proposti ancora pubblici con GID/handle/SKU ricontrollati. Test SEO mirati 8/8, typecheck, lint e build operativa PASS. CI finale, merge e Publish non ancora eseguiti/attestati da questa nota. Marker frontend previsto `seo-p1-20261112-r1`; marker Admin preservato `admin-delivery-20261110-r1`. [Evidenza di rilascio](evidence/release-2026-11-12.json).
+
+**Aggiornamento sitemap:** il comando esistente `node --import tsx scripts/prepare-seo-sitemap.ts` legge la stessa pubblicazione Storefront del sito e sostituisce la fotografia soltanto dopo validazione completa. È stato eseguito con successo in questo rilascio. Dopo nuove pubblicazioni o cambi handle serve una nuova esecuzione, review del diff e Publish frontend a cura del responsabile tecnico; il solo comando Pubblica dell’Admin non aggiorna il file statico. Nessun cron o aggiornamento automatico dichiarato attivo.
+
+**Redirect HTTP:** i 16 mapping rimangono non approvati e l’adattatore non installato. Verifica nativa Lovable: solo gestione primary-domain 302/307, nessun controllo path-level 301 esposto; i file `_redirects`/worker offline non equivalgono a un rilascio. Attesa una sola approvazione della tabella nella checklist e identificazione del livello HTTP già gestito; nessun cambio DNS/proxy/costo autorizzato implicitamente. Altri 1.255 percorsi e tre casi incerti restano separati.
+
+<details>
+<summary>Cronologia della preparazione del 10 novembre — istruzioni Admin e vincoli allora vigenti, superati dal mandato corrente</summary>
+
 # SEO P1 — checkpoint per il rilascio della PR 49
 
 Data: 10 novembre 2026. Stato: primo rilascio SEO circoscritto autorizzato dal proprietario, subordinato ai controlli sotto; esecuzione non attestata da questa nota. Redirect e attivazione Admin V2 operativa restano separati.
@@ -47,3 +60,6 @@ Primo rilascio frontend SEO autorizzato; merge, deploy e verifiche live devono e
 Dopo il rilascio: invio sitemap e URL Inspection tramite accesso GSC autorizzato; il connettore Windsor Search Analytics non equivale al report completo di indicizzazione e non invia sitemap. Registrare stato tecnico, clic e impressioni senza promettere recupero immediato. SEO, Admin operativo e Ads rimangono attività separate.
 
 Riferimenti: [piano e matrice](SEO-RECOVERY-PLAN.md), [infrastruttura HTTP](../../infra/seo/README.md), [Google su JavaScript/noindex](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics), [Google sulle migrazioni](https://developers.google.com/search/docs/crawling-indexing/site-move-with-url-changes), [Shopify: aggiunta e modifica prodotti](https://help.shopify.com/en/manual/products/add-update-products).
+
+
+</details>

@@ -10,10 +10,283 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
+      admin_catalog_approvals: {
+        Row: {
+          action: string
+          actor: string
+          command: Json
+          created_at: string
+          expires_at: string
+          finished_at: string | null
+          id: string
+          payload_hash: string
+          request_key: string
+          result: Json | null
+          state: string
+          target: string
+          target_snapshot: Json
+        }
+        Insert: {
+          action: string
+          actor: string
+          command: Json
+          created_at?: string
+          expires_at: string
+          finished_at?: string | null
+          id?: string
+          payload_hash: string
+          request_key: string
+          result?: Json | null
+          state?: string
+          target: string
+          target_snapshot: Json
+        }
+        Update: {
+          action?: string
+          actor?: string
+          command?: Json
+          created_at?: string
+          expires_at?: string
+          finished_at?: string | null
+          id?: string
+          payload_hash?: string
+          request_key?: string
+          result?: Json | null
+          state?: string
+          target?: string
+          target_snapshot?: Json
+        }
+        Relationships: []
+      }
+      admin_catalog_capabilities: {
+        Row: {
+          approved_reference: string
+          capabilities: string[]
+          enabled: boolean
+          field_keys: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_reference: string
+          capabilities?: string[]
+          enabled?: boolean
+          field_keys?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_reference?: string
+          capabilities?: string[]
+          enabled?: boolean
+          field_keys?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_catalog_media: {
+        Row: {
+          actor: string
+          alt: string
+          cdn_url: string | null
+          content_hash: string
+          created_at: string
+          id: string
+          request_key: string
+          shopify_file_gid: string | null
+          state: string
+        }
+        Insert: {
+          actor: string
+          alt: string
+          cdn_url?: string | null
+          content_hash: string
+          created_at?: string
+          id?: string
+          request_key: string
+          shopify_file_gid?: string | null
+          state?: string
+        }
+        Update: {
+          actor?: string
+          alt?: string
+          cdn_url?: string | null
+          content_hash?: string
+          created_at?: string
+          id?: string
+          request_key?: string
+          shopify_file_gid?: string | null
+          state?: string
+        }
+        Relationships: []
+      }
+      admin_category_operations: {
+        Row: {
+          actor: string
+          created_at: string
+          id: string
+          payload: Json
+          payload_hash: string
+          product_id: string
+          request_key: string
+          state: string
+          verified_at: string | null
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          id?: string
+          payload: Json
+          payload_hash: string
+          product_id: string
+          request_key: string
+          state?: string
+          verified_at?: string | null
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          payload_hash?: string
+          product_id?: string
+          request_key?: string
+          state?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_category_operations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_operation_events: {
+        Row: {
+          actor: string
+          created_at: string
+          id: string
+          operation_id: string
+          state: string
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          id?: string
+          operation_id: string
+          state: string
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          id?: string
+          operation_id?: string
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_operation_events_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "admin_product_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_product_operations: {
+        Row: {
+          actor: string
+          created_at: string
+          id: string
+          payload: Json
+          payload_hash: string
+          product_id: string
+          request_key: string
+          shopify_product_gid: string | null
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          id?: string
+          payload: Json
+          payload_hash: string
+          product_id: string
+          request_key: string
+          shopify_product_gid?: string | null
+          state?: string
+          updated_at?: string
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          payload_hash?: string
+          product_id?: string
+          request_key?: string
+          shopify_product_gid?: string | null
+          state?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_product_operations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_product_shopify_links: {
+        Row: {
+          operation_id: string
+          product_id: string
+          shopify_product_gid: string
+          shopify_variant_gid: string | null
+          verified_at: string
+        }
+        Insert: {
+          operation_id: string
+          product_id: string
+          shopify_product_gid: string
+          shopify_variant_gid?: string | null
+          verified_at?: string
+        }
+        Update: {
+          operation_id?: string
+          product_id?: string
+          shopify_product_gid?: string
+          shopify_variant_gid?: string | null
+          verified_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_product_shopify_links_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "admin_product_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_product_shopify_links_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bulbi_classification_matrix: {
         Row: {
           approved_at: string | null
@@ -1536,6 +1809,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_claim_catalog_approval: {
+        Args: { p_actor: string; p_hash: string; p_id: string }
+        Returns: boolean
+      }
+      admin_claim_draft: {
+        Args: { p_actor: string; p_id: string }
+        Returns: boolean
+      }
+      admin_complete_draft: {
+        Args: { p_actor: string; p_gid: string; p_id: string; p_links: Json }
+        Returns: Json
+      }
       admin_complete_product_field_sync: {
         Args: {
           p_actor: string
@@ -1548,6 +1833,20 @@ export type Database = {
           p_product_id: string
           p_success: boolean
           p_verified_value?: Json
+        }
+        Returns: Json
+      }
+      admin_finish_categories: {
+        Args: { p_actor: string; p_allowed: string[]; p_id: string }
+        Returns: undefined
+      }
+      admin_save_new_draft: {
+        Args: {
+          p_actor: string
+          p_fields: Json
+          p_hash: string
+          p_key: string
+          p_payload: Json
         }
         Returns: Json
       }

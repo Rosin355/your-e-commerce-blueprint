@@ -1,3 +1,4 @@
+import CatalogActions from '../components/CatalogActions';
 import ProductOperations from '../components/ProductOperations';
 import { ADMIN_READ_ONLY_RELEASE, readOnlyField, READ_ONLY_RELEASE_NOTICE } from '../lib/readOnlyRelease';
 // F6 — Scheda prodotto in sola lettura, organizzata per sezioni.
@@ -124,6 +125,8 @@ export default function ProductDetailPage() {
           </dl>
         ) : <p className="text-sm text-muted-foreground">{shopifyLive.error}</p>}
       </section>
+
+      {!ADMIN_READ_ONLY_RELEASE && <CatalogActions productId={product.productId} context={context} />}
 
       <Accordion type="multiple" defaultValue={sections.slice(0, 2).map((s) => s.key)}>
         {sections.map((section) => (

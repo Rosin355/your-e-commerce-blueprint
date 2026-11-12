@@ -1,3 +1,34 @@
+# Admin Online Garden — guida cliente
+
+**Stato al 12 novembre 2026:** il tuo account esistente è verificato e configurato per modifica/salvataggio, immagini, nuove bozze, sincronizzazione esplicita, prezzi, categorie editoriali verificate e pubblicazione manuale con conferma. La configurazione necessaria è stata confermata; la sincronizzazione è stata riletta attiva sul servizio. **Il proprietario ha confermato il tuo accesso personale e il permesso di modifica abilitato.** Questa conferma riguarda accesso e permessi; non certifica che le operazioni di catalogo siano già state provate nella tua sessione. Non occorre registrarsi di nuovo. Ogni azione resta soggetta ai controlli del server e alle tue conferme: usa soltanto le funzioni disponibili, senza aggirare eventuali blocchi. Durante questa abilitazione non sono stati modificati o pubblicati prodotti. Il prodotto tecnico di collaudo resta escluso dalla pubblicazione.
+
+1. **Accedi con il tuo account già verificato.** Apri https://onlinegarden.it/admin e usa le tue credenziali nella tua sessione personale. Se serve, accedi da https://onlinegarden.it/auth e poi riapri l’Admin. In Impostazioni verifica i permessi del tuo account. Non condividere password o codici e non creare un secondo account. Un accesso Shopify non attribuisce automaticamente accesso all’Admin.
+2. **Cerca e modifica.** In Prodotti cerca lo SKU o il nome e apri la scheda corretta. Usa Modifica soltanto sui campi disponibili. Salva nell’Admin; il salvataggio non modifica automaticamente Shopify. Se i dati sono cambiati, ricarica e confronta prima di confermare.
+3. **Sincronizza esplicitamente.** Confronta il valore Shopify live e usa Sincronizza sul singolo campo. Conferma l’operazione e attendi la verifica. Per i prezzi apri Prezzi e formati, modifica gli importi delle varianti interessate e usa Conferma e sincronizza prezzi. SKU e inventario non vengono cambiati.
+4. **Crea una bozza.** Apri Nuovo prodotto; inserisci titolo, SKU univoci, dati reali, varianti/formati e prezzi consentiti. Le informazioni botaniche e SEO si compilano manualmente, senza dati inventati. Verifica l’anteprima, conferma i dati e salva la bozza nell’Admin. Apri la scheda salvata per ritrovarla. Usa poi Crea bozza Shopify: il prodotto resta DRAFT, non pubblicato.
+5. **Carica immagini dal computer.** Nel passaggio Immagini e formati scegli un JPEG o PNG fino a 5 MB, inserisci un testo alternativo e premi Carica immagine. Attendi che l’immagine appaia disponibile; puoi anche scegliere fra le tue immagini già caricate. Non occorre incollare URL. Rimuovi dalla bozza non elimina il file dalla libreria.
+6. **Scegli la categoria.** Seleziona una collezione editoriale verificata nell’elenco. È possibile salvare la bozza senza categoria. Nella scheda, Categorie editoriali permette una scelta esplicita e mantiene le altre associazioni protette. Le categorie interne storiche possono restare da classificare: non sostituire una categoria ambigua con un nome simile. Le categorie editoriali non cambiano le classi di spedizione.
+7. **Pubblica separatamente.** Quando il prodotto reale è pronto, usa Verifica pubblicazione. Il sistema controlla dati, immagine disponibile, varianti, classe A/B e canale del sito. Conferma solo dati reali e premi Pubblica sul sito. Se è esaurito, serve una conferma aggiuntiva; nessuna quantità viene inventata. ACTIVE da solo non prova visibilità: attendi la conferma di lettura sul sito. Il prodotto tecnico di collaudo non può essere pubblicato.
+8. **Gestisci un esito incerto.** Non ricompilare lo stesso prodotto e non creare un nuovo SKU per ritentare. Usa la stessa richiesta di salvataggio o Recupera stato senza ricreare. Se compare Da riconciliare, conserva la scheda e segnala l’operazione. Per un conflitto confronta i dati aggiornati; non sovrascrivere modifiche recenti.
+
+Le conferme delle normali operazioni vengono registrate dall’Admin: non devi richiedere un’autorizzazione tecnica per ogni prodotto. Il ruolo cliente comprende solo le operazioni catalogo assegnate; pagamenti, spedizioni, Sendcloud, inventario, clienti, ordini e amministrazione generale restano fuori da questo flusso. La pubblicazione di un prodotto commerciale non è stata provata durante il collaudo tecnico.
+
+## Accettazione da completare
+
+- [x] Account esistente e verifica email ricontrollati; permessi catalogo assegnati.
+- [x] Accesso dalla tua sessione personale e permesso di modifica abilitato, confermati dal proprietario il 12 novembre 2026.
+- [ ] Collaudo operativo delle funzioni nella tua sessione: i permessi visualizzati non sostituiscono le prove delle operazioni.
+- [ ] Ricerca, apertura prodotto e comprensione di salvataggio/sincronizzazione.
+- [ ] Bozza unica con immagine, salvataggio e rilettura, recupero senza duplicati.
+- [ ] Categoria verificata o bozza volutamente da classificare.
+- [ ] Controllo desktop/mobile; Safari/iOS resta da attestare su dispositivo reale.
+- [ ] Pubblicazione di un prodotto reale solo su incarico esplicito, mai sul DRAFT tecnico.
+
+<details>
+<summary>Cronologia delle guide precedenti — non descrive l’abilitazione corrente</summary>
+
+**Stato al 10 novembre 2026:** l’interfaccia `admin-delivery-20261110-r1` è pubblicata su https://onlinegarden.it/admin; migration e backend sono distribuiti. Il collaudo tecnico ha verificato immagine, bozza unica, collegamento DRAFT Shopify e modifica/sync di una descrizione SEO. È stata distribuita anche la protezione che conserva e verifica insieme titolo e descrizione SEO, con test automatici e CI positivi. Il prodotto tecnico è rimasto non pubblicato. La registrazione del tuo account è stata rinviata: la tua sessione e le tue capability non sono ancora abilitate o collaudate. Le istruzioni sotto valgono dopo tale abilitazione; il solo Publish non la assegna.
+
 ## Decisione finale per Marco — 9 novembre 2026
 
 Il catalogo resta consultabile. Le funzioni del Livello B sono predisposte nel codice, ma **non ancora attivate**: mancano una prova reale di recupero e la conferma del tuo account e del prodotto DRAFT autorizzato. Il proprietario deve restituire un’unica scheda decisione; il consenso generale non basta ad accendere le scritture.
@@ -120,3 +151,5 @@ Le prove locali simulate non sostituiscono questa accettazione. Stato iniziale: 
 - [ ] Safari/iOS reale o WebKit funzionante; il crash locale del 6 novembre non è un PASS.
 
 Registrare data, dispositivo, ruolo, SKU canary e risultato; segnalare solo informazioni necessarie, senza dati personali o secret. Il responsabile tecnico autorizza il passaggio al gate successivo, non la selezione casuale di altri prodotti.
+
+</details>

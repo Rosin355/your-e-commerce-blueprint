@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import FieldEditor from '../components/FieldEditor';
-import { callAdminApi } from '../lib/adminApi';
+import CatalogImages from '../components/CatalogImages';
+import { callAdminApi, callCatalogCommand } from '../lib/adminApi';
 import { OPERATION_LABELS, useCategoryCatalogue } from '../lib/operationalApi';
 import { canRecoverDraftAfterError } from '../lib/operationalUiPolicy';
 import { useAdminContext } from '../hooks/useAdminData';
@@ -46,6 +47,9 @@ export default function NewProductPage() {
   const [locked, setLocked] = useState(false);
   const catalogue = useCategoryCatalogue();
   const adminContext = useAdminContext();
+  const ordinary = adminContext.data?.ordinaryCatalog === true;
+  const editorial = useQuery({ queryKey: ['admin', 'editorial-collections'], enabled: ordinary, retry: false,
+    queryFn: () => callAdminApi<{ collections: { id: string; title: string; handle: string }[] }>({ action: 'list_editorial_collections' }) });
   const definitions = useQuery({
     queryKey: ['admin', 'draft-field-definitions'],
     queryFn: () =>
@@ -58,7 +62,7 @@ export default function NewProductPage() {
   });
   const save = useMutation({
     mutationFn: () =>
-      callAdminApi<{ result: { productId: string; operationId: string; state: string } }>({
+      callCatalogCommand<{ result: { productId: string; operationId: string; state: string } }>({
         action: 'save_new_product',
         draft,
         idempotencyKey: catalogue.data?.canaryRequestKey ?? key,
@@ -67,7 +71,7 @@ export default function NewProductPage() {
   });
   const send = useMutation({
     mutationFn: (action: string) =>
-      callAdminApi<{ result: { state: string } }>({
+      callCatalogCommand<{ result: { state: string } }>({
         action,
         operationId: save.data?.result.operationId,
         confirm: true,
@@ -157,34 +161,20 @@ export default function NewProductPage() {
         )}
         {step === 2 && (
           <>
-            {catalogue.isPending
-              ? <p role='status'>Caricamento categorie…</p>
-              : catalogue.isError
-              ? <p role='alert'>{catalogue.error.message}</p>
-              : (
-                <>
-                  <p>Selezione proposta: non modifica le collezioni di prodotti già esistenti.</p>
-                  {catalogue.data.categories.filter((c) => c.is_active && c.maps.length > 0 && c.maps.every(m => m.map_status === 'verified')).map((c) => (
-                    <label key={c.id} className='flex items-center min-h-11 gap-2'>
-                      <Checkbox
-                        checked={draft.categoryIds.includes(c.id)}
-                        onCheckedChange={(checked) =>
-                          update({
-                            categoryIds: checked
-                              ? [...draft.categoryIds, c.id]
-                              : draft.categoryIds.filter((id) =>
-                                id !== c.id
-                              ),
-                          })}
-                      />
-                      {c.display_name}
-                    </label>
-                  ))}
-                  {!catalogue.data.categories.length && (
-                    <p>Nessuna categoria disponibile. La bozza potrà restare da classificare.</p>
-                  )}
-                </>
-              )}
+            <p>La bozza può essere salvata senza categoria. Nessuna corrispondenza viene dedotta dal nome.</p>
+            {ordinary ? <>
+              {editorial.isPending && <p role='status'>Verifica collezioni editoriali…</p>}
+              {editorial.isError && <p role='alert'>{editorial.error.message}</p>}
+              {editorial.data?.collections.map(c => <label key={c.id} className='flex min-h-11 items-center gap-2'>
+                <Checkbox checked={draft.collectionIds?.includes(c.id) ?? false} onCheckedChange={checked => update({ collectionIds: checked ? [...(draft.collectionIds ?? []), c.id] : (draft.collectionIds ?? []).filter(id => id !== c.id) })} />
+                {c.title} <span className='text-xs text-muted-foreground'>({c.handle})</span>
+              </label>)}
+            </> : <>
+              {catalogue.isError && <p role='alert'>{catalogue.error.message}</p>}
+              {catalogue.data?.categories.filter(c => c.is_active && c.maps.length > 0 && c.maps.every(m => m.map_status === 'verified')).map(c => <label key={c.id} className='flex min-h-11 items-center gap-2'>
+                <Checkbox checked={draft.categoryIds.includes(c.id)} onCheckedChange={checked => update({ categoryIds: checked ? [...draft.categoryIds, c.id] : draft.categoryIds.filter(id => id !== c.id) })} />{c.display_name}
+              </label>)}
+            </>}
           </>
         )}
         {step === 3 && (
@@ -244,53 +234,8 @@ export default function NewProductPage() {
               Un formato: stesso SKU della famiglia. Più formati: SKU distinti fra famiglia e
               varianti. Una sola opzione “Formato” in questa prima versione.
             </p>
-            <h2 className='font-semibold'>Immagini già caricate su Shopify</h2>
-            {draft.images.map((image, i) => (
-              <div key={i} className='space-y-2 rounded-lg border p-3'>
-                <label>
-                  URL immagine HTTPS<Input
-                    value={image.url}
-                    onChange={(e) =>
-                      update({
-                        images: draft.images.map((x, j) =>
-                          i === j ? { ...x, url: e.target.value } : x
-                        ),
-                      })}
-                  />
-                </label>
-                <label>
-                  Testo alternativo<Input
-                    value={image.alt}
-                    onChange={(e) =>
-                      update({
-                        images: draft.images.map((x, j) =>
-                          i === j ? { ...x, alt: e.target.value } : x
-                        ),
-                      })}
-                  />
-                </label>
-                <Button
-                  variant='outline'
-                  type='button'
-                  onClick={() =>
-                    update({
-                      images: draft.images.filter((_, j) =>
-                        i !== j
-                      ),
-                    })}
-                >
-                  Rimuovi immagine {i + 1}
-                </Button>
-              </div>
-            ))}
-            <Button
-              type='button'
-              variant='outline'
-              disabled={draft.images.length >= 20}
-              onClick={() => update({ images: [...draft.images, { url: '', alt: '' }] })}
-            >
-              Aggiungi immagine
-            </Button>
+            <CatalogImages images={draft.images} onChange={images => update({ images })} ordinary={ordinary}
+              enabled={adminContext.data?.canUploadImages === true} sku={draft.sku} requestKey={catalogue.data?.canaryRequestKey} />
           </>
         )}
         {step === 4 && (
@@ -321,9 +266,7 @@ export default function NewProductPage() {
               </div>
             ))}
             <p className='text-sm'>
-              L’AI rimane facoltativa nella scheda prodotto salvata: ogni proposta richiede
-              accettazione umana. Completare prima l’invio della bozza oppure richiedere una
-              revisione dell’operazione prima di modificare i contenuti salvati.
+              Inserisci solo dati verificati. Dopo l’invio, apri la scheda per modificare i campi supportati e sincronizzarli esplicitamente.
             </p>
           </>
         )}
@@ -336,7 +279,7 @@ export default function NewProductPage() {
               Categorie: {draft.categoryIds.map((id) =>
                 catalogue.data?.categories.find((c) => c.id === id)?.display_name ??
                   'Non disponibile'
-              ).join(', ') || 'Da classificare'}
+              ).concat((draft.collectionIds ?? []).map(id => editorial.data?.collections.find(c => c.id === id)?.title ?? 'Collezione selezionata')).join(', ') || 'Da classificare'}
             </p>
             {draft.variants.map((v, i) => (
               <p key={i}>{v.option}: {v.price || '—'} {draft.currency} · SKU {v.sku || '—'}</p>
@@ -397,14 +340,13 @@ export default function NewProductPage() {
             {OPERATION_LABELS[send.data?.result.state ?? save.data.result.state]}
           </h2>
           <Link className='underline' to={`/admin/products/${save.data.result.productId}`}>
-            Apri scheda, proposte AI e storico
+            Apri scheda prodotto e storico
           </Link>
           <p>
-            Pubblicazione non abilitata. Prezzi, inventario e canali richiedono la verifica
-            operativa.
+            La bozza non è pubblicata. L’azione separata “Pubblica” nella scheda verifica dati, classe di spedizione e canale del sito.
           </p>
           {catalogue.data?.canSendDraft &&
-            catalogue.data.approvedOperationId === save.data.result.operationId && (
+            (ordinary || catalogue.data.approvedOperationId === save.data.result.operationId) && (
             <Button
               disabled={send.isPending || Boolean(send.data)}
               onClick={() => {
@@ -419,7 +361,7 @@ export default function NewProductPage() {
           {send.isError && (
             <>
               <p role='alert'>{send.error.message}</p>
-              {catalogue.data?.canRecoverDraft && catalogue.data.approvedOperationId === save.data.result.operationId && canRecoverDraftAfterError(
+              {catalogue.data?.canRecoverDraft && (ordinary || catalogue.data.approvedOperationId === save.data.result.operationId) && canRecoverDraftAfterError(
                 adminContext.data,
                 Boolean(save.data?.result.operationId),
                 send.isError,

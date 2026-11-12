@@ -1,3 +1,16 @@
+# SEO Recovery P1 — rilascio autorizzato del 12 novembre 2026
+
+Il mandato corrente autorizza review, CI/GitGuardian sul nuovo HEAD, merge della PR #49 e Publish frontend SEO. Il riallineamento locale preserva Admin operativo, grant nominativi e flag: build con `VITE_ADMIN_OPERATIONAL_RELEASE=true`, modulo compilato read-only=false. Nessun deploy backend/DDL/canary. Riferimento operativo unico: [checklist di chiusura](../release/PROJECT-CLOSEOUT-CHECKLIST.md).
+
+**Esecuzione:** main di partenza `41e53339e647c23ea80e69f3c66fec383ee8ad30`; due conflitti risolti nei soli documenti di stato mantenendo la cronologia. Sitemap rigenerata dal catalogo pubblico: 1.346 prodotti + 3 pagine, DRAFT tecnica esclusa, tutti i 16 target proposti ancora pubblici con GID/handle/SKU ricontrollati. Test SEO mirati 8/8, typecheck, lint e build operativa PASS. CI finale, merge e Publish non ancora eseguiti/attestati da questa nota. Marker frontend previsto `seo-p1-20261112-r1`; marker Admin preservato `admin-delivery-20261110-r1`. [Evidenza di rilascio](evidence/release-2026-11-12.json).
+
+**Aggiornamento sitemap:** il comando esistente `node --import tsx scripts/prepare-seo-sitemap.ts` legge la stessa pubblicazione Storefront del sito e sostituisce la fotografia soltanto dopo validazione completa. È stato eseguito con successo in questo rilascio. Dopo nuove pubblicazioni o cambi handle serve una nuova esecuzione, review del diff e Publish frontend a cura del responsabile tecnico; il solo comando Pubblica dell’Admin non aggiorna il file statico. Nessun cron o aggiornamento automatico dichiarato attivo.
+
+**Redirect HTTP:** i 16 mapping rimangono non approvati e l’adattatore non installato. Verifica nativa Lovable: solo gestione primary-domain 302/307, nessun controllo path-level 301 esposto; i file `_redirects`/worker offline non equivalgono a un rilascio. Attesa una sola approvazione della tabella nella checklist e identificazione del livello HTTP già gestito; nessun cambio DNS/proxy/costo autorizzato implicitamente. Altri 1.255 percorsi e tre casi incerti restano separati.
+
+<details>
+<summary>Cronologia della preparazione del 10 novembre — istruzioni Admin e vincoli allora vigenti, superati dal mandato corrente</summary>
+
 # SEO Recovery P1 — preparazione, 10 novembre 2026
 
 **Stato: PR SEO da revisionare; nessun merge, deploy o redirect live autorizzato/eseguito.** Base verificata `main e111ecf`, che include PR #47 via `b56d421b8c30fbf74e4768c112acbdc6e874fd08`. Il branch è `codex/seo-recovery-p1`. Prima del push, main ricontrollato a `93add0f063d27e1eb0d913942771f916e153a04f`: il solo nuovo file è `docs/seo/SEO-GROWTH-STRATEGY.md`, preservato e fuori dalle modifiche di questa PR. Le conclusioni descrivono il campione e le fonti disponibili, non un audit generale o una diagnosi causale completa.
@@ -60,3 +73,6 @@ La sitemap è una fotografia manuale della pubblicazione **Storefront**, non del
 Test mirati SEO e test strutturati pertinenti, lint dei file modificati, typecheck e build read-only; aggiunto lint SEO al workflow PR esistente, nessun deploy job. I nuovi test sono scoperti dalla suite Node offline di CI. Verifica Chrome locale: PDP valida con canonical apex, `index,follow`, offerte reali e link href; prodotto assente noindex senza Product JSON-LD. [Evidenza locale](evidence/local-validation.json). Non rieseguite manualmente le suite Admin/SQL/canary già superate. CI/GitGuardian finali e commit fanno fede sulla singola PR SEO.
 
 Admin V2 resta separato: Livello A live di riferimento `admin-readonly-20261106-r1`; Livello B integrato da PR #47 ma disabilitato. File Admin, backend, migration pendente e configurazione flag non modificati da questo lavoro. Ultima lettura runtime attestata dal proprietario: **09/11/2026 19:16:37 CET**, writesEnabled=false, writeMode=canary, shopifySyncEnabled=false, READ-ONLY; non viene presentata come nuova lettura odierna né come cronologia completa dei secret. Recovery non dimostrato, ruolo/identità Marco non verificati, zero mapping categorie approvati. Nessuna migration, canary, scrittura, modifica ruolo/secret, sincronizzazione Shopify o deploy Lovable. Payments, checkout, spedizioni A/B, Sendcloud, inventario e catalogo commerciale non modificati.
+
+
+</details>

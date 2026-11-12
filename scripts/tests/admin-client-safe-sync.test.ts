@@ -589,3 +589,95 @@ test("migration rende il save PENDING_SYNC e la completion verifica la versione"
   assert.match(sql, /WHEN p_success THEN 'published' ELSE 'failed'/);
   assert.match(sql, /product_admin_command_log/);
 });
+
+
+test('first Shopify sync rejects drift after confirmation even without an earlier sync timestamp', async () => {
+  const target = resolveShopifyTarget(definition()); assert.ok(target);
+  let writes = 0;
+  const graphql: ShopifyGraphQL = async <T>(query) => {
+    if (query.includes('mutation')) writes++;
+    return {product:{id:'gid://shopify/Product/1',metafield:{namespace:'custom',key:'periodo_di_fioritura',type:'single_line_text_field',value:'Aprile'}}} as T;
+  };
+  await assert.rejects(() => performVerifiedShopifyFieldWrite({productId:'1',sku:'OG_1',target,expected:'Marzo',previousVerifiedAt:null,previousVerifiedValue:null,expectedRemote:'Febbraio',hasExpectedRemote:true,graphql}), (error:unknown) => error instanceof ShopifyFieldSyncError && error.code === 'STATE_DRIFT');
+  assert.equal(writes,0);
+});
+
+function seoSimulation(seo: { title: string | null; description: string | null }, tamper = false) {
+  const state = { id: "gid://shopify/Product/1", handle: "test", status: "DRAFT", title: "Nome prodotto",
+    descriptionHtml: "Test", vendor: "Test", tags: [], seo: { ...seo } };
+  let writes = 0;
+  let sent: typeof seo | undefined;
+  const graphql: ShopifyGraphQL = <T>(query: string, variables: Record<string, unknown> = {}) => {
+    if (query.includes("AdminV2ProductCoreSnapshot")) return Promise.resolve({ product: structuredClone(state) } as T);
+    if (query.includes("AdminV2ProductFieldUpdate")) {
+      writes++;
+      const input = variables.product as { seo: typeof seo };
+      sent = structuredClone(input.seo);
+      // Model replacement of the pair and canonical default-title representation.
+      state.seo = { title: input.seo.title ?? null, description: input.seo.description ?? null };
+      if (state.seo.title === state.title) state.seo.title = null;
+      if (tamper) state.seo.title = "Modifica esterna inattesa";
+      return Promise.resolve({ productUpdate: { userErrors: [] } } as T);
+    }
+    throw new Error("Unexpected SEO fixture operation");
+  };
+  return { state, graphql, get writes() { return writes; }, get sent() { return sent; } };
+}
+
+for (const field of ["title", "description"] as const) {
+  test(`SEO ${field}: conserva l'altro attributo letto da Shopify`, async () => {
+    const initial = { title: "Titolo SEO indipendente", description: "Descrizione Shopify corrente" };
+    const s = seoSimulation(initial);
+    const companion = field === "title" ? "description" : "title";
+    const result = await performVerifiedShopifyFieldWrite({ productId: "1", sku: "OG_1",
+      target: { kind: "seo", field }, expected: "Nuovo valore SEO", previousVerifiedAt: null,
+      previousVerifiedValue: null, expectedRemote: initial[field], hasExpectedRemote: true, graphql: s.graphql });
+    assert.equal(result.writePerformed, true);
+    assert.equal(s.writes, 1);
+    assert.equal(s.sent?.[companion], initial[companion]);
+    assert.equal(s.state.seo[companion], initial[companion]);
+    assert.equal(s.state.seo[field], "Nuovo valore SEO");
+  });
+}
+
+test("SEO descrizione: normalizzazione del titolo predefinito mantiene il titolo effettivo", async () => {
+  const s = seoSimulation({ title: "Nome prodotto", description: "Prima" });
+  await performVerifiedShopifyFieldWrite({ productId: "1", sku: "OG_1", target: { kind: "seo", field: "description" },
+    expected: "Dopo", previousVerifiedAt: null, previousVerifiedValue: null, graphql: s.graphql });
+  assert.equal(s.sent?.title, "Nome prodotto");
+  assert.equal(s.state.seo.title, null);
+  assert.equal(s.state.seo.description, "Dopo");
+});
+
+test("SEO senza snapshot completo rifiuta il piano di scrittura", () => {
+  assert.throws(() => buildShopifyWritePlan({ productId: "1", target: { kind: "seo", field: "description" },
+    value: "Nuovo" }), expectBlockSync);
+});
+
+test("SEO snapshot server incompleto blocca anche un apparente no-op", async () => {
+  const graphql: ShopifyGraphQL = <T>() => Promise.resolve({ product: {
+    id: "gid://shopify/Product/1", title: "Nome prodotto", seo: null,
+  } } as T);
+  await assert.rejects(() => performVerifiedShopifyFieldWrite({ productId: "1", sku: "OG_1",
+    target: { kind: "seo", field: "title" }, expected: "Nome prodotto", previousVerifiedAt: null,
+    previousVerifiedValue: null, graphql }), expectBlockSync);
+});
+
+test("SEO: una modifica inattesa all'attributo adiacente non produce PASS", async () => {
+  const s = seoSimulation({ title: "Titolo SEO indipendente", description: "Prima" }, true);
+  await assert.rejects(() => performVerifiedShopifyFieldWrite({ productId: "1", sku: "OG_1",
+    target: { kind: "seo", field: "description" }, expected: "Dopo", previousVerifiedAt: null,
+    previousVerifiedValue: null, graphql: s.graphql }),
+    (error: unknown) => error instanceof ShopifyFieldSyncError && error.code === "SYNC_VERIFY_FAILED");
+  assert.equal(s.writes, 1);
+});
+
+test("SEO titolo nullo: il nome prodotto corrispondente non richiede una mutation", async () => {
+  const s = seoSimulation({ title: null, description: "Preservata" });
+  const result = await performVerifiedShopifyFieldWrite({ productId: "1", sku: "OG_1",
+    target: { kind: "seo", field: "title" }, expected: "Nome prodotto", previousVerifiedAt: null,
+    previousVerifiedValue: null, graphql: s.graphql });
+  assert.equal(result.verifiedValue, "Nome prodotto");
+  assert.equal(result.writePerformed, false);
+  assert.equal(s.writes, 0);
+});

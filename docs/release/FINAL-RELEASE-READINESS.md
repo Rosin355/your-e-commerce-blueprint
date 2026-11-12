@@ -1,3 +1,10 @@
+## Stato corrente — 12 novembre 2026
+
+Admin operativo già pubblicato, account editor/capability nominative e accesso personale confermato; nessuna riapertura di registrazione, grant, migration o canary. La chiusura complessiva segue soltanto [PROJECT-CLOSEOUT-CHECKLIST.md](PROJECT-CLOSEOUT-CHECKLIST.md). Il rilascio SEO #49 è autorizzato e in esecuzione; non deve disabilitare l’Admin. Le prove operative cliente e le eccezioni commerciali restano distinte dal login. `restoreVerified=false` resta invariato.
+
+<details>
+<summary>Cronologia dei gate del 9 novembre — non descrive l’abilitazione corrente</summary>
+
 ## Integrazione sicura PR #47 — attestazione proprietario del 9 novembre 2026
 
 Il proprietario attesta uno screenshot autenticato di `https://onlinegarden.it/admin/settings`, letto il **09/11/2026 alle 19:16:37 CET**: `writesEnabled=false`, `writeMode=canary`, `shopifySyncEnabled=false`, stato **READ-ONLY**. Fonte: dichiarazione esplicita del proprietario in chat; immagine non allegata a questo registro né ispezionata dall’agent. Nessuna email o credenziale registrata. Questa attestazione aggiornata sostituisce il blocco dovuto alla precedente impossibilità di rileggere Chrome; non dimostra una cronologia completa dei secret.
@@ -219,3 +226,6 @@ Valutazione: **pronto per review tecnica come Draft; attivazione live BLOCKED da
 
 
 **Addendum finale, connessione Shopify resa disponibile:** sola lettura sullo store corretto conferma EUR, italiano principale pubblicato, nuovi account cliente facoltativi, 1.348 prodotti ACTIVE, 16 DRAFT e 55 collezioni. Nessuna scrittura effettuata. Mapping Supabase, riconciliazione storica, autorizzazioni Marco, template/mittente/staff e recapito email restano non verificati. I gate di attivazione non cambiano.
+
+
+</details>

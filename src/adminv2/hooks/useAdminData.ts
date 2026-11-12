@@ -103,7 +103,7 @@ export function useAiSuggestions(productId?: string) {
   return useQuery({
     queryKey: ['admin', 'ai-suggestions', productId],
     queryFn: async () => (await getAiSuggestions(productId!)).suggestions,
-    enabled: !!productId && !ADMIN_READ_ONLY_RELEASE,
+    enabled: false, // AI is outside the catalog delivery mandate.
     staleTime: 15_000,
     retry,
   });
@@ -158,7 +158,7 @@ export function useFieldCommand(productId?: string) {
 export function useFieldSync(productId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { fieldKey: string; expectedVersion: number; idempotencyKey?: string }) =>
+    mutationFn: (input: { fieldKey: string; expectedVersion: number; expectedShopifyHash?: string; idempotencyKey?: string }) =>
       sendFieldSyncCommand({ ...input, productId: productId! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'product', productId] });

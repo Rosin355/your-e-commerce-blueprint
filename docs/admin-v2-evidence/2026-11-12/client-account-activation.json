@@ -1,0 +1,222 @@
+{
+  "observedOn": "2026-11-12",
+  "changeReference": "OWNER-ADMIN-MARCO-ACTIVATION-20261112",
+  "target": {
+    "lovableProject": "95cad199-55fd-4870-9d5c-a2653edf88f5",
+    "backend": "Existing project-managed Supabase"
+  },
+  "source": "Exact case-insensitive owner-supplied identity lookup through connected Lovable SQL; no credentials or Auth export",
+  "lookup": {
+    "matchingAccounts": 1,
+    "emailVerified": true,
+    "personalIdentifiersOmitted": true,
+    "passwordTokensHashesRead": false
+  },
+  "before": {
+    "roles": [],
+    "catalogCapabilityRecords": 0
+  },
+  "accountConfiguration": {
+    "configuredAt": "2026-11-12 09:13:55.220093+00",
+    "roles": [
+      "editor"
+    ],
+    "enabled": true,
+    "capabilities": [
+      "edit",
+      "sync",
+      "drafts",
+      "images",
+      "categories",
+      "prices",
+      "publish"
+    ],
+    "fieldKeys": [
+      "title",
+      "description",
+      "short_description",
+      "optimized_description",
+      "seo_title",
+      "seo_description",
+      "nome_botanico",
+      "nome_comune",
+      "periodo_di_fioritura",
+      "periodo_di_messa_a_dimora",
+      "periodo_di_raccolta",
+      "periodo_ottimale_di_potatura",
+      "difficolta_di_coltivazione",
+      "faq"
+    ],
+    "approvedReference": "OWNER-ADMIN-MARCO-ACTIVATION-20261112"
+  },
+  "serverAuthorization": {
+    "verifiedAt": "2026-11-12 09:15:05.695495+00",
+    "admin": false,
+    "capabilities": {
+      "categories": true,
+      "drafts": true,
+      "edit": true,
+      "images": true,
+      "prices": true,
+      "publish": true,
+      "sync": true
+    },
+    "catalog_grants_client_policies": 0,
+    "catalog_grants_client_write_privileges": 0,
+    "catalog_grants_rls": true,
+    "claim_client_execute": 0,
+    "editor": true,
+    "enabled_grants_other_accounts": 0,
+    "field_keys": [
+      "title",
+      "description",
+      "short_description",
+      "optimized_description",
+      "seo_title",
+      "seo_description",
+      "nome_botanico",
+      "nome_comune",
+      "periodo_di_fioritura",
+      "periodo_di_messa_a_dimora",
+      "periodo_di_raccolta",
+      "periodo_ottimale_di_potatura",
+      "difficolta_di_coltivazione",
+      "faq"
+    ],
+    "grant_enabled": true,
+    "grant_reference": "OWNER-ADMIN-MARCO-ACTIVATION-20261112",
+    "tech_admin": false,
+    "verified_unique_account": true,
+    "verificationLimit": "Database role/grant evaluation and service-only ACL/RLS/RPC checks; not an HTTP request authenticated as the client",
+    "freshVerificationAfterOwnerSave": {
+      "account_count": 1,
+      "approved_reference": "OWNER-ADMIN-MARCO-ACTIVATION-20261112",
+      "assigned_roles": [
+        "editor"
+      ],
+      "capabilities": [
+        "edit",
+        "sync",
+        "drafts",
+        "images",
+        "categories",
+        "prices",
+        "publish"
+      ],
+      "capabilities_rls": true,
+      "client_table_privileges": 0,
+      "email_verified": true,
+      "enabled": true,
+      "field_keys": [
+        "title",
+        "description",
+        "short_description",
+        "optimized_description",
+        "seo_title",
+        "seo_description",
+        "nome_botanico",
+        "nome_comune",
+        "periodo_di_fioritura",
+        "periodo_di_messa_a_dimora",
+        "periodo_di_raccolta",
+        "periodo_ottimale_di_potatura",
+        "difficolta_di_coltivazione",
+        "faq"
+      ],
+      "other_enabled_catalog_grants": 0,
+      "updated_at": "2026-11-12 09:13:55.220093+00",
+      "verified_at": "2026-11-12 09:56:10.763252+00"
+    }
+  },
+  "runtime": {
+    "observedAt": "2026-11-12T10:55:56+01:00",
+    "origin": "https://onlinegarden.it",
+    "source": "Fresh authenticated technical browser UI /admin/settings; DOM and cropped screenshot inspected",
+    "writesEnabled": true,
+    "writeMode": "canary",
+    "shopifySyncEnabled": true,
+    "effectiveTechnicalWriteAllowed": false,
+    "isClientSession": false,
+    "frontendReleaseMarker": "admin-delivery-20261110-r1",
+    "verificationLimit": "This diagnostics screen exposes master/mode/sync and technical denial, not each draft/category flag or client permissions."
+  },
+  "configuration": {
+    "agentFlagWrites": 0,
+    "ownerConfirmedOn": "2026-11-12",
+    "ownerConfirmation": "Owner explicitly confirmed all six values saved exactly as requested in standard Lovable Secrets editor.",
+    "valuesSavedByOwner": {
+      "PRODUCT_ADMIN_DRAFTS_ENABLED": "true",
+      "PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED": "true",
+      "PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED": "true",
+      "PRODUCT_ADMIN_CATEGORIES_ENABLED": "true",
+      "PRODUCT_ADMIN_CANARY_SCOPE": "null",
+      "PRODUCT_ADMIN_OPERATIONAL_APPROVAL": "null"
+    },
+    "requiredPendingFlags": [],
+    "independentlyObservedRuntimeDelta": {
+      "shopifySyncEnabled": {
+        "before": false,
+        "after": true
+      }
+    },
+    "otherSavedValuesIndependentlyReread": false,
+    "canaryPolicy": "Global mode still canary, verified live; old scope and static approval saved null by owner; no canary reopened.",
+    "updateTransport": "Owner manual save through standard Lovable Secrets editor. Native tools are create-only for existing names. No alternative secret transport used."
+  },
+  "codeContinuity": {
+    "sourceMain": "6578dcdf5334b4d7fc33ac2e51f5a1d777f222b0",
+    "lastNativeDeployedSource": "cb7fc573e2b8c8d4838bb49cec38b74961d39e78",
+    "functionAndAdminSourceDiffEmpty": true,
+    "runtimeBytecodeReread": false,
+    "newDeployNeeded": false
+  },
+  "changes": {
+    "rolesInserted": 1,
+    "capabilityRecordsInserted": 1,
+    "otherAccountsChanged": 0,
+    "accountsCreated": 0,
+    "authCredentialsChanged": 0,
+    "catalogWrites": 0,
+    "technicalDraftWrites": 0,
+    "canaryReopened": false,
+    "migrations": 0,
+    "deploys": 0,
+    "frontendPublishes": 0,
+    "ownerConfigurationSaveConfirmed": true
+  },
+  "clientSession": {
+    "verified": true,
+    "impersonated": false,
+    "credentialsRequested": false,
+    "verificationRequested": true,
+    "verificationSource": "OWNER_CONFIRMATION_OF_CLIENT_PERSONAL_SESSION",
+    "ownerConfirmedOn": "2026-11-12",
+    "recordedAt": "2026-11-12T10:41:24Z",
+    "confirmation": "Personal sign-in successful; edit permission displayed enabled.",
+    "directlyObservedByAgent": false,
+    "editPermissionReportedEnabled": true,
+    "readOnlyCheck": true,
+    "clientCatalogOperationsTested": false,
+    "commercialPublicationTested": false,
+    "verificationLimit": "Owner confirmation of personal access and displayed permission; no client-authenticated HTTP inspection or catalog write acceptance.",
+    "corroboratingRepositoryRecord": "docs/admin-v2-evidence/2026-11-12/client-access-confirmation.json",
+    "corroboratingRecordLimit": "Repository record describes owner-supplied client screenshot; raw screenshot not inspected in this chat and capture time not independently verified."
+  },
+  "deliveryStatus": "CLIENT_ACCOUNT_ENABLED_ACCESS_OWNER_CONFIRMED_CLIENT_CATALOG_OPERATIONS_NOT_TESTED",
+  "restoreVerified": false,
+  "rollback": "Disable only the exact catalog grant linked to this change after comparing its current state; revoke only this change's editor role if needed. Preserve product and approval journals; no general restore.",
+  "runtimeHistory": [
+    {
+      "observedAt": "2026-11-12T10:09:13+01:00",
+      "origin": "https://onlinegarden.it",
+      "source": "Authenticated technical browser session /admin/settings",
+      "writesEnabled": true,
+      "writeMode": "canary",
+      "shopifySyncEnabled": false,
+      "effectiveTechnicalWriteAllowed": false,
+      "isClientSession": false
+    }
+  ],
+  "accountEnablementComplete": true,
+  "clientOperationalAcceptanceComplete": false
+}
