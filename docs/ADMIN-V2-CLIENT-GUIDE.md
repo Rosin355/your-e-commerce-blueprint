@@ -1,6 +1,6 @@
 # Admin Online Garden — guida cliente
 
-**Stato al 12 novembre 2026:** il tuo account esistente è verificato e configurato per modifica/salvataggio, immagini, nuove bozze, sincronizzazione esplicita, prezzi, categorie editoriali verificate e pubblicazione manuale con conferma. La configurazione necessaria è stata confermata; la sincronizzazione è stata riletta attiva sul servizio. **L'accesso dalla tua sessione personale non è ancora verificato.** Non occorre registrarsi di nuovo. Ogni azione resta soggetta ai controlli del server e alle tue conferme: usa soltanto le funzioni disponibili, senza aggirare eventuali blocchi. Durante questa abilitazione non sono stati modificati o pubblicati prodotti. Il prodotto tecnico di collaudo resta escluso dalla pubblicazione.
+**Stato al 12 novembre 2026:** il tuo account esistente è verificato e configurato per modifica/salvataggio, immagini, nuove bozze, sincronizzazione esplicita, prezzi, categorie editoriali verificate e pubblicazione manuale con conferma. La configurazione necessaria è stata confermata; la sincronizzazione è stata riletta attiva sul servizio. **Il proprietario ha confermato il tuo accesso personale e il permesso di modifica abilitato.** Questa conferma riguarda accesso e permessi; non certifica che le operazioni di catalogo siano già state provate nella tua sessione. Non occorre registrarsi di nuovo. Ogni azione resta soggetta ai controlli del server e alle tue conferme: usa soltanto le funzioni disponibili, senza aggirare eventuali blocchi. Durante questa abilitazione non sono stati modificati o pubblicati prodotti. Il prodotto tecnico di collaudo resta escluso dalla pubblicazione.
 
 1. **Accedi con il tuo account già verificato.** Apri https://onlinegarden.it/admin e usa le tue credenziali nella tua sessione personale. Se serve, accedi da https://onlinegarden.it/auth e poi riapri l’Admin. In Impostazioni verifica i permessi del tuo account. Non condividere password o codici e non creare un secondo account. Un accesso Shopify non attribuisce automaticamente accesso all’Admin.
 2. **Cerca e modifica.** In Prodotti cerca lo SKU o il nome e apri la scheda corretta. Usa Modifica soltanto sui campi disponibili. Salva nell’Admin; il salvataggio non modifica automaticamente Shopify. Se i dati sono cambiati, ricarica e confronta prima di confermare.
@@ -16,7 +16,8 @@ Le conferme delle normali operazioni vengono registrate dall’Admin: non devi r
 ## Accettazione da completare
 
 - [x] Account esistente e verifica email ricontrollati; permessi catalogo assegnati.
-- [ ] Accesso dalla tua sessione personale e disponibilità effettiva delle funzioni.
+- [x] Accesso dalla tua sessione personale e permesso di modifica abilitato, confermati dal proprietario il 12 novembre 2026.
+- [ ] Collaudo operativo delle funzioni nella tua sessione: i permessi visualizzati non sostituiscono le prove delle operazioni.
 - [ ] Ricerca, apertura prodotto e comprensione di salvataggio/sincronizzazione.
 - [ ] Bozza unica con immagine, salvataggio e rilettura, recupero senza duplicati.
 - [ ] Categoria verificata o bozza volutamente da classificare.

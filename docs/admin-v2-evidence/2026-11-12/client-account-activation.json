@@ -185,13 +185,24 @@
     "ownerConfigurationSaveConfirmed": true
   },
   "clientSession": {
-    "verified": false,
+    "verified": true,
     "impersonated": false,
     "credentialsRequested": false,
     "verificationRequested": true,
-    "pendingCheck": "Client signs in personally and checks Admin/settings edit permission; read-only, no commercial product action."
+    "verificationSource": "OWNER_CONFIRMATION_OF_CLIENT_PERSONAL_SESSION",
+    "ownerConfirmedOn": "2026-11-12",
+    "recordedAt": "2026-11-12T10:41:24Z",
+    "confirmation": "Personal sign-in successful; edit permission displayed enabled.",
+    "directlyObservedByAgent": false,
+    "editPermissionReportedEnabled": true,
+    "readOnlyCheck": true,
+    "clientCatalogOperationsTested": false,
+    "commercialPublicationTested": false,
+    "verificationLimit": "Owner confirmation of personal access and displayed permission; no client-authenticated HTTP inspection or catalog write acceptance.",
+    "corroboratingRepositoryRecord": "docs/admin-v2-evidence/2026-11-12/client-access-confirmation.json",
+    "corroboratingRecordLimit": "Repository record describes owner-supplied client screenshot; raw screenshot not inspected in this chat and capture time not independently verified."
   },
-  "deliveryStatus": "ACCOUNT_CONFIGURED_OWNER_FLAGS_CONFIRMED_LIVE_MASTER_SYNC_VERIFIED_CLIENT_ACCESS_PENDING",
+  "deliveryStatus": "CLIENT_ACCOUNT_ENABLED_ACCESS_OWNER_CONFIRMED_CLIENT_CATALOG_OPERATIONS_NOT_TESTED",
   "restoreVerified": false,
   "rollback": "Disable only the exact catalog grant linked to this change after comparing its current state; revoke only this change's editor role if needed. Preserve product and approval journals; no general restore.",
   "runtimeHistory": [
@@ -205,5 +216,7 @@
       "effectiveTechnicalWriteAllowed": false,
       "isClientSession": false
     }
-  ]
+  ],
+  "accountEnablementComplete": true,
+  "clientOperationalAcceptanceComplete": false
 }

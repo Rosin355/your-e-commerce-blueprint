@@ -1,5 +1,5 @@
 {
-  "status": "ACCOUNT_CONFIGURED_OWNER_FLAGS_CONFIRMED_LIVE_MASTER_SYNC_VERIFIED_CLIENT_ACCESS_PENDING",
+  "status": "CLIENT_ACCOUNT_ENABLED_ACCESS_OWNER_CONFIRMED_CLIENT_CATALOG_OPERATIONS_NOT_TESTED",
   "baseMain": "1324f0536eef3ff33ce43b8d74d84ba5307244a7",
   "liveFrontend": {
     "version": "admin-delivery-20261110-r1",
@@ -73,7 +73,7 @@
     "draftShopify": "TRUE_OWNER_SAVE_CONFIRMED_20261112",
     "categories": "TRUE_OWNER_SAVE_CONFIRMED_20261112",
     "operationalApproval": "JSON_NULL_OWNER_SAVE_CONFIRMED_20261112",
-    "frontendReadOnly": "OPERATIONAL_BUILD_CLIENT_GRANT_CONFIGURED_CLIENT_SESSION_PENDING",
+    "frontendReadOnly": "OPERATIONAL_BUILD_CLIENT_GRANT_CONFIGURED_PERSONAL_ACCESS_OWNER_CONFIRMED",
     "canaryScope": "JSON_NULL_OWNER_SAVE_CONFIRMED_20261112"
   },
   "rollback": "See operational activation plan; no automatic DROP/restore or Shopify delete",
@@ -382,8 +382,10 @@
     "publicationChannel": "gid://shopify/Publication/338862113108",
     "logistics": "Validate native A/B per variant; no tariff/collection mutations",
     "integratedAcceptanceLive": false,
-    "clientSessionVerified": false,
-    "configurationEnabledByOwner": true
+    "clientSessionVerified": true,
+    "configurationEnabledByOwner": true,
+    "clientSessionVerificationSource": "OWNER_CONFIRMATION_OF_CLIENT_PERSONAL_SESSION",
+    "clientSessionDirectlyObservedByAgent": false
   },
   "publicSmoke": {
     "browser": "Chrome",
@@ -713,13 +715,24 @@
       "ownerConfigurationSaveConfirmed": true
     },
     "clientSession": {
-      "verified": false,
+      "verified": true,
       "impersonated": false,
       "credentialsRequested": false,
       "verificationRequested": true,
-      "pendingCheck": "Client signs in personally and checks Admin/settings edit permission; read-only, no commercial product action."
+      "verificationSource": "OWNER_CONFIRMATION_OF_CLIENT_PERSONAL_SESSION",
+      "ownerConfirmedOn": "2026-11-12",
+      "recordedAt": "2026-11-12T10:41:24Z",
+      "confirmation": "Personal sign-in successful; edit permission displayed enabled.",
+      "directlyObservedByAgent": false,
+      "editPermissionReportedEnabled": true,
+      "readOnlyCheck": true,
+      "clientCatalogOperationsTested": false,
+      "commercialPublicationTested": false,
+      "verificationLimit": "Owner confirmation of personal access and displayed permission; no client-authenticated HTTP inspection or catalog write acceptance.",
+      "corroboratingRepositoryRecord": "docs/admin-v2-evidence/2026-11-12/client-access-confirmation.json",
+      "corroboratingRecordLimit": "Repository record describes owner-supplied client screenshot; raw screenshot not inspected in this chat and capture time not independently verified."
     },
-    "deliveryStatus": "ACCOUNT_CONFIGURED_OWNER_FLAGS_CONFIRMED_LIVE_MASTER_SYNC_VERIFIED_CLIENT_ACCESS_PENDING",
+    "deliveryStatus": "CLIENT_ACCOUNT_ENABLED_ACCESS_OWNER_CONFIRMED_CLIENT_CATALOG_OPERATIONS_NOT_TESTED",
     "restoreVerified": false,
     "rollback": "Disable only the exact catalog grant linked to this change after comparing its current state; revoke only this change's editor role if needed. Preserve product and approval journals; no general restore.",
     "runtimeHistory": [
@@ -733,7 +746,9 @@
         "effectiveTechnicalWriteAllowed": false,
         "isClientSession": false
       }
-    ]
+    ],
+    "accountEnablementComplete": true,
+    "clientOperationalAcceptanceComplete": false
   },
   "runtimeObservationHistory": [
     {
