@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { buildCustomerReport, parseCustomerCsv, sha256 } from '../lib/customer-preflight.mjs';
-import { fixtureHeaders, encodeCsv, syntheticRows, syntheticScenario, syntheticCoverage, syntheticJoinScenario } from './customer-fixtures.mjs';
+import { fixtureHeaders, encodeCsv, syntheticRows, syntheticScenario, syntheticCoverage, syntheticJoinScenario, syntheticEmailOnlyScenario } from './customer-fixtures.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const reportFor = (change) => { const rows = syntheticRows(); change(rows); return buildCustomerReport(syntheticScenario(rows)); };
@@ -456,4 +456,215 @@ test('both CLI entry points support explicit minimized ID/orders join without le
   assert.equal(failure.status, 1);
   assert.doesNotMatch(failure.stdout + failure.stderr, /@|SYNTHETIC_SENTINEL|og-synthetic-test/);
   assert.deepEqual(fs.readdirSync(dir).sort(), ['accounts.csv', 'metadata.json', 'orders.csv', 'snapshot.csv']);
+});
+
+test('email-only demo preserves 858/953 and excludes author with orders: 856 are only review candidates', () => {
+  const scenario = syntheticEmailOnlyScenario();
+  const original = JSON.stringify(scenario);
+  const report = buildCustomerReport(scenario);
+  assert.deepEqual(report.observed, { sourceRows: 1108, accountsWithOrders: 858, historicalOrders: 953 });
+  assert.deepEqual(report.cohortRoles, { customerBuyers: 857, privilegedBuyers: 1, otherOrMissingRoleBuyers: 0 });
+  assert.equal(report.sourceQuality.buyerRowsWithNonE164Phone, 768);
+  assert.equal(report.phoneAssessment.buyerRowsWithE164Phone, 90);
+  assert.equal(report.sourceQuality.buyerRowsWithBlankPhone, 0);
+  assert.equal(report.phoneAssessment.customerBuyerRowsWithNationalPhone, 767);
+  assert.equal(report.shopifySnapshot.rows, 12);
+  assert.equal(parseCustomerCsv(scenario.snapshotCsv, 'snapshot').filter((r) => r.email).length, 11);
+  assert.equal(report.outcomes.existingEmailSkipped, 1);
+  assert.equal(report.outcomes.emailOnlyReviewCandidates, 856);
+  assert.equal(report.outcomes.excludedPrivileged, 2);
+  assert.equal(report.outcomes.excludedNoOrders, 249);
+  assert.equal(report.outcomes.quarantined, 0);
+  assert.equal(report.outcomes.proposedNew, 0);
+  assert.equal(report.status, 'OFFLINE_EMAIL_ONLY_REVIEW_REQUIRED');
+  assert.equal(report.privateIdentityReviewRequired, true);
+  assert.equal(report.productionAuthorized, false);
+  assert.equal(report.phoneAssessment.phoneExportAllowed, false);
+  assert.deepEqual(report.marketing, { emailEnabled: 0, smsEnabled: 0, whatsappEnabled: 0 });
+  assert.equal(Object.values(report.outcomes).reduce((a, b) => a + b, 0), 1108);
+  assert.equal(JSON.stringify(scenario), original);
+});
+
+test('strict remains the default; national formats still quarantine without explicit email-only', () => {
+  const scenario = syntheticEmailOnlyScenario();
+  scenario.emailOnly = false;
+  const strict = buildCustomerReport(scenario);
+  assert.equal(strict.assessmentMode, 'strict');
+  assert.equal(strict.reasons.nonE164Phone, 767);
+  assert.equal(strict.outcomes.quarantined, 767);
+  assert.equal(strict.outcomes.emailOnlyReviewCandidates, 0);
+  assert.equal(strict.status, 'BLOCKED');
+  assert.equal(buildCustomerReport(syntheticScenario()).assessmentMode, 'strict');
+  assert.throws(() => buildCustomerReport({ ...scenario, emailOnly: 'false' }), { message: 'ASSESSMENT_MODE_NOT_ALLOWED' });
+});
+
+test('email-only separates national and absent optional phones without changing strings or adding prefixes', () => {
+  for (const value of ['000 000 1234', '(000) 000-1234', '00390000001234', '']) {
+    const rows = syntheticRows(); rows[1][6] = value;
+    const scenario = { ...syntheticScenario(rows), emailOnly: true };
+    const before = scenario.sourceCsv;
+    const report = buildCustomerReport(scenario);
+    assert.equal(report.outcomes.quarantined, 0);
+    assert.equal(report.outcomes.emailOnlyReviewCandidates, 857);
+    assert.equal(report.reasons.invalidPhone + report.reasons.nonE164Phone, 0);
+    assert.equal(report.phoneAssessment.customerBuyerRowsWithNationalPhone, value ? 1 : 0);
+    assert.equal(report.phoneAssessment.sourceValuesChanged, 0);
+    assert.equal(scenario.sourceCsv, before);
+    assert.doesNotMatch(JSON.stringify(report), /0000001234|00390000001234|@/);
+  }
+});
+
+test('email-only still quarantines malformed/null/formula phones instead of silently dropping them', () => {
+  for (const value of ['null', ' NULL ', 'unknown', '+invalid', '123', '=123456789', '333\n1234567', '-3331234567', '-+390000001234', '(+390000001234)']) {
+    const rows = syntheticRows(); rows[1][6] = value;
+    const report = buildCustomerReport({ ...syntheticScenario(rows), emailOnly: true });
+    assert.equal(report.outcomes.quarantined, 1);
+    assert.equal(report.reasons.invalidPhone, 1);
+    assert.equal(report.status, 'BLOCKED');
+    assert.equal(report.outcomes.proposedNew, 0);
+  }
+});
+
+test('email-only quarantines ambiguous source phone pairs, including out-of-cohort and privileged rows', () => {
+  for (const [a, b] of [['0000001234', '(000) 000-1234'], ['0000001234', '+390000001234'], ['00390000001234', '+390000001234'], ['00390000001234', '0000001234']]) {
+    for (const target of [2, 858, 1106]) {
+      const rows = syntheticRows(); rows[1][6] = a; rows[target][6] = b;
+      const report = buildCustomerReport({ ...syntheticScenario(rows), emailOnly: true });
+      assert.equal(report.reasons.ambiguousSourcePhone, target === 2 ? 2 : 1);
+      assert.equal(report.status, 'BLOCKED');
+      assert.equal(report.outcomes.proposedNew, 0);
+    }
+  }
+});
+
+test('email-only skips exact unique E.164 Shopify matches including phone-only profiles', () => {
+  const rows = syntheticRows(); rows[1][6] = '+39 (000) 000 1234';
+  for (const existingEmail of ['other@example.invalid', '']) {
+    const scenario = snapshot(syntheticScenario(rows), [[existingEmail, '+390000001234']]);
+    const report = buildCustomerReport({ ...scenario, emailOnly: true });
+    assert.equal(report.outcomes.existingPhoneSkipped, 1);
+    assert.equal(report.outcomes.quarantined, 0);
+    assert.equal(report.outcomes.emailOnlyReviewCandidates, 857);
+  }
+});
+
+test('national/00 Shopify similarities are blocking evidence, never exact identity matches', () => {
+  for (const value of ['0000001234', '00390000001234']) {
+    for (const existingEmail of ['fixture-2@example.invalid', 'other@example.invalid', '']) {
+      const rows = syntheticRows(); rows[1][6] = value;
+      const scenario = snapshot(syntheticScenario(rows), [[existingEmail, '+390000001234']]);
+      const report = buildCustomerReport({ ...scenario, emailOnly: true });
+      assert.equal(report.reasons.ambiguousShopifyPhone, 1);
+      assert.equal(report.outcomes.quarantined, 1);
+      assert.equal(report.outcomes.existingPhoneSkipped + report.outcomes.existingEmailSkipped, 0);
+    }
+  }
+});
+
+test('email-only blocks shared Shopify phones and email/phone pointing to different profiles', () => {
+  const rows = syntheticRows(); rows[1][6] = '+390000001234';
+  const conflicting = snapshot(syntheticScenario(rows), [['fixture-2@example.invalid', ''], ['other@example.invalid', '+390000001234']]);
+  const report = buildCustomerReport({ ...conflicting, emailOnly: true });
+  assert.equal(report.reasons.conflictingShopifyIdentity, 1);
+  assert.equal(report.outcomes.quarantined, 1);
+  assert.equal(report.outcomes.existingEmailSkipped, 0);
+  const shared = snapshot(syntheticScenario(rows), [['a@example.invalid', '+390000001234'], ['', '+390000001234']]);
+  assert.equal(buildCustomerReport({ ...shared, emailOnly: true }).reasons.ambiguousShopifyPhone, 1);
+  const concordant = snapshot(syntheticScenario(rows), [['fixture-2@example.invalid', '+390000001234']]);
+  assert.equal(buildCustomerReport({ ...concordant, emailOnly: true }).outcomes.existingEmailSkipped, 1);
+});
+
+test('different explicit international numbers are not matched by suffix alone', () => {
+  const rows = syntheticRows(); rows[1][6] = '+390000001234'; rows[2][6] = '+440000001234';
+  const scenario = snapshot(syntheticScenario(rows), [['other@example.invalid', '+490000001234']]);
+  const report = buildCustomerReport({ ...scenario, emailOnly: true });
+  assert.equal(report.reasons.ambiguousSourcePhone + report.reasons.ambiguousShopifyPhone, 0);
+  assert.equal(report.outcomes.emailOnlyReviewCandidates, 858);
+  assert.equal(report.privateIdentityReviewRequired, true);
+});
+
+test('email-only retains identity, profile, source-join and snapshot gates', () => {
+  for (const change of [
+    (rows) => { rows[1][3] = 'bad-email'; },
+    (rows) => { rows[1][3] = rows[2][3]; },
+    (rows) => { rows[1][0] = rows[2][0]; },
+    (rows) => { rows[1][4] = 'null'; },
+    (rows) => { rows[1][6] = rows[2][6] = '+390000001234'; },
+  ]) {
+    const rows = syntheticRows(); change(rows);
+    const report = buildCustomerReport({ ...syntheticScenario(rows), emailOnly: true });
+    assert.ok(report.outcomes.quarantined > 0);
+    assert.equal(report.status, 'BLOCKED');
+    assert.equal(report.outcomes.proposedNew, 0);
+  }
+  for (const mutate of [
+    (s) => { delete s.snapshotCsv; },
+    (s) => { s.snapshotMetadata.sha256 = '0'.repeat(64); },
+    (s) => { s.snapshotMetadata.coverage.countAfter++; },
+    (s) => { s.ordersCsv = s.ordersCsv.replace('"1108","0"', '"1108","null"'); },
+  ]) {
+    const scenario = syntheticEmailOnlyScenario(); mutate(scenario);
+    const report = buildCustomerReport(scenario);
+    assert.equal(report.status, 'BLOCKED');
+    assert.equal(report.outcomes.emailOnlyReviewCandidates + report.outcomes.proposedNew, 0);
+  }
+});
+
+test('privileged role takes precedence even when role aliases conflict, in both modes', () => {
+  const rows = syntheticRows().map((r, i) => [...r, i === 1 ? 'author' : i === 2 ? 'administrator' : '']);
+  const scenario = syntheticScenario();
+  scenario.sourceCsv = encodeCsv([[...fixtureHeaders, 'roles'], ...rows]);
+  for (const emailOnly of [true, false]) {
+    const report = buildCustomerReport({ ...scenario, emailOnly });
+    assert.equal(report.outcomes.excludedPrivileged, 4);
+    assert.equal(report.cohortRoles.privilegedBuyers, 2);
+    assert.equal(report.reasons.invalidRole, 0);
+  }
+});
+
+test('email-only CLI is explicit, aggregate-only, exits 2 and cannot enable writes or marketing', () => {
+  for (const script of ['customers-convert.mjs', 'customers-sync-shopify.mjs']) {
+    const result = invoke(script, ['--synthetic', '--email-only']);
+    assert.equal(result.status, 2, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.outcomes.emailOnlyReviewCandidates, 856);
+    assert.equal(report.outcomes.proposedNew, 0);
+    assert.equal(report.productionAuthorized, false);
+    assert.doesNotMatch(result.stdout + result.stderr, /@|fixture-only|Cliente sintetico|\+390000|\+440000/);
+    for (const extra of ['--write', '--email-only', '--email-only=true', '--enable-marketing']) {
+      assert.equal(invoke(script, ['--synthetic', '--email-only', extra]).status, 1);
+    }
+  }
+});
+
+test('private email-only CLI preserves exact input bytes, including phone formatting, and writes only aggregates', (t) => {
+  const dir = privateDirectory(t);
+  const scenario = syntheticEmailOnlyScenario();
+  scenario.sourceCsv = scenario.sourceCsv.replace('"+390000000001"', '"+39 (000) 000 0001"');
+  scenario.snapshotMetadata.exportedAt = new Date().toISOString();
+  scenario.snapshotMetadata.coverage.startedAt = scenario.snapshotMetadata.exportedAt;
+  const files = { 'source.csv': scenario.sourceCsv, 'orders.csv': scenario.ordersCsv, 'snapshot.csv': scenario.snapshotCsv, 'metadata.json': JSON.stringify(scenario.snapshotMetadata) };
+  for (const [name, content] of Object.entries(files)) fs.writeFileSync(path.join(dir, name), content);
+  const output = path.join(dir, 'report.json');
+  const result = invoke('customers-convert.mjs', ['--email-only', '--input', path.join(dir, 'source.csv'), '--orders', path.join(dir, 'orders.csv'), '--snapshot', path.join(dir, 'snapshot.csv'), '--snapshot-metadata', path.join(dir, 'metadata.json'), '--shop', scenario.expectedShop, '--report', output]);
+  assert.equal(result.status, 2, result.stderr);
+  assert.equal(JSON.parse(result.stdout).outcomes.emailOnlyReviewCandidates, 856);
+  for (const [name, content] of Object.entries(files)) assert.equal(fs.readFileSync(path.join(dir, name), 'utf8'), content);
+  assert.equal(fs.statSync(output).mode & 0o777, 0o600);
+  assert.doesNotMatch(fs.readFileSync(output, 'utf8'), /@|\+390000|\+440000|Cliente sintetico/);
+});
+
+
+test('missing phone column is visible and cannot certify telephone uniqueness', () => {
+  const scenario = syntheticEmailOnlyScenario();
+  const rows = parseCustomerCsv(scenario.sourceCsv, 'accounts');
+  const headers = Object.keys(rows[0]).filter((k) => k !== 'billing_phone');
+  scenario.sourceCsv = encodeCsv([headers, ...rows.map((r) => headers.map((k) => r[k]))]);
+  const report = buildCustomerReport(scenario);
+  assert.equal(report.phoneAssessment.sourcePhoneColumnSupplied, false);
+  assert.equal(report.phoneAssessment.customerBuyerRowsWithBlankPhone, 857);
+  assert.equal(report.outcomes.emailOnlyReviewCandidates, 856);
+  assert.equal(report.outcomes.proposedNew, 0);
+  assert.equal(report.privateIdentityReviewRequired, true);
+  assert.equal(report.status, 'OFFLINE_EMAIL_ONLY_REVIEW_REQUIRED');
 });

@@ -73,9 +73,44 @@ function email(value = '') {
 }
 function phone(value = '') {
   if (!value) return '';
+  if (!value.startsWith('+')) return null;
   const s = value.replace(/[ ().-]/g, '');
   return /^\+[1-9]\d{7,14}$/.test(s) ? s : null;
 }
+// Comparison evidence only: never rewrite a source field or infer a country code.
+function phoneEvidence(value = '') {
+  const international = phone(value);
+  if (international) return { kind: 'international', digits: international.slice(1) };
+  if (!value) return { kind: 'absent', digits: '' };
+  const compact = value.replace(/[ ().-]/g, '');
+  if (/^[0-9(][0-9 ().-]*$/.test(value) && /^(?:\d{7,15}|00\d{7,15})$/.test(compact)) return { kind: 'national', digits: compact };
+  return { kind: 'malformed', digits: '' };
+}
+function comparePhones(a, b) {
+  if (!a.digits || !b.digits) return null;
+  if (a.kind === 'international' && b.kind === 'international') return a.digits === b.digits ? 'exact' : null;
+  // Suffix/00 evidence is only a reason to STOP for private review, never a match
+  // authorizing an identity merge. Leading zeroes remain part of the evidence.
+  const possible = a.digits.endsWith(b.digits) || b.digits.endsWith(a.digits) ||
+    (a.digits.startsWith('00') && a.digits.slice(2) === b.digits) ||
+    (b.digits.startsWith('00') && b.digits.slice(2) === a.digits);
+  return possible ? 'ambiguous' : null;
+}
+function ambiguousSourcePhones(prepared) {
+  const ambiguous = new Set();
+  const numbered = prepared.map((r, index) => ({ evidence: r.phoneEvidence, index })).filter((r) => r.evidence.digits);
+  for (let i = 0; i < numbered.length; i++) {
+    for (let j = i + 1; j < numbered.length; j++) {
+      if (comparePhones(numbered[i].evidence, numbered[j].evidence) === 'ambiguous') {
+        ambiguous.add(numbered[i].index); ambiguous.add(numbered[j].index);
+      }
+    }
+  }
+  return ambiguous;
+}
+const privilegedRole = (row) => ['role', 'roles'].some((key) =>
+  row[key]?.toLowerCase().split(/[\s,;|]+/).some((v) => ['administrator', 'author'].includes(v)));
+
 function aliases(row, keys, normalize = (v) => v) {
   const values = keys.map((k) => row[k]).filter(Boolean).map((v) => isNullLiteral(v) ? null : normalize(v));
   return values.includes(null) || new Set(values).size > 1 ? null : values[0] ?? '';
@@ -163,7 +198,8 @@ function inspectSnapshot(text, metadata, expectedShop, now) {
 }
 
 // Only aggregate constants/counts leave this function. Personal values stay in memory.
-export function buildCustomerReport({ sourceCsv, ordersCsv, snapshotCsv, snapshotMetadata, expectedShop, now = Date.now(), synthetic = false }) {
+export function buildCustomerReport({ sourceCsv, ordersCsv, snapshotCsv, snapshotMetadata, expectedShop, now = Date.now(), synthetic = false, emailOnly = false }) {
+  if (typeof emailOnly !== 'boolean') fail('ASSESSMENT_MODE_NOT_ALLOWED');
   const { rows, extraction, blockers: sourceBlockers } = inspectSource(sourceCsv, ordersCsv);
   const snapshot = inspectSnapshot(snapshotCsv, snapshotMetadata, expectedShop, now);
   const prepared = rows.map((r) => ({
@@ -171,6 +207,8 @@ export function buildCustomerReport({ sourceCsv, ordersCsv, snapshotCsv, snapsho
     id: aliases(r, ['id', 'customer_id']),
     email: aliases(r, ['email', 'user_email', 'billing_email'], email),
     phone: phone(r.billing_phone),
+    phoneEvidence: phoneEvidence(r.billing_phone),
+    privileged: privilegedRole(r),
     orders: orderCount(r.orders),
     roles: aliases(r, ['role', 'roles'], (v) => v.toLowerCase()),
     nullLiteral: Object.values(r).some(isNullLiteral),
@@ -183,46 +221,79 @@ export function buildCustomerReport({ sourceCsv, ordersCsv, snapshotCsv, snapsho
   const phones = frequencies(prepared.map((r) => r.phone));
   const existingEmails = new Set(snapshot.rows.map((r) => r.email).filter(Boolean));
   const existingPhones = new Set(snapshot.rows.map((r) => r.phone).filter(Boolean));
+  const ambiguousSource = emailOnly ? ambiguousSourcePhones(prepared) : new Set();
+  const snapshotPhones = snapshot.rows.map((r) => phoneEvidence(r.phone ?? ''));
+  const snapshotEmailIndex = new Map(snapshot.rows.map((r, i) => [r.email, i]).filter(([value]) => value));
+  const customerBuyers = prepared.filter((r) => r.orders > 0 && r.roles === 'customer' && !r.privileged);
+
   const report = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     mode: 'offline-dry-run',
+    assessmentMode: emailOnly ? 'email-only' : 'strict',
+    privateIdentityReviewRequired: true,
     dataKind: synthetic ? 'synthetic' : 'private-unverified',
     productionAuthorized: false,
     networkRequests: 0, customerWrites: 0, personalArtifactsWritten: 0,
     expected: { accountsWithOrders: 858, historicalOrders: 953 },
     observed: { sourceRows: rows.length, accountsWithOrders: 0, historicalOrders: 0 },
     extraction,
+    cohortRoles: {
+      customerBuyers: customerBuyers.length,
+      privilegedBuyers: prepared.filter((r) => r.orders > 0 && r.privileged).length,
+      otherOrMissingRoleBuyers: prepared.filter((r) => r.orders > 0 && !r.privileged && r.roles !== 'customer').length,
+    },
+    phoneAssessment: {
+      sourceValuesChanged: 0, phoneExportAllowed: false,
+      sourcePhoneColumnSupplied: rows.some((r) => Object.hasOwn(r, 'billing_phone')),
+      buyerRowsWithE164Phone: prepared.filter((r) => r.orders > 0 && r.phoneEvidence.kind === 'international').length,
+      customerBuyerRowsWithNationalPhone: customerBuyers.filter((r) => r.phoneEvidence.kind === 'national').length,
+      customerBuyerRowsWithBlankPhone: customerBuyers.filter((r) => r.phoneEvidence.kind === 'absent').length,
+      customerBuyerRowsWithMalformedPhone: customerBuyers.filter((r) => r.phoneEvidence.kind === 'malformed').length,
+    },
     sourceQuality: {
       rowsWithNullLiteral: prepared.filter((r) => r.nullLiteral).length,
       buyerRowsWithNullLiteral: prepared.filter((r) => r.orders > 0 && r.nullLiteral).length,
       buyerRowsWithNonE164Phone: prepared.filter((r) => r.orders > 0 && r.nonE164Phone).length,
       buyerRowsWithBlankPhone: prepared.filter((r) => r.orders > 0 && !r.row.billing_phone).length,
     },
-    outcomes: { excludedPrivileged: 0, excludedOtherRole: 0, excludedNoOrders: 0, quarantined: 0, existingEmailSkipped: 0, existingPhoneSkipped: 0, unmatchedAwaitingSnapshot: 0, unmatchedAwaitingSourceReview: 0, proposedNew: 0 },
-    reasons: { invalidRole: 0, invalidOrders: 0, invalidId: 0, duplicateId: 0, invalidOrConflictingEmail: 0, duplicateEmail: 0, invalidPhone: 0, nonE164Phone: 0, nullLiteral: 0, duplicatePhone: 0, invalidProfile: 0 },
+    outcomes: { excludedPrivileged: 0, excludedOtherRole: 0, excludedNoOrders: 0, quarantined: 0, existingEmailSkipped: 0, existingPhoneSkipped: 0, unmatchedAwaitingSnapshot: 0, unmatchedAwaitingSourceReview: 0, emailOnlyReviewCandidates: 0, proposedNew: 0 },
+    reasons: { invalidRole: 0, invalidOrders: 0, invalidId: 0, duplicateId: 0, invalidOrConflictingEmail: 0, duplicateEmail: 0, invalidPhone: 0, nonE164Phone: 0, nullLiteral: 0, duplicatePhone: 0, ambiguousSourcePhone: 0, ambiguousShopifyPhone: 0, conflictingShopifyIdentity: 0, invalidProfile: 0 },
     collisions: { duplicateEmailGroups: [...emails.values()].filter((v) => v > 1).length },
     shopifySnapshot: { supplied: snapshot.available, verified: snapshot.valid, liveCompletenessProven: false, rows: snapshot.rows.length },
     marketing: { emailEnabled: 0, smsEnabled: 0, whatsappEnabled: 0 },
     blockers: [...sourceBlockers, ...snapshot.blockers],
   };
   const { outcomes, reasons, observed } = report;
-  for (const r of prepared) {
+  for (const [index, r] of prepared.entries()) {
     if (r.orders > 0) { observed.accountsWithOrders++; observed.historicalOrders += r.orders; }
-    const roleTokens = r.roles?.split(/[\s,;|]+/);
-    if (roleTokens?.some((v) => ['administrator', 'author'].includes(v))) { outcomes.excludedPrivileged++; continue; }
+    if (r.privileged) { outcomes.excludedPrivileged++; continue; }
     if (!r.roles) { reasons.invalidRole++; outcomes.quarantined++; continue; }
     if (r.roles !== 'customer') { outcomes.excludedOtherRole++; continue; }
     if (r.orders === null) { reasons.invalidOrders++; outcomes.quarantined++; continue; }
     if (r.orders === 0) { outcomes.excludedNoOrders++; continue; }
+    const exactSnapshotPhones = [];
+    let ambiguousShopifyPhone = false;
+    if (emailOnly && snapshot.valid) {
+      for (const [i, evidence] of snapshotPhones.entries()) {
+        const comparison = comparePhones(r.phoneEvidence, evidence);
+        if (comparison === 'exact') exactSnapshotPhones.push(i);
+        if (comparison === 'ambiguous') ambiguousShopifyPhone = true;
+      }
+    }
+    const emailIndex = snapshotEmailIndex.get(r.email);
+    const phoneInvalid = emailOnly ? r.phoneEvidence.kind === 'malformed' : r.phone === null;
     const checks = {
       invalidId: !r.id || !/^[1-9]\d*$/.test(r.id),
       duplicateId: r.id && ids.get(r.id) > 1,
       invalidOrConflictingEmail: !r.email,
       duplicateEmail: r.email && emails.get(r.email) > 1,
-      invalidPhone: r.phone === null,
-      nonE164Phone: r.nonE164Phone,
+      invalidPhone: phoneInvalid,
+      nonE164Phone: r.nonE164Phone && (!emailOnly || phoneInvalid),
       nullLiteral: r.nullLiteral,
       duplicatePhone: r.phone && phones.get(r.phone) > 1,
+      ambiguousSourcePhone: ambiguousSource.has(index),
+      ambiguousShopifyPhone: ambiguousShopifyPhone || exactSnapshotPhones.length > 1,
+      conflictingShopifyIdentity: emailOnly && emailIndex !== undefined && exactSnapshotPhones.some((i) => i !== emailIndex),
       invalidProfile: !profileValid(r.row),
     };
     if (Object.values(checks).some(Boolean)) {
@@ -232,11 +303,12 @@ export function buildCustomerReport({ sourceCsv, ordersCsv, snapshotCsv, snapsho
     else if (!snapshot.valid) outcomes.unmatchedAwaitingSnapshot++;
     else if (existingEmails.has(r.email)) outcomes.existingEmailSkipped++;
     else if (r.phone && existingPhones.has(r.phone)) outcomes.existingPhoneSkipped++;
+    else if (emailOnly) outcomes.emailOnlyReviewCandidates++;
     else outcomes.proposedNew++;
   }
   if (observed.accountsWithOrders !== 858 || observed.historicalOrders !== 953) report.blockers.push('HISTORICAL_TOTALS_MISMATCH');
   if (outcomes.quarantined) report.blockers.push('SOURCE_QUARANTINE_REQUIRES_REVIEW');
   if (outcomes.excludedOtherRole) report.blockers.push('OTHER_ROLES_REQUIRE_REVIEW');
-  report.status = report.blockers.length ? 'BLOCKED' : 'OFFLINE_REVIEW_COMPLETE';
+  report.status = report.blockers.length ? 'BLOCKED' : emailOnly ? 'OFFLINE_EMAIL_ONLY_REVIEW_REQUIRED' : 'OFFLINE_REVIEW_COMPLETE';
   return report;
 }

@@ -110,4 +110,19 @@ con riepilogo di tutte le pagine e conteggi esatti prima/dopo; è comunque
 un'attestazione da verificare privatamente, non una prova live del preflight.
 
 La #48 è ancora aperta al 13/11/2026: consultare l'[audit al commit originale](https://github.com/Rosin355/your-e-commerce-blueprint/blob/6deae03f46a89222f68037f33e28755df13f0cf7/docs/migration/legacy-customers-seo-2026-11-09.md)
-e il coordinamento nel runbook. Il risultato sintetico 857 non è una stima reale.
+e il coordinamento nel runbook. Il risultato della vecchia fixture strict non è una stima reale.
+
+### Valutazione prudente email-only
+
+`npm run sync:customers:preflight -- --synthetic --email-only` esegue la nuova
+fixture con 857 customer e un author tra gli 858 account con ordini. Exit **2** è
+previsto: `OFFLINE_EMAIL_ONLY_REVIEW_REQUIRED`, 856 casi sintetici da revisionare
+e **zero** `proposedNew`. Senza flag resta la modalità strict.
+
+Con input privati, aggiungere `--email-only` agli stessi argomenti `--input`,
+`--orders`, `--snapshot`, `--snapshot-metadata` e `--shop`. I telefoni nazionali
+riconoscibili sono segnalazioni di qualità; collisioni dubbie, numeri malformati
+e conflitti di identità bloccano il record. Conservare i telefoni originali per
+il confronto: nessun prefisso automatico, file modificato o numero esportato.
+Il report usa schema 3; il manifest privato Shopify resta v2. La review privata
+rimane obbligatoria e nessun consenso marketing viene abilitato.

@@ -6,15 +6,16 @@ node sync/customers-convert.mjs --input /percorso/privato/clienti-minimi.csv
   [--orders /percorso/privato/solo-id-orders.csv]
   [--snapshot /percorso/privato/shopify-minimo.csv
    --snapshot-metadata /percorso/privato/snapshot.json --shop negozio.myshopify.com]
-  [--report /percorso/nuovo/report-aggregato.json] [--dry-run]
+  [--report /percorso/nuovo/report-aggregato.json] [--dry-run] [--email-only]
 --synthetic usa esclusivamente la fixture incorporata, senza file privati.
-Exit: 0 review offline completa, 2 bloccata, 1 input/argomenti/IO non validi.
+Modalità predefinita: strict. --email-only richiede sempre review privata (exit 2).
+Exit: 0 review strict completa, 2 bloccata/da revisionare, 1 input/argomenti/IO non validi.
 Le opzioni write/apply/execute e le variabili legacy non sono supportate.
 `;
 const reject = (code) => { throw new PreflightError(code); };
 function parseArgs(args) {
   const options = {};
-  const flags = new Set(['--dry-run', '--synthetic', '--help']);
+  const flags = new Set(['--dry-run', '--synthetic', '--help', '--email-only']);
   const values = new Set(['--input', '--orders', '--snapshot', '--snapshot-metadata', '--shop', '--report']);
   for (let i = 0; i < args.length; i++) {
     const key = args[i];
@@ -41,8 +42,8 @@ export async function runCustomerPreflight(args = process.argv.slice(2)) {
     let input;
     if (options['--synthetic']) {
       if (['--input', '--orders', '--snapshot', '--snapshot-metadata', '--shop'].some((k) => options[k])) reject('SYNTHETIC_INPUT_CONFLICT');
-      const { syntheticJoinScenario } = await import('../tests/customer-fixtures.mjs');
-      input = syntheticJoinScenario();
+      const { syntheticJoinScenario, syntheticEmailOnlyScenario } = await import('../tests/customer-fixtures.mjs');
+      input = options['--email-only'] ? syntheticEmailOnlyScenario() : syntheticJoinScenario();
     } else {
       if (!options['--input']) reject('INPUT_REQUIRED');
       const snapshotOptions = ['--snapshot', '--snapshot-metadata', '--shop'].filter((k) => options[k]);
@@ -55,12 +56,12 @@ export async function runCustomerPreflight(args = process.argv.slice(2)) {
         expectedShop: options['--shop'],
       });
     }
-    const report = buildCustomerReport(input);
+    const report = buildCustomerReport({ ...input, emailOnly: Boolean(options['--email-only']) });
     const output = `${JSON.stringify(report, null, 2)}\n`;
     // Explicit, exclusive output: never overwrite input, existing file or symlink.
     if (options['--report']) fs.writeFileSync(options['--report'], output, { encoding: 'utf8', flag: 'wx', mode: 0o600 });
     console.log(output.trimEnd());
-    return report.status === 'BLOCKED' ? 2 : 0;
+    return report.status === 'OFFLINE_REVIEW_COMPLETE' ? 0 : 2;
   } catch (error) {
     // Never print raw errors, paths, arguments, CSV content or stack traces.
     console.error(JSON.stringify({ error: error instanceof PreflightError ? error.message : 'INPUT_OR_OUTPUT_ERROR' }));

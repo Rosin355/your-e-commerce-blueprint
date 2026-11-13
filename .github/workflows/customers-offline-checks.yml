@@ -33,3 +33,9 @@ jobs:
         run: |
           node --require ./ci/offline-network.cjs sync/customers-convert.mjs --synthetic > /tmp/customers-synthetic-report.json
           cmp /tmp/customers-synthetic-report.json docs/migration/customers-synthetic-dry-run.json
+      - name: Verify email-only review status and aggregate report
+        run: |
+          result=0
+          node --require ./ci/offline-network.cjs sync/customers-convert.mjs --synthetic --email-only > /tmp/customers-email-only-report.json || result=$?
+          test "$result" -eq 2
+          cmp /tmp/customers-email-only-report.json docs/migration/customers-email-only-synthetic-dry-run.json
