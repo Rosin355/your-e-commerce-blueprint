@@ -76,6 +76,19 @@ Il parser clienti è dedicato: non modifica `sync/lib/csv-utils.mjs` o le pipeli
 - **Interpretazione:** 856 è un numero di *customer* senza match email, **non** il numero finale di importabili. Mancano convalida completa dello snapshot, confronto telefonico/identitario, schema minimizzato definitivo, review delle anomalie e autorizzazione.
 - **Decisione implementata in questo aggiornamento:** modalità opt-in `--email-only`, fixture con author avente ordini e totali 858/953 invariati, nessuna riscrittura dei telefoni. La revisione privata dei 12 profili Shopify e degli account legacy resta necessaria; nessun preflight reale è stato eseguito con questa modalità.
 
+## Preparazione dei due CSV storici — 13 novembre 2026
+
+**Preparati e verificati, ma non ancora consegnati nel workspace locale di Codex.** I due file CSV minimizzati sono stati generati attraverso letture selettive di colonne Google Sheets e conservati in una cartella privata su Drive, con visibilità verificata **solo proprietario**. Non pubblicare in questo documento link privati, identificativi Drive, anagrafiche o valori dei file.
+
+| File | Intestazioni | Record verificati | Controllo |
+| --- | --- | ---: | --- |
+| `sheet2-minimo.csv` | `ID,roles,email,billing_phone` | 1.108 | CSV coerente, ID non vuoti, 4 colonne, nessun record malformato |
+| `id-orders.csv` | `ID,orders` | 5.453 | CSV coerente, 858 record con ordini, somma ordini 953, nessun record malformato |
+
+I fogli temporanei intermedi utilizzati per l'export sono stati eliminati; le copie locali temporanee dei CSV sono state cancellate dopo i controlli. Nessuna lettura o esportazione delle colonne `user_pass` e `session_tokens`. Le fonti Google Sheets originali non sono state modificate.
+
+**Restano necessari:** consegna sicura dei due CSV all'ambiente locale autorizzato del preflight; snapshot Shopify aggiornato `Email,Phone` con manifest v2 ed evidenza reale di paginazione; esecuzione `--email-only` e revisione privata delle anomalie. Il completamento dei CSV **non** equivale a preflight reale eseguito e non autorizza un import.
+
 ## Contratto della copia di lavoro privata
 
 Un operatore autorizzato deve preparare una **copia minimizzata**, esterna a qualsiasi checkout Git, dal foglio Drive corretto. Non scaricare o passare allo script la scheda originale con `user_pass`, `session_tokens` o altri segreti. Non usare il TAR troncato. Non includere il file nei log, allegati PR, CI o ticket.
