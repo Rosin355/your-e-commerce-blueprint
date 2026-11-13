@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 3,
+  "mode": "offline-dry-run",
+  "assessmentMode": "email-only",
+  "privateIdentityReviewRequired": true,
+  "dataKind": "private-unverified",
+  "productionAuthorized": false,
+  "networkRequests": 0,
+  "customerWrites": 0,
+  "personalArtifactsWritten": 0,
+  "expected": {
+    "accountsWithOrders": 858,
+    "historicalOrders": 953
+  },
+  "observed": {
+    "sourceRows": 1108,
+    "accountsWithOrders": 858,
+    "historicalOrders": 953
+  },
+  "extraction": {
+    "mode": "id-orders-join",
+    "selectedRows": 1108,
+    "orderRows": 5453,
+    "matchedRows": 1108,
+    "missingOrderRows": 0,
+    "ambiguousSelectedRows": 0,
+    "invalidSelectedIds": 0,
+    "duplicateSelectedIdGroups": 0,
+    "invalidOrderIds": 0,
+    "duplicateOrderIdGroups": 0,
+    "invalidOrderValues": 0,
+    "orderRowsOutsideSelection": 4345,
+    "buyersOutsideSelection": 0,
+    "orderSourceBuyers": 858,
+    "orderSourceHistoricalOrders": 953
+  },
+  "cohortRoles": {
+    "customerBuyers": 857,
+    "privilegedBuyers": 1,
+    "otherOrMissingRoleBuyers": 0
+  },
+  "phoneAssessment": {
+    "sourceValuesChanged": 0,
+    "phoneExportAllowed": false,
+    "sourcePhoneColumnSupplied": true,
+    "buyerRowsWithE164Phone": 90,
+    "customerBuyerRowsWithNationalPhone": 766,
+    "customerBuyerRowsWithBlankPhone": 0,
+    "customerBuyerRowsWithMalformedPhone": 1
+  },
+  "sourceQuality": {
+    "rowsWithNullLiteral": 0,
+    "buyerRowsWithNullLiteral": 0,
+    "buyerRowsWithNonE164Phone": 768,
+    "buyerRowsWithBlankPhone": 0
+  },
+  "outcomes": {
+    "excludedPrivileged": 2,
+    "excludedOtherRole": 0,
+    "excludedNoOrders": 249,
+    "quarantined": 7,
+    "existingEmailSkipped": 1,
+    "existingPhoneSkipped": 0,
+    "unmatchedAwaitingSnapshot": 0,
+    "unmatchedAwaitingSourceReview": 0,
+    "emailOnlyReviewCandidates": 849,
+    "proposedNew": 0
+  },
+  "reasons": {
+    "invalidRole": 0,
+    "invalidOrders": 0,
+    "invalidId": 0,
+    "duplicateId": 0,
+    "invalidOrConflictingEmail": 0,
+    "duplicateEmail": 0,
+    "invalidPhone": 1,
+    "nonE164Phone": 1,
+    "nullLiteral": 0,
+    "duplicatePhone": 0,
+    "ambiguousSourcePhone": 6,
+    "ambiguousShopifyPhone": 0,
+    "conflictingShopifyIdentity": 0,
+    "invalidProfile": 0
+  },
+  "collisions": {
+    "duplicateEmailGroups": 0
+  },
+  "shopifySnapshot": {
+    "supplied": true,
+    "verified": true,
+    "liveCompletenessProven": false,
+    "rows": 12
+  },
+  "marketing": {
+    "emailEnabled": 0,
+    "smsEnabled": 0,
+    "whatsappEnabled": 0
+  },
+  "blockers": [
+    "SOURCE_QUARANTINE_REQUIRES_REVIEW"
+  ],
+  "status": "BLOCKED"
+}

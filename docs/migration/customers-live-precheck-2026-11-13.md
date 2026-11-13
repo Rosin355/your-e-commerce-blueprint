@@ -1,5 +1,7 @@
 # Online Garden — precheck reale read-only email-only (13 novembre 2026)
 
+> **Aggiornamento successivo del 13/11/2026:** il preflight CLI reale è stato poi eseguito sui CSV minimizzati verificati e sul nuovo snapshot Shopify con manifest v2. Risultato: 849 candidati alla review, 7 quarantene, 1 match email saltato, zero proposte di creazione. Vedere il [resoconto formale](customers-real-email-only-preflight-2026-11-13.md). Il testo sotto conserva la fotografia del precheck esplorativo precedente; le indicazioni «ancora da eseguire» si riferiscono a quella fase.
+
 > **Esplorazione aggregata, NON esecuzione del preflight CLI e NON autorizzazione a importare.** Nessun import, export CSV, writer, merge, deploy o modifica di Shopify/Drive. Nessun dato personale o ID cliente in questo documento.
 
 ## Origine e metodo

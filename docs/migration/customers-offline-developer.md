@@ -1,6 +1,6 @@
 # Online Garden — preflight clienti offline (13 novembre 2026)
 
-**Stato: preparazione tecnica, nessuna importazione autorizzata.** Questa procedura è separata dalle operazioni Admin, dalla PR #47 e dai gate runtime. Non interagisce con Supabase, Lovable, Shopify, Drive o servizi di marketing. Non richiede credenziali.
+**Stato: preflight reale email-only eseguito il 13/11/2026; 849 candidati alla review privata, 7 quarantene, nessuna importazione autorizzata.** La CLI è offline e non richiede credenziali. La preparazione degli input ha usato soltanto letture autorizzate Drive/Shopify. Il lavoro resta separato dalle operazioni Admin, dalla PR #47, da Supabase/Lovable e dai gate runtime.
 
 ## Evidenza e limiti
 
@@ -10,9 +10,11 @@ Il precedente aggiornamento risponde ai quattro punti della [review della PR #53
 
 L'audit documenta 5.453 account, 858 account con ordini e 953 ordini associati. Il sottoinsieme di 1.108 righe contiene tutti gli 858 account con ordini. Una rilettura aggregata del 13/11/2026 ha corretto la distribuzione dei ruoli: **857 account con ruolo customer e ordini, 1 con ruolo author e ordini; 249 customer senza ordini e 1 administrator senza ordini**. I 858 non sono quindi tutti candidati all'import. Le metriche sono contatori storici, non ordini Shopify, clienti guest o consensi marketing.
 
-**In questo aggiornamento email-only non sono stati acquisiti né aperti file clienti privati.** Il precheck aggregato già documentato sotto proviene dalla precedente verifica autorizzata in sola lettura. Non sono disponibili in questa copia di lavoro un CSV minimizzato verificato e uno snapshot Shopify recente. Il report pubblicato è interamente sintetico: riproduce le dimensioni documentate, ma non prova la qualità dei dati reali né il numero finale da creare.
+**Evidenza corrente:** eseguita la CLI sul commit `65131b6`, con i due CSV reali minimizzati e uno snapshot Shopify completo acquisito in sola lettura, verificato con manifest v2. Leggere il [resoconto reale](customers-real-email-only-preflight-2026-11-13.md) e il [JSON aggregato reale](customers-real-email-only-preflight-2026-11-13.json). Esito `BLOCKED`, exit 2 per sette quarantene; `emailOnlyReviewCandidates=849`, un match email saltato, `proposedNew=0`, `productionAuthorized=false`. I report sintetici restano prove separate del codice.
 
-## Tentativo di avvio del preflight privato — 13/11/2026: fermato prima della CLI
+## Tentativo precedente — fermato prima della CLI, poi superato
+
+Questa sezione conserva il tentativo iniziale del 13/11/2026, precedente alla consegna autorizzata dei CSV. **Non descrive lo stato corrente:** il successivo preflight reale è documentato sopra. Le verifiche sotto erano allora non disponibili; ora sono state completate e i blocchi residui riguardano la review privata.
 
 **Esito: INPUT PRIVATI NON REPERITI; PREFLIGHT REALE NON ESEGUITO.** Verifica documentale sul [precheck reale](customers-live-precheck-2026-11-13.md), introdotto dal commit `e58f69a`, e sul relativo commento della PR #53. Nessuna nuova lettura live di Google Sheets/Shopify e nessun accesso a workbook, password, hash o sessioni.
 
@@ -30,13 +32,13 @@ La ricerca ha enumerato soltanto nomi di file mirati nelle aree di lavoro autori
 
 Nessuna fixture è stata eseguita o usata in sostituzione dei dati reali in questo tentativo. I report sintetici e i test documentati nelle sezioni successive rimangono evidenze del precedente sviluppo; l'eventuale CI di questa modifica documentale verifica il codice, non i dati reali. Non viene fabbricato un report CLI con i conteggi del precheck.
 
-### Preparazione privata necessaria prima di riprendere
+## Procedura privata per ripetere il preflight
 
 1. **Responsabile dei dati:** predisporre una directory su archivio cifrato, esterna a ogni repository e alla CI, con accesso nominativo, directory `0700` e file `0600`. Verificare proprietario, ACL/condivisioni e conservazione; i permessi POSIX da soli non attestano cifratura. Rendere disponibili all'operatore soltanto il percorso autorizzato e i file minimizzati, senza allegarli a chat/PR/ticket.
 2. **Sorgente legacy:** tramite lettura selettiva alla fonte, preparare `sheet2-minimo.csv` con `ID,role,email,billing_phone` originali (1.108 righe attese), più gli eventuali campi opzionali approvati. Preparare separatamente `id-orders.csv` con **sole** colonne `ID,orders` (5.453 coppie attese). Usare revisioni e ordinamento coerenti alla fonte; registrare privatamente revisioni/date, intervalli e operatore. Non scaricare workbook completi per ripulirli dopo; non leggere `user_pass`/`session_tokens`. Non cambiare telefoni, null o contatori, non togliere l'author dalla fonte per far tornare gli esiti: sarà escluso dallo script. Il join è per ID, mai per posizione/email.
 3. **Responsabile Shopify:** predisporre `shopify-minimo.csv`, colonne esatte `Email,Phone`, includendo tutti i profili, anche quello senza email. La lettura completa e autorizzata deve registrare negozio, inizio/fine UTC, conteggio EXACT prima/dopo, ID distinti e catena di tutte le pagine fino a `hasNextPage=false`. Conservare ID/cursori soltanto nella prova privata. I 12 profili sono il dato storico del precheck, non un numero da forzare in un nuovo export.
 4. **Manifest v2:** compilare `snapshot.json` con le chiavi del contratto riportato sotto, conteggi coerenti e SHA-256 dei byte finali del CSV. Inizio e termine devono essere entro 24 ore al momento dell'esecuzione; negozio e `--shop` devono coincidere. Calcolare anche i digest dei due input legacy nel registro di provenienza privato, confrontandoli con quelli consegnati dall'estrattore: la CLI non ne riceve né certifica il manifest di provenienza. Non pubblicare digest o percorsi privati. Un manifest compilato non sostituisce la verifica della fonte e delle pagine.
-5. **Operatore del preflight:** verificare prima disponibilità di tutti e quattro i file, schema minimizzato, autorizzazione/provenienza, integrità, età, copertura e riservatezza. Se uno manca o non è verificabile, fermarsi nuovamente. Soltanto dopo questi controlli eseguire il comando seguente dalla copia aggiornata della branch della PR #53, sostituendo i percorsi d'esempio. Il comando non è stato eseguito in questo tentativo.
+5. **Operatore del preflight:** verificare prima disponibilità di tutti e quattro i file, schema minimizzato, autorizzazione/provenienza, integrità, età, copertura e riservatezza. Se uno manca o non è verificabile, fermarsi nuovamente. Soltanto dopo questi controlli eseguire il comando seguente dalla copia aggiornata della branch della PR #53, sostituendo i percorsi d'esempio. Questo comando è stato successivamente eseguito sui percorsi privati reali verificati; i percorsi sotto restano segnaposto e non vanno copiati alla cieca.
 
 ```sh
 node --require ./ci/offline-network.cjs ./sync/customers-convert.mjs --email-only \
@@ -48,7 +50,7 @@ node --require ./ci/offline-network.cjs ./sync/customers-convert.mjs --email-onl
   --report /archivio-privato/preflight-reale-email-only-nuovo.json
 ```
 
-Il dominio proviene dal precheck, da riconfermare nelle evidenze private del nuovo snapshot. Il guard Node blocca chiamate di rete accidentali, ma non è un sandbox OS. Non aggiungere `--synthetic` o variabili di credenziali. L'output richiesto è solo aggregato e il file report deve essere nuovo; nessun CSV importabile.
+Il dominio è stato riconfermato nel nuovo snapshot reale; va verificato nuovamente a ogni acquisizione. Il guard Node blocca chiamate di rete accidentali, ma non è un sandbox OS. Non aggiungere `--synthetic` o variabili di credenziali. L'output richiesto è solo aggregato e il file report deve essere nuovo; nessun CSV importabile.
 
 Dopo un'esecuzione reale, verificare `dataKind: private-unverified` (designazione intenzionale della provenienza non certificabile dal programma), `assessmentMode: email-only`, `proposedNew: 0`, `productionAuthorized: false`, `privateIdentityReviewRequired: true` e marketing disattivato. Atteso exit 2 sia con `BLOCKED` sia con `OFFLINE_EMAIL_ONLY_REVIEW_REQUIRED`; distinguere le cause nel JSON e non dichiarare completata la review solo perché il processo è terminato. Non pretendere 849 o 856 candidati: gli esiti effettivi devono derivare dai file e possono cambiare.
 
@@ -65,7 +67,9 @@ Dopo un'esecuzione reale, verificare `dataKind: private-unverified` (designazion
 
 Il parser clienti è dedicato: non modifica `sync/lib/csv-utils.mjs` o le pipeline catalogo/prodotti. Non viene creato un payload PII recuperabile dal report. Il futuro esportatore/importatore dovrà essere implementato e revisionato separatamente.
 
-### Precheck aggregato su fonti reali, sola lettura (13/11/2026)
+### Primo precheck aggregato su fonti reali — evidenza storica (13/11/2026)
+
+I limiti sotto descrivono il primo precheck, precedente sia al controllo esplorativo telefonico sia al preflight CLI reale. Lo stato corrente e le verifiche completate sono nel resoconto reale collegato sopra.
 
 - Fonte storica: range minimizzati letti da Google Sheets con accesso autorizzato; nessun download dell'intero workbook, nessun export o file PII creato.
 - Riconciliazione per ID: **1.108 account selezionati, 858 con ordini, somma 953**; ruoli degli account con ordini: **857 customer + 1 author**. Nella selezione, i 250 account senza ordini sono **249 customer + 1 administrator**. Il ruolo author va escluso anche se `orders > 0`.
@@ -78,16 +82,16 @@ Il parser clienti è dedicato: non modifica `sync/lib/csv-utils.mjs` o le pipeli
 
 ## Preparazione dei due CSV storici — 13 novembre 2026
 
-**Preparati e verificati, ma non ancora consegnati nel workspace locale di Codex.** I due file CSV minimizzati sono stati generati attraverso letture selettive di colonne Google Sheets e conservati in una cartella privata su Drive, con visibilità verificata **solo proprietario**. Non pubblicare in questo documento link privati, identificativi Drive, anagrafiche o valori dei file.
+**Preparati e verificati su Drive; successivamente acquisiti nell’area privata locale e usati nel preflight reale.** I due file CSV minimizzati sono stati generati attraverso letture selettive di colonne Google Sheets e conservati in una cartella privata su Drive, con visibilità verificata **solo proprietario**. Non pubblicare in questo documento link privati, identificativi Drive, anagrafiche o valori dei file.
 
 | File | Intestazioni | Record verificati | Controllo |
 | --- | --- | ---: | --- |
 | `sheet2-minimo.csv` | `ID,roles,email,billing_phone` | 1.108 | CSV coerente, ID non vuoti, 4 colonne, nessun record malformato |
 | `id-orders.csv` | `ID,orders` | 5.453 | CSV coerente, 858 record con ordini, somma ordini 953, nessun record malformato |
 
-I fogli temporanei intermedi utilizzati per l'export sono stati eliminati; le copie locali temporanee dei CSV sono state cancellate dopo i controlli. Nessuna lettura o esportazione delle colonne `user_pass` e `session_tokens`. Le fonti Google Sheets originali non sono state modificate.
+Nella precedente preparazione su Drive, i fogli temporanei intermedi utilizzati per l’export sono stati eliminati e le copie locali temporanee di quella fase sono state cancellate dopo i controlli. Le nuove copie necessarie al preflight sono invece custodite privatamente fuori da Git, con le prove di acquisizione e integrità; conservazione e custodia permanente restano da concordare. Nessuna lettura o esportazione delle colonne `user_pass` e `session_tokens`. Le fonti Google Sheets originali non sono state modificate.
 
-**Restano necessari:** consegna sicura dei due CSV all'ambiente locale autorizzato del preflight; snapshot Shopify aggiornato `Email,Phone` con manifest v2 ed evidenza reale di paginazione; esecuzione `--email-only` e revisione privata delle anomalie. Il completamento dei CSV **non** equivale a preflight reale eseguito e non autorizza un import.
+**Completati nel preflight reale:** acquisizione dei due CSV, verifica di intestazioni/ID/ordini, snapshot Shopify aggiornato `Email,Phone`, manifest v2 e catena di paginazione osservata, esecuzione offline `--email-only`. **Restano necessari:** review privata dei 849 candidati e delle sette quarantene, controlli di identità, nuova verifica prima di un eventuale pilota e autorizzazione separata. I digest legacy locali garantiscono integrità fra acquisizione ed esecuzione; non è disponibile un digest upstream indipendente da confrontare.
 
 ## Contratto della copia di lavoro privata
 
@@ -134,7 +138,7 @@ CSV UTF-8, virgola, BOM opzionale, quoting CSV standard; intestazioni case-insen
 
 Non sono ammessi note libere, password, hash, token, sessioni, capacità WP, dati fiscali o consensi. Testo anagrafico massimo 255 caratteri, senza controlli o prefissi formula. La verifica indirizzi è **strutturale**, non certifica recapito, provincia effettiva o corrispondenza CAP/città; email sintatticamente valida non prova titolarità o deliverability. Non normalizzare punti/alias `+` o domini di provider per fondere persone diverse.
 
-Le colonne reali della fonte vanno ancora verificate: non si presume che i nomi nel contratto coincidano con ogni scheda Drive. Ogni adattamento di schema va revisionato con fixture sintetiche.
+Le intestazioni dei due CSV reali sono state verificate come nella tabella sopra; non si presume che ogni futura revisione delle schede mantenga gli stessi nomi. Ogni adattamento di schema va revisionato con fixture sintetiche.
 
 ### Valori null, vuoti e telefoni nazionali
 
@@ -143,7 +147,7 @@ Le colonne reali della fonte vanno ancora verificate: non si presume che i nomi 
 - `333…`, `0039…`, testi o numeri malformati non diventano `+39…`; il paese dell'indirizzo non autorizza a dedurre il prefisso. Si rimuovono solo separatori visuali da numeri già esplicitamente internazionali. La sintassi E.164 non certifica l'esistenza o la titolarità del numero.
 - `sourceQuality` distingue righe con `null` nell'intera selezione, acquirenti con `null`, acquirenti con telefono non E.164 (escluso il segnaposto `null`) e acquirenti con telefono vuoto. Sono conteggi **prima degli scarti per ruolo**: non si sommano tra loro e non stimano automaticamente clienti recuperabili. `reasons.nullLiteral/nonE164Phone/invalidPhone` descrivono invece le cause di quarantena delle righe arrivate ai controlli anagrafici, con possibili sovrapposizioni. In email-only un formato nazionale riconoscibile non incrementa le cause invalidPhone/nonE164Phone; i suoi eventuali conflitti telefonici hanno cause dedicate.
 
-Il primo precheck ha misurato 768 telefoni non E.164 e 90 E.164 su tutti gli 858 account con ordini. Il [precheck esplorativo successivo](customers-live-precheck-2026-11-13.md) dettaglia, sui soli 857 customer, 90 E.164, 766 nazionali riconoscibili, un malformato e sei customer coinvolti in somiglianze interne. Non è ancora una classificazione prodotta dal preflight CLI con input e manifest verificati. Gli originali non vengono modificati, cancellati o completati: eventuali correzioni richiedono un processo distinto con evidenze e responsabilità, mai un bypass della quarantena.
+Il primo precheck ha misurato 768 telefoni non E.164 e 90 E.164 su tutti gli 858 account con ordini. Il [precheck esplorativo successivo](customers-live-precheck-2026-11-13.md) dettaglia, sui soli 857 customer, 90 E.164, 766 nazionali riconoscibili, un malformato e sei customer coinvolti in somiglianze interne. Questi conteggi sono ora confermati dal preflight CLI reale con input e manifest verificati; 849 candidati alla review e sette quarantene sono gli esiti formali, senza proposte di creazione. Gli originali non vengono modificati, cancellati o completati: eventuali correzioni richiedono un processo distinto con evidenze e responsabilità, mai un bypass della quarantena.
 
 ### Regole di classificazione
 
@@ -269,7 +273,7 @@ node sync/customers-convert.mjs --dry-run --email-only \
 
 La CI dedicata esegue solo fixture e test con rete Node bloccata e nessun secret. Il report [sintetico versionato](customers-synthetic-dry-run.json) è riproducibile. Il guard di rete Node è una protezione aggiuntiva dei test, non un sandbox OS. Nessun test richiede servizi live.
 
-## Verifica di questa preparazione
+## Verifica del codice e dell’esecuzione reale
 
 Eseguita localmente con Node `v22.22.3`, il 13/11/2026:
 
@@ -277,7 +281,7 @@ Eseguita localmente con Node `v22.22.3`, il 13/11/2026:
 - Casi coperti: forme 5.453/1.108/858 righe; coorte e contatori; ruoli; alias email; duplicati email/telefono/ID; dati e CSV invalidi; sicurezza/consensi; snapshot assente, obsoleto, alterato o di altro negozio; errori sanitizzati; flag write negati; output esclusivo `0600`.
 - `node --check` sui sei moduli JavaScript nuovi/modificati: PASS.
 - Rigenerazione dei due report sintetici strict/email-only e confronto byte per byte: PASS.
-- `git diff --check`: PASS. Nessuna modifica a frontend, backend, schema DB, file di segreti o dipendenze. Non è stato eseguito un collaudo runtime/live o un dry-run con dati reali.
+- `git diff --check`: PASS. Nessuna modifica a frontend, backend, schema DB, file di segreti o dipendenze. Nessun collaudo o modifica del runtime del sito. Il successivo dry-run reale è documentato separatamente nel resoconto del 13/11/2026; non usa fixture e non entra in CI.
 - Regressioni della review: join ID su estratti disordinati, match mancanti/ambigui, duplicati anche fuori selezione, contatori null, `null` anagrafici, telefoni nazionali, pagine parziali, filtri, conteggi approssimati/variabili, ID non univoci attestati e negozio vuoto. La demo strict mantiene il join 1.108/5.453 e 857 proposte simulate come regressione. La nuova demo email-only esercita la distribuzione aggiornata dei ruoli e dà 856 righe soltanto da revisionare. I 14 nuovi test coprono author con ordini, telefoni nazionali/assenti, originali invariati, collisioni nella fonte e contro Shopify (anche senza email), conflitti tra identità e CLI. Questi numeri simulati non certificano i dati reali.
 
 ## Coordinamento documentale con la PR #48
@@ -312,9 +316,9 @@ Un import non è atomicamente reversibile: email/inviti eventualmente inviati no
 
 ## Verifiche ancora necessarie
 
-- CSV reale minimizzato, schema effettivo, provenienza e qualità ancora non verificati.
-- Duplicati reali, confronto telefonico, categorie dei 768 telefoni non E.164, caratteri e consensi non determinabili dal report sintetico.
-- File snapshot Shopify con manifest v2 e traccia privata di copertura non disponibile qui; il conteggio 12/11 del precheck non lo sostituisce. Numero finale dei nuovi profili sconosciuto.
+- Review privata dei 849 candidati e delle sette quarantene (sei somiglianze interne e un telefono malformato), senza dedurre prefissi o ignorare blocchi. Un match email già esistente va saltato.
+- Controllo di titolarità, recapiti alternativi e qualità dei campi non inclusi nei CSV minimi. Consensi non trasferiti, letti o abilitati; nessuna prova di consenso è attestata dal preflight.
+- Nuovo snapshot e ricontrollo prima del futuro lotto: quello reale osservato ora è completo per i recapiti predefiniti letti, ma non garantisce immutabilità futura o transazionale. Conservare privatamente prove e digest; il numero finale dei nuovi profili rimane sconosciuto.
 - Validazione strutturale non equivale a recapito corretto o verifica dell'identità.
 - Futuro writer/esportatore, journal, campione privato e prova di rollback da realizzare e approvare.
 - Nessun cambiamento a PR #47, Supabase/Lovable, Admin, configurazioni runtime o deploy.
