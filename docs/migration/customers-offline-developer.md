@@ -8,7 +8,7 @@ Fonte: [PR #48](https://github.com/Rosin355/your-e-commerce-blueprint/pull/48) e
 
 Questo aggiornamento risponde ai quattro punti della [review della PR #53](https://github.com/Rosin355/your-e-commerce-blueprint/pull/53#pullrequestreview-5880356904): estrazione e join minimizzati, qualità dei recapiti, copertura Shopify e coordinamento documentale. Non sono stati eseguiti merge o deploy.
 
-L'audit documenta 5.453 account, 858 con ordini e una somma di 953 ordini. Il sottoinsieme di 1.108 righe contiene tutti gli 858 account con ordini, 248 clienti senza ordini e due utenze non cliente. Le metriche descrivono account ed un contatore storico, non ordini Shopify, clienti guest o consensi marketing.
+L'audit documenta 5.453 account, 858 account con ordini e 953 ordini associati. Il sottoinsieme di 1.108 righe contiene tutti gli 858 account con ordini. Una rilettura aggregata del 13/11/2026 ha corretto la distribuzione dei ruoli: **857 account con ruolo customer e ordini, 1 con ruolo author e ordini; 249 customer senza ordini e 1 administrator senza ordini**. I 858 non sono quindi tutti candidati all'import. Le metriche sono contatori storici, non ordini Shopify, clienti guest o consensi marketing.
 
 **In questa preparazione non sono stati acquisiti né aperti file clienti privati.** Non sono disponibili in questa copia di lavoro un CSV minimizzato verificato e uno snapshot Shopify recente. Il report pubblicato è interamente sintetico: riproduce le dimensioni documentate, ma non prova la qualità dei dati reali né il numero finale da creare.
 
@@ -22,6 +22,17 @@ L'audit documenta 5.453 account, 858 con ordini e una somma di 953 ordini. Il so
 È una **rottura intenzionale della compatibilità operativa**: variabili `WOO_CUSTOMERS_CSV_PATH`, `SHOPIFY_*`, `CUSTOMER_SYNC_LIMIT` e `SHOPIFY_CUSTOMERS_CSV_OUTPUT` non sono lette. `--write`, `--apply`, `--execute`, flag sconosciuti e argomenti duplicati falliscono prima della lettura degli input. Senza input esplicito il comando fallisce, senza scrivere. Nessun flag sblocca le importazioni.
 
 Il parser clienti è dedicato: non modifica `sync/lib/csv-utils.mjs` o le pipeline catalogo/prodotti. Non viene creato un payload PII recuperabile dal report. Il futuro esportatore/importatore dovrà essere implementato e revisionato separatamente.
+
+### Precheck aggregato su fonti reali, sola lettura (13/11/2026)
+
+- Fonte storica: range minimizzati letti da Google Sheets con accesso autorizzato; nessun download dell'intero workbook, nessun export o file PII creato.
+- Riconciliazione per ID: **1.108 account selezionati, 858 con ordini, somma 953**; ruoli degli account con ordini: **857 customer + 1 author**. Nella selezione, i 250 account senza ordini sono **249 customer + 1 administrator**. Il ruolo author va escluso anche se `orders > 0`.
+- Shopify connesso verificato come Online Garden: `customersCount(limit:null)` = **12, precision EXACT**; elenco read-only di **12 clienti**, **11 con email** e **1 senza email**.
+- Sovrapposizione sulle email (normalizzazione trim/lowercase): **1 match** tra i 857 customer con ordini; **856 customer con ordini senza match email**. L'author con ordini non corrisponde a un'email Shopify. Non sono stati verificati match telefonici o di identità, né eseguito un preflight conforme al manifest v2.
+- Qualità telefoni nella coorte di 858 account con ordini: **90 in formato internazionale E.164**, **768 non in E.164**, **0 vuoti**. Questi 768 sarebbero messi in quarantena dal preflight se il campo `billing_phone` fosse passato senza trattamento. Non anteporre automaticamente `+39`, non sovrascrivere né scartare dati senza una decisione approvata.
+- Nessun dato personale, email, telefono, ID cliente, checksum o manifest privato è stato pubblicato. Nessuna API di scrittura chiamata, nessuna modifica Shopify/Drive, nessun import, merge o deploy.
+- **Interpretazione:** 856 è un numero di *customer* senza match email, **non** il numero finale di importabili. Mancano convalida completa dello snapshot, confronto telefonico/identitario, schema minimizzato definitivo, review delle anomalie e autorizzazione.
+- **Prossima azione tecnica:** una fixture sintetica con author avente ordini (con totale 858/953 invariato), quindi una decisione esplicita sui telefoni nazionali: preflight iniziale email-only con revisione separata dei 12 clienti Shopify oppure normalizzazione verificata manualmente in archivio privato. Non allentare automaticamente i controlli.
 
 ## Contratto della copia di lavoro privata
 
@@ -39,7 +50,7 @@ Un operatore autorizzato deve preparare una **copia minimizzata**, esterna a qua
 6. Revisionare gli aggregati `extraction`: 1.108 selezionati/abbinati, 5.453 coppie ordini, 4.345 coppie esterne alla selezione e **zero acquirenti fuori selezione**, se l'audit è riconfermato. `orderSourceBuyers/orderSourceHistoricalOrders` e `observed.accountsWithOrders/historicalOrders` devono riconciliare entrambi **858/953**, prima degli scarti. I 4.345 fuori selezione non sono proposte di importazione; l'audit li distingue in 4.344 clienti senza ordini e una utenza non cliente, ma il file ID/orders non ne attesta il ruolo.
 7. Ogni match assente, ID invalido/duplicato in uno dei due file, contatore invalido o acquirente esterno blocca il join (`SOURCE_JOIN_REQUIRES_REVIEW`), azzera `proposedNew` e mantiene le altre righe valide in `unmatchedAwaitingSourceReview`. Non fare somme dei duplicati, non scegliere la prima riga e non usare `IFERROR(...,0)`. Registrare solo conteggi nel report pubblico; i casi per ID restano nella review privata alla fonte.
 
-Sono attesi nella selezione 858 acquirenti, 248 clienti senza ordini e due utenze non cliente. I relativi `outcomes` restano disgiunti; eventuali differenze vanno spiegate, mai corrette artificialmente per raggiungere i totali. È ancora accettato un CSV già unito con `orders`, riportato come `extraction.mode: prejoined-input`: in tal caso lo script **non verifica il join originario** e l'operatore deve conservarne privatamente la prova. Non fornire Sheet2 senza `orders` omettendo `--orders`.
+Sono attesi nella selezione 858 account con ordini (857 customer, 1 author), 249 customer senza ordini e 1 administrator senza ordini. I relativi `outcomes` restano disgiunti; eventuali differenze vanno spiegate, mai corrette artificialmente per raggiungere i totali. È ancora accettato un CSV già unito con `orders`, riportato come `extraction.mode: prejoined-input`: in tal caso lo script **non verifica il join originario** e l'operatore deve conservarne privatamente la prova. Non fornire Sheet2 senza `orders` omettendo `--orders`.
 
 CSV UTF-8, virgola, BOM opzionale, quoting CSV standard; intestazioni case-insensitive, univoche; larghezza costante. File regolari fino a 32 MiB, nessun symlink finale. Il parser rifiuta colonne sconosciute, duplicati, byte invalidi e quoting ambiguo. Non corregge silenziosamente input malformati. Il rifiuto di un file non è uno strumento per ripulire archivi con segreti: la minimizzazione deve avvenire **prima**.
 
@@ -158,7 +169,7 @@ Eseguita localmente con Node `v22.22.3`, il 13/11/2026:
 - `node --check` sui sei moduli JavaScript nuovi/modificati: PASS.
 - Rigenerazione del report sintetico e confronto byte per byte con `customers-synthetic-dry-run.json`: PASS.
 - `git diff --check`: PASS. Nessuna modifica a frontend, backend, schema DB, file di segreti o dipendenze. Non è stato eseguito un collaudo runtime/live o un dry-run con dati reali.
-- Regressioni della review: join ID su estratti disordinati, match mancanti/ambigui, duplicati anche fuori selezione, contatori null, `null` anagrafici, telefoni nazionali, pagine parziali, filtri, conteggi approssimati/variabili, ID non univoci attestati e negozio vuoto. La demo CLI esercita il join 1.108/5.453; i 857 proposti sono esclusivamente simulati e **non sono una stima reale**.
+- Regressioni della review: join ID su estratti disordinati, match mancanti/ambigui, duplicati anche fuori selezione, contatori null, `null` anagrafici, telefoni nazionali, pagine parziali, filtri, conteggi approssimati/variabili, ID non univoci attestati e negozio vuoto. La demo CLI esercita il join 1.108/5.453; i 857 proposti sono esclusivamente simulati e **non sono una stima reale**. Il numero 857 compare anche nel precheck reale, ma descrive una metrica diversa (857 degli 858 account con ordini privi di match email Shopify); non equivale a 857 profili importabili.
 
 ## Coordinamento documentale con la PR #48
 
