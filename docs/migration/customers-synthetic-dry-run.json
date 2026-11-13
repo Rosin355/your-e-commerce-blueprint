@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "mode": "offline-dry-run",
   "dataKind": "synthetic",
   "productionAuthorized": false,
@@ -15,6 +15,29 @@
     "accountsWithOrders": 858,
     "historicalOrders": 953
   },
+  "extraction": {
+    "mode": "id-orders-join",
+    "selectedRows": 1108,
+    "orderRows": 5453,
+    "matchedRows": 1108,
+    "missingOrderRows": 0,
+    "ambiguousSelectedRows": 0,
+    "invalidSelectedIds": 0,
+    "duplicateSelectedIdGroups": 0,
+    "invalidOrderIds": 0,
+    "duplicateOrderIdGroups": 0,
+    "invalidOrderValues": 0,
+    "orderRowsOutsideSelection": 4345,
+    "buyersOutsideSelection": 0,
+    "orderSourceBuyers": 858,
+    "orderSourceHistoricalOrders": 953
+  },
+  "sourceQuality": {
+    "rowsWithNullLiteral": 0,
+    "buyerRowsWithNullLiteral": 0,
+    "buyerRowsWithNonE164Phone": 0,
+    "buyerRowsWithBlankPhone": 858
+  },
   "outcomes": {
     "excludedPrivileged": 2,
     "excludedOtherRole": 0,
@@ -23,6 +46,7 @@
     "existingEmailSkipped": 1,
     "existingPhoneSkipped": 0,
     "unmatchedAwaitingSnapshot": 0,
+    "unmatchedAwaitingSourceReview": 0,
     "proposedNew": 857
   },
   "reasons": {
@@ -33,6 +57,8 @@
     "invalidOrConflictingEmail": 0,
     "duplicateEmail": 0,
     "invalidPhone": 0,
+    "nonE164Phone": 0,
+    "nullLiteral": 0,
     "duplicatePhone": 0,
     "invalidProfile": 0
   },
@@ -42,6 +68,7 @@
   "shopifySnapshot": {
     "supplied": true,
     "verified": true,
+    "liveCompletenessProven": false,
     "rows": 1
   },
   "marketing": {

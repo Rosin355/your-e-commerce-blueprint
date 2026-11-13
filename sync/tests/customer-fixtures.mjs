@@ -13,7 +13,22 @@ export function syntheticScenario(rows = syntheticRows()) {
   const now = Date.parse('2026-11-12T12:00:00Z');
   return {
     sourceCsv: encodeCsv([fixtureHeaders, ...rows]), snapshotCsv,
-    snapshotMetadata: { schemaVersion: 1, complete: true, exportedAt: '2026-11-12T11:00:00Z', rowCount: 1, sha256: sha256(snapshotCsv), shopDomain: 'fixture-only.myshopify.com' },
+    snapshotMetadata: { schemaVersion: 2, complete: true, exportedAt: '2026-11-12T11:00:00Z', rowCount: 1, sha256: sha256(snapshotCsv), shopDomain: 'fixture-only.myshopify.com', coverage: syntheticCoverage(1) },
     expectedShop: 'fixture-only.myshopify.com', now, synthetic: true,
   };
+}
+export function syntheticCoverage(rowCount) {
+  return {
+    scope: 'all-customers', filtersApplied: false, startedAt: '2026-11-12T10:59:00Z',
+    countBefore: rowCount, countAfter: rowCount, countPrecision: 'EXACT', uniqueCustomerIds: rowCount,
+    cursorChainVerified: true, pages: [{ rowCount, hasNextPage: false }],
+  };
+}
+
+export function syntheticJoinScenario() {
+  const scenario = syntheticScenario();
+  scenario.sourceCsv = encodeCsv([fixtureHeaders.filter((h) => h !== 'orders'), ...syntheticRows().map((r) => r.filter((_, i) => i !== 2))]);
+  // Different order proves that neither source position nor email is a join key.
+  scenario.ordersCsv = encodeCsv([['ID', 'orders'], ...syntheticRows().map((r) => [r[0], r[2]]).reverse(), ...Array.from({ length: 4345 }, (_, i) => [String(i + 1109), '0'])]);
+  return scenario;
 }

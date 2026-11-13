@@ -99,3 +99,15 @@ create/update è stata rimossa intenzionalmente. Nessun flag la riattiva.
 Prima coorte: 858 account con ordini, da riconciliare con i 953 ordini storici
 documentati nella PR #48. Il report sintetico non prova l'esito sui dati reali.
 Questo lavoro non cambia le pipeline prodotti, la PR #47 o i gate runtime.
+
+`Sheet2` non contiene `orders`: predisporre privatamente un CSV anagrafico
+minimizzato e un secondo estratto di sole colonne `ID,orders` dalla scheda
+originale. Usare `--input /archivio-privato/sheet2-minimo.csv --orders
+/archivio-privato/id-orders.csv`: il join resta in memoria e blocca anomalie,
+senza dedurre ordini, prefissi telefonici o valori null. Non scaricare la scheda
+originale con segreti. Il manifest dello snapshot Shopify richiede la versione 2,
+con riepilogo di tutte le pagine e conteggi esatti prima/dopo; è comunque
+un'attestazione da verificare privatamente, non una prova live del preflight.
+
+La #48 è ancora aperta al 13/11/2026: consultare l'[audit al commit originale](https://github.com/Rosin355/your-e-commerce-blueprint/blob/6deae03f46a89222f68037f33e28755df13f0cf7/docs/migration/legacy-customers-seo-2026-11-09.md)
+e il coordinamento nel runbook. Il risultato sintetico 857 non è una stima reale.

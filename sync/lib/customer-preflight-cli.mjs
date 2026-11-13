@@ -3,6 +3,7 @@ import { buildCustomerReport, PreflightError } from './customer-preflight.mjs';
 
 const HELP = `Preflight clienti offline: nessuna rete, segreto o importazione.
 node sync/customers-convert.mjs --input /percorso/privato/clienti-minimi.csv
+  [--orders /percorso/privato/solo-id-orders.csv]
   [--snapshot /percorso/privato/shopify-minimo.csv
    --snapshot-metadata /percorso/privato/snapshot.json --shop negozio.myshopify.com]
   [--report /percorso/nuovo/report-aggregato.json] [--dry-run]
@@ -14,7 +15,7 @@ const reject = (code) => { throw new PreflightError(code); };
 function parseArgs(args) {
   const options = {};
   const flags = new Set(['--dry-run', '--synthetic', '--help']);
-  const values = new Set(['--input', '--snapshot', '--snapshot-metadata', '--shop', '--report']);
+  const values = new Set(['--input', '--orders', '--snapshot', '--snapshot-metadata', '--shop', '--report']);
   for (let i = 0; i < args.length; i++) {
     const key = args[i];
     if ((!flags.has(key) && !values.has(key)) || Object.hasOwn(options, key)) reject('ARGUMENTS_NOT_ALLOWED');
@@ -39,14 +40,15 @@ export async function runCustomerPreflight(args = process.argv.slice(2)) {
     if (options['--help']) { console.log(HELP); return 0; }
     let input;
     if (options['--synthetic']) {
-      if (['--input', '--snapshot', '--snapshot-metadata', '--shop'].some((k) => options[k])) reject('SYNTHETIC_INPUT_CONFLICT');
-      const { syntheticScenario } = await import('../tests/customer-fixtures.mjs');
-      input = syntheticScenario();
+      if (['--input', '--orders', '--snapshot', '--snapshot-metadata', '--shop'].some((k) => options[k])) reject('SYNTHETIC_INPUT_CONFLICT');
+      const { syntheticJoinScenario } = await import('../tests/customer-fixtures.mjs');
+      input = syntheticJoinScenario();
     } else {
       if (!options['--input']) reject('INPUT_REQUIRED');
       const snapshotOptions = ['--snapshot', '--snapshot-metadata', '--shop'].filter((k) => options[k]);
       if (snapshotOptions.length !== 0 && snapshotOptions.length !== 3) reject('SNAPSHOT_ARGUMENTS_INCOMPLETE');
       input = { sourceCsv: readLocal(options['--input']) };
+      if (options['--orders']) input.ordersCsv = readLocal(options['--orders']);
       if (snapshotOptions.length) Object.assign(input, {
         snapshotCsv: readLocal(options['--snapshot']),
         snapshotMetadata: JSON.parse(readLocal(options['--snapshot-metadata'])),

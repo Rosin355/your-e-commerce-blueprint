@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { buildCustomerReport, parseCustomerCsv, sha256 } from '../lib/customer-preflight.mjs';
-import { fixtureHeaders, encodeCsv, syntheticRows, syntheticScenario } from './customer-fixtures.mjs';
+import { fixtureHeaders, encodeCsv, syntheticRows, syntheticScenario, syntheticCoverage, syntheticJoinScenario } from './customer-fixtures.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const reportFor = (change) => { const rows = syntheticRows(); change(rows); return buildCustomerReport(syntheticScenario(rows)); };
@@ -14,6 +14,7 @@ function snapshot(scenario, rows) {
   scenario.snapshotCsv = encodeCsv([['email', 'phone'], ...rows]);
   scenario.snapshotMetadata.rowCount = rows.length;
   scenario.snapshotMetadata.sha256 = sha256(scenario.snapshotCsv);
+  scenario.snapshotMetadata.coverage = syntheticCoverage(rows.length);
   return scenario;
 }
 function invoke(script, args, cwd = root) {
@@ -231,6 +232,7 @@ test('full private CLI path binds metadata to exact bytes, destination and recen
   const dir = privateDirectory(t);
   const scenario = syntheticScenario();
   scenario.snapshotMetadata.exportedAt = new Date().toISOString();
+  scenario.snapshotMetadata.coverage.startedAt = scenario.snapshotMetadata.exportedAt;
   fs.writeFileSync(path.join(dir, 'source.csv'), scenario.sourceCsv);
   fs.writeFileSync(path.join(dir, 'snapshot.csv'), scenario.snapshotCsv);
   fs.writeFileSync(path.join(dir, 'metadata.json'), JSON.stringify(scenario.snapshotMetadata));
@@ -255,4 +257,203 @@ test('supports full archive shape and an explicitly minimized 858-row cohort', (
   assert.equal(cohortReport.status, 'OFFLINE_REVIEW_COMPLETE');
   assert.equal(cohortReport.observed.sourceRows, 858);
   assert.equal(cohortReport.outcomes.proposedNew, 857);
+});
+
+test('joins minimized Sheet2 shape with ID/orders only, independent of row order', () => {
+  const scenario = syntheticJoinScenario();
+  const report = buildCustomerReport(scenario);
+  assert.equal(report.status, 'OFFLINE_REVIEW_COMPLETE');
+  assert.deepEqual(report.observed, { sourceRows: 1108, accountsWithOrders: 858, historicalOrders: 953 });
+  assert.deepEqual(report.extraction, {
+    mode: 'id-orders-join', selectedRows: 1108, orderRows: 5453, matchedRows: 1108,
+    missingOrderRows: 0, ambiguousSelectedRows: 0, invalidSelectedIds: 0,
+    duplicateSelectedIdGroups: 0, invalidOrderIds: 0, duplicateOrderIdGroups: 0,
+    invalidOrderValues: 0, orderRowsOutsideSelection: 4345, buyersOutsideSelection: 0,
+    orderSourceBuyers: 858, orderSourceHistoricalOrders: 953,
+  });
+  assert.equal(report.outcomes.excludedNoOrders, 248);
+  assert.equal(report.outcomes.excludedPrivileged, 2);
+  assert.equal(report.outcomes.proposedNew, 857);
+  scenario.ordersCsv = encodeCsv([['customer_id', 'orders'], ...parseCustomerCsv(scenario.ordersCsv, 'orders').map((r) => [r.id, r.orders])]);
+  assert.deepEqual(buildCustomerReport(scenario), report);
+});
+
+test('join fails closed for missing, duplicate, noncanonical IDs, null orders and buyers outside selection', () => {
+  const base = parseCustomerCsv(syntheticJoinScenario().ordersCsv, 'orders');
+  const cases = [
+    [base.filter((r) => r.id !== '1'), 'missingOrderRows'],
+    [[...base, { id: '1', orders: '2' }], 'duplicateOrderIdGroups'],
+    [[...base, { id: '1109', orders: '0' }], 'duplicateOrderIdGroups'],
+    [base.map((r) => r.id === '1' ? { id: '01', orders: '2' } : r), 'invalidOrderIds'],
+    [base.map((r) => r.id === '1' ? { ...r, orders: ' null ' } : r), 'invalidOrderValues'],
+    [base.map((r) => r.id === '1109' ? { ...r, orders: '1' } : r), 'buyersOutsideSelection'],
+  ];
+  for (const [rows, reason] of cases) {
+    const scenario = syntheticJoinScenario();
+    scenario.ordersCsv = encodeCsv([['ID', 'orders'], ...rows.map((r) => [r.id, r.orders])]);
+    const report = buildCustomerReport(scenario);
+    assert.ok(report.extraction[reason] > 0, reason);
+    assert.equal(report.status, 'BLOCKED');
+    assert.ok(report.blockers.includes('SOURCE_JOIN_REQUIRES_REVIEW'));
+    assert.equal(report.outcomes.proposedNew, 0);
+    assert.equal(Object.values(report.outcomes).reduce((sum, n) => sum + n, 0), 1108);
+    assert.doesNotMatch(JSON.stringify(report), /@|Cliente sintetico/);
+  }
+});
+
+test('join never chooses a duplicate selected ID or treats an absent match as zero orders', () => {
+  for (const badId of ['2', '01', 'null', '']) {
+    const scenario = syntheticJoinScenario();
+    const rows = parseCustomerCsv(scenario.sourceCsv, 'accounts');
+    rows[0].id = badId;
+    scenario.sourceCsv = encodeCsv([fixtureHeaders.filter((h) => h !== 'orders'), ...rows.map((r) => [r.id, r.role, r.email, r.first_name, r.last_name, r.billing_phone])]);
+    const report = buildCustomerReport(scenario);
+    assert.ok(report.extraction.ambiguousSelectedRows > 0);
+    assert.equal(report.outcomes.proposedNew, 0);
+    assert.equal(report.outcomes.excludedNoOrders, 248);
+  }
+  const scenario = syntheticJoinScenario();
+  scenario.ordersCsv = 'ID,orders\n';
+  const report = buildCustomerReport(scenario);
+  assert.equal(report.extraction.missingOrderRows, 1108);
+  assert.equal(report.outcomes.excludedNoOrders, 0);
+});
+
+test('join accepts only already-minimized schemas; no sensitive fields or ambiguous ID aliases', () => {
+  const scenario = syntheticJoinScenario();
+  for (const column of ['user_pass', 'session_tokens', 'email', 'token']) {
+    assert.throws(() => buildCustomerReport({ ...scenario, ordersCsv: `ID,orders,${column}\n1,2,SYNTHETIC_SENTINEL` }), { message: 'INPUT_COLUMNS_NOT_ALLOWED' });
+  }
+  assert.throws(() => buildCustomerReport({ ...scenario, ordersCsv: 'ID,customer_id,orders\n1,1,2' }), { message: 'INPUT_ID_COLUMN_AMBIGUOUS' });
+  assert.throws(() => buildCustomerReport({ ...scenario, sourceCsv: syntheticScenario().sourceCsv }), { message: 'INPUT_ORDERS_ALREADY_PRESENT' });
+  assert.throws(() => parseCustomerCsv(scenario.sourceCsv), { message: 'INPUT_REQUIRED_COLUMNS' });
+  assert.throws(() => parseCustomerCsv('Email,Phone\n', 'unknown'), { message: 'INPUT_KIND_NOT_ALLOWED' });
+});
+
+test('literal null is never silently converted into optional empty text or a valid alias', () => {
+  for (const column of ['first_name', 'last_name', 'billing_phone', 'billing_company', 'billing_address_2']) {
+    for (const value of ['null', ' NULL ', 'NuLl']) {
+      const scenario = syntheticScenario();
+      const rows = parseCustomerCsv(scenario.sourceCsv);
+      rows[0][column] = value;
+      const headers = [...new Set([...fixtureHeaders.map((h) => h.toLowerCase()), column])];
+      scenario.sourceCsv = encodeCsv([headers, ...rows.map((r) => headers.map((h) => r[h] ?? ''))]);
+      const report = buildCustomerReport(scenario);
+      assert.equal(report.reasons.nullLiteral, 1);
+      assert.equal(report.sourceQuality.buyerRowsWithNullLiteral, 1);
+      assert.equal(report.outcomes.quarantined, 1);
+    }
+  }
+  const rows = syntheticRows().map((row, i) => [...row, i === 0 ? 'null' : '']);
+  const scenario = syntheticScenario();
+  scenario.sourceCsv = encodeCsv([[...fixtureHeaders, 'user_email'], ...rows]);
+  assert.equal(buildCustomerReport(scenario).reasons.invalidOrConflictingEmail, 1);
+  for (const index of [0, 1, 2, 3]) {
+    const report = reportFor((rows) => { rows[0][index] = 'null'; });
+    assert.equal(report.outcomes.quarantined, 1);
+    assert.equal(report.sourceQuality.rowsWithNullLiteral, 1);
+  }
+});
+
+test('blank optional fields remain absent; nulls and non-E.164 phones have separate aggregate counts', () => {
+  const report = reportFor((rows) => {
+    rows[0][6] = '3331234567'; rows[1][6] = '00393331234567';
+    rows[2][6] = 'null'; rows[3][6] = '+invalid'; rows[858][4] = 'null';
+  });
+  assert.deepEqual(report.sourceQuality, {
+    rowsWithNullLiteral: 2, buyerRowsWithNullLiteral: 1,
+    buyerRowsWithNonE164Phone: 3, buyerRowsWithBlankPhone: 854,
+  });
+  assert.equal(report.reasons.nonE164Phone, 3);
+  assert.equal(report.reasons.invalidPhone, 4);
+  assert.equal(report.outcomes.quarantined, 4);
+  assert.equal(report.outcomes.excludedNoOrders, 248);
+  assert.equal(buildCustomerReport(syntheticScenario()).outcomes.quarantined, 0);
+});
+
+test('snapshot v1/complete/checksum alone cannot establish coverage; evidence is operator-attested', () => {
+  const scenario = syntheticScenario();
+  scenario.snapshotMetadata.schemaVersion = 1;
+  delete scenario.snapshotMetadata.coverage;
+  const report = buildCustomerReport(scenario);
+  assert.equal(report.shopifySnapshot.verified, false);
+  assert.equal(report.outcomes.proposedNew, 0);
+  assert.equal(buildCustomerReport(syntheticScenario()).shopifySnapshot.liveCompletenessProven, false);
+});
+
+test('snapshot rejects partial pages, count drift, filters, approximate counts and duplicate-ID attestations', () => {
+  const cases = [
+    (c) => { c.scope = 'selected-customers'; },
+    (c) => { c.filtersApplied = true; },
+    (c) => { c.countBefore = 2; },
+    (c) => { c.countAfter = 2; },
+    (c) => { c.countPrecision = 'AT_LEAST'; },
+    (c) => { c.uniqueCustomerIds = 0; },
+    (c) => { c.cursorChainVerified = false; },
+    (c) => { c.pages = []; },
+    (c) => { c.pages[0].hasNextPage = true; },
+    (c) => { c.pages[0].rowCount = 2; },
+    (c) => { c.pages[0].rowCount = -1; },
+    (c) => { c.pages[0].cursor = 'SYNTHETIC_SENTINEL'; },
+    (c) => { c.pages = [{ rowCount: 1, hasNextPage: false }, { rowCount: 0, hasNextPage: false }]; },
+    (c) => { c.startedAt = '2026-11-12T11:01:00Z'; },
+    (c) => { c.startedAt = '2026-11-10T00:00:00Z'; },
+    (c) => { c.startedAt = 'invalid'; },
+    (c) => { c.extra = true; },
+  ];
+  for (const change of cases) {
+    const scenario = syntheticScenario(); change(scenario.snapshotMetadata.coverage);
+    const report = buildCustomerReport(scenario);
+    assert.equal(report.shopifySnapshot.verified, false);
+    assert.equal(report.outcomes.proposedNew, 0);
+  }
+  for (const coverage of [null, [], 'invalid', {}]) {
+    const scenario = syntheticScenario(); scenario.snapshotMetadata.coverage = coverage;
+    assert.equal(buildCustomerReport(scenario).shopifySnapshot.verified, false);
+  }
+});
+
+test('all pages must close in order and sum to the exact customer count, including truly empty stores', () => {
+  const scenario = snapshot(syntheticScenario(), [['fixture-1@example.invalid', ''], ['other@example.invalid', '']]);
+  scenario.snapshotMetadata.coverage.pages = [{ rowCount: 1, hasNextPage: true }, { rowCount: 1, hasNextPage: false }];
+  assert.equal(buildCustomerReport(scenario).shopifySnapshot.verified, true);
+  assert.equal(buildCustomerReport(snapshot(syntheticScenario(), [])).shopifySnapshot.verified, true);
+  const empty = snapshot(syntheticScenario(), []);
+  empty.snapshotMetadata.coverage.countBefore = 1;
+  assert.equal(buildCustomerReport(empty).shopifySnapshot.verified, false);
+  for (const value of ['null', ' NULL ']) {
+    assert.equal(buildCustomerReport(snapshot(syntheticScenario(), [[value, '']])).shopifySnapshot.verified, false);
+    assert.equal(buildCustomerReport(snapshot(syntheticScenario(), [['valid@example.invalid', value]])).shopifySnapshot.verified, false);
+  }
+});
+
+test('both CLI entry points support explicit minimized ID/orders join without leaking identities', (t) => {
+  const dir = privateDirectory(t);
+  const scenario = syntheticJoinScenario();
+  fs.writeFileSync(path.join(dir, 'accounts.csv'), scenario.sourceCsv);
+  fs.writeFileSync(path.join(dir, 'orders.csv'), scenario.ordersCsv);
+  scenario.snapshotMetadata.exportedAt = new Date().toISOString();
+  scenario.snapshotMetadata.coverage.startedAt = scenario.snapshotMetadata.exportedAt;
+  fs.writeFileSync(path.join(dir, 'snapshot.csv'), scenario.snapshotCsv);
+  fs.writeFileSync(path.join(dir, 'metadata.json'), JSON.stringify(scenario.snapshotMetadata));
+  for (const script of ['customers-convert.mjs', 'customers-sync-shopify.mjs']) {
+    const args = ['--input', path.join(dir, 'accounts.csv'), '--orders', path.join(dir, 'orders.csv')];
+    const result = invoke(script, args);
+    assert.equal(result.status, 2, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.extraction.matchedRows, 1108);
+    assert.equal(report.outcomes.unmatchedAwaitingSnapshot, 858);
+    assert.doesNotMatch(result.stdout + result.stderr, /@|og-synthetic-test|Cliente sintetico/);
+    const complete = invoke(script, [...args, '--snapshot', path.join(dir, 'snapshot.csv'), '--snapshot-metadata', path.join(dir, 'metadata.json'), '--shop', scenario.expectedShop]);
+    assert.equal(complete.status, 0, complete.stderr);
+    assert.equal(JSON.parse(complete.stdout).outcomes.proposedNew, 857);
+    assert.equal(JSON.parse(complete.stdout).dataKind, 'private-unverified');
+    assert.doesNotMatch(complete.stdout + complete.stderr, /@|og-synthetic-test|Cliente sintetico/);
+    assert.equal(invoke(script, ['--synthetic', '--orders', path.join(dir, 'orders.csv')]).status, 1);
+  }
+  fs.writeFileSync(path.join(dir, 'orders.csv'), 'ID,orders,user_pass\n1,2,SYNTHETIC_SENTINEL');
+  const failure = invoke('customers-convert.mjs', ['--input', path.join(dir, 'accounts.csv'), '--orders', path.join(dir, 'orders.csv')]);
+  assert.equal(failure.status, 1);
+  assert.doesNotMatch(failure.stdout + failure.stderr, /@|SYNTHETIC_SENTINEL|og-synthetic-test/);
+  assert.deepEqual(fs.readdirSync(dir).sort(), ['accounts.csv', 'metadata.json', 'orders.csv', 'snapshot.csv']);
 });

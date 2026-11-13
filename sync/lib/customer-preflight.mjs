@@ -10,12 +10,18 @@ const sourceColumns = new Set([
   'billing_state', 'billing_country', 'billing_postcode',
 ]);
 const snapshotColumns = new Set(['email', 'phone']);
+const orderColumns = new Set(['id', 'customer_id', 'orders']);
+const isNullLiteral = (value) => /^null$/i.test(value?.trim() ?? '');
+const orderCount = (value) => /^(0|[1-9]\d*)$/.test(value) && Number.isSafeInteger(Number(value)) ? Number(value) : null;
+const validId = (value) => typeof value === 'string' && /^[1-9]\d*$/.test(value);
+const exactKeys = (value, keys) => value !== null && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === keys.length && keys.every((k) => Object.hasOwn(value, k));
 const countries = new Set(('AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW').split(' '));
 
 export const sha256 = (text) => createHash('sha256').update(text).digest('hex');
 
 // Strict RFC-style CSV: reject broken quoting, ragged rows and duplicate headers.
 export function parseCustomerCsv(text, kind = 'source') {
+  if (!['source', 'accounts', 'orders', 'snapshot'].includes(kind)) fail('INPUT_KIND_NOT_ALLOWED');
   if (typeof text !== 'string' || text.length > 32 * 1024 * 1024 || text.includes('\0') || text.includes('\uFFFD')) fail('INPUT_ENCODING_OR_SIZE');
   text = text.replace(/^\uFEFF/, '');
   const rows = [];
@@ -44,11 +50,15 @@ export function parseCustomerCsv(text, kind = 'source') {
   if (field || row.length || state !== 'start') endRow();
   if (!rows.length) fail('INPUT_EMPTY');
   const headers = rows.shift().map((h) => h.trim().toLowerCase());
-  const allowed = kind === 'source' ? sourceColumns : snapshotColumns;
+  const allowed = kind === 'snapshot' ? snapshotColumns : kind === 'orders' ? orderColumns : sourceColumns;
   if (new Set(headers).size !== headers.length) fail('INPUT_DUPLICATE_COLUMNS');
   if (headers.some((h) => !allowed.has(h))) fail('INPUT_COLUMNS_NOT_ALLOWED');
   const has = (...keys) => keys.some((k) => headers.includes(k));
-  if (kind === 'source' ? !has('id', 'customer_id') || !has('role', 'roles') || !has('orders') || !has('email', 'user_email', 'billing_email') : !has('email') || !has('phone')) fail('INPUT_REQUIRED_COLUMNS');
+  if (kind === 'snapshot' ? !has('email') || !has('phone') :
+    !has('id', 'customer_id') || (kind !== 'accounts' && !has('orders')) ||
+    (kind !== 'orders' && (!has('role', 'roles') || !has('email', 'user_email', 'billing_email')))) fail('INPUT_REQUIRED_COLUMNS');
+  if (['accounts', 'orders'].includes(kind) && headers.includes('id') && headers.includes('customer_id')) fail('INPUT_ID_COLUMN_AMBIGUOUS');
+  if (kind === 'accounts' && headers.includes('orders')) fail('INPUT_ORDERS_ALREADY_PRESENT');
   if (rows.some((r) => r.length !== headers.length)) fail('INPUT_ROW_WIDTH');
   return rows.map((r) => Object.fromEntries(headers.map((h, i) => [h, r[i].trim()])));
 }
@@ -67,7 +77,7 @@ function phone(value = '') {
   return /^\+[1-9]\d{7,14}$/.test(s) ? s : null;
 }
 function aliases(row, keys, normalize = (v) => v) {
-  const values = keys.map((k) => row[k]).filter(Boolean).map(normalize);
+  const values = keys.map((k) => row[k]).filter(Boolean).map((v) => isNullLiteral(v) ? null : normalize(v));
   return values.includes(null) || new Set(values).size > 1 ? null : values[0] ?? '';
 }
 const safeText = (s) => s.length <= 255 && !/[\x00-\x1f\x7f]/.test(s) && !/^[=+@-]/.test(s);
@@ -76,6 +86,40 @@ const frequencies = (values) => {
   for (const v of values) if (v) counts.set(v, (counts.get(v) ?? 0) + 1);
   return counts;
 };
+
+// Join only two already-minimized files, in memory. No positional/email matching,
+// default-zero, order summation or arbitrary winner for duplicate IDs.
+function inspectSource(sourceCsv, ordersCsv) {
+  if (ordersCsv === undefined) return { rows: parseCustomerCsv(sourceCsv), extraction: { mode: 'prejoined-input' }, blockers: [] };
+  const accounts = parseCustomerCsv(sourceCsv, 'accounts');
+  const orders = parseCustomerCsv(ordersCsv, 'orders');
+  const id = (r) => r.id ?? r.customer_id;
+  const accountIds = frequencies(accounts.map(id));
+  const orderIds = frequencies(orders.map(id));
+  const index = new Map(orders.filter((r) => validId(id(r)) && orderIds.get(id(r)) === 1).map((r) => [id(r), r.orders]));
+  const extraction = {
+    mode: 'id-orders-join', selectedRows: accounts.length, orderRows: orders.length,
+    matchedRows: 0, missingOrderRows: 0, ambiguousSelectedRows: 0,
+    invalidSelectedIds: accounts.filter((r) => !validId(id(r))).length,
+    duplicateSelectedIdGroups: [...accountIds.values()].filter((n) => n > 1).length,
+    invalidOrderIds: orders.filter((r) => !validId(id(r))).length,
+    duplicateOrderIdGroups: [...orderIds.values()].filter((n) => n > 1).length,
+    invalidOrderValues: orders.filter((r) => orderCount(r.orders) === null).length,
+    orderRowsOutsideSelection: orders.filter((r) => !accountIds.has(id(r))).length,
+    buyersOutsideSelection: orders.filter((r) => !accountIds.has(id(r)) && orderCount(r.orders) > 0).length,
+    orderSourceBuyers: orders.filter((r) => orderCount(r.orders) > 0).length,
+    orderSourceHistoricalOrders: orders.reduce((sum, r) => sum + (orderCount(r.orders) ?? 0), 0),
+  };
+  const rows = accounts.map((r) => {
+    const key = id(r);
+    if (!validId(key) || accountIds.get(key) > 1 || orderIds.get(key) > 1) { extraction.ambiguousSelectedRows++; return { ...r, orders: '' }; }
+    if (!index.has(key)) { extraction.missingOrderRows++; return { ...r, orders: '' }; }
+    extraction.matchedRows++;
+    return { ...r, orders: index.get(key) };
+  });
+  const unsafe = ['missingOrderRows', 'ambiguousSelectedRows', 'invalidSelectedIds', 'duplicateSelectedIdGroups', 'invalidOrderIds', 'duplicateOrderIdGroups', 'invalidOrderValues', 'buyersOutsideSelection'].some((k) => extraction[k] > 0);
+  return { rows, extraction, blockers: unsafe ? ['SOURCE_JOIN_REQUIRES_REVIEW'] : [] };
+}
 
 function profileValid(row) {
   for (const keys of [['billing_first_name', 'first_name'], ['billing_last_name', 'last_name']]) {
@@ -94,10 +138,21 @@ function profileValid(row) {
 function inspectSnapshot(text, metadata, expectedShop, now) {
   if (text === undefined) return { available: false, valid: false, rows: [], blockers: ['SHOPIFY_SNAPSHOT_MISSING'] };
   const rows = parseCustomerCsv(text, 'snapshot');
-  const keys = ['schemaVersion', 'complete', 'exportedAt', 'rowCount', 'sha256', 'shopDomain'];
+  const keys = ['schemaVersion', 'complete', 'exportedAt', 'rowCount', 'sha256', 'shopDomain', 'coverage'];
   const exported = Date.parse(metadata?.exportedAt);
-  const validMetadata = metadata && Object.keys(metadata).length === keys.length && keys.every((k) => Object.hasOwn(metadata, k)) &&
-    metadata.schemaVersion === 1 && metadata.complete === true && metadata.rowCount === rows.length &&
+  const coverage = metadata?.coverage;
+  const nonnegativeInteger = (n) => Number.isSafeInteger(n) && n >= 0;
+  const started = Date.parse(coverage?.startedAt);
+  const validCoverage = exactKeys(coverage, ['scope', 'filtersApplied', 'startedAt', 'countBefore', 'countAfter', 'countPrecision', 'uniqueCustomerIds', 'cursorChainVerified', 'pages']) &&
+    coverage.scope === 'all-customers' && coverage.filtersApplied === false && coverage.countPrecision === 'EXACT' &&
+    typeof coverage.startedAt === 'string' && /Z$/.test(coverage.startedAt) && Number.isFinite(started) && started <= exported && now - started <= 86400000 &&
+    [coverage.countBefore, coverage.countAfter, coverage.uniqueCustomerIds].every((n) => nonnegativeInteger(n) && n === rows.length) &&
+    coverage.cursorChainVerified === true && Array.isArray(coverage.pages) && coverage.pages.length > 0 &&
+    coverage.pages.every((p, i, pages) => exactKeys(p, ['rowCount', 'hasNextPage']) && nonnegativeInteger(p.rowCount) &&
+      (p.rowCount > 0 || (pages.length === 1 && rows.length === 0)) && p.hasNextPage === (i < pages.length - 1)) &&
+    coverage.pages.reduce((sum, p) => sum + p.rowCount, 0) === rows.length;
+  const validMetadata = exactKeys(metadata, keys) &&
+    metadata.schemaVersion === 2 && metadata.complete === true && metadata.rowCount === rows.length && validCoverage &&
     /^[a-f0-9]{64}$/.test(metadata.sha256) && metadata.sha256 === sha256(text) &&
     typeof expectedShop === 'string' && /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/.test(expectedShop) && metadata.shopDomain === expectedShop &&
     typeof metadata.exportedAt === 'string' && /Z$/.test(metadata.exportedAt) && Number.isFinite(exported) && now - exported >= -300000 && now - exported <= 86400000;
@@ -108,16 +163,18 @@ function inspectSnapshot(text, metadata, expectedShop, now) {
 }
 
 // Only aggregate constants/counts leave this function. Personal values stay in memory.
-export function buildCustomerReport({ sourceCsv, snapshotCsv, snapshotMetadata, expectedShop, now = Date.now(), synthetic = false }) {
-  const rows = parseCustomerCsv(sourceCsv);
+export function buildCustomerReport({ sourceCsv, ordersCsv, snapshotCsv, snapshotMetadata, expectedShop, now = Date.now(), synthetic = false }) {
+  const { rows, extraction, blockers: sourceBlockers } = inspectSource(sourceCsv, ordersCsv);
   const snapshot = inspectSnapshot(snapshotCsv, snapshotMetadata, expectedShop, now);
   const prepared = rows.map((r) => ({
     row: r,
     id: aliases(r, ['id', 'customer_id']),
     email: aliases(r, ['email', 'user_email', 'billing_email'], email),
     phone: phone(r.billing_phone),
-    orders: /^(0|[1-9]\d*)$/.test(r.orders) && Number.isSafeInteger(Number(r.orders)) ? Number(r.orders) : null,
+    orders: orderCount(r.orders),
     roles: aliases(r, ['role', 'roles'], (v) => v.toLowerCase()),
+    nullLiteral: Object.values(r).some(isNullLiteral),
+    nonE164Phone: Boolean(r.billing_phone && !isNullLiteral(r.billing_phone) && phone(r.billing_phone) === null),
   }));
   // Include every source row in collision checks, even out-of-cohort/staff rows.
   const ids = frequencies(prepared.map((r) => r.id));
@@ -127,19 +184,26 @@ export function buildCustomerReport({ sourceCsv, snapshotCsv, snapshotMetadata, 
   const existingEmails = new Set(snapshot.rows.map((r) => r.email).filter(Boolean));
   const existingPhones = new Set(snapshot.rows.map((r) => r.phone).filter(Boolean));
   const report = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     mode: 'offline-dry-run',
     dataKind: synthetic ? 'synthetic' : 'private-unverified',
     productionAuthorized: false,
     networkRequests: 0, customerWrites: 0, personalArtifactsWritten: 0,
     expected: { accountsWithOrders: 858, historicalOrders: 953 },
     observed: { sourceRows: rows.length, accountsWithOrders: 0, historicalOrders: 0 },
-    outcomes: { excludedPrivileged: 0, excludedOtherRole: 0, excludedNoOrders: 0, quarantined: 0, existingEmailSkipped: 0, existingPhoneSkipped: 0, unmatchedAwaitingSnapshot: 0, proposedNew: 0 },
-    reasons: { invalidRole: 0, invalidOrders: 0, invalidId: 0, duplicateId: 0, invalidOrConflictingEmail: 0, duplicateEmail: 0, invalidPhone: 0, duplicatePhone: 0, invalidProfile: 0 },
+    extraction,
+    sourceQuality: {
+      rowsWithNullLiteral: prepared.filter((r) => r.nullLiteral).length,
+      buyerRowsWithNullLiteral: prepared.filter((r) => r.orders > 0 && r.nullLiteral).length,
+      buyerRowsWithNonE164Phone: prepared.filter((r) => r.orders > 0 && r.nonE164Phone).length,
+      buyerRowsWithBlankPhone: prepared.filter((r) => r.orders > 0 && !r.row.billing_phone).length,
+    },
+    outcomes: { excludedPrivileged: 0, excludedOtherRole: 0, excludedNoOrders: 0, quarantined: 0, existingEmailSkipped: 0, existingPhoneSkipped: 0, unmatchedAwaitingSnapshot: 0, unmatchedAwaitingSourceReview: 0, proposedNew: 0 },
+    reasons: { invalidRole: 0, invalidOrders: 0, invalidId: 0, duplicateId: 0, invalidOrConflictingEmail: 0, duplicateEmail: 0, invalidPhone: 0, nonE164Phone: 0, nullLiteral: 0, duplicatePhone: 0, invalidProfile: 0 },
     collisions: { duplicateEmailGroups: [...emails.values()].filter((v) => v > 1).length },
-    shopifySnapshot: { supplied: snapshot.available, verified: snapshot.valid, rows: snapshot.rows.length },
+    shopifySnapshot: { supplied: snapshot.available, verified: snapshot.valid, liveCompletenessProven: false, rows: snapshot.rows.length },
     marketing: { emailEnabled: 0, smsEnabled: 0, whatsappEnabled: 0 },
-    blockers: [...snapshot.blockers],
+    blockers: [...sourceBlockers, ...snapshot.blockers],
   };
   const { outcomes, reasons, observed } = report;
   for (const r of prepared) {
@@ -156,13 +220,16 @@ export function buildCustomerReport({ sourceCsv, snapshotCsv, snapshotMetadata, 
       invalidOrConflictingEmail: !r.email,
       duplicateEmail: r.email && emails.get(r.email) > 1,
       invalidPhone: r.phone === null,
+      nonE164Phone: r.nonE164Phone,
+      nullLiteral: r.nullLiteral,
       duplicatePhone: r.phone && phones.get(r.phone) > 1,
       invalidProfile: !profileValid(r.row),
     };
     if (Object.values(checks).some(Boolean)) {
       outcomes.quarantined++;
       for (const [key, value] of Object.entries(checks)) if (value) reasons[key]++;
-    } else if (!snapshot.valid) outcomes.unmatchedAwaitingSnapshot++;
+    } else if (sourceBlockers.length) outcomes.unmatchedAwaitingSourceReview++;
+    else if (!snapshot.valid) outcomes.unmatchedAwaitingSnapshot++;
     else if (existingEmails.has(r.email)) outcomes.existingEmailSkipped++;
     else if (r.phone && existingPhones.has(r.phone)) outcomes.existingPhoneSkipped++;
     else outcomes.proposedNew++;
