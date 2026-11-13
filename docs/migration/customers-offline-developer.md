@@ -12,6 +12,48 @@ L'audit documenta 5.453 account, 858 account con ordini e 953 ordini associati. 
 
 **In questo aggiornamento email-only non sono stati acquisiti né aperti file clienti privati.** Il precheck aggregato già documentato sotto proviene dalla precedente verifica autorizzata in sola lettura. Non sono disponibili in questa copia di lavoro un CSV minimizzato verificato e uno snapshot Shopify recente. Il report pubblicato è interamente sintetico: riproduce le dimensioni documentate, ma non prova la qualità dei dati reali né il numero finale da creare.
 
+## Tentativo di avvio del preflight privato — 13/11/2026: fermato prima della CLI
+
+**Esito: INPUT PRIVATI NON REPERITI; PREFLIGHT REALE NON ESEGUITO.** Verifica documentale sul [precheck reale](customers-live-precheck-2026-11-13.md), introdotto dal commit `e58f69a`, e sul relativo commento della PR #53. Nessuna nuova lettura live di Google Sheets/Shopify e nessun accesso a workbook, password, hash o sessioni.
+
+Il precheck distingue 857 customer con ordini e un author escluso (858 account/953 ordini), 12 clienti Shopify/11 email, un match email customer, sei customer coinvolti in somiglianze telefoniche **interne legacy**, un telefono malformato e zero match/somiglianze telefoniche verso Shopify. Sui soli 857 customer: 90 E.164, 766 nazionali riconoscibili, un malformato, zero assenti. Sono dati già osservati nel precheck, non misure ripetute oggi con la CLI. I sei casi non sono sei duplicati confermati né necessariamente sei coppie. Il residuo esplorativo di 849 non certifica clienti importabili.
+
+La ricerca ha enumerato soltanto nomi di file mirati nelle aree di lavoro autorizzate: checkout originale, copia isolata della PR, area temporanea consultabile e workspace visualizzazioni. Non ha letto il contenuto di CSV clienti. Una parte dell'area temporanea di sessione non è interamente consultabile: non si attesta l'assenza globale sul computer né si estende la ricerca ad archivi privati non indicati.
+
+| Prerequisito | Evidenza di questa verifica |
+| --- | --- |
+| `sheet2-minimo.csv` | Non reperito nelle aree consultabili |
+| `id-orders.csv` | Non reperito nelle aree consultabili |
+| Snapshot Shopify `Email,Phone` e manifest v2 | Nessun insieme di input disponibile attestato; validazione non eseguita, controllo interrotto per i due input mancanti |
+| Provenienza/revisioni, SHA-256, copertura, età e riservatezza degli input | Non verificabili senza il pacchetto privato |
+| CLI email-only e report aggregato reale | Non eseguiti/non prodotto |
+
+Nessuna fixture è stata eseguita o usata in sostituzione dei dati reali in questo tentativo. I report sintetici e i test documentati nelle sezioni successive rimangono evidenze del precedente sviluppo; l'eventuale CI di questa modifica documentale verifica il codice, non i dati reali. Non viene fabbricato un report CLI con i conteggi del precheck.
+
+### Preparazione privata necessaria prima di riprendere
+
+1. **Responsabile dei dati:** predisporre una directory su archivio cifrato, esterna a ogni repository e alla CI, con accesso nominativo, directory `0700` e file `0600`. Verificare proprietario, ACL/condivisioni e conservazione; i permessi POSIX da soli non attestano cifratura. Rendere disponibili all'operatore soltanto il percorso autorizzato e i file minimizzati, senza allegarli a chat/PR/ticket.
+2. **Sorgente legacy:** tramite lettura selettiva alla fonte, preparare `sheet2-minimo.csv` con `ID,role,email,billing_phone` originali (1.108 righe attese), più gli eventuali campi opzionali approvati. Preparare separatamente `id-orders.csv` con **sole** colonne `ID,orders` (5.453 coppie attese). Usare revisioni e ordinamento coerenti alla fonte; registrare privatamente revisioni/date, intervalli e operatore. Non scaricare workbook completi per ripulirli dopo; non leggere `user_pass`/`session_tokens`. Non cambiare telefoni, null o contatori, non togliere l'author dalla fonte per far tornare gli esiti: sarà escluso dallo script. Il join è per ID, mai per posizione/email.
+3. **Responsabile Shopify:** predisporre `shopify-minimo.csv`, colonne esatte `Email,Phone`, includendo tutti i profili, anche quello senza email. La lettura completa e autorizzata deve registrare negozio, inizio/fine UTC, conteggio EXACT prima/dopo, ID distinti e catena di tutte le pagine fino a `hasNextPage=false`. Conservare ID/cursori soltanto nella prova privata. I 12 profili sono il dato storico del precheck, non un numero da forzare in un nuovo export.
+4. **Manifest v2:** compilare `snapshot.json` con le chiavi del contratto riportato sotto, conteggi coerenti e SHA-256 dei byte finali del CSV. Inizio e termine devono essere entro 24 ore al momento dell'esecuzione; negozio e `--shop` devono coincidere. Calcolare anche i digest dei due input legacy nel registro di provenienza privato, confrontandoli con quelli consegnati dall'estrattore: la CLI non ne riceve né certifica il manifest di provenienza. Non pubblicare digest o percorsi privati. Un manifest compilato non sostituisce la verifica della fonte e delle pagine.
+5. **Operatore del preflight:** verificare prima disponibilità di tutti e quattro i file, schema minimizzato, autorizzazione/provenienza, integrità, età, copertura e riservatezza. Se uno manca o non è verificabile, fermarsi nuovamente. Soltanto dopo questi controlli eseguire il comando seguente dalla copia aggiornata della branch della PR #53, sostituendo i percorsi d'esempio. Il comando non è stato eseguito in questo tentativo.
+
+```sh
+node --require ./ci/offline-network.cjs ./sync/customers-convert.mjs --email-only \
+  --input /archivio-privato/sheet2-minimo.csv \
+  --orders /archivio-privato/id-orders.csv \
+  --snapshot /archivio-privato/shopify-minimo.csv \
+  --snapshot-metadata /archivio-privato/snapshot.json \
+  --shop ecom-blueprint-gen-6ud1s.myshopify.com \
+  --report /archivio-privato/preflight-reale-email-only-nuovo.json
+```
+
+Il dominio proviene dal precheck, da riconfermare nelle evidenze private del nuovo snapshot. Il guard Node blocca chiamate di rete accidentali, ma non è un sandbox OS. Non aggiungere `--synthetic` o variabili di credenziali. L'output richiesto è solo aggregato e il file report deve essere nuovo; nessun CSV importabile.
+
+Dopo un'esecuzione reale, verificare `dataKind: private-unverified` (designazione intenzionale della provenienza non certificabile dal programma), `assessmentMode: email-only`, `proposedNew: 0`, `productionAuthorized: false`, `privateIdentityReviewRequired: true` e marketing disattivato. Atteso exit 2 sia con `BLOCKED` sia con `OFFLINE_EMAIL_ONLY_REVIEW_REQUIRED`; distinguere le cause nel JSON e non dichiarare completata la review solo perché il processo è terminato. Non pretendere 849 o 856 candidati: gli esiti effettivi devono derivare dai file e possono cambiare.
+
+**Prima del pilota:** verificare privatamente i sei sospetti e il telefono malformato, riconciliare le eventuali nuove anomalie e le identità rispetto ai profili Shopify (incluso quello senza email), approvare finalità/campi e piano di accesso clienti. Servono inoltre un writer separato revisionato, ricontrollo aggiornato delle collisioni, backup/journal, prova di recupero e autorizzazione puntuale. Questo blocco documentale non autorizza alcuna creazione, invio, importazione o modifica ai provider.
+
 ## Analisi degli script precedenti e decisione
 
 | Script precedente | Rischio rilevato | Comportamento dopo questa PR |
@@ -75,7 +117,7 @@ Le colonne reali della fonte vanno ancora verificate: non si presume che i nomi 
 - `333…`, `0039…`, testi o numeri malformati non diventano `+39…`; il paese dell'indirizzo non autorizza a dedurre il prefisso. Si rimuovono solo separatori visuali da numeri già esplicitamente internazionali. La sintassi E.164 non certifica l'esistenza o la titolarità del numero.
 - `sourceQuality` distingue righe con `null` nell'intera selezione, acquirenti con `null`, acquirenti con telefono non E.164 (escluso il segnaposto `null`) e acquirenti con telefono vuoto. Sono conteggi **prima degli scarti per ruolo**: non si sommano tra loro e non stimano automaticamente clienti recuperabili. `reasons.nullLiteral/nonE164Phone/invalidPhone` descrivono invece le cause di quarantena delle righe arrivate ai controlli anagrafici, con possibili sovrapposizioni. In email-only un formato nazionale riconoscibile non incrementa le cause invalidPhone/nonE164Phone; i suoi eventuali conflitti telefonici hanno cause dedicate.
 
-Il precheck reale ha misurato 768 telefoni non E.164 e 90 E.164 su tutti gli 858 account con ordini; non ha stabilito quanti non E.164 siano nazionali riconoscibili, malformati o in collisione. Solo il futuro preflight privato con questa versione potrà separarli. Gli originali non vengono modificati, cancellati o completati: eventuali correzioni richiedono un processo distinto con evidenze e responsabilità, mai un bypass della quarantena.
+Il primo precheck ha misurato 768 telefoni non E.164 e 90 E.164 su tutti gli 858 account con ordini. Il [precheck esplorativo successivo](customers-live-precheck-2026-11-13.md) dettaglia, sui soli 857 customer, 90 E.164, 766 nazionali riconoscibili, un malformato e sei customer coinvolti in somiglianze interne. Non è ancora una classificazione prodotta dal preflight CLI con input e manifest verificati. Gli originali non vengono modificati, cancellati o completati: eventuali correzioni richiedono un processo distinto con evidenze e responsabilità, mai un bypass della quarantena.
 
 ### Regole di classificazione
 

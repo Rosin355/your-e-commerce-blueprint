@@ -2,6 +2,25 @@
 
 **13 novembre 2026 — preparazione offline. Nessun cliente importato o modificato.** Il lavoro è separato dal gestionale Admin, dalla PR #47 e dalle attività operative del sito.
 
+## Stato del tentativo di preflight privato — 13 novembre 2026
+
+**Il preflight reale non è stato eseguito.** Nel workspace e nelle aree temporanee consultabili non sono stati trovati `sheet2-minimo.csv` e `id-orders.csv`. Una parte dell'area temporanea di sessione non è interamente consultabile: questo non dimostra che i file non esistano altrove, ma non consente di attestarne la disponibilità autorizzata qui. Il controllo si è fermato prima della CLI; snapshot Shopify e manifest non sono stati validati.
+
+È stato letto il [precheck reale aggregato](customers-live-precheck-2026-11-13.md), che riporta **857 customer con ordini, un author escluso e 953 ordini**, 12 clienti Shopify al momento del controllo e un match email. Il confronto esplorativo ha individuato **sei customer con somiglianze telefoniche interne legacy e un telefono malformato**; non risultavano match telefonici verso Shopify. I sei sospetti non sono duplicati confermati. Sui soli customer risultavano 90 telefoni internazionali, 766 nazionali riconoscibili, uno malformato e nessuno assente.
+
+Questi sono dati del precheck già documentato, non risultati di una nuova lettura live o di un dry-run CLI. **849 senza conflitti evidenti e 856 senza match email non sono quantità autorizzate da importare.** Non è stato creato un report reale, né usata una fixture al suo posto. La validità dei dati e la completezza dello snapshot restano da verificare privatamente.
+
+Per riprendere, il responsabile deve rendere disponibili in una cartella privata cifrata, esterna a Git e con accessi ristretti:
+
+1. `sheet2-minimo.csv`: soltanto ID, ruolo, email e telefono originale, più eventuali campi approvati, preservando le 1.108 righe attese.
+2. `id-orders.csv`: soltanto ID e contatore ordini, estratti selettivamente dalla fonte con revisione coerente; attese 5.453 coppie. Nessun workbook completo o colonna di sicurezza.
+3. `shopify-minimo.csv`: tutte le anagrafiche Shopify nei soli campi Email/Phone, incluso il profilo senza email.
+4. `snapshot.json`: manifest v2 con negozio, orari UTC recenti, conteggi esatti, pagine complete e checksum, accompagnato da prove private della provenienza e copertura. I conteggi vanno verificati al nuovo export, non forzati a 12.
+
+Il developer verificherà tutti i file e le evidenze prima di eseguire `--email-only` offline. Conserverà i telefoni originali e produrrà solo aggregati: zero proposte di creazione, nessuna autorizzazione di produzione, review privata obbligatoria e marketing disattivato. La [procedura tecnica](customers-offline-developer.md) contiene il comando e i controlli puntuali. Non inviare i file o i loro contenuti in chat, PR o ticket; occorre soltanto indicare il percorso privato autorizzato quando saranno predisposti.
+
+Prima di decidere un pilota mancano il preflight formale, la verifica privata dei sei sospetti e del telefono malformato, gli eventuali ulteriori controlli d'identità, l'approvazione dei dati e un piano di importazione e recupero separato. **Nessun cliente importato, nessun writer, merge, publish o deploy.**
+
 ## Cosa stiamo preparando
 
 L'audit della [PR #48](https://github.com/Rosin355/your-e-commerce-blueprint/pull/48), consultabile nel [documento storico al commit originale](https://github.com/Rosin355/your-e-commerce-blueprint/blob/6deae03f46a89222f68037f33e28755df13f0cf7/docs/migration/legacy-customers-seo-2026-11-09.md), ha individuato 5.453 vecchi account, dei quali **858 con ordini**, per un totale storico di **953 ordini associati**. Il foglio selezionato da 1.108 righe contiene tutti gli 858 acquirenti. La prima fase riguarda soltanto questi account: gli altri non saranno importati automaticamente.
@@ -29,7 +48,7 @@ Per questo aggiornamento email-only non abbiamo acquisito file clienti privati o
 
 Un controllo **soltanto in lettura**, effettuato sui campi necessari e senza salvare elenchi di clienti, ha confermato 858 account con ordini e 953 ordini storici. Tra i primi vi sono **857 customer e 1 author**: l'author è escluso, anche se ha acquistato. I 250 account senza ordini nella selezione sono **249 customer e 1 administrator**.
 
-Il negozio Shopify Online Garden presenta **12 clienti totali** al momento del controllo (conteggio esatto); **11 hanno un'email**. Tra i 857 customer storici con ordini, **1 email risulta già presente** e **856 non corrispondono per email**. Questa verifica **non include una riconciliazione per telefono o un certificato di completezza dello snapshot** e non autorizza importazioni.
+Il negozio Shopify Online Garden presenta **12 clienti totali** al momento del controllo (conteggio esatto); **11 hanno un'email**. Tra i 857 customer storici con ordini, **1 email risulta già presente** e **856 non corrispondono per email**. Questo primo riscontro non includeva il confronto telefonico; il [precheck successivo](customers-live-precheck-2026-11-13.md) lo ha esplorato in memoria, senza produrre gli input e il manifest v2 del preflight formale. Nessuno dei due autorizza importazioni.
 
 Fra gli 858 account storici con ordini, **768 recapiti telefonici non sono nel formato internazionale richiesto dal programma**; 90 sono in quel formato. Non è corretto aggiungere automaticamente un prefisso, cancellare il telefono o considerare tali account persi: la modalità email-only ora predisposta li valuta senza riscriverli, mantenendo obbligatoria la verifica privata. In sintesi, **856 non equivale al numero di nuovi clienti pronti da creare**.
 
@@ -49,7 +68,7 @@ Il risultato positivo di questa analisi si chiama **“revisione privata richies
 
 La ricerca di somiglianze è prudente, ma non può dimostrare chi possiede un numero né rilevare ogni equivalenza fra formati. Alcuni blocchi potrebbero essere falsi allarmi; altri casi restano non verificabili se manca il telefono. Serve quindi una revisione riservata dei 12 clienti Shopify, incluso quello senza email, e dei casi legacy rilevanti. Non considerare le 856 email non abbinate come 856 clienti pronti da creare.
 
-La fixture nuova assegna per scelta inventata un telefono nazionale all'author e usa 90 numeri internazionali/768 nazionali senza collisioni nello scenario base. Non sappiamo dal precheck quanti telefoni reali dei customer siano nazionali riconoscibili o problematici: quel dettaglio resta da verificare. I test separati introducono appositamente collisioni e casi errati.
+La fixture nuova assegna per scelta inventata un telefono nazionale all'author e usa 90 numeri internazionali/768 nazionali senza collisioni nello scenario base. Il precheck successivo distingue invece, sui customer reali osservati, 90 E.164, 766 nazionali riconoscibili e un malformato, oltre a sei customer coinvolti in somiglianze interne. La fixture non deve essere interpretata come esecuzione su quei dati reali. I test separati introducono appositamente collisioni e casi errati.
 
 ## Cosa serve per il controllo reale
 
@@ -57,7 +76,7 @@ Il responsabile dei dati dovrà predisporre in un archivio privato, cifrato ed e
 
 1. **Anagrafica minima di Sheet2:** estrarre alla fonte ID storico, ruolo, email e il telefono originale approvato per il confronto; aggiungere soltanto gli altri campi opzionali necessari. Non togliere telefoni disponibili per evitare un controllo, né modificare i numeri. Conservare le 1.108 righe per verificare gli esclusi. Sheet2 **non contiene il numero degli ordini**.
 2. **File separato ID/ordini:** dalla scheda originale estrarre soltanto `ID,orders`, senza scaricare l'intera scheda. Le 5.453 coppie minime consentono di verificare anche i record fuori Sheet2. Il programma collega i due file per ID, senza esportare un nuovo elenco clienti: ID duplicati, mancanti o contatori dubbi bloccano il confronto. Vanno riconfermati 858 account con ordini/953 ordini, distinguendo 857 clienti customer con ordini, un author con ordini (escluso), 249 clienti customer senza ordini e un administrator senza ordini. I 4.345 record fuori selezione non vengono proposti per l'importazione.
-3. **Verifica privata dei casi dubbi:** non sostituire automaticamente il testo `null` con vuoto o zero e non aggiungere `+39` ai telefoni nazionali. I campi opzionali realmente vuoti restano assenti. In email-only un telefono nazionale riconoscibile è una segnalazione separata; `null`, dati malformati e collisioni bloccano il record. Conosciamo il totale di 768 telefoni non E.164, ma non la loro ripartizione finale per queste categorie.
+3. **Verifica privata dei casi dubbi:** non sostituire automaticamente il testo `null` con vuoto o zero e non aggiungere `+39` ai telefoni nazionali. I campi opzionali realmente vuoti restano assenti. In email-only un telefono nazionale riconoscibile è una segnalazione separata; `null`, dati malformati e collisioni bloccano il record. Il precheck esplorativo distingue già 766 telefoni nazionali riconoscibili e uno malformato sui soli customer; la classificazione formale sui file privati e la review delle somiglianze restano da eseguire.
 4. **Snapshot Shopify completo e recente:** un operatore autorizzato verifica il negozio corretto, legge tutti i clienti senza filtri e segue tutte le pagine fino alla fine. Controlla ID univoci e conteggi esatti prima/dopo, quindi prepara solo `Email,Phone` e il manifest v2 descritto nel runbook. Non omettere clienti senza email: anche i record con solo telefono contano. Record senza entrambi o malformati richiedono una soluzione revisionata, non la loro cancellazione dal file.
 5. **Evidenze riservate:** conservare data UTC di inizio/fine, controllo dei cursori e conteggi delle pagine, dominio, numero di clienti e checksum. All'esecuzione l'estrazione deve essere iniziata e terminata da non più di 24 ore. Una spunta `complete:true` o un checksum **non dimostrano da soli la completezza**: il developer controlla la coerenza locale, il responsabile verifica privatamente la fonte. L'assenza di variazioni di conteggio non garantisce che i recapiti non siano cambiati.
 
