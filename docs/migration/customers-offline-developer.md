@@ -80,6 +80,19 @@ Il parser clienti è dedicato: non modifica `sync/lib/csv-utils.mjs` o le pipeli
 
 Un operatore autorizzato deve preparare una **copia minimizzata**, esterna a qualsiasi checkout Git, dal foglio Drive corretto. Non scaricare o passare allo script la scheda originale con `user_pass`, `session_tokens` o altri segreti. Non usare il TAR troncato. Non includere il file nei log, allegati PR, CI o ticket.
 
+### Mappa delle colonne verificata direttamente in Google Sheets (13/11/2026)
+
+La lettura delle sole intestazioni delle due schede storiche conferma i seguenti riferimenti, **da ricontrollare in caso di modifiche al foglio**:
+
+| CSV locale finale | Scheda sorgente | Colonne, nell'ordine del CSV | Righe sorgente attese |
+| --- | --- | --- | --- |
+| `sheet2-minimo.csv` | `Sheet2` | `A: ID`, `G: roles`, `C: email`, `K: billing_phone` | `2:1109` (1.108 righe) |
+| `id-orders.csv` | `onlinegardecustomer` | `A: ID`, `AB: orders` | `2:5454` (5.453 righe) |
+
+**Procedura manuale senza download del workbook sensibile:** creare un **nuovo foglio di lavoro vuoto, privato e con condivisioni ristrette**; nelle due schede di lavoro predisporre le intestazioni nelle sequenze sopra e copiare soltanto i range autorizzati, **colonna per colonna, senza ordinare o filtrare**, usando «Incolla speciale → Solo valori». Prima della copia impostare ID e telefono come *testo normale* e verificare che nessun valore sia stato convertito in formule o in notazione numerica; mantenere intatti `null`, celle vuote e numeri nazionali. Solo dai due nuovi tab minimizzati eseguire «File → Scarica → CSV (foglio corrente)» e salvare i due file in una cartella locale cifrata fuori dal repository. Non scaricare o duplicare la scheda originale completa; non concedere accesso pubblico al foglio temporaneo; cancellare la copia temporanea privata dopo riconciliazione e secondo la policy di conservazione.
+
+**Attenzione:** non preparare `snapshot.json` inventando `cursorChainVerified:true`. L'export clienti dal pannello Shopify, da solo, **non prova** la catena delle pagine richiesta dal manifest v2. Occorre un lettore read-only autorizzato che registri realmente conteggio iniziale/finale, ID distinti e paginazione; le evidenze dettagliate rimangono riservate. Il precheck di 12 clienti non sostituisce questa estrazione verificata.
+
 ### Estrazione privata di Sheet2 e join con il contatore ordini
 
 `Sheet2` contiene 1.108 account ma **non contiene `orders`**. Il contatore va letto nella scheda originale `onlinegardecustomer`; non può essere ricostruito dall'email, dalla posizione della riga o dalla presenza in Sheet2. Procedura da predisporre alla fonte, senza scaricare il workbook:
