@@ -25,12 +25,22 @@ I test usano **soltanto dati inventati**. Il [report dimostrativo](customers-syn
 
 Non abbiamo acquisito in questa preparazione il file clienti privato né un elenco Shopify aggiornato. Pertanto la qualità dei dati veri, i duplicati e il numero finale da creare restano da determinare. Un esito tecnico positivo non autorizza automaticamente l'importazione.
 
+## Riscontro aggregato sulle fonti reali — 13 novembre 2026
+
+Un controllo **soltanto in lettura**, effettuato sui campi necessari e senza salvare elenchi di clienti, ha confermato 858 account con ordini e 953 ordini storici. Tra i primi vi sono **857 customer e 1 author**: l'author è escluso, anche se ha acquistato. I 250 account senza ordini nella selezione sono **249 customer e 1 administrator**.
+
+Il negozio Shopify Online Garden presenta **12 clienti totali** al momento del controllo (conteggio esatto); **11 hanno un'email**. Tra i 857 customer storici con ordini, **1 email risulta già presente** e **856 non corrispondono per email**. Questa verifica **non include una riconciliazione per telefono o un certificato di completezza dello snapshot** e non autorizza importazioni.
+
+Fra gli 858 account storici con ordini, **768 recapiti telefonici non sono nel formato internazionale richiesto dal programma**; 90 sono in quel formato. Non è corretto aggiungere automaticamente un prefisso, cancellare il telefono o considerare tali account persi: serve prima una scelta di trattamento e verifica privata. In sintesi, **856 non equivale al numero di nuovi clienti pronti da creare**.
+
+Nessun dato personale è stato copiato su GitHub, nessun cliente o negozio è stato modificato e nessun import/deploy è stato avviato.
+
 ## Cosa serve per il controllo reale
 
 Il responsabile dei dati dovrà predisporre in un archivio privato, cifrato ed esterno a ogni repository:
 
 1. **Anagrafica minima di Sheet2:** estrarre alla fonte soltanto ID storico, ruolo ed email e gli eventuali campi anagrafici opzionali approvati. Conservare le 1.108 righe per verificare gli esclusi. Sheet2 **non contiene il numero degli ordini**.
-2. **File separato ID/ordini:** dalla scheda originale estrarre soltanto `ID,orders`, senza scaricare l'intera scheda. Le 5.453 coppie minime consentono di verificare anche i record fuori Sheet2. Il programma collega i due file per ID, senza esportare un nuovo elenco clienti: ID duplicati, mancanti o contatori dubbi bloccano il confronto. Vanno riconfermati 858 acquirenti/953 ordini, distinguendo 248 clienti senza ordini e due utenze non cliente nella selezione. I 4.345 record fuori selezione non vengono proposti per l'importazione.
+2. **File separato ID/ordini:** dalla scheda originale estrarre soltanto `ID,orders`, senza scaricare l'intera scheda. Le 5.453 coppie minime consentono di verificare anche i record fuori Sheet2. Il programma collega i due file per ID, senza esportare un nuovo elenco clienti: ID duplicati, mancanti o contatori dubbi bloccano il confronto. Vanno riconfermati 858 account con ordini/953 ordini, distinguendo 857 clienti customer con ordini, un author con ordini (escluso), 249 clienti customer senza ordini e un administrator senza ordini. I 4.345 record fuori selezione non vengono proposti per l'importazione.
 3. **Verifica privata dei casi dubbi:** non sostituire automaticamente il testo `null` con vuoto o zero e non aggiungere `+39` ai telefoni nazionali. I campi opzionali realmente vuoti restano assenti; valori `null`, telefoni non validi e dati discordanti richiedono revisione. Il report conteggia separatamente questi problemi, ma oggi non ne conosciamo l'incidenza reale.
 4. **Snapshot Shopify completo e recente:** un operatore autorizzato verifica il negozio corretto, legge tutti i clienti senza filtri e segue tutte le pagine fino alla fine. Controlla ID univoci e conteggi esatti prima/dopo, quindi prepara solo `Email,Phone` e il manifest v2 descritto nel runbook. Non omettere clienti senza email: anche i record con solo telefono contano. Record senza entrambi o malformati richiedono una soluzione revisionata, non la loro cancellazione dal file.
 5. **Evidenze riservate:** conservare data UTC di inizio/fine, controllo dei cursori e conteggi delle pagine, dominio, numero di clienti e checksum. All'esecuzione l'estrazione deve essere iniziata e terminata da non più di 24 ore. Una spunta `complete:true` o un checksum **non dimostrano da soli la completezza**: il developer controlla la coerenza locale, il responsabile verifica privatamente la fonte. L'assenza di variazioni di conteggio non garantisce che i recapiti non siano cambiati.
@@ -39,7 +49,7 @@ Non inviare schede complete, password/hash/sessioni, token, file minimizzati o t
 
 Il developer eseguirà il confronto **offline**, presenterà i conteggi aggregati e farà revisionare privatamente un campione e i casi dubbi. Il dettaglio tecnico, incluso lo schema minimo, è nel [runbook developer](customers-offline-developer.md).
 
-Restano quindi da predisporre i due CSV minimizzati reali, la riconciliazione delle fonti e la review di null/telefoni, lo snapshot con evidenze di completezza e il coordinamento documentale della #48. **857 rimane soltanto il risultato della simulazione**, mai un preventivo del numero da importare. La suite aggiornata contiene 32 test sintetici, tutti superati; questi test non certificano i dati reali.
+Restano quindi da predisporre i due CSV minimizzati reali, la riconciliazione delle fonti e la review di null/telefoni, lo snapshot con evidenze di completezza e il coordinamento documentale della #48. **857 nel report sintetico rimane un risultato simulato**, mai un preventivo del numero da importare: il precheck reale ha rilevato separatamente 857 account con ordini senza corrispondenza email, ma solo 856 di questi hanno ruolo customer. La suite aggiornata contiene 32 test sintetici, tutti superati; questi test non certificano i dati reali.
 
 ## Autorizzazione della fase successiva
 
