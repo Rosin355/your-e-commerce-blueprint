@@ -2,6 +2,16 @@
 
 **13 novembre 2026 — preflight reale offline eseguito. Nessun cliente importato o modificato.** Il lavoro è separato dal gestionale Admin, dalla PR #47 e dalle attività operative del sito.
 
+## Proposta pilota — 15 novembre 2026
+
+Proponiamo di preparare **cinque account**, individuati privatamente fra i 849 con una regola ripetibile e verificati uno per uno. I sette casi in quarantena e il cliente già presente su Shopify sono esclusi. Non è stato selezionato né creato alcun account in questa preparazione. Un eventuale secondo gruppo fino a dieci totali richiederà una nuova decisione: non si estende automaticamente il campione.
+
+Il [piano operativo](customers-pilot-plan-2026-11-15.md) propone il solo campo email, con controlli anche sui telefoni e recapiti alternativi, senza trasferirli. Nomi e indirizzi non sono nei file minimi: non saranno inventati. Marketing resta disattivato; nessun invito o messaggio parte per effetto di questo lavoro. Prima del pilota occorre verificare anche le automazioni del negozio e delle app: omettere un invito non basta a escludere messaggi indiretti.
+
+L'accesso proposto è quello Shopify con codice monouso richiesto dal cliente, senza password del vecchio sito. **Non è ancora dimostrato che l'attuale login del sito utilizzi quel percorso:** la [specifica UX](customers-pilot-ux.md) richiede una decisione e un collaudo separati. I vecchi ordini non vengono trasferiti. Non vengono inviati codici, reset o comunicazioni durante la preparazione.
+
+La nuova PR tecnica contiene piano e test inventati, non un importatore collegato al negozio. Restano da approvare campione e identità, email soltanto, percorso di accesso, custodia, nuovo controllo live, writer revisionato e recupero. Una creazione non è sempre annullabile, soprattutto dopo attività del cliente o invii automatici. **Prima di qualunque scrittura servirà un'autorizzazione specifica** con negozio, lista privata, numero, campi, finestra e responsabili; questa pianificazione non la concede.
+
 ## Preflight reale eseguito — 13 novembre 2026
 
 **Il confronto reale è stato eseguito, senza importare o modificare clienti.** Il precedente tentativo si era fermato perché mancavano gli input: dopo la loro consegna autorizzata sono stati acquisiti soltanto i due CSV storici minimizzati, verificati e confrontati offline con un nuovo snapshot Shopify. Nessun workbook completo, password, hash o sessione è stato aperto.

@@ -2,6 +2,14 @@
 
 **Stato: preflight reale email-only eseguito il 13/11/2026; 849 candidati alla review privata, 7 quarantene, nessuna importazione autorizzata.** La CLI è offline e non richiede credenziali. La preparazione degli input ha usato soltanto letture autorizzate Drive/Shopify. Il lavoro resta separato dalle operazioni Admin, dalla PR #47, da Supabase/Lovable e dai gate runtime.
 
+## Piano pilota separato — 15 novembre 2026
+
+Il [piano operativo del pilota](customers-pilot-plan-2026-11-15.md) dettaglia selezione deterministica privata, review individuale di cinque account (massimo dieci con decisione distinta), campi minimi, contratto create-only futuro, journal, stop/recovery e checklist. I sette casi in quarantena e il match Shopify restano esclusi. È sufficiente revisionare il campione per questo pilota, senza pretendere la review immediata di tutti i 849; gli altri non sono approvati.
+
+**NO-GO alle scritture:** nessun writer reale implementato, nessun campione nominativo selezionato. Lo snapshot del 13 novembre è scaduto per un nuovo preflight. Il modello e i test aggiuntivi sono sintetici, senza API o file privati. La proposta minima trasferisce solo email; telefono conservato per collisioni private, nessun consenso marketing inviato. Il contratto del futuro writer dovrà essere validato con API e automazioni in ambiente di test separatamente autorizzato.
+
+La [specifica UX](customers-pilot-ux.md) evidenzia la distinzione tra login del sito e Shopify Customer Accounts: il solo profilo Shopify non abilita `/auth`. La nuova PR è basata sulla branch della #53 per isolare il diff; la #53 resta aperta, senza modifiche o merge. Il report reale e i suoi flag di mancata autorizzazione restano invariati.
+
 ## Evidenza e limiti
 
 Fonte: [PR #48](https://github.com/Rosin355/your-e-commerce-blueprint/pull/48) e [audit storico al commit immutabile `6deae03`](https://github.com/Rosin355/your-e-commerce-blueprint/blob/6deae03f46a89222f68037f33e28755df13f0cf7/docs/migration/legacy-customers-seo-2026-11-09.md). Il 13/11/2026 la #48 risulta ancora **aperta e draft**, non integrata in `main`. Il link al commit resta navigabile anche se il file manca nel checkout della #53 o il branch viene eliminato. Il tooling parte dalla `main` remota `b5f3793` e non richiede il codice della #48 per funzionare; i conteggi storici restano evidenze di quell'audit, da riconciliare privatamente.
@@ -327,7 +335,7 @@ Riferimento ufficiale verificato il 12/11/2026: [Shopify — importazione ed esp
 
 ## Piano di uscita dal preflight — 15 novembre 2026 (pianificazione, non importazione)
 
-L'esecuzione reale al commit `ffa8702` ha prodotto `status=BLOCKED`, `emailOnlyReviewCandidates=849`, `quarantined=7`, `existingEmailSkipped=1`, `proposedNew=0`, `productionAuthorized=false`. Questo report è un gate informativo, non un manifest di creazione clienti.
+L'esecuzione reale sul codice `65131b6`, documentata dal commit `ffa8702`, ha prodotto `status=BLOCKED`, `emailOnlyReviewCandidates=849`, `quarantined=7`, `existingEmailSkipped=1`, `proposedNew=0`, `productionAuthorized=false`. Questo report è un gate informativo, non un manifest di creazione clienti.
 
 **Sequenza proposta, con gate separati:**
 

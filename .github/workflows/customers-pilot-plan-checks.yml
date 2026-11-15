@@ -1,0 +1,27 @@
+name: Customers pilot plan contracts
+
+on:
+  pull_request:
+    branches: [main, codex/customers-offline-preflight]
+    paths:
+      - 'sync/tests/customer-pilot-*.mjs'
+      - 'docs/migration/customers-*'
+      - '.github/workflows/customers-pilot-plan-checks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 22.22.3
+          package-manager-cache: false
+      - name: Offline synthetic preflight regressions and pilot model contracts
+        run: node --require ./ci/offline-network.cjs --test sync/tests/customer-preflight.test.mjs sync/tests/customer-pilot-contract.test.mjs
