@@ -16,6 +16,14 @@ Alternative da decidere:
 | Accesso dall'attuale sito | Richiede revisione separata dell'integrazione e delle identità; non dichiarare il pilota pronto all'uso finché il percorso non è chiarito. |
 | Account legacy con password | Non proposto; inviti/attivazioni e vecchie password non rientrano nel pilota. Nessun cambio di impostazione effettuato. |
 
+## Gate prima di costruire un importatore
+
+Shopify documenta che, con i **nuovi Customer Accounts**, un cliente che effettua il login con una email non ancora presente può ottenere automaticamente un profilo ([fonte ufficiale](https://help.shopify.com/en/manual/customers/customer-accounts/upgrade/customization-options)). **Se l'obiettivo è esclusivamente permettere ai clienti storici di tornare ad acquistare**, l'import preventivo di 849 email potrebbe essere superfluo. Il profilo auto-creato non contiene però gli ordini WooCommerce e non corrisponde automaticamente alla sessione Supabase del portale. La modalità effettivamente abilitata per Online Garden deve essere verificata senza toccare account reali.
+
+Una decisione UX/owner deve precedere il writer: **(A)** ingresso volontario Shopify passwordless con creazione eventuale al primo accesso oppure **(B)** creazione anticipata di 5 email giustificata da requisiti aggiuntivi espliciti. In entrambi i casi serve un percorso di accesso unico sul sito, con test di callback → area personale, logout, mobile, assistenza e comunicazioni su account **di prova autorizzati**. Non applicare questa modifica al runtime nell'attuale PR documentale.
+
+**Incongruenza statica confermata:** il callback Shopify (`AccountCallback`) naviga verso `/account` dopo aver scritto in `customerStore`, ma `Account.tsx` usa `useAuth`/Supabase e rimanda a `/auth` senza relativa sessione. Aprire un intervento UI/auth separato soltanto dopo aver deciso il flusso. Nessuna correzione automatica, nessuna operazione su utenti live.
+
 ## Percorso futuro, solo dopo approvazione
 
 1. Il cliente sceglie volontariamente «Accedi al tuo account» sul percorso verificato. Nessun redirect automatico, invito o email di benvenuto generato dal lotto.
