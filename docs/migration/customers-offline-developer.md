@@ -324,3 +324,17 @@ Un import non è atomicamente reversibile: email/inviti eventualmente inviati no
 - Nessun cambiamento a PR #47, Supabase/Lovable, Admin, configurazioni runtime o deploy.
 
 Riferimento ufficiale verificato il 12/11/2026: [Shopify — importazione ed esportazione clienti](https://help.shopify.com/it/manual/customers/import-export-customers), incluse collisioni email/telefono, colonne del CSV, consenso per canale e limiti su ordini/password.
+
+## Piano di uscita dal preflight — 15 novembre 2026 (pianificazione, non importazione)
+
+L'esecuzione reale al commit `ffa8702` ha prodotto `status=BLOCKED`, `emailOnlyReviewCandidates=849`, `quarantined=7`, `existingEmailSkipped=1`, `proposedNew=0`, `productionAuthorized=false`. Questo report è un gate informativo, non un manifest di creazione clienti.
+
+**Sequenza proposta, con gate separati:**
+
+1. **Review riservata delle eccezioni:** risolvere e documentare i sei sospetti di somiglianza telefonica e il telefono malformato, senza inferire prefissi, modificare il valore originale o forzare l'esito. Finché non risolti, non includerli in alcun pilota.
+2. **Criteri e campione pilota:** in privato definire regole verificabili di selezione tra i 849, escludere il match email esistente, verificare l'identità dei **5–10 record proposti per il solo pilota**, compreso confronto con il cliente Shopify senza email, recapiti alternativi e necessità effettiva di ulteriori campi. Non estrarre nomi/indirizzi di tutti i record per default. La valutazione campionaria non approva la restante coorte: prima di migrarla, ciascun record previsto deve passare le verifiche pertinenti e la decisione autorizzativa.
+3. **Progettazione tecnica in PR distinta:** definire un importatore *create-only*, mai upsert; test sintetici per collisioni concorrenti, retry, errori parziali, assenza di inviti/marketing, assenza di scritture su profili preesistenti, journal e prova di recupero. Non abilitarlo o distribuirlo durante l'attuale preparazione.
+4. **Readiness e autorizzazione:** nuovo snapshot Shopify completo e controlli immediatamente prima del lotto, backup protetto, journal per ID dei soli clienti creati, policy di custodia dei dati temporanei, esperienza accesso account approvata e consenso marketing sempre disattivato salvo evidenza valida e processo separato. Richiedere *autorizzazione esplicita* con negozio, campione, campi, orario, responsabile, criteri di stop e recovery prima di qualunque write.
+5. **Solo dopo autorizzazione:** prova pilota controllata e riscontro privato, poi un nuovo go/no-go per l'eventuale estensione. Nessun import totale basato sui numeri 849 o 856; le 953 transazioni aggregate non sono ordini Shopify importati.
+
+**Deliverable per designer/cliente:** un breve percorso di accesso al nuovo account, stato dei messaggi automatici e testo di eventuali comunicazioni da sottoporre ad approvazione, non da inviare. **Deliverable developer:** procedura di verifica, elenco gate, diff del writer, test, journal/recovery e strategia per evitare scritture involontarie. Nessuna PII in docs, PR o CI.
