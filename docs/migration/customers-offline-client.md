@@ -105,3 +105,13 @@ Prima di importare realmente serviranno:
 Oggi non ci sono dati remoti da ripristinare. In una futura importazione si fermeranno immediatamente i lotti e si controlleranno i soli profili creati, usando il registro privato. Eventuali cancellazioni richiederanno una decisione specifica e la verifica che nel frattempo non siano comparsi nuovi ordini o modifiche. I clienti già presenti non dovranno essere cancellati o sovrascritti.
 
 Il recupero non è sempre automatico: attività successive e comunicazioni già inviate non possono essere annullate con un semplice rollback. Il lotto pilota e la verifica prima di proseguire riducono questo rischio.
+
+## Decisione operativa successiva — 15 novembre 2026 (senza autorizzazione a importare)
+
+Il preflight reale è stato completato e documentato, ma non crea clienti. Il prossimo obiettivo è preparare un **pilota ridotto e reversibile nei limiti delle funzionalità Shopify**: un campione indicativo di **5–10 account** scelti *solo* tra i 849 candidati, dopo controllo privato di ciascuno dei selezionati, senza forzare la revisione di tutti gli altri nella stessa attività. L'eventuale importazione dell'intera coorte richiederà successivamente un controllo e una decisione per tutti i record che si intende trasferire; il campione non li convalida automaticamente.
+
+I **sette account in quarantena** (sei somiglianze telefoniche e un telefono malformato) restano totalmente esclusi dal campione finché non sono stati chiariti e documentati privatamente. Il cliente già presente in Shopify non deve essere creato di nuovo né sovrascritto. Verificare inoltre il profilo Shopify senza email, eventuali recapiti alternativi e i limiti delle corrispondenze automatiche.
+
+Per il campione selezionato il responsabile deve approvare identità e indirizzo email, finalità, dati minimi necessari, modalità futura di accesso agli account e conservazione delle evidenze. Il CSV minimo usato nel preflight non certifica nome, cognome e indirizzo, che richiedono un'estrazione minima separata **solo se davvero necessari**. Password WooCommerce e consensi marketing non vengono migrati. Nessuna comunicazione al cliente deve partire automaticamente.
+
+Prima del pilota occorrono uno strumento **create-only** separato e revisionato, nuovo controllo live di email/telefono, backup, registro privato dei profili creati, prova di recupero e **approvazione esplicita** di negozio, campione, campi, finestra e responsabile. L'attuale PR #53 non include un writer e non autorizza un merge operativo, un import, un invito, un deploy o modifiche al sito.
