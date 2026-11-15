@@ -10,6 +10,24 @@ La CLI reale è stata eseguita sul commit `65131b6`; `ffa8702` ne ha pubblicato 
 
 La nuova branch nasce dalla #53; la nuova PR ha come base `codex/customers-offline-preflight` per mostrare soltanto il piano e i test aggiuntivi. La #53 resta aperta e immutata. Prima di un futuro merge occorre decidere l'ordine d'integrazione e ricontrollare il diff; nessun merge, deploy o autorizzazione deriva da questa struttura.
 
+## Decisione preliminare: serve davvero precreare clienti?
+
+**Gate di prodotto prima di sviluppare un writer:** verificare quale beneficio concreto dovrebbe ottenere un vecchio cliente dalla creazione anticipata del solo campo email. La documentazione ufficiale [Shopify Customer Accounts](https://help.shopify.com/en/manual/customers/customer-accounts/upgrade/customization-options) chiarisce che l'accesso volontario con una email non ancora associata a Shopify **crea automaticamente un nuovo profilo**. Questa non è una garanzia che il negozio Online Garden sia già configurato correttamente, né abilita il login del sito React/Supabase.
+
+Confrontare e approvare esplicitamente le opzioni:
+
+| Opzione | Quando ha senso | Conseguenze |
+| --- | --- | --- |
+| **Self-service Shopify Customer Accounts, senza import preventivo** | Obiettivo principale: vecchio cliente può accedere volontariamente e acquistare | Prima risolvere il flusso front-end e configurazione Shopify; il profilo può nascere al primo login; non porta storico ordini WooCommerce né anagrafica/consenso pregresso |
+| **Pilota create-only email di 5 clienti** | È dimostrato un requisito commerciale o di assistenza che richiede profili **prima** dell'accesso | Necessari verifica nominativa, audit automazioni, writer, approvazione, nuovo snapshot e recovery; l'email-only non migra ordini, password o consenso marketing |
+| **Migrazione storica estesa** | Esiste una necessità documentata e lecita di continuità CRM/servizio | Richiede progetto separato su identità, dati, consensi, retention e ordini; non è autorizzata da questa PR |
+
+**Raccomandazione provvisoria:** prima validare in staging, usando esclusivamente account di prova autorizzati, l'esperienza Shopify Customer Accounts sul sito e un accesso senza profilo preesistente. Questo test può **creare** un profilo, quindi richiede un ambiente di test e autorizzazione dedicati. Se il self-service soddisfa il requisito, interrompere il progetto di precreazione di massa. Se non lo soddisfa, documentare perché e mantenere il piano pilota create-only come alternativa controllata. Nessuna di queste verifiche autorizza automaticamente una write in produzione.
+
+### Gate UX: i due login non sono equivalenti
+
+Verifica statica nel repository: `src/pages/Auth.tsx` usa `useAuth`/Supabase; `src/pages/Account.tsx` richiede la sessione Supabase e in sua assenza naviga a `/auth`; `src/pages/AccountCallback.tsx` salva invece i token Shopify in `customerStore`, poi naviga a `/account`. **Il profilo Shopify, anche se creato correttamente, non garantisce accesso all'area personale del sito**. Prima di qualunque pilota reale scegliere la sorgente dell'identità clienti, distinguere accesso amministrativo e customer, e definire/testare la route post-callback e l'esperienza di logout. Non cambiare autenticazione o UI in questa PR.
+
 ## Selezione privata deterministica
 
 1. Il responsabile recupera, in archivio cifrato esterno a Git, gli input minimizzati e le prove di provenienza/integrità. Se non sono più disponibili, nuova acquisizione autorizzata degli stessi estratti, mai workbook completo. Non presumere che le vecchie copie temporanee esistano ancora.
