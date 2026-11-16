@@ -43,3 +43,7 @@ Rollback futuro: ripristino versione applicativa approvata, senza cancellare boz
 ## Preflight live Step 1B — 16 novembre 2026
 
 **NO-GO allo Step 1C.** [Report e matrice verificata](VERIFICHE-STEP1B.md). Identità ambiente e mapping registro confermati via letture live; migrazioni 0016/0017 assenti, CHECK senza ai e grant editor senza ai/tre elenchi. Versioni Edge Functions, presenza secret, flag runtime, quota/credito e attribuzione nominativa privata restano NON VERIFICATI. Nessuna modifica live. Lovable è alla baseline e3a109e; SHA Git della build sul dominio non attestato. Non avviare rilascio o collaudo a consumo prima di chiudere questi gate e ottenere autorizzazioni separate.
+
+## Pacchetto Step 1C-0 — preparato, non eseguito
+
+[Piano developer](ATTIVAZIONE-STEP1C.md), [registro approvazioni](AUTORIZZAZIONI-STEP1C.md), [collaudo Marco](COLLAUDO-MARCO-STEP1C.md). **NO-GO esecuzione Step 1C**: approvazioni ed evidenze mancanti non acquisite da questo pacchetto. Grant condiviso: +ai e +tre field_keys non costituiscono una allowlist AI separata e possono ampliare anche il sync; owner deve approvare il perimetro effettivo. Nessuna modifica live.

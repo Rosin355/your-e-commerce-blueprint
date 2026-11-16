@@ -14,3 +14,7 @@
 **Aggiorna sul sito e Pubblica sono azioni diverse dalla bozza. Non usarle durante questa checklist senza autorizzazione specifica sul prodotto.** Nessun test di questa PR ha pubblicato contenuti o utilizzato il tuo account. Chiusura soltanto dopo riscontro personale e registrazione delle prove ancora mancanti.
 
 Aggiornamento Step 1A: il nuovo flusso è stato verificato con dati/provider simulati. Il preflight Step 1B controllerà soltanto in lettura configurazioni e autorizzazioni. Non usare queste istruzioni sul negozio reale finché il responsabile non conferma il rilascio e il perimetro di prova autorizzato.
+
+## Pacchetto Step 1C-0 — preparato, non eseguito
+
+[Piano developer](ATTIVAZIONE-STEP1C.md), [registro approvazioni](AUTORIZZAZIONI-STEP1C.md), [collaudo Marco](COLLAUDO-MARCO-STEP1C.md). **NO-GO esecuzione Step 1C**: approvazioni ed evidenze mancanti non acquisite da questo pacchetto. Grant condiviso: +ai e +tre field_keys non costituiscono una allowlist AI separata e possono ampliare anche il sync; owner deve approvare il perimetro effettivo. Nessuna modifica live.

@@ -47,3 +47,13 @@ La prova sintetica usa un repository/provider simulato: non dimostra accesso del
 5. **Collaudo umano** — nella sessione personale di Marco: HTML visuale, tre liste, formato/prezzi, salvataggio e readback, proposta AI reale (se autorizzata), cancellazione e conferma; Safari e accessibilita. Registrare build frontend e revisioni Edge osservate **dopo** il rilascio; in caso di blocco, preservare l'Admin attuale e dichiarare consegna PARZIALE.
 
 **Step immediato autorizzato:** Codex puo preparare questo pacchetto e raccogliere soltanto metadati gia accessibili in lettura. **Non sono autorizzati** migrazioni/deploy/grant/merge/Publish, chiamate AI a pagamento o mutazioni Shopify. Quando il pacchetto sara pronto, il proprietario deve approvare separatamente lo scope puntuale prima di qualsiasi write.
+
+## Pacchetto Step 1C-0 — preparato, non eseguito
+
+[Piano developer](ATTIVAZIONE-STEP1C.md), [registro approvazioni](AUTORIZZAZIONI-STEP1C.md), [collaudo Marco](COLLAUDO-MARCO-STEP1C.md). **NO-GO esecuzione Step 1C**: approvazioni ed evidenze mancanti non acquisite da questo pacchetto. Grant condiviso: +ai e +tre field_keys non costituiscono una allowlist AI separata e possono ampliare anche il sync; owner deve approvare il perimetro effettivo. Nessuna modifica live.
+
+- [x] 1C-0: piano Drizzle con checksum, recupero e autorizzazioni separate predisposto.
+- [ ] Identità nominativa e perimetro AI/sync confermati privatamente.
+- [ ] Versioni/config/provider/credito e artefatti rollback attestati.
+- [ ] M/B/G/F-M/F-P/T approvati separatamente; eventuali A/S con scope e budget.
+- [ ] Esecuzione e collaudo live: NON ESEGUITI, nessuna consegna Marco.

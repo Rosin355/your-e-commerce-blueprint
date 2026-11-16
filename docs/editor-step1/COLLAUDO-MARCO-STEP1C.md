@@ -1,0 +1,13 @@
+# Collaudo pratico nella sessione di Marco
+
+**Da eseguire soltanto dopo rilascio approvato e autorizzazione T. Adesso NON ESEGUITO.** Usa il login abituale, senza condividere credenziali. Il responsabile indica una sola bozza/DRAFT tecnica e dati sintetici approvati; nessun prodotto in vendita. Se non è disponibile il target, fermati.
+
+- [ ] Apri la descrizione: Modifica, paragrafi, grassetto, elenco e link. Annulla e verifica originale invariato. HTML non supportato: stop, non convertirlo perdendo contenuti.
+- [ ] Nei tre elenchi aggiungi una voce, spostala, rimuovila e annulla; poi salva una modifica approvata e verifica ordine/testo dopo ricarica. Non devi vedere JSON.
+- [ ] Nella compilazione tecnica passa da formato singolo a multiplo e controlla SKU e prezzi in euro con virgola, senza valori inventati/precompilati. Non creare un prodotto Shopify. Usa soltanto prezzi di prova forniti dal responsabile.
+- [ ] Salva bozza e riapri: contenuto e formattazione devono coincidere. Su campo locale vuoto con valore Shopify, prima annulla e poi salva esplicitamente: nessuna perdita dell’originale. Il tecnico coordina un conflitto su bozza tecnica: nessuna sovrascrittura silenziosa.
+- [ ] **Solo con A:** conferma i fatti sintetici e richiedi UNA proposta AI per il campo autorizzato, preferibilmente descrizione vuota/nuova compilazione. Nessun consumo prima del click. Modifica la proposta e applicala soltanto alla compilazione, poi salva solo se previsto da T. Puoi invece scartarla. Non rifare la richiesta per provare entrambi i rami: scegli scarto oppure applicazione per la singola prova reale; il ramo non eseguito resta coperto soltanto dai test offline, da registrare come NON ESEGUITO live. Errore/timeout: niente retry e annota NON PROVATO il percorso incompleto.
+- [ ] **Solo con S:** con il responsabile verifica target DRAFT, campo, versione e mapping, poi conferma Aggiorna sul sito. Readback corretto, stato ancora DRAFT, nessun altro prodotto/campo modificato. Mai premere Pubblica.
+- [ ] Ripeti le operazioni senza consumo AI su desktop e mobile/Safari; tastiera Tab/Shift-Tab, focus visibile, etichette lette dallo screen reader, pulsanti di riordino e dialoghi accessibili, nessun controllo tagliato. Problemi: registra browser e passaggio, senza schermate con dati personali.
+
+Risultati: PASS / FAIL / NON ESEGUITO per ogni punto, data, versione frontend/backend attestata dal tecnico e riscontro Marco nel registro privato. Nessuna spunta deriva dalla CI. AI reale e sync non autorizzati restano NON ESEGUITI. Il salvataggio locale, il sync e la pubblicazione sono tre cose diverse. Il proprietario decide la consegna soltanto dopo le evidenze; problemi o controlli mancanti mantengono stato PARZIALE/BLOCCATO.
