@@ -246,6 +246,7 @@ export function createSupabaseAiRepository(db: SupabaseClient): AiRepository {
 }
 
 export type AiServiceErrorCode =
+  | "FORBIDDEN"
   | "NOT_FOUND"
   | "FIELD_NOT_EDITABLE"
   | "AI_NOT_ALLOWED"
