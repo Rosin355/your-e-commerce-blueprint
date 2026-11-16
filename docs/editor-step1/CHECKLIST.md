@@ -50,10 +50,19 @@ La prova sintetica usa un repository/provider simulato: non dimostra accesso del
 
 ## Pacchetto Step 1C-0 — preparato, non eseguito
 
-[Piano developer](ATTIVAZIONE-STEP1C.md), [registro approvazioni](AUTORIZZAZIONI-STEP1C.md), [collaudo Marco](COLLAUDO-MARCO-STEP1C.md). **NO-GO esecuzione Step 1C**: approvazioni ed evidenze mancanti non acquisite da questo pacchetto. Grant condiviso: +ai e +tre field_keys non costituiscono una allowlist AI separata e possono ampliare anche il sync; owner deve approvare il perimetro effettivo. Nessuna modifica live.
+[Piano developer](ATTIVAZIONE-STEP1C.md), [registro approvazioni](AUTORIZZAZIONI-STEP1C.md), [collaudo Marco](COLLAUDO-MARCO-STEP1C.md). **NO-GO esecuzione Step 1C**: approvazioni ed evidenze mancanti non acquisite da questo pacchetto. Restrizione server successiva: AI soltanto sui sei campi editoriali; aggiungere i tre field_keys non concede il loro sync. Nessuna modifica live.
 
 - [x] 1C-0: piano Drizzle con checksum, recupero e autorizzazioni separate predisposto.
 - [ ] Identità nominativa e perimetro AI/sync confermati privatamente.
 - [ ] Versioni/config/provider/credito e artefatti rollback attestati.
 - [ ] M/B/G/F-M/F-P/T approvati separatamente; eventuali A/S con scope e budget.
 - [ ] Esecuzione e collaudo live: NON ESEGUITI, nessuna consegna Marco.
+
+## Restrizione AI/sync — codice preparato, non distribuito
+
+- [x] AI catalogo ristretta ai sei campi editoriali, anche nel percorso proposte precedente.
+- [x] Tre elenchi modificabili con grant esatto, sync catalogo negato a prescindere dall’aggiunta ai field_keys o da vecchie approvazioni.
+- [x] Contesti UI AI/sync separati e controlli server applicati prima delle approvazioni/replay.
+- [ ] Rilascio, migration, grant e prove reali: ancora NON AUTORIZZATI/NON ESEGUITI. Il sync dei tre elenchi non è previsto in questo rilascio; collaudo S solo su campo preesistente sincronizzabile.
+
+L’avvertenza sul rischio condiviso nei paragrafi storici 1C-0 documenta il motivo della restrizione; il perimetro corrente è quello sopra. Nessuna consegna Marco o GO automatico allo Step 1C operativo.

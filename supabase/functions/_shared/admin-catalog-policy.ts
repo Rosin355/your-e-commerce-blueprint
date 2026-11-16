@@ -28,6 +28,10 @@ export const CLIENT_FIELD_KEYS = [
   "faq",
   "key_benefits", "key_features", "special_bullets",
 ];
+// Initial catalog AI scope, independent of the shared edit field grant.
+export const EDITORIAL_AI_FIELDS = ['description', 'optimized_description', 'short_description', 'key_benefits', 'key_features', 'special_bullets'] as const;
+export const EDITORIAL_LIST_FIELDS = ['key_benefits', 'key_features', 'special_bullets'] as const;
+
 export interface CatalogGrant {
   enabled: boolean;
   capabilities: string[];
@@ -47,6 +51,9 @@ export function catalogAllowed(
   return Boolean(
     grant?.enabled && auth.roles.includes("editor") &&
       grant.capabilities.includes(capability) &&
+      // These newly editable fields have no catalog sync authorization in this release.
+      // A shared field_keys extension or an old approval cannot enable their sync.
+      !(capability === 'sync' && fieldKey !== undefined && (EDITORIAL_LIST_FIELDS as readonly string[]).includes(fieldKey)) &&
       (fieldKey === undefined ||
         (CLIENT_FIELD_KEYS.includes(fieldKey) &&
           grant.fieldKeys.includes(fieldKey))),
@@ -210,5 +217,5 @@ export function validateImage(bytes: Uint8Array, declared: string) {
 
 /** AI requires an explicit scoped capability; edit is never an implicit AI grant. */
 export function catalogAiAllowed(auth: AuthContext, fieldKey?: string): boolean {
-  return catalogAllowed(auth, 'ai', fieldKey) && catalogAllowed(auth, 'edit', fieldKey);
+  return (fieldKey === undefined || (EDITORIAL_AI_FIELDS as readonly string[]).includes(fieldKey)) && catalogAllowed(auth, 'ai', fieldKey) && catalogAllowed(auth, 'edit', fieldKey);
 }

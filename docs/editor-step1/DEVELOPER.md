@@ -46,4 +46,14 @@ Rollback futuro: ripristino versione applicativa approvata, senza cancellare boz
 
 ## Pacchetto Step 1C-0 — preparato, non eseguito
 
-[Piano developer](ATTIVAZIONE-STEP1C.md), [registro approvazioni](AUTORIZZAZIONI-STEP1C.md), [collaudo Marco](COLLAUDO-MARCO-STEP1C.md). **NO-GO esecuzione Step 1C**: approvazioni ed evidenze mancanti non acquisite da questo pacchetto. Grant condiviso: +ai e +tre field_keys non costituiscono una allowlist AI separata e possono ampliare anche il sync; owner deve approvare il perimetro effettivo. Nessuna modifica live.
+[Piano developer](ATTIVAZIONE-STEP1C.md), [registro approvazioni](AUTORIZZAZIONI-STEP1C.md), [collaudo Marco](COLLAUDO-MARCO-STEP1C.md). **NO-GO esecuzione Step 1C**: approvazioni ed evidenze mancanti non acquisite da questo pacchetto. Il rischio del grant condiviso rilevato in 1C-0 è risolto dal controllo server descritto sotto: AI su sei campi, sync dei tre nuovi elenchi negato agli operatori catalogo. Nessuna modifica live.
+
+## Restrizione minima server AI/sync — Step 1C
+
+EDITORIAL_AI_FIELDS in _shared/admin-catalog-policy.ts è l’unica allowlist catalogo AI: description, optimized_description, short_description, key_benefits, key_features, special_bullets. CONFIRMED_AI_FIELDS la riusa. catalogAiAllowed la applica anche al percorso precedente: listing filtra, generazione/accept/reject verificano il campo con grant corrente prima del service; ownership, ai_allowed, lock/versione, applicabilità e approvazioni restano invariati. Title, seo_title, seo_description, faq, prezzi, SKU e qualunque altro campo negati. Il registro non può ampliare questa lista.
+
+catalogAllowed nega sync su EDITORIAL_LIST_FIELDS per il catalogo, pur mantenendo edit sul field_keys autorizzato. prepareCatalogApproval e withCatalogApproval invocano requireCatalog prima di snapshot/approvazione/replay: una vecchia approvazione non aggira il blocco. La serializzazione field-by-field usa aiFieldKeys e syncFieldKeys distinti ricevuti dal server; nessuna fiducia nella UI. Sync dei campi esistenti e percorsi amministrativi preesistenti fuori dal grant catalogo conservati. Nessun cambiamento a grant/ruoli/schema/migration/flag.
+
+Il sync dei tre elenchi non è attivabile dalla sola approvazione operativa S in questa versione. Un futuro sblocco richiede decisione e intervento tecnico mirati; non attivare full o flag globali per aggirarlo. Il collaudo S può usare soltanto un campo preesistente sincronizzabile. Restano tutte le evidenze e autorizzazioni del report 1B prima del rilascio.
+
+Verifica della restrizione: 20 nuovi test sintetici in scripts/tests/editorial-permission-scope.test.ts; totale 469 Node PASS, 106 Deno PASS, 5 Chromium PASS. Typecheck frontend, Deno check degli entrypoint, lint dei file modificati e build PASS. Suite esistenti di salvataggio, concorrenza, proposte e sync incluse; nessuna prova live o generazione reale. CI del commit da consultare nella PR; i test SQL restano nel job effimero esistente, nessuna migration modificata da questa restrizione.

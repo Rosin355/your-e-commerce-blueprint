@@ -17,4 +17,8 @@ Aggiornamento Step 1A: il nuovo flusso è stato verificato con dati/provider sim
 
 ## Pacchetto Step 1C-0 — preparato, non eseguito
 
-[Piano developer](ATTIVAZIONE-STEP1C.md), [registro approvazioni](AUTORIZZAZIONI-STEP1C.md), [collaudo Marco](COLLAUDO-MARCO-STEP1C.md). **NO-GO esecuzione Step 1C**: approvazioni ed evidenze mancanti non acquisite da questo pacchetto. Grant condiviso: +ai e +tre field_keys non costituiscono una allowlist AI separata e possono ampliare anche il sync; owner deve approvare il perimetro effettivo. Nessuna modifica live.
+[Piano developer](ATTIVAZIONE-STEP1C.md), [registro approvazioni](AUTORIZZAZIONI-STEP1C.md), [collaudo Marco](COLLAUDO-MARCO-STEP1C.md). **NO-GO esecuzione Step 1C**: approvazioni ed evidenze mancanti non acquisite da questo pacchetto. AI limitata alle descrizioni e ai tre elenchi; il sync dei tre nuovi elenchi è bloccato per il catalogo. Nessuna modifica live.
+
+## Perimetro della versione in verifica
+
+Quando autorizzata, l’assistenza AI sarà disponibile soltanto per le tre descrizioni e i tre elenchi editoriali. Titolo, SEO, FAQ, prezzi e codici prodotto non hanno assistenza AI in questa versione. I tre elenchi possono essere modificati e salvati in bozza con il permesso previsto; non possono essere inviati a Shopify da questo flusso. Non cambiare account o ruolo per sbloccarli. Per il futuro collaudo della sincronizzazione il responsabile indicherà un campo preesistente consentito su DRAFT tecnica. Queste modifiche non sono ancora distribuite.

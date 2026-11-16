@@ -1,7 +1,7 @@
 import type { AuthContext, FieldDefinition } from './admin-v2-types.ts';
-import { catalogAiAllowed } from './admin-catalog-policy.ts';
+import { catalogAiAllowed, EDITORIAL_AI_FIELDS } from './admin-catalog-policy.ts';
 import { aiDefinitionEligibility, type AiTrustedContext, strategyForField, validateSuggestedValue } from './admin-ai-core.ts';
-export const CONFIRMED_AI_FIELDS = ['description','optimized_description','short_description','key_benefits','key_features','special_bullets'] as const;
+export const CONFIRMED_AI_FIELDS = EDITORIAL_AI_FIELDS;
 export { confirmedFacts } from './admin-ai-facts.ts';
 export function authorizeConfirmedAi(auth: AuthContext, def: FieldDefinition | null, action: unknown) {
   if (action !== 'suggest_confirmed_field' || !def || !catalogAiAllowed(auth,def.key) || !(CONFIRMED_AI_FIELDS as readonly string[]).includes(def.key) || !def.visible || !def.editable || aiDefinitionEligibility(def) !== 'allowed') throw new Error('Azione AI non autorizzata per questo account e campo.');
