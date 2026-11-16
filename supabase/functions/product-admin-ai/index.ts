@@ -128,7 +128,6 @@ async function requireAiWrite(
 
   let fieldKey = typeof payload.fieldKey === "string" ? payload.fieldKey : null;
   if (
-    !fieldKey &&
     (action === "accept_ai_suggestion" || action === "reject_ai_suggestion")
   ) {
     const suggestionId = payload.suggestionId;

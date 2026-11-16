@@ -583,3 +583,10 @@ test('proposte di un altro attore non sono riutilizzate né scartate dalla gener
   await assert.rejects(generateAiSuggestion(repo, { actor: ACTOR_ID, productId: PRODUCT_ID, fieldKey: 'title', baseVersion: 1 }, async () => { calls++; return { value: 'Titolo', provider: 'lovable', model: 'synthetic', usageTokens: 1 }; }), (error: unknown) => error instanceof AiServiceError && error.code === 'GENERATION_IN_PROGRESS');
   assert.equal(calls, 0); assert.equal(repo.resolutions.length, 0);
 });
+
+test('accept e reject negano una proposta altrui senza write, anche se il chiamante conosce il suggestionId', async () => {
+  const repo = new FakeRepo();repo.stored.set(SUGGESTION_ID,suggestion({created_by:'66666666-6666-4666-8666-666666666666'}));
+  await assert.rejects(acceptAiSuggestion(repo,{actor:ACTOR_ID,suggestionId:SUGGESTION_ID,value:'Testo',expectedVersion:1,idempotencyKey:'foreign-proposal-test'}),(error:unknown)=>error instanceof AiServiceError && error.code==='FORBIDDEN');
+  await assert.rejects(rejectAiSuggestion(repo,{actor:ACTOR_ID,suggestionId:SUGGESTION_ID}),(error:unknown)=>error instanceof AiServiceError && error.code==='FORBIDDEN');
+  assert.equal(repo.executeCalls,0);assert.equal(repo.resolutions.length,0);
+});

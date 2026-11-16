@@ -561,6 +561,7 @@ export async function rejectAiSuggestion(
   if (!suggestion) {
     throw new AiServiceError("NOT_FOUND", "Proposta AI inesistente");
   }
+  if (suggestion.created_by !== input.actor) throw new AiServiceError('FORBIDDEN', 'Proposta AI non disponibile per questo account.');
   const current = await repo.getCurrent(
     suggestion.product_id,
     suggestion.field_key,
@@ -606,6 +607,7 @@ export async function acceptAiSuggestion(
   if (!suggestion) {
     throw new AiServiceError("NOT_FOUND", "Proposta AI inesistente");
   }
+  if (suggestion.created_by !== input.actor) throw new AiServiceError('FORBIDDEN', 'Proposta AI non disponibile per questo account.');
   const command: CommandInput = {
     actor: input.actor,
     action: "update_field",
