@@ -35,3 +35,15 @@ La prova sintetica usa un repository/provider simulato: non dimostra accesso del
 ## Preflight live Step 1B — 16 novembre 2026
 
 **NO-GO allo Step 1C.** [Report e matrice verificata](VERIFICHE-STEP1B.md). Identità ambiente e mapping registro confermati via letture live; migrazioni 0016/0017 assenti, CHECK senza ai e grant editor senza ai/tre elenchi. Versioni Edge Functions, presenza secret, flag runtime, quota/credito e attribuzione nominativa privata restano NON VERIFICATI. Nessuna modifica live. Lovable è alla baseline e3a109e; SHA Git della build sul dominio non attestato. Non avviare rilascio o collaudo a consumo prima di chiudere questi gate e ottenere autorizzazioni separate.
+
+## Decisione operativa successiva al preflight — 16 novembre, Step 1C-0
+
+**Il NO-GO resta valido.** Evitare un terzo audit generale o un nuovo ramo di sviluppo. La prossima consegna deve essere un **pacchetto di rilascio eseguibile ma non eseguito**, con una tabella di autorizzazioni separata e un'unica checklist per il proprietario.
+
+1. **Identita e permessi** — proprietario conferma privatamente quale dei due grant editoriali appartiene a Marco. Per la futura estensione approvare esattamente il principal, i tre field_keys editoriali e la capability `ai` (solo per campi con `ai_allowed`), senza alterare le sette capability esistenti, senza esporre identificativi su GitHub.
+2. **Schema** — review finale della catena 0015 → 0016 → 0017 con una sola autorita di migrazione, SQL/checksum immutabili, precondizioni, postcondizioni, idempotenza e arresto in caso di drift. Le migration sono state testate offline, non applicate al live. Nessun rollback automatico distruttivo dello schema.
+3. **Backend e config** — owner/operatore con accesso Lovable fornisce attestazione non segreta di revisioni effettive delle due Edge Functions, presenza del secret server, flag, modello/credito/quota, senza copiare i valori o riutilizzare credenziali in chat/CI.
+4. **Rilascio** — distinguere e autorizzare esplicitamente: migration DB, deploy Edge coerenti col commit, grant nominativi, merge frontend, Publish Lovable, eventuale richiesta AI a consumo e sync su una sola DRAFT tecnica approvata. Non dedurre il GO da autorizzazioni parziali.
+5. **Collaudo umano** — nella sessione personale di Marco: HTML visuale, tre liste, formato/prezzi, salvataggio e readback, proposta AI reale (se autorizzata), cancellazione e conferma; Safari e accessibilita. Registrare build frontend e revisioni Edge osservate **dopo** il rilascio; in caso di blocco, preservare l'Admin attuale e dichiarare consegna PARZIALE.
+
+**Step immediato autorizzato:** Codex puo preparare questo pacchetto e raccogliere soltanto metadati gia accessibili in lettura. **Non sono autorizzati** migrazioni/deploy/grant/merge/Publish, chiamate AI a pagamento o mutazioni Shopify. Quando il pacchetto sara pronto, il proprietario deve approvare separatamente lo scope puntuale prima di qualsiasi write.
