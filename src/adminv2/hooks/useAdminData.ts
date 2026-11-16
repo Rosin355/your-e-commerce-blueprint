@@ -147,6 +147,7 @@ export function useFieldCommand(productId?: string) {
       fieldKey: string;
       value?: unknown;
       expectedVersion: number;
+      expectedShopifyHash?: string;
     }) => sendFieldCommand({ ...input, productId: productId! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'product', productId] });

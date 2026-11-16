@@ -322,7 +322,7 @@ test('23. UX contiene stati responsive/accessibili senza JSON grezzo', () => {
   assert.match(source, /aria-live="polite"/);
   assert.match(source, /md:grid-cols-2/);
   assert.match(source, /Sto preparando una proposta/);
-  assert.match(source, /Migliora con AI/);
+  assert.match(source, /Migliora il testo con AI/);
   assert.match(source, /Miglioramento AI/);
   assert.match(source, /Modifica proposta/);
   assert.match(source, /Proposta accettata/);
@@ -574,4 +574,12 @@ test('36. product-admin-ai usa product_ai_suggestions soltanto con SELECT, INSER
   assert.match(source, /\.from\("product_ai_suggestions"\)[\s\S]*?\.insert\(/);
   assert.match(source, /\.from\("product_ai_suggestions"\)[\s\S]*?\.update\(/);
   assert.doesNotMatch(source, /\.delete\(/);
+});
+
+test('proposte di un altro attore non sono riutilizzate né scartate dalla generazione', async () => {
+  const repo = new FakeRepo();
+  repo.pending = [suggestion({ created_by: '66666666-6666-4666-8666-666666666666' })];
+  let calls = 0;
+  await assert.rejects(generateAiSuggestion(repo, { actor: ACTOR_ID, productId: PRODUCT_ID, fieldKey: 'title', baseVersion: 1 }, async () => { calls++; return { value: 'Titolo', provider: 'lovable', model: 'synthetic', usageTokens: 1 }; }), (error: unknown) => error instanceof AiServiceError && error.code === 'GENERATION_IN_PROGRESS');
+  assert.equal(calls, 0); assert.equal(repo.resolutions.length, 0);
 });

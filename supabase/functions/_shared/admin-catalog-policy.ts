@@ -9,6 +9,7 @@ export const CATALOG_CAPABILITIES = [
   "categories",
   "prices",
   "publish",
+  "ai",
 ] as const;
 export const CLIENT_FIELD_KEYS = [
   "title",
@@ -25,6 +26,7 @@ export const CLIENT_FIELD_KEYS = [
   "periodo_ottimale_di_potatura",
   "difficolta_di_coltivazione",
   "faq",
+  "key_benefits", "key_features", "special_bullets",
 ];
 export interface CatalogGrant {
   enabled: boolean;
@@ -204,4 +206,9 @@ export function validateImage(bytes: Uint8Array, declared: string) {
     );
   }
   return { mime, extension: mime === "image/png" ? "png" : "jpg" };
+}
+
+/** AI requires an explicit scoped capability; edit is never an implicit AI grant. */
+export function catalogAiAllowed(auth: AuthContext, fieldKey?: string): boolean {
+  return catalogAllowed(auth, 'ai', fieldKey) && catalogAllowed(auth, 'edit', fieldKey);
 }

@@ -36,6 +36,7 @@ export const SEASONAL_FIELD_KEYS = Object.freeze([
  */
 export const CLIENT_CREATABLE_MISSING_FIELD_KEYS = Object.freeze([
   ...SEASONAL_FIELD_KEYS,
+  "description", "optimized_description", "short_description", "title", "seo_title", "seo_description", "key_benefits", "key_features", "special_bullets",
   "difficolta_di_coltivazione",
 ] as const);
 

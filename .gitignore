@@ -46,3 +46,7 @@ backups/
 
 # Report locale del dry-run golden (può contenere dati catalogo autorizzati)
 /docs/wordpress-golden-foundation-dry-run.json
+
+# Local synthetic browser test artifacts
+/test-results/
+/playwright-report/

@@ -1,6 +1,6 @@
 import { COMMERCE_ACTIONS, handleCatalogCommerce, commerceSnapshot } from '../_shared/admin-catalog-commerce.ts';
 import { loadCatalogGrant, prepareCatalogApproval, withCatalogApproval, catalogMode } from '../_shared/admin-catalog-approvals.ts';
-import { catalogAllowed, CATALOG_MUTATIONS } from '../_shared/admin-catalog-policy.ts';
+import { catalogAllowed, catalogAiAllowed, CATALOG_MUTATIONS } from '../_shared/admin-catalog-policy.ts';
 import { handleCatalogMedia } from '../_shared/admin-catalog-media.ts';
 import { payloadHash } from '../_shared/admin-v2-commands.ts';
 import { OPERATION_ACTIONS, OperationalError } from '../_shared/admin-operational-core.ts';
@@ -355,7 +355,7 @@ Deno.serve(async (req) => {
             productActive: product.is_active,
             scopedActions: catalogMode(auth) === 'canary' ? canaryScope()?.actions ?? [] : [...(catalogAllowed(auth,'edit')?['update_field','confirm_legacy_value','reject_legacy_value']:[]),...(catalogAllowed(auth,'sync')?['sync_field']:[])],
             scopedFieldKeys: catalogMode(auth) === "canary" ? canaryScope()?.fieldKeys ?? [] : auth.catalogGrant?.fieldKeys,
-            aiEnabled: false,
+            aiEnabled: catalogAiAllowed(auth),
             syncAllowed: writesEnabled() && canaryAllowed && (catalogAllowed(auth,'sync') || canSyncShopify(auth.roles)) && shopifySyncEnabled(),
           },
           { fallbackSnapshot: snapshot, linkedSnapshots, shopifyLiveValues },

@@ -1,0 +1,31 @@
+# Step 1 — editor prodotti: implementazione e limiti
+
+16 novembre 2026. Base main `e3a109e`, PR #22/#50/#51/#52 già integrate. Nessun secondo Admin, account, modifica al login o grant live. PR tecnica draft separata; nessun merge/deploy/Publish o uso di prodotti commerciali.
+
+## Stato corretto
+
+**Sviluppo PARZIALE; BLOCCATO per il collaudo personale di Marco.** I flussi con fixture e provider simulato sono verificabili localmente. Non sono verificati/approntati sul servizio live i grant dei tre elenchi, la capability nominativa `ai`, il modello/credito né le nuove funzioni/migrazioni. L'assistenza AI per campi completamente vuoti o nuove bozze senza valore corrente rimane BLOCCATA: non è stata introdotta una compilazione basata su fatti non confermati. Non dichiarare Step 1 consegnato.
+
+## Modifiche
+
+- RichTextEditor riusa Tiptap, StarterKit, ProseMirror: paragrafi, grassetto, corsivo, elenchi, link, undo/redo. Nessun HTML da digitare. Apertura/cancel non emettono una scrittura; il contenuto con strutture non supportate rimane originale e l'editor si blocca con spiegazione. È intenzionale: non flattenare immagini/tabelle/stili legacy per superare un test. Serve un caso approvato per eventuale conversione futura.
+- DOMPurify protegge il browser. La policy condivisa `xss` è bundlata in `_shared/vendor/editorial-html.mjs` per Node/browser/Deno senza dipendenze runtime aggiuntive. `npm run build:editor-sanitizer` rigenera il file dalla sorgente e dal lockfile; licenze conservate. Le preview filtrano i contenuti; il server verifica il risultato del sanitizzatore e **rifiuta** HTML non sicuro/non canonico invece di salvarne silenziosamente una versione tagliata. Applicato alla validazione campo (anche accept AI) e alle nuove bozze.
+- FieldCard: Modifica in alto, Modificabile/In modifica, Salva bozza, Aggiorna sul sito con conferma, Annulla; INTERNAL_ONLY diventa Bozza interna. Confronti sotto dettagli chiusi. Le due descrizioni che mappano descriptionHtml hanno un avviso esplicito: nessun sync automatico di entrambe.
+- Le tre liste hanno controlli aggiungi/rimuovi/su/giù, ordine conservato, nomi cliente, whitelist e validazione server di stringhe non vuote (max 50 voci, 1000 caratteri ciascuna). Un grant sul campo resta indispensabile: la whitelist non concede permessi.
+- Prima bozza dal valore Shopify: usa il valore letto, version=0, salvataggio esplicito, hash remoto riletto nel pacchetto di approvazione e ricontrollato all'esecuzione. Lettura/cancel non creano righe. Se il mapping o la lettura remota necessari mancano, stop. Le liste/descrizioni inizializzabili sono una allowlist finita; niente stock/prezzi/ID. Il canary mantiene i precedenti campi, senza abilitare automaticamente i tre nuovi elenchi.
+- Formati nuovi prodotti: scelta singolo/multiplo, codice singolo condiviso con la famiglia, proposte deterministiche per nuovi SKU (da verificare), righe reali senza prezzi precompilati; virgola EUR accettata e normalizzata dal server; confronto opzionale con rimozione confermata. Unicità SKU e prezzi restano verificati nei percorsi esistenti. Nessuna modifica a varianti commerciali, stock o fiscalità.
+- AI: infrastruttura esistente, grant caricato dal database, capability esplicite `ai` **e** `edit`, campo autorizzato/ai_allowed/strategia supportata, isolamento delle proposte per attore. La modalità catalogo nominativa non impone un `full` globale. Replay/accept/reject restano soggetti ai permessi correnti. Proposta mostrata/modificabile; Applica alla bozza richiede conferma e non sincronizza. Rate limit/reservation/hash/versione/idempotenza preesistenti riutilizzati; proposta altrui non viene riusata o scartata.
+
+## Preparazione ancora necessaria (non eseguita)
+
+Migrazione locale `20261116161045_marco_editorial_missing_values.sql` e copia Drizzle `0016`: estendono solo la creazione del primo valore a chiavi editoriali specifiche, preservando il corpo atomico e i controlli ruoli/RLS. **Non applicate.** Nessun grant SQL a utenti, nessun ampliamento automatico di `admin_catalog_capabilities`. La registrazione del file nel percorso di migrazione effettivamente usato deve essere revisionata prima del deploy.
+
+Owner deve decidere un'autorizzazione nominativa distinta per i tre field_keys e `ai`, senza rimuovere le capability esistenti. Il DDL versionato `docs/release/pending/20261110135043_admin_catalog_client_delivery.sql` contiene una CHECK che ammette soltanto le sette capability precedenti, escludendo `ai`: per una generazione reale serve prima una migrazione di schema revisionata e autorizzata, oltre al grant nominativo. La versione effettivamente live non è stata letta. Nessuna migrazione dei permessi viene inventata o applicata qui. Campo non autorizzato rimane negato anche se visibile.
+
+Generazione reale: endpoint `product-admin-ai`, secret server `LOVABLE_API_KEY` (solo presenza, non valore), `ADMIN_AI_MODEL` supportato e credito disponibile, limite costo/richieste e timeout `ADMIN_AI_TIMEOUT_MS`, flag scritture già configurato e grant nominativo. Default nel codice preesistente `google/gemini-3-flash-preview`: supporto effettivo non certificato. Niente chiavi nel browser, ricariche, abbonamenti o chiamate reali. Gestire 402/429/timeout/risposta non strutturata come errore; fallback manuale. I prompt non autorizzano nuovi claim botanici o numeri economici; verifica umana obbligatoria.
+
+## Test e rollback
+
+`npm run typecheck`; `npm run build`; `node ci/run-domain.mjs node`; `node ci/run-domain.mjs deno ci/deno-ci.lock`; `npm run test:editor-browser` (Chromium locale, sole fixture, richieste esterne abortite). Harness in `scripts/browser` non è una route dell'app e non viene incluso nella build distribuita. I test automatici non sono il collaudo nella sessione di Marco. Le prove DB della CI preesistenti non certificano una migrazione nuova applicata live.
+
+Rollback futuro: ripristino versione applicativa approvata, senza cancellare bozze/storico o fare restore generale. Nessuna down migration automatica né revoca dei grant di Marco. I salvataggi locali, la sincronizzazione e la pubblicazione restano effetti distinti; non annullabili genericamente con un rollback UI. Prima di distribuire, provare le migrazioni in un DB di verifica e il recovery con una DRAFT tecnica autorizzata.

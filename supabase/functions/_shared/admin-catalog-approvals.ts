@@ -93,9 +93,10 @@ export async function catalogSnapshot(
         version: value.version,
       }
       : null;
-    if (action !== "sync_field") return { internal };
+    if (action !== "sync_field" && !(action === "update_field" && !value)) return { internal };
     const def = await getFieldDefinition(db, p.fieldKey);
     const target = def && resolveShopifyTarget(def);
+    if (!target && action === 'update_field') return { internal };
     const mapping = await getExactShopifyProductMapping(db, product.sku);
     demand(
       target && mapping?.shopify_product_id,

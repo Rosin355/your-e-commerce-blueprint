@@ -329,12 +329,14 @@ export async function sendFieldCommand(input: {
   fieldKey: string;
   value?: unknown;
   expectedVersion: number;
+  expectedShopifyHash?: string;
 }): Promise<{ ok: boolean; code?: string; result?: Record<string, unknown> }> {
   return callCatalogCommand({
     action: input.action,
     productId: input.productId,
     fieldKey: input.fieldKey,
     value: input.value ?? null,
+    expectedShopifyHash: input.expectedShopifyHash,
     expectedVersion: input.expectedVersion,
     idempotencyKey: crypto.randomUUID(),
   });

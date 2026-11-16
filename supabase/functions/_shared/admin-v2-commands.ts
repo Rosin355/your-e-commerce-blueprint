@@ -39,7 +39,7 @@ export function isCanaryField(
   def: { key: string; manual_only: boolean },
 ): boolean {
   return CANARY_FIELD_KEYS.includes(def.key) ||
-    isClientCreatableMissingFieldKey(def.key) ||
+    (['periodo_di_fioritura','periodo_di_messa_a_dimora','periodo_di_raccolta','periodo_ottimale_di_potatura','difficolta_di_coltivazione'].includes(def.key)) ||
     def.manual_only === true;
 }
 

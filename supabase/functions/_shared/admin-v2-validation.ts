@@ -1,3 +1,4 @@
+import { sanitizeEditorialHtml } from './vendor/editorial-html.mjs';
 // F5 — Validazione campi e payload. Modulo puro e testabile.
 import type {
   CommandAction,
@@ -96,6 +97,8 @@ export function validateValue(
   value: unknown,
 ): ValidationResult {
   const rules = def.validation_rules ?? {};
+  if (def.editor_type === 'richtext' && typeof value === 'string' && sanitizeEditorialHtml(value) !== value) return { ok: false, code: 'VALIDATION_ERROR', message: 'HTML non sicuro o non supportato: rivedi il testo prima di salvare.' };
+  if (['key_benefits','key_features','special_bullets'].includes(def.key) && (!Array.isArray(value) || value.length > 50 || value.some(x => typeof x !== 'string' || !x.trim() || x.length > 1000))) return { ok: false, code: 'VALIDATION_ERROR', message: 'Inserisci un elenco di testi non vuoti, massimo 50 voci da 1000 caratteri.' };
 
   try {
     const normalized = validateConstrainedFieldValue(def.key, value);

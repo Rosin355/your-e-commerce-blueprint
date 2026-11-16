@@ -1,3 +1,5 @@
+import VariantEditor from '../components/VariantEditor';
+import RichTextEditor from '../components/RichTextEditor';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -135,7 +137,7 @@ export default function NewProductPage() {
           <>
             {field('Nome prodotto', 'title')}
             {field('SKU famiglia', 'sku')}
-            {field('Descrizione verificata', 'description', true)}
+            <RichTextEditor value={draft.description} onChange={description => update({ description })} label="Descrizione verificata" />
             <p className='text-sm text-muted-foreground'>
               Inserisci soltanto informazioni note. I contenuti botanici non vengono completati
               automaticamente.
@@ -179,61 +181,7 @@ export default function NewProductPage() {
         )}
         {step === 3 && (
           <>
-            <h2 className='font-semibold'>Formati e prezzi</h2>
-            {draft.variants.map((v, i) => (
-              <div className='grid gap-3 rounded-lg border p-3 sm:grid-cols-2' key={i}>
-                {(['sku', 'option', 'price', 'compareAtPrice'] as const).map((k) => (
-                  <label key={k}>
-                    {({
-                      sku: 'SKU variante',
-                      option: 'Formato',
-                      price: 'Prezzo',
-                      compareAtPrice: 'Prezzo di confronto (opzionale)',
-                    })[k]}
-                    <Input
-                      value={v[k] ?? ''}
-                      inputMode={k === 'price' || k === 'compareAtPrice' ? 'decimal' : undefined}
-                      onChange={(e) =>
-                        update({
-                          variants: draft.variants.map((x, j) =>
-                            i === j ? { ...x, [k]: e.target.value } : x
-                          ),
-                        })}
-                    />
-                  </label>
-                ))}
-                {draft.variants.length > 1 && (
-                  <Button
-                    type='button'
-                    variant='outline'
-                    onClick={() =>
-                      update({ variants: draft.variants.filter((_, j) => i !== j) })}
-                  >
-                    Rimuovi formato {i + 1}
-                  </Button>
-                )}
-              </div>
-            ))}
-            <Button
-              type='button'
-              variant='outline'
-              disabled={draft.variants.length >= 50}
-              onClick={() =>
-                update({
-                  variants: [...draft.variants, {
-                    sku: '',
-                    option: '',
-                    price: '',
-                    compareAtPrice: null,
-                  }],
-                })}
-            >
-              Aggiungi formato
-            </Button>
-            <p className='text-sm'>
-              Un formato: stesso SKU della famiglia. Più formati: SKU distinti fra famiglia e
-              varianti. Una sola opzione “Formato” in questa prima versione.
-            </p>
+            <VariantEditor sku={draft.sku} variants={draft.variants} onChange={variants => update({ variants })} />
             <CatalogImages images={draft.images} onChange={images => update({ images })} ordinary={ordinary}
               enabled={adminContext.data?.canUploadImages === true} sku={draft.sku} requestKey={catalogue.data?.canaryRequestKey} />
           </>

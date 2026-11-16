@@ -1,3 +1,4 @@
+import { sanitizeEditorialHtml } from './vendor/editorial-html.mjs';
 export const DRAFT_BOTANICAL_KEYS = [
   'nome_botanico',
   'nome_comune',
@@ -144,6 +145,7 @@ function text(v: unknown, label: string, max: number, required = false): string 
 export function validateDraft(raw: unknown): ProductDraft {
   demand(raw && typeof raw === 'object' && !Array.isArray(raw), 'Compilazione non valida.');
   const r = raw as Record<string, unknown>;
+  if (typeof r.description === 'string') demand(sanitizeEditorialHtml(r.description) === r.description, 'Descrizione: HTML non sicuro o non supportato.');
   const sku = (v: unknown) => {
     const s = text(v, 'SKU', 80, true);
     demand(
@@ -154,10 +156,10 @@ export function validateDraft(raw: unknown): ProductDraft {
   };
   const price = (v: unknown) => {
     demand(
-      typeof v === 'string' && /^(0|[1-9]\d{0,7})(\.\d{1,2})?$/.test(v),
+      typeof v === 'string' && /^(0|[1-9]\d{0,7})([.,]\d{1,2})?$/.test(v),
       'Prezzo: numero positivo o zero con massimo due decimali.',
     );
-    return Number(v).toFixed(2);
+    return Number((v as string).replace(',', '.')).toFixed(2);
   };
   demand(
     Array.isArray(r.variants) && r.variants.length >= 1 && r.variants.length <= 50,

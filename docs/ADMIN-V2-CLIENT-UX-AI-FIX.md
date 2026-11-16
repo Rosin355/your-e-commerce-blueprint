@@ -2,6 +2,11 @@
 
 Data: 13 novembre 2026. Stato: difetti riscontrati e intervento da implementare; nessuna correzione applicativa, abilitazione AI, modifica catalogo o nuova pubblicazione eseguita da questa nota. Fonte della richiesta: tre screenshot forniti da Romesh durante la prova del gestionale. Gli screenshot originali e dati personali non sono copiati nel repository.
 
+
+## Aggiornamento Step 1 — 16 novembre 2026
+
+Implementazione tecnica su branch separata `codex/marco-product-editor-step1`: [developer](editor-step1/DEVELOPER.md), [designer](editor-step1/DESIGNER.md), [guida Marco](editor-step1/GUIDA-MARCO.md), [checklist](editor-step1/CHECKLIST.md). **Stato PARZIALE/BLOCCATO per consegna live:** le prove sintetiche non dimostrano grant/provider di Marco. AI per campi vuoti non implementata; nessuna migrazione/grant applicato, nessun deploy/Publish o generazione reale. I riscontri del 13 novembre sotto restano la specifica di partenza, non una dichiarazione di disponibilità sul sito.
+
 ## Riscontri effettivi
 
 1. `src/adminv2/lib/fieldValueCodecs.ts` tratta `editorType=richtext` come textarea. `FieldEditor.tsx` mostra quindi il valore HTML come sorgente: Marco vede i tag invece di un editor visuale.
