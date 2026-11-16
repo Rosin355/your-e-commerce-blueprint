@@ -31,3 +31,7 @@ La prova sintetica usa un repository/provider simulato: non dimostra accesso del
 4. **Step 1D — decisione proprietario:** rendere disponibile l'editor solo dopo prove live e accettazione. Aggiornare questa checklist e il closeout con SHA, CI, versione frontend e backend effettive, timestamp delle prove, owner e stato *sviluppato/collaudato/pubblicato/accettato* separati. Se manca un gate, mantenere *PARZIALE/BLOCCATO*.
 
 **Vincoli trasversali:** non iniziare gli Step 2–4 del piano generale, non toccare #53/#54/#55, login Marco, checkout, SEO/redirect, shipping o Shopify commerciale. Nessun nuovo account, secret in Git, charge AI o grant non esplicitamente autorizzati. Non trasformare la rinuncia a una funzione richiesta in un PASS fittizio.
+
+## Preflight live Step 1B — 16 novembre 2026
+
+**NO-GO allo Step 1C.** [Report e matrice verificata](VERIFICHE-STEP1B.md). Identità ambiente e mapping registro confermati via letture live; migrazioni 0016/0017 assenti, CHECK senza ai e grant editor senza ai/tre elenchi. Versioni Edge Functions, presenza secret, flag runtime, quota/credito e attribuzione nominativa privata restano NON VERIFICATI. Nessuna modifica live. Lovable è alla baseline e3a109e; SHA Git della build sul dominio non attestato. Non avviare rilascio o collaudo a consumo prima di chiudere questi gate e ottenere autorizzazioni separate.
