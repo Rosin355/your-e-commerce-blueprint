@@ -10,6 +10,8 @@ const sql=postgres({host,database,port,user:process.env.PGUSER ?? process.env.US
 try {
  await sql.begin(tx=>tx.unsafe(readFileSync('supabase/migrations/20260923155153_add_lossless_lineage_and_ai_versions.sql','utf8').replace(/^begin;$/m,'').replace(/^commit;$/m,'')));
  await sql.unsafe(readFileSync('supabase/migrations/20260930152426_harden_product_admin_ai_concurrency.sql','utf8'));
+ const valuesBefore=await sql`select jsonb_agg(to_jsonb(v) order by id) as rows from public.product_current_values v`;
+ const rolesBefore=await sql`select jsonb_agg(to_jsonb(r) order by user_id,role) as rows from public.user_roles r`;
  const before=await sql`select jsonb_agg(to_jsonb(c) order by user_id) as rows from public.admin_catalog_capabilities c`;
  const journal=JSON.parse(readFileSync('drizzle/migrations/meta/_journal.json','utf8'));
  assert.deepEqual(journal.entries.filter(e=>e.idx>=16).map(e=>e.tag),['0016_marco_editorial_missing_values','0017_admin_ai_confirmed_context']);
@@ -20,6 +22,8 @@ try {
  await migrate(drizzle(sql),{migrationsFolder:'drizzle/migrations'}); // second invocation is a read-only replay
  const after=await sql`select jsonb_agg(to_jsonb(c) order by user_id) as rows from public.admin_catalog_capabilities c`;
  assert.deepEqual(after,before,'migration changed an account grant');
+ assert.deepEqual(await sql`select jsonb_agg(to_jsonb(v) order by id) as rows from public.product_current_values v`,valuesBefore,'migration changed existing product values');
+ assert.deepEqual(await sql`select jsonb_agg(to_jsonb(r) order by user_id,role) as rows from public.user_roles r`,rolesBefore,'migration changed a role');
  assert.equal((await sql`select count(*)::int as n from drizzle.__drizzle_migrations`)[0].n,3);
  await sql.unsafe(readFileSync('scripts/fixtures/editor-step1a.sql','utf8'));
  const actor='00000000-0000-4000-8000-000000000001';
@@ -32,6 +36,7 @@ try {
  assert.equal((await oldReserve())[0].result.code,'RATE_LIMITED');
  await sql`delete from public.admin_confirmed_ai_requests`;
  assert.equal((await oldReserve())[0].result.code,'RESERVED');
+ assert.equal((await oldReserve())[0].result.code,'GENERATION_IN_PROGRESS');
  const mixed=await Promise.all(Array.from({length:8},(_,i)=>sql.begin(async tx=>{await tx`set local role service_role`;return tx`select public.reserve_confirmed_ai_request(${actor},${`50000000-0000-4000-8000-${String(i+1).padStart(12,'0')}`}::uuid,'description',repeat('c',64),'suggest_confirmed_field') as ok`;})));
  assert.equal(mixed.filter(r=>r[0].ok).length,4);
  // Concurrent first insert of the same missing field: one winner, one VERSION_CONFLICT.
