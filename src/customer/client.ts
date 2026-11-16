@@ -108,7 +108,7 @@ export function createCustomerClient(config: CustomerConfig, storage: Storage, f
         publish({ status: 'loading', customer: null, error: null });
         if (!raw || url.origin !== config.origin || url.pathname !== '/account/callback' || url.hash) throw new Error('CALLBACK');
         const tx = JSON.parse(raw) as Transaction;
-        if (!tx.state || !tx.nonce || !tx.verifier || now() - tx.created > 600000 || now() < tx.created) throw new Error('TRANSACTION');
+        if (!tx.state || !tx.nonce || !tx.verifier || !Number.isFinite(tx.created) || now() - tx.created > 600000 || now() < tx.created) throw new Error('TRANSACTION');
         const { as } = await endpoints();
         const params = oauth.validateAuthResponse(as, client, url, tx.state);
         const response = await oauth.authorizationCodeGrantRequest(as, client, oauth.None(), params, config.origin + '/account/callback', tx.verifier, options);
