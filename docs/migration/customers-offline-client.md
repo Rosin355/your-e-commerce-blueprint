@@ -2,9 +2,23 @@
 
 **13 novembre 2026 — preflight reale offline eseguito. Nessun cliente importato o modificato.** Il lavoro è separato dal gestionale Admin, dalla PR #47 e dalle attività operative del sito.
 
-## Proposta pilota — 15 novembre 2026
+## Raccomandazione per il nuovo accesso — 16 novembre 2026
 
-Proponiamo di preparare **cinque account**, individuati privatamente fra i 849 con una regola ripetibile e verificati uno per uno. I sette casi in quarantena e il cliente già presente su Shopify sono esclusi. Non è stato selezionato né creato alcun account in questa preparazione. Un eventuale secondo gruppo fino a dieci totali richiederà una nuova decisione: non si estende automaticamente il campione.
+**Raccomandiamo un solo accesso clienti con Shopify, tramite email e codice monouso, mantenendo il login Supabase per Admin e operatori.** È una proposta da approvare e implementare: il sito non è stato modificato. L’audit ha confermato che oggi il callback Shopify e l’area personale del sito utilizzano due sessioni diverse; creare un cliente Shopify non risolve questa separazione.
+
+Shopify può creare il profilo al primo accesso volontario con una nuova email ([documentazione ufficiale](https://help.shopify.com/en/manual/customers/customer-accounts)). Per consentire il ritorno all’acquisto non è quindi necessario assumere come punto di partenza un’importazione di massa. Il piano di cinque creazioni anticipato sotto resta **sospeso**, utilizzabile soltanto se emerge una necessità commerciale ulteriore e documentata. Il prossimo collaudo proposto riguarda account di prova del team, non clienti storici.
+
+I **849** sono persone i cui dati legacy richiedono review prima di un eventuale trasferimento; non diventano account autorizzati alla creazione. I **7 in quarantena** restano fuori dal pilota legacy: ciò non vieta una loro futura registrazione volontaria al negozio. Il cliente già presente non deve essere ricreato. Email cambiata, casella non accessibile e profilo senza email richiedono assistenza privata, senza unioni automatiche.
+
+Non saranno trasferite password WordPress né compariranno automaticamente i **953 ordini del vecchio sito**. Il codice email verifica l’accesso alla casella attuale, non la proprietà dell’intero archivio storico. Nessun consenso marketing viene attivato da questa proposta; eventuali codici di accesso saranno richiesti dall’utente nel futuro percorso approvato. Oggi non è stata inviata alcuna email.
+
+Prima di procedere occorrono: approvazione della strategia, verifica delle impostazioni e automazioni Shopify, accesso autonomo e testato per tutto il personale, correzione del recupero ordini e delle sessioni, collaudo con identità controllate e piano di assistenza/recupero. Un rollback del sito non cancella profili o comunicazioni già prodotti. [Decisione tecnica](customers-auth-architecture-2026-11-16.md), [flusso UX](customers-pilot-ux.md) e [criteri go/no-go](customers-auth-risk-test-matrix.md) dettagliano responsabilità e controlli.
+
+**L’approvazione del piano non autorizza modifiche ai servizi, creazioni, invii o pubblicazione del sito:** saranno decisioni operative separate.
+
+## Proposta pilota — 15 novembre 2026, conservata come eventuale eccezione
+
+La proposta precedente, ora subordinata al requisito eccezionale sopra, era di preparare **cinque account**, individuati privatamente fra i 849 con una regola ripetibile e verificati uno per uno. I sette casi in quarantena e il cliente già presente su Shopify sono esclusi. Non è stato selezionato né creato alcun account in questa preparazione. Un eventuale secondo gruppo fino a dieci totali richiederà una nuova decisione: non si estende automaticamente il campione.
 
 Il [piano operativo](customers-pilot-plan-2026-11-15.md) propone il solo campo email, con controlli anche sui telefoni e recapiti alternativi, senza trasferirli. Nomi e indirizzi non sono nei file minimi: non saranno inventati. Marketing resta disattivato; nessun invito o messaggio parte per effetto di questo lavoro. Prima del pilota occorre verificare anche le automazioni del negozio e delle app: omettere un invito non basta a escludere messaggi indiretti.
 

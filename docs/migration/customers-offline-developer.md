@@ -2,7 +2,17 @@
 
 **Stato: preflight reale email-only eseguito il 13/11/2026; 849 candidati alla review privata, 7 quarantene, nessuna importazione autorizzata.** La CLI è offline e non richiede credenziali. La preparazione degli input ha usato soltanto letture autorizzate Drive/Shopify. Il lavoro resta separato dalle operazioni Admin, dalla PR #47, da Supabase/Lovable e dai gate runtime.
 
-## Piano pilota separato — 15 novembre 2026
+## Decisione architetturale proposta — 16 novembre 2026
+
+L’[audit tecnico dell’autenticazione](customers-auth-architecture-2026-11-16.md), basato sul codice remoto `e09930f`, raccomanda **B: Shopify Customer Accounts come unica identità pubblica dei clienti; Supabase Auth conservato per Admin e operatori**. Il documento ricostruisce i flussi attuali, confronta A/B/C, identifica file e dipendenze, rollout e rollback. La [matrice rischi/test/go-no-go](customers-auth-risk-test-matrix.md) distingue verifiche statiche completate e collaudi ancora da autorizzare.
+
+Blocchi principali: callback Shopify e `/account` usano sessioni differenti; il bridge ordini Admin cerca per email/telefono e deduce `+39`; AdminLogin ammette solo admin mentre Admin V2 riconosce altri ruoli; discovery, refresh, logout e buyer identity nel checkout sono incompleti. **Nessuna correzione runtime in questa PR.** Prima del cambio pubblico occorre un ingresso staff autonomo collaudato e la sostituzione del bridge con dati customer-scoped. Nessuna modifica ai gate Admin, a RLS, agli utenti o ai servizi.
+
+Il create-only descritto sotto diventa **eccezionale e sospeso**, da giustificare con un requisito commerciale distinto. I 849 restano candidati alla review dei dati legacy, non importazioni: il percorso pubblico volontario non richiede di precaricare tutte le email. I sette restano esclusi dal trasferimento legacy; quarantena non significa divieto di normale registrazione. Il profilo Shopify senza email richiede assistenza privata per evitare collegamenti o duplicazioni presunti. Nessuna password o ordine WooCommerce viene recuperato dal login.
+
+Il prossimo test raccomandato usa identità controllate e autorizzazione separata per OTP/creazioni in ambiente di prova; non seleziona clienti reali. Esito di questo task: audit e documenti soltanto. Report reale, CLI preflight, fixture e modello create-only restano invariati; `proposedNew=0`, `productionAuthorized=false`.
+
+## Piano pilota separato — 15 novembre 2026, ora solo eventuale eccezione
 
 Il [piano operativo del pilota](customers-pilot-plan-2026-11-15.md) dettaglia selezione deterministica privata, review individuale di cinque account (massimo dieci con decisione distinta), campi minimi, contratto create-only futuro, journal, stop/recovery e checklist. I sette casi in quarantena e il match Shopify restano esclusi. È sufficiente revisionare il campione per questo pilota, senza pretendere la review immediata di tutti i 849; gli altri non sono approvati.
 

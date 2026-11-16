@@ -1,6 +1,8 @@
 # Online Garden — piano pilota clienti, 15 novembre 2026
 
-**PLAN_ONLY / NO-GO alle scritture.** Proposta: primo lotto di **5** account; estensione fino a **10 totali** soltanto con un secondo go/no-go e autorizzazione esplicita. Questa PR contiene documentazione e un modello di test esclusivamente sintetico: nessun writer, payload clienti, esportatore, connessione al negozio o flag di attivazione.
+**Aggiornamento 16 novembre 2026:** l’[audit dell’autenticazione](customers-auth-architecture-2026-11-16.md) raccomanda Shopify Customer Accounts per i clienti e Supabase Auth per il personale. Questo piano create-only è **sospeso come percorso predefinito**: resta applicabile solo a un requisito di precreazione documentato e approvato. Il prossimo collaudo proposto riguarda identità controllate, non cinque clienti storici. Nessuna decisione architetturale o scrittura è stata approvata.
+
+**PLAN_ONLY / NO-GO alle scritture.** Per l’eventuale eccezione: primo lotto di **5** account; estensione fino a **10 totali** soltanto con un secondo go/no-go e autorizzazione esplicita. Questa PR contiene documentazione e un modello di test esclusivamente sintetico: nessun writer, payload clienti, esportatore, connessione al negozio o flag di attivazione.
 
 ## Evidenza di partenza e confini
 
@@ -22,7 +24,7 @@ Confrontare e approvare esplicitamente le opzioni:
 | **Pilota create-only email di 5 clienti** | È dimostrato un requisito commerciale o di assistenza che richiede profili **prima** dell'accesso | Necessari verifica nominativa, audit automazioni, writer, approvazione, nuovo snapshot e recovery; l'email-only non migra ordini, password o consenso marketing |
 | **Migrazione storica estesa** | Esiste una necessità documentata e lecita di continuità CRM/servizio | Richiede progetto separato su identità, dati, consensi, retention e ordini; non è autorizzata da questa PR |
 
-**Raccomandazione provvisoria:** prima validare in staging, usando esclusivamente account di prova autorizzati, l'esperienza Shopify Customer Accounts sul sito e un accesso senza profilo preesistente. Questo test può **creare** un profilo, quindi richiede un ambiente di test e autorizzazione dedicati. Se il self-service soddisfa il requisito, interrompere il progetto di precreazione di massa. Se non lo soddisfa, documentare perché e mantenere il piano pilota create-only come alternativa controllata. Nessuna di queste verifiche autorizza automaticamente una write in produzione.
+**Raccomandazione aggiornata dopo audit del 16 novembre:** adottare la strategia B descritta nella [decisione architetturale](customers-auth-architecture-2026-11-16.md), prima isolando il login staff e correggendo i confini di identità. Il collaudo passwordless con identità controllate richiede ambiente e autorizzazione dedicati, perché può inviare OTP e creare un profilo. Il create-only non è un rimedio ai problemi del login: può tornare necessario soltanto per un requisito commerciale distinto di pre-provisioning, con tutte le verifiche di questo piano. Vedere la [matrice di accettazione auth](customers-auth-risk-test-matrix.md). Nessuna di queste verifiche autorizza una write in produzione.
 
 ### Gate UX: i due login non sono equivalenti
 
