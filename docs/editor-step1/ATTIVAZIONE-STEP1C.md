@@ -71,3 +71,21 @@ Prima di F-M/F-P preparare artefatti frontend/backend precedenti verificati e un
 Il rollback frontend non annulla bozze o sync Shopify. Per S servono snapshot privato pre-sync, readback e versioni/hash; errore parziale => rilettura e riconciliazione, niente retry cieco o overwriting. Compensazione solo esplicita e approvata se lo stato non è cambiato nel frattempo; non promettere rollback automatico. Non cancellare DRAFT/bozze/history/journal come pulizia implicita.
 
 **Stato corrente Step 1C-1:** il diniego totale del sync elenchi descritto nei passaggi storici è superato dal percorso controllato. AI resta sui soli sei campi; edit e sync sono capability separate. Nessun rilascio o grant live effettuato.
+
+## Verifica Shopify diretta aggiuntiva — 16 novembre 2026 (sola lettura, dopo 1C-1)
+
+Lettura effettuata sul negozio Shopify collegato **Online Garden** (`ecom-blueprint-gen-6ud1s.myshopify.com`), tramite query Admin `metafieldDefinitions(ownerType: PRODUCT, namespace: "custom", key: ..., first: 10)` per ciascuno dei tre campi. Non sono stati letti valori prodotto o dati clienti e non è stata eseguita alcuna mutation.
+
+| Campo | Definizione PRODUCT letta live | Implicazione sul codice 1C-1 |
+| --- | --- | --- |
+| `custom.key_benefits` | **Nessuna definizione restituita** | Il requisito di definizione univoca fallisce: sync BLOCCATO. Non equivale a certificare l'assenza di valori non definiti sui prodotti |
+| `custom.key_features` | `multi_line_text_field` | Il codice ammette solo `json` o `list.single_line_text_field`: sync BLOCCATO |
+| `custom.special_bullets` | `multi_line_text_field` | Il codice ammette solo `json` o `list.single_line_text_field`: sync BLOCCATO |
+
+**STOP reale per i tre sync** finché non viene approvata e verificata una strategia compatibile con definizioni e valori Shopify esistenti. Non cambiare definizioni live, non convertire in massa `multi_line_text_field`, non creare `key_benefits` per tentativi e non assumere che i valori siano liste JSON. Confrontare in sola lettura, su una DRAFT tecnica autorizzata, tipo e forma dei valori reali e chi li consuma nello storefront; predisporre una correzione offline della serializzazione/sync o, solo con consenso specifico, una procedura di definizione/migrazione non distruttiva. Fallire chiuso in caso di dato ambiguo.
+
+**Versione Shopify API:** la documentazione ufficiale di versioning (consultata il 16/11) indica `2025-07` fuori supporto dal 16 luglio 2026. La PR #56 è validata staticamente su `2026-10`, ma riferisce un default storico `2025-07`: prima di ogni release verificare gli endpoint effettivi, il valore di `X-Shopify-API-Version` e fissare una versione stabile supportata in modo mirato, preservando i flussi preesistenti. `compareDigest` è documentato da `2024-07`, ma il supporto del campo non prova che la definizione/tipo reale sia compatibile.
+
+**Questo addendum integra, non sostituisce, le altre condizioni NO-GO:** migrazioni 0016/0017, grant nominativo, revisioni Edge, presenza configurazione/credito AI, merge/Publish e accettazione Marco restano pendenti. Non autorizza alcuna operazione live.
+
+Fonti: https://shopify.dev/docs/api/usage/versioning ; https://shopify.dev/docs/api/admin-graphql/latest/mutations/metafieldsSet .
