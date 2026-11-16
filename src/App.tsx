@@ -1,3 +1,4 @@
+import { SHOPIFY_CUSTOMER_AUTH_ENABLED } from './customer/config';
 import { ADMIN_READ_ONLY_RELEASE } from './adminv2/lib/readOnlyRelease';
 import ReadOnlyFeaturePage from './adminv2/pages/ReadOnlyFeaturePage';
 import { Toaster } from "@/components/ui/toaster";
@@ -13,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import { CONTACT_PATH, PRIVACY_POLICY } from "@/config/legal";
 
 const AdminGuard = lazy(() => import("./admin/AdminGuard"));
+const CustomerLogout = lazy(() => import('./customer/CustomerPages').then(m => ({ default: () => <m.CustomerBoundary><m.CustomerLogout /></m.CustomerBoundary> })));
 const AccountCallback = lazy(() => import("./pages/AccountCallback"));
 const Account = lazy(() => import("./pages/Account"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -83,6 +85,7 @@ const App = () => (
             <Route path="/auth" element={<SuspenseLoader><Auth /></SuspenseLoader>} />
             <Route path="/reset-password" element={<SuspenseLoader><ResetPassword /></SuspenseLoader>} />
             <Route path="/account/callback" element={<SuspenseLoader><AccountCallback /></SuspenseLoader>} />
+            {SHOPIFY_CUSTOMER_AUTH_ENABLED && <Route path="/account/logout" element={<SuspenseLoader><CustomerLogout /></SuspenseLoader>} />}
             <Route path="/account" element={<SuspenseLoader><Account /></SuspenseLoader>} />
             
             {/* Strumenti tecnici della versione precedente (accesso diretto) */}

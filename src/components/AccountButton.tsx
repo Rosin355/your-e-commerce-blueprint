@@ -1,9 +1,10 @@
+import { SHOPIFY_CUSTOMER_AUTH_ENABLED } from '@/customer/config';
 import { useNavigate } from 'react-router-dom';
 import { User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
-export const AccountButton = () => {
+const LegacyAccountButton = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
 
@@ -26,3 +27,7 @@ export const AccountButton = () => {
     </Button>
   );
 };
+
+export const AccountButton = () => SHOPIFY_CUSTOMER_AUTH_ENABLED ? (
+  <Button variant="ghost" size="sm" className="hidden md:inline-flex gap-2" asChild><a href="/account" aria-label="Il mio account"><User className="h-5 w-5" /><span>Account / Accedi</span></a></Button>
+) : <LegacyAccountButton />;

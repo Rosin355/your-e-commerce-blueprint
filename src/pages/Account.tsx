@@ -1,3 +1,5 @@
+import { SHOPIFY_CUSTOMER_AUTH_ENABLED } from '@/customer/config';
+import { CustomerBoundary, CustomerAccount } from '@/customer/CustomerPages';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,7 +33,7 @@ interface Order {
   items: OrderItem[];
 }
 
-const Account = () => {
+const LegacyAccount = () => {
   const navigate = useNavigate();
   const { user, session, isLoading: authLoading, signOut } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -206,4 +208,5 @@ const Account = () => {
   );
 };
 
+const Account = () => SHOPIFY_CUSTOMER_AUTH_ENABLED ? <CustomerBoundary><CustomerAccount /></CustomerBoundary> : <LegacyAccount />;
 export default Account;

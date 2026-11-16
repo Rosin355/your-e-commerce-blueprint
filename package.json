@@ -29,7 +29,8 @@
     "dryrun:import": "node --import tsx scripts/dry-run-import.mjs",
     "dryrun:lossless-golden": "node --import tsx scripts/lossless-catalog-golden-dry-run.mjs --dry-run --golden-only --offline",
     "backup:catalog": "node scripts/backup-catalog.mjs",
-    "snapshot:shopify-manual": "node scripts/snapshot-shopify-manual-metafields.mjs"
+    "snapshot:shopify-manual": "node scripts/snapshot-shopify-manual-metafields.mjs",
+    "test:customer-auth": "node --require ./ci/offline-network.cjs --import tsx --test scripts/tests/customer-auth.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -68,8 +69,10 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
+    "jose": "6.2.17",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
+    "oauth4webapi": "3.8.8",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
