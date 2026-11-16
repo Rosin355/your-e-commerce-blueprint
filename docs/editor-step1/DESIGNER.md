@@ -15,3 +15,7 @@ Proposta AI: richiesta volontaria, valore corrente e proposta, modifica/scarto/a
 Test Chromium a 1280 e 390 pixel e tastiera nel percorso sintetico; nessuna certificazione completa WCAG, Safari, screen reader o sessione reale. Prima dell'accettazione: verificare focus, lettura dei messaggi, target touch, descrizioni legacy complesse e contrasto nella sessione autorizzata.
 
 Step 1A: verificato offline; GO al preflight in lettura dopo CI verde, nessuna disponibilità live attestata. Nuovo test browser: campo vuoto e nuova bozza, input insufficiente senza invocazione del provider simulato, scarto, revisione e applicazione visuale.
+
+## Step 1C-1 — caratteristiche e conferma singolo campo
+
+Conservare editor a voci e riordino. Per i tre elenchi separare Salva bozza da Aggiorna sul sito: niente azione combinata mentre si modifica. Solo la versione salvata può essere inviata, dopo dialogo di conferma e approvazione server nuova. La proposta AI non comporta sync. La UI segue le capability per campo del server: se baseline/definizione/tipo non sono verificabili nasconde l’azione e mostra un messaggio accessibile di blocco. Esito incerto: stop e richiesta di verifica, mai invito a riprovare alla cieca. Non comunicare disponibilità live prima del collaudo.

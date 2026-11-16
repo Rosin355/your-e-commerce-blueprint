@@ -25,11 +25,11 @@ for(const key of ['title','seo_title','seo_description','faq','price','sku','inv
  const view=serializeField(definition(key),undefined,'simple',{...context,scopedFieldKeys:[...fields,key]});
  assert.equal(view.capabilities.canSuggestAi,false);assert.equal(view.capabilities.aiAllowed,false);
 });
-for(const key of EDITORIAL_LIST_FIELDS)test('aggiunta elenco consente edit ma non autorizza sync: '+key,()=>{
- assert.equal(catalogAllowed(auth,'edit',key),true);assert.equal(catalogAllowed(auth,'sync',key),false);
- assert.throws(()=>requireCatalog(auth,'sync',key));
+for(const key of EDITORIAL_LIST_FIELDS)test('aggiunta elenco conserva gate capability sync separato: '+key,()=>{
+ assert.equal(catalogAllowed(auth,'edit',key),true);assert.equal(catalogAllowed(auth,'sync',key),true);
+ assert.throws(()=>requireCatalog({...auth,catalogGrant:{...auth.catalogGrant!,capabilities:['edit','ai']}},'sync',key));
  const view=serializeField(definition(key),undefined,'simple',context);
- assert.equal(view.capabilities.canUpdate,true);assert.equal(view.shopifySyncAllowed,false);
+ assert.equal(view.capabilities.canUpdate,true);assert.equal(view.shopifySyncAllowed,true);
 });
 test('permessi preesistenti e altri operatori non acquisiscono privilegi',()=>{
  const before=structuredClone(auth);

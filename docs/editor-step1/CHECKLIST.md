@@ -58,7 +58,7 @@ La prova sintetica usa un repository/provider simulato: non dimostra accesso del
 - [ ] M/B/G/F-M/F-P/T approvati separatamente; eventuali A/S con scope e budget.
 - [ ] Esecuzione e collaudo live: NON ESEGUITI, nessuna consegna Marco.
 
-## Restrizione AI/sync — codice preparato, non distribuito
+## Restrizione precedente — sync superato da Step 1C-1
 
 - [x] AI catalogo ristretta ai sei campi editoriali, anche nel percorso proposte precedente.
 - [x] Tre elenchi modificabili con grant esatto, sync catalogo negato a prescindere dall’aggiunta ai field_keys o da vecchie approvazioni.
@@ -66,3 +66,14 @@ La prova sintetica usa un repository/provider simulato: non dimostra accesso del
 - [ ] Rilascio, migration, grant e prove reali: ancora NON AUTORIZZATI/NON ESEGUITI. Il sync dei tre elenchi non è previsto in questo rilascio; collaudo S solo su campo preesistente sincronizzabile.
 
 L’avvertenza sul rischio condiviso nei paragrafi storici 1C-0 documenta il motivo della restrizione; il perimetro corrente è quello sopra. Nessuna consegna Marco o GO automatico allo Step 1C operativo.
+
+**Stato corrente Step 1C-1:** il diniego totale del sync elenchi descritto nei passaggi storici è superato dal percorso controllato. AI resta sui soli sei campi; edit e sync sono capability separate. Nessun rilascio o grant live effettuato.
+
+## Step 1C-1 — stato corrente, supera il blocco sync iniziale
+
+- [x] Sei campi AI invariati, nessuna AI su titolo/SEO/FAQ o campi economici.
+- [x] Tre elenchi: sync singolo campo con grant sync nominativo, gate, nuova revisione server di approvazione, hash/versione/contenuto e claim atomico.
+- [x] Definizione/tipo verificati, CAS compareDigest, mutation singola senza cancellazioni e readback ordinato.
+- [x] Vecchie approvazioni negate, esiti incerti senza retry cieco; Salva bozza e AI non sincronizzano.
+- [ ] Compatibilità/definizioni/scope/versione API effettivi live: NON VERIFICATI da test sintetici.
+- [ ] Autorizzazioni e collaudo live sulla sola DRAFT tecnica: NON ESEGUITI. NO-GO rilascio invariato fino a chiusura gate preflight.

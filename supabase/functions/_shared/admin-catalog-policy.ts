@@ -32,6 +32,9 @@ export const CLIENT_FIELD_KEYS = [
 export const EDITORIAL_AI_FIELDS = ['description', 'optimized_description', 'short_description', 'key_benefits', 'key_features', 'special_bullets'] as const;
 export const EDITORIAL_LIST_FIELDS = ['key_benefits', 'key_features', 'special_bullets'] as const;
 
+export const EDITORIAL_LIST_SYNC_REVISION = 'editorial-list-sync-v1';
+export const isEditorialList = (key: unknown): boolean => typeof key === 'string' && (EDITORIAL_LIST_FIELDS as readonly string[]).includes(key);
+
 export interface CatalogGrant {
   enabled: boolean;
   capabilities: string[];
@@ -51,9 +54,6 @@ export function catalogAllowed(
   return Boolean(
     grant?.enabled && auth.roles.includes("editor") &&
       grant.capabilities.includes(capability) &&
-      // These newly editable fields have no catalog sync authorization in this release.
-      // A shared field_keys extension or an old approval cannot enable their sync.
-      !(capability === 'sync' && fieldKey !== undefined && (EDITORIAL_LIST_FIELDS as readonly string[]).includes(fieldKey)) &&
       (fieldKey === undefined ||
         (CLIENT_FIELD_KEYS.includes(fieldKey) &&
           grant.fieldKeys.includes(fieldKey))),

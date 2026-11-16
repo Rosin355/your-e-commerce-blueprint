@@ -82,6 +82,7 @@ export interface AdminField {
   publishable: boolean;
   shopifySyncSupported: boolean;
   shopifySyncAllowed?: boolean;
+  shopifySyncBlockReason?: string;
   syncState: 'INTERNAL_ONLY' | 'PENDING_SYNC' | 'SYNCED' | 'SYNC_ERROR';
   syncErrorCode: string | null;
   syncErrorMessage: string | null;

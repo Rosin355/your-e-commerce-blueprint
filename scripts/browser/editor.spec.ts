@@ -101,3 +101,25 @@ test('AI da fatti confermati: campo vuoto e nuova bozza, proposta/scarto/applica
  await expect(page.getByRole('status',{name:'Salvataggi'})).toHaveText('0');await expect(page.getByRole('status',{name:'Sincronizzazioni'})).toHaveText('0');
  }
 });
+
+test('elenchi: salva non sincronizza, conferma esplicita e definizione non verificata bloccante',async({page})=>{
+ await page.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
+ await page.goto('/scripts/browser/editor.html?listSync');
+ await expect(page.getByRole('status',{name:'Sync elenco'})).toHaveText('0');
+ await page.getByRole('button',{name:'Modifica',exact:true}).click();
+ await page.getByRole('button',{name:'Sposta giù elemento 1'}).click();
+ await expect(page.getByRole('button',{name:'Salva e aggiorna sul sito',exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Salva bozza',exact:true}).click();
+ await expect(page.getByRole('status',{name:'Salvataggi elenco'})).toHaveText('1');
+ await expect(page.getByRole('status',{name:'Valore elenco'})).toHaveText('Secondo|Primo');
+ await expect(page.getByRole('status',{name:'Sync elenco'})).toHaveText('0');
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.getByRole('button',{name:'Aggiorna sul sito',exact:true}).click();
+ await expect(page.getByRole('status',{name:'Sync elenco'})).toHaveText('0');
+ page.once('dialog',dialog=>dialog.accept());
+ await page.getByRole('button',{name:'Aggiorna sul sito',exact:true}).click();
+ await expect(page.getByRole('status',{name:'Sync elenco'})).toHaveText('1');
+ await page.getByRole('button',{name:'Simula definizione incompatibile'}).click();
+ await expect(page.getByRole('button',{name:'Aggiorna sul sito',exact:true})).toHaveCount(0);
+ await expect(page.getByText('Tipo o definizione Shopify non verificabile: sincronizzazione bloccata.',{exact:true})).toBeVisible();
+});

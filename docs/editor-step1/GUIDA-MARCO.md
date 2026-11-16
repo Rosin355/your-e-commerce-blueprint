@@ -19,6 +19,14 @@ Aggiornamento Step 1A: il nuovo flusso è stato verificato con dati/provider sim
 
 [Piano developer](ATTIVAZIONE-STEP1C.md), [registro approvazioni](AUTORIZZAZIONI-STEP1C.md), [collaudo Marco](COLLAUDO-MARCO-STEP1C.md). **NO-GO esecuzione Step 1C**: approvazioni ed evidenze mancanti non acquisite da questo pacchetto. AI limitata alle descrizioni e ai tre elenchi; il sync dei tre nuovi elenchi è bloccato per il catalogo. Nessuna modifica live.
 
-## Perimetro della versione in verifica
+## Perimetro precedente — sync superato da Step 1C-1
 
 Quando autorizzata, l’assistenza AI sarà disponibile soltanto per le tre descrizioni e i tre elenchi editoriali. Titolo, SEO, FAQ, prezzi e codici prodotto non hanno assistenza AI in questa versione. I tre elenchi possono essere modificati e salvati in bozza con il permesso previsto; non possono essere inviati a Shopify da questo flusso. Non cambiare account o ruolo per sbloccarli. Per il futuro collaudo della sincronizzazione il responsabile indicherà un campo preesistente consentito su DRAFT tecnica. Queste modifiche non sono ancora distribuite.
+
+**Stato corrente Step 1C-1:** il diniego totale del sync elenchi descritto nei passaggi storici è superato dal percorso controllato. AI resta sui soli sei campi; edit e sync sono capability separate. Nessun rilascio o grant live effettuato.
+
+## Step 1C-1 — quando il rilascio sarà autorizzato
+
+Per Punti di forza, Caratteristiche principali e Altri punti utili: modifica le voci e il loro ordine, poi Salva bozza. Per aggiornare Shopify usa successivamente Aggiorna sul sito e conferma quel singolo campo. Aprire l’editor, salvare o applicare una proposta AI non invia questi elenchi a Shopify. Non devi usare JSON.
+
+Se il tipo o la definizione Shopify non sono verificabili, l’aggiornamento resta bloccato: contatta il responsabile. Dopo un errore o un esito incerto non ripetere con una nuova richiesta; attendi la verifica. Le vecchie conferme non valgono per questa funzionalità. Collaudo soltanto sulla DRAFT tecnica autorizzata, mai su prodotti commerciali. Versione ancora non distribuita.

@@ -126,6 +126,7 @@ export default function FieldCard({ field, onGenerateConfirmed, onCommand, onSyn
   const visibleValidationError = seasonalDraftEmpty ? 'Seleziona almeno un mese.' : validationError;
   const errorId = `field-error-${field.key}`;
 
+  const editorialList = ['key_benefits','key_features','special_bullets'].includes(field.key);
   const save = async (syncAfterSave = false) => {
     const normalized = normalizeEditorValue(field, draft);
     if (normalized.ok === false) {
@@ -283,7 +284,7 @@ export default function FieldCard({ field, onGenerateConfirmed, onCommand, onSyn
         {editing ? (
           <>
             <Button size="sm" onClick={() => void save(false)} disabled={busy !== null || conflictVersion !== null || !dirty || seasonalDraftEmpty} title={!dirty ? 'Nessuna modifica da salvare' : undefined}>{busy === 'update_field' && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}Salva bozza</Button>
-            {field.shopifySyncSupported && syncEnabled && (
+            {!editorialList && field.shopifySyncSupported && syncEnabled && (
               <Button size="sm" variant="secondary" onClick={() => void save(true)} disabled={busy !== null || conflictVersion !== null || !dirty || seasonalDraftEmpty}>
                 {busy === 'save_and_sync' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <CloudUpload className="mr-1 h-3.5 w-3.5" />}
                 Salva bozza e aggiorna sul sito
@@ -304,6 +305,7 @@ export default function FieldCard({ field, onGenerateConfirmed, onCommand, onSyn
             Aggiorna sul sito
           </Button>
         )}
+        {field.shopifySyncBlockReason && <p role="status" className="text-sm text-muted-foreground">{field.shopifySyncBlockReason}</p>}
         {legacyAi && field.capabilities.canConfirmLegacy && <Button size="sm" variant="outline" onClick={() => void run('confirm_legacy_value')} disabled={busy !== null}>{busy === 'confirm_legacy_value' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Check className="mr-1 h-3.5 w-3.5" />}Mantieni valore</Button>}
         {legacyAi && field.capabilities.canRejectLegacy && <Button size="sm" variant="outline" onClick={() => void run('reject_legacy_value')} disabled={busy !== null}>{busy === 'reject_legacy_value' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <X className="mr-1 h-3.5 w-3.5" />}Rifiuta valore</Button>}
       </div>

@@ -48,7 +48,7 @@ Rollback futuro: ripristino versione applicativa approvata, senza cancellare boz
 
 [Piano developer](ATTIVAZIONE-STEP1C.md), [registro approvazioni](AUTORIZZAZIONI-STEP1C.md), [collaudo Marco](COLLAUDO-MARCO-STEP1C.md). **NO-GO esecuzione Step 1C**: approvazioni ed evidenze mancanti non acquisite da questo pacchetto. Il rischio del grant condiviso rilevato in 1C-0 è risolto dal controllo server descritto sotto: AI su sei campi, sync dei tre nuovi elenchi negato agli operatori catalogo. Nessuna modifica live.
 
-## Restrizione minima server AI/sync — Step 1C
+## Restrizione server precedente — sync superato da Step 1C-1
 
 EDITORIAL_AI_FIELDS in _shared/admin-catalog-policy.ts è l’unica allowlist catalogo AI: description, optimized_description, short_description, key_benefits, key_features, special_bullets. CONFIRMED_AI_FIELDS la riusa. catalogAiAllowed la applica anche al percorso precedente: listing filtra, generazione/accept/reject verificano il campo con grant corrente prima del service; ownership, ai_allowed, lock/versione, applicabilità e approvazioni restano invariati. Title, seo_title, seo_description, faq, prezzi, SKU e qualunque altro campo negati. Il registro non può ampliare questa lista.
 
@@ -57,3 +57,21 @@ catalogAllowed nega sync su EDITORIAL_LIST_FIELDS per il catalogo, pur mantenend
 Il sync dei tre elenchi non è attivabile dalla sola approvazione operativa S in questa versione. Un futuro sblocco richiede decisione e intervento tecnico mirati; non attivare full o flag globali per aggirarlo. Il collaudo S può usare soltanto un campo preesistente sincronizzabile. Restano tutte le evidenze e autorizzazioni del report 1B prima del rilascio.
 
 Verifica della restrizione: 20 nuovi test sintetici in scripts/tests/editorial-permission-scope.test.ts; totale 469 Node PASS, 106 Deno PASS, 5 Chromium PASS. Typecheck frontend, Deno check degli entrypoint, lint dei file modificati e build PASS. Suite esistenti di salvataggio, concorrenza, proposte e sync incluse; nessuna prova live o generazione reale. CI del commit da consultare nella PR; i test SQL restano nel job effimero esistente, nessuna migration modificata da questa restrizione.
+
+**Stato corrente Step 1C-1:** il diniego totale del sync elenchi descritto nei passaggi storici è superato dal percorso controllato. AI resta sui soli sei campi; edit e sync sono capability separate. Nessun rilascio o grant live effettuato.
+
+## Step 1C-1 — sync esplicito dei tre elenchi
+
+Riusati catalogAiAllowed (sei campi invariati), catalogAllowed e il flusso approval/claim/complete esistente. Per i tre sync l’API impone grant catalogo editor attivo+sync+field_key anche se esistono altri ruoli; nessun percorso amministrativo alternativo per aggirarlo. Modifica richiede edit; AI richiede edit+ai, field_key e ai_allowed; sync non richiede ai e non ne deriva. Nessun grant automatico o nuovo schema di autorizzazione.
+
+catalogSnapshot salva una revisione server e contratto del metafield/digest insieme alla snapshot del valore Admin e del remoto. La revisione non arriva dal client. I due punti prepare/execute verificano freschezza anche prima del replay COMPLETE. Payload hash e snapshot legano attore, azione, prodotto, campo, versione e contenuto; claim RPC atomico impedisce doppia esecuzione. Snapshot riletto, mapping ricontrollato e version/contenuto/review locale ricontrollati immediatamente prima della scrittura. Mutazioni concorrenti locali e Shopify non sono una transazione unica: un conflitto dopo la scrittura resta da riconciliare, non si sovrascrive con un retry.
+
+Nuova query mirata legge metafieldDefinitions(PRODUCT, namespace, key, first:2) e il metafield del prodotto con compareDigest. Definizione unica, paginazione conclusa, mapping custom/key esatto e tipo json o list.single_line_text_field obbligatori. Valori esistenti opachi/incompatibili restano conservati e bloccano. Contenuto proposto: 1–50 stringhe non vuote, max 1000 caratteri; niente conversioni o deduplicazione/riordino impliciti. MetafieldsSet invia una sola voce con CAS (digest corrente oppure null se assente); readback esatto verifica tipo/valore/ordine. Errori di tipo/assenza accesso bloccano, nessuna definizione creata. Vedere [documentazione Shopify CAS](https://shopify.dev/docs/api/admin-graphql/2026-10/mutations/metafieldsSet).
+
+Il client API conserva il default storico 2025-07: il validatore Shopify non rende più disponibile quella versione. Query e mutation validate sullo schema supportato 2026-10; nessuna versione/config runtime cambiata. Versione effettiva servita, supporto compareDigest, scope read_products/write_products, definizioni e accesso del progetto vanno attestati prima del rilascio. Se non verificabili, il campo resta bloccato: validazione statica non equivale a prova live.
+
+La UI mostra Aggiorna sul sito soltanto con capability server e baseline verificata; negli altri casi spiega il blocco. Salva bozza e Accetta AI non sincronizzano. Per le liste l’azione combinata salva+sync è rimossa: aggiornamento solo della versione già salvata, con conferma distinta. Il percorso di sync dei campi precedenti non cambia.
+
+Test Step 1C-1: nuove fixture Node per sei combinazioni campo/tipo, CAS nullo, definizioni negate, contenuto invalido, versioni/hash obsoleti, vecchie approvazioni, claim concorrente, replay senza riscrittura, esiti incerti e permessi. Browser aggiunge save senza sync, annullamento/conferma e messaggio blocco. Nessuna API reale invocata nei test. Risultati e CI del commit nella PR.
+
+Verifica locale Step 1C-1: **491 Node PASS** (22 nuovi casi sync), **106 Deno PASS**, **6 Chromium PASS**; typecheck, lint (zero errori, warning Fast Refresh del solo harness), build e Deno check entrypoint PASS. Validazione statica query/mutation Shopify 2026-10 PASS; 2025-07 non disponibile nel validatore, runtime non modificato. CI del commit documentata nella PR, nessuna prova live.

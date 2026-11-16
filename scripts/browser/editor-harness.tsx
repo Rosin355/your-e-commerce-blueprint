@@ -22,4 +22,9 @@ function Harness() {
  <VariantEditor sku="TECH" variants={variants} onChange={setVariants}/><output className="block break-all" data-testid="variants">{JSON.stringify(variants)}</output>
  </main></TooltipProvider>;
 }
-createRoot(document.getElementById('root')!).render(<Harness/>);
+function ListSyncHarness() {
+ const [value,setValue]=useState(['Primo','Secondo']);const [version,setVersion]=useState(1);const [saves,setSaves]=useState(0);const [syncs,setSyncs]=useState(0);const [compatible,setCompatible]=useState(true);
+ const field={key:'key_benefits',label:'Punti di forza',editorType:'multiselect',dataType:'json',validationRules:{},value,version,sourceState:'original_absent',sourceStateLabel:'Assente',baselineValue:null,shopifyBaselineHash:'synthetic-list-hash',shopifySyncSupported:true,shopifySyncAllowed:compatible,shopifySyncBlockReason:compatible?undefined:'Tipo o definizione Shopify non verificabile: sincronizzazione bloccata.',publishable:true,syncState:'PENDING_SYNC',capabilities:{canUpdate:true,currentValueExists:true,canSuggestAi:false,aiAllowed:true},reviewStatus:'approved'} as AdminField;
+ return <TooltipProvider><main><h1>Sync elenco sintetico</h1><button onClick={()=>setCompatible(false)}>Simula definizione incompatibile</button><FieldCard field={field} syncEnabled={compatible} onCommand={async input=>{if(input.expectedVersion!==version)throw Error('synthetic stale version');setValue(input.value as string[]);setVersion(v=>v+1);setSaves(n=>n+1);return {ok:true,result:{version:version+1}};}} onSync={async input=>{if(!compatible || input.expectedVersion!==version || input.expectedShopifyHash!=='synthetic-list-hash')throw Error('synthetic blocked');setSyncs(n=>n+1);return {ok:true};}}/><output aria-label="Salvataggi elenco">{saves}</output><output aria-label="Sync elenco">{syncs}</output><output aria-label="Valore elenco">{value.join('|')}</output></main></TooltipProvider>;
+}
+createRoot(document.getElementById('root')!).render(new URLSearchParams(location.search).has('listSync')?<ListSyncHarness/>:<Harness/>);

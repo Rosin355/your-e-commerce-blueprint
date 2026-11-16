@@ -19,8 +19,16 @@ Prerequisiti proprietario: conferma privata identità; approvazione sei campi AI
 
 Journal esecuzione futuro, privato: voce/approvatore/data/scadenza, SHA e checksum, operatore e ambiente, precondizioni, inizio/fine, esito e postcondizioni, eventuale errore depurato, recupero e decisione ripresa. Su GitHub solo evidenze aggregate senza UUID/email/log sensibili. La checklist generale è il punto unico per seguire il gate; [piano](ATTIVAZIONE-STEP1C.md) e [collaudo](COLLAUDO-MARCO-STEP1C.md) ne dettagliano le operazioni.
 
-## Perimetro server aggiornato — restrizione Step 1C
+## Perimetro server precedente — sync superato da Step 1C-1
 
 G non abilita AI su title/SEO/FAQ o altri campi: la allowlist server contiene soltanto description, optimized_description, short_description, key_benefits, key_features, special_bullets. Grant edit+ai nominativo, field_keys, registro ai_allowed e gate restano necessari; non basta la sola allowlist. Nessun cambio live.
 
 S resta soggetta ad approvazione separata e ai gate esistenti; per gli operatori catalogo i tre elenchi sono negati anche con un’approvazione precedente o una conferma esplicita. Non programmare la loro sync con questa versione. Un futuro sblocco richiede un intervento tecnico mirato autorizzato separatamente; questo task non introduce nuovi flag. Sync dei campi preesistenti invariato.
+
+**Stato corrente Step 1C-1:** il diniego totale del sync elenchi descritto nei passaggi storici è superato dal percorso controllato. AI resta sui soli sei campi; edit e sync sono capability separate. Nessun rilascio o grant live effettuato.
+
+## Step 1C-1 — scope della voce S
+
+S può riguardare ora uno dei tre metafield custom.key_benefits/custom.key_features/custom.special_bullets su un unico prodotto DRAFT tecnico identificato privatamente, con una lista/versione approvata. L’approvazione owner non è un grant, non vale per altri campi/prodotti/operatori e non è stata concessa qui. Obbligatoria una nuova conferma applicativa, con revisione server editorial-list-sync-v1: tutte le approvazioni precedenti sono inutilizzabili per questi tre sync, anche se COMPLETE.
+
+Postcondizioni S: solo quel metafield scritto, tipo invariato e lista ordinata identica nel readback, stato DRAFT e altri campi invariati. STOP su mapping/definizione/accesso non verificabili, hash/versione divergenti, CAS fallito, timeout o verifica incompleta. Recupero: lettura e riconciliazione approvate; nessun retry/compensazione automatica. IN_FLIGHT/REVIEW_REQUIRED blocca una nuova approvazione sullo stesso attore/prodotto/campo. Tutte le voci M/B/G/F-M/F-P/T/A/S restano IN ATTESA.

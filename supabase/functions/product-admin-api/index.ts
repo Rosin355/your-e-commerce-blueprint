@@ -1,6 +1,6 @@
 import { COMMERCE_ACTIONS, handleCatalogCommerce, commerceSnapshot } from '../_shared/admin-catalog-commerce.ts';
 import { loadCatalogGrant, prepareCatalogApproval, withCatalogApproval, catalogMode } from '../_shared/admin-catalog-approvals.ts';
-import { catalogAllowed, catalogAiAllowed, EDITORIAL_AI_FIELDS, CATALOG_MUTATIONS } from '../_shared/admin-catalog-policy.ts';
+import { catalogAllowed, catalogAiAllowed, EDITORIAL_AI_FIELDS, isEditorialList, requireCatalog, CATALOG_MUTATIONS } from '../_shared/admin-catalog-policy.ts';
 import { handleCatalogMedia } from '../_shared/admin-catalog-media.ts';
 import { payloadHash } from '../_shared/admin-v2-commands.ts';
 import { OPERATION_ACTIONS, OperationalError } from '../_shared/admin-operational-core.ts';
@@ -110,6 +110,7 @@ Deno.serve(async (req) => {
     if (auth.catalogGrant?.enabled && isKnownAction(action) && isCommandAction(action) && !CATALOG_MUTATIONS[action]) {
       return fail('FORBIDDEN', 'Azione fuori dalle capability catalogo autorizzate.');
     }
+    if (action === 'sync_field' && isEditorialList(payload.fieldKey)) requireCatalog(auth, 'sync', String(payload.fieldKey));
     if (action === 'prepare_catalog_approval') {
       const command=payload.command as Record<string,unknown>;
       const commerce=['set_catalog_prices','set_catalog_collections','publish_catalog_product'].includes(String(command?.action));
@@ -358,11 +359,11 @@ Deno.serve(async (req) => {
             scopedFieldKeys: catalogMode(auth) === "canary" ? canaryScope()?.fieldKeys ?? [] : auth.catalogGrant?.fieldKeys,
             aiEnabled: catalogAiAllowed(auth),
             aiFieldKeys: EDITORIAL_AI_FIELDS,
-            syncFieldKeys: auth.catalogGrant?.enabled ? auth.catalogGrant.fieldKeys.filter(key => catalogAllowed(auth,'sync',key)) : undefined,
+            syncFieldKeys: auth.catalogGrant?.enabled ? auth.catalogGrant.fieldKeys.filter(key => catalogAllowed(auth,'sync',key) && (!isEditorialList(key) || baselineHashes.has(key))) : undefined,
             syncAllowed: writesEnabled() && canaryAllowed && (catalogAllowed(auth,'sync') || canSyncShopify(auth.roles)) && shopifySyncEnabled(),
           },
           { fallbackSnapshot: snapshot, linkedSnapshots, shopifyLiveValues },
-        ).map(section=>({...section,fields:section.fields.map(field=>({...field,shopifyBaselineHash:baselineHashes.get(field.key)??null}))})),
+        ).map(section=>({...section,fields:section.fields.map(field=>({...field,shopifyBaselineHash:baselineHashes.get(field.key)??null, ...(isEditorialList(field.key) && !baselineHashes.has(field.key) ? {shopifySyncBlockReason:'Tipo o definizione Shopify non verificabile: sincronizzazione bloccata. Ricarica la scheda o contatta il responsabile.'} : {})}))})),
         shopifyLive,
         history,
       });
@@ -461,6 +462,7 @@ Deno.serve(async (req) => {
         return fail("BLOCK_SYNC", "Mappatura Shopify assente per questo SKU");
       }
 
+      if (isEditorialList(fieldKey) && String(auth.catalogApproval?.before.shopifyProductId) !== String(mapping.shopify_product_id)) return fail('BLOCK_SYNC','Il mapping Shopify è cambiato dopo la conferma. Ricarica la scheda.');
       try {
         if (catalogMode(auth) === 'canary') requireCanaryScope(canaryScope(), auth.userId, auth.roles, 'sync_field', fieldKey);
         const result = await syncFieldToShopify({
