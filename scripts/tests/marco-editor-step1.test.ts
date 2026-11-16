@@ -1,3 +1,4 @@
+import { serializeValueForShopify } from '../../supabase/functions/_shared/admin-v2-field-policy';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -34,4 +35,10 @@ test('AI and first-value writes recheck current grants and remote snapshot; no g
  const source=readFileSync('supabase/functions/product-admin-ai/index.ts','utf8');
  assert.match(source,/loadCatalogGrant/);assert.match(source,/catalogAiAllowed\(auth, fieldKey\)/);assert.match(source,/created_by !== auth.userId/);
  const snapshot=readFileSync('supabase/functions/_shared/admin-catalog-approvals.ts','utf8');assert.match(snapshot,/action === "update_field" && !value/);assert.match(snapshot,/p.expectedShopifyHash === hash/);
+});
+
+test('sync di una descrizione preesistente non può aggirare il filtro HTML', () => {
+  const d={...def(),shopify_mapping:{type:'core',field:'descriptionHtml'}};
+  assert.equal(serializeValueForShopify(d,'<p>Testo sicuro</p>'),'<p>Testo sicuro</p>');
+  assert.throws(()=>serializeValueForShopify(d,'<p onclick="alert(1)">Testo</p>'),/bloccato/);
 });

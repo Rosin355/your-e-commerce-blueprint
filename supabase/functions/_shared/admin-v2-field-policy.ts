@@ -1,3 +1,4 @@
+import { sanitizeEditorialHtml } from './vendor/editorial-html.mjs';
 // Admin V2 — policy pure e condivise tra validazione, sync e test.
 // Nessuna dipendenza da Deno, database o Shopify.
 import type { FieldDefinition } from "./admin-v2-types.ts";
@@ -253,6 +254,7 @@ export function serializeValueForShopify(
   const normalized = validateConstrainedFieldValue(def.key, value);
   const target = resolveShopifyTarget(def);
   if (!target) throw new FieldPolicyError("Mapping Shopify non consentito.");
+  if ((def.editor_type === 'richtext' || (target.kind === 'product' && target.field === 'descriptionHtml')) && typeof value === 'string' && sanitizeEditorialHtml(value) !== value) throw new FieldPolicyError('HTML non sicuro o non supportato: aggiornamento sul sito bloccato.');
 
   if (isSeasonalField(def.key)) return serializeMonthsForShopify(normalized);
   if (target.kind === "metafield") {

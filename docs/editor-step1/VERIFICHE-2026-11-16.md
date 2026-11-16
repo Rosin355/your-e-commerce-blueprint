@@ -7,7 +7,7 @@
 | Typecheck React/TypeScript | PASS |
 | Build frontend | PASS; warning preesistenti Tailwind/Browserslist e dimensioni bundle |
 | Lint frontend modificato e moduli server verificati con no-ignore | PASS |
-| Suite dominio Node | 429 PASS, inclusi nuovi casi e regressioni SEO/Admin/catalogo |
+| Suite dominio Node | 430 PASS, inclusi nuovi casi e regressioni SEO/Admin/catalogo |
 | Suite dominio Deno | 106 PASS, lockfile congelato, nessun permesso rete runtime |
 | Typecheck Deno product-admin-api e service AI | PASS con lockfile esistente |
 | Chromium desktop 1280 px e mobile 390 px | 3 PASS: editor/lista/formati/AI simulata, concorrenza/sync esplicito, primo valore dal sito/cancel |
@@ -17,7 +17,7 @@ I test browser avviano Vite locale e abortiscono tutte le richieste non dirette 
 
 La suite AI preesistente usa provider HTTP simulato: malformed output, timeout/errore, versioni, replay/idempotenza e rate/reservation. Nuovi controlli verificano grant AI esplicito, isolamento della proposta altrui e rifiuto di accept/reject da un altro attore senza alcuna write. Non effettuata una generazione reale; credito/modello/secret non verificati. La proposta visualizzata nel browser è inventata dalla fixture.
 
-HTML: paragrafi/grassetto/elenchi conservati nel cancel, sanitizzazione e rifiuto server di script/eventi/protocolli pericolosi; formati opachi restano bloccati e originali. La normalizzazione lecita dei paragrafi dentro le voci di elenco non viene più scambiata per perdita di contenuto. Preview e editor non sono una correzione massiva dell'HTML storico.
+HTML: paragrafi/grassetto/elenchi conservati nel cancel, sanitizzazione e rifiuto server di script/eventi/protocolli pericolosi, anche nel sync di descrizioni preesistenti; formati opachi restano bloccati e originali. La normalizzazione lecita dei paragrafi dentro le voci di elenco non viene più scambiata per perdita di contenuto. Preview e editor non sono una correzione massiva dell'HTML storico.
 
 Migrazione SQL nuova non applicata in un DB di verifica/live: la prova attuale verifica equivalenza del corpo atomico precedente salvo allowlist finita e corrispondenza copia Drizzle. La CI PostgreSQL preesistente verifica i contratti esistenti, non sostituisce il collaudo della nuova migrazione. Un controllo diretto dell'entry AI con --no-npm è limitato dal suo import npm CORS preesistente; service AI e API controllati separatamente. Non dichiarare test dell'entrypoint live.
 
