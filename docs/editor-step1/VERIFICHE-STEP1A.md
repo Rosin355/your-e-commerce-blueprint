@@ -11,7 +11,7 @@
 | Deno check API, entrypoint e service AI, nuovo modulo confermato | PASS |
 | PostgreSQL locale 16.15 | Migrazioni Drizzle 0016/0017 applicate tramite migratore ufficiale e richiamate una seconda volta senza riapplicazione |
 | Test SQL | PASS: schema/RLS/ACL, grant invariati, capability ignota negata, identità/campo/azione negati, accesso client effettivamente negato |
-| Concorrenza SQL | 5 richieste AI ammesse su 8 concorrenti; 1 vincitore e 1 VERSION_CONFLICT su due creazioni concorrenti dello stesso primo valore |
+| Concorrenza SQL | 5 richieste AI ammesse su 8 concorrenti e budget unico vecchio/nuovo verificato in entrambe le direzioni; 1 vincitore e 1 VERSION_CONFLICT su due creazioni concorrenti dello stesso primo valore |
 | Primo valore locale | PASS: input errato, tre elenchi vuoti negati, liste valide, testo valido, replay, versione obsoleta e rollback conservano il valore precedente |
 | CI della PR | Workflow Storefront/PostgreSQL 17 esteso ai nuovi test SQL; esito del commit riportato nella PR |
 

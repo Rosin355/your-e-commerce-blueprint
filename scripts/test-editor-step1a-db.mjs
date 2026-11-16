@@ -9,6 +9,7 @@ if ((!host?.startsWith('/private/tmp/og-editor-') && !(process.env.CI==='true' &
 const sql=postgres({host,database,port,user:process.env.PGUSER ?? process.env.USER,max:2,prepare:false});
 try {
  await sql.begin(tx=>tx.unsafe(readFileSync('supabase/migrations/20260923155153_add_lossless_lineage_and_ai_versions.sql','utf8').replace(/^begin;$/m,'').replace(/^commit;$/m,'')));
+ await sql.unsafe(readFileSync('supabase/migrations/20260930152426_harden_product_admin_ai_concurrency.sql','utf8'));
  const before=await sql`select jsonb_agg(to_jsonb(c) order by user_id) as rows from public.admin_catalog_capabilities c`;
  const journal=JSON.parse(readFileSync('drizzle/migrations/meta/_journal.json','utf8'));
  assert.deepEqual(journal.entries.filter(e=>e.idx>=16).map(e=>e.tag),['0016_marco_editorial_missing_values','0017_admin_ai_confirmed_context']);
@@ -26,9 +27,16 @@ try {
  await sql`delete from public.admin_confirmed_ai_requests`;
  const grants=await Promise.all(Array.from({length:8},(_,i)=>sql.begin(async tx=>{await tx`set local role service_role`;return tx`select public.reserve_confirmed_ai_request(${actor},${`40000000-0000-4000-8000-${String(i+1).padStart(12,'0')}`}::uuid,'description',repeat('a',64),'suggest_confirmed_field') as ok`;})));
  assert.equal(grants.filter(r=>r[0].ok).length,5);
+ // Old and new flows must share the original five/minute budget in both directions.
+ const oldReserve=()=>sql.begin(async tx=>{await tx`set local role service_role`;return tx`select public.reserve_product_ai_generation(${actor},'20000000-0000-4000-8000-000000000001','description',1) as result`;});
+ assert.equal((await oldReserve())[0].result.code,'RATE_LIMITED');
+ await sql`delete from public.admin_confirmed_ai_requests`;
+ assert.equal((await oldReserve())[0].result.code,'RESERVED');
+ const mixed=await Promise.all(Array.from({length:8},(_,i)=>sql.begin(async tx=>{await tx`set local role service_role`;return tx`select public.reserve_confirmed_ai_request(${actor},${`50000000-0000-4000-8000-${String(i+1).padStart(12,'0')}`}::uuid,'description',repeat('c',64),'suggest_confirmed_field') as ok`;})));
+ assert.equal(mixed.filter(r=>r[0].ok).length,4);
  // Concurrent first insert of the same missing field: one winner, one VERSION_CONFLICT.
  const insert=key=>sql.begin(async tx=>{await tx`set local role service_role`;return tx`select public.admin_update_product_field(${actor},'update_field','20000000-0000-4000-8000-000000000002','description','"Prima bozza"'::jsonb,0,${key},repeat('b',64),null) as result`;});
  const results=await Promise.all([insert('concurrent-insert-a'),insert('concurrent-insert-b')]);
  assert.equal(results.filter(r=>r[0].result.ok===true).length,1);assert.equal(results.filter(r=>r[0].result.code==='VERSION_CONFLICT').length,1);
- console.log('PASS: official Drizzle migrations 0016/0017, grants unchanged, ACL/RLS, negative authorization, rollback/replay/version conflicts, 5/8 concurrent reservations, 1/2 concurrent first writes. No remote services.');
+ console.log('PASS: official Drizzle migrations 0016/0017, grants unchanged, ACL/RLS, negative authorization, rollback/replay/version conflicts, 5/8 concurrent reservations, shared old/new five/minute budget, 1/2 concurrent first writes. No remote services.');
 } finally {await sql.end();}

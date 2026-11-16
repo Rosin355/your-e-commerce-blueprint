@@ -137,6 +137,8 @@ jobs:
         with:
           node-version: 22.22.3
           package-manager-cache: false
+      - name: Install locked database test dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Test additive delivery and service-only capabilities with synthetic data
         env:
           OG_TEST_PG_SOCKET: 127.0.0.1
