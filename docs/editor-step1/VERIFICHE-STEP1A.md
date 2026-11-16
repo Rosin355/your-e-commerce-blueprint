@@ -35,3 +35,12 @@ Il modello può organizzare solo frasi confermate riportandole esattamente: outp
 Identificare in sola lettura il progetto corretto, confrontare schema/history e CHECK capability, funzioni/RLS/revoche, grant dei soli operatori previsti e campi, registro e versioni backend/frontend. Verificare presenza (non valore) della configurazione provider e disponibilità modello/credito senza una generazione. Produrre solo differenze minime e aggregate da approvare. Ambiguità di identità, drift non spiegato o accesso insufficiente => stop; nessuna modifica per ottenere un PASS.
 
 Riferimenti operativi: [developer](DEVELOPER.md), [designer](DESIGNER.md), [guida Marco](GUIDA-MARCO.md), [checklist](CHECKLIST.md). Il report Step 1 precedente resta cronologia ed è superato da questo per i blocchi tecnici risolti.
+
+## Verifica GitHub successiva — 16 novembre 2026
+
+Controllo indipendente della PR [#56](https://github.com/Rosin355/your-e-commerce-blueprint/pull/56) all'HEAD applicativo `8a1eee0e43d0769a9d33a14313efbd5df40b2c40`: PR **open/draft/unmerged**, base `main`; entrambe le GitHub Actions concluse con esito **SUCCESS**:
+
+- [Storefront application checks, SQL/PostgreSQL 17](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/43915248318)
+- [Editor Step 1 synthetic browser checks](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/43915248316)
+
+Questo addendum e **solo documentale** e non dichiara eseguite operazioni live; lo Step 1B resta **read-only**, lo Step 1C/1D resta **NO-GO** e la consegna a Marco non e ancora certificata. Eventuale CI su un successivo commit solo documentale va verificata separatamente.
