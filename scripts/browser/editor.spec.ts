@@ -63,3 +63,16 @@ test('valore Shopify senza bozza locale: apertura e cancel non scrivono', async 
  await page.getByRole('button',{name:'Salva bozza',exact:true}).click();
  await expect(page.getByRole('status',{name:'Salvataggi'})).toHaveText('1');
 });
+
+test('refetch durante la modifica non aggiorna la versione base della bozza', async ({page})=>{
+ await page.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());
+ await page.goto('/scripts/browser/editor.html');
+ await page.getByRole('button',{name:'Modifica',exact:true}).click();
+ await expect(page.getByRole('textbox',{name:'Descrizione',exact:true})).toBeEditable();
+ await page.getByRole('textbox',{name:'Descrizione',exact:true}).fill('Bozza locale non salvata');
+ await page.getByRole('button',{name:'Simula aggiornamento esterno'}).click();
+ await page.getByRole('button',{name:'Salva bozza',exact:true}).click();
+ await expect(page.getByText('Versione modificata da un altro utente')).toBeVisible();
+ await expect(page.getByRole('status',{name:'Salvataggi'})).toHaveText('0');
+ await expect(page.getByRole('textbox',{name:'Descrizione',exact:true})).toContainText('Bozza locale non salvata');
+});

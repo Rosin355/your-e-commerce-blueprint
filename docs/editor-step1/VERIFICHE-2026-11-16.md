@@ -10,7 +10,7 @@
 | Suite dominio Node | 430 PASS, inclusi nuovi casi e regressioni SEO/Admin/catalogo |
 | Suite dominio Deno | 106 PASS, lockfile congelato, nessun permesso rete runtime |
 | Typecheck Deno product-admin-api e service AI | PASS con lockfile esistente |
-| Chromium desktop 1280 px e mobile 390 px | 3 PASS: editor/lista/formati/AI simulata, concorrenza/sync esplicito, primo valore dal sito/cancel |
+| Chromium desktop 1280 px e mobile 390 px | 4 PASS: editor/lista/formati/AI simulata, concorrenza/sync esplicito, primo valore dal sito/cancel, refetch concorrente durante editing |
 | Diff e link documentali | Verificati; nessun dato reale o artefatto browser incluso |
 
 I test browser avviano Vite locale e abortiscono tutte le richieste non dirette a 127.0.0.1. Repository di bozza, ordini di salvataggio/sync e proposta AI sono simulati: nessuna richiesta Shopify/Supabase/provider. Il test desktop/mobile comprende uso tastiera dell'azione Modifica, accessibilità tramite ruoli/etichette e assenza di overflow sul percorso verificato. Non è una certificazione completa WCAG o Safari.

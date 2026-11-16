@@ -72,12 +72,18 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
   const editorSupported = isEditorValueSupported(field, initialValue);
   const canUpdate = field.capabilities.canUpdate && editorSupported && !!onCommand && field.version !== null;
   const [editing, setEditing] = useState(false);
+  const [editVersion, setEditVersion] = useState<number | null>(field.version);
+  const [editHash, setEditHash] = useState(field.shopifyBaselineHash);
+  const [editMissing, setEditMissing] = useState(!field.capabilities.currentValueExists);
   const [draft, setDraft] = useState<unknown>(() => cloneValue(initialValue));
   const [busy, setBusy] = useState<null | FieldCommandAction | 'sync_field' | 'save_and_sync'>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [conflictVersion, setConflictVersion] = useState<number | null>(null);
 
   const startEdit = () => {
+    setEditVersion(field.version);
+    setEditHash(field.shopifyBaselineHash);
+    setEditMissing(!field.capabilities.currentValueExists);
     const faq = field.key === 'faq' ? parseFaqValue(initialValue) : null;
     setDraft(faq?.kind === 'supported' ? cloneValue(faq.items) : cloneValue(initialValue));
     setValidationError(null);
@@ -123,7 +129,7 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
       setValidationError(normalized.message);
       return;
     }
-    if (!onCommand || field.version === null) return;
+    if (!onCommand || editVersion === null) return;
     if (syncAfterSave && !window.confirm('Salvare la bozza e aggiornare questo campo sul sito?')) return;
     setBusy(syncAfterSave ? 'save_and_sync' : 'update_field');
     setValidationError(null);
@@ -132,17 +138,17 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
         action: 'update_field',
         fieldKey: field.key,
         value: normalized.value,
-        expectedVersion: field.version,
-        expectedShopifyHash: !field.capabilities.currentValueExists ? field.shopifyBaselineHash : undefined,
+        expectedVersion: editVersion,
+        expectedShopifyHash: editMissing ? editHash : undefined,
       });
       const nextVersion = saved.code === 'NO_CHANGE'
-        ? field.version
+        ? editVersion
         : typeof saved.result?.version === 'number'
         ? saved.result.version
-        : field.version + 1;
+        : editVersion + 1;
       if (syncAfterSave) {
         if (!onSync) throw new Error('Sincronizzazione non disponibile.');
-        await onSync({ fieldKey: field.key, expectedVersion: nextVersion, expectedShopifyHash: field.shopifyBaselineHash });
+        await onSync({ fieldKey: field.key, expectedVersion: nextVersion, expectedShopifyHash: editHash });
         toast({ title: 'Salvato e sincronizzato', description: `${field.label} verificato su Shopify.` });
       } else {
         toast(saved.code === 'NO_CHANGE'
