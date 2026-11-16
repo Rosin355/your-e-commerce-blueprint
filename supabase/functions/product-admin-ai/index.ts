@@ -1,7 +1,9 @@
+import { authorizeConfirmedAi, confirmedFacts, generateConfirmedProposal } from '../_shared/admin-ai-confirmed.ts';
+import { payloadHash } from '../_shared/admin-v2-commands.ts';
 import { loadCatalogGrant, catalogMode } from '../_shared/admin-catalog-approvals.ts';
 import { catalogAiAllowed } from '../_shared/admin-catalog-policy.ts';
 // Fase 2D — proposte AI field-by-field. Nessuna chiamata Shopify e nessun publish.
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { corsHeaders } from "../_shared/cors.ts";
 import {
   authenticate,
   AuthError,
@@ -30,12 +32,14 @@ import {
 import type { AuthContext } from "../_shared/admin-v2-types.ts";
 
 type AiAction =
+  | "suggest_confirmed_field"
   | "get_ai_suggestions"
   | "generate_ai_suggestion"
   | "reject_ai_suggestion"
   | "accept_ai_suggestion";
 
 const ACTIONS: AiAction[] = [
+  "suggest_confirmed_field",
   "get_ai_suggestions",
   "generate_ai_suggestion",
   "reject_ai_suggestion",
@@ -180,6 +184,19 @@ export async function handleProductAdminAi(
     }
     await loadCatalogGrant(serviceClient(), auth);
     const repo = deps.repository();
+    if (action === 'suggest_confirmed_field') {
+      if (!writesEnabled()) return fail('WRITES_DISABLED','Assistenza AI temporaneamente disabilitata.');
+      const def = typeof payload.fieldKey === 'string' ? await repo.getDefinition(payload.fieldKey) : null;
+      try { authorizeConfirmedAi(auth,def,action); } catch { return fail('FORBIDDEN','Azione AI non autorizzata per questo account e campo.'); }
+      let facts: string[];
+      try { facts=confirmedFacts(payload.facts,payload.confirmed); } catch (error) { return fail('VALIDATION_ERROR',(error as Error).message); }
+      if (!isUuid(payload.requestKey)) return fail('VALIDATION_ERROR','Identificativo richiesta mancante.');
+      const { data: reserved, error } = await serviceClient().rpc('reserve_confirmed_ai_request',{p_actor:auth.userId,p_request_key:payload.requestKey,p_field_key:def!.key,p_context_hash:await payloadHash({facts}),p_action:action});
+      if (error) return fail('FORBIDDEN','Impossibile autorizzare la richiesta AI.');
+      if (!reserved) return fail('RATE_LIMITED','Richiesta già inviata o limite di 5 richieste al minuto raggiunto. Nessun retry automatico.');
+      try { return json({ok:true,value:await generateConfirmedProposal(def!,facts,deps.generate)}); }
+      catch(error) { if (error instanceof AiProviderError) throw error; return fail('VALIDATION_ERROR','Proposta non valida o informazioni insufficienti. Nessuna modifica effettuata; compila manualmente.'); }
+    }
 
     if (action === "get_ai_suggestions") {
       if (!isUuid(payload.productId)) {

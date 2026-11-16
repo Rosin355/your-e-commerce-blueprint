@@ -1,3 +1,4 @@
+import ConfirmedAiAssistant from '../components/ConfirmedAiAssistant';
 import VariantEditor from '../components/VariantEditor';
 import RichTextEditor from '../components/RichTextEditor';
 import { useState } from 'react';
@@ -42,6 +43,7 @@ const steps = [
 ];
 export default function NewProductPage() {
   const [draft, setDraft] = useState<ProductDraft>(initial);
+  const [descriptionRevision,setDescriptionRevision]=useState(0);
   const [step, setStep] = useState(0);
   const [tagsInput, setTagsInput] = useState('');
   const [key, setKey] = useState(() => crypto.randomUUID());
@@ -137,7 +139,8 @@ export default function NewProductPage() {
           <>
             {field('Nome prodotto', 'title')}
             {field('SKU famiglia', 'sku')}
-            <RichTextEditor value={draft.description} onChange={description => update({ description })} label="Descrizione verificata" />
+            <RichTextEditor key={descriptionRevision} value={draft.description} onChange={description => update({ description })} label="Descrizione verificata" />
+            {adminContext.data?.canUseAi && definitions.data?.definitions.filter(d=>d.key==='description' && adminContext.data?.editableFieldKeys?.includes(d.key) && d.visible && d.editable && d.ai_allowed && !d.manual_only).map(d=><ConfirmedAiAssistant key={`${draft.sku}:${draft.title}`} field={{key:d.key,label:d.label,editorType:d.editor_type,dataType:d.data_type,validationRules:d.validation_rules ?? {},required:d.required}} onApply={value=>{update({description:value as string});setDescriptionRevision(v=>v+1);}}/>)}
             <p className='text-sm text-muted-foreground'>
               Inserisci soltanto informazioni note. I contenuti botanici non vengono completati
               automaticamente.

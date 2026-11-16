@@ -9,15 +9,19 @@
 - [x] Prima bozza esplicita da Shopify, versione zero e rilettura hash nel flusso approvazione.
 - [x] Formati singoli/multipli, confronto opzionale, prezzi EUR con virgola.
 - [x] Proposta AI simulata mostrata e applicata soltanto dopo conferma; nessun autosync.
-- [ ] Applicare e verificare migrazione in DB di verifica: non eseguito da questo task.
+- [x] Migrazioni 0016/0017 applicate e verificate nel solo PostgreSQL locale isolato, tramite migratore Drizzle ufficiale e replay; nessuna applicazione live.
 - [ ] Verificare/autorizzare nominativamente tre campi e capability AI: non modificati live.
 - [ ] Provider/modello/credito/limiti e generazione reale autorizzata: NON PROVATA.
-- [ ] AI per campi completamente vuoti/nuove bozze con contesto confermato: NON IMPLEMENTATA, BLOCCATO.
+- [x] AI per campi vuoti e nuove bozze da fatti confermati: proposta modificabile, scarto e applicazione locale; provider simulato, nessun salvataggio/sync automatico.
 - [ ] Accettazione personale Marco, Safari e screen reader: NON PROVATI.
 - [ ] Sincronizzazione su DRAFT tecnica reale autorizzata e verifica readback: NON PROVATA.
 - [ ] Decisione owner su rilascio: NON AUTORIZZATO.
 
 La prova sintetica usa un repository/provider simulato: non dimostra accesso del cliente al provider live. Le sezioni storiche della documentazione restano cronologia; nessuna spunta live deriva da CI verde.
+
+## Esito Step 1A — 16 novembre 2026
+
+**Codice e schema verificati offline; GO tecnico al solo Step 1B in lettura, subordinato alla CI del commit della PR.** [Report Step 1A](VERIFICHE-STEP1A.md). Nessuna consegna a Marco: Step 1C/1D ancora NO-GO senza evidenze live e autorizzazioni separate. Migrazione `ai` senza grant automatici, RLS/revoche conservate; primo valore verificato con errori, replay, rollback e conflitto concorrente. Corretto il difetto che trattava i nuovi campi editoriali come mesi.
 
 ## Sequenza di chiusura — solo Step 1, un gate alla volta (16 novembre)
 

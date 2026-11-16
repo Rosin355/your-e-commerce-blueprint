@@ -76,3 +76,28 @@ test('refetch durante la modifica non aggiorna la versione base della bozza', as
  await expect(page.getByRole('status',{name:'Salvataggi'})).toHaveText('0');
  await expect(page.getByRole('textbox',{name:'Descrizione',exact:true})).toContainText('Bozza locale non salvata');
 });
+
+test('AI da fatti confermati: campo vuoto e nuova bozza, proposta/scarto/applica senza salvataggi', async ({page})=>{
+ await page.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());
+ await page.goto('/scripts/browser/editor.html?missing=1');
+ await expect(page.getByRole('status',{name:'Generazioni confermate'})).toHaveText('0');
+ let calls=0;
+ for (const label of ['Descrizione','Descrizione nuova bozza']) {
+ const scope=page.getByRole('region',{name:'Assistenza AI '+label,exact:true});
+ await expect(scope.getByRole('button',{name:'Organizza le informazioni con AI'})).toBeDisabled();
+ await scope.getByRole('textbox',{name:'Informazioni fattuali '+label,exact:true}).fill('corto');
+ await scope.getByRole('checkbox').check();await scope.getByRole('button',{name:'Organizza le informazioni con AI'}).click();await expect(scope.getByRole('alert')).toBeVisible();await expect(page.getByRole('status',{name:'Generazioni confermate'})).toHaveText(String(calls));
+ await scope.getByRole('textbox',{name:'Informazioni fattuali '+label,exact:true}).fill('Il fiore ha petali di colore rosso.');
+ await expect(scope.getByRole('checkbox')).not.toBeChecked();await scope.getByRole('checkbox').check();
+ await scope.getByRole('button',{name:'Organizza le informazioni con AI'}).click();await expect(scope.getByText('Proposta da revisionare')).toBeVisible();calls++;await expect(page.getByRole('status',{name:'Generazioni confermate'})).toHaveText(String(calls));
+ await scope.getByRole('button',{name:'Scarta proposta'}).click();await expect(scope.getByText('Proposta da revisionare')).toHaveCount(0);
+ await scope.getByRole('button',{name:'Organizza le informazioni con AI'}).click();
+ calls++;await expect(page.getByRole('status',{name:'Generazioni confermate'})).toHaveText(String(calls));
+ await expect(scope.getByRole('textbox',{name:label,exact:true})).toBeEditable();
+ await scope.getByRole('textbox',{name:label,exact:true}).fill('Il fiore ha petali di colore rosso. Revisione operatore.');
+ page.once('dialog',d=>d.accept());await scope.getByRole('button',{name:'Applica alla compilazione'}).click();
+ if(label==='Descrizione') {await expect(page.getByRole('textbox',{name:'Descrizione',exact:true})).toContainText('Revisione operatore');await page.getByRole('button',{name:'Annulla',exact:true}).click();}
+ else {await expect(page.getByTestId('new-draft-ai')).toContainText('Revisione operatore');await expect(page.getByRole('textbox',{name:'Descrizione compilata nuova bozza',exact:true})).toContainText('Revisione operatore');}
+ await expect(page.getByRole('status',{name:'Salvataggi'})).toHaveText('0');await expect(page.getByRole('status',{name:'Sincronizzazioni'})).toHaveText('0');
+ }
+});

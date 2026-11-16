@@ -10,6 +10,7 @@ export type EntityType = 'simple' | 'variable' | 'variation';
 export interface AdminContext {
   roles: string[];
   ordinaryCatalog?: boolean;
+  canUseAi?: boolean;
   canUploadImages?: boolean;
   canManagePrices?: boolean;
   canPublish?: boolean;
@@ -357,4 +358,8 @@ export async function sendFieldSyncCommand(input: {
     expectedVersion: input.expectedVersion,
     idempotencyKey: input.idempotencyKey ?? crypto.randomUUID(),
   });
+}
+
+export async function suggestConfirmedField(input: { fieldKey: string; facts: string[]; confirmed: boolean; requestKey: string }) {
+  return callAdminAiApi<{ok:true;value:unknown}>({action:'suggest_confirmed_field',...input});
 }

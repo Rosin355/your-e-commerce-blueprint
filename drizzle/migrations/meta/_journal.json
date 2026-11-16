@@ -113,6 +113,20 @@
       "when": 1794322722595,
       "tag": "0015_admin_catalog_atomic_delivery",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794847200016,
+      "tag": "0016_marco_editorial_missing_values",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794847200017,
+      "tag": "0017_admin_ai_confirmed_context",
+      "breakpoints": true
     }
   ]
 }

@@ -1,3 +1,5 @@
+import type { suggestConfirmedField } from '../lib/adminApi';
+import ConfirmedAiAssistant from './ConfirmedAiAssistant';
 import { useState } from 'react';
 import { Check, CloudUpload, Info, Loader2, Lock, RefreshCw, ShieldCheck, Sparkles, X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -55,6 +57,7 @@ const SYNC_STATE: Record<AdminField['syncState'], { label: string; variant: 'out
 
 export interface FieldCardProps {
   field: AdminField;
+  onGenerateConfirmed?: typeof suggestConfirmedField;
   onCommand?: (input: { action: FieldCommandAction; fieldKey: string; value?: unknown; expectedShopifyHash?: string; expectedVersion: number }) => Promise<{ ok: boolean; code?: string; result?: Record<string, unknown> }>;
   onSync?: (input: { fieldKey: string; expectedVersion: number; expectedShopifyHash?: string; idempotencyKey?: string }) => Promise<{ ok: boolean; result?: Record<string, unknown> }>;
   syncEnabled?: boolean;
@@ -65,7 +68,7 @@ export interface FieldCardProps {
   onAcceptAi?: (input: { suggestionId: string; value: unknown; expectedVersion: number; idempotencyKey: string }) => Promise<unknown>;
 }
 
-export default function FieldCard({ field, onCommand, onSync, syncEnabled = false, onConflict, aiSuggestion, onGenerateAi, onRejectAi, onAcceptAi }: FieldCardProps) {
+export default function FieldCard({ field, onGenerateConfirmed, onCommand, onSync, syncEnabled = false, onConflict, aiSuggestion, onGenerateAi, onRejectAi, onAcceptAi }: FieldCardProps) {
   const legacyAi = isLegacyAi(field);
   const manual = isManualField(field);
   const initialValue = !field.capabilities.currentValueExists && field.shopifyLiveValue != null ? field.shopifyLiveValue : field.value;
@@ -304,7 +307,8 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
         {legacyAi && field.capabilities.canConfirmLegacy && <Button size="sm" variant="outline" onClick={() => void run('confirm_legacy_value')} disabled={busy !== null}>{busy === 'confirm_legacy_value' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Check className="mr-1 h-3.5 w-3.5" />}Mantieni valore</Button>}
         {legacyAi && field.capabilities.canRejectLegacy && <Button size="sm" variant="outline" onClick={() => void run('reject_legacy_value')} disabled={busy !== null}>{busy === 'reject_legacy_value' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <X className="mr-1 h-3.5 w-3.5" />}Rifiuta valore</Button>}
       </div>
-      {field.capabilities.canSuggestAi && onGenerateAi && onRejectAi && onAcceptAi && onConflict && (
+      {!editing && canUpdate && field.capabilities.canSuggestAi && (field.value == null || field.value === '' || (Array.isArray(field.value) && field.value.length === 0)) && <ConfirmedAiAssistant field={field} generate={onGenerateConfirmed} onApply={value=>{startEdit();setDraft(value);}} />}
+      {field.value != null && field.value !== '' && !(Array.isArray(field.value) && field.value.length===0) && field.capabilities.canSuggestAi && onGenerateAi && onRejectAi && onAcceptAi && onConflict && (
         <AiSuggestionCard
           field={field}
           suggestion={aiSuggestion}

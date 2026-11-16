@@ -156,6 +156,7 @@ Deno.serve(async (req) => {
           (mode === "full" || (canWriteNow && scope?.actions.includes("sync_field"))),
         backendVersion: "admin-delivery-20261110-r1",
         ordinaryCatalog: ordinary,
+        canUseAi: enabled && catalogAiAllowed(auth),
         canUploadImages: enabled && (catalogAllowed(auth,"images") || (scope?.actorId===auth.userId && scope.actions.includes("upload_catalog_image"))),
         canManagePrices: enabled && catalogAllowed(auth,"prices"),
         canPublish: enabled && catalogAllowed(auth,"publish"),

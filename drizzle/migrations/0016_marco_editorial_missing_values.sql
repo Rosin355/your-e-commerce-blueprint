@@ -1,5 +1,5 @@
--- NOT APPLIED. Extends only first-value editorial allowlist; no account grants.
--- Admin V2 — creazione sicura del primo valore per cinque campi tipizzati.
+-- Step 1A: isolated database tests only; no live application or account grants.
+-- Admin V2 — creazione sicura del primo valore per campi tipizzati ed editoriali.
 -- Forward-only e additiva: nessuna riga esistente viene modificata.
 
 CREATE OR REPLACE FUNCTION public.admin_update_product_field(
@@ -144,9 +144,9 @@ BEGIN
                                 'message', 'campo non applicabile al tipo prodotto');
     END IF;
 
-    -- Defense in depth: le cinque chiavi client-creatable sono validate anche
+    -- Defense in depth: le chiavi client-creatable sono validate anche
     -- nella RPC, indipendentemente dalla validazione Edge e dal browser.
-    IF v_client_create_allowed AND v_def.key <> 'difficolta_di_coltivazione' THEN
+    IF v_def.key = ANY (ARRAY['periodo_di_fioritura','periodo_di_messa_a_dimora','periodo_di_raccolta','periodo_ottimale_di_potatura']) THEN
       IF jsonb_typeof(p_value) <> 'array' THEN
         RETURN jsonb_build_object('ok', false, 'code', 'VALIDATION_ERROR',
                                   'message', 'attesa una lista di mesi');
@@ -188,6 +188,9 @@ BEGIN
         RETURN jsonb_build_object('ok', false, 'code', 'VALIDATION_ERROR',
                                   'message', 'mesi non in ordine canonico');
       END IF;
+    ELSIF v_def.key = ANY (ARRAY['key_benefits','key_features','special_bullets']) THEN
+      IF jsonb_typeof(p_value) <> 'array' THEN RETURN jsonb_build_object('ok',false,'code','VALIDATION_ERROR','message','attesa lista di testi'); END IF;
+      IF jsonb_array_length(p_value)<1 OR jsonb_array_length(p_value)>50 OR EXISTS (SELECT 1 FROM jsonb_array_elements(p_value) AS item(value) WHERE jsonb_typeof(item.value)<>'string' OR length(btrim(item.value #>> '{}'))=0 OR length(item.value #>> '{}')>1000) THEN RETURN jsonb_build_object('ok',false,'code','VALIDATION_ERROR','message','lista non valida'); END IF;
     ELSIF v_def.key = 'difficolta_di_coltivazione' THEN
       IF jsonb_typeof(p_value) <> 'string'
          OR NOT ((p_value #>> '{}') = ANY (v_difficulties)) THEN

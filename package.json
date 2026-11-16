@@ -31,7 +31,8 @@
     "backup:catalog": "node scripts/backup-catalog.mjs",
     "snapshot:shopify-manual": "node scripts/snapshot-shopify-manual-metafields.mjs",
     "test:editor-browser": "playwright test --config scripts/browser/playwright.config.ts",
-    "build:editor-sanitizer": "node scripts/vendor/rebuild-editorial-html.mjs"
+    "build:editor-sanitizer": "node scripts/vendor/rebuild-editorial-html.mjs",
+    "test:editor-step1a-db": "node scripts/test-editor-step1a-db.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

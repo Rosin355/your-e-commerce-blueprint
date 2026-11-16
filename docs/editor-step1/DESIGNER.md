@@ -10,6 +10,8 @@ Liste: Punti di forza, Caratteristiche principali, Altri punti utili; una voce p
 
 Formati: scelta iniziale Un solo formato/Più formati, esempi esplicativi non precompilati, SKU proposti solo per nuove varianti. Prezzi in euro con virgola, prezzo precedente facoltativo; nessun valore inventato. AI non è necessaria per comprendere il modulo.
 
-Proposta AI: richiesta volontaria, valore corrente e proposta, modifica/scarto/applicazione confermata. Applicare non aggiorna il sito. Su campi completamente vuoti la compilazione AI resta bloccata: richiedere fatti verificati, non creare contenuto automaticamente.
+Proposta AI: richiesta volontaria, valore corrente e proposta, modifica/scarto/applicazione confermata. Applicare non aggiorna il sito. Su campi vuoti e nuove bozze è presente “Aiutami a compilare”: fatti verificati per riga, conferma non preselezionata, richiesta volontaria, proposta modificabile, Scarta/Applica alla compilazione. Modificare i fatti invalida conferma e proposta; senza dati sufficienti spiegazione e manuale. Il modello organizza soltanto le frasi confermate, senza nuovi claim. Applicare non salva, sincronizza o pubblica.
 
 Test Chromium a 1280 e 390 pixel e tastiera nel percorso sintetico; nessuna certificazione completa WCAG, Safari, screen reader o sessione reale. Prima dell'accettazione: verificare focus, lettura dei messaggi, target touch, descrizioni legacy complesse e contrasto nella sessione autorizzata.
+
+Step 1A: verificato offline; GO al preflight in lettura dopo CI verde, nessuna disponibilità live attestata. Nuovo test browser: campo vuoto e nuova bozza, input insufficiente senza invocazione del provider simulato, scarto, revisione e applicazione visuale.

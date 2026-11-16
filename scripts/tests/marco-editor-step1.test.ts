@@ -27,7 +27,8 @@ for(const key of ['key_benefits','key_features','special_bullets'])test(key+' ac
 });
 test('missing-value RPC migration preserves atomic implementation apart from finite allowlist',()=>{
  const old=readFileSync('supabase/migrations/20261006170000_admin_missing_field_creation.sql','utf8');const next=readFileSync('supabase/migrations/20261116161045_marco_editorial_missing_values.sql','utf8');
- assert.equal(next.split('v_months text[]')[1],old.split('v_months text[]')[1]);
+ assert.equal(next.split('    INSERT INTO public.product_current_values (')[1],old.split('    INSERT INTO public.product_current_values (')[1]);
+ assert.match(next, /IF v_def.key = ANY \(ARRAY\['periodo_di_fioritura'/);
  for(const key of ['key_benefits','key_features','special_bullets','description'])assert.ok(next.includes("'"+key+"'"));
  assert.equal(next,readFileSync('drizzle/migrations/0016_marco_editorial_missing_values.sql','utf8'));
 });

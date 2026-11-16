@@ -1,5 +1,7 @@
 # Evidenze Step 1 — 16 novembre 2026
 
+**Cronologia precedente a Step 1A:** leggere il [report aggiornato](VERIFICHE-STEP1A.md) per AI su campi vuoti e migrazioni ora verificate localmente. I blocchi tecnici indicati sotto descrivono la fase precedente, non lo stato corrente.
+
 **Stato PARZIALE/BLOCCATO per il collaudo personale e la consegna live.** Questi esiti riguardano codice e dati sintetici nella branch, non operazioni effettuate sul negozio.
 
 | Verifica eseguita | Esito |
