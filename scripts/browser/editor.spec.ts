@@ -123,3 +123,23 @@ test('elenchi: salva non sincronizza, conferma esplicita e definizione non verif
  await expect(page.getByRole('button',{name:'Aggiorna sul sito',exact:true})).toHaveCount(0);
  await expect(page.getByText('Tipo o definizione Shopify non verificabile: sincronizzazione bloccata.',{exact:true})).toBeVisible();
 });
+
+for(const width of [1280,390])test(`PDP Punti di forza condizionale, senza duplicare altri consumer ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});
+ await page.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
+ await page.goto('/scripts/browser/pdp-benefits.html');
+ await page.getByRole('button',{name:'Punti di forza',exact:true}).click();
+ const benefits=page.locator('[data-state="open"]').filter({has:page.getByRole('button',{name:'Punti di forza',exact:true})}).first();
+ await expect(benefits.getByRole('listitem')).toHaveText(['Beneficio & à 🌱','Secondo beneficio']);
+ await expect(page.getByText('Voce comune',{exact:true})).toHaveCount(1);
+ await expect(page.getByRole('button',{name:'Caratteristiche principali',exact:true})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Cosa lo rende speciale',exact:true})).toBeVisible();
+ await expect(page.getByText('Punto speciale',{exact:true})).toHaveCount(1);
+ await page.screenshot({path:`/private/tmp/og-c3-pdp-${width}.png`,fullPage:true,animations:'disabled'});
+ for(const mode of ['absent','empty','duplicate']){
+  await page.goto('/scripts/browser/pdp-benefits.html?mode='+mode);
+  await expect(page.getByRole('button',{name:'Punti di forza',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Caratteristiche principali',exact:true})).toBeVisible();
+  await expect(page.getByText('Voce comune',{exact:true})).toHaveCount(1);
+ }
+});

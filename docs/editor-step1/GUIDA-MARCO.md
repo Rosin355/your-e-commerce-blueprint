@@ -38,3 +38,9 @@ Caratteristiche principali e Altri punti utili sono predisposti per il formato S
 ## Punti di forza — preparazione tecnica Step 1C-3
 
 «Punti di forza» e predisposto nell'editor, ma la sua definizione non esiste ancora su Shopify e la PDP non lo visualizza. Abbiamo preparato un piano per adottare lo stesso formato a righe delle altre caratteristiche. **Non usare ancora Aggiorna sul sito per questo campo**: la funzione non e pubblicata e la sincronizzazione resta bloccata. Quando autorizzato e collaudato, potrai compilare una voce per riga, salvare la bozza e scegliere separatamente se inviarla a Shopify. Nessuna operazione sul negozio e stata eseguita in questa fase.
+
+## Step 1C-3 — Punti di forza predisposto
+
+Il codice è pronto per gestire Punti di forza anche nella pagina prodotto, ma la configurazione Shopify non è ancora creata e il sito pubblicato non è cambiato. Dopo le future autorizzazioni, le voci proprie appariranno in un blocco dedicato; quelle identiche già mostrate nelle altre sezioni non saranno ripetute in questo blocco. I dati salvati restano completi e ordinati. Un campo vuoto non mostra una sezione vuota.
+
+Salva bozza non aggiorna il sito. Aggiorna sul sito richiederà ancora grant, definizione compatibile e una nuova conferma specifica; le vecchie conferme Punti di forza non valgono. Non provare prodotti commerciali e non creare configurazioni per aggirare il blocco. Nessuna consegna o prova live certificata da questo step.

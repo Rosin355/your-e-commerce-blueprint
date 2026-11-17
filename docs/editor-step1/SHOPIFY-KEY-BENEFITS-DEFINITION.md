@@ -53,3 +53,13 @@ Fonte: letture in sola lettura del negozio Shopify collegato Online Garden, veri
 - **Criterio GO finale:** definizione realmente leggibile dal canale Storefront, consumer e sync distribuiti nella versione verificata, schema/grant/backend autorizzati, richiesta AI reale solo se autorizzata e collaudo umano di Marco PASS. Fino ad allora **PARZIALE/NO-GO consegna**.
 
 Fonti ufficiali: [Shopify — Metafield definitions](https://shopify.dev/docs/apps/build/metafields/definitions), [Shopify — Retrieve metafields in the Storefront API](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/products-collections/metafields). Nessuna chiamata di modifica Shopify eseguita.
+
+## Step 1C-3 — consumer predisposti nella PR, 17 novembre 2026
+
+La tabella iniziale fotografa la baseline precedente alla correzione. Nel branch #56 sono ora pronti: alias Storefront keyBenefits con value/type, proprietà TS coerente, accordion PDP Punti di forza condizionale e supporto server multi_line_text_field tramite il codec rigoroso esistente. Nessuna definizione creata, nessun valore impostato, nessun rilascio.
+
+La PDP accetta soltanto valori multilinea reversibili e tipo dichiarato compatibile; campo assente/vuoto/ambiguo/incompatibile non produce un blocco pubblico. Solo nella nuova sezione vengono omesse voci identiche già presenti in key_features o special_bullets: nessuna deduplicazione semantica, nessuna modifica alle sezioni preesistenti, ordine e duplicati interni rimanenti conservati. La lista memorizzata e sincronizzata resta integrale.
+
+Revisione approvazione key_benefits: editorial-list-sync-v3, così v1/v2 non autorizzano il nuovo supporto. Per key_features/special_bullets resta v2 e ogni consumer precedente rimane invariato. Definizione assente/incompatibile continua a bloccare il server, anche se il consumer è pronto. La query è validata staticamente su Storefront 2026-10; segnalate soltanto le deprecazioni preesistenti productByHandle/ProductOption.values. Nessun bump della Storefront API o cambiamento del checkout in questo step.
+
+**GO tecnico alla sola autorizzazione D-BENEFITS**, dopo CI verde/review. Prima di una futura creazione l’operatore deve ancora rileggere unicità/assenza valori e confermare PRODUCT/custom/key_benefits/multi_line_text_field/PUBLIC_READ sul negozio corretto; il consenso deve riguardare la sola definizione senza valori. Nessuna autorizzazione alla scrittura è stata fornita da questa attività. M/B/G/F-M/F-P/T/A/S, deploy/Publish e collaudo restano separati e pendenti. La configurazione Shopify non è ancora stata creata; il sito pubblicato non è modificato.

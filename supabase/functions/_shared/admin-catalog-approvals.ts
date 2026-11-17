@@ -4,7 +4,7 @@ import { payloadHash, writesEnabled } from "./admin-v2-commands.ts";
 import {
   approvalValid,
   isEditorialList,
-  EDITORIAL_LIST_SYNC_REVISION,
+  editorialListSyncRevision,
   CATALOG_MUTATIONS,
   catalogAllowed,
   catalogCommand,
@@ -116,7 +116,7 @@ export async function catalogSnapshot(
       "Shopify è cambiato rispetto alla scheda: ricarica e confronta prima di sincronizzare.",
     );
     return {
-      ...(action === 'sync_field' && isEditorialList(p.fieldKey) ? { syncRevision: EDITORIAL_LIST_SYNC_REVISION, listContract: remote.editorialDefinition, compareDigest: remote.metafield?.compareDigest ?? null } : {}),
+      ...(action === 'sync_field' && isEditorialList(p.fieldKey) ? { syncRevision: editorialListSyncRevision(p.fieldKey), listContract: remote.editorialDefinition, compareDigest: remote.metafield?.compareDigest ?? null } : {}),
       internal,
       remoteValue: remote.value,
       shopifyProductId: mapping.shopify_product_id,
@@ -125,7 +125,7 @@ export async function catalogSnapshot(
   return { productVersion: product.updated_at };
 }
 export function freshListSyncApproval(command: Record<string, unknown>, snapshot: Record<string, unknown> | null | undefined): boolean {
-  return command.action !== 'sync_field' || !isEditorialList(command.fieldKey) || snapshot?.syncRevision === EDITORIAL_LIST_SYNC_REVISION;
+  return command.action !== 'sync_field' || !isEditorialList(command.fieldKey) || snapshot?.syncRevision === editorialListSyncRevision(command.fieldKey);
 }
 
 async function demandNoUnresolvedListSync(db: SupabaseClient, auth: AuthContext, command: Record<string, unknown>, target: string, exceptId?: string) {

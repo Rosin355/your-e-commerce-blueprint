@@ -30,6 +30,7 @@ import {
   parseBotanicalInfo,
   parseFaqItems,
   parseMultilineMetafield,
+  parseKeyBenefits,
   parseProductAttributes,
   parseSeasonalCalendar,
   parseSingleLineMetafield,
@@ -120,6 +121,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
   const resolvedSpecialBullets = parseMultilineMetafield(node.specialBullets);
   const resolvedKeyFeatures = parseMultilineMetafield(node.keyFeatures);
+  const resolvedKeyBenefits = parseKeyBenefits(node.keyBenefits, [...resolvedSpecialBullets, ...resolvedKeyFeatures]);
   const resolvedOriginsHabitat = parseMultilineMetafield(node.originsHabitat);
   const resolvedPlantKnowledge = parseMultilineMetafield(node.plantKnowledge);
   const resolvedCareGuide = parseMultilineMetafield(node.careGuide);
@@ -794,6 +796,21 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
       <section className="container mx-auto max-w-[1200px] px-4 py-10">
         <Accordion type="multiple" defaultValue={["features"]} className="w-full">
+          {resolvedKeyBenefits.length > 0 && <AccordionItem value="benefits">
+            <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
+              Punti di forza
+            </AccordionTrigger>
+            <AccordionContent className="pb-6">
+              <ul className="space-y-3 text-[15px] leading-7 text-muted-foreground">
+                {resolvedKeyBenefits.map((benefit, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <span className="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-foreground" />
+                    <span>{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            </AccordionContent>
+          </AccordionItem>}
           {resolvedKeyFeatures.length > 0 && <AccordionItem value="features">
             <AccordionTrigger className="py-5 text-left text-lg font-semibold text-foreground hover:no-underline md:text-[1.25rem]">
               Caratteristiche principali

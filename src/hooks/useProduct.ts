@@ -59,6 +59,10 @@ const PRODUCT_BY_HANDLE_QUERY = `
         value
         type
       }
+      keyBenefits: metafield(namespace: "custom", key: "key_benefits") {
+        value
+        type
+      }
       keyFeatures: metafield(namespace: "custom", key: "key_features") {
         value
         type

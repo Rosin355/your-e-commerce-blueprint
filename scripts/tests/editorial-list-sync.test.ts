@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { catalogAiAllowed, EDITORIAL_LIST_FIELDS, EDITORIAL_LIST_SYNC_REVISION } from '../../supabase/functions/_shared/admin-catalog-policy.ts';
+import { catalogAiAllowed, EDITORIAL_LIST_FIELDS, editorialListSyncRevision } from '../../supabase/functions/_shared/admin-catalog-policy.ts';
 import { freshListSyncApproval, prepareCatalogApproval, withCatalogApproval } from '../../supabase/functions/_shared/admin-catalog-approvals.ts';
 import { buildShopifyWritePlan, performVerifiedShopifyFieldWrite, readEditorialListTarget, type ShopifyGraphQL } from '../../supabase/functions/_shared/admin-v2-shopify-field-sync.ts';
 import { payloadHash } from '../../supabase/functions/_shared/admin-v2-commands.ts';
@@ -12,7 +12,7 @@ const auth=():AuthContext=>({userId:actor,roles:['editor'],catalogGrant:{enabled
 const env:Record<string,string>={PRODUCT_ADMIN_WRITES_ENABLED:'true',PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED:'true'};
 Object.defineProperty(globalThis,'Deno',{value:{env:{get:(key:string)=>env[key]}},configurable:true});
 const command=(key='key_benefits')=>({action:'sync_field',productId,fieldKey:key,expectedVersion:3,expectedShopifyHash:'a'.repeat(64),idempotencyKey:'40000000-0000-4000-8000-000000000001'});
-const snapshot={syncRevision:EDITORIAL_LIST_SYNC_REVISION,internal:{version:3,value_json:['Secondo','Primo']},remoteValue:'["Vecchio"]'};
+const snapshot={syncRevision:editorialListSyncRevision('key_benefits'),internal:{version:3,value_json:['Secondo','Primo']},remoteValue:'["Vecchio"]'};
 const target=(key='key_benefits')=>({kind:'metafield' as const,namespace:'custom',key,valueType:'json' as const});
 function shop(options:{type?:string;missing?:boolean;noDef?:boolean;badDigest?:boolean;drift?:boolean;afterWrong?:boolean;failWrite?:boolean}={}){
  let value=options.missing?null:'["Vecchio"]',digest='before',writes=0,reads=0;const variables:Record<string,unknown>[]=[];
@@ -91,7 +91,7 @@ test('AI sei campi conservata e sync non parte da save/accept/open',()=>{
 
 test('nuova preparazione e conferma legano campo/prodotto/versione/contenuto e attore',async()=>{
  const f=database();const cmd={...command(),idempotencyKey:'60000000-0000-4000-8000-000000000001'};
- const prepared=await prepareCatalogApproval(f.db,auth(),{command:cmd,confirm:true},async()=>snapshot);assert.equal(prepared.approvalId,approvalId);assert.equal(f.row.target_snapshot.syncRevision,EDITORIAL_LIST_SYNC_REVISION);
+ const prepared=await prepareCatalogApproval(f.db,auth(),{command:cmd,confirm:true},async()=>snapshot);assert.equal(prepared.approvalId,approvalId);assert.equal(f.row.target_snapshot.syncRevision,editorialListSyncRevision('key_benefits'));
  for(const change of [{fieldKey:'key_features'},{expectedVersion:4},{productId:'20000000-0000-4000-8000-000000000002'}])await assert.rejects(withCatalogApproval(f.db,auth(),{...cmd,...change,approvalId},async()=>new Response('{}'),async()=>snapshot));
  await assert.rejects(withCatalogApproval(f.db,{...auth(),userId:'10000000-0000-4000-8000-000000000002'},{...cmd,approvalId},async()=>new Response('{}'),async()=>snapshot));
  await assert.rejects(withCatalogApproval(f.db,auth(),{...cmd,approvalId},async()=>new Response('{}'),async()=>({...snapshot,internal:{...snapshot.internal,value_json:['Diverso']}})));

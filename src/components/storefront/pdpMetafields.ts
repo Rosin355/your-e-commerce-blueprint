@@ -1,3 +1,4 @@
+import { decodeEditorialList } from "../../../supabase/functions/_shared/editorial-list-codec";
 import type { ShopifyProduct } from "@/lib/shopify";
 
 type Metafield = { value?: string | null } | null | undefined;
@@ -38,6 +39,15 @@ export function parseMultilineMetafield(mf: Metafield, fallback: string[] = []):
     .map((item) => item.trim())
     .filter(Boolean);
   return items.length > 0 ? items : fallback;
+}
+
+/** New benefits only: fail closed on incompatible data, suppress exact cross-section duplicates. */
+export function parseKeyBenefits(mf: { value?: string | null; type?: string } | null | undefined, alreadyVisible: readonly string[] = []): string[] {
+  if (!mf?.value || mf.type !== 'multi_line_text_field') return [];
+  try {
+    const existing = new Set(alreadyVisible);
+    return decodeEditorialList(mf.value, mf.type).filter(item => !existing.has(item));
+  } catch { return []; }
 }
 
 function parseJsonMetafield<T>(mf: Metafield): T | null {

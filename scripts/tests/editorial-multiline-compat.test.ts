@@ -18,7 +18,7 @@ test('voce con newline non viene trasformata in due voci; spazi e vuoti non norm
  for(const value of [['Prima\nSeconda'],['Prima\rSeconda'],[' Prima'],['Prima '],['Prima',''],[]])assert.throws(()=>encodeEditorialList(JSON.stringify(value),'multi_line_text_field'));
  assert.deepEqual(decodeEditorialList('["Prima\\nSeconda"]','json'),['Prima\nSeconda']);
 });
-for(const key of ['key_features','special_bullets'])test('sync multi_line con CAS, readback raw esatto e storefront invariato '+key,async()=>{
+for(const key of ['key_benefits','key_features','special_bullets'])test('sync multi_line con CAS, readback raw esatto e storefront invariato '+key,async()=>{
  let value='Prima\nSeconda',writes=0;const gql:ShopifyGraphQL=async<T>(query,vars)=>{
   if(query.includes('mutation')){writes++;const input=(vars!.metafields as Record<string,unknown>[])[0];assert.equal(input.type,'multi_line_text_field');assert.equal(input.compareDigest,'digest-before');assert.equal(input.value,items.join('\n'));value=input.value as string;return {metafieldsSet:{userErrors:[]}} as T;}
   return {product:{id:'gid://shopify/Product/123',metafield:{namespace:'custom',key,type:'multi_line_text_field',value,compareDigest:writes?'digest-after':'digest-before'}},metafieldDefinitions:{nodes:[{namespace:'custom',key,type:{name:'multi_line_text_field'}}],pageInfo:{hasNextPage:false}}} as T;
@@ -39,7 +39,7 @@ test('key_benefits senza definizione resta bloccato, nessuna auto-creazione',asy
  await assert.rejects(readEditorialListTarget('123',{kind:'metafield',namespace:'custom',key:'key_benefits',valueType:'json'},gql));assert.equal(calls,1);
 });
 test('approvazioni pre-adattatore negate dalla nuova revisione server',()=>{
- const policy=readFileSync('supabase/functions/_shared/admin-catalog-policy.ts','utf8');assert.match(policy,/editorial-list-sync-v2/);assert.doesNotMatch(policy,/editorial-list-sync-v1/);assert.equal(freshListSyncApproval({action:'sync_field',fieldKey:'key_features'},{syncRevision:'editorial-list-sync-v1'}),false);
+ const policy=readFileSync('supabase/functions/_shared/admin-catalog-policy.ts','utf8');assert.match(policy,/editorial-list-sync-v3/);assert.doesNotMatch(policy,/editorial-list-sync-v1/);for(const revision of ['editorial-list-sync-v1','editorial-list-sync-v2'])assert.equal(freshListSyncApproval({action:'sync_field',fieldKey:'key_benefits'},{syncRevision:revision}),false);
 });
 test('API editoriale pinned supportata, mismatch header blocca, client preesistente invariato',async()=>{
  const originalFetch=globalThis.fetch;const prior=Object.getOwnPropertyDescriptor(globalThis,'Deno');const endpoints:string[]=[];

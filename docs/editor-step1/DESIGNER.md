@@ -27,3 +27,9 @@ key_features e special_bullets conservano l’editor a voci; la serializzazione 
 ## Step 1C-3 — posizione futura «Punti di forza»
 
 Il sito attuale ha gia «Cosa lo rende speciale» e «Caratteristiche principali». `key_benefits` NON e renderizzato: l'aggiunta della sola definizione Shopify non compare in PDP. Prima di approvare una terza sezione, validare contenuto, ordine e gerarchia nel layout mobile/desktop; mostrare Punti di forza solo se vi sono voci, senza riempitivi, duplicati o modifiche alle sezioni attuali. La proposta completa e in [SHOPIFY-KEY-BENEFITS-DEFINITION.md](SHOPIFY-KEY-BENEFITS-DEFINITION.md). Nessun design/prodotto live modificato; decisione UX ancora aperta.
+
+## Step 1C-3 — Punti di forza nella PDP
+
+Nuovo accordion Punti di forza accanto a Caratteristiche principali, stesso stile; presente soltanto quando keyBenefits contiene voci valide proprie. Parte chiuso, senza cambiare l’apertura iniziale delle sezioni esistenti. Nasconde solo nel nuovo blocco le voci identiche già visibili in Cosa lo rende speciale/Caratteristiche principali; se restano zero voci, niente titolo o spazio vuoto. Nessuna sostituzione, riordinamento o variazione dei consumer precedenti. Valori incompatibili o ambigui non sono normalizzati né mostrati come JSON.
+
+Prove su PDP sintetica desktop 1280/mobile 390 con campo presente/assente/vuoto/tutto duplicato; ordine, caratteri e sezioni precedenti verificati. Il confronto semantico dei testi resta revisione editoriale umana: nessuna AI o deduplicazione automatica semantica. Codice non pubblicato, definizione Shopify ancora mancante.

@@ -246,7 +246,7 @@ export async function readEditorialListTarget(productId: string, target: Shopify
   const defs = data.metafieldDefinitions;
   const def = defs?.nodes?.[0];
   const field = data.product?.metafield;
-  if (!data.product || data.product.id !== toProductGid(productId) || !Object.hasOwn(data.product, 'metafield') || !defs?.pageInfo || defs.pageInfo.hasNextPage !== false || defs.nodes.length !== 1 || !def || def.namespace !== target.namespace || def.key !== target.key || !['json','list.single_line_text_field',...(target.key !== 'key_benefits' ? ['multi_line_text_field'] : [])].includes(def.type?.name) ||
+  if (!data.product || data.product.id !== toProductGid(productId) || !Object.hasOwn(data.product, 'metafield') || !defs?.pageInfo || defs.pageInfo.hasNextPage !== false || defs.nodes.length !== 1 || !def || def.namespace !== target.namespace || def.key !== target.key || !['json','list.single_line_text_field','multi_line_text_field'].includes(def.type?.name) ||
     (field && (field.namespace !== target.namespace || field.key !== target.key || field.type !== def.type.name || typeof field.compareDigest !== 'string' || !field.compareDigest))) {
     throw new ShopifyFieldSyncError('BLOCK_SYNC', 'Definizione o tipo Shopify delle caratteristiche non compatibile o non verificabile. Contatta il responsabile.');
   }
@@ -375,7 +375,7 @@ export function buildShopifyWritePlan(input: {
     const def = input.resolvedTarget?.editorialDefinition;
     let items: unknown;
     try { items = typeof input.value === 'string' ? JSON.parse(input.value) : null; } catch { /* blocked below */ }
-    if (!def || def.namespace !== target.namespace || def.key !== target.key || !['json','list.single_line_text_field',...(target.key !== 'key_benefits' ? ['multi_line_text_field'] : [])].includes(def.type) || !Array.isArray(items) || items.length === 0 || items.length > 50 || items.some(x=>typeof x !== 'string' || !x.trim() || x.length>1000 || (def.type==='list.single_line_text_field' && /[\r\n]/.test(x)))) {
+    if (!def || def.namespace !== target.namespace || def.key !== target.key || !['json','list.single_line_text_field','multi_line_text_field'].includes(def.type) || !Array.isArray(items) || items.length === 0 || items.length > 50 || items.some(x=>typeof x !== 'string' || !x.trim() || x.length>1000 || (def.type==='list.single_line_text_field' && /[\r\n]/.test(x)))) {
       throw new ShopifyFieldSyncError('BLOCK_SYNC', 'Caratteristiche non valide o definizione Shopify non verificata. Nessun aggiornamento eseguito.');
     }
     if (input.resolvedTarget?.metafield && !input.resolvedTarget.metafield.compareDigest) throw new ShopifyFieldSyncError('BLOCK_SYNC','Controllo concorrenza Shopify non disponibile.');

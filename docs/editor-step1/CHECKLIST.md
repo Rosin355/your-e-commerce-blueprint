@@ -96,3 +96,14 @@ L’avvertenza sul rischio condiviso nei paragrafi storici 1C-0 documenta il mot
 - [ ] Revisione UX per non duplicare le sezioni Punti di forza / Caratteristiche principali / Cosa lo rende speciale.
 - [ ] **D-BENEFITS:** consenso specifico per futura creazione della sola definizione Shopify, DOPO codice/CI e secondo preflight read-only; non autorizzato adesso.
 - [ ] Successivi gate M/B/G/F-M/F-P/T/A/S invariati. **NO-GO rilascio/Marco**.
+
+## Step 1C-3 — consumer predisposti, 17 novembre 2026
+
+- [x] Lettura Storefront keyBenefits e tipo TS opzionale aggiunti.
+- [x] PDP condizionale Punti di forza, duplicati esatti evitati senza cambiare le sezioni esistenti.
+- [x] Server multi_line_text_field key_benefits con codec/CAS/readback esistenti; nuova approvazione v3 solo per questo campo.
+- [x] Test sintetici: 523 Node, 106 Deno, 8 Chromium; typecheck/lint/build/check server PASS. CI finale nella PR.
+- [ ] D-BENEFITS: autorizzazione owner non acquisita, definizione PRODUCT/multi_line_text_field/PUBLIC_READ NON CREATA. Preflight puntuale da rifare immediatamente prima di ogni futura scrittura.
+- [ ] M/B/G/F-M/F-P/T/A/S e collaudo ancora separati. Nessun sito pubblicato modificato, nessuna consegna Marco.
+
+GO tecnico alla sola fase di autorizzazione D-BENEFITS dopo CI/review; NO-GO a creazione senza consenso e a rilascio operativo generale.
