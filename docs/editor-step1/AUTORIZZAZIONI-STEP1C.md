@@ -36,3 +36,11 @@ Postcondizioni S: solo quel metafield scritto, tipo invariato e lista ordinata i
 ## Scope dopo Step 1C-2
 
 S può essere valutata tecnicamente per key_features/special_bullets soltanto con valore multilinea reversibile e conferma v2 nuova. key_benefits resta BLOCCATO per definizione assente; nessuna autorizzazione S implica creazione della definizione o conversioni di valori. Le attestazioni live, il target tecnico, le revisioni e le approvazioni restano necessari. Nessun consenso raccolto/eseguito in questo step.
+
+## Nuovo gate D-BENEFITS — sola definizione Shopify, 17 novembre 2026
+
+**IN ATTESA, non autorizzato:** creare ESCLUSIVAMENTE la definizione merchant-owned `PRODUCT`, `custom.key_benefits`, tipo `multi_line_text_field`, etichetta `Punti di forza`, accesso Storefront `PUBLIC_READ`, sul negozio Online Garden gia identificato. Nessun valore iniziale, creazione prodotto, aggiornamento valori, conversione, grant Supabase, deploy o Publish. Per la motivazione e i consumer vedi [scheda proposta](SHOPIFY-KEY-BENEFITS-DEFINITION.md).
+
+**Precondizioni D-BENEFITS:** (a) codice query/tipo/PDP e sync multilinea predisposto, CI/review verdi sullo SHA scelto, (b) definizione ancora assente in read-only, (c) snapshot recente assenza di valori, (d) accessi Shopify e sequenza/recupero documentati, (e) autorizzazione owner distinta e registrata privatamente. Se una condizione manca: STOP.
+
+**Postcondizioni D-BENEFITS, se approvata in futuro:** readback univoco di key/type/owner/access, zero valori prodotto scritti; in caso di esito ambiguo non ritentare prima di riconciliare. Non sblocca S, M, B, G, F-M, F-P, T o A; ogni voce necessita autorizzazione separata. L'analisi dei consumer non equivale al loro sviluppo.
