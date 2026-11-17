@@ -86,3 +86,13 @@ L’avvertenza sul rischio condiviso nei paragrafi storici 1C-0 documenta il mot
 - [x] Fresh approval v2, CAS e readback esatto conservati; v1 respinta.
 - [ ] key_benefits: definizione assente, sync reale BLOCCATO; configurazione da approvare, non creata.
 - [ ] Rilascio/autorizzazioni/collaudo live dei due campi compatibili: NON ESEGUITI. NO-GO operativo complessivo invariato.
+
+## Step 1C-3 — preparazione definizione key_benefits, 17 novembre 2026
+
+- [x] Analisi statica consumer PDP e query Storefront; **key_benefits oggi NON e letto ne mostrato** (query `useProduct.ts`, tipo `shopify.ts`, `Pdp.tsx`).
+- [x] Verificata definizione Shopify mancante; `key_features` e `special_bullets` sono `multi_line_text_field` con `PUBLIC_READ`; in snapshot integrale 1.365 prodotti nessun valore `custom.key_benefits`.
+- [x] Preparata la sola scheda di definizione merchant-owned `PRODUCT/custom/key_benefits/multi_line_text_field/PUBLIC_READ` e relativo ordine di attivazione in [SHOPIFY-KEY-BENEFITS-DEFINITION.md](SHOPIFY-KEY-BENEFITS-DEFINITION.md).
+- [ ] Implementare e testare consumer query/tipo/render condizionale e compatibilita server sync multilinea per key_benefits **nella stessa PR**, senza deploy.
+- [ ] Revisione UX per non duplicare le sezioni Punti di forza / Caratteristiche principali / Cosa lo rende speciale.
+- [ ] **D-BENEFITS:** consenso specifico per futura creazione della sola definizione Shopify, DOPO codice/CI e secondo preflight read-only; non autorizzato adesso.
+- [ ] Successivi gate M/B/G/F-M/F-P/T/A/S invariati. **NO-GO rilascio/Marco**.
