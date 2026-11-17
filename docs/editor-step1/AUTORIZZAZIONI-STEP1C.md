@@ -32,3 +32,7 @@ S resta soggetta ad approvazione separata e ai gate esistenti; per gli operatori
 S può riguardare ora uno dei tre metafield custom.key_benefits/custom.key_features/custom.special_bullets su un unico prodotto DRAFT tecnico identificato privatamente, con una lista/versione approvata. L’approvazione owner non è un grant, non vale per altri campi/prodotti/operatori e non è stata concessa qui. Obbligatoria una nuova conferma applicativa, con revisione server editorial-list-sync-v1: tutte le approvazioni precedenti sono inutilizzabili per questi tre sync, anche se COMPLETE.
 
 Postcondizioni S: solo quel metafield scritto, tipo invariato e lista ordinata identica nel readback, stato DRAFT e altri campi invariati. STOP su mapping/definizione/accesso non verificabili, hash/versione divergenti, CAS fallito, timeout o verifica incompleta. Recupero: lettura e riconciliazione approvate; nessun retry/compensazione automatica. IN_FLIGHT/REVIEW_REQUIRED blocca una nuova approvazione sullo stesso attore/prodotto/campo. Tutte le voci M/B/G/F-M/F-P/T/A/S restano IN ATTESA.
+
+## Scope dopo Step 1C-2
+
+S può essere valutata tecnicamente per key_features/special_bullets soltanto con valore multilinea reversibile e conferma v2 nuova. key_benefits resta BLOCCATO per definizione assente; nessuna autorizzazione S implica creazione della definizione o conversioni di valori. Le attestazioni live, il target tecnico, le revisioni e le approvazioni restano necessari. Nessun consenso raccolto/eseguito in questo step.

@@ -89,3 +89,21 @@ Lettura effettuata sul negozio Shopify collegato **Online Garden** (`ecom-bluepr
 **Questo addendum integra, non sostituisce, le altre condizioni NO-GO:** migrazioni 0016/0017, grant nominativo, revisioni Edge, presenza configurazione/credito AI, merge/Publish e accettazione Marco restano pendenti. Non autorizza alcuna operazione live.
 
 Fonti: https://shopify.dev/docs/api/usage/versioning ; https://shopify.dev/docs/api/admin-graphql/latest/mutations/metafieldsSet .
+
+## Step 1C-2 — compatibilità verificata e adattatori offline, 17 novembre 2026
+
+Addendum del 16/11 preservato come baseline delle definizioni. Il negozio collegato è stato riconfermato per dominio; lettura mirata senza titoli, ID o testi nei log/repository: 17 DRAFT (pagina conclusa) senza valori per key_features/special_bullets; primo campione di 20 ACTIVE (hasNextPage=true, nessuna pretesa di copertura catalogo), entrambi i campi presenti in tutti e 20, tipo multi_line_text_field e forma una voce non vuota per riga senza spazi esterni/CR o payload JSON. Nessuna mutation e nessun contenuto commerciale conservato negli artefatti. Le definizioni restano quelle attestate dall’addendum: key_benefits assente, le altre due multilinea.
+
+Il parser nel codice storefront, src/components/storefront/pdpMetafields.ts, separa per LF, trimma e scarta righe vuote; Pdp usa il risultato per keyFeatures e specialBullets. Non è stato modificato né certificato con una prova browser live. L’adattatore server ammette quindi soltanto la forma su cui il parser non perde nulla: ogni voce su una riga LF, senza CR/newline interni, righe vuote, spazi esterni o controlli ambigui. Stringhe JSON strutturate legacy, righe vuote e formati opachi bloccano: niente trim/filter/conversione automatica. Caratteri speciali, duplicati e ordine sono preservati. Le voci Admin restano array; il wire multilinea è items.join(LF), con round-trip esatto e confronto raw esatto dopo la mutation. La lettura Admin usa il tipo Shopify verificato per mostrare le voci, non JSON grezzo. Per json/list.single_line_text_field resta il percorso precedente; non adottarli sui due campi live senza valutare il consumer storefront.
+
+| Campo | Prontezza tecnica attuale | Stato reale/limite |
+| --- | --- | --- |
+| custom.key_features | Adattatore multilinea testato e coerente con parser storefront | Compatibile condizionatamente al valore del singolo prodotto e ai gate; non distribuito/collaudato live |
+| custom.special_bullets | Adattatore multilinea testato e coerente con parser storefront | Compatibile condizionatamente al valore del singolo prodotto e ai gate; non distribuito/collaudato live |
+| custom.key_benefits | Sync ancora negato quando manca la definizione | BLOCCATO sul negozio per definizione assente; nessuna auto-creazione. Servono configurazione compatibile, analisi dei valori eventualmente non definiti/consumer e consenso esplicito separato |
+
+Conservati CAS, versione/contenuto locale, fresh approval, readback, journal/idempotenza e REVIEW_REQUIRED senza retry cieco. Revisione server alzata a editorial-list-sync-v2: anche le approvazioni v1 precedenti agli adattatori sono respinte, compreso replay COMPLETE. Salva bozza e AI non sincronizzano.
+
+API: il client condiviso mantiene il default storico 2025-07 e l’override SHOPIFY_ADMIN_API_VERSION; nessuna modifica globale di altri flussi. SOLO le letture/scritture dei tre elenchi usano ora esplicitamente 2026-10 tramite il client versionato esistente e richiedono header X-Shopify-API-Version identico. Header assente/diverso blocca; se osservato dopo una mutation, esito da riconciliare, mai retry cieco. Nessuna credenziale o config live letta/cambiata. Query/mutation validate staticamente su 2026-10; supporto e versione effettiva dell’ambiente dopo deploy ancora da attestare. Fonte ufficiale: https://shopify.dev/docs/api/usage/versioning .
+
+**GO tecnico parziale alla raccolta delle autorizzazioni per i due campi multilinea; NO-GO operativo complessivo e NO-GO key_benefits.** Non eludere gli altri gate del report 1B: schema/grant/revisioni/provider/credito/autorizzazioni e collaudo personale restano pendenti. Nessun nuovo piano, migrazione o cambiamento live.

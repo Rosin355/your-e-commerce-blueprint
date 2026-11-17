@@ -30,3 +30,7 @@ Quando autorizzata, l’assistenza AI sarà disponibile soltanto per le tre desc
 Per Punti di forza, Caratteristiche principali e Altri punti utili: modifica le voci e il loro ordine, poi Salva bozza. Per aggiornare Shopify usa successivamente Aggiorna sul sito e conferma quel singolo campo. Aprire l’editor, salvare o applicare una proposta AI non invia questi elenchi a Shopify. Non devi usare JSON.
 
 Se il tipo o la definizione Shopify non sono verificabili, l’aggiornamento resta bloccato: contatta il responsabile. Dopo un errore o un esito incerto non ripetere con una nuova richiesta; attendi la verifica. Le vecchie conferme non valgono per questa funzionalità. Collaudo soltanto sulla DRAFT tecnica autorizzata, mai su prodotti commerciali. Versione ancora non distribuita.
+
+## Step 1C-2 — caratteristiche compatibili
+
+Caratteristiche principali e Altri punti utili sono predisposti per il formato Shopify attuale: una voce per riga, con ordine conservato. Non inserire a capo dentro una voce. Righe vuote o formati precedenti non interpretabili senza perdita bloccano il sync: chiedi una verifica, non cancellare l’originale per aggirare il blocco. Punti di forza resta bloccato sul negozio per configurazione mancante. Queste modifiche non sono ancora distribuite e non autorizzano prove su prodotti commerciali.

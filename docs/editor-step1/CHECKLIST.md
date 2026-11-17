@@ -77,3 +77,12 @@ L’avvertenza sul rischio condiviso nei paragrafi storici 1C-0 documenta il mot
 - [x] Vecchie approvazioni negate, esiti incerti senza retry cieco; Salva bozza e AI non sincronizzano.
 - [ ] Compatibilità/definizioni/scope/versione API effettivi live: NON VERIFICATI da test sintetici.
 - [ ] Autorizzazioni e collaudo live sulla sola DRAFT tecnica: NON ESEGUITI. NO-GO rilascio invariato fino a chiusura gate preflight.
+
+## Step 1C-2 — 17 novembre 2026
+
+- [x] Campione live aggregato: 17 DRAFT senza valori, 20 ACTIVE con entrambi i campi multilinea a righe; copertura ACTIVE parziale dichiarata, nessun testo conservato.
+- [x] Codec multilinea reversibile e parser storefront confrontati; formati ambigui bloccati, ordine/caratteri preservati.
+- [x] API 2026-10 con header strict per il solo sync editoriale; altre configurazioni invariate.
+- [x] Fresh approval v2, CAS e readback esatto conservati; v1 respinta.
+- [ ] key_benefits: definizione assente, sync reale BLOCCATO; configurazione da approvare, non creata.
+- [ ] Rilascio/autorizzazioni/collaudo live dei due campi compatibili: NON ESEGUITI. NO-GO operativo complessivo invariato.

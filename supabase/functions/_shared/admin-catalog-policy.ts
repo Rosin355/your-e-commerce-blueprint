@@ -32,7 +32,7 @@ export const CLIENT_FIELD_KEYS = [
 export const EDITORIAL_AI_FIELDS = ['description', 'optimized_description', 'short_description', 'key_benefits', 'key_features', 'special_bullets'] as const;
 export const EDITORIAL_LIST_FIELDS = ['key_benefits', 'key_features', 'special_bullets'] as const;
 
-export const EDITORIAL_LIST_SYNC_REVISION = 'editorial-list-sync-v1';
+export const EDITORIAL_LIST_SYNC_REVISION = 'editorial-list-sync-v2';
 export const isEditorialList = (key: unknown): boolean => typeof key === 'string' && (EDITORIAL_LIST_FIELDS as readonly string[]).includes(key);
 
 export interface CatalogGrant {

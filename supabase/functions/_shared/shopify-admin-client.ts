@@ -198,6 +198,7 @@ async function runShopifyAdminGraphQL<T = any>(
   query: string,
   variables: Record<string, unknown> = {},
   apiVersionOverride?: string,
+  requireExactVersion = false,
 ): Promise<T> {
   let cfg = await getConfig(apiVersionOverride);
   let attempts = 0;
@@ -227,6 +228,7 @@ async function runShopifyAdminGraphQL<T = any>(
       continue;
     }
 
+    if (requireExactVersion && response.headers.get('X-Shopify-API-Version') !== apiVersionOverride) throw new Error('Versione Shopify effettiva non verificata: operazione da controllare, nessun retry automatico.');
     const payload = await response.json();
     if (!response.ok) {
       throw new Error(`Shopify HTTP ${response.status}: ${JSON.stringify(payload).slice(0, 600)}`);
@@ -258,6 +260,7 @@ export async function shopifyAdminGraphQLAtVersion<T = any>(
   apiVersion: string,
   query: string,
   variables: Record<string, unknown> = {},
+  requireExactVersion = false,
 ): Promise<T> {
   if (!/^20\d{2}-(01|04|07|10)$/.test(apiVersion)) {
     throw new Error("Versione Shopify Admin API non valida");
@@ -266,6 +269,7 @@ export async function shopifyAdminGraphQLAtVersion<T = any>(
     query,
     variables,
     apiVersion,
+    requireExactVersion,
   );
 }
 

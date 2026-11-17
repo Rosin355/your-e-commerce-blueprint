@@ -1,3 +1,4 @@
+import { decodeEditorialList } from '../_shared/editorial-list-codec.ts';
 import { COMMERCE_ACTIONS, handleCatalogCommerce, commerceSnapshot } from '../_shared/admin-catalog-commerce.ts';
 import { loadCatalogGrant, prepareCatalogApproval, withCatalogApproval, catalogMode } from '../_shared/admin-catalog-approvals.ts';
 import { catalogAllowed, catalogAiAllowed, EDITORIAL_AI_FIELDS, isEditorialList, requireCatalog, CATALOG_MUTATIONS } from '../_shared/admin-catalog-policy.ts';
@@ -282,6 +283,7 @@ Deno.serve(async (req) => {
             if (!target) continue;
             try {
               let liveValue: unknown;
+              let liveMetafieldType: string | undefined;
               if (target.kind === "product" || target.kind === "seo") {
                 liveValue = readProductCoreTargetValue(live, target);
               } else if (target.kind === "variant") {
@@ -293,11 +295,12 @@ Deno.serve(async (req) => {
                   target,
                 );
                 liveValue = metafield?.value ?? null;
+                liveMetafieldType = metafield?.type;
               }
               baselineHashes.set(def.key, await payloadHash({value:liveValue}));
           shopifyLiveValues.set(
                 def.key,
-                deserializeValueForAdminDisplay(def, liveValue),
+                isEditorialList(def.key) && target.kind === 'metafield' && typeof liveValue === 'string' ? decodeEditorialList(liveValue, liveMetafieldType!) : deserializeValueForAdminDisplay(def, liveValue),
               );
             } catch {
               // Un singolo target non disponibile non impedisce le altre letture esatte.

@@ -19,3 +19,7 @@ Step 1A: verificato offline; GO al preflight in lettura dopo CI verde, nessuna d
 ## Step 1C-1 — caratteristiche e conferma singolo campo
 
 Conservare editor a voci e riordino. Per i tre elenchi separare Salva bozza da Aggiorna sul sito: niente azione combinata mentre si modifica. Solo la versione salvata può essere inviata, dopo dialogo di conferma e approvazione server nuova. La proposta AI non comporta sync. La UI segue le capability per campo del server: se baseline/definizione/tipo non sono verificabili nasconde l’azione e mostra un messaggio accessibile di blocco. Esito incerto: stop e richiesta di verifica, mai invito a riprovare alla cieca. Non comunicare disponibilità live prima del collaudo.
+
+## Step 1C-2 — formato multilinea senza conversioni silenziose
+
+key_features e special_bullets conservano l’editor a voci; la serializzazione a righe avviene solo sul server. Una voce non può contenere una nuova riga in questo formato. Mostrare blocco comprensibile per valori legacy ambigui e preservare l’originale; niente rimozione automatica di righe/spazi. key_benefits resta bloccato sul negozio finché non è approvata una definizione compatibile. Nessuna modifica al parser o al layout storefront. Versione non distribuita: non comunicare disponibilità live.
