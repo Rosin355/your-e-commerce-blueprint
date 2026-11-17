@@ -85,3 +85,7 @@ La lettura live nel dettaglio Admin passa il tipo del medesimo snapshot al decod
 Evidenze aggregate e limiti del campione nel piano ATTIVAZIONE-STEP1C.md (17/11). Nessun testo commerciale in fixture: test esclusivamente sintetici. I due campi multilinea sono tecnicamente pronti solo per forme reversibili, non certificati live su tutti i prodotti. Lo storefront esistente resta invariato.
 
 Verifiche Step 1C-2: 510 Node PASS (19 nuovi casi codec/API), 106 Deno PASS, 6 Chromium PASS; typecheck, build, Deno check entrypoint, link/diff e validazione GraphQL 2026-10 PASS. Lint delle nuove parti PASS; nel client condiviso restano quattro any preesistenti, verificati come warning nel controllo mirato senza riscrivere il client. Nessuna prova live di mutation o richiesta AI. CI finale indicata nella PR.
+
+## Step 1C-3 — key_benefits: solo contratto, non distribuito
+
+Analisi dei consumer sulla PR #56: `src/hooks/useProduct.ts` non interroga `custom.key_benefits`, `ShopifyProduct` non espone `keyBenefits`, `Pdp.tsx` non lo mostra. Il backend esclude `multi_line_text_field` per key_benefits. **La sola creazione di una definizione Shopify non renderebbe il campo visibile, ne sincronizzabile.** La scheda tecnica [SHOPIFY-KEY-BENEFITS-DEFINITION.md](SHOPIFY-KEY-BENEFITS-DEFINITION.md) prepara il tipo PRODUCT/merchant-owned/multilinea/PUBLIC_READ e dettaglia adeguamenti e autorizzazioni future. Tutto il negozio e il sito sono rimasti invariati. Nessun test di codice nuovo o GO live attestato da questa preparazione.
