@@ -34,3 +34,7 @@ Se il tipo o la definizione Shopify non sono verificabili, l’aggiornamento res
 ## Step 1C-2 — caratteristiche compatibili
 
 Caratteristiche principali e Altri punti utili sono predisposti per il formato Shopify attuale: una voce per riga, con ordine conservato. Non inserire a capo dentro una voce. Righe vuote o formati precedenti non interpretabili senza perdita bloccano il sync: chiedi una verifica, non cancellare l’originale per aggirare il blocco. Punti di forza resta bloccato sul negozio per configurazione mancante. Queste modifiche non sono ancora distribuite e non autorizzano prove su prodotti commerciali.
+
+## Punti di forza — preparazione tecnica Step 1C-3
+
+«Punti di forza» e predisposto nell'editor, ma la sua definizione non esiste ancora su Shopify e la PDP non lo visualizza. Abbiamo preparato un piano per adottare lo stesso formato a righe delle altre caratteristiche. **Non usare ancora Aggiorna sul sito per questo campo**: la funzione non e pubblicata e la sincronizzazione resta bloccata. Quando autorizzato e collaudato, potrai compilare una voce per riga, salvare la bozza e scegliere separatamente se inviarla a Shopify. Nessuna operazione sul negozio e stata eseguita in questa fase.
