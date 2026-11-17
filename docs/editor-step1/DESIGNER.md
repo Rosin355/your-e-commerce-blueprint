@@ -23,3 +23,7 @@ Conservare editor a voci e riordino. Per i tre elenchi separare Salva bozza da A
 ## Step 1C-2 — formato multilinea senza conversioni silenziose
 
 key_features e special_bullets conservano l’editor a voci; la serializzazione a righe avviene solo sul server. Una voce non può contenere una nuova riga in questo formato. Mostrare blocco comprensibile per valori legacy ambigui e preservare l’originale; niente rimozione automatica di righe/spazi. key_benefits resta bloccato sul negozio finché non è approvata una definizione compatibile. Nessuna modifica al parser o al layout storefront. Versione non distribuita: non comunicare disponibilità live.
+
+## Step 1C-3 — posizione futura «Punti di forza»
+
+Il sito attuale ha gia «Cosa lo rende speciale» e «Caratteristiche principali». `key_benefits` NON e renderizzato: l'aggiunta della sola definizione Shopify non compare in PDP. Prima di approvare una terza sezione, validare contenuto, ordine e gerarchia nel layout mobile/desktop; mostrare Punti di forza solo se vi sono voci, senza riempitivi, duplicati o modifiche alle sezioni attuali. La proposta completa e in [SHOPIFY-KEY-BENEFITS-DEFINITION.md](SHOPIFY-KEY-BENEFITS-DEFINITION.md). Nessun design/prodotto live modificato; decisione UX ancora aperta.
