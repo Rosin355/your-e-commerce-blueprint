@@ -119,3 +119,12 @@ D-BENEFITS **COMPLETATA E VERIFICATA il 17/11**, secondo evidenza proprietario: 
 - [ ] M-01: normalizzazione ACL journal verificata con default live, NON IMPLEMENTATA.
 - [ ] M-02: compatibilità/revisioni backend effettive, NON VERIFICATE.
 - [ ] Autorizzazione/applicazione M: NO-GO, nessuna esecuzione.
+
+## M-01 — stato dopo patch offline
+
+- [x] Solo ACL 0017 journal corrette offline, copie Drizzle/Supabase identiche; 0016 e journal JSON invariati.
+- [x] Guard owner/membership e privilegi effettivi, default ACL ampi simulati; SQL locale owner postgres PASS, replay/checksum e rollback dell’intero batch PASS.
+- [x] 34 test Node pertinenti e lint PASS; CI PostgreSQL 17 e verifica MAINTAIN del commit nella PR.
+- [ ] **M-01 BLOCCATO live**: current_user/session_user/SET ROLE e owner del runner reale non attestati. Nessuna supposizione dalla connessione Cloud.
+- [ ] **M-02 BLOCCATO**: revisioni/checksum/compatibilità/artefatti precedenti Edge mancanti.
+- [ ] M non autorizzata e non applicata. Nessun grant/deploy/merge/Publish/Shopify/AI reale.

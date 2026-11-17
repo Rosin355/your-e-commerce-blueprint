@@ -3,6 +3,7 @@ import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 const host=process.env.OG_TEST_PG_SOCKET, database=process.env.OG_TEST_PG_DATABASE, port=Number(process.env.OG_TEST_PG_PORT);
 if ((!host?.startsWith('/private/tmp/og-editor-') && !(process.env.CI==='true' && host==='127.0.0.1')) || !/^og_admin_test_[a-z0-9_]+$/.test(database??'') || !Number.isInteger(port)) throw Error('ISOLATED_DATABASE_REQUIRED');
@@ -18,14 +19,66 @@ try {
  await sql`create schema if not exists drizzle`;
  await sql`create table if not exists drizzle.__drizzle_migrations(id serial primary key,hash text not null,created_at bigint)`;
  await sql`insert into drizzle.__drizzle_migrations(hash,created_at) values('synthetic-baseline',${journal.entries.find(e=>e.idx===15).when})`;
+ // Reproduce the observed broad table/function defaults on this isolated creator only.
+ await sql.unsafe('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO service_role,anon,authenticated');
+ await sql.unsafe('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO service_role,anon,authenticated');
+ // A bad inherited default must abort BOTH pending migrations and their history.
+ const priorFunction=(await sql`select prosrc from pg_proc where oid='public.admin_update_product_field(uuid,text,uuid,text,jsonb,integer,text,text,text)'::regprocedure`)[0].prosrc;
+ await sql.unsafe('CREATE ROLE og_acl_m01_default_writer NOLOGIN');
+ try {
+  await sql.unsafe('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT UPDATE ON TABLES TO og_acl_m01_default_writer');
+  await sql.unsafe('GRANT og_acl_m01_default_writer TO service_role');
+  await assert.rejects(migrate(drizzle(sql),{migrationsFolder:'drizzle/migrations'}),error=>{
+    let cause=error;while(cause.cause)cause=cause.cause;
+    return cause.code==='42501' && /effective privileges/.test(cause.message);
+  });
+  assert.equal((await sql`select to_regclass('public.admin_confirmed_ai_requests') as table`)[0].table,null);
+  assert.equal((await sql`select count(*)::int as n from drizzle.__drizzle_migrations`)[0].n,1);
+  assert.equal((await sql`select prosrc from pg_proc where oid='public.admin_update_product_field(uuid,text,uuid,text,jsonb,integer,text,text,text)'::regprocedure`)[0].prosrc,priorFunction);
+ } finally {
+  await sql.unsafe('REVOKE og_acl_m01_default_writer FROM service_role');
+  await sql.unsafe('ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE UPDATE ON TABLES FROM og_acl_m01_default_writer');
+  await sql.unsafe('DROP ROLE og_acl_m01_default_writer');
+ }
+ const defaultsBefore=await sql`select jsonb_agg(to_jsonb(d) order by oid) as rows from pg_default_acl d`;
  await migrate(drizzle(sql),{migrationsFolder:'drizzle/migrations'});
  await migrate(drizzle(sql),{migrationsFolder:'drizzle/migrations'}); // second invocation is a read-only replay
  const after=await sql`select jsonb_agg(to_jsonb(c) order by user_id) as rows from public.admin_catalog_capabilities c`;
  assert.deepEqual(after,before,'migration changed an account grant');
+ assert.deepEqual(await sql`select jsonb_agg(to_jsonb(d) order by oid) as rows from pg_default_acl d`,defaultsBefore,'migration changed default privileges');
  assert.deepEqual(await sql`select jsonb_agg(to_jsonb(v) order by id) as rows from public.product_current_values v`,valuesBefore,'migration changed existing product values');
  assert.deepEqual(await sql`select jsonb_agg(to_jsonb(r) order by user_id,role) as rows from public.user_roles r`,rolesBefore,'migration changed a role');
  assert.equal((await sql`select count(*)::int as n from drizzle.__drizzle_migrations`)[0].n,3);
+ for(const entry of journal.entries.filter(e=>e.idx>=16)){
+  const hash=createHash('sha256').update(readFileSync('drizzle/migrations/'+entry.tag+'.sql')).digest('hex');
+  assert.equal((await sql`select hash from drizzle.__drizzle_migrations where created_at=${entry.when}`)[0].hash,hash);
+ }
+
  await sql.unsafe(readFileSync('scripts/fixtures/editor-step1a.sql','utf8'));
+ const migration17=readFileSync('drizzle/migrations/0017_admin_ai_confirmed_context.sql','utf8');
+ const guards=[...migration17.matchAll(/DO \$journal_acl\$[\s\S]*?END \$journal_acl\$;/g)].map(m=>m[0]);
+ assert.equal(guards.length,2);
+ const owner=(await sql`select pg_get_userbyid(relowner) as owner from pg_class where oid='public.admin_confirmed_ai_requests'::regclass`)[0].owner;
+ assert.equal(owner,(await sql`select current_user as role`)[0].role);assert.notEqual(owner,'service_role');
+ for(const privilege of ['SELECT','INSERT']) assert.equal((await sql`select has_table_privilege('service_role','public.admin_confirmed_ai_requests',${privilege}) as allowed`)[0].allowed,true);
+ for(const privilege of ['UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER']) assert.equal((await sql`select has_table_privilege('service_role','public.admin_confirmed_ai_requests',${privilege}) as allowed`)[0].allowed,false);
+ if(Number((await sql`show server_version_num`)[0].server_version_num)>=170000) assert.equal((await sql`select has_table_privilege('service_role','public.admin_confirmed_ai_requests','MAINTAIN') as allowed`)[0].allowed,false);
+ for(const role of ['anon','authenticated']) for(const privilege of ['SELECT','INSERT','UPDATE','DELETE','TRUNCATE']) assert.equal((await sql`select has_table_privilege(${role},'public.admin_confirmed_ai_requests',${privilege}) as allowed`)[0].allowed,false);
+ // Exercise real DML permission checks, not just catalog privilege booleans.
+ await sql.begin(async tx=>{
+  await tx.unsafe('SET LOCAL ROLE service_role');
+  await tx`select * from public.admin_confirmed_ai_requests limit 0`;
+  await tx`insert into public.admin_confirmed_ai_requests(actor,request_key,field_key,context_hash) values('00000000-0000-4000-8000-000000000001','70000000-0000-4000-8000-000000000001','description',repeat('a',64))`;
+  for(const statement of ['UPDATE public.admin_confirmed_ai_requests SET context_hash=context_hash','DELETE FROM public.admin_confirmed_ai_requests','TRUNCATE public.admin_confirmed_ai_requests']) await assert.rejects(tx.savepoint(sp=>sp.unsafe(statement)),e=>e.code==='42501');
+ });
+ // Ownership and inherited equivalent rights must fail the actual migration guards.
+ await assert.rejects(sql.begin(async tx=>{await tx.unsafe('ALTER TABLE public.admin_confirmed_ai_requests OWNER TO service_role');await tx.unsafe(guards[0]);}),e=>e.code==='42501' && /owner\/service/.test(e.message));
+ await assert.rejects(sql.begin(async tx=>{await tx.unsafe('CREATE ROLE og_acl_probe_writer NOLOGIN');await tx.unsafe('GRANT UPDATE,DELETE,TRUNCATE ON public.admin_confirmed_ai_requests TO og_acl_probe_writer');await tx.unsafe('GRANT og_acl_probe_writer TO service_role');await tx.unsafe('REVOKE ALL ON public.admin_confirmed_ai_requests FROM service_role');await tx.unsafe('GRANT SELECT,INSERT ON public.admin_confirmed_ai_requests TO service_role');await tx.unsafe(guards[1]);}),e=>e.code==='42501' && /effective privileges/.test(e.message));
+ await assert.rejects(sql.begin(async tx=>{await tx.unsafe('CREATE ROLE og_acl_probe_setter NOLOGIN');await tx.unsafe('GRANT UPDATE ON public.admin_confirmed_ai_requests TO og_acl_probe_setter');await tx.unsafe('GRANT og_acl_probe_setter TO service_role WITH INHERIT FALSE, SET TRUE');await tx.unsafe(guards[1]);}),e=>e.code==='42501' && /effective privileges/.test(e.message));
+ assert.equal((await sql`select pg_get_userbyid(relowner) as owner from pg_class where oid='public.admin_confirmed_ai_requests'::regclass`)[0].owner,owner);
+ assert.equal((await sql`select count(*)::int as n from pg_roles where rolname='og_acl_probe_writer'`)[0].n,0);
+ console.log('PASS M-01 OFFLINE ONLY: broad creator defaults normalized; SELECT/INSERT succeed; effective UPDATE/DELETE/TRUNCATE denied; owner and inherited writer paths rejected; probe roles/ownership rolled back. Live runner remains unattested.');
+
  const actor='00000000-0000-4000-8000-000000000001';
  // Concurrent reservations serialize per actor: exactly five admitted, no paid call.
  await sql`delete from public.admin_confirmed_ai_requests`;

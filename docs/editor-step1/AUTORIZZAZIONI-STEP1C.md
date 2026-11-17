@@ -50,3 +50,9 @@ S può essere valutata tecnicamente per key_features/special_bullets soltanto co
 **D-BENEFITS COMPLETATA E VERIFICATA**, evidenza fornita dal proprietario: PRODUCT/custom.key_benefits/multi_line_text_field/PUBLIC_READ, Definition ID 778290364756. Le precedenti sezioni IN ATTESA D-BENEFITS sono cronologia, superate da questo stato. Nessuna operazione Shopify svolta in Step M.
 
 **M: NO-GO alla sola autorizzazione**, non eseguita: default ACL live del service_role non normalizzati dalla 0017 (M-01) e compatibilità Edge deployed non dimostrata per accesso negato (M-02). [Review e scheda proprietario](REVIEW-M-0016-0017.md). Correzione minima descritta ma NON applicata; nessuna riscrittura dei due file approvati offline. Tutti gli altri gate restano separati e pendenti.
+
+## M-01 corretto offline, autorizzazione M ancora bloccata
+
+Patch 0017 preparata/testata con guard ownership/membership e ACL SELECT/INSERT sul solo journal. Nuovo hash: 1f00aea53258b114f905d6a343f1057b1ae2d8c89823e78873354de8f9abc1c2; 0016 immutata. **M-01 BLOCCATO live** perché il ruolo del runner non è attestato; i risultati postgres della query Cloud e gli owner esistenti non bastano. Richiesta precisa di attestazione e scenari offline nel [report aggiornato](REVIEW-M-0016-0017.md). Qualunque futura M deve indicare il nuovo hash, non quello della review iniziale, e richiede ancora approvazione separata.
+
+M-02 separatamente BLOCCATO: revisione/bundle/compatibilità e artefatto di recupero delle due Edge da attestare nel pannello Lovable, non disponibili ai connettori. Nessuna operazione live autorizzata o eseguita. D-BENEFITS rimane completata; nessun altro gate completato.

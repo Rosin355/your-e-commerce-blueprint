@@ -13,7 +13,38 @@ CREATE TABLE public.admin_confirmed_ai_requests (
 );
 ALTER TABLE public.admin_confirmed_ai_requests ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.admin_confirmed_ai_requests FROM PUBLIC,anon,authenticated;
+-- Table-local ACL normalization; default privileges are additive.
+-- Fail closed if service_role can act as owner or retain equivalent write powers.
+DO $journal_acl$
+DECLARE v_owner oid; v_service oid;
+BEGIN
+ SELECT relowner INTO v_owner FROM pg_class WHERE oid='public.admin_confirmed_ai_requests'::regclass;
+ SELECT oid INTO v_service FROM pg_roles WHERE rolname='service_role';
+ IF v_service IS NULL OR pg_has_role(v_service,v_owner,'MEMBER') OR pg_has_role(v_service,v_owner,'USAGE') OR pg_has_role(v_service,v_owner,'SET')
+    OR EXISTS(SELECT 1 FROM pg_roles WHERE oid=v_service AND (rolsuper OR rolcreaterole)) THEN
+   RAISE EXCEPTION 'AI journal owner/service role separation not verified' USING ERRCODE='42501';
+ END IF;
+END $journal_acl$;
+REVOKE ALL ON public.admin_confirmed_ai_requests FROM service_role;
 GRANT SELECT,INSERT ON public.admin_confirmed_ai_requests TO service_role;
+DO $journal_acl$
+DECLARE v_service oid;
+BEGIN
+ SELECT oid INTO v_service FROM pg_roles WHERE rolname='service_role';
+ IF NOT has_table_privilege(v_service,'public.admin_confirmed_ai_requests','SELECT')
+    OR NOT has_table_privilege(v_service,'public.admin_confirmed_ai_requests','INSERT')
+    OR EXISTS(SELECT 1 FROM pg_roles r
+      WHERE (pg_has_role(v_service,r.oid,'MEMBER') OR pg_has_role(v_service,r.oid,'USAGE') OR pg_has_role(v_service,r.oid,'SET'))
+      AND (r.rolsuper OR r.rolcreaterole OR has_table_privilege(r.oid,'public.admin_confirmed_ai_requests','UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'))) THEN
+   RAISE EXCEPTION 'AI journal effective privileges exceed SELECT/INSERT' USING ERRCODE='42501';
+ END IF;
+ -- MAINTAIN is available from PostgreSQL 17; inspect ACLs without using it on 16.
+ IF EXISTS(SELECT 1 FROM pg_class c CROSS JOIN LATERAL aclexplode(c.relacl) a
+   WHERE c.oid='public.admin_confirmed_ai_requests'::regclass AND a.privilege_type='MAINTAIN'
+   AND CASE WHEN a.grantee=0 THEN true ELSE pg_has_role(v_service,a.grantee,'MEMBER') OR pg_has_role(v_service,a.grantee,'USAGE') OR pg_has_role(v_service,a.grantee,'SET') END) THEN
+   RAISE EXCEPTION 'AI journal effective MAINTAIN privilege is forbidden' USING ERRCODE='42501';
+ END IF;
+END $journal_acl$;
 CREATE INDEX admin_confirmed_ai_actor_time ON public.admin_confirmed_ai_requests(actor,created_at);
 CREATE FUNCTION public.reserve_confirmed_ai_request(p_actor uuid,p_request_key uuid,p_field_key text,p_context_hash text,p_action text)
 RETURNS boolean LANGUAGE plpgsql SECURITY INVOKER SET search_path='' AS $$
