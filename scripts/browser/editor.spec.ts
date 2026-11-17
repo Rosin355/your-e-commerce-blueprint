@@ -135,7 +135,7 @@ for(const width of [1280,390])test(`PDP Punti di forza condizionale, senza dupli
  await expect(page.getByRole('button',{name:'Caratteristiche principali',exact:true})).toBeVisible();
  await expect(page.getByRole('heading',{name:'Cosa lo rende speciale',exact:true})).toBeVisible();
  await expect(page.getByText('Punto speciale',{exact:true})).toHaveCount(1);
- await page.screenshot({path:`/private/tmp/og-c3-pdp-${width}.png`,fullPage:true,animations:'disabled'});
+ await page.screenshot({path:`/tmp/og-c3-pdp-${width}.png`,fullPage:true,animations:'disabled'});
  for(const mode of ['absent','empty','duplicate']){
   await page.goto('/scripts/browser/pdp-benefits.html?mode='+mode);
   await expect(page.getByRole('button',{name:'Punti di forza',exact:true})).toHaveCount(0);
