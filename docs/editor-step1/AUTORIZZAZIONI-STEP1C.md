@@ -1,10 +1,10 @@
 # Step 1C — registro approvazioni separate
 
-16 novembre 2026. **Tutte le voci IN ATTESA, nessuna scrittura autorizzata.** Il consenso al pacchetto 1C-0 non approva le operazioni. Un sì su una riga non abilita le altre. L’approvazione deve indicare codice voce, revisione/SHA del pacchetto, ambiente, owner, operatore, finestra/scadenza, scope privato e recupero incluso. Risposta generica «procedi» senza scope completo non supera i gate. GitHub conserva solo stato aggregato; principal, target e attestazioni sensibili restano nel registro privato.
+16 novembre 2026. **Stato aggiornato 17/11: D-BENEFITS COMPLETATA E VERIFICATA; M/B/G/F-M/F-P/T/A/S restano IN ATTESA. Nessuna ulteriore scrittura autorizzata.** Il consenso al pacchetto 1C-0 non approva le operazioni. Un sì su una riga non abilita le altre. L’approvazione deve indicare codice voce, revisione/SHA del pacchetto, ambiente, owner, operatore, finestra/scadenza, scope privato e recupero incluso. Risposta generica «procedi» senza scope completo non supera i gate. GitHub conserva solo stato aggregato; principal, target e attestazioni sensibili restano nel registro privato.
 
 | Voce | Oggetto e impatto | Verifica successiva | STOP | Recupero da approvare | Stato |
 | --- | --- | --- | --- | --- | --- |
-| M | Solo Drizzle 0016/0017 con hash del piano; DDL/RPC/journal, nessun grant utente | History esatta, CHECK/RLS/ACL/RPC, dati/grant invariati | Drift, pending extra, esito ambiguo o history incoerente | Abort transazionale; dopo commit niente down automatica, review correttiva | IN ATTESA |
+| M | Solo Drizzle 0016/0017 con hash del piano; DDL/RPC/journal, nessun grant utente | History esatta, CHECK/RLS/ACL/RPC, dati/grant invariati | Drift, pending extra, esito ambiguo o history incoerente | Abort transazionale; dopo commit niente down automatica, review correttiva | NO-GO alla sola autorizzazione: M-01/M-02 aperti |
 | B | Deploy delle sole API/AI e dipendenze dallo SHA approvato; include percorso rollback | Revisioni/checksum di entrambe e compatibilità DB | Una funzione fallisce o versione/config divergente | Ripristino coppia backend precedente verificata | IN ATTESA |
 | G | Una sola riga Marco confermata privatamente: +ai, +tre field_keys; nessun ruolo aggiunto | Diff della sola riga, altri account invariati, AI limitata ai sei campi; tre elenchi editabili ma sync negato | Identità dubbia, perimetro non rappresentabile, riga cambiata | Ripristino dei soli delta approvati con confronto post-stato | IN ATTESA |
 | F-M | Merge sola PR #56 verso main, SHA/diff congelati; nessun deploy implicito | SHA risultante e sync Lovable | CI non verde o automazioni inseparabili non approvate | Revert mirato da approvare, nessuna riscrittura storia/merge altrui | IN ATTESA |
@@ -44,3 +44,9 @@ S può essere valutata tecnicamente per key_features/special_bullets soltanto co
 **Precondizioni D-BENEFITS:** (a) codice query/tipo/PDP e sync multilinea predisposto, CI/review verdi sullo SHA scelto, (b) definizione ancora assente in read-only, (c) snapshot recente assenza di valori, (d) accessi Shopify e sequenza/recupero documentati, (e) autorizzazione owner distinta e registrata privatamente. Se una condizione manca: STOP.
 
 **Postcondizioni D-BENEFITS, se approvata in futuro:** readback univoco di key/type/owner/access, zero valori prodotto scritti; in caso di esito ambiguo non ritentare prima di riconciliare. Non sblocca S, M, B, G, F-M, F-P, T o A; ogni voce necessita autorizzazione separata. L'analisi dei consumer non equivale al loro sviluppo.
+
+## Step M — esito attuale, 17 novembre 2026
+
+**D-BENEFITS COMPLETATA E VERIFICATA**, evidenza fornita dal proprietario: PRODUCT/custom.key_benefits/multi_line_text_field/PUBLIC_READ, Definition ID 778290364756. Le precedenti sezioni IN ATTESA D-BENEFITS sono cronologia, superate da questo stato. Nessuna operazione Shopify svolta in Step M.
+
+**M: NO-GO alla sola autorizzazione**, non eseguita: default ACL live del service_role non normalizzati dalla 0017 (M-01) e compatibilità Edge deployed non dimostrata per accesso negato (M-02). [Review e scheda proprietario](REVIEW-M-0016-0017.md). Correzione minima descritta ma NON applicata; nessuna riscrittura dei due file approvati offline. Tutti gli altri gate restano separati e pendenti.

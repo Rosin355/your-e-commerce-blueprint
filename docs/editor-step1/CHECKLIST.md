@@ -107,3 +107,15 @@ L’avvertenza sul rischio condiviso nei paragrafi storici 1C-0 documenta il mot
 - [ ] M/B/G/F-M/F-P/T/A/S e collaudo ancora separati. Nessun sito pubblicato modificato, nessuna consegna Marco.
 
 GO tecnico alla sola fase di autorizzazione D-BENEFITS dopo CI/review; NO-GO a creazione senza consenso e a rilascio operativo generale.
+
+## Step M — review finale, 17 novembre 2026
+
+[Review sicurezza e scheda per il proprietario](REVIEW-M-0016-0017.md). Identità Cloud confermata; history live ferma a 0015, 16/16 hash/when corrispondenti; solo 0016/0017 pending, entrambe non applicate. RPC live corrispondenti ai corpi versionati precedenti, nessun drift incompatibile osservato nel perimetro. **NO-GO alla sola autorizzazione M**: M-01, default ACL live più ampi dei SELECT/INSERT dichiarati sul nuovo journal senza revoca service_role; M-02, backend deployed non verificabile per diniego ai metadati. Nessuna migration, correzione SQL, grant o deploy eseguiti. L’ordine schema→backend resta condizionato a correzione/attestazioni, non autorizza scritture.
+
+D-BENEFITS **COMPLETATA E VERIFICATA il 17/11**, secondo evidenza proprietario: PRODUCT/custom.key_benefits/multi_line_text_field/PUBLIC_READ, Definition ID 778290364756. Le note precedenti sulla definizione non creata sono storiche. Nessun altro gate completato; nessuna consegna Marco. La procedura Drizzle applica entrambe le pending in una transazione: verificare entrambe le history dopo il commit, non aspettarsi un commit intermedio 0016.
+
+- [x] D-BENEFITS completata/verificata da evidenza proprietario.
+- [x] Review M solo lettura conclusa e blocchi documentati.
+- [ ] M-01: normalizzazione ACL journal verificata con default live, NON IMPLEMENTATA.
+- [ ] M-02: compatibilità/revisioni backend effettive, NON VERIFICATE.
+- [ ] Autorizzazione/applicazione M: NO-GO, nessuna esecuzione.

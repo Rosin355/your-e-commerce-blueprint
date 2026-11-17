@@ -1,6 +1,8 @@
 # Online Garden — preparazione definizione Shopify `custom.key_benefits`
 
-**Data: 17 novembre 2026 — stato: PREPARATA, NON CREATA, NO-GO alla scrittura live.**
+**Stato aggiornato 17 novembre 2026: D-BENEFITS COMPLETATA E VERIFICATA secondo evidenza del proprietario.**
+
+PRODUCT/custom.key_benefits/multi_line_text_field/PUBLIC_READ, Definition ID 778290364756. La ricostruzione sottostante conserva la preparazione precedente; le note NON CREATA sono storiche. Nessuna verifica o modifica Shopify eseguita in Step M; nessun altro gate sbloccato.
 Fonte: letture in sola lettura del negozio Shopify collegato Online Garden, verifica del codice `main` e PR #56; nessuna mutation, deploy, publish, cambio grant o login.
 
 ## Esito della verifica consumer (prima della definizione)

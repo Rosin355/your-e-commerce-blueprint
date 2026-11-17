@@ -119,3 +119,9 @@ Query Admin GraphQL `products(first: 50, after: cursor) { nodes { status benefit
 ## Step 1C-3 — esito consumer D-BENEFITS
 
 Superato il blocco di codice key_benefits: query/tipo/PDP e server multilinea predisposti, nuova revisione v3 soltanto per benefits; gli altri due restano v2. [Scheda aggiornata](SHOPIFY-KEY-BENEFITS-DEFINITION.md). Resta il blocco reale per definizione assente: non creata né letta nuovamente in questo step. GO tecnico alla sola richiesta di autorizzazione D-BENEFITS con preflight puntuale prima della scrittura; nessuna autorizzazione implicita alle altre operazioni. Nessun nuovo piano, deploy, grant, migration o Publish.
+
+## Step M — review finale, 17 novembre 2026
+
+[Review sicurezza e scheda per il proprietario](REVIEW-M-0016-0017.md). Identità Cloud confermata; history live ferma a 0015, 16/16 hash/when corrispondenti; solo 0016/0017 pending, entrambe non applicate. RPC live corrispondenti ai corpi versionati precedenti, nessun drift incompatibile osservato nel perimetro. **NO-GO alla sola autorizzazione M**: M-01, default ACL live più ampi dei SELECT/INSERT dichiarati sul nuovo journal senza revoca service_role; M-02, backend deployed non verificabile per diniego ai metadati. Nessuna migration, correzione SQL, grant o deploy eseguiti. L’ordine schema→backend resta condizionato a correzione/attestazioni, non autorizza scritture.
+
+D-BENEFITS **COMPLETATA E VERIFICATA il 17/11**, secondo evidenza proprietario: PRODUCT/custom.key_benefits/multi_line_text_field/PUBLIC_READ, Definition ID 778290364756. Le note precedenti sulla definizione non creata sono storiche. Nessun altro gate completato; nessuna consegna Marco. La procedura Drizzle applica entrambe le pending in una transazione: verificare entrambe le history dopo il commit, non aspettarsi un commit intermedio 0016.
