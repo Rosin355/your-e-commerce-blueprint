@@ -1,5 +1,20 @@
 # Step 1 — checklist di chiusura
 
+## Step G PASS — 18 novembre 2026; F-P in preparazione
+
+- [x] **M PASS** — 0016/0017/0018 live, history/ACL verificate.
+- [x] **B PASS (report Lovable)** — product-admin-api/product-admin-ai distribuite, OPTIONS/401 e Admin read-only PASS.
+- [x] **G PASS (report Lovable + lettura aggregata indipendente)** — esattamente un grant 8 capability/17 campi con `ai` e tre elenchi, altro grant 7/14 invariato; identita' Marco attribuita nominativamente dall'agente via profilo/approvazione/ruolo, senza attestazione diretta Auth.
+- [ ] Leggere configurazioni REALI `PRODUCT_ADMIN_WRITES_ENABLED`, write mode/scope e Shopify sync in sessione Admin; niente cambio flag implicito.
+- [ ] **F-P:** anteprima Admin e impatto storefront verificati, autorizzazione separata Publish della UI PR #56 sul dominio corrente, smoke test dopo Publish.
+- [ ] **T/A:** verifica login reale Marco, editor visuale senza HTML, bozze e 3 elenchi, una proposta AI reale con budget/consenso espliciti, no auto-sync.
+- [ ] **S:** sync Shopify su target DRAFT solo con autorizzazione distinta, oppure annotare NON TESTATO.
+
+**NON dichiarare consegna completa a Marco prima di Publish + test reale AI.**
+
+---
+
+
 ## Step B PASS — 18 novembre 2026; Step G nominativo in attesa
 
 - [x] B: Lovable riferisce deploy mirato riuscito delle sole Edge `product-admin-api`/`product-admin-ai`; OPTIONS 200 e rifiuto 401 di azioni non autenticate, letture autenticata dashboard/statistiche 200.
