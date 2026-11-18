@@ -46,3 +46,8 @@ backups/
 
 # Report locale del dry-run golden (può contenere dati catalogo autorizzati)
 /docs/wordpress-golden-foundation-dry-run.json
+
+# Difesa aggiuntiva: eventuali copie locali clienti (conservare gli originali fuori Git)
+/sync/private-customers/
+/imports/customers/
+/sync/out/shopify-customers*

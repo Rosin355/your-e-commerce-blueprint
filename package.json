@@ -29,7 +29,9 @@
     "dryrun:import": "node --import tsx scripts/dry-run-import.mjs",
     "dryrun:lossless-golden": "node --import tsx scripts/lossless-catalog-golden-dry-run.mjs --dry-run --golden-only --offline",
     "backup:catalog": "node scripts/backup-catalog.mjs",
-    "snapshot:shopify-manual": "node scripts/snapshot-shopify-manual-metafields.mjs"
+    "snapshot:shopify-manual": "node scripts/snapshot-shopify-manual-metafields.mjs",
+    "sync:customers:preflight": "node sync/customers-convert.mjs",
+    "test:customers": "node --require ./ci/offline-network.cjs --test sync/tests/customer-preflight.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
