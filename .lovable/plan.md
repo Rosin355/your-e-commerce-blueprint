@@ -32,3 +32,6 @@ In entrambi i casi: nessun progetto nuovo, nessuna prova, stesso Lovable Cloud.
 ## Limiti
 - Identità del ruolo runner/owner della tabella non osservabile da qui (già dichiarato).
 - Il checkout attuale si ferma alla 0015; la PR #56 deve essere su `main` prima di procedere.
+
+## Decisione
+Scelta la modalità A. In attesa dello SHA del merge della PR #56 su `main`. Fino ad allora: nessuna migrazione (nemmeno la 0018), nessuna modifica a database, funzioni, permessi o codice, nessun Publish. Al ricevimento dello SHA: verifica del checkout, del journal e degli snapshot, poi preparazione di un'unica chiamata nativa, da autorizzare separatamente.
