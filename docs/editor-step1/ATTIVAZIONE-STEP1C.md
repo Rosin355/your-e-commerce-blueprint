@@ -1,3 +1,13 @@
+## Specifica Lovable ricevuta — percorso A da preparare senza eseguire (18 novembre 2026)
+
+La nuova risposta Lovable precisa il contratto: il tool usa `drizzle-kit generate --custom`, genera nome/tag e `when` temporale proprio, legge il file SQL UTF-8 e ne calcola SHA-256, poi il migratore ORM applica **tutte le pending** e relative history in una transazione; per replay considera solo `created_at/when`, non l'hash. Un payload unico che reincludesse 0016+0017 come *nuovo* file produrrebbe una history incompatibile se il repo conservasse entrambe le vecchie entry. Per questo **scelta raccomandata: A**, preservare le due migration canoniche 0016/0017 e applicarle tramite il tool nel medesimo batch che crea una terza entry 0018, soltanto con autorizzazione separata.
+
+Evidenza repository: `meta/_journal.json` oggi contiene 0016/0017 con `when` crescenti, ma non ci sono `meta/0016_snapshot.json` e `meta/0017_snapshot.json`. Non assumere che la loro assenza sia un errore: le migrazioni custom possono non creare snapshot; verificare la versione `drizzle-kit` bloccata dal lock e il modo in cui Lovable genera 0018 **prima del merge**. Non inventare snapshot o timestamp. GitHub segnala PR #56 non mergiabile attualmente; risolvere prima eventuali conflitti con main, verificando che la sincronizzazione Lovable non faccia Publish o deploy impliciti.
+
+Il tool Lovable deve ricevere un SQL tecnico **innocuo/idempotente e supportato** per 0018 (senza `BEGIN/COMMIT`, senza riscrivere il contenuto 0016/0017), dopo confronto immediato di hash/when, backup/recovery, code SHA, pending e transazione. Dopo chiamata approvata: verificare tutte e tre le history con hash/when attesi (0018 registrata dai file effettivi generati), RPC, ACL, owner, grant immutati; sincronizzare i nuovi file 0018 prodotti su Git e confermare successivo replay skip. Se SQL, history o esito sono incerti, STOP e riconciliazione solo lettura. Non effettuare nessuna migration o doppia esecuzione da questa nota.
+
+I consensi M/B/G/F-M/F-P/T/A/S sono separati. Non pubblicare frontend prima di attivare schema, API, grant Marco e relativo collaudo. Nessun nuovo Supabase.
+
 # Step 1C-0 — piano di attivazione developer
 
 ## Migrazione unica nativa Lovable — verifica 18 novembre 2026
