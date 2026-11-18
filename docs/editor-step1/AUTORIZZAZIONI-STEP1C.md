@@ -66,3 +66,17 @@ M-02 separatamente BLOCCATO: revisione/bundle/compatibilità e artefatto di recu
 ## Evidenze piattaforma pendenti — 18 novembre 2026
 
 La risposta Lovable conferma impossibilita' di attestare M-01/M-02 dal suo agente: runner Drizzle e' un contesto transitorio non leggibile prima della migration, mentre l'agente non puo' interrogare a runtime revisioni/ID/checksum delle due Edge. **Questa non e' un'autorizzazione a procedere.** Il proprietario dovra' chiedere al supporto ufficiale un'attestazione o una procedura equivalente verificabile; in sua assenza M resta NO-GO. Nessuna autorizzazione M/B/G/F-M/F-P/T/A/S derivante dalla risposta.
+
+## Alternativa proposta senza attestazioni piattaforma — 18 novembre 2026
+
+**PROPOSTA DEL PROPRIETARIO: procedere senza attendere Lovable Support. Non equivale ad approvazione M.** La PR #56 contiene gia' nella 0017 controlli ACL/ownership a fail-closed, verificati offline su PostgreSQL 16 e 17. Se il batch Drizzle 0016→0017 e' realmente una singola transazione, l'eventuale eccezione della guard annulla le due migrazioni e la nuova history; un timeout/esito ambiguo va invece riconciliato in sola lettura, mai ritentato automaticamente. Il controllo usa il proprietario reale della tabella creata, percio' puo' valutare il ruolo effettivo del CREATE TABLE durante l'esecuzione, pur senza dimostrare in anticipo current_user/session_user del runner.
+
+**Rischio che resta:** manca un manifest verificabile delle due Edge Functions attive e non esiste rollback runtime attestato. La compatibilita' delle firme e dei vecchi percorsi SQL e' stata controllata nel repository, ma non costituisce prova del backend deployato. Un eventuale GO con questa incertezza e' una decisione consapevole con rischio residuo, non un PASS delle attestazioni M-01/M-02. NON dichiarare M-01/M-02 risolti per assenza di errori offline.
+
+**Sequenza minima da proporre per decisione esplicita, non ancora eseguita:**
+1. Attestare identita' del progetto, backup/schema/grant/history e possibilita' di ripristino reale; confermare runner unico e transazione Drizzle, esclusione di altre pending o deploy automatici, baseline SQL e hash 0016/0017 con un checkout SHA congelato e pulito. Se la recuperabilita' non e' dimostrata, STOP.
+2. Autorizzazione **M alternativa** specifica: accettare l'incertezza sul runner e sul bundle backend attivo; approvare ESCLUSIVAMENTE una invocazione del batch Drizzle 0016+0017 sul Cloud Online Garden, lasciando operative le guard ACL. Non autorizza G/B/F/T/A/S, non consente SQL manuale, modifiche a ruoli, rollback distruttivo o migration di prova.
+3. Dopo il batch: postcheck readonly di history, CHECK, ACL effettive, owner, RPC e grant; smoke test non mutanti delle pagine/operazioni esistenti. Se guard fallisce, history parziale, timeout o regressione: STOP e riconciliazione, senza retry cieco. Se passa, rimane necessario un controllo separato di deploy/recupero Edge prima della voce B.
+4. Soltanto con un'ulteriore autorizzazione B, pianificare il deploy mirato delle due Edge da un SHA verificato, con artefatto precedente ricostruibile dal Git e una prova di recupero adeguata; il solo commit storico non attesta il vecchio runtime. G/F-M/F-P/T/A/S restano approvazioni autonome.
+
+**Stato attuale:** valutazione alternativa preparata; M NON AUTORIZZATA, nessuna migrazione o deploy live. Il consenso generico a "andare avanti" non vale come approvazione della scrittura DB: servono scope, runner, backup/recovery e accettazione consapevole del rischio M-02.
