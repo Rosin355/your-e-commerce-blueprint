@@ -101,3 +101,7 @@ La risposta Lovable conferma impossibilita' di attestare M-01/M-02 dal suo agent
 4. Soltanto con un'ulteriore autorizzazione B, pianificare il deploy mirato delle due Edge da un SHA verificato, con artefatto precedente ricostruibile dal Git e una prova di recupero adeguata; il solo commit storico non attesta il vecchio runtime. G/F-M/F-P/T/A/S restano approvazioni autonome.
 
 **Stato attuale:** valutazione alternativa preparata; M NON AUTORIZZATA, nessuna migrazione o deploy live. Il consenso generico a "andare avanti" non vale come approvazione della scrittura DB: servono scope, runner, backup/recovery e accettazione consapevole del rischio M-02.
+
+## Proposta Lovable: storia Drizzle combinata (18 novembre 2026)
+
+**Non autorizzato:** Lovable propone di fare merge PR #56 su `main` e di eseguire 0016+0017 mediante **una sola chiamata nativa** con **una sola registrazione** Drizzle. Questo cambia il contratto del gate M che oggi richiede **due registrazioni** 0016/0017. Prima di qualsiasi merge o migrazione, serve un delta offline alla stessa PR per adottare una sola entry canonica, verificarne hash/timestamp e compatibilita' col journal veramente scritto dal tool nativo. Non alterare live history manualmente, non eseguire due chiamate separate e non inventare hash/created_at. Il backup visibile e il recupero forward-only non costituiscono una prova di restore completo. Dopo riconciliazione sono comunque richieste approvazioni distinte F-M, M, B, G, F-P, T e A, sul medesimo Cloud esistente.
