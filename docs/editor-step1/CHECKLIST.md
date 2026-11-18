@@ -1,5 +1,22 @@
 # Step 1 — checklist di chiusura
 
+## Step B PASS — 18 novembre 2026; Step G nominativo in attesa
+
+- [x] B: Lovable riferisce deploy mirato riuscito delle sole Edge `product-admin-api`/`product-admin-ai`; OPTIONS 200 e rifiuto 401 di azioni non autenticate, letture autenticata dashboard/statistiche 200.
+- [x] Hash sorgenti inviati registrati privatamente come impronte di pacchetto; versioni runtime/deployment ID non attestabili.
+- [x] Lettura live grants: **2 grant attivi indistinguibili dalla sola capability**, entrambi 7 capability/14 campi. Mai autorizzare aggiornamento di entrambe le righe.
+- [x] Definizioni di sei campi AI inclusi i tre editorial list esistenti e `ai_allowed=true`.
+- [ ] G: identificazione nominativa privata univoca di Marco, consenso distinto, UPDATE solo sua capability+field_keys; readback 8/17 e altro grant immutato.
+- [ ] Verificare i valori dei flag operativi di scrittura e sync tramite diagnostica privata prima di Publish; non cambiare il loro stato implicitamente.
+- [ ] F-P: Publish frontend e smoke test Admin/storefront con consenso distinto.
+- [ ] T/A/S: collaudo Marco reale, una AI a costo/budget autorizzato, eventuale sync tecnico DRAFT separato.
+- [ ] Accettazione finale cliente: NON ancora ottenuta.
+
+**Stato corrente: M PASS, B PASS (secondo report Lovable), G/F-P/T/A/S pending.** Le sezioni storiche con B non eseguito sono superate dal presente aggiornamento.
+
+---
+
+
 ## Live Step M PASS — 18 novembre 2026
 
 - [x] PR #56 unita a `main`, merge `1005699b`.
