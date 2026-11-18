@@ -1,5 +1,9 @@
 # Prova dell'editor nella sessione personale
 
+## Aggiornamento per Marco — 18 novembre 2026
+
+Le nuove funzioni non sono ancora attive. La preparazione dell'aggiornamento database è **BLOCCATA** in attesa di un chiarimento tecnico su come Lovable registra la singola migrazione. Non cambiano il tuo accesso o i tuoi permessi; non è richiesta alcuna azione sui prodotti. Il responsabile confermerà separatamente quando avviare il collaudo. [Stato tecnico](ATTIVAZIONE-STEP1C.md).
+
 **Questa versione è in sviluppo e non pubblicata. Collaudo personale BLOCCATO finché ambiente, campi e AI non sono confermati.** Non serve un nuovo account: usa il tuo accesso abituale quando il responsabile ti conferma la versione di prova.
 
 1. Apri soltanto la DRAFT tecnica indicata dal responsabile, mai un prodotto in vendita.

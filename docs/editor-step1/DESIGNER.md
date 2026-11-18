@@ -1,5 +1,9 @@
 # Step 1 — UX di verifica
 
+## Stato attivazione — 18 novembre 2026
+
+**BLOCKED sulla preparazione della migrazione unica**, senza cambiamenti UX: non è dimostrata la corrispondenza della registrazione nativa Lovable con il journal del repository. [Evidenza tecnica](ATTIVAZIONE-STEP1C.md). Editor e assistenza AI rimangono sviluppati ma non distribuiti/consegnati; nessuna nuova prova operativa o modifica del sito. Il collaudo personale resta successivo alle autorizzazioni distinte.
+
 Implementata nell'editor esistente, non pubblicata. Stato complessivo PARZIALE/BLOCCATO per il collaudo live; [limiti tecnici](DEVELOPER.md).
 
 Descrizione: area visuale con toolbar e link etichettato; nessun HTML. Contenuto non rappresentabile senza perdita: avviso e conservazione dell'originale, senza conversione automatica. Editor bloccato non equivale a contenuto vuoto.

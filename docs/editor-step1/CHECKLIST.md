@@ -1,5 +1,15 @@
 # Step 1 — checklist di chiusura
 
+## Preparazione migrazione unica Lovable — 18 novembre 2026
+
+- [x] Remoto b380ed0 aggiornato, modifiche precedenti preservate; journal attuale con due entry 0016/0017 esaminato.
+- [x] Letta dichiarazione Lovable: un payload atomico/una voce, nessun BEGIN/COMMIT nel payload. Non certifica algoritmo hash o timestamp del tool.
+- [x] History live verificata: id seriale/hash/created_at, nessuna colonna stato/nome; ancora 16 righe fino alla 0015.
+- [x] Contratto Drizzle e workflow GitHub esaminati; nessun deploy/migration live nei workflow. Hook esterni Lovable non certificati.
+- [ ] Contratto esatto registrazione/replay nativa equivalente al journal Git: **BLOCKED**, [unica domanda](ATTIVAZIONE-STEP1C.md).
+- [ ] Migrazione unica, allineamento journal/copie/fixture e prove PostgreSQL 17: NON PREPARATI/NON ESEGUITI, condizionati al chiarimento.
+- [ ] READY FOR MERGE REVIEW: **NO**. Nessun merge, migration, grant, deploy, Publish, Shopify o AI reale; funzioni non live.
+
 ## Preflight richiesta M alternativa — 18 novembre 2026
 
 - [x] Remoto 6b67169 aggiornato preservando le registrazioni precedenti; solo registro e checklist modificati.

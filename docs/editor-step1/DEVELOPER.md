@@ -1,5 +1,9 @@
 # Step 1 — editor prodotti: implementazione e limiti
 
+## Migrazione unica Lovable — BLOCKED, 18 novembre 2026
+
+La singola chiamata atomica dichiarata da Lovable non prova la corrispondenza hash/created_at/journal/replay con Drizzle. History live: id seriale, hash text, created_at bigint, nessuno stato/nome; ultima ancora 0015. [Contratto mancante e domanda unica pronta](ATTIVAZIONE-STEP1C.md). 0016/0017, copie, journal, checksum e test lasciati invariati; nessun pacchetto unico o test PostgreSQL 17 nuovo dichiarato completato. Non READY FOR MERGE REVIEW, nessuna funzione distribuita. Il controllo workflow GitHub non certifica gli hook esterni Lovable; nessun merge o altro passo live autorizzato.
+
 ## Step M — esito corrente 18 novembre 2026
 
 [Review limitata 0016/0017 e scheda proprietario](REVIEW-M-0016-0017.md). Live ancora 0015, 16/16 hash/when corrispondenti, solo due pending; corpi RPC precedenti e RLS/vincoli confrontati senza differenze incompatibili nel perimetro. Copie/checksum SQL invariati. Nessun test generale ripetuto: patch ACL di 4bdf443 verificata offline su PostgreSQL 16/17 e CI verde.

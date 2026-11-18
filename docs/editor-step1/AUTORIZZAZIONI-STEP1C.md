@@ -1,5 +1,9 @@
 # Step 1C — registro approvazioni separate
 
+## Pacchetto unico Lovable — BLOCKED, 18 novembre 2026
+
+Confermata la dichiarazione Lovable di singola chiamata atomica/una riga; manca il **contratto di registrazione/replay** che riconcili hash, created_at/when e identificazione con una entry Git. [Evidenze e unico chiarimento da chiedere](ATTIVAZIONE-STEP1C.md). Nessuna equivalenza presunta, nessuna scrittura manuale history: SQL/copie/journal/checksum invariati. Il merge non è autorizzabile da questo esito; nessuna operazione live o contatto Lovable avviato. Test di un pacchetto canonico nuovo non eseguiti perché il prerequisito manca. Nessun READY FOR MERGE REVIEW.
+
 ## Preflight M alternativa — nuove evidenze del 18 novembre 2026
 
 **Decisione: NO-GO alla richiesta di autorizzazione M alternativa nella forma attuale. Nessuna scrittura autorizzata o eseguita.** La volontà del proprietario di valutare i controlli fail-closed è registrata: l'assenza delle attestazioni M-01/M-02 non viene trasformata automaticamente in obbligo di attendere il supporto. Resta però da identificare e confermare il percorso operativo che eseguirà davvero il batch Drizzle unico; non basta il nome di un tool di migration. Baseline remoto 6b67169, modifiche precedenti preservate.

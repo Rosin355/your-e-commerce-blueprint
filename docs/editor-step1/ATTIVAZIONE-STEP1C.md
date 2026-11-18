@@ -1,5 +1,27 @@
 # Step 1C-0 — piano di attivazione developer
 
+## Migrazione unica nativa Lovable — verifica 18 novembre 2026
+
+**BLOCKED: equivalenza con la cronologia nativa non dimostrata. Non READY FOR MERGE REVIEW.** Branch aggiornato al remoto b380ed0 e addendum preservati. Non concatenate o rinominate le migrazioni; journal, copie Supabase, checksum, fixture e test invariati. Preparare il nuovo SQL è condizionato alla prova del contratto di registrazione, non alla sola disponibilità di una transazione.
+
+Evidenza letta: risposta Lovable del 18/11 ore 14:04:15 UTC nel progetto originale (nessun nuovo messaggio inviato). Dichiara un payload per chiamata, una transazione nativa e una registrazione Drizzle, senza BEGIN/COMMIT nel payload. Il nome combinato proposto è soltanto un esempio: non specifica algoritmo hash, byte normalizzati, timestamp o come controllarli tramite il tool. Questa dichiarazione non dimostra che il runner accetti tag/when scelti nel repository.
+
+Nuova SELECT di sola lettura: drizzle.__drizzle_migrations ha **id integer con default nextval della sequenza**, **hash text senza default**, **created_at bigint senza default**; **nessuna colonna stato/tag/nome**. Ancora 16 righe, ultima id 16 = file 0015, when 1794322722595 e SHA-256 ee58531550b7e27c4003be80b5c9c43bbca7f689bc24f07d7f881669fceaa2b6. L'id seriale non identifica il numero file e non dimostra il comportamento del tool nativo in caso di errore.
+
+Contratto del repository verificato nei pacchetti installati: readMigrationFiles calcola SHA-256 del testo UTF-8 del file letto, usa entry.when come created_at e entry.tag per il percorso SQL. Il migratore seleziona le pending confrontando when con l'ultimo created_at live e registra hash/when nella transazione SQL. Per una singola entry canonica servono byte/hash e when corrispondenti al record nativo, oltre alla registrazione soltanto a commit riuscito e al comportamento di replay. Il solo schema della tabella e la coerenza dei vecchi hash non provano l'algoritmo futuro del tool.
+
+**Unico dettaglio da chiedere a Lovable: il contratto esatto di registrazione/replay della singola migrazione nativa.** Domanda pronta, senza eseguire una migration:
+
+> Per il tool nativo del Cloud Online Garden, quale contratto permette di far corrispondere una sola migrazione canonica versionata a una sola riga in drizzle.__drizzle_migrations? Specificare come vengono determinati hash (algoritmo e byte effettivi, eventuali normalizzazioni), created_at (unità, origine e possibilità di usare l'esatto when del journal), id/nome e journal Git; confermare che SQL e riga history sono committati o annullati insieme e come una nuova lettura/replay riconosce la stessa entry senza duplicarla. Indicare i parametri realmente supportati o una specifica/esempio non mutante del record prodotto: nessuna migration di prova, nessuna modifica manuale della history.
+
+Non chiedere altre attestazioni generali né credenziali per sbloccare questa preparazione. Se il tool genera metadati non controllabili, Lovable deve descrivere il meccanismo ufficiale che li riconcilia con il journal; non lo inventiamo noi. Nessun payload aggiuntivo che scriva il journal manualmente, hash fittizio o modifica live della history.
+
+Controllo merge: i due workflow GitHub versionati sono attivati da pull_request e contengono controlli/test, inclusi DB effimeri; non contengono deploy/publish o migration Cloud su push main. Questo è un PASS del perimetro repository, **non una certificazione degli hook esterni Lovable**. La documentazione [Git sync](https://docs.lovable.dev/integrations/github) descrive la sincronizzazione dei commit, senza fornire il contratto di history nativa; non è stata ottenuta una prova specifica che la sincronizzazione main di questo progetto non possa attivare operazioni backend. L'affermazione «nessun Publish frontend» da sola non prova assenza di deploy Edge/migration. Nessun merge eseguito per verificarlo; non dichiarato merge sicuro/approvato.
+
+Test: verificati letture/history, sorgenti del migratore e workflow, link/diff documentali. Non eseguiti i test PostgreSQL 17 di un pacchetto unico inesistente: le prove 0016/0017 precedenti rimangono valide per il vecchio batch e non attestano il tool nativo. Solo dopo chiarimento si potrà preparare una entry canonica, rimuovere le vecchie pending dal percorso attivo preservandone eventualmente archivio documentale, allineare copie/checksum/test e provare atomicità, guard ACL, replay e grant su PostgreSQL 17. Nessuna di queste modifiche è simulata come già completata.
+
+Nessun SQL/runtime modificato, nuovo progetto, migration live, grant Marco, deploy, merge, Publish, Shopify o AI a consumo. PR #53–55 invariate; funzioni nuove non dichiarate live.
+
 ## Step M — riesame corrente 18 novembre 2026
 
 **NO-GO alla sola autorizzazione M.** [Evidenze e scheda proprietario](REVIEW-M-0016-0017.md): nuova lettura Cloud, history 16/16 hash/when fino a 0015; 0016/0017 sole pending, journal/RPC confirmed assenti, CHECK senza ai. Corpi RPC precedenti, RLS e vincoli confrontati senza differenze incompatibili nel perimetro. SQL/checksum/copie invariati da questa review.
