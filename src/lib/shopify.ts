@@ -75,6 +75,7 @@ export interface ShopifyProduct {
     };
     shortIntro?: { value: string; type?: string } | null;
     specialBullets?: { value: string; type?: string } | null;
+    keyBenefits?: { value: string; type?: string } | null;
     keyFeatures?: { value: string; type?: string } | null;
     careInfo?: { value: string; type?: string } | null;
     promoText?: { value: string; type?: string } | null;

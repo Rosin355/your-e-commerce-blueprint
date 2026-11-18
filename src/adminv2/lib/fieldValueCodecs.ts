@@ -80,6 +80,7 @@ export function parseFaqValue(raw: unknown): FaqParseResult {
 
 export type EditorKind =
   | 'text'
+  | 'richtext'
   | 'textarea'
   | 'number'
   | 'boolean'
@@ -91,6 +92,7 @@ export type EditorKind =
   | 'unsupported_select';
 
 export function editorKind(field: EditableField): EditorKind {
+  if (field.editorType === 'richtext') return 'richtext';
   if (field.key === 'faq') return 'faq';
   if (isSeasonalField(field.key)) return 'month_multiselect';
   if (field.dataType === 'number') return 'number';

@@ -1,5 +1,9 @@
+import { authorizeConfirmedAi, confirmedFacts, generateConfirmedProposal } from '../_shared/admin-ai-confirmed.ts';
+import { payloadHash } from '../_shared/admin-v2-commands.ts';
+import { loadCatalogGrant, catalogMode } from '../_shared/admin-catalog-approvals.ts';
+import { catalogAiAllowed } from '../_shared/admin-catalog-policy.ts';
 // Fase 2D — proposte AI field-by-field. Nessuna chiamata Shopify e nessun publish.
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { corsHeaders } from "../_shared/cors.ts";
 import {
   authenticate,
   AuthError,
@@ -28,12 +32,14 @@ import {
 import type { AuthContext } from "../_shared/admin-v2-types.ts";
 
 type AiAction =
+  | "suggest_confirmed_field"
   | "get_ai_suggestions"
   | "generate_ai_suggestion"
   | "reject_ai_suggestion"
   | "accept_ai_suggestion";
 
 const ACTIONS: AiAction[] = [
+  "suggest_confirmed_field",
   "get_ai_suggestions",
   "generate_ai_suggestion",
   "reject_ai_suggestion",
@@ -113,20 +119,19 @@ async function requireAiWrite(
       "Scritture Admin temporaneamente disabilitate",
     );
   }
-  if (writeMode() === "canary" && !canWriteCanary(auth.roles)) {
+  if (catalogMode(auth) === "canary" && !canWriteCanary(auth.roles)) {
     return fail(
       "FORBIDDEN",
       "Proposte AI riservate agli amministratori durante il canary",
     );
   }
 
-  if (writeMode() === "canary") {
+  if (catalogMode(auth) === "canary") {
     return fail("WRITES_DISABLED", "Le operazioni AI sono escluse dal canary DRAFT del Livello B");
   }
 
   let fieldKey = typeof payload.fieldKey === "string" ? payload.fieldKey : null;
   if (
-    !fieldKey &&
     (action === "accept_ai_suggestion" || action === "reject_ai_suggestion")
   ) {
     const suggestionId = payload.suggestionId;
@@ -134,16 +139,17 @@ async function requireAiWrite(
       return fail("VALIDATION_ERROR", "suggestionId non valido");
     }
     const suggestion = await repo.getSuggestion(suggestionId);
-    if (!suggestion) return fail("NOT_FOUND", "Proposta AI inesistente");
+    if (!suggestion || suggestion.created_by !== auth.userId) return fail("NOT_FOUND", "Proposta AI non disponibile per questo account");
     fieldKey = suggestion.field_key;
   }
+  if (!fieldKey || !catalogAiAllowed(auth, fieldKey)) return fail('FORBIDDEN', 'AI non autorizzata per questo account e campo.');
   // Un accept replay deve essere riconciliato dal service prima di qualsiasi
   // gate AI mutabile (stato prodotto/campo/valore e allowlist canary).
   if (action === "accept_ai_suggestion") return null;
   if (!fieldKey) return fail("VALIDATION_ERROR", "fieldKey mancante");
   const def = await repo.getDefinition(fieldKey);
   if (!def) return fail("NOT_FOUND", "Field key non registrata");
-  if (writeMode() === "canary" && !isCanaryField(def)) {
+  if (catalogMode(auth) === "canary" && !isCanaryField(def)) {
     return fail("AI_NOT_ALLOWED", "Campo non abilitato nel canary");
   }
   return null;
@@ -176,7 +182,21 @@ export async function handleProductAdminAi(
     if (!canRead(auth.roles)) {
       return fail("FORBIDDEN", "Ruolo senza accesso Admin prodotti");
     }
+    await loadCatalogGrant(serviceClient(), auth);
     const repo = deps.repository();
+    if (action === 'suggest_confirmed_field') {
+      if (!writesEnabled()) return fail('WRITES_DISABLED','Assistenza AI temporaneamente disabilitata.');
+      const def = typeof payload.fieldKey === 'string' ? await repo.getDefinition(payload.fieldKey) : null;
+      try { authorizeConfirmedAi(auth,def,action); } catch { return fail('FORBIDDEN','Azione AI non autorizzata per questo account e campo.'); }
+      let facts: string[];
+      try { facts=confirmedFacts(payload.facts,payload.confirmed); } catch (error) { return fail('VALIDATION_ERROR',(error as Error).message); }
+      if (!isUuid(payload.requestKey)) return fail('VALIDATION_ERROR','Identificativo richiesta mancante.');
+      const { data: reserved, error } = await serviceClient().rpc('reserve_confirmed_ai_request',{p_actor:auth.userId,p_request_key:payload.requestKey,p_field_key:def!.key,p_context_hash:await payloadHash({facts}),p_action:action});
+      if (error) return fail('FORBIDDEN','Impossibile autorizzare la richiesta AI.');
+      if (!reserved) return fail('RATE_LIMITED','Richiesta già inviata o limite di 5 richieste al minuto raggiunto. Nessun retry automatico.');
+      try { return json({ok:true,value:await generateConfirmedProposal(def!,facts,deps.generate)}); }
+      catch(error) { if (error instanceof AiProviderError) throw error; return fail('VALIDATION_ERROR','Proposta non valida o informazioni insufficienti. Nessuna modifica effettuata; compila manualmente.'); }
+    }
 
     if (action === "get_ai_suggestions") {
       if (!isUuid(payload.productId)) {
@@ -184,7 +204,7 @@ export async function handleProductAdminAi(
       }
       return json({
         ok: true,
-        suggestions: await listAiSuggestions(repo, payload.productId),
+        suggestions: (await listAiSuggestions(repo, payload.productId, auth.userId)).filter(s => catalogAiAllowed(auth, s.fieldKey)),
       });
     }
 
@@ -217,7 +237,6 @@ export async function handleProductAdminAi(
       console.log(JSON.stringify({
         scope: "product-admin-ai",
         action,
-        actor: `${auth.userId.slice(0, 8)}…`,
         fieldKey: payload.fieldKey,
         replayed: result.replayed,
         usageTokens: result.usageTokens,
@@ -258,7 +277,7 @@ export async function handleProductAdminAi(
       value: payload.value,
       expectedVersion: payload.expectedVersion as number,
       idempotencyKey: payload.idempotencyKey,
-      canaryOnly: writeMode() === "canary",
+      canaryOnly: catalogMode(auth) === "canary",
     });
     return json({ ok: true, ...accepted });
   } catch (error) {

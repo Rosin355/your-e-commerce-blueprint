@@ -246,6 +246,7 @@ export function createSupabaseAiRepository(db: SupabaseClient): AiRepository {
 }
 
 export type AiServiceErrorCode =
+  | "FORBIDDEN"
   | "NOT_FOUND"
   | "FIELD_NOT_EDITABLE"
   | "AI_NOT_ALLOWED"
@@ -395,10 +396,11 @@ async function loadEligibleTarget(
 export async function listAiSuggestions(
   repo: AiRepository,
   productId: string,
+  actor?: string,
 ): Promise<PublicAiSuggestion[]> {
   const product = await repo.getProduct(productId);
   if (!product) throw new AiServiceError("NOT_FOUND", "Prodotto inesistente");
-  const rows = await repo.listPending(productId);
+  const rows = (await repo.listPending(productId)).filter(row => !actor || row.created_by === actor);
   return await Promise.all(rows.map(async (suggestion) => {
     const current = await repo.getCurrent(productId, suggestion.field_key);
     return serializeSuggestion(suggestion, current?.version ?? 0);
@@ -442,6 +444,7 @@ export async function generateAiSuggestion(
   const pending = (await repo.listPending(product.id)).find((item) =>
     item.field_key === def.key
   );
+  if (pending && pending.created_by !== input.actor) throw new AiServiceError('GENERATION_IN_PROGRESS', 'Una proposta su questo campo è già riservata a un altro operatore.');
   if (pending && pending.base_version === row.version) {
     return {
       suggestion: serializeSuggestion(pending, row.version),
@@ -477,7 +480,7 @@ export async function generateAiSuggestion(
       : (await repo.listPending(product.id)).find((item) =>
         item.field_key === def.key && item.base_version === row.version
       );
-    if (replay) {
+    if (replay && replay.created_by === input.actor) {
       return {
         suggestion: serializeSuggestion(replay, row.version),
         replayed: true,
@@ -559,6 +562,7 @@ export async function rejectAiSuggestion(
   if (!suggestion) {
     throw new AiServiceError("NOT_FOUND", "Proposta AI inesistente");
   }
+  if (suggestion.created_by !== input.actor) throw new AiServiceError('FORBIDDEN', 'Proposta AI non disponibile per questo account.');
   const current = await repo.getCurrent(
     suggestion.product_id,
     suggestion.field_key,
@@ -604,6 +608,7 @@ export async function acceptAiSuggestion(
   if (!suggestion) {
     throw new AiServiceError("NOT_FOUND", "Proposta AI inesistente");
   }
+  if (suggestion.created_by !== input.actor) throw new AiServiceError('FORBIDDEN', 'Proposta AI non disponibile per questo account.');
   const command: CommandInput = {
     actor: input.actor,
     action: "update_field",

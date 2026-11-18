@@ -1,4 +1,5 @@
-import { Plus, Trash2 } from 'lucide-react';
+import RichTextEditor from './RichTextEditor';
+import { Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,6 +25,8 @@ interface FieldEditorProps {
 
 export default function FieldEditor({ field, value, onChange, disabled = false }: FieldEditorProps) {
   const kind = editorKind(field);
+
+  if (kind === 'richtext') return <RichTextEditor value={typeof value === 'string' ? value : ''} onChange={onChange} disabled={disabled} label={field.label} />;
 
   if (kind === 'faq') {
     const parsed = parseFaqValue(value);
@@ -74,13 +77,17 @@ export default function FieldEditor({ field, value, onChange, disabled = false }
     return (
       <div className="space-y-2">
         {items.map((item, index) => (
-          <div key={index} className="flex gap-2">
+          <div key={index} className="flex flex-wrap gap-2">
             <Input
               value={item}
               onChange={(event) => onChange(items.map((entry, itemIndex) => itemIndex === index ? event.target.value : entry))}
               aria-label={`${field.label}, elemento ${index + 1}`}
               disabled={disabled}
             />
+            {[[-1, ArrowUp, 'Sposta su'], [1, ArrowDown, 'Sposta giù']].map(([delta, Icon, text]) => {
+              const offset = delta as number; const Arrow = Icon as typeof ArrowUp;
+              return <Button key={offset} type="button" size="icon" variant="outline" aria-label={`${text} elemento ${index + 1}`} disabled={disabled || index + offset < 0 || index + offset >= items.length} onClick={() => { const next = [...items]; [next[index], next[index + offset]] = [next[index + offset], next[index]]; onChange(next); }}><Arrow className="h-4 w-4" /></Button>;
+            })}
             <Button
               type="button"
               size="icon"

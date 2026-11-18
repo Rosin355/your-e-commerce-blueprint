@@ -179,3 +179,16 @@ test('journal e mapping negano accesso diretto al browser e RPC pubbliche', () =
   assert.match(s, /FROM PUBLIC,anon,authenticated/);
   assert.doesNotMatch(s, /SECURITY DEFINER/);
 });
+
+test('prezzi EUR con virgola: conversione esatta senza prezzi inventati', () => {
+  const input = fixture(); input.variants[0].price = '12,50'; input.variants[0].compareAtPrice = '15,00';
+  const draft = validateDraft(input); assert.equal(draft.variants[0].price, '12.50'); assert.equal(draft.variants[0].compareAtPrice, '15.00');
+});
+test('formati e prezzi: valori ambigui, duplicati e confronto non maggiore sono rifiutati', () => {
+  for (const price of ['', '12,345', '1.234,50', '-1', '1e2']) { const input=fixture();input.variants[0].price=price;assert.throws(()=>validateDraft(input)); }
+  const input=fixture();input.variants[0].compareAtPrice='12,30';assert.throws(()=>validateDraft(input));
+  input.variants[0].compareAtPrice=null;input.variants.push({...input.variants[0]});assert.throws(()=>validateDraft(input),/duplicato/);
+});
+test('nuova bozza rifiuta HTML attivo anche senza editor frontend', () => {
+  const input=fixture();input.description='<img src=x onerror="alert(1)">';assert.throws(()=>validateDraft(input),/HTML/);
+});

@@ -77,7 +77,7 @@ test('month picker e confronto reagiscono ai container reali, non al viewport', 
   assert.match(picker, /checked=\{selected\.includes\(month\)\}/);
   assert.doesNotMatch(picker, /\bw-\[[^\]]+\]/);
   assert.match(card, /article className="og-field-card-container min-w-0/);
-  assert.match(card, /og-field-comparison--shopify/);
+  assert.match(card, /Dettagli e confronto/);
   assert.doesNotMatch(card, /'(?:md|lg|xl):grid-cols-[23]'/);
   assert.equal((card.match(/section className="min-w-0/g) ?? []).length, 3);
   assert.match(styles, /container-name: month-picker/);
@@ -108,8 +108,8 @@ test('capability server-side consentono manual_only locked e creazione solo ad A
   assert.equal(absentManual.updateBlockReason, 'allowed');
 
   const absentNormal = calculateFieldCapabilities(def(), undefined, 'simple', writable);
-  assert.equal(absentNormal.canUpdate, false);
-  assert.equal(absentNormal.updateBlockReason, 'current_value_missing');
+  assert.equal(absentNormal.canUpdate, true);
+  assert.equal(absentNormal.updateBlockReason, 'allowed');
 
   const editorLocked = calculateFieldCapabilities(
     def({ manual_only: true, ai_allowed: false }), row({ is_locked: true }), 'simple',

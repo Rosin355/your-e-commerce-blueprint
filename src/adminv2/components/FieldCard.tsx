@@ -1,3 +1,5 @@
+import type { suggestConfirmedField } from '../lib/adminApi';
+import ConfirmedAiAssistant from './ConfirmedAiAssistant';
 import { useState } from 'react';
 import { Check, CloudUpload, Info, Loader2, Lock, RefreshCw, ShieldCheck, Sparkles, X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -47,7 +49,7 @@ const BLOCK_REASON: Record<AdminField['capabilities']['updateBlockReason'], stri
 };
 
 const SYNC_STATE: Record<AdminField['syncState'], { label: string; variant: 'outline' | 'secondary' | 'destructive' }> = {
-  INTERNAL_ONLY: { label: 'Solo Admin', variant: 'outline' },
+  INTERNAL_ONLY: { label: 'Bozza interna', variant: 'outline' },
   PENDING_SYNC: { label: 'Da sincronizzare', variant: 'secondary' },
   SYNCED: { label: 'Sincronizzato', variant: 'secondary' },
   SYNC_ERROR: { label: 'Errore sync', variant: 'destructive' },
@@ -55,7 +57,8 @@ const SYNC_STATE: Record<AdminField['syncState'], { label: string; variant: 'out
 
 export interface FieldCardProps {
   field: AdminField;
-  onCommand?: (input: { action: FieldCommandAction; fieldKey: string; value?: unknown; expectedVersion: number }) => Promise<{ ok: boolean; code?: string; result?: Record<string, unknown> }>;
+  onGenerateConfirmed?: typeof suggestConfirmedField;
+  onCommand?: (input: { action: FieldCommandAction; fieldKey: string; value?: unknown; expectedShopifyHash?: string; expectedVersion: number }) => Promise<{ ok: boolean; code?: string; result?: Record<string, unknown> }>;
   onSync?: (input: { fieldKey: string; expectedVersion: number; expectedShopifyHash?: string; idempotencyKey?: string }) => Promise<{ ok: boolean; result?: Record<string, unknown> }>;
   syncEnabled?: boolean;
   onConflict?: () => Promise<unknown> | unknown;
@@ -65,20 +68,27 @@ export interface FieldCardProps {
   onAcceptAi?: (input: { suggestionId: string; value: unknown; expectedVersion: number; idempotencyKey: string }) => Promise<unknown>;
 }
 
-export default function FieldCard({ field, onCommand, onSync, syncEnabled = false, onConflict, aiSuggestion, onGenerateAi, onRejectAi, onAcceptAi }: FieldCardProps) {
+export default function FieldCard({ field, onGenerateConfirmed, onCommand, onSync, syncEnabled = false, onConflict, aiSuggestion, onGenerateAi, onRejectAi, onAcceptAi }: FieldCardProps) {
   const legacyAi = isLegacyAi(field);
   const manual = isManualField(field);
-  const editorSupported = isEditorValueSupported(field, field.value);
+  const initialValue = !field.capabilities.currentValueExists && field.shopifyLiveValue != null ? field.shopifyLiveValue : field.value;
+  const editorSupported = isEditorValueSupported(field, initialValue);
   const canUpdate = field.capabilities.canUpdate && editorSupported && !!onCommand && field.version !== null;
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<unknown>(() => cloneValue(field.value));
+  const [editVersion, setEditVersion] = useState<number | null>(field.version);
+  const [editHash, setEditHash] = useState(field.shopifyBaselineHash);
+  const [editMissing, setEditMissing] = useState(!field.capabilities.currentValueExists);
+  const [draft, setDraft] = useState<unknown>(() => cloneValue(initialValue));
   const [busy, setBusy] = useState<null | FieldCommandAction | 'sync_field' | 'save_and_sync'>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [conflictVersion, setConflictVersion] = useState<number | null>(null);
 
   const startEdit = () => {
-    const faq = field.key === 'faq' ? parseFaqValue(field.value) : null;
-    setDraft(faq?.kind === 'supported' ? cloneValue(faq.items) : cloneValue(field.value));
+    setEditVersion(field.version);
+    setEditHash(field.shopifyBaselineHash);
+    setEditMissing(!field.capabilities.currentValueExists);
+    const faq = field.key === 'faq' ? parseFaqValue(initialValue) : null;
+    setDraft(faq?.kind === 'supported' ? cloneValue(faq.items) : cloneValue(initialValue));
     setValidationError(null);
     setConflictVersion(null);
     setEditing(true);
@@ -110,19 +120,21 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
     }
   };
 
-  const dirty = JSON.stringify(draft ?? null) !== JSON.stringify(cloneValue(field.key === 'faq' && parseFaqValue(field.value).kind === 'supported' ? (parseFaqValue(field.value) as { items: unknown }).items : field.value) ?? null);
+  const dirty = JSON.stringify(draft ?? null) !== JSON.stringify(cloneValue(field.key === 'faq' && parseFaqValue(initialValue).kind === 'supported' ? (parseFaqValue(initialValue) as { items: unknown }).items : initialValue) ?? null);
   const seasonalDraftEmpty = editorKind(field) === 'month_multiselect' &&
     Array.isArray(draft) && draft.length === 0;
   const visibleValidationError = seasonalDraftEmpty ? 'Seleziona almeno un mese.' : validationError;
   const errorId = `field-error-${field.key}`;
 
+  const editorialList = ['key_benefits','key_features','special_bullets'].includes(field.key);
   const save = async (syncAfterSave = false) => {
     const normalized = normalizeEditorValue(field, draft);
     if (normalized.ok === false) {
       setValidationError(normalized.message);
       return;
     }
-    if (!onCommand || field.version === null) return;
+    if (!onCommand || editVersion === null) return;
+    if (syncAfterSave && !window.confirm('Salvare la bozza e aggiornare questo campo sul sito?')) return;
     setBusy(syncAfterSave ? 'save_and_sync' : 'update_field');
     setValidationError(null);
     try {
@@ -130,16 +142,17 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
         action: 'update_field',
         fieldKey: field.key,
         value: normalized.value,
-        expectedVersion: field.version,
+        expectedVersion: editVersion,
+        expectedShopifyHash: editMissing ? editHash : undefined,
       });
       const nextVersion = saved.code === 'NO_CHANGE'
-        ? field.version
+        ? editVersion
         : typeof saved.result?.version === 'number'
         ? saved.result.version
-        : field.version + 1;
+        : editVersion + 1;
       if (syncAfterSave) {
         if (!onSync) throw new Error('Sincronizzazione non disponibile.');
-        await onSync({ fieldKey: field.key, expectedVersion: nextVersion, expectedShopifyHash: field.shopifyBaselineHash });
+        await onSync({ fieldKey: field.key, expectedVersion: nextVersion, expectedShopifyHash: editHash });
         toast({ title: 'Salvato e sincronizzato', description: `${field.label} verificato su Shopify.` });
       } else {
         toast(saved.code === 'NO_CHANGE'
@@ -164,6 +177,7 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
 
   const syncCurrentValue = async () => {
     if (!onSync || field.version === null) return;
+    if (!window.confirm('Aggiornare questo campo sul sito con la bozza salvata?')) return;
     setBusy('sync_field');
     try {
       await onSync({ fieldKey: field.key, expectedVersion: field.version, expectedShopifyHash: field.shopifyBaselineHash });
@@ -197,7 +211,8 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
   return (
     <article className="og-field-card-container min-w-0 rounded-lg border bg-card p-4">
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold">{field.label}</h3>
+        <div><h3 className="text-sm font-semibold">{field.label}</h3>{canUpdate && <p className="text-xs">{editing ? 'In modifica' : 'Modificabile'}</p>}</div>
+        {!editing && canUpdate && <Button size="sm" variant="outline" onClick={startEdit}>{!field.capabilities.currentValueExists && field.shopifyLiveValue != null ? 'Modifica partendo dal sito' : 'Modifica'}</Button>}
         <div className="flex flex-wrap gap-1.5">
           {legacyAi && <Badge variant="destructive">Da verificare</Badge>}
           {manual && <Badge variant="secondary" className="gap-1"><Lock className="h-3 w-3" /> Manuale</Badge>}
@@ -207,13 +222,12 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
         </div>
       </header>
 
-      <div className={`og-field-comparison mb-3 grid gap-3 ${
-        field.shopifySyncSupported ? 'og-field-comparison--shopify' : ''
-      }`}>
+      <div className="mb-3 space-y-3">
         <section className="min-w-0 rounded-md border p-3">
           <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Valore corrente</h4>
-          {editing ? <div aria-describedby={visibleValidationError ? errorId : undefined}><FieldEditor field={field} value={draft} onChange={setDraft} disabled={busy !== null} /></div> : <ValueDisplay value={displayValue(field)} label={field.label} />}
+          {editing ? <div aria-describedby={visibleValidationError ? errorId : undefined}><FieldEditor field={field} value={draft} onChange={setDraft} disabled={busy !== null} /></div> : <ValueDisplay value={initialValue ?? displayValue(field)} label={field.label} />}
         </section>
+        <details className="space-y-3"><summary className="cursor-pointer text-sm underline">Dettagli e confronto</summary>
         <section className="min-w-0 rounded-md border bg-muted/30 p-3">
           <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Originale WordPress</h4>
           <p className="mb-2 text-xs text-muted-foreground">{SOURCE_LABEL[field.sourceState]}</p>
@@ -227,6 +241,7 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
             <ValueDisplay value={field.shopifyLiveValue} label={`${field.label} Shopify`} />
           </section>
         )}
+        </details>
       </div>
 
       {visibleValidationError && <p id={errorId} role="alert" className="mb-3 text-xs text-destructive">{visibleValidationError}</p>}
@@ -242,6 +257,7 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
         </Alert>
       )}
 
+      {['description','optimized_description'].includes(field.key) && <p className="mb-3 text-xs text-muted-foreground">Questa descrizione e la descrizione alternativa aggiornano lo stesso testo sul sito. Scegli quale inviare; nessun invio automatico.</p>}
       {legacyAi && <p className="mb-3 rounded-md bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">{LEGACY_AI_NOTICE} La pubblicazione di questo contenuto è bloccata.</p>}
       {field.syncState === 'SYNC_ERROR' && (
         <Alert variant="destructive" className="mb-3">
@@ -267,34 +283,34 @@ export default function FieldCard({ field, onCommand, onSync, syncEnabled = fals
       <div className="flex flex-wrap gap-2 pt-3">
         {editing ? (
           <>
-            <Button size="sm" onClick={() => void save(false)} disabled={busy !== null || conflictVersion !== null || !dirty || seasonalDraftEmpty} title={!dirty ? 'Nessuna modifica da salvare' : undefined}>{busy === 'update_field' && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}Salva nell’Admin</Button>
-            {field.shopifySyncSupported && syncEnabled && (
+            <Button size="sm" onClick={() => void save(false)} disabled={busy !== null || conflictVersion !== null || !dirty || seasonalDraftEmpty} title={!dirty ? 'Nessuna modifica da salvare' : undefined}>{busy === 'update_field' && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}Salva bozza</Button>
+            {!editorialList && field.shopifySyncSupported && syncEnabled && (
               <Button size="sm" variant="secondary" onClick={() => void save(true)} disabled={busy !== null || conflictVersion !== null || !dirty || seasonalDraftEmpty}>
                 {busy === 'save_and_sync' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <CloudUpload className="mr-1 h-3.5 w-3.5" />}
-                Salva e sincronizza su Shopify
+                Salva bozza e aggiorna sul sito
               </Button>
             )}
             <Button size="sm" variant="outline" onClick={() => setEditing(false)} disabled={busy !== null}>Annulla</Button>
           </>
-        ) : canUpdate ? (
-          <Button size="sm" variant="outline" onClick={startEdit}>Modifica</Button>
-        ) : (
+        ) : !canUpdate ? (
           <Tooltip>
             <TooltipTrigger asChild><span tabIndex={0} className="inline-flex rounded-md"><Button size="sm" variant="outline" disabled>Modifica</Button></span></TooltipTrigger>
             <TooltipContent>{editorSupported ? BLOCK_REASON[field.capabilities.updateBlockReason] : 'Il valore legacy non è interpretabile senza perdita.'}</TooltipContent>
           </Tooltip>
-        )}
+        ) : null}
         {!editing && field.shopifySyncSupported && syncEnabled &&
           field.capabilities.currentValueExists && field.version !== null && field.version > 0 && (
           <Button size="sm" variant="secondary" onClick={() => void syncCurrentValue()} disabled={busy !== null || legacyAi || field.publishBlocked}>
             {busy === 'sync_field' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <CloudUpload className="mr-1 h-3.5 w-3.5" />}
-            Sincronizza su Shopify
+            Aggiorna sul sito
           </Button>
         )}
+        {field.shopifySyncBlockReason && <p role="status" className="text-sm text-muted-foreground">{field.shopifySyncBlockReason}</p>}
         {legacyAi && field.capabilities.canConfirmLegacy && <Button size="sm" variant="outline" onClick={() => void run('confirm_legacy_value')} disabled={busy !== null}>{busy === 'confirm_legacy_value' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Check className="mr-1 h-3.5 w-3.5" />}Mantieni valore</Button>}
         {legacyAi && field.capabilities.canRejectLegacy && <Button size="sm" variant="outline" onClick={() => void run('reject_legacy_value')} disabled={busy !== null}>{busy === 'reject_legacy_value' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <X className="mr-1 h-3.5 w-3.5" />}Rifiuta valore</Button>}
       </div>
-      {field.capabilities.canSuggestAi && onGenerateAi && onRejectAi && onAcceptAi && onConflict && (
+      {!editing && canUpdate && field.capabilities.canSuggestAi && (field.value == null || field.value === '' || (Array.isArray(field.value) && field.value.length === 0)) && <ConfirmedAiAssistant field={field} generate={onGenerateConfirmed} onApply={value=>{startEdit();setDraft(value);}} />}
+      {field.value != null && field.value !== '' && !(Array.isArray(field.value) && field.value.length===0) && field.capabilities.canSuggestAi && onGenerateAi && onRejectAi && onAcceptAi && onConflict && (
         <AiSuggestionCard
           field={field}
           suggestion={aiSuggestion}

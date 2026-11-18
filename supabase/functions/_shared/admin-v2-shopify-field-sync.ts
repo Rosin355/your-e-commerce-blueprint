@@ -1,5 +1,8 @@
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
-import { shopifyAdminGraphQL } from "./shopify-admin-client.ts";
+import { decodeEditorialList, encodeEditorialList } from "./editorial-list-codec.ts";
+import { shopifyAdminGraphQL, shopifyAdminGraphQLAtVersion } from "./shopify-admin-client.ts";
+import { isEditorialList } from './admin-catalog-policy.ts';
+import { getCurrentValue } from './admin-v2-queries-deferred.ts';
 import { payloadHash } from "./admin-v2-commands.ts";
 import type { CurrentValueRow, FieldDefinition } from "./admin-v2-types.ts";
 import {
@@ -10,6 +13,12 @@ import {
   type ShopifyFieldTarget,
 } from "./admin-v2-field-policy.ts";
 import { currentValueOf } from "./admin-v2-validation.ts";
+
+export const EDITORIAL_SYNC_API_VERSION = '2026-10';
+const editorialGraphQL: ShopifyGraphQL = (query, variables) => shopifyAdminGraphQLAtVersion(EDITORIAL_SYNC_API_VERSION, query, variables, true);
+function graphqlForTarget(target: ShopifyFieldTarget): ShopifyGraphQL {
+  return target.kind === 'metafield' && isEditorialList(target.key) ? editorialGraphQL : shopifyAdminGraphQL;
+}
 
 export type SyncFailureCode =
   | "BLOCK_SYNC"
@@ -38,6 +47,7 @@ export interface ShopifyMetafieldSnapshot {
   key: string;
   type: string;
   value: string;
+  compareDigest?: string;
 }
 
 export interface ShopifyProductCoreSnapshot {
@@ -61,6 +71,7 @@ export interface ExactShopifyTargetRead {
   productTitle?: string;
   variant?: ShopifyVariantSnapshot;
   metafield?: ShopifyMetafieldSnapshot | null;
+  editorialDefinition?: { namespace: string; key: string; type: string };
 }
 
 const PRODUCT_CORE_SNAPSHOT = `
@@ -78,6 +89,18 @@ query AdminV2ExactMetafieldTarget($id: ID!, $namespace: String!, $key: String!) 
     metafield(namespace: $namespace, key: $key) {
       namespace key type value
     }
+  }
+}`;
+
+const EDITORIAL_LIST_TARGET = `
+query AdminEditorialListTarget($id: ID!, $namespace: String!, $key: String!) {
+  metafieldDefinitions(ownerType: PRODUCT, namespace: $namespace, key: $key, first: 2) {
+    nodes { namespace key type { name } }
+    pageInfo { hasNextPage }
+  }
+  product(id: $id) {
+    id
+    metafield(namespace: $namespace, key: $key) { namespace key type value compareDigest }
   }
 }`;
 
@@ -213,14 +236,35 @@ export async function readExactVariantTarget(
   return matches[0];
 }
 
+/** Strict list definition and CAS support, isolated from pre-existing syncs. */
+export async function readEditorialListTarget(productId: string, target: ShopifyFieldTarget, graphql: ShopifyGraphQL = editorialGraphQL): Promise<ExactShopifyTargetRead> {
+  if (target.kind !== 'metafield' || target.namespace !== 'custom' || !isEditorialList(target.key)) throw new ShopifyFieldSyncError('BLOCK_SYNC', 'Mapping caratteristiche non consentito.');
+  const data = await graphql<{
+    product: { id: string; metafield: ShopifyMetafieldSnapshot | null } | null;
+    metafieldDefinitions: { nodes: Array<{namespace: string; key: string; type: {name: string}}> ; pageInfo: {hasNextPage: boolean} };
+  }>(EDITORIAL_LIST_TARGET, {id:toProductGid(productId),namespace:target.namespace,key:target.key});
+  const defs = data.metafieldDefinitions;
+  const def = defs?.nodes?.[0];
+  const field = data.product?.metafield;
+  if (!data.product || data.product.id !== toProductGid(productId) || !Object.hasOwn(data.product, 'metafield') || !defs?.pageInfo || defs.pageInfo.hasNextPage !== false || defs.nodes.length !== 1 || !def || def.namespace !== target.namespace || def.key !== target.key || !['json','list.single_line_text_field','multi_line_text_field'].includes(def.type?.name) ||
+    (field && (field.namespace !== target.namespace || field.key !== target.key || field.type !== def.type.name || typeof field.compareDigest !== 'string' || !field.compareDigest))) {
+    throw new ShopifyFieldSyncError('BLOCK_SYNC', 'Definizione o tipo Shopify delle caratteristiche non compatibile o non verificabile. Contatta il responsabile.');
+  }
+  if (field) {
+    try { decodeEditorialList(field.value,field.type); } catch { throw new ShopifyFieldSyncError('BLOCK_SYNC','Formato delle caratteristiche ambiguo o non reversibile: originale conservato, sincronizzazione bloccata.'); }
+  }
+  return {value:field?.value ?? null,metafield:field ?? null,editorialDefinition:{namespace:def.namespace,key:def.key,type:def.type.name}};
+}
+
 export async function readExactMetafieldTarget(
   shopifyProductId: string,
   target: ShopifyFieldTarget,
-  graphql: ShopifyGraphQL = shopifyAdminGraphQL,
+  graphql: ShopifyGraphQL = graphqlForTarget(target),
 ): Promise<ShopifyMetafieldSnapshot | null> {
   if (target.kind !== "metafield") {
     throw new ShopifyFieldSyncError("BLOCK_SYNC", "Target metafield non valido.");
   }
+  if (isEditorialList(target.key)) return (await readEditorialListTarget(shopifyProductId,target,graphql)).metafield ?? null;
   const id = toProductGid(shopifyProductId);
   const data = await graphql<{
     product: null | { id: string; metafield: ShopifyMetafieldSnapshot | null };
@@ -254,7 +298,7 @@ export async function readExactShopifyTarget(input: {
   expectedRemote?: unknown;
   hasExpectedRemote?: boolean;
 }): Promise<ExactShopifyTargetRead> {
-  const graphql = input.graphql ?? shopifyAdminGraphQL;
+  const graphql = input.graphql ?? graphqlForTarget(input.target);
   if (input.target.kind === "product" || input.target.kind === "seo") {
     const core = await readProductCoreSnapshot(input.productId, graphql);
     if (input.target.kind === "seo" && (!core.seo ||
@@ -270,6 +314,7 @@ export async function readExactShopifyTarget(input: {
     const variant = await readExactVariantTarget(input.productId, input.sku, graphql);
     return { value: variant[input.target.field], variant };
   }
+  if (isEditorialList(input.target.key)) return readEditorialListTarget(input.productId,input.target,graphql);
   const metafield = await readExactMetafieldTarget(input.productId, input.target, graphql);
   return { value: metafield?.value ?? null, metafield };
 }
@@ -325,6 +370,21 @@ export function buildShopifyWritePlan(input: {
     };
   }
   const target = input.target;
+  const editorial = isEditorialList(target.key);
+  if (editorial) {
+    const def = input.resolvedTarget?.editorialDefinition;
+    let items: unknown;
+    try { items = typeof input.value === 'string' ? JSON.parse(input.value) : null; } catch { /* blocked below */ }
+    if (!def || def.namespace !== target.namespace || def.key !== target.key || !['json','list.single_line_text_field','multi_line_text_field'].includes(def.type) || !Array.isArray(items) || items.length === 0 || items.length > 50 || items.some(x=>typeof x !== 'string' || !x.trim() || x.length>1000 || (def.type==='list.single_line_text_field' && /[\r\n]/.test(x)))) {
+      throw new ShopifyFieldSyncError('BLOCK_SYNC', 'Caratteristiche non valide o definizione Shopify non verificata. Nessun aggiornamento eseguito.');
+    }
+    if (input.resolvedTarget?.metafield && !input.resolvedTarget.metafield.compareDigest) throw new ShopifyFieldSyncError('BLOCK_SYNC','Controllo concorrenza Shopify non disponibile.');
+  }
+  let wireValue = input.value;
+  if (editorial) {
+    try { wireValue = encodeEditorialList(input.value as string,input.resolvedTarget!.editorialDefinition!.type); }
+    catch { throw new ShopifyFieldSyncError('BLOCK_SYNC','Le voci contengono righe vuote, spazi esterni o separatori ambigui: sincronizzazione bloccata senza modificare Shopify.'); }
+  }
   const metafieldType = isSeasonalField(target.key)
     ? target.valueType
     : input.resolvedTarget?.metafield?.type ?? target.valueType;
@@ -335,8 +395,9 @@ export function buildShopifyWritePlan(input: {
         ownerId: productId,
         namespace: target.namespace,
         key: target.key,
-        type: metafieldType,
-        value: input.value,
+        type: editorial ? input.resolvedTarget!.editorialDefinition!.type : metafieldType,
+        ...(editorial ? {compareDigest: input.resolvedTarget?.metafield?.compareDigest ?? null} : {}),
+        value: wireValue,
       }],
     },
   };
@@ -384,8 +445,9 @@ export async function performVerifiedShopifyFieldWrite(input: {
   expectedRemote?: unknown;
   hasExpectedRemote?: boolean;
   graphql?: ShopifyGraphQL;
+  verifyBeforeWrite?: () => Promise<void>;
 }): Promise<{ verifiedValue: unknown; writePerformed: boolean }> {
-  const graphql = input.graphql ?? shopifyAdminGraphQL;
+  const graphql = input.graphql ?? graphqlForTarget(input.target);
   const before = await readExactShopifyTarget({
     productId: input.productId,
     sku: input.sku,
@@ -394,6 +456,11 @@ export async function performVerifiedShopifyFieldWrite(input: {
   });
 
   if (input.hasExpectedRemote && !sameShopifyValue(input.target, before.value, input.expectedRemote)) throw new ShopifyFieldSyncError('STATE_DRIFT','Shopify è cambiato dopo la conferma.');
+
+  if (input.target.kind === 'metafield' && isEditorialList(input.target.key)) {
+    buildShopifyWritePlan({productId:input.productId,target:input.target,value:input.expected,resolvedTarget:before});
+    await input.verifyBeforeWrite?.();
+  }
 
   // Riconcilia un retry dopo timeout/verifica interrotta soltanto se Shopify
   // espone già la rappresentazione canonica richiesta. I valori stagionali
@@ -418,6 +485,7 @@ export async function performVerifiedShopifyFieldWrite(input: {
     value: input.expected,
     resolvedTarget: before,
   });
+  await input.verifyBeforeWrite?.();
   await executeShopifyWritePlan(plan, graphql);
 
   const after = await readExactShopifyTarget({
@@ -449,6 +517,9 @@ function matchesCanonicalShopifyRepresentation(
   read: ExactShopifyTargetRead,
   expected: string | string[],
 ): boolean {
+  if (target.kind === 'metafield' && isEditorialList(target.key)) {
+    return Boolean(read.editorialDefinition && read.metafield?.type === read.editorialDefinition.type) && read.value === encodeEditorialList(expected as string,read.editorialDefinition!.type);
+  }
   if (target.kind === "metafield" && isSeasonalField(target.key)) {
     return read.metafield?.type === "single_line_text_field" &&
       typeof read.value === "string" &&
@@ -545,6 +616,12 @@ export async function syncFieldToShopify(input: {
     expected,
     expectedRemote: input.expectedRemote,
     hasExpectedRemote: input.hasExpectedRemote,
+    verifyBeforeWrite: isEditorialList(input.command.fieldKey) ? async () => {
+      const current = await getCurrentValue(input.db, input.command.productId, input.command.fieldKey);
+      if (!current || current.version !== input.command.expectedVersion || current.review_status !== 'approved' || current.publish_blocked || await payloadHash({value:currentValueOf(current)}) !== await payloadHash({value:currentValueOf(input.row)})) {
+        throw new ShopifyFieldSyncError('STATE_DRIFT','La bozza è cambiata dopo la conferma: ricarica prima di sincronizzare.');
+      }
+    } : undefined,
     previousVerifiedAt: input.row.shopify_verified_at,
     previousVerifiedValue: input.row.shopify_verified_value,
   });

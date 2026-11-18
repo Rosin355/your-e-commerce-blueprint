@@ -10,6 +10,7 @@ export type EntityType = 'simple' | 'variable' | 'variation';
 export interface AdminContext {
   roles: string[];
   ordinaryCatalog?: boolean;
+  canUseAi?: boolean;
   canUploadImages?: boolean;
   canManagePrices?: boolean;
   canPublish?: boolean;
@@ -81,6 +82,7 @@ export interface AdminField {
   publishable: boolean;
   shopifySyncSupported: boolean;
   shopifySyncAllowed?: boolean;
+  shopifySyncBlockReason?: string;
   syncState: 'INTERNAL_ONLY' | 'PENDING_SYNC' | 'SYNCED' | 'SYNC_ERROR';
   syncErrorCode: string | null;
   syncErrorMessage: string | null;
@@ -329,12 +331,14 @@ export async function sendFieldCommand(input: {
   fieldKey: string;
   value?: unknown;
   expectedVersion: number;
+  expectedShopifyHash?: string;
 }): Promise<{ ok: boolean; code?: string; result?: Record<string, unknown> }> {
   return callCatalogCommand({
     action: input.action,
     productId: input.productId,
     fieldKey: input.fieldKey,
     value: input.value ?? null,
+    expectedShopifyHash: input.expectedShopifyHash,
     expectedVersion: input.expectedVersion,
     idempotencyKey: crypto.randomUUID(),
   });
@@ -355,4 +359,8 @@ export async function sendFieldSyncCommand(input: {
     expectedVersion: input.expectedVersion,
     idempotencyKey: input.idempotencyKey ?? crypto.randomUUID(),
   });
+}
+
+export async function suggestConfirmedField(input: { fieldKey: string; facts: string[]; confirmed: boolean; requestKey: string }) {
+  return callAdminAiApi<{ok:true;value:unknown}>({action:'suggest_confirmed_field',...input});
 }

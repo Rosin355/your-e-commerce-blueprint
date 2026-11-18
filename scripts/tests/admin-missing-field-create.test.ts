@@ -83,17 +83,18 @@ function currentSeasonalValue(value: string[]): CurrentValueRow {
   };
 }
 
-test("allowlist missing-value contiene soltanto i cinque campi approvati", () => {
+test("allowlist missing-value contiene campi stagionali e soli campi editoriali previsti", () => {
   assert.deepEqual([...CLIENT_CREATABLE_MISSING_FIELD_KEYS], [
     "periodo_di_fioritura",
     "periodo_di_messa_a_dimora",
     "periodo_di_raccolta",
     "periodo_ottimale_di_potatura",
+    "description", "optimized_description", "short_description", "title", "seo_title", "seo_description", "key_benefits", "key_features", "special_bullets",
     "difficolta_di_coltivazione",
   ]);
   for (const key of CLIENT_CREATABLE_MISSING_FIELD_KEYS) {
     assert.equal(isClientCreatableMissingFieldKey(key), true, key);
-    assert.equal(isCanaryField({ key, manual_only: false }), true, key);
+    assert.equal(isCanaryField({ key, manual_only: false }), !['key_benefits','key_features','special_bullets'].includes(key), key);
   }
   for (const key of [
     "price",
@@ -199,7 +200,7 @@ test("campo mancante non allowlisted resta FIELD_NOT_EDITABLE", () => {
   const result = validateCommand(
     "update_field",
     definition({
-      key: "description",
+      key: "care_guide",
       editor_type: "textarea",
       data_type: "text",
       validation_rules: {},

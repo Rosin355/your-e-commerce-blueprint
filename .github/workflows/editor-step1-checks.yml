@@ -1,0 +1,27 @@
+name: Editor Step 1 synthetic browser checks
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/adminv2/**'
+      - 'supabase/functions/**'
+      - 'scripts/browser/**'
+      - 'package*.json'
+      - '.github/workflows/editor-step1-checks.yml'
+permissions:
+  contents: read
+jobs:
+  editor-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 22.22.3
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npx --no-install playwright install --with-deps chromium
+      - run: npm run test:editor-browser

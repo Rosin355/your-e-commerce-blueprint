@@ -3,6 +3,8 @@ import type { AuthContext } from "./admin-v2-types.ts";
 import { payloadHash, writesEnabled } from "./admin-v2-commands.ts";
 import {
   approvalValid,
+  isEditorialList,
+  editorialListSyncRevision,
   CATALOG_MUTATIONS,
   catalogAllowed,
   catalogCommand,
@@ -16,7 +18,7 @@ import {
   getFieldDefinition,
   getProduct,
 } from "./admin-v2-queries-deferred.ts";
-import { readExactShopifyTarget } from "./admin-v2-shopify-field-sync.ts";
+import { readExactShopifyTarget, shopifySyncEnabled } from "./admin-v2-shopify-field-sync.ts";
 import { resolveShopifyTarget } from "./admin-v2-field-policy.ts";
 
 export async function loadCatalogGrant(db: SupabaseClient, auth: AuthContext) {
@@ -44,6 +46,7 @@ function demandCommand(auth: AuthContext, p: Record<string, unknown>) {
     capability,
     typeof p.fieldKey === "string" ? p.fieldKey : undefined,
   );
+  if (p.action === 'sync_field' && isEditorialList(p.fieldKey)) demand(shopifySyncEnabled(), 'Sincronizzazione Shopify temporaneamente disabilitata.');
   demand(writesEnabled(), "Modifiche temporaneamente disabilitate.");
 }
 export async function catalogSnapshot(
@@ -93,9 +96,10 @@ export async function catalogSnapshot(
         version: value.version,
       }
       : null;
-    if (action !== "sync_field") return { internal };
+    if (action !== "sync_field" && !(action === "update_field" && !value)) return { internal };
     const def = await getFieldDefinition(db, p.fieldKey);
     const target = def && resolveShopifyTarget(def);
+    if (!target && action === 'update_field') return { internal };
     const mapping = await getExactShopifyProductMapping(db, product.sku);
     demand(
       target && mapping?.shopify_product_id,
@@ -112,6 +116,7 @@ export async function catalogSnapshot(
       "Shopify è cambiato rispetto alla scheda: ricarica e confronta prima di sincronizzare.",
     );
     return {
+      ...(action === 'sync_field' && isEditorialList(p.fieldKey) ? { syncRevision: editorialListSyncRevision(p.fieldKey), listContract: remote.editorialDefinition, compareDigest: remote.metafield?.compareDigest ?? null } : {}),
       internal,
       remoteValue: remote.value,
       shopifyProductId: mapping.shopify_product_id,
@@ -119,6 +124,18 @@ export async function catalogSnapshot(
   }
   return { productVersion: product.updated_at };
 }
+export function freshListSyncApproval(command: Record<string, unknown>, snapshot: Record<string, unknown> | null | undefined): boolean {
+  return command.action !== 'sync_field' || !isEditorialList(command.fieldKey) || snapshot?.syncRevision === editorialListSyncRevision(command.fieldKey);
+}
+
+async function demandNoUnresolvedListSync(db: SupabaseClient, auth: AuthContext, command: Record<string, unknown>, target: string, exceptId?: string) {
+  if (command.action !== 'sync_field' || !isEditorialList(command.fieldKey)) return;
+  const { data: unresolved, error } = await db.from('admin_catalog_approvals').select('id,command')
+    .eq('actor', auth.userId).eq('target', target).eq('action', 'sync_field').in('state', ['IN_FLIGHT', 'REVIEW_REQUIRED']);
+  demand(!error && !(unresolved ?? []).some((row: {id: string; command: Record<string, unknown>}) => row.id !== exceptId && row.command?.fieldKey === command.fieldKey),
+    'Sincronizzazione da verificare: non ripetere la scrittura.');
+}
+
 export async function prepareCatalogApproval(
   db: SupabaseClient,
   auth: AuthContext,
@@ -149,7 +166,7 @@ export async function prepareCatalogApproval(
   demand(!readError, "Approvazioni non disponibili.");
   if (existing) {
     demand(
-      approvalValid(existing, auth.userId, String(command.action), hash),
+      approvalValid(existing, auth.userId, String(command.action), hash) && freshListSyncApproval(command, existing.target_snapshot),
       "Richiesta già usata, scaduta o da riconciliare.",
     );
     return {
@@ -159,6 +176,7 @@ export async function prepareCatalogApproval(
       replayed: true,
     };
   }
+  await demandNoUnresolvedListSync(db, auth, command, target);
   const snapshot = extraSnapshot
     ? await extraSnapshot()
     : await catalogSnapshot(db, auth, command);
@@ -200,7 +218,8 @@ export async function withCatalogApproval(
   const hash = await payloadHash(command);
   if (
     error || !approval ||
-    !approvalValid(approval, auth.userId, String(p.action), hash)
+    !approvalValid(approval, auth.userId, String(p.action), hash) ||
+    !freshListSyncApproval(command, approval.target_snapshot)
   ) {
     throw new OperationalError(
       "FORBIDDEN",
@@ -220,6 +239,7 @@ export async function withCatalogApproval(
       },
     );
   }
+  await demandNoUnresolvedListSync(db, auth, command, approval.target, approval.id);
   const snapshot = extraSnapshot
     ? await extraSnapshot()
     : await catalogSnapshot(db, auth, command);

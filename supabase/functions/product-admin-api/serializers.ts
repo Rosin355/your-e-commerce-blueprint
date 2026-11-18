@@ -160,10 +160,11 @@ export function serializeField(
   const shopifyTarget = resolveShopifyTarget(def);
   return {
     shopifySyncAllowed: capabilityContext.syncAllowed === true &&
+      (!capabilityContext.syncFieldKeys || capabilityContext.syncFieldKeys.includes(def.key)) &&
       (!capabilityContext.scopedFieldKeys || capabilityContext.scopedFieldKeys.includes(def.key)) &&
       (!capabilityContext.scopedActions || capabilityContext.scopedActions.includes('sync_field')),
     key: def.key,
-    label: def.label,
+    label: ({ key_benefits: 'Punti di forza', key_features: 'Caratteristiche principali', special_bullets: 'Altri punti utili' } as Record<string,string>)[def.key] ?? def.label,
     group: def.field_group,
     editorType: def.editor_type,
     dataType: def.data_type,

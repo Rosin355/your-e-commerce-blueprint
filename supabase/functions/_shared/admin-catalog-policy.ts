@@ -9,6 +9,7 @@ export const CATALOG_CAPABILITIES = [
   "categories",
   "prices",
   "publish",
+  "ai",
 ] as const;
 export const CLIENT_FIELD_KEYS = [
   "title",
@@ -25,7 +26,16 @@ export const CLIENT_FIELD_KEYS = [
   "periodo_ottimale_di_potatura",
   "difficolta_di_coltivazione",
   "faq",
+  "key_benefits", "key_features", "special_bullets",
 ];
+// Initial catalog AI scope, independent of the shared edit field grant.
+export const EDITORIAL_AI_FIELDS = ['description', 'optimized_description', 'short_description', 'key_benefits', 'key_features', 'special_bullets'] as const;
+export const EDITORIAL_LIST_FIELDS = ['key_benefits', 'key_features', 'special_bullets'] as const;
+
+export const EDITORIAL_LIST_SYNC_REVISION = 'editorial-list-sync-v2';
+export const editorialListSyncRevision = (key: unknown): string => key === 'key_benefits' ? 'editorial-list-sync-v3' : EDITORIAL_LIST_SYNC_REVISION;
+export const isEditorialList = (key: unknown): boolean => typeof key === 'string' && (EDITORIAL_LIST_FIELDS as readonly string[]).includes(key);
+
 export interface CatalogGrant {
   enabled: boolean;
   capabilities: string[];
@@ -204,4 +214,9 @@ export function validateImage(bytes: Uint8Array, declared: string) {
     );
   }
   return { mime, extension: mime === "image/png" ? "png" : "jpg" };
+}
+
+/** AI requires an explicit scoped capability; edit is never an implicit AI grant. */
+export function catalogAiAllowed(auth: AuthContext, fieldKey?: string): boolean {
+  return (fieldKey === undefined || (EDITORIAL_AI_FIELDS as readonly string[]).includes(fieldKey)) && catalogAllowed(auth, 'ai', fieldKey) && catalogAllowed(auth, 'edit', fieldKey);
 }

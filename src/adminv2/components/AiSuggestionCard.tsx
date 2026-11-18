@@ -80,6 +80,7 @@ export default function AiSuggestionCard({
       setError(normalized.message);
       return;
     }
+    if (!window.confirm('Applicare la proposta alla bozza interna? Il sito non verrà aggiornato.')) return;
     acceptKey.current ??= crypto.randomUUID();
     setBusy('accept');
     setError(null);
@@ -107,7 +108,7 @@ export default function AiSuggestionCard({
       <div className="mt-3 space-y-2" aria-live="polite">
         <Button size="sm" variant="outline" onClick={() => void generate()} disabled={busy !== null}>
           {busy === 'generate' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Sparkles className="mr-1 h-3.5 w-3.5" />}
-          {busy === 'generate' ? 'Sto preparando una proposta…' : 'Migliora con AI'}
+          {busy === 'generate' ? 'Sto preparando una proposta…' : ['key_benefits','key_features','special_bullets'].includes(field.key) ? 'Rendi più chiaro l’elenco con AI' : 'Migliora il testo con AI'}
         </Button>
         {resolution === 'accepted' && <p className="text-xs text-emerald-700">Proposta accettata e salvata nella cronologia.</p>}
         {resolution === 'rejected' && <p className="text-xs text-muted-foreground">Proposta rifiutata. Il prodotto non è stato modificato.</p>}
@@ -164,10 +165,10 @@ export default function AiSuggestionCard({
           <Pencil className="mr-1 h-3.5 w-3.5" />{editing ? 'Chiudi modifica' : 'Modifica proposta'}
         </Button>
         <Button size="sm" variant="outline" onClick={() => void reject()} disabled={busy !== null}>
-          {busy === 'reject' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <X className="mr-1 h-3.5 w-3.5" />}Rifiuta
+          {busy === 'reject' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <X className="mr-1 h-3.5 w-3.5" />}Scarta
         </Button>
         <Button size="sm" onClick={() => void accept()} disabled={busy !== null}>
-          {busy === 'accept' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Check className="mr-1 h-3.5 w-3.5" />}Accetta
+          {busy === 'accept' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Check className="mr-1 h-3.5 w-3.5" />}Applica alla bozza
         </Button>
       </div>
     </section>

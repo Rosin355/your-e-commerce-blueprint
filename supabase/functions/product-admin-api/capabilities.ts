@@ -5,7 +5,7 @@ import {
   canWriteCanary,
 } from "./permissions.ts";
 import { isCanaryField, type WriteMode } from "./commands.ts";
-import { isFieldEditable } from "./validation.ts";
+import { isFieldEditable, currentValueOf } from "./validation.ts";
 import type { AppRole, CurrentValueRow, FieldDefinition } from "./types.ts";
 import { aiValueEligibility } from "../_shared/admin-ai-core.ts";
 import { isClientCreatableMissingFieldKey } from "./field-policy.ts";
@@ -58,6 +58,8 @@ export interface CapabilityContext {
   scopedFieldKeys?: string[];
   aiEnabled?: boolean;
   syncAllowed?: boolean;
+  aiFieldKeys?: readonly string[];
+  syncFieldKeys?: readonly string[];
 }
 
 /** Simple e variable/parent usano campi product; solo variation usa campi variant. */
@@ -135,9 +137,12 @@ export function calculateFieldCapabilities(
     ? "legacy_review_not_required"
     : "allowed";
 
-  const effectiveAiAllowed = def.ai_allowed && !def.manual_only && applicable;
-  const aiEligibility = aiValueEligibility(def, row);
-  const aiReason = context.aiEnabled === false ? "phase_2c" : context.productActive === false
+  const effectiveAiAllowed = (!context.aiFieldKeys || context.aiFieldKeys.includes(def.key)) && def.ai_allowed && !def.manual_only && applicable;
+  const ordinaryEligibility = aiValueEligibility(def, row);
+  const candidateValue = row ? currentValueOf(row) : null;
+  const aiEligibility = ['current_value_missing','empty_or_unsupported_value'].includes(ordinaryEligibility) && (candidateValue == null || candidateValue === '' || (Array.isArray(candidateValue) && candidateValue.length===0)) &&
+    ['description','optimized_description','short_description','key_benefits','key_features','special_bullets'].includes(def.key) && !row?.is_locked && effectiveAiAllowed && !def.manual_only ? 'allowed' : ordinaryEligibility;
+  const aiReason = (context.aiEnabled === false || (context.aiFieldKeys && !context.aiFieldKeys.includes(def.key))) ? "phase_2c" : context.productActive === false
     ? "product_inactive"
     : baseReason !== "allowed"
     ? baseReason
