@@ -1,5 +1,18 @@
 # Step 1 — checklist di chiusura
 
+## Preflight richiesta M alternativa — 18 novembre 2026
+
+- [x] Remoto 6b67169 aggiornato preservando le registrazioni precedenti; solo registro e checklist modificati.
+- [x] Pannello backup del progetto corretto letto: 15 punti giornalieri, ultimo 18/11 05:28:12 UTC, comando Restore to this backup disponibile. Nessuna creazione/restore; integrità e risultato effettivo del ripristino NON VERIFICATI.
+- [x] Nuova history: 16/16 hash/when corrispondenti fino a 0015; solo 0016/0017 pending e copie identiche, checksum immutati.
+- [x] Batch unico transazionale verificato nel codice Drizzle; guard ACL reali e prove offline/CI di 4bdf443 PASS. Nessuna suite generale ripetuta.
+- [x] Contratti backend precedenti compatibili staticamente e ramo update SQL identico; runtime Edge ancora NON ATTESTATO, rischio residuo esplicito.
+- [x] Sorgenti API cb7fc57, AI 096a435 e baseline applicativa e3a109e recuperabili dagli oggetti Git letti. Nessun rollback runtime certificato o redeploy eseguito.
+- [ ] Identificare operatore/esecutore live disponibile che esegua esattamente il batch Drizzle previsto, su checkout congelato, senza altra catena/deploy. Non equiparare il tool migration Lovable al runner verificato senza prova.
+- [ ] **NO-GO alla richiesta M alternativa nella forma attuale**: manca questa evidenza operativa. Il proprietario può valutare il rischio residuo, ma non è stata concessa alcuna autorizzazione di scrittura.
+
+[Registro con matrice delle sei verifiche e condizione puntuale di rivalutazione](AUTORIZZAZIONI-STEP1C.md). Il nuovo backup osservato supera la precedente assenza di evidenza di disponibilità, senza dimostrare un restore pratico. La proposta alternativa non richiede automaticamente di attendere il supporto per il principal DB; richiede però certezza sul batch realmente usato. Nessun automatismo M/B/G/F/T/A/S o recupero distruttivo.
+
 ## Step M — stato corrente 18 novembre 2026
 
 - [x] Branch remoto aggiornato a 16ac2a1 preservando gli addendum esistenti; soltanto documentazione aggiornata.
