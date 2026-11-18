@@ -164,3 +164,11 @@ D-BENEFITS **COMPLETATA E VERIFICATA il 17/11**, secondo evidenza proprietario: 
 - [ ] M-02: attestazione bundle/versione delle Edge attive e recupero verificabile o procedura ufficiale.
 - [ ] Pulizia delle due dipendenze automatiche di anteprima in `package.json` da chiedere all'agente; **non effettuata in questo commit**.
 - [ ] **M/B/G/F-M/F-P/T/A/S NO-GO**, ancora nessuna migration live, grant, deploy, merge, Publish, AI a pagamento o sync prodotto.
+
+## Verifica percorso operativo batch M — 18 novembre 2026
+
+**Risultato: NO-GO operativo, non ulteriore vulnerabilita' SQL.** Il preflight owner del 18/11 vede 15 backup giornalieri (ultimo 05:28:12 UTC) e un controllo Restore nel progetto corretto, ma la capacita' di ripristino non e' stata provata. Cronologia live 0000-0015 e hash dei soli pending 0016/0017 sono coerenti; ACL fail-closed testate offline, non eseguite live.
+
+**Verifica GitHub mirata effettuata:** `drizzle.config.ts` usa `process.env.LOVABLE_DB_MIGRATION_URL`; `package.json` non contiene uno script production migrate; `.github/workflows/editor-step1-checks.yml` esegue solo Chromium su PR, mentre `.github/workflows/storefront-checks.yml` esegue test DB in un servizio PostgreSQL 17 effimero. `scripts/prepare-admin-v2-activation.mjs` e `scripts/prepare-admin-catalog-delivery.mjs` generano pacchetti offline per processi precedenti, non costituiscono un migratore live per 0016/0017. **Nessun processo/operatore in-repo attualmente attestato come capace di eseguire l'unico batch Drizzle nel Cloud Online Garden.** Non creare workflow CI con accesso produzione implicitamente, non convertire SQL delle copie Supabase in una seconda catena senza revisione/consenso.
+
+**Decisione:** M resta non autorizzata. Non considerare il backup disponibile come recovery collaudato e non utilizzare restore di produzione come test. Individuare un esecutore esistente e verificabile, oppure progettare e approvare in modo separato un percorso operativo equivalente con postcondizioni e recupero; nessun nuovo audit generale. Possono avanzare soltanto filoni indipendenti, senza anticipare B/G/F-M/F-P/T/A/S. Marco non e' ancora stato collaudato sulla nuova versione.
