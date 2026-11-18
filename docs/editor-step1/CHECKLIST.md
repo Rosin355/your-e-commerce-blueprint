@@ -128,3 +128,13 @@ D-BENEFITS **COMPLETATA E VERIFICATA il 17/11**, secondo evidenza proprietario: 
 - [ ] **M-01 BLOCCATO live**: current_user/session_user/SET ROLE e owner del runner reale non attestati. Nessuna supposizione dalla connessione Cloud.
 - [ ] **M-02 BLOCCATO**: revisioni/checksum/compatibilità/artefatti precedenti Edge mancanti.
 - [ ] M non autorizzata e non applicata. Nessun grant/deploy/merge/Publish/Shopify/AI reale.
+
+## Gate supporto Lovable — 18 novembre 2026
+
+- [x] Ricevuto riscontro read-only dell'agente Lovable: **non puo' attestare** ruolo del migratore `LOVABLE_DB_MIGRATION_URL` senza eseguire una migration; rifiutato l'uso di connessioni diverse come prova.
+- [x] Ricevuto riscontro read-only: niente revisioni, checksum o bundle **attivi** delle Edge e niente rollback di runtime attestabile dal tool; commit di upload storici non equivalgono a deploy corrente.
+- [ ] Richiesta di supporto piattaforma Lovable da **inviare dal proprietario**; nessun ticket o messaggio di supporto inviato automaticamente da ChatGPT.
+- [ ] M-01: attestazione reale owner/runner/SET ROLE/membership o alternativa ufficiale di migrazione sicura.
+- [ ] M-02: attestazione bundle/versione delle Edge attive e recupero verificabile o procedura ufficiale.
+- [ ] Pulizia delle due dipendenze automatiche di anteprima in `package.json` da chiedere all'agente; **non effettuata in questo commit**.
+- [ ] **M/B/G/F-M/F-P/T/A/S NO-GO**, ancora nessuna migration live, grant, deploy, merge, Publish, AI a pagamento o sync prodotto.
