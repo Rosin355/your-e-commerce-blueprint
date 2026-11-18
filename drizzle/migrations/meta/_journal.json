@@ -127,6 +127,13 @@
       "when": 1794847200017,
       "tag": "0017_admin_ai_confirmed_context",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1795026931856,
+      "tag": "0018_step_m_path_a_guard",
+      "breakpoints": true
     }
   ]
 }

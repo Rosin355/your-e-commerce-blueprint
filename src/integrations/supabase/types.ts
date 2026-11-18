@@ -169,6 +169,38 @@ export type Database = {
           },
         ]
       }
+      admin_confirmed_ai_requests: {
+        Row: {
+          actor: string
+          context_hash: string
+          created_at: string
+          field_key: string
+          request_key: string
+        }
+        Insert: {
+          actor: string
+          context_hash: string
+          created_at?: string
+          field_key: string
+          request_key: string
+        }
+        Update: {
+          actor?: string
+          context_hash?: string
+          created_at?: string
+          field_key?: string
+          request_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_confirmed_ai_requests_field_key_fkey"
+            columns: ["field_key"]
+            isOneToOne: false
+            referencedRelation: "product_field_definitions"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
       admin_operation_events: {
         Row: {
           actor: string
@@ -1871,6 +1903,16 @@ export type Database = {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
+        }
+        Returns: boolean
+      }
+      reserve_confirmed_ai_request: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_context_hash: string
+          p_field_key: string
+          p_request_key: string
         }
         Returns: boolean
       }
