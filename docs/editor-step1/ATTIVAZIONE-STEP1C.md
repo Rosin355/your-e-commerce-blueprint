@@ -1,3 +1,13 @@
+## Live Step M PASS — 18 novembre 2026
+
+**Stato corrente prevalente su tutte le sezioni preparatorie storiche: M COMPLETATA.** L'owner ha autorizzato una singola esecuzione del tool migrazione nativo Lovable, conclusa al primo tentativo, senza retry. Lettura indipendente su Cloud Online Garden: `drizzle.__drizzle_migrations` ha 19 righe, ultimo id 19 e `created_at=1795026931856`; le nuove righe 0016 `7c8ea0e61251667a9b049083dcada80e91ebf75b3e4111c640f847e7abb0097b`, 0017 `1f00aea53258b114f905d6a343f1057b1ae2d8c89823e78873354de8f9abc1c2`, 0018 `4bf334f311fe358c2dbda4de5a3ed1a2cda67e95be6f396854acfe5332596636` corrispondono al report Lovable. Il commit generato dal tool `98ef90aa8c8cb7e5415518802e00e3b30eb6a830` e' gia' raggiungibile su GitHub `main`, inclusi SQL 0018, snapshot 0018, journal e `src/integrations/supabase/types.ts`: **nessun cherry-pick manuale**.
+
+**ACL verificate autonomamente in sola lettura:** `public.admin_confirmed_ai_requests` owner `postgres`, RLS ON, zero policy, `service_role` SELECT/INSERT consentiti e UPDATE/DELETE negati, `anon` SELECT negato e `authenticated` INSERT negato. Il resoconto Lovable attesta RPC riservate al service role, grant nominativi invariati e snapshot pre/post; non equivale a un nuovo test manuale di Marco. Nessun backend Edge ridistribuito, permesso nominativo esteso, Publish o AI reale nel gate M.
+
+**Prossimo gate B — non autorizzato da M:** deploy mirato di `product-admin-api` e `product-admin-ai` con dipendenze condivise coerenti dallo SHA approvato; controlli segreti/flag per presenza (mai valori), recupero da sorgenti Git precedenti, smoke test server non mutante e conferma revisioni per quanto possibile. Un deploy fallito o parziale => STOP, niente grant/frontend. Dopo B: gate G (solo Marco), F-P (Publish), T/A (collaudo e una chiamata AI con budget). Nessun secondo Supabase richiesto.
+
+---
+
 ## Specifica Lovable ricevuta — percorso A da preparare senza eseguire (18 novembre 2026)
 
 ## Percorso A — preparazione finale 18 novembre 2026
