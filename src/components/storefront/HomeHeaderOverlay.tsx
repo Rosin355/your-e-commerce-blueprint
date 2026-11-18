@@ -1,3 +1,4 @@
+import { SHOPIFY_CUSTOMER_AUTH_ENABLED } from '@/customer/config';
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, Leaf, Mail, Menu, Search, User, X } from "lucide-react";
@@ -477,7 +478,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                 {isMobileSearchOpen ? <X className="h-5 w-5" strokeWidth={2.25} /> : <Search className="h-5 w-5" strokeWidth={2.25} />}
               </Button>
               <Link
-                to="/auth"
+                to={SHOPIFY_CUSTOMER_AUTH_ENABLED ? "/account" : "/auth"}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-primary-dark transition-colors hover:bg-muted"
                 aria-label="Area account"
               >

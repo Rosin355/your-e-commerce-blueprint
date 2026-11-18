@@ -1,3 +1,5 @@
+import { SHOPIFY_CUSTOMER_AUTH_ENABLED } from '@/customer/config';
+import { CustomerBoundary, CustomerAuth } from '@/customer/CustomerPages';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,7 +12,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { SiteHeader } from '@/components/storefront/SiteHeader';
 
-const Auth = () => {
+const LegacyAuth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -186,4 +188,5 @@ const Auth = () => {
   );
 };
 
+const Auth = () => SHOPIFY_CUSTOMER_AUTH_ENABLED ? <CustomerBoundary><CustomerAuth /></CustomerBoundary> : <LegacyAuth />;
 export default Auth;

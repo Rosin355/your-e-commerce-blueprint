@@ -1,10 +1,12 @@
+import { SHOPIFY_CUSTOMER_AUTH_ENABLED } from '@/customer/config';
+import { CustomerBoundary, CustomerCallback } from '@/customer/CustomerPages';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { handleCallback, customerAccountQuery, CUSTOMER_PROFILE_QUERY } from '@/lib/shopify-customer-auth';
 import { useCustomerStore } from '@/stores/customerStore';
 import { toast } from 'sonner';
 
-const AccountCallback = () => {
+const LegacyAccountCallback = () => {
   const navigate = useNavigate();
   const processed = useRef(false);
   const { setTokens, setProfile, setLoading } = useCustomerStore();
@@ -57,4 +59,5 @@ const AccountCallback = () => {
   );
 };
 
+const AccountCallback = () => SHOPIFY_CUSTOMER_AUTH_ENABLED ? <CustomerBoundary><CustomerCallback /></CustomerBoundary> : <LegacyAccountCallback />;
 export default AccountCallback;
