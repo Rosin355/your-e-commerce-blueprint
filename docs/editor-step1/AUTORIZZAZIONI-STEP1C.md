@@ -56,3 +56,7 @@ S può essere valutata tecnicamente per key_features/special_bullets soltanto co
 Patch 0017 preparata/testata con guard ownership/membership e ACL SELECT/INSERT sul solo journal. Nuovo hash: 1f00aea53258b114f905d6a343f1057b1ae2d8c89823e78873354de8f9abc1c2; 0016 immutata. **M-01 BLOCCATO live** perché il ruolo del runner non è attestato; i risultati postgres della query Cloud e gli owner esistenti non bastano. Richiesta precisa di attestazione e scenari offline nel [report aggiornato](REVIEW-M-0016-0017.md). Qualunque futura M deve indicare il nuovo hash, non quello della review iniziale, e richiede ancora approvazione separata.
 
 M-02 separatamente BLOCCATO: revisione/bundle/compatibilità e artefatto di recupero delle due Edge da attestare nel pannello Lovable, non disponibili ai connettori. Nessuna operazione live autorizzata o eseguita. D-BENEFITS rimane completata; nessun altro gate completato.
+
+## Evidenze piattaforma pendenti — 18 novembre 2026
+
+La risposta Lovable conferma impossibilita' di attestare M-01/M-02 dal suo agente: runner Drizzle e' un contesto transitorio non leggibile prima della migration, mentre l'agente non puo' interrogare a runtime revisioni/ID/checksum delle due Edge. **Questa non e' un'autorizzazione a procedere.** Il proprietario dovra' chiedere al supporto ufficiale un'attestazione o una procedura equivalente verificabile; in sua assenza M resta NO-GO. Nessuna autorizzazione M/B/G/F-M/F-P/T/A/S derivante dalla risposta.
