@@ -1,3 +1,11 @@
+## Decisione tecnica successiva: percorso A preferito, non autorizzato (18 novembre 2026)
+
+Il proprietario ha ricevuto da Lovable una specifica del tool nativo: file SQL UTF-8 hash SHA-256 completo, `created_at=when` del journal, custom `generate --custom` con nome e timestamp generati al momento, singola transazione SQL+history, replay tramite confronto `when` e **non hash**. In base a questa dichiarazione, **percorso A preferito**: mantenere byte-identiche le due migrazioni 0016/0017 gia' testate e farle applicare tutte insieme dal migratore nel contesto di **una sola chiamata Lovable** che genererebbe anche 0018. La proposta del tool nativo e' un piano, non una prova live; non eseguire 0018 o SQL senza consenso operativo separato.
+
+**Blocco pre-merge:** PR #56 e' ancora draft e GitHub segnala `mergeable=false`; risolvere/confutare i conflitti con main senza perdere codice, quindi ricontrollare hash, transazione offline e CI. La branch include 0016 e 0017 con due voci in `meta/_journal.json`; non sono presenti i rispettivi `0016_snapshot.json` e `0017_snapshot.json`. Dato che si tratta di migrazioni SQL manuali/custom, verificare nella **versione Drizzle installata** se snapshot aggiuntivi sono realmente necessari; non crearne di inventati o vuoti soltanto per soddisfare un piano Lovable. Per A, il marker 0018 deve essere una nuova entry con `when` successivo, generata dal tool e registrata nel repo; non duplicare 0016/0017 ne' inserirle manualmente in history.
+
+**Separazione autorizzazioni:** preparazione Git/CI senza scritture live; autorizzazione specifica merge F-M; autorizzazione specifica M per unica chiamata migratore nativo con tutte le pending (0016/0017/0018), guard ACL attive e postcheck; B per due Edge, G nominativo per Marco, F-P per Publish, T/A per prova reale. Le incertezze M-01 (runner prima dell'esecuzione) e M-02 (bundle Edge attivo) restano rischi residui; il percorso A non li certifica automaticamente. Vietato restore DB come prova e retry non riconciliato.
+
 # Step 1C — registro approvazioni separate
 
 ## Pacchetto unico Lovable — BLOCKED, 18 novembre 2026
