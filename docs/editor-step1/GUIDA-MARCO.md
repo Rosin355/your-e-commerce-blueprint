@@ -1,5 +1,9 @@
 # Prova dell'editor nella sessione personale
 
+## Percorso A — aggiornamento 18 novembre 2026
+
+La preparazione tecnica della PR prosegue conservando il lavoro dell'editor. Sono stati verificati nel solo ambiente sintetico l'aggiornamento database e la protezione contro doppie applicazioni. Il tuo account e i tuoi permessi non sono cambiati; le nuove funzioni non sono ancora pubblicate. Attendi la conferma del responsabile per il collaudo, senza operare sui prodotti commerciali. [Stato tecnico](ATTIVAZIONE-STEP1C.md).
+
 ## Aggiornamento per Marco — 18 novembre 2026
 
 Le nuove funzioni non sono ancora attive. La preparazione dell'aggiornamento database è **BLOCCATA** in attesa di un chiarimento tecnico su come Lovable registra la singola migrazione. Non cambiano il tuo accesso o i tuoi permessi; non è richiesta alcuna azione sui prodotti. Il responsabile confermerà separatamente quando avviare il collaudo. [Stato tecnico](ATTIVAZIONE-STEP1C.md).

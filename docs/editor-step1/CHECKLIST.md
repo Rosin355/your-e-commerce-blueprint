@@ -1,5 +1,17 @@
 # Step 1 — checklist di chiusura
 
+## Percorso A — stato finale per review, 18 novembre 2026
+
+- [x] Main remoto 4e36a49 integrato nel branch PR; unico conflitto package.json risolto conservando Playwright e le due dipendenze anteprima, lockfile coerente.
+- [x] 0016/0017 canoniche, guardie ACL, copie Supabase e checksum byte-identici; nessuna 0018 reale creata.
+- [x] Drizzle Kit custom produce snapshot, ma assenza dei due intermedi accettata dai percorsi ufficiali verificati. Nessuno snapshot inventato; 0018 temporanea generata con prevId ultimo snapshot 0015.
+- [x] Prova locale isolata batch 0016→0017→0018, rollback ACL, hash/history/replay e grant invariati PASS; stesso test configurato in CI PostgreSQL 17.
+- [ ] CI/typecheck/lint/build/browser sullo SHA finale: esito da verificare nella PR prima di dichiarare READY FOR MERGE REVIEW.
+- [x] Workflow GitHub solo pull_request/test, nessun deploy automatico versionato. Hook esterni Lovable NON VERIFICATI.
+- [ ] Merge/M/B/G/Publish/AI/sync e collaudo Marco: NON AUTORIZZATI/NON ESEGUITI da questo task.
+
+[Report tecnico del percorso A](ATTIVAZIONE-STEP1C.md). Readiness tecnica della review distinta dall'autorizzazione a merge/rilascio.
+
 ## Preparazione migrazione unica Lovable — 18 novembre 2026
 
 - [x] Remoto b380ed0 aggiornato, modifiche precedenti preservate; journal attuale con due entry 0016/0017 esaminato.

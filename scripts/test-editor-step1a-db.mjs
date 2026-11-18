@@ -2,13 +2,34 @@
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, cpSync, mkdtempSync, rmSync, existsSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { resolve, join, relative } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 const host=process.env.OG_TEST_PG_SOCKET, database=process.env.OG_TEST_PG_DATABASE, port=Number(process.env.OG_TEST_PG_PORT);
 if ((!host?.startsWith('/private/tmp/og-editor-') && !(process.env.CI==='true' && host==='127.0.0.1')) || !/^og_admin_test_[a-z0-9_]+$/.test(database??'') || !Number.isInteger(port)) throw Error('ISOLATED_DATABASE_REQUIRED');
 const sql=postgres({host,database,port,user:process.env.PGUSER ?? process.env.USER,max:2,prepare:false});
+const migrationFolder=mkdtempSync(join(tmpdir(),'og-editor-path-a-'));
 try {
+ // The real installed generator, no cloud config/credentials: only a disposable SQL folder.
+ cpSync('drizzle/migrations',migrationFolder,{recursive:true});
+ const configPath=join(migrationFolder,'offline.config.cjs');
+ writeFileSync(configPath,'module.exports = '+JSON.stringify({dialect:'postgresql',schema:resolve('drizzle/schema.ts'),out:relative(process.cwd(),migrationFolder)})+';');
+ execFileSync(process.execPath,[resolve('node_modules/drizzle-kit/bin.cjs'),'generate','--custom','--name=offline_path_a_probe','--config='+configPath],{stdio:'pipe',env:{...process.env,NODE_OPTIONS:'--require '+resolve('ci/offline-network.cjs')}});
+ const generatedJournal=JSON.parse(readFileSync(join(migrationFolder,'meta/_journal.json'),'utf8'));
+ const generated18=generatedJournal.entries.at(-1);
+ assert.equal(generated18.idx,18);assert.equal(generated18.tag,'0018_offline_path_a_probe');
+ assert.ok(generated18.when>generatedJournal.entries.at(-2).when);
+ assert.equal(existsSync(join(migrationFolder,'meta/0016_snapshot.json')),false);
+ assert.equal(existsSync(join(migrationFolder,'meta/0017_snapshot.json')),false);
+ const snapshot18=JSON.parse(readFileSync(join(migrationFolder,'meta/0018_snapshot.json'),'utf8'));
+ assert.equal(snapshot18.prevId,JSON.parse(readFileSync('drizzle/migrations/meta/0015_snapshot.json','utf8')).id);
+ const probeComment='Synthetic Path A batch completed';
+ writeFileSync(join(migrationFolder,generated18.tag+'.sql'),"COMMENT ON TABLE public.admin_confirmed_ai_requests IS '"+probeComment+"';\n");
+ for(const entry of generatedJournal.entries.filter(e=>e.idx===16 || e.idx===17)) assert.deepEqual(readFileSync(join(migrationFolder,entry.tag+'.sql')),readFileSync('drizzle/migrations/'+entry.tag+'.sql'));
+ console.log('PASS Path A generator: official custom 0018 with increasing when and snapshot, absent 0016/0017 snapshots accepted; canonical SQL unchanged.');
  await sql.begin(tx=>tx.unsafe(readFileSync('supabase/migrations/20260923155153_add_lossless_lineage_and_ai_versions.sql','utf8').replace(/^begin;$/m,'').replace(/^commit;$/m,'')));
  await sql.unsafe(readFileSync('supabase/migrations/20260930152426_harden_product_admin_ai_concurrency.sql','utf8'));
  const valuesBefore=await sql`select jsonb_agg(to_jsonb(v) order by id) as rows from public.product_current_values v`;
@@ -28,7 +49,7 @@ try {
  try {
   await sql.unsafe('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT UPDATE ON TABLES TO og_acl_m01_default_writer');
   await sql.unsafe('GRANT og_acl_m01_default_writer TO service_role');
-  await assert.rejects(migrate(drizzle(sql),{migrationsFolder:'drizzle/migrations'}),error=>{
+  await assert.rejects(migrate(drizzle(sql),{migrationsFolder:migrationFolder}),error=>{
     let cause=error;while(cause.cause)cause=cause.cause;
     return cause.code==='42501' && /effective privileges/.test(cause.message);
   });
@@ -41,14 +62,21 @@ try {
   await sql.unsafe('DROP ROLE og_acl_m01_default_writer');
  }
  const defaultsBefore=await sql`select jsonb_agg(to_jsonb(d) order by oid) as rows from pg_default_acl d`;
- await migrate(drizzle(sql),{migrationsFolder:'drizzle/migrations'});
- await migrate(drizzle(sql),{migrationsFolder:'drizzle/migrations'}); // second invocation is a read-only replay
+ await migrate(drizzle(sql),{migrationsFolder:migrationFolder});
+ await migrate(drizzle(sql),{migrationsFolder:migrationFolder}); // second invocation is a read-only replay
  const after=await sql`select jsonb_agg(to_jsonb(c) order by user_id) as rows from public.admin_catalog_capabilities c`;
  assert.deepEqual(after,before,'migration changed an account grant');
  assert.deepEqual(await sql`select jsonb_agg(to_jsonb(d) order by oid) as rows from pg_default_acl d`,defaultsBefore,'migration changed default privileges');
  assert.deepEqual(await sql`select jsonb_agg(to_jsonb(v) order by id) as rows from public.product_current_values v`,valuesBefore,'migration changed existing product values');
  assert.deepEqual(await sql`select jsonb_agg(to_jsonb(r) order by user_id,role) as rows from public.user_roles r`,rolesBefore,'migration changed a role');
- assert.equal((await sql`select count(*)::int as n from drizzle.__drizzle_migrations`)[0].n,3);
+ assert.equal((await sql`select count(*)::int as n from drizzle.__drizzle_migrations`)[0].n,4);
+ assert.equal((await sql`select obj_description('public.admin_confirmed_ai_requests'::regclass) as comment`)[0].comment,probeComment);
+ const batchHistory=await sql`select hash,created_at from drizzle.__drizzle_migrations order by created_at`;
+ assert.deepEqual(batchHistory.slice(1).map(r=>Number(r.created_at)),generatedJournal.entries.filter(e=>e.idx>=16).map(e=>e.when));
+ await migrate(drizzle(sql),{migrationsFolder:migrationFolder});
+ assert.deepEqual(await sql`select hash,created_at from drizzle.__drizzle_migrations order by created_at`,batchHistory,'Path A replay changed history');
+ assert.equal(batchHistory.at(-1).hash,createHash('sha256').update(readFileSync(join(migrationFolder,generated18.tag+'.sql'))).digest('hex'));
+ console.log('PASS Path A batch: 0016 -> 0017 -> generated 0018 atomic, ACL-failure rollback, three ordered hashes, replay unchanged, grants/roles/data preserved.');
  for(const entry of journal.entries.filter(e=>e.idx>=16)){
   const hash=createHash('sha256').update(readFileSync('drizzle/migrations/'+entry.tag+'.sql')).digest('hex');
   assert.equal((await sql`select hash from drizzle.__drizzle_migrations where created_at=${entry.when}`)[0].hash,hash);
@@ -97,4 +125,4 @@ try {
  const results=await Promise.all([insert('concurrent-insert-a'),insert('concurrent-insert-b')]);
  assert.equal(results.filter(r=>r[0].result.ok===true).length,1);assert.equal(results.filter(r=>r[0].result.code==='VERSION_CONFLICT').length,1);
  console.log('PASS: official Drizzle migrations 0016/0017, grants unchanged, ACL/RLS, negative authorization, rollback/replay/version conflicts, 5/8 concurrent reservations, shared old/new five/minute budget, 1/2 concurrent first writes. No remote services.');
-} finally {await sql.end();}
+} finally {await sql.end();rmSync(migrationFolder,{recursive:true,force:true});}

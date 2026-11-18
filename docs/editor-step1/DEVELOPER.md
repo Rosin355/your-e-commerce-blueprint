@@ -1,5 +1,9 @@
 # Step 1 — editor prodotti: implementazione e limiti
 
+## Percorso A — preparazione finale 18 novembre 2026
+
+[Verifiche tecniche e limiti](ATTIVAZIONE-STEP1C.md): canoniche 0016/0017 e checksum conservati; futura 0018 nativa attiva tutte e tre le pending atomiche. Snapshot 0016/0017 assenti ammessi dal migratore e dal successivo generate --custom ufficiale; nessuno snapshot artificiale aggiunto. Prova isolata con vera generazione 0018, ordine/hash/history, rollback ACL e replay invariato PASS locale, ripetuta in CI PostgreSQL 17. Conflitto package.json con main risolto conservando tutte le dipendenze e riallineando lockfile. Nessuna migration o funzione distribuita; runtime Edge e hook esterni Lovable non attestati. Readiness di merge review subordinata alla CI finale, autorizzazioni live distinte.
+
 ## Migrazione unica Lovable — BLOCKED, 18 novembre 2026
 
 La singola chiamata atomica dichiarata da Lovable non prova la corrispondenza hash/created_at/journal/replay con Drizzle. History live: id seriale, hash text, created_at bigint, nessuno stato/nome; ultima ancora 0015. [Contratto mancante e domanda unica pronta](ATTIVAZIONE-STEP1C.md). 0016/0017, copie, journal, checksum e test lasciati invariati; nessun pacchetto unico o test PostgreSQL 17 nuovo dichiarato completato. Non READY FOR MERGE REVIEW, nessuna funzione distribuita. Il controllo workflow GitHub non certifica gli hook esterni Lovable; nessun merge o altro passo live autorizzato.

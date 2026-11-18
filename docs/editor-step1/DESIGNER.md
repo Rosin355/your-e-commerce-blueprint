@@ -1,5 +1,9 @@
 # Step 1 — UX di verifica
 
+## Percorso A — aggiornamento 18 novembre 2026
+
+Preparazione tecnica mantiene editor/AI e UX della PR; conflitto dipendenze risolto senza riscrivere componenti. Il database potrà essere aggiornato in un unico batch canonico 0016/0017 con futura 0018 tecnica, solo dopo autorizzazione. Test sintetici non sono collaudo Marco; funzionalità non dichiarate live. [Esiti tecnici e limiti](ATTIVAZIONE-STEP1C.md). Nessuna variazione del comportamento visibile o dei permessi in produzione.
+
 ## Stato attivazione — 18 novembre 2026
 
 **BLOCKED sulla preparazione della migrazione unica**, senza cambiamenti UX: non è dimostrata la corrispondenza della registrazione nativa Lovable con il journal del repository. [Evidenza tecnica](ATTIVAZIONE-STEP1C.md). Editor e assistenza AI rimangono sviluppati ma non distribuiti/consegnati; nessuna nuova prova operativa o modifica del sito. Il collaudo personale resta successivo alle autorizzazioni distinte.
