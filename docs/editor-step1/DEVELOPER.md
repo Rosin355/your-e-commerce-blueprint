@@ -1,5 +1,13 @@
 # Step 1 — editor prodotti: implementazione e limiti
 
+## Step M — esito corrente 18 novembre 2026
+
+[Review limitata 0016/0017 e scheda proprietario](REVIEW-M-0016-0017.md). Live ancora 0015, 16/16 hash/when corrispondenti, solo due pending; corpi RPC precedenti e RLS/vincoli confrontati senza differenze incompatibili nel perimetro. Copie/checksum SQL invariati. Nessun test generale ripetuto: patch ACL di 4bdf443 verificata offline su PostgreSQL 16/17 e CI verde.
+
+**M-01 BLOCCATO live**, anche con la patch, perché la sessione query postgres non attesta il runner Drizzle; **M-02 BLOCCATO** perché metadati/bundle deployed non accessibili. La compatibilità del contratto versionato non certifica il backend attivo. Il metadato repository Lovable è oggi 96ac1b3, senza attribuirlo alla build pubblica o alle Edge. Supporto piattaforma deve fornire attestazioni o procedura equivalente verificabile; non eseguire migrazioni per ricavare il contesto.
+
+Ordine sicuro condizionato: evidenze runner/backend/recupero → compatibilità → consenso M → unico batch Drizzle e postcheck readonly → B/G/F separati. Se incompatibile, STOP e percorso ponte approvato. D-BENEFITS completata/verificata il 17/11 secondo evidenza proprietario, nessun altro gate completato. NO-GO alla sola autorizzazione M; nessuna consegna Marco o scrittura live.
+
 16 novembre 2026. Base main `e3a109e`, PR #22/#50/#51/#52 già integrate. Nessun secondo Admin, account, modifica al login o grant live. PR tecnica draft separata; nessun merge/deploy/Publish o uso di prodotti commerciali.
 
 ## Stato corretto

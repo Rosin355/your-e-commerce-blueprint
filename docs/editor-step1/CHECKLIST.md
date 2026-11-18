@@ -1,5 +1,18 @@
 # Step 1 — checklist di chiusura
 
+## Step M — stato corrente 18 novembre 2026
+
+- [x] Branch remoto aggiornato a 16ac2a1 preservando gli addendum esistenti; soltanto documentazione aggiornata.
+- [x] Identità Cloud riconfermata; 16/16 hash/when Drizzle corrispondenti, ultima 0015, sole 0016/0017 pending.
+- [x] CHECK senza ai, journal/RPC confirmed assenti; corpi RPC precedenti e vincoli/RLS del perimetro ricontrollati, nessun drift incompatibile osservato nel confronto mirato.
+- [x] Patch ACL/checksum 0017 e copie conservati; CI offline di 4bdf443 PASS, nessuna suite generale ripetuta in questa review.
+- [x] D-BENEFITS completata/verificata il 17/11 secondo evidenza proprietario; Shopify non interrogata né modificata qui.
+- [ ] M-01: identità/owner/membership effettivi del runner, attestazione piattaforma mancante.
+- [ ] M-02: revisioni/bundle/compatibilità e artefatti backend recuperabili, attestazione piattaforma mancante; elenco Edge nuovamente negato.
+- [ ] **NO-GO alla sola autorizzazione M**, nessuna esecuzione. B/G/F/AI/sync e consegna Marco non completati.
+
+[Review corrente e scheda proprietario](REVIEW-M-0016-0017.md). Le sezioni successive restano cronologia; la patch offline supera le precedenti note «non implementata», senza superare i blocchi live.
+
 16 novembre 2026. **PARZIALE / BLOCCATO per consegna e collaudo live Marco.** Nessun merge/deploy/Publish, prodotto commerciale, pagamento AI o modifica a permessi live.
 
 - [x] Riprese PR #22/#50/#51/#52 integrate; branch isolata da main.

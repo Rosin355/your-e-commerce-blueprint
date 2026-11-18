@@ -1,5 +1,11 @@
 # Step 1C — registro approvazioni separate
 
+## Step M — decisione corrente 18 novembre 2026
+
+**M NON AUTORIZZABILE: NO-GO.** History ricontrollata: 16/16 hash/when fino a 0015; 0016/0017 non applicate e checksum correnti invariati. M-01: patch pronta offline, principal/owner del runner ancora non attestati; M-02: bundle/revisioni attivi e recupero ancora non attestati, accesso elenco negato. Supporto piattaforma resta owner dell'evidenza mancante; nessuna comunicazione inviata da Codex.
+
+[Review corrente e scheda proprietario](REVIEW-M-0016-0017.md). Il consenso futuro riguarderà solo un batch Drizzle con SHA/hash congelati e postcheck; non include grant, backend, merge, Publish, AI o Shopify. D-BENEFITS completata/verificata il 17/11 secondo evidenza proprietario, senza completare altri gate.
+
 16 novembre 2026. **Stato aggiornato 17/11: D-BENEFITS COMPLETATA E VERIFICATA; M/B/G/F-M/F-P/T/A/S restano IN ATTESA. Nessuna ulteriore scrittura autorizzata.** Il consenso al pacchetto 1C-0 non approva le operazioni. Un sì su una riga non abilita le altre. L’approvazione deve indicare codice voce, revisione/SHA del pacchetto, ambiente, owner, operatore, finestra/scadenza, scope privato e recupero incluso. Risposta generica «procedi» senza scope completo non supera i gate. GitHub conserva solo stato aggregato; principal, target e attestazioni sensibili restano nel registro privato.
 
 | Voce | Oggetto e impatto | Verifica successiva | STOP | Recupero da approvare | Stato |

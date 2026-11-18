@@ -1,5 +1,13 @@
 # Step 1C-0 — piano di attivazione developer
 
+## Step M — riesame corrente 18 novembre 2026
+
+**NO-GO alla sola autorizzazione M.** [Evidenze e scheda proprietario](REVIEW-M-0016-0017.md): nuova lettura Cloud, history 16/16 hash/when fino a 0015; 0016/0017 sole pending, journal/RPC confirmed assenti, CHECK senza ai. Corpi RPC precedenti, RLS e vincoli confrontati senza differenze incompatibili nel perimetro. SQL/checksum/copie invariati da questa review.
+
+Patch ACL offline già verificata; M-01 ancora in attesa dell'attestazione del runner/owner reale dal supporto piattaforma. M-02 separatamente in attesa di revisioni/bundle/compatibilità e recupero delle due Edge: nuovo elenco negato. Metadato repository Lovable 96ac1b3 non certifica distribuzioni. Nessuna nuova prova globale di drift.
+
+Confermata la sola catena Drizzle: pending 0016→0017 in un batch transazionale, history verificata dopo commit finale. STOP su drift/esito ambiguo; niente retry cieco/history manuale. Prima di M occorrono attestazioni e compatibilità del backend attivo; poi M e postcheck, successivamente B/G/F con consensi distinti. Backend incompatibile => STOP e versione ponte/finestra approvata, non esecuzione automatica. D-BENEFITS completata/verificata il 17/11 secondo evidenza proprietario; altri gate non completati. Nessuna operazione live autorizzata.
+
 16 novembre 2026. PR #56, stessa branch. **Pacchetto preparato, nessuna operazione live autorizzata o eseguita. Esecuzione Step 1C: NO-GO.** Base remota `ec1d27a`, incluso l’addendum del proprietario. Codice Step 1A `8a1eee0`; baseline autorevole [preflight 16 novembre](VERIFICHE-STEP1B.md). Le evidenze sono datate, non attestazioni dello stato corrente al futuro rilascio.
 
 ## Evidenze e condizioni ancora aperte
