@@ -1,5 +1,12 @@
 # Collaudo pratico nella sessione di Marco
 
+## Live Step M PASS — 18 novembre 2026
+
+Il prerequisito schema per l'editor AI e' ora pronto nel Lovable Cloud esistente; il collaudo **resta NON ESEGUITO** finche' B (Edge), G (permessi nominativi) e F-P (Publish) non hanno esito positivo. La prova vera dovra' usare il login abituale di Marco, una bozza tecnica approvata e — solo con consenso A e budget fissato — una singola proposta AI. Le istruzioni pratiche sottostanti restano valide. Nessun prodotto commerciale deve essere modificato per dimostrare il funzionamento.
+
+---
+
+
 **Da eseguire soltanto dopo rilascio approvato e autorizzazione T. Adesso NON ESEGUITO.** Usa il login abituale, senza condividere credenziali. Il responsabile indica una sola bozza/DRAFT tecnica e dati sintetici approvati; nessun prodotto in vendita. Se non è disponibile il target, fermati.
 
 - [ ] Apri la descrizione: Modifica, paragrafi, grassetto, elenco e link. Annulla e verifica originale invariato. HTML non supportato: stop, non convertirlo perdendo contenuti.
