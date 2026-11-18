@@ -1,3 +1,11 @@
+## Live Step M PASS — 18 novembre 2026
+
+**M — COMPLETATA, verificata.** Autorizzazione owner tramite chat Lovable per un solo batch nativo con pending 0016/0017 + guardia tecnica 0018; tool riferisce una sola transazione conclusa senza retry. Lettura indipendente: 19 registrazioni nel journal Drizzle, id 17/18/19 e hash/when esatti: 0016 `7c8ea0e61251667a9b049083dcada80e91ebf75b3e4111c640f847e7abb0097b`, 0017 `1f00aea53258b114f905d6a343f1057b1ae2d8c89823e78873354de8f9abc1c2`, 0018 `4bf334f311fe358c2dbda4de5a3ed1a2cda67e95be6f396854acfe5332596636` / `1795026931856`. ACL journal controllate in sola lettura: postgres owner; RLS ON; no policy; servizio SELECT/INSERT senza UPDATE/DELETE, client non autorizzati. Il commit 0018 `98ef90a` e' gia' su main; nessun sync manuale da fare.
+
+**Scope della M consumato:** non abilita deploy B, grant G, Publish F-P, collaudo T, AI reale A, sincronizzazione Shopify S o restore. Le precedenti righe NO-GO M sono cronologia superata. **B/G/F-P/T/A/S restano IN ATTESA**. Nuovo editor AI per Marco NON ancora utilizzabile live; non segnare consegna completata. Se Lovable non espone manifest dei bundle Edge, distinguere sempre versione sorgente inviata da runtime effettivamente attestato.
+
+---
+
 ## Decisione tecnica successiva: percorso A preferito, non autorizzato (18 novembre 2026)
 
 ## Percorso A scelto — preparazione finale 18 novembre 2026
