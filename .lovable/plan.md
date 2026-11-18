@@ -1,21 +1,19 @@
-# Verifica tecnica in sola lettura: product-admin-api (nessuna modifica eseguita)
+# Attivazione editor AI di Marco (PR #56) sul progetto esistente
 
-## 1. Versione distribuita e sorgente recuperabile
-- I metadati di distribuzione a cui ho accesso NON espongono uno SHA Git né l'hash del bundle in esecuzione. Non posso rileggere il codice runtime.
-- Riferimento noto: ultimo deploy da me eseguito da `main@4f5bdef` (contiene `4fe0a14`), impronta del pacchetto inviato `b0f66cc3…437af3`. Dimostra cosa è stato inviato, non cosa gira ora (eventuali deploy successivi fuori da questa chat non sono rilevabili).
-- Stato repository locale: HEAD `1324f05`; ultimo commit che tocca la funzione `4fe94d1` (2026-11-09).
-- Metodo reale per conservare/ridistribuire il precedente senza credenziali: la cronologia Git del repository è l'unica sorgente recuperabile. Registrare ora lo SHA approvato come "precedente" e, in rollback, ridistribuire la sola funzione da quel commit. Non esiste export del bundle runtime.
+## Stato verificato oggi
+- Il progetto Lovable sincronizza solo il ramo `main` (checkout `d1016b9`). Il branch `codex/marco-product-editor-step1` della PR #56 non è presente qui.
+- Il database ha le migrazioni fino alla 0015. La 0016 e la 0017 non esistono in questo checkout.
+- Lo strumento migrazione nativo applica **una** migrazione per chiamata, in un'unica transazione, e scrive da solo la cronologia Drizzle. Non accetta `BEGIN`/`COMMIT` nel testo.
 
-## 2. Strumento per distribuire SOLO product-admin-api
-- Lo strumento interno di deploy funzioni accetta un elenco esplicito di nomi (`["product-admin-api"]`) e distribuisce soltanto quelle, senza toccare altri backend.
-- Limite: distribuisce il codice presente nel checkout del progetto, non uno SHA arbitrario. Va prima verificato che il checkout corrisponda allo SHA approvato (`git rev-parse HEAD` + diff vuoto sulla cartella). Non posso fare checkout di un altro commit (comandi Git di stato vietati).
+## Percorso operativo
+1. **Merge della PR #56 su `main` (tu, su GitHub).** È l'unico modo per portare il codice qui: Lovable non legge altri branch. Il sito live non cambia finché non si fa Publish.
+2. **Controlli offline (io, senza scritture):** SHA del checkout uguale al merge, SHA-256 di 0016/0017 uguali a quelli indicati, funzioni e dipendenze della stessa revisione, compatibilità del backend attuale con il nuovo schema.
+3. **Migrazione (richiede tua autorizzazione specifica):** un'unica chiamata nativa con il contenuto di 0016 + 0017 concatenato, così è una sola transazione con i controlli ACL fail-closed della 0017 dentro. Limite da accettare: la cronologia Drizzle registrerà **una** voce combinata (es. `0016_marco_editor_ai_delivery`), non due file 0016/0017 separati. Le alternative che violano il mandato (due chiamate separate o SQL manuale) sono escluse. Se vuoi due voci distinte, non posso garantirlo in modo atomico: mi fermo.
+4. **Verifica dopo il commit (sola lettura):** tabelle, RLS, ACL service-only, owner di `admin_confirmed_ai_requests`, nessun grant AI ad altri utenti.
+5. **Deploy (autorizzazione separata):** solo `product-admin-api` e `product-admin-ai` dal merge verificato. Le versioni precedenti restano recuperabili da Git (`cb7fc57` / `096a435`).
+6. **Permessi Marco (autorizzazione separata):** solo l'estensione nominativa (capability AI e tre campi editoriali), sul suo account esistente, preservando i permessi attuali. Senza credenziali né letture Auth da parte mia.
+7. **Collaudo:** prima i controlli non distruttivi (sito pubblico, login, checkout raggiungibile). Prova AI reale solo con un tuo via libera.
+8. **Documenti:** aggiornati nella PR #56, separando ciò che è preparato da ciò che è attivo. Le PR #53–#55 non vengono toccate.
 
-## 3. Atomicità SQL
-- Il trasporto SQL di modifica invia la query come un unico payload; per uno script BEGIN...COMMIT senza meta-comandi psql l'esecuzione è in una singola connessione/statement batch e un errore annulla tutto. Non verificato con test (DDL di prova vietato): va trattato come atteso, non provato.
-- Non supporta meta-comandi psql (`\set`, `\if`), già osservato in precedenza. La via raccomandata per DDL resta lo strumento migration, che è transazionale.
-- Il ruolo psql di sola lettura non ha permessi di scrittura.
-
-## Snapshot
-- Lo snapshot 2026-11-10 05:26:11 UTC copre solo il database, non il codice delle funzioni; `restoreVerified=false` non è verificabile da qui.
-
-Esito: VERIFICA COMPLETATA — SHA runtime NON DISPONIBILE; rollback possibile solo via Git + deploy mirato.
+## Prima operazione reale da autorizzare
+Dopo il merge: migrazione combinata 0016+0017 in un'unica transazione nativa, sul database Online Garden, dal checkout verificato. Il recupero avviene con una migrazione correttiva forward-only, senza restore distruttivo.
