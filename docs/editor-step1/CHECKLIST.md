@@ -1,5 +1,22 @@
 # Step 1 — checklist di chiusura
 
+## Live Step M PASS — 18 novembre 2026
+
+- [x] PR #56 unita a `main`, merge `1005699b`.
+- [x] Migrations 0016/0017/0018 applicate sul Cloud Online Garden; 19 registrazioni live e hash/when verificati con query indipendente.
+- [x] 0018 generata dal tool Lovable, committata e **gia' sincronizzata** su GitHub main con snapshot, journal e tipi (`98ef90a`); nessun cherry-pick richiesto.
+- [x] ACL nuovo journal controllate: postgres owner, RLS ON, zero policy, service SELECT/INSERT ma non UPDATE/DELETE, ruoli client negati nelle operazioni verificate.
+- [x] Lovable riporta permessi nominali di Marco invariati e assenza di scritture prodotto/Shopify nel batch.
+- [ ] B: verifica package/dependency/secrets presence, preparazione recupero e **autorizzazione distinta** per deploy delle due Edge `product-admin-api` e `product-admin-ai`.
+- [ ] G: grant nominativo a Marco soltanto dopo postcheck B.
+- [ ] F-P: Publish frontend soltanto dopo compatibilita' B/G e smoke test.
+- [ ] T/A/S: collaudo reale con Marco, eventuale una chiamata AI a costo autorizzato, eventuale Shopify sync DRAFT separato.
+
+**Stato attuale: M PASS, B/G/F-P/T/A/S NON ESEGUITI.** Le checklist storiche con M NO-GO sono superate da questa sezione, ma valgono come evidenza cronologica. Non creare altro Supabase.
+
+---
+
+
 ## Percorso A — stato finale per review, 18 novembre 2026
 
 - [x] Main remoto 4e36a49 integrato nel branch PR; unico conflitto package.json risolto conservando Playwright e le due dipendenze anteprima, lockfile coerente.
