@@ -27,3 +27,16 @@ Il prerequisito schema per l'editor AI e' ora pronto nel Lovable Cloud esistente
 - [ ] Ripeti le operazioni senza consumo AI su desktop e mobile/Safari; tastiera Tab/Shift-Tab, focus visibile, etichette lette dallo screen reader, pulsanti di riordino e dialoghi accessibili, nessun controllo tagliato. Problemi: registra browser e passaggio, senza schermate con dati personali.
 
 Risultati: PASS / FAIL / NON ESEGUITO per ogni punto, data, versione frontend/backend attestata dal tecnico e riscontro Marco nel registro privato. Nessuna spunta deriva dalla CI. AI reale e sync non autorizzati restano NON ESEGUITI. Il salvataggio locale, il sync e la pubblicazione sono tre cose diverse. Il proprietario decide la consegna soltanto dopo le evidenze; problemi o controlli mancanti mantengono stato PARZIALE/BLOCCATO.
+
+## Verifica UI lettura account tecnico — 19 novembre 2026
+
+**PASS parziale di sola lettura, non equivale a collaudo nominativo Marco o test salvataggio.** Browser Chrome con account operatore sulla scheda live **Gaura Lindheimeri Siskiyou**, SKU `OG_111433`, prodotto **ACTIVE** con varianti; da non usare per prove di modifica/sync. La pagina mostra il testo descrittivo senza tag HTML, badge `Modificabile`, `Bozza interna` e `Confermato`, pannello `Contenuti` con 14 campi e 3 liste `Punti di forza`, `Caratteristiche principali`, `Altri punti utili`. I pulsanti `Modifica` e `Aggiorna sul sito` sono visibili, ma non premuti; assenza di AI in operatore coerente con grant senza capability `ai`. **Non dichiarare AI o save PASS per Marco.**
+
+**Riscontri UX per designer/developer (da triage, nessuna implementazione autorizzata):**
+- Scheda molto lunga e ripetitiva: per quasi ogni campo espone Dettagli e confronto, Originale WordPress assente, origine, versione, stato revisione, protetto da re-import, destinazione, sincronizzazione, formato. Per Marco valutare vista semplice di default con pannello tecnico secondario espandibile e assistenza contestuale.
+- SKU `OG_111433` descritto come «Codice univoco del prodotto. Non modificabile.» ma il controllo testuale contiene `Modifica`: verificare se il click e' bloccato o se l'etichetta e' ambigua, senza usarlo sul prodotto ACTIVE.
+- `Stato sync corrente: Mai sincronizzato` pur mostrando un valore Shopify live disponibile: precisare la differenza tra tracciamento sincronizzazione Admin e disponibilita' valore sullo store, evitando messaggi fuorvianti.
+- Le tre liste sono accessibili ma non e' dimostrata l'ergonomia del riordino, l'editing e il salvataggio; i pulsanti AI non sono visibili da questo account e vanno verificati nominativamente con Marco.
+- `Prezzo —` nel riepilogo di un prodotto con varianti: verificare che la UI indichi «Prezzo nelle varianti» quando appropriato, senza inventare importi.
+
+**Prossima prova sicura:** scegliere una **DRAFT tecnica autorizzata**, aprire `Modifica` su un campo editoriale e verificare editor/annulla senza salvare o inviare a Shopify; solo dopo, per test save/AI reali, autorizzazioni separate e account nominativo Marco. Nessun cambio live effettuato durante questa verifica.
