@@ -1,3 +1,13 @@
+## Preflight grant B per test AI operatore — 19 novembre 2026
+
+**Stato: PREPARATO DA LOVABLE IN SOLA LETTURA, NON ANCORA AUTORIZZATO / NON ESEGUITO.** Lovable riferisce che il grant B (fingerprint `21ed8fbc`) e' collegato univocamente alla sessione dell'operatore attuale, con ruoli admin+editor, attivo, 7 capability e 14 field_keys, baseline `2026-11-13 11:00:44 UTC`. Il grant A di Marco (fingerprint `437eb03e`) ha gia' 8 capability/17 campi, aggiornato `2026-11-18 20:29 UTC`, e non deve essere modificato.
+
+**Variazione proposta su consenso separato:** sul solo grant B aggiungere `ai` e `key_benefits,key_features,special_bullets`, conservando le liste esistenti in ordine, ruolo, stato attivo e ogni altro campo. Eseguire una UPDATE condizionata alla completa baseline e al riferimento account verificato: esattamente una riga o STOP senza retry. Readback 8/17 su B, A byte-identico e ruoli invariati. Evitare esposizione di email, UUID e segreti nel report.
+
+**Non incluso:** nuova generazione AI (puo' avere costi e scrivere un journal), nuovo Publish, Shopify, salvataggi su prodotti ACTIVE o modifiche a flag. Dopo eventuale PASS G-B, ricaricare Admin e provare soltanto la visibilita' dei controlli AI; un test reale va autorizzato separatamente su DRAFT tecnica e fatti confermati. Per i documenti cliente distinguere sempre il test dell'operatore dal collaudo vero con Marco.
+
+---
+
 ## Publish F-P PASS — 18 novembre 2026, release editor AI Marco
 
 **Autorizzazione proprietario F-P consumata; esito PASS secondo report Lovable.** Un solo Publish su `onlinegarden.it` dal checkout `f54bf87`, che differisce da `66ab158` solo per due documenti. Frontend asset `index-CMoOo4zb`, precedente `index-7LGwLIzQ`, etichetta di release SEO invariata e **non diagnostica**. Build PASS, scan sicurezza senza findings gravi; controlli post-publish home/catalogo/PDP/ricerca, carrello, checkout raggiungibile e Admin operatore OK. L'anteprima/caricamento Admin operatore non prova la visibilita' AI nel login Marco; nessun salvataggio, sync Shopify, AI reale, nuova migrazione, grant o Edge deploy autorizzato da F-P.
