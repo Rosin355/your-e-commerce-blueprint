@@ -40,3 +40,13 @@ Risultati: PASS / FAIL / NON ESEGUITO per ogni punto, data, versione frontend/ba
 - `Prezzo —` nel riepilogo di un prodotto con varianti: verificare che la UI indichi «Prezzo nelle varianti» quando appropriato, senza inventare importi.
 
 **Prossima prova sicura:** scegliere una **DRAFT tecnica autorizzata**, aprire `Modifica` su un campo editoriale e verificare editor/annulla senza salvare o inviare a Shopify; solo dopo, per test save/AI reali, autorizzazioni separate e account nominativo Marco. Nessun cambio live effettuato durante questa verifica.
+
+## Blocco editor HTML legacy rilevato — 19 novembre 2026
+
+**Riscontro live Chrome, sessione operatore, prodotto ACTIVE Gaura Lindheimeri Siskiyou (SKU `OG_111433`), solo apertura editor e nessun salvataggio.** Aprendo **Contenuti → Descrizione estesa → Modifica**, appare esplicitamente:
+
+> Il contenuto contiene formattazioni non supportate. L'originale e' conservato: annulla e richiedi assistenza per modificarlo senza perdita.
+
+La barra editor Tiptap offre Paragrafo, Grassetto, Corsivo, Elenco puntato, Elenco numerato, Annulla modifica, Ripristina. Il testo leggibile e' presente, ma il contesto del browser mostra anche marcatori `img` con `src` vuoto: e' **evidenza di possibile elemento multimediale non riproducibile in questo editor**, NON prova di perdita dal database/Shopify. E' visibile il pulsante combinato **Salva bozza e aggiorna sul sito**, distinto da **Salva bozza** (quest'ultimo mostra inizialmente "Nessuna modifica da salvare"). UI consente di annullare.
+
+**Decisione di collaudo:** NON usare il prodotto ACTIVE per test di salvataggio; raccomandato **Annulla** e nessuna sincronizzazione. Il test formato legacy e' **BLOCKED per editing sicuro finche' non viene analizzata e risolta la formattazione non supportata**, eventualmente tramite supporto Lovable e nuova prova su DRAFT tecnica autorizzata. Non normalizzare, eliminare immagini o sovrascrivere HTML senza preservazione lossless e consenso specifico. Test editor su semplice DRAFT separato consentito, nessun coinvolgimento prodotti commerciali. Prima della consegna a Marco, verificare comportamento del warning su descrizioni reali e rendere esplicita la distinzione salvataggio interno vs salvataggio+sync Shopify. Non dichiarare PASS sul salvataggio della descrizione di Gaura.
