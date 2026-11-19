@@ -1,5 +1,23 @@
 # Step 1 — checklist di chiusura
 
+## Publish F-P PASS — 18 novembre 2026, release editor AI Marco
+
+- [x] **F-P PASS (report Lovable):** un solo Publish su onlinegarden.it, code commit `f54bf877c25b994604ef058ae82a17992856d111`; asset nuovo `index-CMoOo4zb` (precedente `index-7LGwLIzQ`). L'etichetta `seo-p1-20261112-r1` non e' cambiata, dunque **non distingue** la release nuova.
+- [x] Build pre-Publish PASS e scan senza problemi gravi (avviso informativo per immagini pubbliche); Customer Accounts invariato, checkout Shopify nativo.
+- [x] Test pubblici Lovable: home, catalogo, ricerca "rosa" con 9 risultati, PDP, carrello con articolo e apertura checkout (nessun ordine).
+- [x] Account operatore: Admin caricabile, elenco di 25 prodotti, editor visuale senza tag HTML, sezioni Benefici/Caratteristiche/Punti di forza, badge Bozza interna/Confermato, Modifica, Aggiorna sul sito; nessun autosync su lettura.
+- [x] **Rollback UI identificato:** versione SEO P1 del 12/11, riferimento commit `bd9b9d6` registrato in `76ef108`, selezionare release effettiva in cronologia Lovable e ripubblicare; **NON** usare `ccf72e1` (contiene nuovo editor). Non ripristinare DB automaticamente.
+- [ ] **T con login nominativo Marco**: aprire editor, controllare pulsanti AI riservati, tre elenchi e descrizioni senza HTML; usare esclusivamente una DRAFT tecnica autorizzata, senza sync Shopify.
+- [ ] **A con consenso/budget separati:** UNA proposta AI reale su campo/fatti sintetici confermati; editing/annulla o applicazione, nessuna richiesta automatica o retry.
+- [ ] **Salvataggio T su DRAFT tecnica** e rilettura dopo refresh, previo consenso a modificare quella bozza; non eseguire sync Shopify.
+- [ ] **S separato**: eventuale "Aggiorna sul sito" su una DRAFT tecnica con autorizzazione specifica e readback; nessuna modifica a prodotto commerciale.
+- [ ] Controllare segnalazione di singola PDP con pulsante carrello disabilitato: possibile esaurito, **non verificato**. Non dichiarare difetto risolto ne' alterare inventario.
+
+**Stato attuale: M/B/G/F-P PASS; T/A/S non conclusi. Non dichiarare consegna AI a Marco accettata prima del collaudo.**
+
+---
+
+
 ## F-P: GO condizionato al Publish — preflight Lovable 18 novembre 2026
 
 **Preflight piattaforma in sola lettura, non equivale a Publish completato.** Lovable ha riportato su sessione Admin autorizzata `PRODUCT_ADMIN_WRITES_ENABLED=true`, `PRODUCT_ADMIN_CANARY_SCOPE` vuoto, Shopify sync/bozze/categorie abilitati; `PRODUCT_ADMIN_WRITE_MODE` globale non leggibile ma modalita' account editor `full` dai permessi, compatibile con codice. Backend identificato `admin-delivery-20261110-r1`, non prova del bundle Edge runtime. Anteprima con account operatore: HTML nascosto, badge Modificabile, 3 liste, CTA Modifica e sync manuale, nessun pulsante AI per l'operatore senza grant `ai`; **Marco non collaudato**. Nessun salvataggio, AI reale o Shopify sync durante il preflight.
