@@ -102,3 +102,11 @@ La barra editor Tiptap offre Paragrafo, Grassetto, Corsivo, Elenco puntato, Elen
 ## Nuovo prodotto — Step 3 Categorie verificato — 19 novembre 2026
 
 **PASS lettura UI, NON ancora prova selezione:** Chrome al terzo passo del wizard mostra 23 opzioni di collezioni editoriali, fra cui `Aromatiche da esterno (aromatiche)`, e il messaggio `La bozza puo' essere salvata senza categoria. Nessuna corrispondenza viene dedotta dal nome.` Nessuna categoria risulta attestata come selezionata dalla sola estrazione testuale. Per il prodotto sintetico `TEST — Lavanda officinale — NON IN VENDITA`, consigliata la selezione manuale della sola `Aromatiche da esterno` e passaggio al quarto step `Immagini e formati`. La selezione da sola non pubblica o sincronizza il catalogo. **UX da valutare:** mostrare slug tecnici tra parentesi solo nei dettagli avanzati, e possibilmente ricerca/filtro per liste di molte categorie. Nessuna modifica applicativa o Shopify effettuata da questa verifica.
+
+## Wizard Step 4 — formati e immagini: test non commerciale (19 novembre 2026)
+
+**Osservazione browser in sola lettura:** nel passo `Immagini e formati` per il nuovo prodotto TEST, `Un solo formato`, nome `Formato unico`, prezzo vuoto, SKU `TEST-OG-AI-001` condiviso con la famiglia, prezzo precedente disattivato, nessuna nuova immagine inserita. UI consente `Più formati`, prezzo con virgola, caricamento JPG/PNG fino a 5 MB e scelta immagine tecnica gia' presente in archivio; nessuna di queste azioni e' stata eseguita dall'assistente.
+
+**Regola verificata nel validatore `validateDraft`:** prezzo variante obbligatorio anche su DRAFT e puo' essere zero, massimo due decimali; stringhe `0,00` e `0.00` accettate. Il prezzo precedente deve essere superiore al prezzo di vendita se compilato. Per test interno isolato proposto `Formato unico — TEST` e `0,00` come segnaposto non commerciale, senza alcun consenso a pubblicare o inviare Shopify. Evitare file upload o selezione di immagini con possibili effetti remoti. Se il test richiede in futuro un prezzo commerciale, occorre fonte reale/approvazione esplicita.
+
+**Prossimo step:** dopo controllo umano dei campi, `Continua` verso `Botanica e SEO`, senza `Crea bozza Shopify` o `Pubblica`. Stato del form corrente non attestato dopo compilazione; nessun save della DRAFT ancora provato.
