@@ -93,3 +93,8 @@ La barra editor Tiptap offre Paragrafo, Grassetto, Corsivo, Elenco puntato, Elen
 ## Proposta AI applicata localmente — 19 novembre 2026
 
 **PASS solo applicazione frontend, verificata su Chrome:** dopo click utente `Applica alla compilazione`, il form `Nuovo prodotto` per `TEST — Lavanda officinale — NON IN VENDITA` / SKU `TEST-OG-AI-001` mostra il campo contenteditable `Descrizione verificata` popolato dai tre paragrafi fedeli alla proposta AI. Il pannello `Proposta da revisionare` non compare piu'. Nessun `Salva bozza nell'Admin`, invio Shopify o pubblicazione. Il form permane non salvato nel browser; evitare refresh finche' non terminato il wizard. Test successivo: passaggio 2 `Dati commerciali` (valuta/fornitore/tag), 3 `Categorie`, 4 `Immagini e formati` (prezzi), 5 `Botanica e SEO`, 6 `Anteprima`. Prima dell'eventuale primo save verificare SKU non duplicato e isolare da Shopify.
+
+
+## Nuovo prodotto — Step 2 Dati commerciali verificato — 19 novembre 2026
+
+**PASS visualizzazione Step 2, no save:** Chrome `/admin/products/new` mostra `Valuta base Shopify: EUR`, `Fornitore: OnlineGarden`, `Tag separati da virgole: lavanda,pianta,profumata`. Prezzi non previsti in questo step (wizard li colloca in `Immagini e formati`), inventario non precompilato. Suggerito tag aggiuntivo `test-interno` per distinguere la bozza dal catalogo commerciale; lo stato del tag aggiuntivo non e' ancora attestato. Il fornitore mostrato e' un input dell'operatore per test, non una verifica del fornitore legale/commerciale. Prossimo controllo categorie; nessuna write/Shopify/Publish eseguita da questa lettura.
