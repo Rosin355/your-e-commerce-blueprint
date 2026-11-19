@@ -1,3 +1,5 @@
+> **Aggiornamento successivo (18 novembre 2026):** questo documento conserva la decisione storica "AS-IS" precedente all'attivazione. Da allora PR #56 e' stata mergiata, M/B/G completati e F-P pubblicato con code `f54bf87`/asset `index-CMoOo4zb`. Per lo stato corrente usare [Checklist editor](../editor-step1/CHECKLIST.md) e [Collaudo Marco](../editor-step1/COLLAUDO-MARCO-STEP1C.md). **Non** interpretare le esclusioni storiche sotto come stato attuale. Test Marco, generazione AI reale e sincronizzazione su DRAFT tecnica restano pendenti.
+
 # Online Garden — consegna immediata AS-IS (18 novembre 2026)
 
 ## Decisione
