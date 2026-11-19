@@ -1,5 +1,17 @@
 # Step 1 — checklist di chiusura
 
+## F-P: GO condizionato al Publish — preflight Lovable 18 novembre 2026
+
+**Preflight piattaforma in sola lettura, non equivale a Publish completato.** Lovable ha riportato su sessione Admin autorizzata `PRODUCT_ADMIN_WRITES_ENABLED=true`, `PRODUCT_ADMIN_CANARY_SCOPE` vuoto, Shopify sync/bozze/categorie abilitati; `PRODUCT_ADMIN_WRITE_MODE` globale non leggibile ma modalita' account editor `full` dai permessi, compatibile con codice. Backend identificato `admin-delivery-20261110-r1`, non prova del bundle Edge runtime. Anteprima con account operatore: HTML nascosto, badge Modificabile, 3 liste, CTA Modifica e sync manuale, nessun pulsante AI per l'operatore senza grant `ai`; **Marco non collaudato**. Nessun salvataggio, AI reale o Shopify sync durante il preflight.
+
+**Riserve accettabili solo in un Publish dedicato:** (1) il frontend modifica anche PDP, con visualizzazione condizionale dei `key_benefits` compilati e ritocchi ai link di navigazione; nessuna modifica checkout o Customer Accounts; (2) Lovable non ha dimostrato una build/test completi del checkout `66ab158`, ma i controlli offline della PR precedente erano verdi. Prima di eseguire il Publish verificare build del candidato con esito esplicito e diff solo-documentale rispetto alla sorgente proposta, senza alterare codice. Se fallisce, STOP senza Publish.
+
+**CORREZIONE ROLLBACK OBBLIGATORIA:** il commit `ccf72e1` e' la HEAD della PR #56 e **include gia' il nuovo editor AI**, quindi NON e' una baseline di rollback della vecchia UI. Identificare e documentare prima dell'azione l'effettiva release frontend pubblicata ora nella cronologia Lovable (con puntamento verificato al dominio), il suo riferimento e il procedimento praticabile di ripubblicazione. Il commit main precedente il merge puo' essere un riferimento storico, ma non sostituisce la verifica di quale release sia realmente online. L'eventuale rollback frontend NON annulla schema, permessi o Edge; niente restore DB automatico.
+
+**Gate F-P:** Publish della sola UI admin editoriale su `onlinegarden.it`, pur includendo gli impatti limitati PDP/navigation dichiarati. F-P resta **NON ESEGUITO** finche' non c'e' una nuova autorizzazione del proprietario e conferma dell'esito piattaforma. Dopo Publish smoke test home/catalogo/PDP/carrello/checkout raggiungibile (senza ordine), login/admin, e soprattutto test nominativo Marco editor/AI con una bozza tecnica; una sola generazione AI reale richiede consenso A e limite economico separati. Non eseguire nuovi deploy backend, grant, migration, cambio flag, sync Shopify o Publish automatico di prodotti.
+
+---
+
 ## Step G PASS — 18 novembre 2026; F-P in preparazione
 
 - [x] **M PASS** — 0016/0017/0018 live, history/ACL verificate.
