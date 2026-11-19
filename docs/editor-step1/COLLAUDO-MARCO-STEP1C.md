@@ -134,3 +134,14 @@ La barra editor Tiptap offre Paragrafo, Grassetto, Corsivo, Elenco puntato, Elen
 **Difetto UX reale:** nel riepilogo la descrizione viene mostrata come stringa HTML escapata, ad esempio `<p>La lavanda e' una pianta aromatica perenne.</p>`, invece che come paragrafi leggibili. Nell'implementazione attuale `NewProductPage` mostra `{draft.description}` in un normale `<p>`, non un renderer HTML sanitizzato; questo e' un problema **della visualizzazione anteprima**, non prova di perdita del testo/HTML nel DB. Non rimuovere il markup dai dati per mascherare il difetto; correggere la presentazione con rendering HTML sanitizzato in un futuro intervento autorizzato. **L'anteprima non mostra immagini ne' SEO**, che potrebbero comunque rimanere nel payload: non assumere che siano persi, verificare con server/readback dopo eventuale salvataggio.
 
 **Prossimo gate:** il click manuale `Verifica anteprima` e' una verifica non mutante (azione API `preview_new_product`). Controllare eventuali warning/errore e univocita' SKU prima di confermare qualsiasi scrittura. `Salva bozza nell'Admin` crea davvero un record interno e richiede consenso separato: NON eseguito. Non premere `Crea bozza Shopify`, `Aggiorna sul sito` o `Pubblica` durante questo test.
+
+## Anteprima server completata — 19 novembre 2026
+
+**Verifica diretta UI Chrome dopo click dell'operatore su `Verifica anteprima`:** wizard `Nuovo prodotto` per `TEST — Lavanda officinale — NON IN VENDITA`, SKU `TEST-OG-AI-001`, `Aromatiche da esterno`, `Formato unico — TEST: 10 EUR`, 3 paragrafi da proposta AI applicata. Sotto il pulsante di anteprima sono comparsi due messaggi informativi del server:
+
+- `Unicità Shopify verificata solo prima dell'invio autorizzato.`
+- `Inventario e pubblicazione non vengono modificati.`
+
+**Esito:** validazione `preview_new_product` completata e **nessun errore bloccante visibile**. Non interpretare tale risultato come validazione di unicita' SKU su Shopify o come creazione di prodotto Shopify. Checkbox di conferma `Confermo i dati: salva soltanto una bozza interna` non spuntata nel momento di lettura; `Salva bozza nell'Admin` non eseguito. Rimane difetto UX anteprima con markup `<p>` mostrato letteralmente invece di paragrafi resi, senza evidenza di perdita dati.
+
+**Prossimo test autorizzabile dalla sessione utente:** click consapevole della checkbox e `Salva bozza nell'Admin` una sola volta, con eventuale doppia conferma dell'azione nel canale catalogo. Il pulsante crea record reale nel catalogo interno, da rileggere con link prodotto + storico, incluso valore AI, categoria, prezzo e foto; evitare clic su `Crea bozza Shopify` o `Pubblica`. Se errore/timeout, non creare nuovo draft con SKU diverso: usare soltanto la funzione idempotente di recupero prevista dal wizard dopo analisi.
