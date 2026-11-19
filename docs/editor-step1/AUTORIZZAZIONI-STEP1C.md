@@ -1,3 +1,13 @@
+## Publish F-P PASS — 18 novembre 2026, release editor AI Marco
+
+**Autorizzazione proprietario F-P consumata; esito PASS secondo report Lovable.** Un solo Publish su `onlinegarden.it` dal checkout `f54bf87`, che differisce da `66ab158` solo per due documenti. Frontend asset `index-CMoOo4zb`, precedente `index-7LGwLIzQ`, etichetta di release SEO invariata e **non diagnostica**. Build PASS, scan sicurezza senza findings gravi; controlli post-publish home/catalogo/PDP/ricerca, carrello, checkout raggiungibile e Admin operatore OK. L'anteprima/caricamento Admin operatore non prova la visibilita' AI nel login Marco; nessun salvataggio, sync Shopify, AI reale, nuova migrazione, grant o Edge deploy autorizzato da F-P.
+
+**Rollback frontend verificabile come percorso, non eseguito:** versione SEO P1 del 12/11 dalla cronologia Lovable, commit `bd9b9d6` (registrazione `76ef108`), asset precedente `index-7LGwLIzQ`. Ripubblicazione su richiesta separata; `ccf72e1` contiene gia' l'editor AI e NON e' la versione rollback. DB e backend non vengono ripristinati da un rollback UI.
+
+**Prossimo gate T/A:** sessione reale dell'account Marco, su DRAFT tecnica autorizzata e identificata, con test senza mutazioni prima di una sola generazione AI reale a budget massimo esplicitamente autorizzato. Nessun altro account deve ricevere `ai`; mai usare Shopify pubblicati per la prova. Solo dopo la verifica del flusso completo il cliente potra' accettare il rilascio. I flag Shopify sync sono attivi, ma l'azione e' manuale; non premere "Aggiorna sul sito" senza gate S distinto.
+
+---
+
 ## Step G PASS — 18 novembre 2026; F-P in preparazione
 
 **Step G: COMPLETATO** su unico grant nominativo di Marco. Lovable ha identificato il profilo attraverso nome, riferimento di approvazione e ruolo solo editor, pur senza poter leggere direttamente l'account Auth, e ha effettuato una sola UPDATE compare-and-swap sul grant A, 1 riga interessata; timestamp post-update 18/11/2026 20:29:06 UTC. Grant B dell'operatore tecnico invariato. Lettura indipendente aggregata, senza email/UUID: 2 grant attivi; **esattamente 1 con 8 capability e 17 field_keys incluse `ai,key_benefits,key_features,special_bullets`**, esattamente 1 con 7 capability e 14 campi. Nessuna modifica Auth/ruoli/RLS/Shopify per lo Step G. Login personale Marco e funzionalita' AI reale NON ancora collaudati.
