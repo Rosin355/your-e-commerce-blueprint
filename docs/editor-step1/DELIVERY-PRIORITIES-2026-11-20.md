@@ -1,5 +1,15 @@
 # Online Garden — delivery gate rapido per Marco (20 novembre 2026)
 
+## Stato deploy backend comunicato da Lovable — 20 novembre 2026
+
+- **Backend `product-admin-api`: DEPLOY DICHIARATO COMPLETATO** da Lovable sul codice del merge `1fd8e7bc15b0c38f6dcaa1a6d17ade3506f0f245`, con fingerprint pacchetto trasmesso `8b6bd865…a12901d`. Il fingerprint prova il pacchetto inviato, **non** l'identita' binaria della funzione attualmente in esecuzione; la piattaforma non consente readback del codice live.
+- `admin-draft-summary.ts` e `admin-draft-view.ts` inclusi nelle dipendenze. Verifica autenticata di **sola lettura** con sessione Admin riferita dall'operatore: HTTP 200, `ok: true`, una bozza `TEST-OG-AI-001` in `LOCAL_DRAFT`, risposta con sezioni titolo, SKU, descrizione, fornitore, valuta, tag, categorie, varianti, immagini e SEO. **I singoli valori del nuovo riepilogo non sono ancora stati controllati in questa verifica.** Nessuna operazione Shopify o write di catalogo.
+- Nessun nuovo deploy di `product-admin-ai`, migration, grant, chiave, Publish frontend o modifica dei file di progetto dichiarati.
+- **Lovable `get_project` in sola lettura** dopo il rapporto: progetto pronto e ultima revisione codice `1fd8e7bc15b0c38f6dcaa1a6d17ade3506f0f245` prima di questa registrazione documentale. `is_published=true` denota che esiste una precedente versione pubblicata, **non** conferma il Publish della nuova revisione.
+- **Next gate proprietario:** Publish frontend da interfaccia Lovable dopo verifica revisione, poi verifica post-publish su `TEST-OG-AI-001` con account Admin e login personale di Marco. Stop immediato se valori, AI, permessi o stato locale/Shopify non sono coerenti. La documentazione qui registrata e' un commit docs-only: non modifica il codice applicativo oggetto del merge PR #57. Nessuna autorizzazione a pubblicare prodotti.
+
+---
+
 ## Decisione sul candidato
 
 **GO CON LIMITAZIONI** per la revisione del codice e il collaudo controllato. **NO-GO per l’uso ordinario di Marco** fino alla verifica della versione rilasciata con il suo account. I P0 hanno superato test su interfaccia, servizi e database locale. Il readback del record tecnico esistente conferma il dato di origine. Il lint generale conserva 42 errori e 11 avvisi identici alla base. La qualità di una risposta del provider reale e l’accettazione personale sono ancora da verificare. [Matrice prove](COLLAUDO-MARCO-STEP1C.md) · [Stato dei 14 interventi](BACKLOG-UX-MARCO.md)
