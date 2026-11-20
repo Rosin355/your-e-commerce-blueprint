@@ -1,22 +1,23 @@
-# Step B — Deploy mirato product-admin-api + product-admin-ai
+# Fattibilita redirect 301 /prodotto/... su hosting nativo Lovable
 
-## Esito preparazione (sola lettura)
-- Checkout: main `01fa0f1` (pulito), contiene `98ef90a` (Step M). Dopo 98ef90a solo commit documentali: nessuna differenza in `supabase/` né nei tipi generati.
-- Ultimo commit che tocca le due funzioni o `_shared`: `8ed1454`.
-- Dipendenze `_shared`: tutti i 27 file importati esistono; nessun import da `src/` o da altre funzioni.
-- Compatibilità DB: product-admin-ai usa `product_ai_generation_reservations`, `product_ai_suggestions`, RPC `reserve_product_ai_generation` e `reserve_confirmed_ai_request` (quest'ultima da 0016/0017, presente live).
-- Modello AI: gateway Lovable AI, default `google/gemini-3-flash-preview` (sovrascrivibile con `ADMIN_AI_MODEL`, non impostato). `LOVABLE_API_KEY` presente (gestito). Flag PRODUCT_ADMIN_* presenti; valori non letti.
-- Nessun file di login, checkout Shopify, prodotti o permessi utenti verrà toccato: deploy solo di codice funzione.
+Solo verifica: nessuna modifica eseguita.
 
-## Esecuzione B (dopo autorizzazione)
-1. Ricontrollo checkout pulito e SHA invariato `01fa0f1`; impronte SHA-256 di entrypoint e `_shared` registrate.
-2. Deploy nativo di SOLO `["product-admin-api","product-admin-ai"]`.
-3. Controlli post-deploy senza costi: chiamata non autenticata a entrambe → atteso 401/403 con CORS; OPTIONS → 200; log funzioni senza errori di avvio/import. Nessuna generazione AI, nessuna scrittura, nessuno Shopify.
+## Esito: NO (redirect 301 per percorso non disponibili nell'hosting nativo)
 
-## Rischi
-- Runtime non rileggibile: le impronte provano il sorgente inviato, non il codice in esecuzione.
-- Il nuovo codice entra subito in vigore per gli utenti Admin attuali (comportamento flag invariato).
-- Errore di avvio di una funzione → Admin non operativo fino al recupero.
+| Punto | Esito | Fonte / prova |
+|---|---|---|
+| a) Redirect configurabile in Lovable prima della SPA | NO | Documentazione ufficiale (docs.lovable.dev/features/hosting, /features/custom-domain): nessuna regola redirect per percorso; esiste solo il fallback SPA verso index.html. Nessuna impostazione del genere visibile per il progetto. |
+| b) `_redirects` / `vercel.json` / `netlify.toml` | NO | Documentazione: questi file non vengono interpretati da Lovable. Nel progetto non esistono (verificato). |
+| c) React Router / JS | Non e HTTP 301 | Avviene nel browser dopo una risposta 200; i motori di ricerca non lo trattano come 301 server. |
+| d) Normalizzazione www | 302 (by design) | Prova live: `www.onlinegarden.it/prodotto/test-legacy` -> 302 verso `onlinegarden.it/prodotto/test-legacy`; il dominio principale risponde 200. Documentazione: tra domini collegati Lovable usa 302/307, non 301, perche il dominio principale si puo cambiare. Unico 301 nativo: da HTTP a HTTPS. |
 
-## Recupero
-- Ridistribuzione mirata della singola funzione dal commit precedente noto (`cb7fc57` per product-admin-api, `096a435` per product-admin-ai) tramite checkout temporaneo dei soli file funzione, previa nuova autorizzazione. Database non coinvolto.
+Conseguenza: oggi un singolo salto 301 dalla prima richiesta su entrambi gli host non si puo ottenere con le sole funzioni di Lovable. Su www ci sarebbero comunque almeno 302 + eventuale redirect successivo.
+
+## Cosa chiedere al supporto Lovable (non posso aprire io la richiesta)
+Testo proposto:
+"Progetto Online Garden, domini onlinegarden.it (principale) e www.onlinegarden.it, DNS su IONOS. Chiediamo se l'hosting Lovable puo configurare lato server 16 redirect HTTP 301 permanenti da /prodotto/<slug> a /products/<handle>, applicati prima della SPA e su entrambi gli host con un solo salto (anche www/prodotto/... direttamente al percorso finale sul dominio principale). Chiediamo inoltre se la normalizzazione www puo essere 301 invece di 302. Se non disponibile, e prevista una funzione o un'eccezione per il progetto?"
+
+Allegare l'elenco dei 16 URL vecchi -> nuovi.
+
+## Nota
+Nessuna implementazione proposta come certa finche il supporto non conferma. Nessuna modifica a DNS, domini, Publish, codice o impostazioni.
