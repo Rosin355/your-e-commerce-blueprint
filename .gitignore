@@ -50,3 +50,8 @@ backups/
 # Local synthetic browser test artifacts
 /test-results/
 /playwright-report/
+
+/sync/private-customers/
+/imports/customers/
+/imports/orders/
+/sync/out/shopify-customers*

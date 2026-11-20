@@ -1,5 +1,9 @@
 # Online Garden — stato per il cliente
 
+## Migrazione clienti e storico · 20 novembre 2026
+
+È raggiungibile la schermata di accesso Shopify di Online Garden. Per ritrovare gli acquisti precedenti serve l’export WooCommerce con il dettaglio delle 953 transazioni. Nessun cliente storico è stato contattato o importato. Il collaudo dello storico personale resta aperto. [Risultati, export e procedura operativa](migration/woocommerce-history-2026-11-20.md).
+
 Aggiornamento: 2 ottobre 2026
 
 ## Stato go-live aggiornato

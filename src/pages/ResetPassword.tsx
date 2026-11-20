@@ -35,7 +35,7 @@ const ResetPassword = () => {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
       toast.success('Password aggiornata con successo.');
-      navigate('/auth');
+      navigate('/admin');
     } catch (err: any) {
       toast.error(err.message || 'Impossibile aggiornare la password.');
     } finally {
@@ -56,7 +56,7 @@ const ResetPassword = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
-              <Button onClick={() => navigate('/auth')} variant="outline">Torna al login</Button>
+              <Button onClick={() => navigate('/admin')} variant="outline">Torna al login</Button>
             </CardContent>
           </Card>
         </main>

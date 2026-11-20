@@ -1,5 +1,9 @@
 ## Gate tecnico · 20 novembre 2026
 
+## Migrazione clienti e storico · 20 novembre 2026
+
+Shopify osservato con 14 profili e 7 ordini del nuovo canale. Le 857 anagrafiche di acquirenti customer si ripartiscono in 848 da revisionare, 8 quarantene e 1 match email. Identità definitivamente riconciliate per import: 0. Transazioni storiche importate e riconciliate: **0/953**. [Risultati, export e procedura operativa](migration/woocommerce-history-2026-11-20.md).
+
 Backup strutturalmente troncato, zero contenuti WordPress recuperati dal frammento. Su 1.274 percorsi storici, 16 candidati sono verificati e proponibili, 1.258 restano esclusi. Controlli HTTP, rendering, identità prodotto e simulazione dell’adattatore completati. GO alla revisione del titolare, NO-GO al cambio infrastrutturale. Nessun intervento sull’editor o sui servizi in produzione. [Pacchetto operativo](seo/REDIRECT-301-RELEASE-GATE-2026-11-20.md)
 
 ---
