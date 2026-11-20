@@ -85,6 +85,14 @@ La guida ufficiale IONOS conferma che le mailbox IONOS richiedono, **quando i DN
 
 Fonte: https://www.ionos.it/aiuto/domini/configurare-un-server-di-posta-e-i-relativi-record/autenticazione-delle-e-mail-con-dkim/
 
+## Evidenza 2026-11-20 ore 17:53 — tre DKIM inseriti
+
+Screenshot Cloudflare fornito dal cliente: nella zona in fase di preparazione compaiono tre **CNAME DNS only** destinati a `s1.dkim.ionos.com`, `s2.dkim.ionos.com` e `s42582890.dkim.i...` (ultimo **troncato dall'interfaccia**). Si vedono anche i due A web in **Proxied**, i due MX IONOS con priorità 10, autodiscover e DMARC DNS only, e il TXT SPF già confrontato.
+
+**Stato:** DKIM aggiunti e visibili nella UI, ma il nome e il valore completi del terzo non sono interamente leggibili. Verificarli nel form prima di attestare il PASS completo. Nessuna evidenza di test reali di firma email e nessuna conferma di attivazione nameserver: il pulsante `Continue to activation` è ancora visibile.
+
+**Prossimo gate:** verifica DNSSEC/DS e gestione della delega nameserver dal soggetto che la controlla; successivamente collaudo compatibilità Lovable/Cloudflare proxy e redirect, senza alterare i 301 esistenti.
+
 ## Verifiche residue senza riaprire la configurazione
 
 1. **Cloudflare:** verificare che la zona riporti esattamente i sette record della tabella, con MX corretti, TXT SPF completo, eventuali altri record da preservare. Non cambiare le regole 301 esistenti.
@@ -101,7 +109,8 @@ Fonte: https://www.ionos.it/aiuto/domini/configurare-un-server-di-posta-e-i-rela
 - [x] Confronto preliminare A/MX/autodiscover/_dmarc riportato nel precedente thread
 - [x] Confermata dal cliente la preferenza di usare **Lovable come fonte operativa** per i record DNS
 - [x] Confronto testuale SPF Cloudflare–Lovable, screenshot 2026-11-20
-- [ ] Verifica DKIM e altri record necessari
+- [x] Tre record DKIM inseriti nella zona Cloudflare e visibili nello screenshot
+- [ ] Confermare valore e host completi del terzo DKIM, altri record necessari
 - [ ] Verifica DNSSEC/DS e possibilità effettiva di modificare NS
 - [ ] Verifica compatibilità proxy Cloudflare/Lovable e TLS
 - [ ] Cutover nameserver quando sicuro e autorizzato
