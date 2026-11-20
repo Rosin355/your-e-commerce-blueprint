@@ -57,6 +57,16 @@ Record riscontrati:
 
 Fonti: https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/ ; https://developers.cloudflare.com/rules/url-forwarding/single-redirects/create-dashboard/ ; https://www.ionos.it/aiuto/domini/configurare-un-server-di-posta-e-i-relativi-record/autenticazione-delle-e-mail-con-dkim/
 
+## Verifica SPF — evidenza screenshot del 20 novembre 2026 alle 17:48
+
+Nel form di modifica Cloudflare, il record TXT apex presenta contenuto **`"v=spf1 include:_spf-eu.ionos.com ~all"`**. Il valore tra virgolette corrisponde esattamente a quello comunicato da Lovable e citato nella documentazione IONOS. **SPF: confronto testuale PASS** (non implica test DNS pubblici o autorizzazione al cutover).
+
+Le doppie virgolette visualizzate sono normali delimitatori di una stringa TXT per Cloudflare: la documentazione ufficiale specifica che il pannello Cloudflare aggiunge automaticamente le virgolette quando assenti in salvataggio e richiede virgolette bilanciate. **Non eliminare le virgolette**; uscire dalla modifica con Cancel, non salvare senza necessità.
+
+Fonte ufficiale: https://developers.cloudflare.com/dns/manage-dns-records/reference/dns-record-types/ ; https://developers.cloudflare.com/dns/changelog/
+
+**Prossimo controllo:** cercare record DKIM nella zona Cloudflare già predisposta (filtrando `_domainkey`) e verificare DNSSEC; nessuna modifica ai record correnti.
+
 ## Verifiche residue senza riaprire la configurazione
 
 1. **Cloudflare:** verificare che la zona riporti esattamente i sette record della tabella, con MX corretti, TXT SPF completo, eventuali altri record da preservare. Non cambiare le regole 301 esistenti.
@@ -72,7 +82,8 @@ Fonti: https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/ ; htt
 - [x] Configurazione iniziale redirect 301 (secondo il cliente)
 - [x] Confronto preliminare A/MX/autodiscover/_dmarc riportato nel precedente thread
 - [x] Confermata dal cliente la preferenza di usare **Lovable come fonte operativa** per i record DNS
-- [ ] Verifica SPF esatto, DKIM e altri record necessari
+- [x] Confronto testuale SPF Cloudflare–Lovable, screenshot 2026-11-20
+- [ ] Verifica DKIM e altri record necessari
 - [ ] Verifica DNSSEC/DS e possibilità effettiva di modificare NS
 - [ ] Verifica compatibilità proxy Cloudflare/Lovable e TLS
 - [ ] Cutover nameserver quando sicuro e autorizzato
