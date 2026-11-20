@@ -1,3 +1,9 @@
+## Procedure per il responsabile · 20 novembre 2026
+
+[Gate dei 16 redirect, verifica prima/dopo e rollback](../../docs/seo/REDIRECT-301-RELEASE-GATE-2026-11-20.md). Il comando `node infra/seo/check-redirect-candidates.mjs` prova tutte le righe in memoria. Il verificatore `python3 infra/seo/check-redirect-http.py` legge le sole risposte HTTP pubbliche. L’opzione `--expect-active` verifica i 301 dopo una futura attivazione integrale. Il manifest incluso resta disabilitato.
+
+---
+
 # Preparazione redirect HTTP — NON PUBBLICATA
 
 `redirect-candidates.json` contiene 16 corrispondenze tecniche ad alta confidenza, tutte con `reviewApproved=false`. Il gate globale è `enabled=false`, `approvalReference=null`. Il modulo restituisce quindi sempre il controllo all'origine; non può attivarsi tramite merge o build Vite.

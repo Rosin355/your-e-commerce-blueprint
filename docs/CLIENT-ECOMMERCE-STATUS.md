@@ -1,3 +1,9 @@
+## Stato cliente · 20 novembre 2026
+
+Il backup consegnato si interrompe durante un file di statistiche del vecchio hosting. È stato possibile documentare il danno. Per recuperare pagine e indirizzi originali occorre una copia completa o un export mirato. Incrociando i vecchi indirizzi visti da Google con gli export del catalogo, sono stati ricostruiti 16 collegamenti e sono state controllate tutte le schede oggi online. Gli inoltri sono pronti per la decisione del titolare. Il negozio e la posta continuano a usare la configurazione esistente. [Risultati e azioni richieste](seo/REDIRECT-301-RELEASE-GATE-2026-11-20.md)
+
+---
+
 ## Rilascio SEO P1 pubblicato — 12 novembre 2026
 
 **Primo rilascio SEO concluso e verificato live il 12 novembre 2026.** [PR #49](https://github.com/Rosin355/your-e-commerce-blueprint/pull/49) MERGED, HEAD validato `91c26c11a47951b0bf822a644fd42428e8c9ae18`, main applicativo `2d1cee558ff1e292f5d8f34e9d0f86b87b5ce6fb`. [CI Storefront/PostgreSQL 17 e GitGuardian](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/43261015209) SUCCESS sul candidato; nessuna CI push main configurata. Publish Lovable `539ca523-c5ec-4fd0-b5de-3792c605d28d`, versione realmente servita su `onlinegarden.it`: **`seo-p1-20261112-r1`**, asset `/assets/index-7LGwLIzQ.js`. Il merge GitHub e il Publish sono stati verificati separatamente.

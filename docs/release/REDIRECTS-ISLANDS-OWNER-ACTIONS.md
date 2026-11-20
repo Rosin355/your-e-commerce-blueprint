@@ -1,3 +1,9 @@
+## Aggiornamento redirect del 20 novembre
+
+Per la parte SEO prevale il [pacchetto di approvazione aggiornato](../seo/REDIRECT-301-RELEASE-GATE-2026-11-20.md). La sola Bulk Redirect List non applica la selezione richiesta dei parametri misti. Verificare prima l’eventuale ingresso HTTP già governato e, in sua assenza, valutare il Worker a due route descritto nel pacchetto. Le note sulle spedizioni restano nella sezione storica seguente.
+
+---
+
 # Redirect e spedizioni isole — azioni del proprietario
 
 Aggiornamento: 12 novembre 2026. Romesh gestisce le attivita tecniche; Marco eseguira l'accettazione domani, 13 novembre. Non riaprire Admin, registrazione o permessi per rispondere a questi due punti.

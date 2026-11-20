@@ -1,3 +1,9 @@
+## Gate tecnico · 20 novembre 2026
+
+Backup strutturalmente troncato, zero contenuti WordPress recuperati dal frammento. Su 1.274 percorsi storici, 16 candidati sono verificati e proponibili, 1.258 restano esclusi. Controlli HTTP, rendering, identità prodotto e simulazione dell’adattatore completati. GO alla revisione del titolare, NO-GO al cambio infrastrutturale. Nessun intervento sull’editor o sui servizi in produzione. [Pacchetto operativo](seo/REDIRECT-301-RELEASE-GATE-2026-11-20.md)
+
+---
+
 ## Rilascio SEO P1 pubblicato — 12 novembre 2026
 
 **Primo rilascio SEO concluso e verificato live il 12 novembre 2026.** [PR #49](https://github.com/Rosin355/your-e-commerce-blueprint/pull/49) MERGED, HEAD validato `91c26c11a47951b0bf822a644fd42428e8c9ae18`, main applicativo `2d1cee558ff1e292f5d8f34e9d0f86b87b5ce6fb`. [CI Storefront/PostgreSQL 17 e GitGuardian](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/43261015209) SUCCESS sul candidato; nessuna CI push main configurata. Publish Lovable `539ca523-c5ec-4fd0-b5de-3792c605d28d`, versione realmente servita su `onlinegarden.it`: **`seo-p1-20261112-r1`**, asset `/assets/index-7LGwLIzQ.js`. Il merge GitHub e il Publish sono stati verificati separatamente.
