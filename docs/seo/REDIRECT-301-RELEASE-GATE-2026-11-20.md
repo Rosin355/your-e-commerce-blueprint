@@ -1,5 +1,16 @@
 # Recupero storico e redirect prodotto · decisione del 20 novembre 2026
 
+## Risposta Lovable Support — 20 novembre 2026
+
+**Fonte:** risposta email ricevuta dal responsabile del progetto e attribuita esplicitamente a **Lovable AI Support Agent** (firmata Sam). Questa e' la risposta comunicata dal supporto, non una verifica infrastrutturale indipendente ne' un cambiamento in hosting.
+
+- Lovable hosting **non supporta redirect HTTP 301 server-side per singoli path** e non interpreta file `_redirects`, `vercel.json` o equivalenti. Il supporto dichiara che non e' configurabile nemmeno dal team per singolo progetto: limite della piattaforma.
+- Il redirect tra dominio principale e `www` viene gestito con **302 temporaneo**, non convertibile a 301 nelle impostazioni native Lovable.
+- Le due alternative indicate dal supporto sono: **hosting esterno** dell'app da GitHub su Netlify/Vercel, capaci di redirect HTTP per path; oppure redirect client-side React Router, che **non producono un vero header HTTP 301** e quindi non soddisfano il requisito tecnico della migrazione SEO.
+- **Decisione attuale:** conservare la versione di produzione su Lovable e **non** attivare workaround React, redirect, proxy, Cloudflare, modifiche DNS, migrazione hosting o nuovi costi. Il supporto nativo Lovable non e' un'opzione disponibile; il prossimo eventuale lavoro e' un **preflight frontend-only di hosting esterno**, senza traffic switch e con continuita' backend Lovable esistente, per valutare costi/risorse/rollback.
+- **Stato invariato delle 16 righe:** mapping tecnicamente verificati e approvabili; **nessuna approvazione commerciale registrata**, nessun 301 attivo, manifest `enabled=false`, `approvalReference=null`, `reviewApproved=false`. Approvazione mapping e autorizzazione infrastrutturale restano separate.
+- **Nessun cambio di prodotto o release richiesto da questa nota**. In particolare, un nuovo Publish del frontend su Lovable non attiva gli HTTP 301 e non e' necessario per integrare documentazione SEO.
+
 **GO per sottoporre 16 corrispondenze al titolare. NO-GO per l’attivazione in produzione.** Zero autorizzazioni registrate, zero redirect legacy → scheda prodotto osservati. Prima del cambio servono un punto HTTP governabile su entrambi gli host, accesso alla zona DNS, accettazione delle destinazioni e un ripristino praticabile. Il collaudo di Marco e il recupero di un altro backup sono indipendenti da questa decisione.
 
 ## Rendicontazione dell’intervento sullo storico
