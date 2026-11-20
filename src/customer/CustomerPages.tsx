@@ -56,7 +56,11 @@ export function CustomerAccount() {
     </>}
   </Frame>;
 }
+function CustomerLogoutCallback() {
+  useEffect(() => { getCustomerClient().finishLogout(); }, []);
+  return <Frame><p>La sessione cliente su questo sito è chiusa.</p><Link to="/">Torna al negozio</Link></Frame>;
+}
+
 export function CustomerLogout() {
-  useEffect(() => { if (SHOPIFY_CUSTOMER_AUTH_ENABLED) getCustomerClient().finishLogout(); }, []);
-  return <Frame><p>Uscita dall'area cliente completata.</p><Link to="/">Torna al negozio</Link></Frame>;
+  return SHOPIFY_CUSTOMER_AUTH_ENABLED ? <CustomerLogoutCallback /> : <HostedCustomerAccount />;
 }
