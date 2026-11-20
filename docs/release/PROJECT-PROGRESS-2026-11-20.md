@@ -51,6 +51,21 @@ Fonte: PR #53 preflight reale 13/11 e PR #54 piano/autenticazione 15–16/11, co
 https://help.shopify.com/it/manual/migrating-to-shopify/migrating-from-woocommerce  
 https://shopify.dev/docs/api/admin-graphql/latest/mutations/orderCreate
 
+## 20/11 — Fonte WooCommerce non più accessibile e archivio recupero troncato
+
+**Conferma del proprietario:** il vecchio sito WooCommerce non è più disponibile; il fornitore precedente ha consegnato un backup, già esaminato, che risulta **troncato**. L'analisi documentata in `docs/release/PROJECT-CLOSEOUT-CHECKLIST.md` riporta un TAR di **20.447.232 byte**, terminato prima della fine di un membro interno dichiarato da **57.723.050 byte**. Nessun database SQL/WordPress e nessun dettaglio degli ordini è risultato recuperabile dal frammento analizzato.
+
+**Conseguenza operativa:** i contatori `858` acquirenti / `953` ordini sono evidenza di quantità, **non** rappresentano 953 record d'ordine importabili. Non è autorizzato inventare date, prodotti, importi, stati o identificativi per far coincidere il conteggio.
+
+**Percorso di recupero prioritario:**
+1. Richiedere a chi ha consegnato il backup una **copia integra originale** con dimensione/hash o un dump SQL selettivo di WooCommerce/HPOS e tabelle di righe ordini, metadati e associazioni clienti.
+2. Chiedere al precedente hosting eventuali **snapshot indipendenti, restore point o backup giornalieri**, anche se il sito è offline.
+3. Se le fonti non esistono, ricercare export separati di ordini, fatture, gestionali, documenti spedizione ed email; verificare copertura e qualità per ordine. Non chiamare «migrazione completa» una ricostruzione parziale.
+
+**Lavoro Codex nel frattempo:** terminare separazione login clienti Shopify/Supabase, strumenti idempotenti e controlli per la migrazione; non eseguire import massivo di ordini fittizi né affermare che la migrazione ordini è conclusa. La migrazione clienti è un percorso distinto e resta subordinata a verifiche e autorizzazioni sui dati reali.
+
+**Stato:** dettagli ordini NON DISPONIBILI nelle fonti attualmente documentate; l'esistenza di eventuali backup presso terzi è **sconosciuta**, non negata. 
+
 ## Altri gate prima del completamento
 
 - **DNS/301:** verificare DNSSEC/DS, delega da ui-dns ai NS assegnati Cloudflare nel pannello autorizzato, TLS Lovable/CDN, primo 301 HTTP reale, email e checkout. Attualmente la schermata Cloudflare presenta `I updated my nameservers`; il cambio effettivo non è stato attestato.
