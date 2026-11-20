@@ -1,3 +1,9 @@
+## Aggiornamento del 20 novembre · passaggio all’approvazione
+
+I 16 percorsi HIGH sono stati verificati con GET/HEAD su entrambi gli host e con lettura del catalogo e rendering di ogni destinazione. Il vecchio percorso HTTPS apex continua a restituire 200. La versione www continua a restituire 302 verso lo stesso vecchio percorso apex. Il pacchetto propone due route limitate al prefisso legacy se il titolare non dispone già di un livello HTTP configurabile. Nessuna regola attivata. [Decisione, prove per URL e rollback](REDIRECT-301-RELEASE-GATE-2026-11-20.md)
+
+---
+
 # SEO Recovery P1 — rilascio autorizzato del 12 novembre 2026
 
 Il mandato corrente autorizza review, CI/GitGuardian sul nuovo HEAD, merge della PR #49 e Publish frontend SEO. Il riallineamento locale preserva Admin operativo, grant nominativi e flag: build con `VITE_ADMIN_OPERATIONAL_RELEASE=true`, modulo compilato read-only=false. Nessun deploy backend/DDL/canary. Riferimento operativo unico: [checklist di chiusura](../release/PROJECT-CLOSEOUT-CHECKLIST.md).

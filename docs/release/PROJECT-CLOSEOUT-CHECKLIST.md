@@ -1,3 +1,9 @@
+## Decisione del 20 novembre · backup storico e 301
+
+**Preparazione tecnica completata. Attivazione sospesa.** Sedici identità confermate nuovamente nel catalogo e nelle pagine pubbliche, zero redirect verso la nuova scheda. Restano tre identità incerte e 1.255 percorsi da riconciliare. Il referto TAR chiude l’analisi del frammento disponibile. Il recupero dei contenuti originali resta aperto fino a una fonte integra o a un export selettivo. Il titolare deve approvare destinazioni, livello HTTP, piano DNS/posta e rollback. [Matrice e procedura operativa](../seo/REDIRECT-301-RELEASE-GATE-2026-11-20.md)
+
+---
+
 # Online Garden — checklist unica di chiusura
 
 Aggiornamento: **12 novembre 2026, dopo il Publish e il controllo finale**. Scadenza richiesta dal proprietario: venerdì 13 novembre, Europe/Rome, senza un orario preciso. Nessuna promessa di lavoro in background o di ranking. Il mandato corrente autorizza il primo rilascio SEO e conserva l’Admin già operativo; nuovi prodotti, valori/prezzi e pubblicazioni commerciali richiedono una scelta esplicita. Nessun nuovo ambiente, costo, app, DNS/proxy o redesign autorizzato implicitamente.
