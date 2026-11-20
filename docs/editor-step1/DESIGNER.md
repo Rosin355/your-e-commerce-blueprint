@@ -1,5 +1,15 @@
 # Step 1 — UX di verifica
 
+## Passaggio al collaudo con Marco · 20 novembre 2026
+
+Sono online il riepilogo della creazione, i campi modificabili segnalati, la descrizione formattata, gli stati di vendita e le azioni distinte di scrittura assistita. La prova Admin ha mostrato «Bozza interna non inviata · fuori vendita» accanto ai dati della lavanda. Ricerca categorie, prezzi per formato, sezioni facoltative e confronto delle proposte sono coperti dai test del candidato.
+
+**Osservazione con Marco.** Chiedergli di trovare i 10,00 EUR, spiegare se la lavanda è acquistabile e cambiare una parola per poi annullare. Lasciargli scegliere i comandi e annotare dove ha bisogno di una spiegazione. Sul dispositivo che usa davvero verificare leggibilità, foto, avvisi e raggiungibilità dei pulsanti. Dopo la sessione valutare come miglioramenti facoltativi solo le etichette o l’ordine dei comandi che gli hanno creato difficoltà. [Checklist di accettazione](CHECKLIST.md)
+
+**Cronologia.** Le note successive descrivono le verifiche alle rispettive date. Le istruzioni che indicano ancora da eseguire merge, deploy o pubblicazione sono superate.
+
+---
+
 ## Comportamento del candidato del 20 novembre 2026
 
 Aprendo la scheda, l’operatore trova lo stato di vendita, poi il riepilogo in sola lettura registrato alla creazione e i campi correnti. «Record interno» identifica la scheda Admin. Per una bozza locale senza collegamento il testo è «Bozza interna non inviata · fuori vendita». Un dato Shopify mancante lascia visibile «Visibilità e disponibilità sul sito da verificare». Il canale conferma se almeno un formato è acquistabile. Un prodotto fuori elenco viene indicato come consultabile tramite link.

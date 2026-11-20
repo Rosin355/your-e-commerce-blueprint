@@ -1,5 +1,23 @@
 # Step 1 — checklist di chiusura
 
+## Accettazione cliente · da compilare dopo la consegna
+
+**Situazione iniziale:** versione online verificata dall’amministratore. Tutte le prove personali qui sotto sono **DA ESEGUIRE**. Concordare data e orario con Marco. Aprire solo la lavanda `TEST-OG-AI-001`.
+
+| Prova | Cosa deve poter fare Marco | Esito |
+| --- | --- | --- |
+| Accesso personale | Entra dal proprio dispositivo con l’account abituale e trova la lavanda tramite il codice. | Da eseguire |
+| Comprensione | Legge «Bozza interna non inviata · fuori vendita», trova prezzo e categoria e spiega con parole proprie che cosa cambia scegliendo Salva bozza, Crea bozza Shopify, Aggiorna sul sito e Pubblica. Lascia inattivi i quattro comandi. | Da eseguire |
+| Modifica reversibile | Apre la descrizione, modifica una parola, sceglie Annulla e ritrova il testo originale. | Da eseguire |
+| Accessibilità | Sul dispositivo abituale controlla che la foto si veda, legge testo e avvisi con il suo ingrandimento e raggiunge Modifica e Annulla con i controlli che usa abitualmente, compresa l’eventuale tecnologia assistiva. | Da eseguire |
+| AI reale, sessione autorizzata a parte | Il responsabile concorda campo di prova e limite di spesa. Sulla sola bozza tecnica autorizzata Marco avvia una singola richiesta di miglioramento, confronta i due testi, prova a correggere la proposta e la scarta. Senza consenso registra «Non eseguita». | Da eseguire |
+
+**Verbale della sessione.** Compilare data, dispositivo/browser, esito per riga (superata / da correggere / non eseguita), eventuale difficoltà e nominativo del responsabile del seguito. Marco conferma quali passaggi riesce a svolgere in autonomia. Il responsabile registra la decisione finale e l’ambito autorizzato, compreso l’eventuale rinvio dell’AI. Se accesso, stato di vendita o annullamento sono incoerenti, sospendere la prova e registrare la segnalazione. **Accettazione cliente pendente.** [Guida di Marco](GUIDA-MARCO.md) · [Documento di consegna](HANDOFF-MARCO-2026-11-20.md)
+
+**Cronologia.** Le note successive descrivono le verifiche alle rispettive date. Le istruzioni che indicano ancora da eseguire merge, deploy o pubblicazione sono superate.
+
+---
+
 ## Collaudo cliente in 3–5 minuti · candidato del 20 novembre
 
 **Prima del rilascio**, il responsabile può eseguire `npm run test:editor-browser` sul branch candidato con Chromium Playwright installato. Il wizard, il salvataggio sintetico e il recupero della proposta AI utilizzano risposte simulate. È il percorso ripetibile anche senza collegamento al negozio.

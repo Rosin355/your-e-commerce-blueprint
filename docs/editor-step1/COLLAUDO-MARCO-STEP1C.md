@@ -1,5 +1,15 @@
 # Collaudo pratico nella sessione di Marco
 
+## Esito operativo per la consegna del 20 novembre 2026
+
+**PASS** per la consultazione live dal profilo amministratore sul sito pubblicato. La lavanda `TEST-OG-AI-001` risulta bozza interna fuori vendita. Verificati riepilogo, categoria Aromatiche da esterno, 10,00 EUR, fornitore OnlineGarden, quattro tag, descrizione già salvata, SEO e presenza dell’immagine con ALT «lavanda». Il comando di miglioramento AI era visibile. [Resoconto originale della sessione](#verifica-live-dopo-publish-frontend--20-novembre-2026)
+
+**NON ESEGUITI** il login personale di Marco, la verifica della sua autonomia, la generazione reale con «Migliora il testo con AI» sulla nuova versione e il controllo di accessibilità sul suo dispositivo. La prima generazione del 19 novembre documentata sotto appartiene al percorso da fatti confermati. Per registrare i nuovi esiti usare la [checklist cliente](CHECKLIST.md).
+
+**Cronologia.** Le note successive descrivono le verifiche alle rispettive date. Le istruzioni che indicano ancora da eseguire merge, deploy o pubblicazione sono superate.
+
+---
+
 ## Verbale del candidato del 20 novembre 2026
 
 **GO CON LIMITAZIONI per revisione e collaudo controllato.** Il codice è stato eseguito localmente. La sessione personale di Marco sulla versione distribuita resta da provare. Il percorso cliente si trova nella [checklist breve](CHECKLIST.md).
