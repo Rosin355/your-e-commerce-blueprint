@@ -33,6 +33,20 @@
 
 Nameserver IONOS riportati da Lovable (non re-verificati in questa nota): `ns1037.ui-dns.org`, `ns1041.ui-dns.biz`, `ns1098.ui-dns.de`, `ns1126.ui-dns.com`.
 
+## DKIM — valori confermati dalla documentazione ufficiale IONOS
+
+La guida IONOS Italia per caselle email con DNS esterno indica esplicitamente questi tre **CNAME** (TTL 1 ora), da mantenere **DNS only** su Cloudflare:
+
+| Host | Target |
+| --- | --- |
+| `s1-ionos._domainkey` | `s1.dkim.ionos.com` |
+| `s2-ionos._domainkey` | `s2.dkim.ionos.com` |
+| `s42582890._domainkey` | `s42582890.dkim.ionos.com` |
+
+**Non dedurre dall'assenza nella risposta Lovable che questi record non esistano già in IONOS o Cloudflare.** Confrontare i valori del provider prima di aggiungerli, per non creare record duplicati o in conflitto.
+
+Fonte: https://www.ionos.it/aiuto/domini/configurare-un-server-di-posta-e-i-relativi-record/autenticazione-delle-e-mail-con-dkim/
+
 ## Prossimo passaggio pratico
 
 Richiedere dal pannello IONOS **Domini e SSL → onlinegarden.it → DNS** uno screenshot o export **completo** della zona, inclusi record DKIM ed eventuali pagine supplementari; quindi aprire la sezione DNSSEC e verificare se esistono chiavi/DS pubblicati. Non apportare modifiche a IONOS, Lovable o Cloudflare durante l'audit.
