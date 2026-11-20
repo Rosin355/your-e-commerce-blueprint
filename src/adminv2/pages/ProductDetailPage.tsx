@@ -1,3 +1,4 @@
+import { isTechnicalProduct } from '../../../supabase/functions/_shared/admin-operational-core';
 import CatalogActions from '../components/CatalogActions';
 import ProductOperations from '../components/ProductOperations';
 import { ADMIN_READ_ONLY_RELEASE, readOnlyField, READ_ONLY_RELEASE_NOTICE } from '../lib/readOnlyRelease';
@@ -24,7 +25,7 @@ import {
   useProductDetail,
   useRejectAiSuggestion,
 } from '../hooks/useAdminData';
-import { ENTITY_LABEL, formatDate, INVENTORY_NOTICE } from '../lib/labels';
+import { ENTITY_LABEL, formatDate, INVENTORY_NOTICE, siteState } from '../lib/labels';
 
 const SHOPIFY_SYNC_LABEL: Record<string, string> = {
   synced: 'Sincronizzato',
@@ -39,7 +40,7 @@ export default function ProductDetailPage() {
   const { data: context } = useAdminContext();
   const command = useFieldCommand(productId);
   const fieldSync = useFieldSync(productId);
-  const aiSuggestions = useAiSuggestions(productId);
+  const aiSuggestions = useAiSuggestions(productId, context?.canUseAi === true);
   const generateAi = useGenerateAiSuggestion(productId);
   const rejectAi = useRejectAiSuggestion(productId);
   const acceptAi = useAcceptAiSuggestion(productId);
@@ -81,7 +82,7 @@ export default function ProductDetailPage() {
         <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Torna ai prodotti
       </Link>
 
-      {!ADMIN_READ_ONLY_RELEASE && <ProductOperations productId={product.productId} />}
+
       <header className="space-y-2">
         <h1 className="text-xl font-semibold">{title}</h1>
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
@@ -97,7 +98,7 @@ export default function ProductDetailPage() {
           <span aria-hidden="true">·</span>
           <span>Aggiornato il {formatDate(product.updatedAt)}</span>
           <Badge variant={product.isActive ? 'secondary' : 'outline'}>
-            {product.isActive ? 'Attivo' : 'Non attivo'}
+            {product.isActive ? 'Record interno presente' : 'Record interno disattivato'}
           </Badge>
         </div>
         <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
@@ -107,7 +108,8 @@ export default function ProductDetailPage() {
         </p>
       </header>
 
-      <section className="rounded-lg border bg-card p-4" aria-label="Valori Shopify live">
+      {ADMIN_READ_ONLY_RELEASE ? <p>{siteState(shopifyLive)}</p> : <ProductOperations key={product.productId} productId={product.productId} live={shopifyLive} />}
+      <details className="rounded-lg border bg-card p-4"><summary className="cursor-pointer">Avanzato · lettura Shopify</summary>
         <div className="mb-2 flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold">Valore Shopify live</h2>
           <Badge variant={shopifyLive.available ? 'secondary' : 'outline'}>
@@ -117,17 +119,21 @@ export default function ProductDetailPage() {
         {shopifyLive.available ? (
           <dl className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-6">
             <div><dt className="text-xs text-muted-foreground">Handle</dt><dd>{shopifyLive.handle ?? '—'}</dd></div>
-            <div><dt className="text-xs text-muted-foreground">Stato pubblicazione</dt><dd>{shopifyLive.publicationStatus ?? '—'}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">Stato prodotto Shopify</dt><dd>{shopifyLive.publicationStatus ?? '—'}</dd></div>
             <div><dt className="text-xs text-muted-foreground">ID Shopify</dt><dd className="break-all">{shopifyLive.productId ?? '—'}</dd></div>
             <div><dt className="text-xs text-muted-foreground">Prezzo</dt><dd>{shopifyLive.price ?? '—'}</dd></div>
             <div><dt className="text-xs text-muted-foreground">Prezzo barrato</dt><dd>{shopifyLive.compareAtPrice ?? '—'}</dd></div>
             <div><dt className="text-xs text-muted-foreground">Stato sync corrente</dt><dd>{SHOPIFY_SYNC_LABEL[shopifyLive.syncStatus ?? 'never'] ?? shopifyLive.syncStatus}</dd></div>
           </dl>
         ) : <p className="text-sm text-muted-foreground">{shopifyLive.error}</p>}
-      </section>
+      </details>
 
-      {!ADMIN_READ_ONLY_RELEASE && <CatalogActions productId={product.productId} context={context} />}
+      {!ADMIN_READ_ONLY_RELEASE && <CatalogActions key={product.productId} productId={product.productId} technical={isTechnicalProduct([product.sku], title, product.productId)} context={context} />}
 
+      {!ADMIN_READ_ONLY_RELEASE && context?.canUseAi && aiSuggestions.isLoading && <p role="status">Recupero delle proposte salvate…</p>}
+      {context?.canUseAi && aiSuggestions.isError && <p role="alert">Lettura delle proposte non riuscita. Puoi modificare la bozza manualmente.{' '}
+        <button className="underline" onClick={() => void aiSuggestions.refetch()}>Rileggi le proposte salvate</button>
+      </p>}
       <Accordion type="multiple" defaultValue={sections.slice(0, 2).map((s) => s.key)}>
         {sections.map((section) => (
           <AccordionItem key={section.key} value={section.key}>
@@ -151,14 +157,14 @@ export default function ProductDetailPage() {
                 <div className="grid gap-3 lg:grid-cols-2">
                   {section.fields.map((field) => (
                     <FieldCard
-                      key={field.key}
+                      key={product.productId + field.key}
                       field={ADMIN_READ_ONLY_RELEASE ? readOnlyField(field) : field}
                       onCommand={command.mutateAsync}
                       onSync={fieldSync.mutateAsync}
                       syncEnabled={!ADMIN_READ_ONLY_RELEASE && context?.canSync === true && field.shopifySyncAllowed === true}
-                      onConflict={refetch}
+                      onConflict={async () => { await refetch(); if (context?.canUseAi && !ADMIN_READ_ONLY_RELEASE) await aiSuggestions.refetch(); }}
                       aiSuggestion={aiSuggestions.data?.find((item) => item.fieldKey === field.key)}
-                      onGenerateAi={async (input) => (await generateAi.mutateAsync(input)).suggestion}
+                      onGenerateAi={context?.canUseAi && aiSuggestions.isSuccess ? async input => { await generateAi.mutateAsync(input); } : undefined}
                       onRejectAi={async (suggestionId) => { await rejectAi.mutateAsync(suggestionId); }}
                       onAcceptAi={async (input) => { await acceptAi.mutateAsync(input); }}
                     />

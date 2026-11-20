@@ -1,4 +1,5 @@
 // F6 — Rende leggibile qualsiasi valore: mai JSON grezzo in UI cliente.
+import EditorialText from './EditorialText';
 import { Badge } from '@/components/ui/badge';
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
@@ -9,10 +10,12 @@ function isImageUrl(v: unknown): v is string {
   return typeof v === 'string' && /^https?:\/\//.test(v) && /\.(jpe?g|png|webp|avif|gif)/i.test(v);
 }
 
-export default function ValueDisplay({ value, label }: { value: unknown; label?: string }) {
+export default function ValueDisplay({ value, label, richText }: { value: unknown; label?: string; richText?: boolean }) {
   if (value === null || value === undefined || value === '') {
     return <span className="text-sm text-muted-foreground">Nessun valore</span>;
   }
+
+  if (richText && typeof value === 'string') return <EditorialText value={value} />;
 
   if (typeof value === 'boolean') {
     return <span className="text-sm">{value ? 'Sì' : 'No'}</span>;

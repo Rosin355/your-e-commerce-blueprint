@@ -13,6 +13,7 @@ import {
   sendFieldCommand,
   sendFieldSyncCommand,
   type AdminContext,
+  type AdminAiSuggestion,
   type DashboardStats,
   type FieldCommandAction,
   type ProductDetail,
@@ -90,50 +91,77 @@ export function useProductList(filters: ProductFilters, cursor: string | null) {
 }
 
 export function useProductDetail(productId?: string) {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ['admin', 'product', productId],
+    queryKey: ['admin', 'product', productId, user?.id],
     queryFn: () => callAdminApi<ProductDetail>({ action: 'get_product', productId }),
-    enabled: !!productId,
+    enabled: !!productId && !!user,
     staleTime: 30_000,
     retry,
   });
 }
 
-export function useAiSuggestions(productId?: string) {
+function useSuggestionCacheKey(productId?: string) {
+  const { user } = useAuth();
+  return ['admin', 'ai-suggestions', user?.id, productId] as const;
+}
+
+export function useAiSuggestions(productId: string | undefined, permitted: boolean) {
+  const queryKey = useSuggestionCacheKey(productId);
   return useQuery({
-    queryKey: ['admin', 'ai-suggestions', productId],
+    queryKey,
     queryFn: async () => (await getAiSuggestions(productId!)).suggestions,
-    enabled: false, // AI is outside the catalog delivery mandate.
-    staleTime: 15_000,
-    retry,
+    enabled: !ADMIN_READ_ONLY_RELEASE && permitted && Boolean(queryKey[2] && productId),
+    retry: false,
   });
 }
 
 export function useGenerateAiSuggestion(productId?: string) {
   const queryClient = useQueryClient();
+  const queryKey = useSuggestionCacheKey(productId);
   return useMutation({
+    retry: false,
     mutationFn: (input: { fieldKey: string; baseVersion: number }) =>
       generateAiSuggestion({ productId: productId!, ...input }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'ai-suggestions', productId] }),
+    onSuccess: async ({ suggestion }) => {
+      await queryClient.cancelQueries({ queryKey, exact: true });
+      queryClient.setQueryData<AdminAiSuggestion[]>(queryKey, (rows = []) =>
+        [suggestion, ...rows.filter(row => row.fieldKey !== suggestion.fieldKey)]);
+    },
+    onError: () => queryClient.invalidateQueries({ queryKey }),
   });
 }
 
-export function useRejectAiSuggestion(productId?: string) {
+function useRemoveResolvedSuggestion(productId?: string) {
   const queryClient = useQueryClient();
+  const queryKey = useSuggestionCacheKey(productId);
+  return async (id: string) => {
+    await queryClient.cancelQueries({ queryKey, exact: true });
+    queryClient.setQueryData<AdminAiSuggestion[]>(queryKey, rows => rows?.filter(row => row.id !== id));
+  };
+}
+
+export function useRejectAiSuggestion(productId?: string) {
+  const remove = useRemoveResolvedSuggestion(productId);
   return useMutation({
-    mutationFn: (suggestionId: string) => rejectAiSuggestion(suggestionId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'ai-suggestions', productId] }),
+    retry: false,
+    mutationFn: rejectAiSuggestion,
+    onSuccess: ({ suggestion }) => remove(suggestion.id),
   });
 }
 
 export function useAcceptAiSuggestion(productId?: string) {
   const queryClient = useQueryClient();
+  const remove = useRemoveResolvedSuggestion(productId);
   return useMutation({
+    retry: false,
     mutationFn: acceptAiSuggestion,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'ai-suggestions', productId] });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'product', productId] });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
+    onSuccess: async ({ suggestion }) => {
+      await remove(suggestion.id);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['admin', 'product', productId] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'products'] }),
+      ]);
     },
   });
 }

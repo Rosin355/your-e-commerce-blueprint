@@ -11,9 +11,9 @@ export default function ConfirmedAiAssistant({ field, onApply, generate = sugges
   useEffect(()=>()=>{revision.current++;},[]);
   const invalidate=()=>{revision.current++;request.current=crypto.randomUUID();setConfirmed(false);setProposal(undefined);setError('');};
   return <section aria-label={`Assistenza AI ${field.label}`} className="mt-4 space-y-3 rounded border p-3">
-    <h3 className="font-semibold">Aiutami a compilare: {field.label}</h3>
+    <h3 className="font-semibold">Aiutami a compilare con informazioni verificate</h3>
     <p className="text-sm">Inserisci da 1 a 12 frasi verificate, una per riga, da 12 a 500 caratteri ciascuna. L’AI può solo organizzare queste frasi, senza aggiungere parole o fatti. Non inserire dati personali, prezzi, stock, SKU o certificazioni da dedurre. Senza dati sufficienti puoi compilare manualmente.</p>
-    <label className="block">Informazioni fattuali confermabili<Textarea aria-label={`Informazioni fattuali ${field.label}`} maxLength={6011} value={text} onChange={e=>{invalidate();setText(e.target.value);}} /></label>
+    <label className="block">Fatti verificati da dare all’AI<Textarea aria-label={`Informazioni fattuali ${field.label}`} maxLength={6011} value={text} onChange={e=>{invalidate();setText(e.target.value);}} /></label>
     <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={confirmed} onChange={e=>{revision.current++;request.current=crypto.randomUUID();setConfirmed(e.target.checked);setProposal(undefined);}} />Confermo che queste informazioni sono verificate e utilizzabili per il prodotto</label>
     <Button type="button" disabled={busy || !confirmed || proposal!==undefined} onClick={async()=>{
       const current=revision.current;setError('');setProposal(undefined);

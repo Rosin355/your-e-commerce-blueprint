@@ -259,3 +259,17 @@ test('image upload denies ungranted users and invalid bytes before any upload', 
     assert.equal(response.status,catalog?400:403); assert.equal(s.calls.uploads,0);assert.equal(s.calls.shopifyMutations,0);
   }
 });
+
+test('SKU TEST-OG-AI-001: editor con publish non può preparare o inviare la pubblicazione', async () => {
+  const fixture = load({ role: 'editor', catalog: true, sku: 'TEST-OG-AI-001', commerce: true });
+  const command = { action: 'publish_catalog_product', productId, expectedUpdatedAt: '2026-11-10T12:00:00Z',
+    logistics: [], idempotencyKey: requestKey };
+  const prepared = await fixture.request({ action: 'prepare_catalog_approval', command, confirm: true });
+  assert.ok(prepared.status >= 400);
+  assert.match((await prepared.json()).error.message, /prodotto tecnico/i);
+  assert.equal(fixture.approvals.length, 0);
+  const executed = await fixture.request({ ...command, confirm: true });
+  assert.ok(executed.status >= 400);
+  assert.equal(fixture.calls.shopifyMutations, 0);
+  assert.equal(fixture.calls.rpc, 0);
+});

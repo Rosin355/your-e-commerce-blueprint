@@ -1,3 +1,4 @@
+import { shopifyStorefrontGraphQL } from '../_shared/shopify-storefront-server.ts';
 import { decodeEditorialList } from '../_shared/editorial-list-codec.ts';
 import { COMMERCE_ACTIONS, handleCatalogCommerce, commerceSnapshot } from '../_shared/admin-catalog-commerce.ts';
 import { loadCatalogGrant, prepareCatalogApproval, withCatalogApproval, catalogMode } from '../_shared/admin-catalog-approvals.ts';
@@ -306,7 +307,21 @@ Deno.serve(async (req) => {
               // Un singolo target non disponibile non impedisce le altre letture esatte.
             }
           }
+          let siteVisible: boolean | null = null;
+          let siteAvailability: boolean | null = null;
+          if (live.status === 'ACTIVE' || live.status === 'UNLISTED') {
+            try {
+              const site = await shopifyStorefrontGraphQL<{ product: { id: string; availableForSale: boolean } | null }>(
+                'query EditorSiteAvailability($id:ID!){product(id:$id){id availableForSale}}', { id: live.id }, '2026-01');
+              if (site.product === null) siteVisible = false;
+              if (site.product?.id === live.id && typeof site.product.availableForSale === 'boolean') {
+                siteVisible = true;
+                siteAvailability = site.product.availableForSale;
+              }
+            } catch { /* Unknown channel visibility must never be presented as published. */ }
+          }
           shopifyLive = {
+            siteVisible, siteAvailability,
             available: true,
             mapped: true,
             productId: live.id,

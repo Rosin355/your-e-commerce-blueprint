@@ -1,5 +1,24 @@
 # Step 1 — checklist di chiusura
 
+## Collaudo cliente in 3–5 minuti · candidato del 20 novembre
+
+**Prima del rilascio**, il responsabile può eseguire `npm run test:editor-browser` sul branch candidato con Chromium Playwright installato. Il wizard, il salvataggio sintetico e il recupero della proposta AI utilizzano risposte simulate. È il percorso ripetibile anche senza collegamento al negozio.
+
+**Dopo la distribuzione autorizzata**, il cliente può eseguire il controllo seguente in sola lettura.
+
+- [ ] Il responsabile annota SHA frontend/API, ambiente e browser. Marco accede con il proprio account abituale.
+- [ ] Cerca `TEST-OG-AI-001`, apre la lavanda tecnica e legge **Bozza interna non inviata · fuori vendita**.
+- [ ] Nel **Riepilogo della bozza interna salvata** trova **10,00 EUR**, **Aromatiche da esterno**, **OnlineGarden**, quattro tag, un formato, una foto con ALT, descrizione e SEO.
+- [ ] La descrizione è leggibile e formattata. **Puoi modificare qui** indica un campo consentito. Apri **Modifica** e poi **Annulla**.
+- [ ] Sulla descrizione già scritta individua il miglioramento AI e i comandi Shopify separati. La compilazione da fatti verificati si trova nei campi vuoti abilitati o nel wizard. Per la prova in lettura lascia i comandi inattivi.
+- [ ] Ricarica la pagina. Annota PASS o FAIL, voce inattesa e browser, senza includere credenziali. Con riepilogo assente, valore incongruente o stato di vendita incerto, sospendi la consegna ordinaria.
+
+**Prova facoltativa in scrittura.** Solo in staging autorizzato e su dati sintetici assegnati, salvare una modifica interna e verificare il campo dopo il refresh. In assenza di staging approvato, registrare NON ESEGUITO. Il test di generazione, scarto, modifica e applicazione può essere ripetuto integralmente con il provider simulato. [Guida Marco](GUIDA-MARCO.md) · [Verbale e limiti](COLLAUDO-MARCO-STEP1C.md)
+
+---
+
+## Cronologia precedente alla correzione del 20 novembre
+
 ## Publish F-P PASS — 18 novembre 2026, release editor AI Marco
 
 - [x] **F-P PASS (report Lovable):** un solo Publish su onlinegarden.it, code commit `f54bf877c25b994604ef058ae82a17992856d111`; asset nuovo `index-CMoOo4zb` (precedente `index-7LGwLIzQ`). L'etichetta `seo-p1-20261112-r1` non e' cambiata, dunque **non distingue** la release nuova.

@@ -85,7 +85,8 @@ test('esito incerto blocca nuova approvazione anche con nuovo idempotency key',a
 test('AI sei campi conservata e sync non parte da save/accept/open',()=>{
  assert.equal(catalogAiAllowed({...auth(),catalogGrant:{...auth().catalogGrant!,capabilities:['edit','sync','ai']}},'key_benefits'),true);
  assert.equal(catalogAiAllowed({...auth(),catalogGrant:{...auth().catalogGrant!,capabilities:['edit','sync','ai'],fieldKeys:['title']}},'title'),false);
- const field=readFileSync('src/adminv2/components/FieldCard.tsx','utf8');assert.match(field,/!editorialList && field.shopifySyncSupported/);
+ const field=readFileSync('src/adminv2/components/FieldCard.tsx','utf8');const save = field.slice(field.indexOf('const save ='), field.indexOf('const syncCurrentValue'));
+ assert.match(save, /onCommand\(/); assert.doesNotMatch(save, /onSync|sync_field/);
  const api=readFileSync('supabase/functions/product-admin-api/index.ts','utf8');assert.match(api,/action === 'sync_field' && isEditorialList\(payload.fieldKey\)\) requireCatalog/);
 });
 

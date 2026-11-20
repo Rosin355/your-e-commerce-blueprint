@@ -39,5 +39,5 @@ export const OPERATION_LABELS: Record<string, string> = {
   LOCAL_DRAFT: 'Bozza interna — non inviata',
   IN_FLIGHT: 'Invio avviato — verifica richiesta',
   NEEDS_RECONCILIATION: 'Da riconciliare — non reinviare',
-  VERIFIED_DRAFT: 'Bozza Shopify verificata — non pubblicata',
+  VERIFIED_DRAFT: 'Bozza Shopify verificata al momento dell’invio',
 };

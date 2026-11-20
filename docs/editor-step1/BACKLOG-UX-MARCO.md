@@ -1,5 +1,30 @@
 # Backlog UX editor prodotti — percorso Marco
 
+## Stato del candidato del 20 novembre 2026
+
+Il collaudo tecnico riguarda il branch `codex/marco-editor-delivery-fixes`. L'accettazione personale di Marco resta **NON ESEGUITA**. Le prove complete e i limiti sono nel [verbale di collaudo](COLLAUDO-MARCO-STEP1C.md).
+
+| ID | Intervento nel candidato | Verifica |
+| --- | --- | --- |
+| UX-01 · P0 | La risposta di generazione mostra subito la proposta. Riaprire la scheda recupera quella in attesa. | PASS browser con doppio click, refresh, scarto, modifica, applicazione e versione superata. |
+| UX-02 · P0 | Riepilogo in sola lettura dei dati registrati alla creazione, accessibile con il permesso bozze. | PASS RPC locale, proiezione autorizzata e riapertura browser. Confermati sul record di prova prezzo, categoria, foto e SEO. |
+| UX-03 · P0 | La scheda distingue record interno, stato operativo e stato del canale di vendita. | PASS test di stati per locale, DRAFT, pubblicazione, esaurito e verifica indisponibile. |
+| UX-04 · P0 | Il salvataggio è interno. Le operazioni Shopify richiedono comandi distinti. La pubblicazione tecnica è bloccata anche sul server. | PASS test negativi di autorizzazione e pubblicazione. Il browser controlla le operazioni richieste. |
+| UX-05 | Anteprima e riepilogo rendono il rich text sanitizzato. Il contenuto legacy conservato nel database resta disponibile. | PASS test browser su markup legacy, testo visibile e attributi pericolosi. |
+| UX-06 | Campo prodotto, dati per l’AI e pulsanti di approvazione hanno etichette distinte. | PASS percorso browser. Comprensibilità senza tutoraggio da verificare con Marco. |
+| UX-07 | Flussi separati per organizzare fatti confermati e migliorare un testo esistente. L’operatore può correggere e scartare. | PASS con provider simulato. Qualità editoriale di una nuova risposta reale NON ESEGUITA. |
+| UX-08 | I campi autorizzati segnalano «Puoi modificare qui». Dati tecnici e comandi remoti si aprono su richiesta. | PASS controlli di ruolo e capability e percorso manuale in caso di errore AI. Login personale NON ESEGUITO. |
+| UX-09 | Ricerca per nome, categorie assegnate e denominazione verificata per ID esatto. | PASS browser e servizio, compreso fallback. Il GID della bozza corrisponde ad «Aromatiche da esterno». |
+| UX-10 | Ogni formato espone SKU, prezzo di vendita e prezzo precedente. L’input gestisce la virgola. | PASS regressioni prezzi/formati e confronto `10,00` in anteprima e riapertura. |
+| UX-11 | Libreria, associazione alla bozza, caricamento e ALT sono distinguibili. Ritentare lo stesso file riutilizza la chiave. | PASS upload simulato, riselezione, rimozione locale e rilettura foto/ALT. |
+| UX-12 | Botanica e FAQ sono raggruppate, la SEO si espande separatamente. I campi facoltativi possono restare vuoti. | PASS attraversamento del wizard e compilazione selettiva della SEO. |
+| UX-13 | Un unico componente mostra titolo, descrizione, categoria, formati, prezzo, foto e SEO prima e dopo il salvataggio. | PASS confronto di entrambi i pannelli nel browser. Lo stato distingue anteprima, bozza e sito. |
+| UX-14 | Conservati ordine e modifica delle tre liste editoriali. Una definizione Shopify non verificata impedisce l’invio. | PASS regressioni browser a 390 e 1280 px e controlli del contratto di sincronizzazione. |
+
+---
+
+## Cronologia precedente alla correzione del 20 novembre
+
 > Aggiornato 19 novembre 2026. Documento operativo per designer, developer, responsabile Online Garden e cliente. Evidenza: collaudo reale sul prodotto `TEST-OG-AI-001`, pagina Admin e audit del codice su `main`. **Nessun punto seguente e' dichiarato implementato.** Questa lista non autorizza operazioni Shopify, nuove migrazioni o deploy.
 
 ## Obiettivo di prodotto
