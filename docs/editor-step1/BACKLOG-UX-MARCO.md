@@ -1,5 +1,13 @@
 # Backlog UX editor prodotti — percorso Marco
 
+## Chiusura dei 14 interventi · 20 novembre 2026
+
+Gli interventi UX-01–UX-14 della tabella seguente fanno parte della versione integrata con la PR #57. La versione è online e il riepilogo della lavanda è stato verificato nella sessione Admin successiva alla pubblicazione. La tabella conserva il tipo di prova disponibile per ciascun intervento. Le voci che richiedono il giudizio di Marco, il suo dispositivo o una nuova generazione reale restano aperte per il collaudo post-consegna. [Evidenza live](COLLAUDO-MARCO-STEP1C.md#verifica-live-dopo-publish-frontend--20-novembre-2026) · [Checklist cliente](CHECKLIST.md)
+
+**Cronologia.** Le note successive descrivono le verifiche alle rispettive date. Le istruzioni che indicano ancora da eseguire merge, deploy o pubblicazione sono superate.
+
+---
+
 ## Stato del candidato del 20 novembre 2026
 
 Il collaudo tecnico riguarda il branch `codex/marco-editor-delivery-fixes`. L'accettazione personale di Marco resta **NON ESEGUITA**. Le prove complete e i limiti sono nel [verbale di collaudo](COLLAUDO-MARCO-STEP1C.md).

@@ -1,5 +1,15 @@
 # Online Garden — delivery gate rapido per Marco (20 novembre 2026)
 
+## Chiusura della fase di sviluppo · decisione del responsabile
+
+**Sviluppo completato. Consegna controllata consentita.** La PR #57 è unita a `main`, l’API è stata distribuita tramite Lovable e il frontend pubblicato è stato verificato sulla bozza tecnica in sola lettura con un account Admin. La prossima attività è concordare il collaudo con Marco. Il pacchetto comprende [messaggio di consegna](HANDOFF-MARCO-2026-11-20.md), [guida operativa](GUIDA-MARCO.md) e [criteri di accettazione](CHECKLIST.md).
+
+Il responsabile mantiene sospeso l’uso commerciale autonomo finché accesso, comprensione e accessibilità sono da validare. La prova reale dell’AI richiede un accordo esplicito sul costo. Annotare l’eventuale limitazione residua prima di autorizzare l’uso ordinario. Per incongruenze sullo stato di vendita o sui dati della bozza interrompere la prova e seguire la [procedura tecnica di ripristino](DEVELOPER.md). [Evidenza della verifica live](COLLAUDO-MARCO-STEP1C.md#verifica-live-dopo-publish-frontend--20-novembre-2026)
+
+**Cronologia.** Le note successive descrivono le verifiche alle rispettive date. Le istruzioni che indicano ancora da eseguire merge, deploy o pubblicazione sono superate.
+
+---
+
 ## Stato deploy backend comunicato da Lovable — 20 novembre 2026
 
 - **Backend `product-admin-api`: DEPLOY DICHIARATO COMPLETATO** da Lovable sul codice del merge `1fd8e7bc15b0c38f6dcaa1a6d17ade3506f0f245`, con fingerprint pacchetto trasmesso `8b6bd865…a12901d`. Il fingerprint prova il pacchetto inviato, **non** l'identita' binaria della funzione attualmente in esecuzione; la piattaforma non consente readback del codice live.

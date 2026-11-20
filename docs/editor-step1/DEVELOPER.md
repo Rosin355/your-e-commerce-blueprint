@@ -1,5 +1,17 @@
 # Step 1 — editor prodotti: implementazione e limiti
 
+## Versione in esercizio e ripristino · 20 novembre 2026
+
+Il merge applicativo è `1fd8e7bc15b0c38f6dcaa1a6d17ade3506f0f245`. Lovable ha distribuito `product-admin-api` con i moduli condivisi del riepilogo. Il frontend pubblicato legge i dati della creazione e mostra a parte i valori editoriali correnti e lo stato di vendita verificabile. Le proposte AI usano la funzione `product-admin-ai` già in esercizio. Nessuna nuova migrazione. La verifica autenticata post-pubblicazione attesta il comportamento integrato. Lovable non fornisce il confronto binario con il codice Edge in esecuzione né lo SHA del bundle servito. [Verbale live](COLLAUDO-MARCO-STEP1C.md#verifica-live-dopo-publish-frontend--20-novembre-2026)
+
+**Prove del rilascio.** Typecheck, build, 526 test Node, 107 Deno, 14 scenari Chromium e controlli database superati. Lint del perimetro senza errori. Il lint globale conserva i 42 errori e 11 avvisi rilevati anche sulla base. La chiusura documentale riutilizza gli esiti della PR #57. [CI applicazione e PostgreSQL 17](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/44716451641) · [CI browser](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/44716451721)
+
+**Ripristino se necessario.** Il responsabile sospende l’uso interessato e identifica nella cronologia Lovable la revisione frontend immediatamente precedente a questa pubblicazione. Dopo autorizzazione ripristina quella revisione e prepara una PR di revert delle modifiche applicative della #57. Se occorre ripristinare anche l’API, mantenere la protezione server sui prodotti tecnici o sospendere la pubblicazione dei prodotti durante l’intervento. Verificare in sola lettura stato e dati della lavanda, quindi registrare revisione ed esito. Lo schema resta compatibile e non richiede ripristino dati.
+
+**Cronologia.** Le note successive descrivono le verifiche alle rispettive date. Le istruzioni che indicano ancora da eseguire merge, deploy o pubblicazione sono superate.
+
+---
+
 ## Architettura della correzione del 20 novembre 2026
 
 | Fonte | Utilizzo nella scheda |
