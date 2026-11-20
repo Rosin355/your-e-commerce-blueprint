@@ -17,8 +17,10 @@ test('stato sul sito richiede prove sul canale e distingue la disponibilità', (
   assert.match(siteState({ available: false }, 'VERIFIED_DRAFT', true), /da verificare/);
   assert.match(siteState({ available: false }, 'IN_FLIGHT', false), /da verificare/);
   assert.match(siteState({ available: true, publicationStatus: 'DRAFT' }), /Bozza Shopify verificata/);
+  assert.match(siteState({ available: true, publicationStatus: 'ACTIVE', siteAvailability: true }), /da verificare/);
+  assert.match(siteState({ available: true, publicationStatus: 'UNLISTED', siteVisible: true, siteAvailability: true }), /tramite link.*disponibile/);
   assert.match(siteState({ available: true, publicationStatus: 'ACTIVE', siteVisible: false }), /Non visibile/);
   assert.match(siteState({ available: true, publicationStatus: 'ACTIVE' }), /da verificare/);
-  assert.match(siteState({ available: true, publicationStatus: 'ACTIVE', siteAvailability: true }), /Pubblicato.*disponibile/);
-  assert.match(siteState({ available: true, publicationStatus: 'ACTIVE', siteAvailability: false }), /Visibile.*esaurito/);
+  assert.match(siteState({ available: true, publicationStatus: 'ACTIVE', siteVisible: true, siteAvailability: true }), /Pubblicato.*disponibile/);
+  assert.match(siteState({ available: true, publicationStatus: 'ACTIVE', siteVisible: true, siteAvailability: false }), /Pubblicato.*non acquistabile/);
 });

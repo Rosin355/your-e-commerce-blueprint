@@ -12,7 +12,7 @@ import FieldEditor from './FieldEditor';
 import AiSuggestionCard from './AiSuggestionCard';
 import { AdminApiError, type AdminAiSuggestion, type AdminField, type FieldCommandAction } from '../lib/adminApi';
 import { editorKind, isEditorValueSupported, normalizeEditorValue, parseFaqValue } from '../lib/fieldValueCodecs';
-import { ENTITY_LABEL, isLegacyAi, isManualField, LEGACY_AI_NOTICE, originLabel, reviewLabel } from '../lib/labels';
+import { isLegacyAi, isManualField, LEGACY_AI_NOTICE, originLabel, reviewLabel } from '../lib/labels';
 
 function cloneValue(value: unknown): unknown {
   if (value === undefined) return undefined;
@@ -67,7 +67,6 @@ export default function FieldCard({ field, onGenerateConfirmed, onCommand, onSyn
   const legacyAi = isLegacyAi(field);
   const manual = isManualField(field);
   const initialValue = !field.capabilities.currentValueExists && field.shopifyLiveValue != null ? field.shopifyLiveValue : field.value;
-  const displayValue = typeof initialValue === 'string' ? ENTITY_LABEL[initialValue] ?? initialValue : initialValue;
   const editorSupported = isEditorValueSupported(field, initialValue);
   const canImprove = field.capabilities.canSuggestAi && field.value != null && field.value !== '' &&
     !(Array.isArray(field.value) && !field.value.length) && field.version !== null && field.version > 0;
@@ -216,7 +215,7 @@ export default function FieldCard({ field, onGenerateConfirmed, onCommand, onSyn
             </div>
           ) : initialValue == null ? (
             <p className="text-sm text-muted-foreground">Dato assente nei campi editoriali. Per le nuove bozze consulta il riepilogo della creazione.</p>
-          ) : <ValueDisplay richText={editorKind(field) === 'richtext'} value={displayValue} label={field.label} />}
+          ) : <ValueDisplay richText={editorKind(field) === 'richtext'} value={initialValue} label={field.label} />}
         </section>
         <details className="space-y-3"><summary className="cursor-pointer text-sm underline">Avanzato · Dettagli e confronto</summary>
           <section className="min-w-0 rounded-md border bg-muted/30 p-3">

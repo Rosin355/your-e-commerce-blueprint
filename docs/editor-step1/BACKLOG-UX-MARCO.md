@@ -8,7 +8,7 @@ Il collaudo tecnico riguarda il branch `codex/marco-editor-delivery-fixes`. L'ac
 | --- | --- | --- |
 | UX-01 · P0 | La risposta di generazione mostra subito la proposta. Riaprire la scheda recupera quella in attesa. | PASS browser con doppio click, refresh, scarto, modifica, applicazione e versione superata. |
 | UX-02 · P0 | Riepilogo in sola lettura dei dati registrati alla creazione, accessibile con il permesso bozze. | PASS RPC locale, proiezione autorizzata e riapertura browser. Confermati sul record di prova prezzo, categoria, foto e SEO. |
-| UX-03 · P0 | La scheda distingue record interno, stato operativo e stato del canale di vendita. | PASS test di stati per locale, DRAFT, pubblicazione, esaurito e verifica indisponibile. |
+| UX-03 · P0 | La scheda distingue record interno, stato operativo e stato del canale di vendita. | PASS test di stati per locale, DRAFT, pubblicazione, acquisto indisponibile e verifica incerta. |
 | UX-04 · P0 | Il salvataggio è interno. Le operazioni Shopify richiedono comandi distinti. La pubblicazione tecnica è bloccata anche sul server. | PASS test negativi di autorizzazione e pubblicazione. Il browser controlla le operazioni richieste. |
 | UX-05 | Anteprima e riepilogo rendono il rich text sanitizzato. Il contenuto legacy conservato nel database resta disponibile. | PASS test browser su markup legacy, testo visibile e attributi pericolosi. |
 | UX-06 | Campo prodotto, dati per l’AI e pulsanti di approvazione hanno etichette distinte. | PASS percorso browser. Comprensibilità senza tutoraggio da verificare con Marco. |

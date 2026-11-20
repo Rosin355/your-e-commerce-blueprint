@@ -16,10 +16,10 @@ const initial: ProductDraft = {
   seoTitle: 'Titolo SEO sintetico', seoDescription: 'Descrizione SEO sintetica',
 };
 
-async function simulate(page: Page, options: { readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean } = {}) {
+async function simulate(page: Page, options: { readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string } = {}) {
   let saved = structuredClone(initial);
   if (options.legacy) saved.description = '<p onclick="">Testo <strong>verificato</strong>.</p><ul><li>Voce</li></ul><script type="application/json">contenuto escluso</script>';
-  let value = saved.description;
+  let value = options.currentText ?? saved.description;
   let version = 1;
   let sent = false;
   let pending: AdminAiSuggestion | undefined;
@@ -193,9 +193,10 @@ test('wizard reale: categoria, virgola, anteprima e riapertura del riepilogo', a
 });
 
 test('lettura pending indisponibile: editing manuale accessibile, generazione bloccata', async ({ page }) => {
-  const model = await simulate(page, { readError: true });
+  const model = await simulate(page, { readError: true, currentText: 'simple' });
   await page.goto('/admin/products/' + productId);
   await expect(page.getByRole('button', { name: 'Rileggi le proposte salvate' })).toBeVisible();
+  await expect(page.getByText('simple', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Migliora il testo con AI' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Modifica', exact: true }).click();
   await expect(page.getByRole('textbox', { name: 'Descrizione' })).toBeEditable();

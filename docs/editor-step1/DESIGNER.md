@@ -2,7 +2,7 @@
 
 ## Comportamento del candidato del 20 novembre 2026
 
-Aprendo la scheda, l’operatore trova lo stato di vendita, poi il riepilogo in sola lettura registrato alla creazione e i campi correnti. «Record interno» identifica la scheda Admin. Per una bozza locale senza collegamento il testo è «Bozza interna non inviata · fuori vendita». Un dato Shopify mancante lascia visibile «Visibilità e disponibilità sul sito da verificare». La disponibilità e l’esaurimento richiedono riscontro del canale.
+Aprendo la scheda, l’operatore trova lo stato di vendita, poi il riepilogo in sola lettura registrato alla creazione e i campi correnti. «Record interno» identifica la scheda Admin. Per una bozza locale senza collegamento il testo è «Bozza interna non inviata · fuori vendita». Un dato Shopify mancante lascia visibile «Visibilità e disponibilità sul sito da verificare». Il canale conferma se almeno un formato è acquistabile. Un prodotto fuori elenco viene indicato come consultabile tramite link.
 
 | Momento | Indicazione per Marco |
 | --- | --- |

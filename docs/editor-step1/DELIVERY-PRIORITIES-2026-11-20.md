@@ -14,7 +14,7 @@
 
 ### Ripristino
 
-Prima della distribuzione è sufficiente lasciare la PR aperta o chiuderla. Dopo un rilascio, sospendere l’uso dell’editor interessato, ripristinare il frontend precedentemente registrato e preparare una PR di revert del commit rilasciato. Se serve anche il rollback Edge, conservare il blocco server della pubblicazione dei prodotti tecnici o sospendere quell’operazione fino al ripristino della protezione. Ripetere i controlli in lettura sullo SKU tecnico e registrare l’esito. Le proposte e le bozze persistite sono compatibili con lo schema esistente. Nessun ripristino dati è necessario.
+Prima della distribuzione è sufficiente lasciare la PR aperta o chiuderla. Dopo un rilascio, sospendere l’uso dell’editor interessato, ripristinare il frontend precedentemente registrato e preparare una PR di revert della PR distribuita. Se serve anche il rollback Edge, conservare il blocco server della pubblicazione dei prodotti tecnici o sospendere quell’operazione fino al ripristino della protezione. Ripetere i controlli in lettura sullo SKU tecnico e registrare l’esito. Le proposte e le bozze persistite sono compatibili con lo schema esistente. Nessun ripristino dati è necessario.
 
 Durante la preparazione del candidato sono state effettuate solo letture applicative remote. Nessun merge, deploy Edge, Publish Lovable, generazione AI a pagamento o mutazione Shopify. Checkout, pagamenti, inventario, clienti, prodotti in vendita e navigazione storefront sono fuori dal perimetro delle modifiche.
 
