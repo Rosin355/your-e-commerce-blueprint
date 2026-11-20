@@ -93,6 +93,16 @@ Screenshot Cloudflare fornito dal cliente: nella zona in fase di preparazione co
 
 **Prossimo gate:** verifica DNSSEC/DS e gestione della delega nameserver dal soggetto che la controlla; successivamente collaudo compatibilità Lovable/Cloudflare proxy e redirect, senza alterare i 301 esistenti.
 
+## Decisione operativa — DNSSEC differito, 2026-11-20
+
+Il cliente non dispone attualmente dell'accesso al pannello di delega del dominio. È stato concordato di **continuare l'onboarding Cloudflare senza cambiare i nameserver**: il pulsante `Continue to activation` porta alle istruzioni/ai nameserver assegnati, ma non esegue da solo la modifica della delega al registrar.
+
+**DNSSEC è un gate obbligatorio prima del cambio effettivo dei nameserver, non un blocco per visualizzare il passo successivo.** Se il registro contiene un vecchio DS, la delega a Cloudflare senza rimuoverlo/coordinare le chiavi può generare `SERVFAIL` e rendere irraggiungibili sito e posta. Non attestare che DNSSEC sia inattivo senza un controllo del record DS pubblico o del pannello del registrar. Un tentativo di interrogare DNS pubblici da questa sessione è fallito per assenza di rete DNS nel runtime: nessun risultato di DNSSEC è stato ottenuto.
+
+**Passo successivo richiesto al cliente:** aprire `Continue to activation`, fornire screenshot dei nameserver proposti da Cloudflare e **non** modificarli ancora nel pannello che controlla la delega.
+
+Riferimenti: https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/ ; https://developers.cloudflare.com/dns/dnssec/
+
 ## Verifiche residue senza riaprire la configurazione
 
 1. **Cloudflare:** verificare che la zona riporti esattamente i sette record della tabella, con MX corretti, TXT SPF completo, eventuali altri record da preservare. Non cambiare le regole 301 esistenti.
