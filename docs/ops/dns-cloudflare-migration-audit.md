@@ -103,6 +103,32 @@ Il cliente non dispone attualmente dell'accesso al pannello di delega del domini
 
 Riferimenti: https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/ ; https://developers.cloudflare.com/dns/dnssec/
 
+## Evidenza Cloudflare — schermate 2026-11-20 ore 18:00
+
+La UI Cloudflare mostra la pagina **“Update your nameservers to activate Cloudflare”**, dopo `Continue to activation`.
+
+**Nameserver Cloudflare assegnati (trascrizione esatta dagli screenshot):**
+- `carlos.ns.cloudflare.com`
+- `karsyn.ns.cloudflare.com`
+
+**Nameserver attualmente indicati come da sostituire:**
+- `ns1098.ui-dns.de`
+- `ns1126.ui-dns.com`
+- `ns1037.ui-dns.org`
+- `ns1041.ui-dns.biz`
+
+**Seconda schermata:** raccomandazione Cloudflare `Make sure DNSSEC is off` e pulsante `I updated my nameservers`. **Il cliente non ha ancora effettuato il cambio della delega** e non deve premere quel pulsante come attestazione di un cambio non eseguito. La pagina iniziale `Continue to activation` era un passaggio di onboarding, non un cambio NS.
+
+**Condizioni prima del cutover:**
+1. Soggetto autorizzato accede al gestore che può modificare la delega del dominio (non necessariamente coincide con l'interfaccia Lovable) e verifica DNSSEC/DS al registro.
+2. Se c'è un vecchio record DS, rimuoverlo/disattivare DNSSEC secondo le indicazioni ufficiali e attendere il suo effettivo ritiro; solo dopo sostituire tutti i quattro NS di `ui-dns` con i due NS Cloudflare assegnati.
+3. Non applicare ora il consiglio generico `Only allow Cloudflare IP addresses at your origin`, perché l'origine è l'hosting gestito Lovable: ogni limitazione firewall deve essere supportata e concordata.
+4. Quando la delega sarà effettivamente cambiata, verificare lo stato attivo Cloudflare e collaudare HTTPS, 301, email e checkout, oltre a possibile riattivazione DNSSEC con valori di Cloudflare.
+
+**Rischio da evitare:** impostare NS Cloudflare senza gestire un eventuale DS preesistente può rendere l'intero dominio irrisolvibile. La documentazione ufficiale richiede la verifica prima del cambio.
+
+Fonte: https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/ e https://developers.cloudflare.com/dns/zone-setups/full-setup/troubleshooting/
+
 ## Verifiche residue senza riaprire la configurazione
 
 1. **Cloudflare:** verificare che la zona riporti esattamente i sette record della tabella, con MX corretti, TXT SPF completo, eventuali altri record da preservare. Non cambiare le regole 301 esistenti.
