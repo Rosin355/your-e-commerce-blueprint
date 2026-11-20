@@ -1,5 +1,23 @@
 > **Nota di collaudo LIVE — 19 novembre 2026:** il wizard e' disponibile e il responsabile ha creato `TEST-OG-AI-001` come **bozza interna non inviata a Shopify**. Questa guida contiene anche note storiche scritte prima dell'attivazione: per lo stato attuale prevalgono il [collaudo live](COLLAUDO-MARCO-STEP1C.md) e il [backlog UX](BACKLOG-UX-MARCO.md). **Non usare ancora `Migliora il testo con AI` su schede gia' salvate:** abbiamo individuato un difetto che puo' nascondere la proposta dopo aver consumato una richiesta AI. Il test `Aiutami a compilare` ha invece funzionato con fatti confermati. La consegna a Marco resta separata dalla prova tecnica: nessuna pubblicazione o aggiornamento Shopify senza autorizzazione.
 
+## Come controllare la bozza di lavanda
+
+Usa questa guida quando il responsabile conferma che è disponibile la nuova versione. Per il controllo in lettura servono il tuo account abituale e la bozza tecnica già presente.
+
+1. Apri **Prodotti**, cerca `TEST-OG-AI-001` e apri **TEST — Lavanda officinale — NON IN VENDITA**. Esiste già una scheda per questo SKU.
+2. Leggi lo stato in alto. Per questa lavanda deve comparire **Bozza interna non inviata · fuori vendita**. Apri **Riepilogo della bozza interna salvata**. Cerca **10,00 EUR**, **Aromatiche da esterno**, fornitore **OnlineGarden**, foto e testi SEO. Se manca il pannello o un dato atteso, fermati e segnala al responsabile quale voce manca.
+3. Scorri fino alla descrizione. Il riepilogo racconta cosa è stato registrato alla creazione. Nei campi con **Puoi modificare qui** trovi il testo corrente. Per un controllo in lettura apri **Modifica**, poi scegli **Annulla**.
+4. Solo nella prova di scrittura concordata in staging, correggi il campo e scegli il salvataggio della bozza. Ricarica e controlla il campo corrente. Il prezzo di vendita appartiene al formato. Il prezzo precedente è facoltativo e richiede un dato verificato.
+5. Per un testo già scritto, **Migliora il testo con AI** può consumare crediti. Per una scheda vuota usa **Aiutami a compilare** con fatti che hai verificato. Leggi originale e proposta, poi scegli **Modifica proposta**, **Scarta** o **Applica alla bozza**. Ricaricando prima dell’applicazione ritrovi la proposta AI originale. Per questa prova in lettura basta controllare che il comando sia disponibile.
+6. Scegliere una foto già in libreria la associa alla compilazione. Caricare un nuovo file può creare una risorsa remota. **Rimuovi dalla bozza** stacca il riferimento alla foto. Nella prova in lettura guarda soltanto miniatura e testo alternativo.
+7. I comandi **Crea bozza Shopify**, **Aggiorna sul sito** e **Pubblica** riguardano il negozio. Il collaudo della lavanda si conclude nella scheda interna. Comunica al responsabile l’esito e il nome dell’eventuale voce da correggere.
+
+[Checklist cliente in pochi minuti](CHECKLIST.md)
+
+---
+
+## Cronologia precedente alla correzione del 20 novembre
+
 # Prova dell'editor nella sessione personale
 
 ## Percorso A — aggiornamento 18 novembre 2026

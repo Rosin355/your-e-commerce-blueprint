@@ -156,6 +156,8 @@ export interface ProductDetail {
     mapped: boolean;
     productId: string | null;
     handle?: string | null;
+    siteVisible?: boolean | null;
+    siteAvailability?: boolean | null;
     publicationStatus?: string | null;
     syncStatus?: string | null;
     price?: string | number | null;

@@ -289,3 +289,10 @@ export function escapeHtml(s: string) {
     '&quot;',
   ).replace(/'/g, '&#39;');
 }
+
+/** Publication guard for catalog fixtures, including the pinned acceptance record. */
+export function isTechnicalProduct(skus: string[], title = '', productId?: string) {
+  return productId === 'b998f5bb-e9d4-4d53-a448-7a5129f91ddc' ||
+    /^\s*TEST(?:\s*[-—:]|\s*$)|\bTEST ADMIN\b|\bNON (?:IN VENDITA|PUBBLICARE)\b/i.test(title) ||
+    skus.some(sku => /^(?:TEST(?:[-_.]|$)|OG-ADMIN-CHECK-)/i.test(sku.trim()));
+}

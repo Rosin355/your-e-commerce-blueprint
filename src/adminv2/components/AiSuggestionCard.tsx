@@ -9,8 +9,9 @@ import ValueDisplay from './ValueDisplay';
 
 interface AiSuggestionCardProps {
   field: AdminField;
+  canImprove: boolean;
   suggestion?: AdminAiSuggestion;
-  onGenerate: (input: { fieldKey: string; baseVersion: number }) => Promise<AdminAiSuggestion>;
+  onGenerate: (input: { fieldKey: string; baseVersion: number }) => Promise<void>;
   onReject: (suggestionId: string) => Promise<unknown>;
   onAccept: (input: {
     suggestionId: string;
@@ -25,12 +26,14 @@ type AiBusy = 'generate' | 'reject' | 'accept' | null;
 
 export default function AiSuggestionCard({
   field,
+  canImprove,
   suggestion,
   onGenerate,
   onReject,
   onAccept,
   onRefresh,
 }: AiSuggestionCardProps) {
+  const inFlight = useRef(false);
   const [busy, setBusy] = useState<AiBusy>(null);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<unknown>(suggestion?.suggestedValue ?? null);
@@ -46,7 +49,8 @@ export default function AiSuggestionCard({
   }, [suggestion?.id, suggestion?.suggestedValue]);
 
   const generate = async () => {
-    if (field.version === null) return;
+    if (!canImprove || field.version === null || inFlight.current) return;
+    inFlight.current = true;
     setBusy('generate');
     setError(null);
     setResolution(null);
@@ -55,12 +59,14 @@ export default function AiSuggestionCard({
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Non è stato possibile creare la proposta.');
     } finally {
+      inFlight.current = false;
       setBusy(null);
     }
   };
 
   const reject = async () => {
-    if (!suggestion) return;
+    if (!suggestion || inFlight.current) return;
+    inFlight.current = true;
     setBusy('reject');
     setError(null);
     try {
@@ -69,12 +75,13 @@ export default function AiSuggestionCard({
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Non è stato possibile rifiutare la proposta.');
     } finally {
+      inFlight.current = false;
       setBusy(null);
     }
   };
 
   const accept = async () => {
-    if (!suggestion) return;
+    if (!suggestion || inFlight.current) return;
     const normalized = normalizeEditorValue(field, draft);
     if (normalized.ok === false) {
       setError(normalized.message);
@@ -82,6 +89,7 @@ export default function AiSuggestionCard({
     }
     if (!window.confirm('Applicare la proposta alla bozza interna? Il sito non verrà aggiornato.')) return;
     acceptKey.current ??= crypto.randomUUID();
+    inFlight.current = true;
     setBusy('accept');
     setError(null);
     try {
@@ -94,11 +102,12 @@ export default function AiSuggestionCard({
       setResolution('accepted');
       setEditing(false);
     } catch (reason) {
-      if (reason instanceof AdminApiError && reason.code === 'SUGGESTION_STALE') {
+      if (reason instanceof AdminApiError && ['SUGGESTION_STALE', 'VERSION_CONFLICT', 'SUGGESTION_RESOLVED'].includes(reason.code)) {
         await onRefresh();
       }
       setError(reason instanceof Error ? reason.message : 'Non è stato possibile accettare la proposta.');
     } finally {
+      inFlight.current = false;
       setBusy(null);
     }
   };
@@ -106,7 +115,8 @@ export default function AiSuggestionCard({
   if (!suggestion) {
     return (
       <div className="mt-3 space-y-2" aria-live="polite">
-        <Button size="sm" variant="outline" onClick={() => void generate()} disabled={busy !== null}>
+        <p className="text-xs text-muted-foreground">L’AI rielabora il testo già scritto. Una richiesta può consumare crediti. Controlla i fatti prima di applicare la proposta.</p>
+        <Button size="sm" variant="outline" onClick={() => void generate()} disabled={!canImprove || busy !== null}>
           {busy === 'generate' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Sparkles className="mr-1 h-3.5 w-3.5" />}
           {busy === 'generate' ? 'Sto preparando una proposta…' : ['key_benefits','key_features','special_bullets'].includes(field.key) ? 'Rendi più chiaro l’elenco con AI' : 'Migliora il testo con AI'}
         </Button>
@@ -117,18 +127,18 @@ export default function AiSuggestionCard({
     );
   }
 
-  const isStale = suggestion.status === 'stale' || field.version !== suggestion.baseVersion;
+  const isStale = !canImprove || suggestion.status === 'stale' || field.version !== suggestion.baseVersion;
   if (isStale) {
     return (
       <Alert variant="destructive" className="mt-3" aria-live="polite">
         <AlertTitle>Proposta AI non più aggiornata</AlertTitle>
         <AlertDescription className="space-y-3">
-          <p>Il prodotto è stato modificato dopo la creazione di questa proposta. Genera una nuova proposta.</p>
+          <p>Il prodotto è stato modificato dopo la creazione di questa proposta. Scartala e controlla il valore corrente.</p>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={() => void reject()} disabled={busy !== null}>
               {busy === 'reject' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <X className="mr-1 h-3.5 w-3.5" />}Scarta
             </Button>
-            <Button size="sm" onClick={() => void generate()} disabled={busy !== null}>
+            <Button size="sm" onClick={() => void generate()} disabled={!canImprove || busy !== null}>
               {busy === 'generate' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="mr-1 h-3.5 w-3.5" />}Genera nuova proposta
             </Button>
           </div>
@@ -146,18 +156,18 @@ export default function AiSuggestionCard({
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <div className="rounded-md border bg-background p-3">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Attuale</p>
-          <ValueDisplay value={field.value} label={`${field.label} attuale`} />
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Testo originale</p>
+          <ValueDisplay richText={field.editorType === 'richtext'} value={field.value} label={`${field.label} attuale`} />
         </div>
         <div className="rounded-md border bg-background p-3">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Proposta</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Proposta AI</p>
           {editing
             ? <FieldEditor field={field} value={draft} onChange={setDraft} disabled={busy !== null} />
-            : <ValueDisplay value={draft} label={`${field.label} proposta AI`} />}
+            : <ValueDisplay richText={field.editorType === 'richtext'} value={draft} label={`${field.label} proposta AI`} />}
         </div>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        Proposta separata dal prodotto · base versione {suggestion.baseVersion} · prompt {suggestion.promptVersion}
+        Con «Applica alla bozza» salvi la tua revisione nel solo campo interno. Se ricarichi prima, ritrovi la proposta AI originale.
       </p>
       {error && <p role="alert" className="mt-2 text-xs text-destructive">{error}</p>}
       <div className="mt-3 flex flex-wrap gap-2">

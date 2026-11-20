@@ -97,3 +97,19 @@ export function formatDate(value?: string | null): string {
     return '—';
   }
 }
+
+export function siteState(live: { available: boolean; publicationStatus?: string | null; siteAvailability?: boolean | null; siteVisible?: boolean | null }, operation?: string, mapped?: boolean) {
+  if (live.available) {
+    if (live.publicationStatus === 'DRAFT') return 'Bozza Shopify verificata · fuori vendita';
+    if (live.publicationStatus === 'ARCHIVED') return 'Archiviato su Shopify · fuori vendita';
+    if (live.publicationStatus === 'ACTIVE' || live.publicationStatus === 'UNLISTED') {
+      if (live.siteVisible === false) return 'Non visibile sul canale del sito · fuori vendita';
+      if (live.siteVisible === true && typeof live.siteAvailability === 'boolean') {
+        const visibility = live.publicationStatus === 'UNLISTED' ? 'Consultabile tramite link' : 'Pubblicato sul sito';
+        return visibility + (live.siteAvailability ? ' · disponibile per la vendita' : ' · al momento non acquistabile');
+      }
+    }
+  }
+  if (operation === 'LOCAL_DRAFT' && mapped === false) return 'Bozza interna non inviata · fuori vendita';
+  return 'Visibilità e disponibilità sul sito da verificare';
+}

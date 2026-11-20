@@ -1,5 +1,25 @@
 # Step 1 — editor prodotti: implementazione e limiti
 
+## Architettura della correzione del 20 novembre 2026
+
+| Fonte | Utilizzo nella scheda |
+| --- | --- |
+| Payload operativo registrato da `admin_save_new_draft` | Fotografia alla creazione. Il riepilogo espone i dati ammessi di prodotto, categorie, varianti/prezzi, riferimenti immagine/ALT e SEO. |
+| `product_current_values` | Valori editoriali correnti versionati. `validatedFields` include solo i campi gestiti dal contratto. Una revisione successiva si legge nella scheda del campo. |
+| Shopify Admin e Storefront | Stato specifico del prodotto mappato e visibilità/disponibilità nel canale effettivo. Una verifica assente o fallita produce uno stato esplicito di incertezza. |
+
+`get_product_operations` recupera il payload per il ruolo operativo autorizzato o l’editor abilitato alle bozze. Costruisce lato server una proiezione con campi ammessi anche per gli oggetti annidati. I dati operativi grezzi rimangono sul server. I nomi delle categorie usano ID registrati e mapping verificati. Per i GID legacy senza nome locale, una sola query Shopify di lettura risolve gli ID esatti con handle canonico. Un errore del servizio preserva la selezione con «Categoria registrata · nome non verificato». Le immagini ammettono URL Shopify verificati dal proiettore. La stessa vista React rende anteprima e riepilogo. Per l’HTML usa la sanitizzazione editoriale e DOMPurify. [Risoluzione categorie](../../supabase/functions/_shared/admin-draft-summary.ts) · [Proiezione](../../supabase/functions/_shared/admin-draft-view.ts) · [Vista](../../src/adminv2/components/DraftSummaryView.tsx)
+
+La query pending è circoscritta a operatore e prodotto, subordinata alla capability AI. Il risultato di generazione aggiorna la cache dopo aver fermato una lettura precedente. Sul refresh si legge la pending persistita. Il latch sul pulsante, l’assenza di retry automatico della mutazione e la prenotazione atomica già esistente proteggono dalle duplicazioni. L’accettazione verifica versione e idempotenza sul server. Un errore nel recupero mantiene accessibile l’editing manuale e permette di riprovare la sola lettura. [Hook](../../src/adminv2/hooks/useAdminData.ts) · [Scheda proposta](../../src/adminv2/components/AiSuggestionCard.tsx)
+
+Per prodotti mappati con stato Shopify attivo o non in elenco, una lettura Storefront per ID restituisce presenza sul canale e `availableForSale`. Indisponibilità del servizio e prodotto assente dal canale hanno stati diversi. Il flag interno `products.is_active` descrive il record Admin. Il salvataggio interno e l’accettazione AI restano locali. Le operazioni commerciali conservano autorizzazione, controlli di versione, digest/idempotenza e conferma previsti dalle rispettive azioni. La pubblicazione è bloccata lato server per il record tecnico identificato, gli SKU di test e i titoli di prova riconosciuti, all’approvazione e prima della pubblicazione. [Stati](../../src/adminv2/lib/labels.ts) · [Operazioni commerciali](../../supabase/functions/_shared/admin-catalog-commerce.ts)
+
+Per riprodurre il collaudo utilizzare Node 22.22.3, Deno 2.9.5, Chromium Playwright e PostgreSQL locale isolato, con le variabili previste dai due runner DB. Il test Drizzle include la 0018 canonica già presente sulla base e genera la 0019 solo nella directory temporanea del test. L’asserzione precedente era ferma alla generazione della 0018. Rimangono verificati ordine, hash, rollback ACL e replay. Questa PR non richiede migrazioni, backfill o modifiche ai grant. Il rilascio futuro comprende `product-admin-api` con i moduli condivisi e il frontend dello stesso commit. Il codice Edge `product-admin-ai` resta alla versione esistente. [Comandi ed esiti](COLLAUDO-MARCO-STEP1C.md) · [Gate e rollback](DELIVERY-PRIORITIES-2026-11-20.md)
+
+---
+
+## Cronologia precedente alla correzione del 20 novembre
+
 ## Percorso A — preparazione finale 18 novembre 2026
 
 [Verifiche tecniche e limiti](ATTIVAZIONE-STEP1C.md): canoniche 0016/0017 e checksum conservati; futura 0018 nativa attiva tutte e tre le pending atomiche. Snapshot 0016/0017 assenti ammessi dal migratore e dal successivo generate --custom ufficiale; nessuno snapshot artificiale aggiunto. Prova isolata con vera generazione 0018, ordine/hash/history, rollback ACL e replay invariato PASS locale, ripetuta in CI PostgreSQL 17. Conflitto package.json con main risolto conservando tutte le dipendenze e riallineando lockfile. Nessuna migration o funzione distribuita; runtime Edge e hook esterni Lovable non attestati. Readiness di merge review subordinata alla CI finale, autorizzazioni live distinte.

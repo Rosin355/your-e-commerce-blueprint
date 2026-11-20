@@ -17,6 +17,7 @@ import {
   acceptAiSuggestion,
   AiServiceError,
   generateAiSuggestion,
+  listAiSuggestions,
   rejectAiSuggestion,
   type AiRepository,
   type AiSuggestionRow,
@@ -332,7 +333,8 @@ test('23. UX contiene stati responsive/accessibili senza JSON grezzo', () => {
   assert.match(source, /Genera nuova proposta/);
   assert.match(source, /role="alert"/);
   assert.doesNotMatch(source, /JSON\.stringify\(draft/);
-  assert.match(fieldCard, /field\.capabilities\.canSuggestAi && onGenerateAi/);
+  assert.match(fieldCard, /const canImprove = field\.capabilities\.canSuggestAi &&/);
+  assert.match(fieldCard, /\(canImprove \|\| aiSuggestion\) && onGenerateAi/);
   assert.doesNotMatch(fieldCard, /aiAllowed && !field\.capabilities\.canSuggestAi/);
 });
 
@@ -589,4 +591,32 @@ test('accept e reject negano una proposta altrui senza write, anche se il chiama
   await assert.rejects(acceptAiSuggestion(repo,{actor:ACTOR_ID,suggestionId:SUGGESTION_ID,value:'Testo',expectedVersion:1,idempotencyKey:'foreign-proposal-test'}),(error:unknown)=>error instanceof AiServiceError && error.code==='FORBIDDEN');
   await assert.rejects(rejectAiSuggestion(repo,{actor:ACTOR_ID,suggestionId:SUGGESTION_ID}),(error:unknown)=>error instanceof AiServiceError && error.code==='FORBIDDEN');
   assert.equal(repo.executeCalls,0);assert.equal(repo.resolutions.length,0);
+});
+
+test('descrizione di Marco: generazione, rilettura, replay e applicazione del testo rivisto', async () => {
+  const repo = new FakeRepo();
+  repo.definition = def({ key: 'description', label: 'Descrizione', editor_type: 'richtext' });
+  repo.current = row({ field_key: 'description', value_text: '<p>Descrizione di prova.</p>' });
+  const input = { actor: ACTOR_ID, productId: PRODUCT_ID, fieldKey: 'description', baseVersion: 1 };
+  let calls = 0;
+  const mock = async () => {
+    calls++;
+    return { provider: 'mock', model: 'mock', value: '<p>Testo proposto.</p>', usageTokens: null };
+  };
+  const generated = await generateAiSuggestion(repo, input, mock);
+  assert.equal(generated.suggestion.suggestedValue, '<p>Testo proposto.</p>');
+  assert.deepEqual(await listAiSuggestions(repo, PRODUCT_ID, ACTOR_ID), [generated.suggestion]);
+  assert.deepEqual(await listAiSuggestions(repo, PRODUCT_ID, 'altro-operatore'), []);
+  assert.equal((await generateAiSuggestion(repo, input, mock)).replayed, true);
+  assert.equal(calls, 1);
+  assert.equal(repo.executeCalls, 0);
+  await acceptAiSuggestion(repo, {
+    actor: ACTOR_ID, suggestionId: generated.suggestion.id, value: '<p>Revisione manuale.</p>',
+    expectedVersion: 1, idempotencyKey: 'synthetic-marco-accept',
+  });
+  assert.equal(repo.lastCommand?.action, 'update_field');
+  assert.equal(repo.lastCommand?.fieldKey, 'description');
+  assert.equal(repo.lastCommand?.value, '<p>Revisione manuale.</p>');
+  assert.equal(repo.executeCalls, 1);
+  assert.deepEqual(await listAiSuggestions(repo, PRODUCT_ID, ACTOR_ID), []);
 });

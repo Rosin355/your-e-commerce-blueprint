@@ -1,3 +1,5 @@
+import DraftSummaryView from '../components/DraftSummaryView';
+import { projectDraft } from '../../../supabase/functions/_shared/admin-draft-view';
 import ConfirmedAiAssistant from '../components/ConfirmedAiAssistant';
 import VariantEditor from '../components/VariantEditor';
 import RichTextEditor from '../components/RichTextEditor';
@@ -44,6 +46,8 @@ const steps = [
 export default function NewProductPage() {
   const [draft, setDraft] = useState<ProductDraft>(initial);
   const [descriptionRevision,setDescriptionRevision]=useState(0);
+  const [uploading, setUploading] = useState(false);
+  const [categorySearch, setCategorySearch] = useState('');
   const [step, setStep] = useState(0);
   const [tagsInput, setTagsInput] = useState('');
   const [key, setKey] = useState(() => crypto.randomUUID());
@@ -54,6 +58,12 @@ export default function NewProductPage() {
   const ordinary = adminContext.data?.ordinaryCatalog === true;
   const editorial = useQuery({ queryKey: ['admin', 'editorial-collections'], enabled: ordinary, retry: false,
     queryFn: () => callAdminApi<{ collections: { id: string; title: string; handle: string }[] }>({ action: 'list_editorial_collections' }) });
+  const categoryNames = new Map([
+    ...(catalogue.data?.categories ?? []).map(c => [c.id, c.display_name] as const),
+    ...(editorial.data?.collections ?? []).map(c => [c.id, c.title] as const),
+  ]);
+  const summary = projectDraft(draft, categoryNames);
+  const matchesCategory = (name: string) => name.toLocaleLowerCase('it').includes(categorySearch.trim().toLocaleLowerCase('it'));
   const definitions = useQuery({
     queryKey: ['admin', 'draft-field-definitions'],
     queryFn: () =>
@@ -124,6 +134,7 @@ export default function NewProductPage() {
           <Button
             key={label}
             type='button'
+            disabled={uploading}
             className='min-h-11'
             variant={step === i ? 'default' : 'outline'}
             aria-current={step === i ? 'step' : undefined}
@@ -139,6 +150,7 @@ export default function NewProductPage() {
           <>
             {field('Nome prodotto', 'title')}
             {field('SKU famiglia', 'sku')}
+            <p className="font-medium">Testo del prodotto · puoi modificare qui</p>
             <RichTextEditor key={descriptionRevision} value={draft.description} onChange={description => update({ description })} label="Descrizione verificata" />
             {adminContext.data?.canUseAi && definitions.data?.definitions.filter(d=>d.key==='description' && adminContext.data?.editableFieldKeys?.includes(d.key) && d.visible && d.editable && d.ai_allowed && !d.manual_only).map(d=><ConfirmedAiAssistant key={`${draft.sku}:${draft.title}`} field={{key:d.key,label:d.label,editorType:d.editor_type,dataType:d.data_type,validationRules:d.validation_rules ?? {},required:d.required}} onApply={value=>{update({description:value as string});setDescriptionRevision(v=>v+1);}}/>)}
             <p className='text-sm text-muted-foreground'>
@@ -149,7 +161,7 @@ export default function NewProductPage() {
         )}
         {step === 1 && (
           <>
-            {field('Valuta base Shopify (da verificare prima dell’invio)', 'currency')}
+            {field('Valuta della bozza (codice ISO)', 'currency')}
             {field('Fornitore', 'vendor')}
             <label className='block'>
               Tag separati da virgole<Input
@@ -167,16 +179,18 @@ export default function NewProductPage() {
         {step === 2 && (
           <>
             <p>La bozza può essere salvata senza categoria. Nessuna corrispondenza viene dedotta dal nome.</p>
+            <label className="block">Cerca categoria<Input type="search" value={categorySearch} onChange={e => setCategorySearch(e.target.value)} /></label>
+            <p aria-live="polite">Selezionate · {summary.categories?.join(', ') || 'Nessuna categoria'}</p>
             {ordinary ? <>
               {editorial.isPending && <p role='status'>Verifica collezioni editoriali…</p>}
               {editorial.isError && <p role='alert'>{editorial.error.message}</p>}
-              {editorial.data?.collections.map(c => <label key={c.id} className='flex min-h-11 items-center gap-2'>
+              {editorial.data?.collections.filter(c => matchesCategory(c.title)).map(c => <label key={c.id} className='flex min-h-11 items-center gap-2'>
                 <Checkbox checked={draft.collectionIds?.includes(c.id) ?? false} onCheckedChange={checked => update({ collectionIds: checked ? [...(draft.collectionIds ?? []), c.id] : (draft.collectionIds ?? []).filter(id => id !== c.id) })} />
-                {c.title} <span className='text-xs text-muted-foreground'>({c.handle})</span>
+                {c.title}
               </label>)}
             </> : <>
               {catalogue.isError && <p role='alert'>{catalogue.error.message}</p>}
-              {catalogue.data?.categories.filter(c => c.is_active && c.maps.length > 0 && c.maps.every(m => m.map_status === 'verified')).map(c => <label key={c.id} className='flex min-h-11 items-center gap-2'>
+              {catalogue.data?.categories.filter(c => matchesCategory(c.display_name) && c.is_active && c.maps.length > 0 && c.maps.every(m => m.map_status === 'verified')).map(c => <label key={c.id} className='flex min-h-11 items-center gap-2'>
                 <Checkbox checked={draft.categoryIds.includes(c.id)} onCheckedChange={checked => update({ categoryIds: checked ? [...draft.categoryIds, c.id] : draft.categoryIds.filter(id => id !== c.id) })} />{c.display_name}
               </label>)}
             </>}
@@ -184,16 +198,19 @@ export default function NewProductPage() {
         )}
         {step === 3 && (
           <>
-            <VariantEditor sku={draft.sku} variants={draft.variants} onChange={variants => update({ variants })} />
-            <CatalogImages images={draft.images} onChange={images => update({ images })} ordinary={ordinary}
+            <VariantEditor currency={draft.currency} sku={draft.sku} variants={draft.variants} onChange={variants => update({ variants })} />
+            <CatalogImages onUploadingChange={setUploading} images={draft.images} onChange={images => update({ images })} ordinary={ordinary}
               enabled={adminContext.data?.canUploadImages === true} sku={draft.sku} requestKey={catalogue.data?.canaryRequestKey} />
           </>
         )}
         {step === 4 && (
           <>
+            <details><summary className='cursor-pointer font-medium'>SEO facoltativa</summary>
             {field('Titolo SEO', 'seoTitle')}
             {field('Descrizione SEO', 'seoDescription', true)}
-            <h2 className='font-semibold'>Informazioni botaniche facoltative</h2>
+            </details>
+            <details><summary className='cursor-pointer font-medium'>Informazioni botaniche e FAQ facoltative</summary>
+            <p className='my-2 text-sm'>Inserisci soltanto i dati e i periodi che hai verificato.</p>
             {definitions.isError && <p role='alert'>Registro campi non disponibile.</p>}
             {definitions.data?.definitions.filter((d) =>
               (DRAFT_BOTANICAL_KEYS as readonly string[]).includes(d.key) && d.visible &&
@@ -216,25 +233,14 @@ export default function NewProductPage() {
                 />
               </div>
             ))}
-            <p className='text-sm'>
-              Inserisci solo dati verificati. Dopo l’invio, apri la scheda per modificare i campi supportati e sincronizzarli esplicitamente.
-            </p>
+            </details>
           </>
         )}
         {step === 5 && (
           <>
-            <h2 className='text-xl font-semibold'>{draft.title || 'Nome da compilare'}</h2>
-            <p>SKU: {draft.sku || 'Da compilare'}</p>
-            <p className='whitespace-pre-wrap break-words'>{draft.description}</p>
-            <p>
-              Categorie: {draft.categoryIds.map((id) =>
-                catalogue.data?.categories.find((c) => c.id === id)?.display_name ??
-                  'Non disponibile'
-              ).concat((draft.collectionIds ?? []).map(id => editorial.data?.collections.find(c => c.id === id)?.title ?? 'Collezione selezionata')).join(', ') || 'Da classificare'}
-            </p>
-            {draft.variants.map((v, i) => (
-              <p key={i}>{v.option}: {v.price || '—'} {draft.currency} · SKU {v.sku || '—'}</p>
-            ))}
+            <h2 className='font-semibold'>Anteprima della bozza interna</h2>
+            <p>Compilazione locale · fuori vendita</p>
+            <DraftSummaryView draft={summary} />
             <Button type='button' disabled={preview.isPending} onClick={() => preview.mutate()}>
               Verifica anteprima
             </Button>
@@ -269,10 +275,10 @@ export default function NewProductPage() {
         )}
       </fieldset>
       <div className='flex justify-between gap-2'>
-        <Button variant='outline' disabled={step === 0} onClick={() => setStep((s) => s - 1)}>
+        <Button variant='outline' disabled={uploading || step === 0} onClick={() => setStep((s) => s - 1)}>
           Indietro
         </Button>
-        <Button disabled={step === 5} onClick={() => setStep((s) => s + 1)}>Continua</Button>
+        <Button disabled={uploading || step === 5} onClick={() => setStep((s) => s + 1)}>Continua</Button>
       </div>
       {save.isError && (
         <div role='alert'>
@@ -296,36 +302,39 @@ export default function NewProductPage() {
           <p>
             La bozza non è pubblicata. L’azione separata “Pubblica” nella scheda verifica dati, classe di spedizione e canale del sito.
           </p>
-          {catalogue.data?.canSendDraft &&
-            (ordinary || catalogue.data.approvedOperationId === save.data.result.operationId) && (
-            <Button
-              disabled={send.isPending || Boolean(send.data)}
-              onClick={() => {
-                if (window.confirm('Creare soltanto una bozza Shopify, senza pubblicarla?')) {
-                  send.mutate('create_shopify_draft');
-                }
-              }}
-            >
-              Crea bozza Shopify
-            </Button>
-          )}
-          {send.isError && (
-            <>
-              <p role='alert'>{send.error.message}</p>
-              {catalogue.data?.canRecoverDraft && (ordinary || catalogue.data.approvedOperationId === save.data.result.operationId) && canRecoverDraftAfterError(
-                adminContext.data,
-                Boolean(save.data?.result.operationId),
-                send.isError,
-              ) && (
-                <Button
-                  disabled={send.isPending}
-                  onClick={() => send.mutate('recover_shopify_draft')}
-                >
-                  Recupera stato senza ricreare
-                </Button>
-              )}
-            </>
-          )}
+          <details>
+            <summary className='cursor-pointer'>Operazioni Shopify separate</summary>
+            {catalogue.data?.canSendDraft &&
+              (ordinary || catalogue.data.approvedOperationId === save.data.result.operationId) && (
+              <Button
+                disabled={send.isPending || Boolean(send.data)}
+                onClick={() => {
+                  if (window.confirm('Creare soltanto una bozza Shopify, senza pubblicarla?')) {
+                    send.mutate('create_shopify_draft');
+                  }
+                }}
+              >
+                Crea bozza Shopify
+              </Button>
+            )}
+            {send.isError && (
+              <>
+                <p role='alert'>{send.error.message}</p>
+                {catalogue.data?.canRecoverDraft && (ordinary || catalogue.data.approvedOperationId === save.data.result.operationId) && canRecoverDraftAfterError(
+                  adminContext.data,
+                  Boolean(save.data?.result.operationId),
+                  send.isError,
+                ) && (
+                  <Button
+                    disabled={send.isPending}
+                    onClick={() => send.mutate('recover_shopify_draft')}
+                  >
+                    Recupera stato senza ricreare
+                  </Button>
+                )}
+              </>
+            )}
+          </details>
         </section>
       )}
     </div>

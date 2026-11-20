@@ -1,5 +1,23 @@
 # Step 1 — UX di verifica
 
+## Comportamento del candidato del 20 novembre 2026
+
+Aprendo la scheda, l’operatore trova lo stato di vendita, poi il riepilogo in sola lettura registrato alla creazione e i campi correnti. «Record interno» identifica la scheda Admin. Per una bozza locale senza collegamento il testo è «Bozza interna non inviata · fuori vendita». Un dato Shopify mancante lascia visibile «Visibilità e disponibilità sul sito da verificare». Il canale conferma se almeno un formato è acquistabile. Un prodotto fuori elenco viene indicato come consultabile tramite link.
+
+| Momento | Indicazione per Marco |
+| --- | --- |
+| Scrivere | «Puoi modificare qui» identifica i campi consentiti. Il comando di salvataggio riguarda la bozza interna. Azioni Shopify e metadati tecnici si aprono separatamente. |
+| Usare l’AI | La compilazione da fatti confermati richiede la verifica dell’operatore. Il miglioramento di testo esistente mostra originale e proposta affiancati su desktop e in sequenza su mobile. «Modifica proposta», «Scarta» e «Applica alla bozza» restano espliciti. |
+| Recuperare da un errore | In caso di lettura pending fallita, Marco può riprovare il recupero o lavorare manualmente. Le proposte obsolete non sono applicabili. |
+| Inserire dati | La ricerca categorie mostra i nomi e le selezioni. Ogni formato distingue SKU, prezzo di vendita e prezzo precedente. Botanica/FAQ e SEO si aprono su richiesta. |
+| Controllare immagini e anteprima | Il testo distingue disponibilità del file in libreria, associazione alla bozza e rimozione locale. La foto dispone di miniatura e ALT. Il riepilogo espone campi mancanti e rende il testo formattato in sicurezza. |
+
+Le regressioni responsive sono coperte a 390 e 1280 px. Restano due verifiche umane: comprensione autonoma di «Applica alla bozza» e dello stato fuori vendita, poi navigazione con tastiera e tecnologia assistiva sul dispositivo effettivo. [Checklist](CHECKLIST.md)
+
+---
+
+## Cronologia precedente alla correzione del 20 novembre
+
 ## Percorso A — aggiornamento 18 novembre 2026
 
 Preparazione tecnica mantiene editor/AI e UX della PR; conflitto dipendenze risolto senza riscrivere componenti. Il database potrà essere aggiornato in un unico batch canonico 0016/0017 con futura 0018 tecnica, solo dopo autorizzazione. Test sintetici non sono collaudo Marco; funzionalità non dichiarate live. [Esiti tecnici e limiti](ATTIVAZIONE-STEP1C.md). Nessuna variazione del comportamento visibile o dei permessi in produzione.

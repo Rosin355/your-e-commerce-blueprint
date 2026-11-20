@@ -1,3 +1,4 @@
+import { readDraftSummary } from './admin-draft-summary.ts';
 import { editorialCollections } from './admin-catalog-commerce.ts';
 import { catalogAllowed, requireCatalog, CATALOG_MUTATIONS } from './admin-catalog-policy.ts';
 import { canaryScope, requireCanaryProduct } from './admin-canary-service.ts';
@@ -524,22 +525,30 @@ export async function handleOperational(
   }
   if (action === 'get_product_operations') {
     demand(typeof p.productId === 'string' && UUID.test(p.productId), 'Prodotto non valido.');
-    const { data, error } = await db.from('admin_product_operations').select(
-      'id,product_id,state,created_at,updated_at,admin_operation_events(state,created_at)',
-    ).eq('product_id', p.productId).order('created_at', { ascending: false });
-    if (error) {
-      throw new OperationalError('CATALOG_UNAVAILABLE', 'Storico operazioni non disponibile.');
-    }
+    const canManageDraft = catalogAllowed(auth, 'drafts') || auth.roles.some(r => ['admin', 'tech_admin'].includes(r));
+    const columns = 'id,product_id,state,created_at,updated_at,admin_operation_events(state,created_at)';
+    const { data, error } = await db.from('admin_product_operations')
+      .select(canManageDraft ? columns + ',payload' : columns)
+      .eq('product_id', p.productId).order('created_at', { ascending: false });
+    if (error) throw new OperationalError('CATALOG_UNAVAILABLE', 'Storico operazioni non disponibile.');
+    const operations = await Promise.all((data ?? []).map(async row => {
+      const { id, state, product_id, created_at, updated_at, admin_operation_events, payload } = row as unknown as {
+        id: string; state: string; product_id: string; created_at: string; updated_at: string;
+        admin_operation_events: { state: string; created_at: string }[]; payload?: unknown;
+      };
+      return { id, state, product_id, created_at, updated_at, admin_operation_events,
+        ...(canManageDraft ? { summary: await readDraftSummary(db, payload, shopify) } : {}) };
+    }));
     return {
       ok: true,
-      operations: data,
-      canSendDraft: ordinary ? flags.shopify && catalogAllowed(auth,'drafts') : flags.shopify && scoped('create_shopify_draft') && (!canary || p.productId === scope?.productId) && data?.some((op) =>
+      operations,
+      canSendDraft: ordinary ? flags.shopify && catalogAllowed(auth,'drafts') : flags.shopify && scoped('create_shopify_draft') && (!canary || p.productId === scope?.productId) && operations.some((op) =>
         approvalMatches(approval(), 'create_shopify_draft', op.id)
       ) &&
         (catalogAllowed(auth, action.includes('categor')?'categories':'drafts') || auth.roles.some((r) => r === 'admin' || r === 'tech_admin')),
       approvedOperationId: approval()?.action === 'create_shopify_draft'
         ? approval()?.target : null,
-      canManageDraft: (catalogAllowed(auth,'drafts') || auth.roles.some(r => ['admin', 'tech_admin'].includes(r))),
+      canManageDraft,
       ordinaryCatalog: ordinary,
       canRecover: ordinary ? writesEnabled() && catalogAllowed(auth,'drafts') : approval()?.action === 'create_shopify_draft' && writesEnabled() && scoped('recover_shopify_draft') && (!canary || p.productId === scope?.productId) &&
         (catalogAllowed(auth, action.includes('categor')?'categories':'drafts') || auth.roles.some((r) => r === 'admin' || r === 'tech_admin')),

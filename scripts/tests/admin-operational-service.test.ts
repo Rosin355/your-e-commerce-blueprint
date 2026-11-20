@@ -477,3 +477,71 @@ Deno.test('rimozione collezione: finalizzazione DB solo dopo job Shopify complet
       ? Deno.env.delete(key) : Deno.env.set(key, prior[index]!));
   }
 });
+
+Deno.test('riepilogo autorizzato: payload persistito, categoria per GID esatto, nessun accesso Shopify', async () => {
+  const categoryId = '30000000-0000-4000-8000-000000000003';
+  const gid = 'gid://shopify/Collection/123';
+  const payload = {
+    title: 'TEST — Lavanda', sku: 'TEST-OG-AI-001', description: '<p>Testo confermato.</p>',
+    currency: 'EUR', vendor: 'Fornitore sintetico', tags: ['prova'], categoryIds: [], collectionIds: [gid],
+    variants: [{ sku: 'TEST-OG-AI-001', option: 'Formato unico', price: '10.00', compareAtPrice: null }],
+    images: [{ url: 'https://cdn.shopify.com/fixture.png', alt: 'Lavanda sintetica' }],
+    seoTitle: 'Titolo SEO', seoDescription: '', botanical: {}, privateExtra: 'non esportare',
+  };
+  let mapped = true;
+  const tables: string[] = [];
+  const columns: string[] = [];
+  const db = { from(table: string) {
+    tables.push(table);
+    const data = table === 'admin_product_operations' ? [{ id, product_id: id, state: 'LOCAL_DRAFT', payload, actor: 'privato' }]
+      : table === 'product_category_shopify_map' ? (mapped ? [{ shopify_collection_gid: gid, category_id: categoryId }] : [])
+      : table === 'product_categories' ? [{ id: categoryId, display_name: 'Aromatiche da esterno' }]
+      : null;
+    if (!data) throw Error('Tabella fuori dal contratto ' + table);
+    const q = {
+      select(fields: string) { columns.push(fields); return q; },
+      eq(key: string, value: unknown) {
+        const expected = { product_id: id, map_status: 'verified', visible_admin: true };
+        assertEquals(value, expected[key as keyof typeof expected]);
+        return q;
+      },
+      in(key: string, values: string[]) { assertEquals(values, key === 'id' ? [categoryId] : [gid]); return q; },
+      order() { return q; },
+      then(resolve: (v: unknown) => void) { resolve({ data, error: null }); },
+    };
+    return q;
+  } } as unknown as SupabaseClient;
+  const read = async (auth: AuthContext) =>
+    await handleOperational(db, auth, { action: 'get_product_operations', productId: id },
+      () => { throw Error('Chiamata Shopify inattesa'); }) as { operations: { summary?: Record<string, unknown> }[] };
+  const res = await read(actor);
+  const { summary } = res.operations[0];
+  assertEquals(summary?.variants, payload.variants);
+  assertEquals(summary?.categories, ['Aromatiche da esterno']);
+  assertEquals(summary?.description, payload.description);
+  assertEquals(summary?.vendor, payload.vendor);
+  assertEquals(summary?.images, payload.images);
+  assertEquals(summary?.seoDescription, null);
+  assertEquals('payload' in res.operations[0] || 'actor' in res.operations[0] || 'privateExtra' in summary!, false);
+  mapped = false;
+  let lookups = 0;
+  const rawRead = () => ({ action: 'get_product_operations', productId: id });
+  for (const available of [true, false]) {
+    const legacy = await handleOperational(db, actor, rawRead(), async <T>(query: string, vars?: Record<string, unknown>) => {
+      lookups++;
+      assertEquals(query.startsWith('query EditorDraftCollectionNames'), true);
+      assertEquals(vars?.ids, [gid]);
+      if (!available) throw Error('Catalogo esterno non disponibile');
+      return { nodes: [{ id: gid, title: 'Aromatiche da esterno', handle: 'aromatiche' }] } as T;
+    }) as { operations: { summary: { categories: string[]; variants: unknown } }[] };
+    assertEquals(legacy.operations[0].summary.categories, [available ? 'Aromatiche da esterno' : 'Categoria registrata · nome non verificato']);
+    assertEquals(legacy.operations[0].summary.variants, payload.variants);
+  }
+  assertEquals(lookups, 2);
+  tables.length = 0;
+  columns.length = 0;
+  const limited = await read({ ...actor, catalogGrant: { enabled: true, capabilities: ['edit'], fieldKeys: ['description'] } });
+  assertEquals(limited.operations[0].summary, undefined);
+  assertEquals(columns.some(c => c.includes('payload')), false);
+  assertEquals(tables, ['admin_product_operations']);
+});

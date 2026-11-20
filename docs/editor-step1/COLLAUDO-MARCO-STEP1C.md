@@ -1,5 +1,36 @@
 # Collaudo pratico nella sessione di Marco
 
+## Verbale del candidato del 20 novembre 2026
+
+**GO CON LIMITAZIONI per revisione e collaudo controllato.** Il codice è stato eseguito localmente. La sessione personale di Marco sulla versione distribuita resta da provare. Il percorso cliente si trova nella [checklist breve](CHECKLIST.md).
+
+### Riscontro sulla bozza già esistente
+
+Letture mirate sul progetto Lovable Cloud collegato al repository e sulla sola collezione Shopify. Il prodotto tecnico `TEST-OG-AI-001`, ID `b998f5bb-e9d4-4d53-a448-7a5129f91ddc`, risulta `LOCAL_DRAFT`, senza mapping prodotto Shopify canonico o legacy. Il payload contiene un formato a **10,00 EUR**, fornitore **OnlineGarden**, quattro tag, una foto con ALT di sette caratteri, titolo SEO di 56 caratteri e descrizione SEO di 128. La descrizione di 183 caratteri coincide con il valore editoriale interno. La categoria è registrata come GID di collezione. Non è presente una corrispondenza locale verificata. Una query Shopify sul GID esatto ha restituito **Aromatiche da esterno**.
+
+Il profilo che ha creato questa bozza risulta editor con autorizzazione abilitata a bozze, modifica e AI, e descrizione nel suo perimetro. La lettura è stata limitata a indicatori booleani. L’accesso personale di Marco rimane una prova separata. Durante queste verifiche non sono state effettuate scritture su database o negozio.
+
+### Prove ripetibili
+
+| Esito | Prova | Risultato |
+| --- | --- | --- |
+| PASS | `npm run typecheck` e `npm run build` | TypeScript e bundle Vite completati. Avviso di dimensione bundle presente. |
+| PASS | `deno check` sulle due funzioni Admin con il lock CI | Tipi del contratto Edge corretti. |
+| PASS | `node ci/run-domain.mjs node` | 526 test, compresi accesso, versioni e stati. |
+| PASS | `node ci/run-domain.mjs deno ci/deno-ci.lock` | 107 test, compresi proiezione, risoluzione categoria, campo autorizzato e guardie remote. |
+| PASS | `npm run test:editor-browser` | 14 test Chromium. Rotte reali di dettaglio e wizard con trasporti simulati. Coperti doppio click, refresh senza rigenerazione, scarto, edit/applica, conflitto, lettura pending indisponibile, readback, rich text legacy, foto, SEO, liste e aggiornamento dello stato dopo un invio DRAFT esplicitamente confermato e simulato. |
+| PASS | `scripts/test-admin-catalog-delivery-db.mjs` e `scripts/test-editor-step1a-db.mjs` | PostgreSQL 16.15 usa dati sintetici. Salvataggio e replay idempotente, permessi editor, divieti, prenotazioni concorrenti e rollback verificati. |
+| PASS | ESLint sui sorgenti Admin, funzioni e test interessati | Zero errori. Due avvisi Fast Refresh nel componente che ospita i test browser. |
+| FAIL | `npm run lint` sull’intero repository | 42 errori e 11 avvisi. Lo stesso comando sulla base `dd02dbd` produce le stesse segnalazioni. |
+| NON ESEGUITO | Accettazione con login personale e dispositivo di Marco | Occorrono la versione approvata e l’operatore. Safari fisico e lettore di schermo restano da verificare. |
+| NON ESEGUITO | Generazione AI reale, upload remoto e operazioni di pubblicazione | Il collaudo dei flussi usa mock ed esclude costi o cambiamenti al negozio. |
+
+I confronti nel browser verificano testo e valori prima e dopo il salvataggio, e allegano `anteprima.png` e `riepilogo.png` all’output locale Playwright. Il readback reale conferma i dati di origine. La nuova interfaccia distribuita richiede il collaudo del responsabile. [Scenari browser](../../scripts/browser/marco-delivery.spec.ts) · [Fixture SQL](../../scripts/fixtures/admin-catalog-delivery.sql) · [Test del servizio](../../scripts/tests/admin-operational-service.test.ts)
+
+---
+
+## Cronologia precedente alla correzione del 20 novembre
+
 ## Publish F-P PASS — 18 novembre 2026, release editor AI Marco
 
 **Prerequisiti completati:** M/B/G e Publish F-P. Il frontend e' online su onlinegarden.it; il backend e i permessi di Marco risultano predisposti, ma **non** esiste ancora prova da login personale Marco o generazione AI reale. Prova iniziale T senza scritture: Marco apre `/admin` col proprio account, seleziona una bozza tecnica esplicitamente approvata, conferma la presenza del pulsante AI, verifica i badge Modificabile e le tre liste; annotare PASS/FAIL e browser. Le azioni **salva bozza interna** e **Aggiorna sul sito (Shopify)** sono distinte.

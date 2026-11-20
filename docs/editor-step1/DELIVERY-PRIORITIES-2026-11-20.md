@@ -1,5 +1,27 @@
 # Online Garden — delivery gate rapido per Marco (20 novembre 2026)
 
+## Decisione sul candidato
+
+**GO CON LIMITAZIONI** per la revisione del codice e il collaudo controllato. **NO-GO per l’uso ordinario di Marco** fino alla verifica della versione rilasciata con il suo account. I P0 hanno superato test su interfaccia, servizi e database locale. Il readback del record tecnico esistente conferma il dato di origine. Il lint generale conserva 42 errori e 11 avvisi identici alla base. La qualità di una risposta del provider reale e l’accettazione personale sono ancora da verificare. [Matrice prove](COLLAUDO-MARCO-STEP1C.md) · [Stato dei 14 interventi](BACKLOG-UX-MARCO.md)
+
+### Rilascio da parte del responsabile
+
+1. Revisionare la PR da `codex/marco-editor-delivery-fixes` verso `main`, controllare la CI sulla revisione esatta e annotare SHA e versioni frontend/API immediatamente precedenti. La base di sviluppo è `dd02dbd`.
+2. Prima di ogni distribuzione, eseguire il percorso Playwright sintetico. Il test usa la UI del candidato, sessione fittizia e risposte simulate. Si può verificare generazione, salvataggio e riapertura senza accesso a Shopify.
+3. Con l’autorizzazione al rilascio, distribuire dapprima `product-admin-api` e le dipendenze condivise, quindi il frontend dello stesso SHA. Questo candidato non richiede cambiamenti a schema, dati, grant, chiavi o funzione `product-admin-ai`.
+4. Nell’ambiente esistente abilitato dal responsabile, aprire con Marco la sola bozza tecnica e completare la [checklist in lettura](CHECKLIST.md). Le verifiche di categoria legacy possono fare una query di lettura a Shopify. Per una prova completamente scollegata dal negozio usare Playwright. Un riepilogo assente, uno stato ambiguo o un permesso inatteso mantengono sospeso l’uso ordinario.
+5. Registrare versione, operatore, browser e PASS/FAIL. Per provare scritture usare solo staging già autorizzato e il target sintetico assegnato. Un test del provider reale richiede consenso e budget dedicati.
+
+### Ripristino
+
+Prima della distribuzione è sufficiente lasciare la PR aperta o chiuderla. Dopo un rilascio, sospendere l’uso dell’editor interessato, ripristinare il frontend precedentemente registrato e preparare una PR di revert della PR distribuita. Se serve anche il rollback Edge, conservare il blocco server della pubblicazione dei prodotti tecnici o sospendere quell’operazione fino al ripristino della protezione. Ripetere i controlli in lettura sullo SKU tecnico e registrare l’esito. Le proposte e le bozze persistite sono compatibili con lo schema esistente. Nessun ripristino dati è necessario.
+
+Durante la preparazione del candidato sono state effettuate solo letture applicative remote. Nessun merge, deploy Edge, Publish Lovable, generazione AI a pagamento o mutazione Shopify. Checkout, pagamenti, inventario, clienti, prodotti in vendita e navigazione storefront sono fuori dal perimetro delle modifiche.
+
+---
+
+## Cronologia precedente alla correzione del 20 novembre
+
 ## Obiettivo
 Preparare **una singola PR** per rendere l'Editor Step 1C utilizzabile da Marco nel minor numero di passaggi possibile, senza introdurre regressioni ai prodotti in vendita. Riferimenti: [Backlog UX Marco](BACKLOG-UX-MARCO.md), [Collaudo live](COLLAUDO-MARCO-STEP1C.md), [Guida Marco](GUIDA-MARCO.md). Questo documento e' un brief, non attestazione di codice gia' corretto o prodotto distribuito.
 

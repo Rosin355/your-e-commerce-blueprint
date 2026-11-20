@@ -3,6 +3,7 @@ import type { AuthContext } from "./admin-v2-types.ts";
 import {
   CANONICAL_HANDLES,
   demand,
+  isTechnicalProduct,
   OperationalError,
   UUID,
 } from "./admin-operational-core.ts";
@@ -65,6 +66,10 @@ export async function mappedCatalogProduct(
   );
   const product = await getProduct(db, p.productId);
   demand(product, "Prodotto non disponibile.");
+  if (p.action === "publish_catalog_product" || p.action === "preview_catalog_publication") {
+    demand(!isTechnicalProduct([product.sku], '', product.id),
+      "Il prodotto tecnico non può essere pubblicato.");
+  }
   const mapping = await getExactShopifyProductMapping(db, product.sku);
   demand(mapping?.shopify_product_id, "Mapping Shopify non verificato.");
   const id = String(mapping.shopify_product_id).startsWith("gid:")
@@ -362,8 +367,7 @@ async function publicationChecks(
   rawLogistics: unknown,
 ) {
   demand(
-    !product.title.includes("TEST ADMIN") &&
-      !product.variants.nodes.some((v) => v.sku.startsWith("OG-ADMIN-CHECK-")),
+    !isTechnicalProduct(product.variants.nodes.map(v => v.sku), product.title),
     "Il prodotto tecnico non può essere pubblicato.",
   );
   demand(

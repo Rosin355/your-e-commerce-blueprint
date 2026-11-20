@@ -26,6 +26,18 @@ DO $$ DECLARE a uuid:='00000000-0000-4000-8000-000000000001'; other_actor uuid:=
  ASSERT NOT public.admin_claim_catalog_approval(approval,a,repeat('a',64)),'Second claim accepted';
  UPDATE public.admin_catalog_approvals SET state='COMPLETE' WHERE id=approval;
  saved:=public.admin_save_new_draft(a,gen_random_uuid(),repeat('c',64),'{"sku":"DELIVERY-FIXTURE","variants":[{"sku":"DELIVERY-FIXTURE"}],"categoryIds":[]}', '[{"key":"title","text":"Fixture"}]');
+ -- The ordinary wizard persists collection GIDs with the operation, alongside prices.
+ DECLARE test_payload jsonb := '{"sku":"TEST-OG-AI-001","title":"TEST - Lavanda","description":"<p>Descrizione sintetica.</p>","currency":"EUR","variants":[{"sku":"TEST-OG-AI-001","option":"Formato unico","price":"10.00"}],"collectionIds":["gid://shopify/Collection/123"],"categoryIds":[]}';
+         test_saved jsonb; replay jsonb; test_key uuid := gen_random_uuid();
+ BEGIN
+   test_saved := public.admin_save_new_draft(a,test_key,repeat('e',64),test_payload,'[{"key":"title","text":"TEST - Lavanda"}]');
+   replay := public.admin_save_new_draft(a,test_key,repeat('e',64),test_payload,'[{"key":"title","text":"TEST - Lavanda"}]');
+   ASSERT replay->>'operationId'=test_saved->>'operationId' AND (replay->>'replayed')::boolean;
+   ASSERT EXISTS(SELECT 1 FROM public.admin_product_operations WHERE id=(test_saved->>'operationId')::uuid AND state='LOCAL_DRAFT'
+     AND payload=test_payload AND payload#>>'{variants,0,price}'='10.00' AND payload#>>'{collectionIds,0}'='gid://shopify/Collection/123');
+   ASSERT NOT EXISTS(SELECT 1 FROM public.product_current_values WHERE product_id=(test_saved->>'productId')::uuid AND field_key IN ('price','category_effective'));
+   ASSERT NOT EXISTS(SELECT 1 FROM public.admin_product_shopify_links WHERE product_id=(test_saved->>'productId')::uuid);
+ END;
  denied:=false; BEGIN PERFORM public.admin_claim_draft(other_actor,(saved->>'operationId')::uuid); EXCEPTION WHEN insufficient_privilege THEN denied:=true; END; ASSERT denied,'Ungrant editor sent draft';
  ASSERT public.admin_claim_draft(a,(saved->>'operationId')::uuid),'Exact catalog editor unable to send';
  UPDATE public.admin_catalog_approvals SET state='REVIEW_REQUIRED' WHERE id=approval;
