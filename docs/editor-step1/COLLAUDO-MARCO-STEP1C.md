@@ -204,3 +204,17 @@ La barra editor Tiptap offre Paragrafo, Grassetto, Corsivo, Elenco puntato, Elen
 - **Criterio di uscita dal blocco:** mostrare subito proposta; recuperare la pending al reload senza re-generare; test singolo con contatore/log senza doppie invocazioni, rifiuto/modifica/applica e readback, Shopify invariato. Evitare prova su SKU commerciale.
 
 La lista consolidata per Marco, designer e developer e' in [BACKLOG-UX-MARCO.md](BACKLOG-UX-MARCO.md); priorita' P0 UX-01/02/03/04. Il test del nuovo prodotto ha inoltre trovato problemi di lettura del prezzo e altri campi nella scheda, anteprima che espone HTML, stato `Attivo` ambiguo, mesi botanici troppo estesi e categorie con slug tecnici. Nessun fix o deploy e' stato eseguito nell'audit.
+
+
+## Verifica live dopo Publish frontend — 20 novembre 2026
+
+**PASS verifica read-only da sessione Chrome autenticata dell'amministratore, URL `https://onlinegarden.it/admin/products/b998f5bb-e9d4-4d53-a448-7a5129f91ddc`:** i cambiamenti di UI della PR #57 sono visibili sul sito pubblicato. Mostra `Record interno presente` e `Bozza interna non inviata · fuori vendita`, con `Mappatura Shopify assente per questo SKU`. Nuovo blocco `Riepilogo della bozza interna salvata` mostra:
+- titolo `TEST — Lavanda officinale — NON IN VENDITA`, SKU `TEST-OG-AI-001`, fornitore `OnlineGarden`, 4 tag (`lavanda`, `pianta`, `profumata`, `test-interno`);
+- categoria `Aromatiche da esterno`, titolo SEO `TEST Lavanda officinale - NON IN VENDITA | Online Garden`, descrizione SEO della scheda di prova;
+- descrizione salvata dalla proposta AI in paragrafi leggibili;
+- formato `Formato unico — TEST`, SKU variante corrispondente, prezzo `10,00 EUR`, immagine con attributo ALT `lavanda` (presenza nel DOM, non test autonomo del rendering dell'asset remoto).
+- Nella scheda `Descrizione estesa` e' visibile il pulsante `Migliora il testo con AI` e la spiegazione che una richiesta puo' consumare crediti. Nessuna generazione eseguita da questa verifica.
+- Le righe editoriali senza valore mostrano una spiegazione di dove trovare il riepilogo, anziche' suggerire che i dati della creazione siano persi.
+
+**Limiti osservabili:** Lovable `get_project` riporta `is_published: true`, `status: ready` e ultimo SHA repository `4677f64d...` (commit docs-only successivo alla PR), ma non espone uno SHA del bundle frontend realmente pubblicato: il PASS e' quindi sul **comportamento della UI live**, non su un'attestazione binaria. La funzione backend `product-admin-api` e' stata distribuita come da resoconto Lovable precedente e il riepilogo nella UI costituisce prova integrata read-only. Non e' stata eseguita prova con il login personale di Marco, nessun click `Migliora il testo con AI`, `Crea bozza Shopify`, `Aggiorna sul sito` o `Pubblica`. **GO CON LIMITAZIONI** per collaudo assistito con Marco; **NO-GO uso ordinario finche' non completato il suo test**. Verificare ancora le immagini a schermo e l'AI con consenso a costo separato.
+
