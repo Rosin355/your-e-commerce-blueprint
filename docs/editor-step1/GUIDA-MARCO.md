@@ -1,3 +1,5 @@
+> **Nota di collaudo LIVE — 19 novembre 2026:** il wizard e' disponibile e il responsabile ha creato `TEST-OG-AI-001` come **bozza interna non inviata a Shopify**. Questa guida contiene anche note storiche scritte prima dell'attivazione: per lo stato attuale prevalgono il [collaudo live](COLLAUDO-MARCO-STEP1C.md) e il [backlog UX](BACKLOG-UX-MARCO.md). **Non usare ancora `Migliora il testo con AI` su schede gia' salvate:** abbiamo individuato un difetto che puo' nascondere la proposta dopo aver consumato una richiesta AI. Il test `Aiutami a compilare` ha invece funzionato con fatti confermati. La consegna a Marco resta separata dalla prova tecnica: nessuna pubblicazione o aggiornamento Shopify senza autorizzazione.
+
 # Prova dell'editor nella sessione personale
 
 ## Percorso A — aggiornamento 18 novembre 2026
