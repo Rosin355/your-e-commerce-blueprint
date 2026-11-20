@@ -41,3 +41,7 @@ Il sito attuale ha gia «Cosa lo rende speciale» e «Caratteristiche principali
 Nuovo accordion Punti di forza accanto a Caratteristiche principali, stesso stile; presente soltanto quando keyBenefits contiene voci valide proprie. Parte chiuso, senza cambiare l’apertura iniziale delle sezioni esistenti. Nasconde solo nel nuovo blocco le voci identiche già visibili in Cosa lo rende speciale/Caratteristiche principali; se restano zero voci, niente titolo o spazio vuoto. Nessuna sostituzione, riordinamento o variazione dei consumer precedenti. Valori incompatibili o ambigui non sono normalizzati né mostrati come JSON.
 
 Prove su PDP sintetica desktop 1280/mobile 390 con campo presente/assente/vuoto/tutto duplicato; ordine, caratteri e sezioni precedenti verificati. Il confronto semantico dei testi resta revisione editoriale umana: nessuna AI o deduplicazione automatica semantica. Codice non pubblicato, definizione Shopify ancora mancante.
+
+## UX test live del 19 novembre 2026 — priorita' cliente Marco
+
+Consulta [BACKLOG-UX-MARCO.md](BACKLOG-UX-MARCO.md) per priorita', prove e criteri di accettazione. In particolare: modalita' semplice con campi modificabili evidenziati, descrizione rich text senza HTML visibile, anteprima completa, categorie ricercabili senza slug, botanica organizzata in sezioni progressive, indicatore inequivocabile bozza locale vs negozio online. Non progettare un'interfaccia che nasconde la mancanza del prezzo nella scheda salvata: esporre la fonte dei dati e lo stato di persistenza.
