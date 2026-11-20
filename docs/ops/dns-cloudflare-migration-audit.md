@@ -1,6 +1,6 @@
 # Online Garden — passaggio DNS a Cloudflare per redirect SEO 301
 
-**Aggiornato:** 2026-11-20  
+**Aggiornato:** 2026-11-20 (con evidenza screenshot Cloudflare 17:47)  
 **Stato:** redirect 301 Cloudflare già configurati; attivazione DNS/NS non ancora confermata.  
 **Riferimento operativo:** configurazione comunicata da **Lovable**, che il cliente indica come interlocutore per la gestione del dominio.
 
@@ -30,6 +30,32 @@ Non proporre di rifare i 301; non chiedere al cliente di ricostruire la stessa c
 Nameserver attuali **dichiarati da Lovable**: `ns1037.ui-dns.org`, `ns1041.ui-dns.biz`, `ns1098.ui-dns.de`, `ns1126.ui-dns.com`.
 
 Nel confronto del thread precedente A, MX, autodiscover e _dmarc risultavano corrispondenti a Cloudflare. Non sono però stati ri-verificati in questa sessione. SPF non ancora confrontato integralmente; DKIM, DNSSEC e altri record non confermati.
+
+## Evidenza visuale Cloudflare — 2026-11-20 17:47
+
+Screenshot del cliente: pagina **DNS Setup: Full**, testo **“Your traffic is almost ready to proxy”**, pulsante **“Continue to activation”** ancora visibile.
+
+Record riscontrati:
+- A `onlinegarden.it` → `185.158.133.1` — **Proxied**, TTL Auto, simbolo di avviso arancione da ispezionare.
+- A `www` → `185.158.133.1` — **Proxied**, TTL Auto, simbolo di avviso arancione da ispezionare.
+- CNAME `autodiscover` → `adsredir.ionos.info` — **DNS only**.
+- CNAME `_dmarc` → `dmarc.ionos.it` — **DNS only**.
+- CNAME `_domainconnect…` → `_domainconnect.io…` — **DNS only**, nuovo record rispetto all'elenco iniziale di Lovable; **conservare e verificare valore completo**.
+- MX `onlinegarden.it` → `mx00.ionos.it` e `mx01.ionos.it`, entrambi priorità **10**.
+- TXT `onlinegarden.it` → valore SPF **troncato in UI**, non verificabile integralmente dallo screenshot.
+- Nessun record DKIM visibile nella tabella mostrata; verificare prima se già esistenti sotto altri nomi e, se assenti, inserire i 3 CNAME documentati da IONOS.
+
+### Interpretazione e prossimo passo
+
+- Le nuvole arancioni di `@`/`www` sono **coerenti con l'uso dei 301 Cloudflare**: Cloudflare Single/Bulk Redirects richiede traffico proxied. Non trasformarle in grigio per l'obiettivo SEO.
+- La presenza di “Continue to activation” segnala un **passaggio di attivazione ancora pendente** nella UI; la presenza di record nel pannello non garantisce da sola che i NS siano già stati cambiati.
+- Cliccare su SPF > Edit per confrontare il valore integrale con `v=spf1 include:_spf-eu.ionos.com ~all`; non modificarlo se coincide.
+- Verificare/aggiungere i tre DKIM IONOS come CNAME DNS only (`s1-ionos._domainkey`, `s2-ionos._domainkey`, `s42582890._domainkey`) prima dell'attivazione, evitando duplicati.
+- Esaminare l'avviso arancione accanto ai due A, **senza attribuirgli una causa non confermata**.
+- Verificare DNSSEC/DS, poi collaudare origin Lovable/TLS con proxy e le regole 301 prima del cambio di delega.
+- Non cancellare `_domainconnect`: IONOS documenta questo record per integrazioni di dominio con servizi esterni (https://www.ionos.it/aiuto/domini/collegare-un-dominio-ad-un-sito-web-esterno/collegare-un-dominio-11-ionos-ad-un-account-di-posta-elettronica-mailjet/).
+
+Fonti: https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/ ; https://developers.cloudflare.com/rules/url-forwarding/single-redirects/create-dashboard/ ; https://www.ionos.it/aiuto/domini/configurare-un-server-di-posta-e-i-relativi-record/autenticazione-delle-e-mail-con-dkim/
 
 ## Verifiche residue senza riaprire la configurazione
 
