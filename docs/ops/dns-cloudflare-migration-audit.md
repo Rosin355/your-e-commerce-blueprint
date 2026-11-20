@@ -67,6 +67,24 @@ Fonte ufficiale: https://developers.cloudflare.com/dns/manage-dns-records/refere
 
 **Prossimo controllo:** cercare record DKIM nella zona Cloudflare già predisposta (filtrando `_domainkey`) e verificare DNSSEC; nessuna modifica ai record correnti.
 
+## Verifica DKIM — ricerca Cloudflare 2026-11-20 alle 17:50
+
+Screenshot del cliente, filtro Cloudflare `_domainkey`: **No DNS records**. **DKIM: assenti nella zona Cloudflare predisposta**, non necessariamente nella zona DNS attiva presso il provider dei nameserver. Lo stato di migrazione rimane **pre-attivazione** con pulsante `Continue to activation` visibile.
+
+La guida ufficiale IONOS conferma che le mailbox IONOS richiedono, **quando i DNS sono gestiti da un altro provider**, i tre CNAME:
+
+| Tipo | Nome in Cloudflare | Target | Proxy | TTL |
+| --- | --- | --- | --- | --- |
+| CNAME | `s1-ionos._domainkey` | `s1.dkim.ionos.com` | DNS only | 1 ora |
+| CNAME | `s2-ionos._domainkey` | `s2.dkim.ionos.com` | DNS only | 1 ora |
+| CNAME | `s42582890._domainkey` | `s42582890.dkim.ionos.com` | DNS only | 1 ora |
+
+**Azione concordata:** aggiungere questi tre record nella zona Cloudflare per `onlinegarden.it` e verificare che compaiano nella ricerca `_domainkey`. Non cambiare gli A Proxied, MX, SPF, DMARC, autodiscover o le regole redirect 301. Non cliccare ancora `Continue to activation`: restano da verificare DNSSEC/DS e il proxy/TLS verso Lovable.
+
+**Distinzione stato:** guida IONOS verificata; assenza nella zona Cloudflare verificata tramite screenshot; inserimento e propagazione DKIM **non ancora verificati**.
+
+Fonte: https://www.ionos.it/aiuto/domini/configurare-un-server-di-posta-e-i-relativi-record/autenticazione-delle-e-mail-con-dkim/
+
 ## Verifiche residue senza riaprire la configurazione
 
 1. **Cloudflare:** verificare che la zona riporti esattamente i sette record della tabella, con MX corretti, TXT SPF completo, eventuali altri record da preservare. Non cambiare le regole 301 esistenti.
