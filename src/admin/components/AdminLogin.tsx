@@ -4,13 +4,15 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { LogIn } from 'lucide-react';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AdminLoginProps {
   onLogin: () => void;
+  access?: 'legacy-admin' | 'staff';
 }
 
-export default function AdminLogin({ onLogin }: AdminLoginProps) {
+export default function AdminLogin({ onLogin, access = 'legacy-admin' }: AdminLoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,7 +32,12 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
         setError('Credenziali non valide');
         return;
       }
-      // Verify admin role
+      // V2 authorizes every staff role through get_admin_context before mounting its shell.
+      if (access === 'staff') {
+        onLogin();
+        return;
+      }
+      // Older tools require the legacy administrator role.
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         setError('Errore di autenticazione');
@@ -56,12 +63,29 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
     }
   };
 
+  const requestRecovery = async () => {
+    if (!email.trim()) { setError('Inserisci la tua email di lavoro'); return; }
+    setError('');
+    setLoading(true);
+    try {
+      const result = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: window.location.origin + '/reset-password',
+      });
+      if (result.error) throw result.error;
+      toast.success('Se la casella è abilitata, riceverai il link di recupero.');
+    } catch {
+      setError('Recupero temporaneamente non disponibile. Riprova più tardi.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Admin Import</CardTitle>
-          <CardDescription>Accedi con le tue credenziali di amministratore</CardDescription>
+          <CardTitle className="text-2xl">{access === 'staff' ? 'Accesso personale Online Garden' : 'Admin Import'}</CardTitle>
+          <CardDescription>Usa le credenziali del personale abilitato</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -90,6 +114,9 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
             <Button type="submit" className="w-full gap-2" disabled={loading}>
               <LogIn className="h-4 w-4" />
               {loading ? 'Accesso in corso…' : 'Accedi'}
+            </Button>
+            <Button type="button" variant="link" disabled={loading} onClick={requestRecovery}>
+              Recupera password
             </Button>
           </form>
         </CardContent>

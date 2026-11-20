@@ -11,8 +11,23 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
+    // Only staff routes may consume Supabase recovery/OAuth parameters on page load.
+    detectSessionInUrl: typeof window !== 'undefined' && /^\/(?:admin(?:\/|$)|reset-password\/?$)/i.test(window.location.pathname),
     storage: brokeredPreviewStorage(),
     persistSession: true,
     autoRefreshToken: true,
   }
 });
+
+// The lazy recovery page can mount after the SDK has consumed the redirect.
+let recoveryUserId: string | null = null;
+if (typeof window !== 'undefined' && /^\/reset-password\/?$/i.test(window.location.pathname)) {
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') recoveryUserId = session?.user.id ?? null;
+    else if (!session || session.user.id !== recoveryUserId) recoveryUserId = null;
+  });
+}
+
+export function hasStaffRecovery(userId?: string) {
+  return Boolean(userId && userId === recoveryUserId);
+}

@@ -79,6 +79,9 @@ test('integration leaves Admin, Supabase and checkout outside customer flow', ()
  for(const f of ['src/customer/client.ts','src/customer/CustomerPages.tsx','src/customer/react.ts']) { const s=read(f); assert.ok(!s.includes('supabase')); assert.ok(!/console\.(log|warn|error|info|debug)\s*\(/.test(s)); assert.ok(!s.includes('get-customer-orders')); }
  for(const f of ['Auth','Account','AccountCallback']) assert.match(read('src/pages/'+f+'.tsx'),/SHOPIFY_CUSTOMER_AUTH_ENABLED \? <CustomerBoundary>/);
  assert.match(read('src/admin/components/AdminLogin.tsx'),/signInWithPassword/); assert.match(read('src/hooks/useAuth.tsx'),/scope: 'local'/);
+ assert.match(read('src/adminv2/AdminV2Guard.tsx'),/AdminLogin access="staff"/);
+ assert.match(read('src/adminv2/AdminV2Guard.tsx'),/isError \|\| !data\?\.roles\?\.length/);
+ assert.match(read('src/integrations/supabase/client.ts'),/detectSessionInUrl:.*reset-password/);
  assert.ok(!read('src/App.tsx').includes('/admin/login'));
  assert.ok(!read('src/lib/shopify-checkout.ts').includes('customer/')); assert.ok(!read('src/stores/cartStore.ts').includes('customer/'));
 });
