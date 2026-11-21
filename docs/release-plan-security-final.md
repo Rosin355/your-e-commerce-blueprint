@@ -73,3 +73,10 @@ In un contesto non autenticato Supabase `auth.uid()` è **NULL**, quindi questa 
 **Sequenza di approvazione:** A (10 funzioni) e C (bump compatibile) sono candidabili a rilascio condizionato con backup e gate mirati; **B deve prima essere riprogettato e riesaminato**, D soltanto dopo le prove funzionali e la verifica dei rilievi. Questo addendum non autorizza in alcun modo deployment, migration, modifica permessi o Publish.
 
 **Fonti esterne:** [Supabase `auth.uid()` e RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [Supabase Security Definer accessibile anonimamente](https://supabase.com/docs/guides/observability/advisors?lint=0029_authenticated_security_definer_function_executable), [React Router advisory 6.30.6](https://github.com/advisories/GHSA-jjmj-jmhj-qwj2).
+
+## Esecuzione 21/11/2026
+- **A eseguita**: 10 funzioni distribuite (più un secondo deploy di shopify-admin-proxy per filtro sku/handle). Tutte: OPTIONS 200; senza login 401 (proxy: rifiuto con 500 storico); chiave pubblica 401/403. Admin reale: lettura proxy 200, product-admin-api 200; update_customer con ID manipolato rifiutato prima di Shopify. Nessun dato modificato. Test 102/102.
+- **B corretta, NON applicata**: condizione fidata ora `auth.uid()=_user_id` oppure service role oppure sessione postgres. Verifica claims simulati: anon false, proprio ruolo true, ruolo altrui false, service role true, senza claim false. In attesa di approvazione.
+- **C eseguita**: react-router-dom 6.30.6 (router 1.23.4), lockfile aggiornato, build OK. Navigazione home/collezione/PDP/indietro, account (Shopify login), Admin dashboard: OK, nessun errore pagina.
+- **D non eseguito**: attende approvazione B.
+- Deep scan (base e5482ff): 0 Critical sulle 7 funzioni legacy; rilievi proxy corretti e marcati risolti. Aperti: 5 Warning ruoli (chiusi da B), log clienti storici (Warning, già risolto nel codice), Info Storage intenzionale; zod 4 e ws senza correzione compatibile.

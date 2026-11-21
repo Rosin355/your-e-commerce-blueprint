@@ -915,7 +915,9 @@ serve(async (req) => {
         // ── A1: Short-circuit per prodotti già sincronizzati e non modificati ──
         // Skip SOLO se: status=synced, nessun metafield fallito, esiste shopify_synced_at,
         // e ai_enriched_at <= shopify_synced_at. force=true bypassa tutto.
-        if (!force && (sku || handle)) {
+        // Filter values are interpolated into a PostgREST OR expression: accept only plain identifiers.
+        const safeFilterValue = (v: unknown) => typeof v === "string" && /^[A-Za-z0-9._-]{1,128}$/.test(v);
+        if (!force && (sku || handle) && (!sku || safeFilterValue(sku)) && (!handle || safeFilterValue(handle))) {
           try {
             const db = getSupabaseAdminClient();
             const orParts: string[] = [];

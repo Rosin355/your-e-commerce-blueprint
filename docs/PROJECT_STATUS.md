@@ -778,3 +778,6 @@ Draft PR [#42](https://github.com/Rosin355/your-e-commerce-blueprint/pull/42) pu
 **Continuità Admin:** PR #47 MERGED, commit `b56d421b8c30fbf74e4768c112acbdc6e874fd08`; Livello B nel main ma disabilitato, Livello A live di riferimento `admin-readonly-20261106-r1`. Ultima lettura attestata 09/11 19:16:37 CET: scritture e Shopify sync OFF; nessuna nuova lettura runtime dichiarata. Migration operativa non applicata da questo intervento; file/flag Admin invariati. Recovery non dimostrato, identità/ruolo Marco non verificati, zero mapping categorie approvati. Nessun canary, prodotto, ruolo, secret, inventario, Payments, checkout, tariffe A/B o Sendcloud modificato. Le sezioni seguenti conservano la cronologia Admin.
 
 </details>
+
+## 21/11/2026 — Sicurezza
+10 funzioni legacy protette e distribuite; React Router 6.30.6. Restrizione ruoli preparata e in attesa di approvazione; Publish frontend in attesa. Dettagli: docs/release-plan-security-final.md.
