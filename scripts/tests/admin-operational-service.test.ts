@@ -14,12 +14,15 @@ function simulation(
     currency?: string;
     requestedVendor?: string;
     remoteVendor?: string;
+    productType?: string;
+    remoteOption?: string;
   } = {},
 ) {
   const draft: ProductDraft = {
     title: 'Simulazione',
     sku: 'QA-001',
-    description: 'Test',
+    description: '<p>Test <strong>editoriale</strong></p>',
+    productType: options.productType,
     currency: 'EUR',
     vendor: options.requestedVendor ?? '',
     tags: [],
@@ -46,6 +49,10 @@ function simulation(
     status: 'DRAFT',
     handle: `og-draft-${id}`,
     title: draft.title,
+    descriptionHtml: draft.description,
+    tags: draft.tags,
+    seo: { title: draft.seoTitle, description: draft.seoDescription },
+    productType: draft.productType ?? '',
     vendor: options.remoteVendor ?? draft.vendor,
     metafield: { value: id },
     variants: {
@@ -53,6 +60,7 @@ function simulation(
         id: 'gid://shopify/ProductVariant/2',
         sku: 'QA-001',
         price: '12.00',
+        selectedOptions: [{ name: 'Formato', value: options.remoteOption ?? 'Unico' }],
         compareAtPrice: null,
       }],
       pageInfo: { hasNextPage: false },
@@ -182,6 +190,17 @@ Deno.test('creazione simulata: claim, unica mutation DRAFT, rilettura e mapping'
       operationId: id,
       confirm: true,
     }, s.shopify);
+    assertEquals(s.mutations, 1);
+  }));
+Deno.test('tipo e descrizione formattata arrivano a Shopify; un formato riassegnato blocca il mapping', () =>
+  withFlags(async () => {
+    const s = simulation({ productType: 'Arbusto', remoteOption: 'Altro formato' });
+    await assertRejects(() => handleOperational(s.db, actor, {
+      action: 'create_shopify_draft', operationId: id, confirm: true,
+    }, s.shopify));
+    assertEquals(s.input?.productType, 'Arbusto');
+    assertEquals(s.input?.descriptionHtml, '<p>Test <strong>editoriale</strong></p>');
+    assertEquals(s.completions, 0);
     assertEquals(s.mutations, 1);
   }));
 Deno.test('fornitore facoltativo: default Shopify consentito, recupero senza seconda create', () =>
@@ -544,4 +563,26 @@ Deno.test('riepilogo autorizzato: payload persistito, categoria per GID esatto, 
   assertEquals(limited.operations[0].summary, undefined);
   assertEquals(columns.some(c => c.includes('payload')), false);
   assertEquals(tables, ['admin_product_operations']);
+});
+
+import { listPublicationStates } from '../../supabase/functions/_shared/admin-list-publication.ts';
+
+Deno.test('publication badges distinguish local, Shopify and channel state and preserve ambiguous mappings', async () => {
+  const products = ['local', 'draft', 'active', 'off', 'unlisted', 'archived', 'conflict', 'unmapped', 'inflight'].map(id => ({ id, sku: id }));
+  const remoteStates = ['DRAFT', 'ACTIVE', 'ACTIVE', 'UNLISTED', 'ARCHIVED'];
+  const links = products.slice(1, 7).map((p, index) => ({ product_id: p.id, shopify_product_gid: 'gid://shopify/Product/' + (index + 1) }));
+  const tables: Record<string, object[]> = {
+    admin_product_shopify_links: links,
+    product_sync_csv_products: [{ sku: 'draft', shopify_product_id: '1' }, { sku: 'conflict', shopify_product_id: '99' }],
+    admin_product_operations: [{ product_id: 'local', state: 'LOCAL_DRAFT' }, { product_id: 'inflight', state: 'IN_FLIGHT' }],
+  };
+  const db = { from: (table: string) => ({ select: () => ({ in: () => ({ data: tables[table], error: null }) }) }) } as unknown as SupabaseClient;
+  const read = async <T>(_version: string, _query: string, variables: Record<string, unknown> = {}) => {
+    assertEquals(variables.ids, links.slice(0, 5).map(row => row.shopify_product_gid));
+    return { nodes: remoteStates.map((status, index) => ({ id: links[index].shopify_product_gid, status, publishedOnPublication: index !== 2 })) } as T;
+  };
+  assertEquals(Object.fromEntries(await listPublicationStates(db, products, read)), {
+    local: 'local_draft', draft: 'shopify_draft', active: 'published', off: 'off_channel', unlisted: 'unlisted', archived: 'archived',
+  });
+  assertEquals(Object.fromEntries(await listPublicationStates(db, products, () => Promise.reject(new Error('Shopify unavailable')))), { local: 'local_draft' });
 });

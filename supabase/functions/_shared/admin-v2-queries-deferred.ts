@@ -90,6 +90,7 @@ export async function listProducts(
       .select("id,sku,entity_type,parent_product_id,updated_at,is_active")
       .order("sku", { ascending: true }).limit(50);
     if (req.sku?.trim()) pq = pq.ilike("sku", `%${escapeLike(req.sku.trim())}%`);
+    if (req.productSource) pq = pq.eq("legacy_source", req.productSource);
     if (req.entityType) pq = pq.eq("entity_type", req.entityType);
     if (after) pq = pq.gt("sku", after);
     const { data, error } = await pq;
@@ -115,7 +116,7 @@ export async function listProducts(
       if (selected.length > pageSize) break;
     }
     const lastSku = batch[batch.length - 1].sku;
-    if (after && lastSku <= after) throw new Error("CATALOG_CURSOR_INVALID");
+    if (after && lastSku === after) throw new Error("CATALOG_CURSOR_INVALID");
     after = lastSku;
     if (batch.length < 50) break;
   }
@@ -162,7 +163,7 @@ export async function getExactShopifyProductMapping(
     // Additive migration may not yet be deployed. Other errors fail closed.
     if (linkError && !["42P01", "PGRST205"].includes(linkError.code)) throw linkError;
     if (link) {
-      if (data?.shopify_product_id && data.shopify_product_id !== link.shopify_product_gid) throw new Error("MAPPING_CONFLICT");
+      if (data?.shopify_product_id && String(data.shopify_product_id).replace(/^gid:\/\/shopify\/Product\//, '') !== String(link.shopify_product_gid).replace(/^gid:\/\/shopify\/Product\//, '')) throw new Error("MAPPING_CONFLICT");
       return { sku, shopify_product_id: link.shopify_product_gid as string, shopify_sync_status: "verified_draft", shopify_synced_at: link.verified_at as string, handle: null, price: null, compare_at_price: null };
     }
   }
@@ -261,21 +262,22 @@ export async function getDashboardStats(db: SupabaseClient) {
       ),
       countValues((q) => q.eq("publish_blocked", true)),
       countValues((q) =>
-        q.eq("field_key", "product_category_raw").not("value_text", "is", null)
+        q.eq("field_key", "product_category_raw").neq("value_text", "")
       ),
       countValues((q) =>
-        q.eq("field_key", "description").not("value_text", "is", null)
+        q.eq("field_key", "description").neq("value_text", "")
       ),
       countValues((q) =>
         q.eq("field_key", "shopify_sync_status").eq("value_text", "error")
       ),
     ]);
 
-  const { data: batch } = await db
+  const { data: batch, error: batchError } = await db
     .from("product_import_batches")
     .select("file_name,status,total_rows,created_at,applied_at")
     .order("created_at", { ascending: false })
     .limit(1);
+  if (batchError) throw batchError;
 
   return {
     products: { total, simple, variable, variation },

@@ -66,7 +66,7 @@ export default function DashboardPage() {
           Catalogo
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label="Prodotti totali" value={s.products.total} />
+          <Metric label="Record di catalogo" hint="Include prodotti e singole varianti" value={s.products.total} />
           <Metric label="Prodotti singoli" value={s.products.simple} />
           <Metric label="Prodotti con varianti" value={s.products.variable} />
           <Metric label="Varianti" value={s.products.variation} />
@@ -79,8 +79,8 @@ export default function DashboardPage() {
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Metric label="Valori da verificare" value={s.values.toReview} hint="Contenuti importati dal sistema precedente" />
-          <Metric label="Prodotti da classificare" value={s.quality.toClassify} />
-          <Metric label="Prodotti incompleti" value={s.quality.incomplete} hint="Manca la descrizione" />
+          <Metric label="Record senza categoria di origine" value={s.quality.toClassify} />
+          <Metric label="Record senza descrizione" value={s.quality.incomplete} hint="Manca la descrizione" />
           <Metric label="Errori" value={s.quality.errors} />
         </div>
       </section>

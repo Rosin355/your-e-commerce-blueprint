@@ -1,5 +1,9 @@
 # Online Garden — note Admin UX
 
+## Catalogo e schede · 21 novembre 2026
+
+La lista separa origine del record, sincronizzazione e pubblicazione sul canale. Il filtro categoria accetta testo anche per prodotti oltre la pagina visibile. In caso di conflitto prezzi o categorie, il modulo offre di rileggere la versione corrente. Il riepilogo della bozza contiene anche il tipo commerciale. La galleria e la struttura dei prodotti già collegati hanno un percorso staff Shopify. [Flussi e prime prove con Marco](admin-v2/CLIENT-GUIDE.md).
+
 Aggiornamento: 30 settembre 2026
 
 ## QA finale 2C.2

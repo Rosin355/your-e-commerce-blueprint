@@ -1,5 +1,9 @@
 # Online Garden — developer handoff
 
+## Consegna tecnica Admin V2 · 21 novembre 2026
+
+Il contratto additivo admin-delivery-20261121-r2 riguarda product-admin-api e il frontend Admin. La bozza locale, la bozza su Shopify e la pubblicazione sul canale hanno verifiche distinte. Il collegamento Shopify per modifiche native richiede accesso staff separato. [Versioni, riscontri e rollback](admin-v2/RELEASE-REPORT.md) · [Criteri di accettazione](admin-v2/FINAL-ACCEPTANCE.md).
+
 ## Area clienti e chiusura del ciclo legacy · 21 novembre 2026
 
 Il candidato Lovable `ba257cb` include la [PR #60](https://github.com/Rosin355/your-e-commerce-blueprint/pull/60), merge `054f85c`. `/auth` e `/account` utilizzano il Customer Account ospitato e lasciano l’adesione al cliente. Supabase autentica gli operatori su `/admin`. Il recupero staff valido ritorna a `/admin` nel codice. In preview è stato osservato anche il ritorno a questa route dal messaggio per link privo di sessione.

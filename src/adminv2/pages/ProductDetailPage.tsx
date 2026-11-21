@@ -1,4 +1,5 @@
 import { isTechnicalProduct } from '../../../supabase/functions/_shared/admin-operational-core';
+import { SHOPIFY_STORE_PERMANENT_DOMAIN } from '@/lib/shopify';
 import CatalogActions from '../components/CatalogActions';
 import ProductOperations from '../components/ProductOperations';
 import { ADMIN_READ_ONLY_RELEASE, readOnlyField, READ_ONLY_RELEASE_NOTICE } from '../lib/readOnlyRelease';
@@ -72,6 +73,13 @@ export default function ProductDetailPage() {
     .flatMap((s) => s.fields)
     .find((f) => f.key === 'title' || f.key === 'name');
   const title = (titleField?.value as string) ?? product.sku;
+  const technical = isTechnicalProduct([product.sku], title, product.productId);
+  const remoteId = shopifyLive.available && shopifyLive.mapped &&
+    /^gid:\/\/shopify\/Product\/([1-9][0-9]*)$/.exec(shopifyLive.productId ?? '')?.[1];
+  const nativeEditor = !ADMIN_READ_ONLY_RELEASE && !technical && context?.ordinaryCatalog &&
+    (context.canUploadImages || context.canManagePrices) && remoteId &&
+    /^[a-z0-9-]+\.myshopify\.com$/.test(SHOPIFY_STORE_PERMANENT_DOMAIN)
+    ? `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/admin/products/${remoteId}` : null;
 
   return (
     <div className="space-y-5">
@@ -128,7 +136,12 @@ export default function ProductDetailPage() {
         ) : <p className="text-sm text-muted-foreground">{shopifyLive.error}</p>}
       </details>
 
-      {!ADMIN_READ_ONLY_RELEASE && <CatalogActions key={product.productId} productId={product.productId} technical={isTechnicalProduct([product.sku], title, product.productId)} context={context} />}
+      {!ADMIN_READ_ONLY_RELEASE && <CatalogActions key={product.productId} productId={product.productId} technical={technical} context={context} />}
+      {nativeEditor && <section className="space-y-1 rounded-lg border p-4">
+        <h2 className="font-semibold">Galleria e struttura dei formati</h2>
+        <p className="text-sm">Per cambiare la galleria o aggiungere formati a un prodotto già collegato, apri la sua scheda Shopify. Serve un accesso staff Shopify abilitato. Le modifiche su un prodotto pubblicato possono essere subito visibili.</p>
+        <a className="underline" href={nativeEditor} target="_blank" rel="noopener noreferrer">Apri il prodotto in Shopify</a>
+      </section>}
 
       {!ADMIN_READ_ONLY_RELEASE && context?.canUseAi && aiSuggestions.isLoading && <p role="status">Recupero delle proposte salvate…</p>}
       {context?.canUseAi && aiSuggestions.isError && <p role="alert">Lettura delle proposte non riuscita. Puoi modificare la bozza manualmente.{' '}

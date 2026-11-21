@@ -115,6 +115,7 @@ export interface ListProductsFilters {
   publishBlocked?: boolean;
   completeness?: "complete" | "incomplete";
   origin?: string;
+  productSource?: string;
   needsClassification?: boolean;
 }
 

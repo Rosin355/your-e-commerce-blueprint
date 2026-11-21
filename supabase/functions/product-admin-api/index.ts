@@ -1,5 +1,6 @@
 import { shopifyStorefrontGraphQL } from '../_shared/shopify-storefront-server.ts';
 import { decodeEditorialList } from '../_shared/editorial-list-codec.ts';
+import { listPublicationStates } from '../_shared/admin-list-publication.ts';
 import { COMMERCE_ACTIONS, handleCatalogCommerce, commerceSnapshot } from '../_shared/admin-catalog-commerce.ts';
 import { loadCatalogGrant, prepareCatalogApproval, withCatalogApproval, catalogMode } from '../_shared/admin-catalog-approvals.ts';
 import { catalogAllowed, catalogAiAllowed, EDITORIAL_AI_FIELDS, isEditorialList, requireCatalog, CATALOG_MUTATIONS } from '../_shared/admin-catalog-policy.ts';
@@ -157,7 +158,8 @@ Deno.serve(async (req) => {
         canWrite: canWriteNow,
         canSync: (catalogAllowed(auth,'sync') || canSyncShopify(auth.roles)) && shopifySyncEnabled() && enabled &&
           (mode === "full" || (canWriteNow && scope?.actions.includes("sync_field"))),
-        backendVersion: "admin-delivery-20261110-r1",
+        backendVersion: "admin-delivery-20261121-r2",
+        supportsCatalogSourceAndProductType: true,
         ordinaryCatalog: ordinary,
         canUseAi: enabled && catalogAiAllowed(auth),
         canUploadImages: enabled && (catalogAllowed(auth,"images") || (scope?.actorId===auth.userId && scope.actions.includes("upload_catalog_image"))),
@@ -199,6 +201,9 @@ Deno.serve(async (req) => {
         sku: typeof payload.sku === "string" ? payload.sku : undefined,
         gtin: typeof payload.gtin === "string" ? payload.gtin : undefined,
         entityType: payload.entityType as never,
+        productSource: typeof payload.productSource === "string" &&
+          ["manuale", "woocommerce", "bulbi", "shopify", "unknown"].includes(payload.productSource)
+          ? payload.productSource : undefined,
         category: typeof payload.category === "string" ? payload.category : undefined,
         completeness: (payload.completeness === "complete" || payload.completeness === "incomplete") ? payload.completeness : undefined,
         origin: (payload.origin === "shopify" || payload.origin === "import") ? payload.origin : undefined,
@@ -208,7 +213,7 @@ Deno.serve(async (req) => {
         cursor: typeof payload.cursor === "string" ? payload.cursor : null,
         pageSize: typeof payload.pageSize === "number" ? payload.pageSize : undefined,
       });
-      const ids = productRows.map((p: { id: string }) => p.id);
+      const publicationStates = await listPublicationStates(db, productRows);
       const values = currentValues;
       const parentIds = [
         ...new Set(
@@ -224,11 +229,12 @@ Deno.serve(async (req) => {
       }
       const items = productRows.map((p) => {
         const row = p as { id: string; parent_product_id: string | null };
-        return serializeProductSummary(
+        const summary = serializeProductSummary(
           p as { id: string; sku: string; entity_type: string; parent_product_id: string | null; updated_at: string },
           values.filter((v) => v.product_id === row.id),
           row.parent_product_id ? (parentSkuById.get(row.parent_product_id) ?? null) : null,
         );
+        return { ...summary, publicationState: publicationStates.get(row.id) ?? null };
       });
       return json({ ok: true, items, nextCursor, pageSize: items.length });
     }

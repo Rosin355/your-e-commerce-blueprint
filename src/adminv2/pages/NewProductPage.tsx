@@ -14,6 +14,7 @@ import FieldEditor from '../components/FieldEditor';
 import CatalogImages from '../components/CatalogImages';
 import { callAdminApi, callCatalogCommand } from '../lib/adminApi';
 import { OPERATION_LABELS, useCategoryCatalogue } from '../lib/operationalApi';
+import { AdminApiError } from '../lib/AdminApiError';
 import { canRecoverDraftAfterError } from '../lib/operationalUiPolicy';
 import { useAdminContext } from '../hooks/useAdminData';
 import {
@@ -75,6 +76,9 @@ export default function NewProductPage() {
       callAdminApi<{ warnings: string[] }>({ action: 'preview_new_product', draft }),
   });
   const save = useMutation({
+    onError: error => {
+      if (error instanceof AdminApiError && error.code === 'CANCELLED') setLocked(false);
+    },
     mutationFn: () =>
       callCatalogCommand<{ result: { productId: string; operationId: string; state: string } }>({
         action: 'save_new_product',
@@ -99,16 +103,16 @@ export default function NewProductPage() {
   };
   const field = (
     label: string,
-    k: 'title' | 'sku' | 'description' | 'currency' | 'vendor' | 'seoTitle' | 'seoDescription',
+    k: 'title' | 'sku' | 'description' | 'currency' | 'vendor' | 'productType' | 'seoTitle' | 'seoDescription',
     area = false,
   ) => (
     <label className='block space-y-1'>
       <span>{label}</span>
       {area
-        ? <Textarea value={draft[k]} onChange={(e) => update({ [k]: e.target.value })} />
+        ? <Textarea value={draft[k] ?? ''} onChange={(e) => update({ [k]: e.target.value })} />
         : (
           <Input
-            value={draft[k]}
+            value={draft[k] ?? ''}
             onChange={(e) => {
               const value = e.target.value;
               update(
@@ -163,6 +167,7 @@ export default function NewProductPage() {
           <>
             {field('Valuta della bozza (codice ISO)', 'currency')}
             {field('Fornitore', 'vendor')}
+            {adminContext.data?.supportsCatalogSourceAndProductType && field('Tipo prodotto', 'productType')}
             <label className='block'>
               Tag separati da virgole<Input
                 value={tagsInput}
@@ -283,8 +288,8 @@ export default function NewProductPage() {
       {save.isError && (
         <div role='alert'>
           <p>{save.error.message}</p>
-          <p>I dati restano bloccati per evitare una seconda richiesta diversa dopo un timeout.</p>
-          {catalogue.data?.canSaveDraft && (
+          {locked && <p>I dati restano bloccati per evitare una seconda richiesta diversa dopo un timeout.</p>}
+          {locked && catalogue.data?.canSaveDraft && (
             <Button disabled={save.isPending} onClick={() => save.mutate()}>
               Recupera salvataggio con la stessa richiesta
             </Button>
