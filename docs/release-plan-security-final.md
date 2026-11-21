@@ -54,3 +54,22 @@ Rollback: funzioni → redeploy della stessa funzione da `e3c4e46` (baseline); S
 
 ## Autorizzazioni richieste (unica richiesta)
 A. Deploy delle 10 funzioni elencate. B. Applicazione dell'SQL ruoli. C. Aggiornamento minore react-router-dom 6.30.x. D. Publish frontend (necessario solo se approvi C).
+
+
+## Revisione indipendente del piano — 21 novembre 2026 (NON una autorizzazione)
+
+**Blocco da correggere prima di B:** il file `docs/security-prepared/role-check-self-only.sql` contiene il predicato
+
+```sql
+(auth.uid() IS NULL OR auth.uid() = _user_id)
+```
+
+In un contesto non autenticato Supabase `auth.uid()` è **NULL**, quindi questa espressione concede il ramo positivo anche quando il richiedente non è un utente loggato. Se `public.has_role` resta eseguibile da `anon`/`PUBLIC` (possibile per una funzione `SECURITY DEFINER` nello schema esposto), l'utente anonimo può interrogare un ruolo relativo a un UUID arbitrario. Ciò **contraddice** lo scopo «self-only». Il caso `NULL` non distingue un servizio fidato da un chiamante anonimo.
+
+**Richiesta di modifica:** riscrivere la policy/funzione con distinzione verificabile fra utente autenticato che interroga il proprio UUID, service role esplicitamente autorizzato e anonimo senza identità. Inventariare e verificare grant EXECUTE su `PUBLIC`, `anon`, `authenticated`, `service_role`; non fare REVOKE indiscriminati che rompano le 27 policy RLS/Storage esistenti. Necessario test reale (con identità sintetiche e senza dati privati): anon = DENY, autenticato altro UUID = DENY, autenticato proprio UUID = risultato corretto, chiamata servizio autorizzata = comportamento documentato, Marco editor / Admin V2 / immagini pubbliche invariati. **B NO-GO nella formulazione SQL attuale.**
+
+**Dipendenza C:** non installare `react-router-dom@6.30.5`, perché l'advisory GHSA-jjmj-jmhj-qwj2 lo include tra le versioni vulnerabili. Rimanendo su v6 usare **almeno 6.30.6** per questo advisory e verificare nell'effettivo lockfile le versioni di `react-router`/`react-router-dom` oltre agli altri advisory non necessariamente risolti dalla patch. Eseguire build, navigazione, account, Admin e checkout prima di D; non passare a v7 senza progetto dedicato.
+
+**Sequenza di approvazione:** A (10 funzioni) e C (bump compatibile) sono candidabili a rilascio condizionato con backup e gate mirati; **B deve prima essere riprogettato e riesaminato**, D soltanto dopo le prove funzionali e la verifica dei rilievi. Questo addendum non autorizza in alcun modo deployment, migration, modifica permessi o Publish.
+
+**Fonti esterne:** [Supabase `auth.uid()` e RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [Supabase Security Definer accessibile anonimamente](https://supabase.com/docs/guides/observability/advisors?lint=0029_authenticated_security_definer_function_executable), [React Router advisory 6.30.6](https://github.com/advisories/GHSA-jjmj-jmhj-qwj2).
