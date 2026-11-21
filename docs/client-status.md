@@ -1,3 +1,7 @@
+## Aggiornamento per il cliente — 21 novembre 2026
+
+Abbiamo integrato il nuovo sistema di accesso con Shopify Customer Accounts e la separazione dall'area amministrativa, oltre alla predisposizione tecnica del recupero storico. **La pubblicazione di queste modifiche in produzione è ancora da eseguire.** I dati conservati confermano 857 clienti storici con acquisti (esclusa un'utenza author) e 953 ordini conteggiati; non sono disponibili gli elementi delle singole transazioni: **0 ordini storici importati**. Il nuovo accesso Shopify potrà consentire ai clienti di utilizzare il negozio, ma gli acquisti del vecchio WooCommerce non compariranno automaticamente. Cloudflare/301 e collaudo finale Admin restano separati. [Leggi la SAL aggiornata](release/SAL-2026-11-21.md).
+
 # Online Garden — stato per il cliente
 
 ## Migrazione clienti e storico · 20 novembre 2026
