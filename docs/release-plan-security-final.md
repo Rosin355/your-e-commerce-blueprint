@@ -102,3 +102,17 @@ Il file [SQL aggiornato](docs/security-prepared/role-check-self-only.sql) usa co
 - Home, catalogo (9 link prodotto), PDP, aggiunta al carrello PASS. **Checkout non PASS**: permane «Creazione checkout…», nessuna navigazione dopo 45 secondi, nessun alert. Non attribuito alla migration: il flusso Shopify non usa `has_role`.
 - Scan rapido post-B: nessun Critical/Warning, un Info Storage già noto. **Publish NON richiesto**, nessun rollback, deploy o modifica Shopify. Recupero SQL disponibile nel file approvato ma richiede decisione prima dell'esecuzione; per il blocco checkout serve diagnosi mirata, non un ripristino dati.
 - Test live conservati in `scripts/tests/role-check-live.test.ts`: **4/4 PASS** (Admin proprio ruolo, ruolo editor altrui negato, anonimo senza EXECUTE, helper edit Admin preservato). I 5 finding sui ruoli segnati risolti dopo questi controlli. Restano Warning log clienti storici e Info Storage; scansione approfondita finale da completare.
+
+## Stato sicurezza e rilascio — 21 novembre 2026 (esito riferito dal collaudo Lovable)
+
+**Fonte:** esito operativo incollato dal responsabile; questa nota registra la dichiarazione e non equivale a interrogazione autonoma del database o del checkout. La modifica ai ruoli **B** risulta applicata in produzione con **4/4 verifiche PASS**, senza variazioni dichiarate ai permessi di Marco; il Publish **D** risulta fermato. Deep scan terminato con **0 Critical**, ma su uno snapshot precedente all'ultimo salvataggio: serve un secondo controllo sul commit corrente.
+
+Avvisi residui riportati:
+- Admin modifica prodotti: payload inoltrato a Shopify contiene campi ulteriori rispetto a quelli consentiti; confermare se finding ancora applicabile e usare allowlist server-side per la specifica operazione senza cambiare campi commerciali.
+- Log della sincronizzazione clienti: possibile presenza di email in chiaro; correggere sanificazione e ridurre logging, senza pubblicare recapiti o riscrivere alla cieca log storici.
+- Informativo immagini pubbliche: comportamento intenzionale per i prodotti; non rendere privato il bucket pubblico.
+
+**Blocco reale del Publish:** checkout che rimane su `Creazione checkout…` dopo l'ultima sessione; checkout precedentemente aperto su preview e dominio live. Una correlazione temporale con il change B **non dimostra causalità**. Diagnostica separata su carrello, variant ID/availability, Storefront `cartCreate`, risposta GraphQL, timeout e redirect; riprodurre almeno con un prodotto vendibile senza completare ordini o pagamenti. Segnalare differenza fra test preview e dominio live senza introdurre modifiche checkout non correlate.
+
+**Decisione consigliata:** autorizzare **solo correzioni nel sorgente** dei due avvisi confermati e diagnosi/fix minimo del checkout in anteprima, lasciando deploy backend/SQL/Publish separati e non eseguiti senza gate dedicati. Concludere in un unico report con causa del blocco checkout, test mirati, elenco file toccati, residual warning e criteri GO/NO-GO. Conservare lo stato clienti Shopify, Admin staff e migrazione storica `0/953`; SAL stimata **58%** senza certificazione Publish.
+
