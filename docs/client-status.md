@@ -1,3 +1,7 @@
+## Aggiornamento 21 novembre — verifica area clienti Shopify
+
+L'accesso a un profilo Shopify e la consultazione di un ordine Shopify già esistente sono stati **verificati attraverso schermate fornite dal responsabile**. Il sito in anteprima aveva già superato navigazione, prodotti e carrello. La PR #61 è integrata; **il nuovo Publish è stato richiesto ma non ancora verificato come disponibile su onlinegarden.it**. Resta aperta una verifica dedicata per accesso e recupero dell'operatore staff. Lo storico WooCommerce non è stato importato, perché i dettagli dei 953 ordini non sono disponibili. La SAL rimane **58%**. [Dettagli del rilascio](release/SAL-2026-11-21.md).
+
 # Online Garden — stato per il cliente
 
 ## Area personale al 21 novembre 2026
