@@ -1,6 +1,6 @@
 # Area clienti Online Garden · verbale del 21 novembre 2026
 
-Baseline applicativa e documentale `4f67bf8`. Admin V2 in produzione `admin-delivery-20261121-r2`. Questa scheda distingue il codice integrato, le prove ripetibili, i riscontri pubblici e l’accettazione personale.
+Collaudo eseguito dalla baseline `4f67bf8`. La [PR #64](https://github.com/Rosin355/your-e-commerce-blueprint/pull/64) registra il commit di integrazione e gli esiti della CI. La versione pubblica di riferimento proviene dal [rilascio ca9050d](../admin-v2/RELEASE-REPORT.md#registro-di-produzione) con Admin V2 `admin-delivery-20261121-r2`.
 
 ## Funzione consegnata e riscontri
 
