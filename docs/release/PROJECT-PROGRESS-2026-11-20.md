@@ -17,6 +17,20 @@
 
 Le percentuali rappresentano un giudizio di avanzamento **per sforzo e gate restanti**; non sono progressi osservati del trasferimento. I rilasci già avvenuti e le prove sono documentati negli altri file indicati sotto. Non tradurre il 55% in «pronto al go-live completo».
 
+## Verifica PR #60 — 20 novembre, aggiornamento serale
+
+La [PR #60](https://github.com/Rosin355/your-e-commerce-blueprint/pull/60) (HEAD `ed4a3e950fbaefa865e16c94aa2998437f0c9d05`) è **OPEN, non Draft, mergeable, non merged**, verso `main`. Presenta 56 file modificati, 4.878 inserimenti e 1.467 eliminazioni. Sono stati verificati come `success` quattro job GitHub Actions nei workflow Customers offline preflight, Storefront application checks e Editor Step 1 synthetic browser checks; il resoconto Codex riferisce 5 checks su 5.
+
+**Risultato effettivo:** area clienti Shopify e separazione Supabase staff implementate; login ospitato Shopify raggiunto fino al form senza OTP. Importatore storico e journal SQLite idempotente implementati e simulati. **Nessuna creazione/import di cliente o ordine, nessun deploy in produzione.**
+
+**Riconciliazione aggiornata del 20 novembre:** Shopify **14 profili** (12 con email, 2 senza), storici 857 customer acquirenti: **848 candidati a revisione + 8 in quarantena + 1 match email da confermare**. Rispetto al 13/11, lo snapshot Shopify è cambiato e si aggiunge una quarantena per somiglianza telefonica: conservare entrambe le fotografie datate senza presentare la precedente come corrente.
+
+**Area cliente:** per default la PR indirizza al login Shopify ospitato; la modalità OAuth/OIDC SPA nativa è opzionale e richiede `VITE_SHOPIFY_CUSTOMER_AUTH_ENABLED=true` e app/redirect registrati. Il login raggiungibile non attesta che un cliente storico veda ordini Woo importati. Coordinare frontend e ritiro dell'Edge Function legacy `get-customer-orders`, che nella branch risponde HTTP 410.
+
+**Decisione di release proposta:** eseguire review mirata sui confini di auth/staff, fallback account ospitato, variabili pubbliche, route, effetto backend/410, poi merge e publish con collaudo verificabile. I controlli automatici verdi non equivalgono a publish o accettazione del cliente. Non eseguire import massivo senza fonte singoli ordini e consenso per scritture Shopify.
+
+**Nota sul progresso:** le percentuali qui sotto rimangono stime gestionali di lavorazione e NON rappresentano trasferimenti di dati. La migrazione effettiva resta `0/857` clienti e `0/953` ordini, per quanto attestato.
+
 ## Cosa risulta completato
 
 - Primo rilascio SEO P1 pubblicato 12/11/2026; `/sitemap.xml` con 1.349 URL (1.346 prodotti + tre pagine), robots/canonical e QA storefront desktop/mobile pubblici PASS nella prova registrata.
@@ -30,8 +44,8 @@ Fonte: PR #53 preflight reale 13/11 e PR #54 piano/autenticazione 15–16/11, co
 
 - 5.453 account storici analizzati nei contatori; 858 account con ordini e 953 ordini totali. Dei 858, 857 sono customer e 1 author (escluso).
 - Sulla selezione di 1.108 righe: 249 customer senza ordini e 1 administrator senza ordini esclusi.
-- Snapshot Shopify del 13/11: 12 profili (11 con email, 1 phone-only); uno dei 857 customer con ordini corrisponde già a Shopify.
-- Il preflight reale email-only ha individuato **849 candidati da revisionare**, **7 quarantene**, **1 corrispondenza già presente**. `proposedNew=0`, `productionAuthorized=false`: **0 clienti storici migrati**.
+- Snapshot storico del 13/11: 12 profili (11 con email, 1 phone-only). **Nuovo snapshot 20/11: 14 profili, 12 con email e 2 senza; un match storico per email ancora da confermare.**
+- Il preflight 13/11 aveva **849 candidati**, **7 quarantene**, **1 corrispondenza**; la riconciliazione aggiornata 20/11 su 14 profili Shopify indica **848 candidati**, **8 quarantene**, **1 match email da confermare**. `proposedNew=0`, `productionAuthorized=false`: **0 clienti storici migrati**.
 - I sette casi da chiarire: sei customer con somiglianze telefoniche da verificare e un telefono malformato. Non dedurre doppioni certi, non normalizzare numeri arbitrariamente.
 - L'audit autenticazione del 16/11 raccomanda **Shopify Customer Accounts** passwordless per i clienti e **Supabase Auth soltanto per il personale**. Il sito React ha ora percorsi/callback che possono usare sessioni differenti: prima correggere/testare il flusso cliente. Il precedente pilota create-only di cinque vecchi clienti è **sospeso come default**; eventualmente serve un requisito di precreazione approvato. Il successivo collaudo raccomandato usa identità controllate del team, non clienti reali.
 - Niente importazione password WordPress, consensi marketing impliciti, inviti o OTP non richiesti. Nessun dato personale nel repo.
