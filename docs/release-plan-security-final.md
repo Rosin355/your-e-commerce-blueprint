@@ -80,3 +80,14 @@ In un contesto non autenticato Supabase `auth.uid()` è **NULL**, quindi questa 
 - **C eseguita**: react-router-dom 6.30.6 (router 1.23.4), lockfile aggiornato, build OK. Navigazione home/collezione/PDP/indietro, account (Shopify login), Admin dashboard: OK, nessun errore pagina.
 - **D non eseguito**: attende approvazione B.
 - Deep scan (base e5482ff): 0 Critical sulle 7 funzioni legacy; rilievi proxy corretti e marcati risolti. Aperti: 5 Warning ruoli (chiusi da B), log clienti storici (Warning, già risolto nel codice), Info Storage intenzionale; zod 4 e ws senza correzione compatibile.
+
+
+## Decisione di rilascio B → D (21 novembre 2026, ore 12:27 CET)
+
+**Stato riferito da Lovable:** A eseguita (10 Edge Functions; `shopify-admin-proxy` ridistribuita dopo fix successivo; anonimo rifiutato ma risposta HTTP 500 anomala ancora da considerare per un miglioramento), C eseguita (`react-router-dom` 6.30.6, build/navigazione PASS). B corretta ma **non applicata**, D **non pubblicata** al momento di questa nota. Deep scan del codice completo va ripetuta dopo il rilascio.
+
+Il file [SQL aggiornato](docs/security-prepared/role-check-self-only.sql) usa controllo self `(auth.uid() = _user_id) IS TRUE`, claim `service_role` e ruolo di sessione tecnico `postgres`, sostituendo il precedente `auth.uid() IS NULL` non sicuro. La revisione della logica è avvenuta su file sorgente; le prove simulate di Lovable non equivalgono a collaudo di produzione.
+
+**Decisione consigliata al titolare:** approvare l'opzione «Sì, applica B e pubblica», **nel preciso ordine B → smoke post-B su ruoli Admin/Marco/RLS/Storage/storefront → D soltanto se PASS → post-publish login/account/checkout → nuova deep scan**. In caso di fallimento fermarsi e applicare il rollback previsto. Questa nota non attiva il controllo UI e non attesta l'approvazione già effettuata né modifiche al database.
+
+**Stato dei dati:** migrazione WooCommerce ancora `BLOCKED_SOURCE_UNAVAILABLE`, 0/953 ordini trasferiti; SAL 58% finché non c'è prova del Publish.
