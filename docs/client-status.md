@@ -1,12 +1,12 @@
-## Aggiornamento per il cliente — 21 novembre 2026
-
-Abbiamo integrato il nuovo sistema di accesso con Shopify Customer Accounts e la separazione dall'area amministrativa, oltre alla predisposizione tecnica del recupero storico. **La pubblicazione di queste modifiche in produzione è ancora da eseguire.** I dati conservati confermano 857 clienti storici con acquisti (esclusa un'utenza author) e 953 ordini conteggiati; non sono disponibili gli elementi delle singole transazioni: **0 ordini storici importati**. Il nuovo accesso Shopify potrà consentire ai clienti di utilizzare il negozio, ma gli acquisti del vecchio WooCommerce non compariranno automaticamente. Cloudflare/301 e collaudo finale Admin restano separati. [Leggi la SAL aggiornata](release/SAL-2026-11-21.md).
-
 # Online Garden — stato per il cliente
 
-## Migrazione clienti e storico · 20 novembre 2026
+## Area personale al 21 novembre 2026
 
-È raggiungibile la schermata di accesso Shopify di Online Garden. Per ritrovare gli acquisti precedenti serve l’export WooCommerce con il dettaglio delle 953 transazioni. Nessun cliente storico è stato contattato o importato. Il collaudo dello storico personale resta aperto. [Risultati, export e procedura operativa](migration/woocommerce-history-2026-11-20.md).
+**Il nuovo accesso Shopify è pronto in anteprima. Il rilascio sul negozio pubblico è sospeso.** Il pulsante account su computer e telefono apre la pagina Shopify di Online Garden. In anteprima abbiamo provato anche la navigazione, il carrello e l’apertura del checkout senza acquistare. Sul sito pubblico rimane il login precedente. Per pubblicare manca il collaudo con un cliente di prova e un operatore abilitato, ciascuno con accesso alla propria casella.
+
+L’area Shopify permette l’accesso volontario con codice email. Gli acquisti WooCommerce del vecchio sito restano indisponibili. I dati privati contengono i conteggi, il negozio precedente è inaccessibile e il backup recuperabile è privo del database ordini. **0 clienti storici creati, 0 associati, 0 ordini importati su 953.** Fra i 857 acquirenti storici con ruolo customer, 848 sono candidati alla verifica, 8 richiedono esame manuale e una corrispondenza email è ancora da confermare. Nessun invito inviato.
+
+**SAL stimata sull’ambito originario: 58%.** [Registro dei controlli e decisione sul rilascio](release/SAL-2026-11-21.md) · [Riepilogo della migrazione](migration/woocommerce-history-2026-11-20.md).
 
 Aggiornamento: 2 ottobre 2026
 
