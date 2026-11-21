@@ -20,3 +20,10 @@
 
 ## Stato
 GO per Publish frontend lato checkout. Backend: fix allowlist pronto, in attesa di deploy autorizzato di `shopify-admin-proxy`.
+
+## Rilascio 21/11/2026 ~12:00 UTC
+- Commit verificato: `c8d7237` (codice); HEAD `07d3623` differisce solo per documentazione.
+- Deploy solo `shopify-admin-proxy`: source SHA-256 `8d86d25264f78f6faa2cecf2345ace7e627ce3620d45dbba2d26895836d26ee0` (ID deployment runtime non esposto dallo strumento).
+- Post-deploy: OPTIONS 200; senza token rifiutato (risposta 500 "Missing or invalid Authorization header", comportamento preesistente, nessun dato); chiave pubblica 401; sessione Admin: letture catalogo 200, update con ID non valido respinto senza scrittura.
+- Publish frontend: asset `index-DQT9047V.js` su onlinegarden.it. Home, catalogo, area clienti Shopify (login), accesso Admin, carrello e checkout Shopify verificati (nessun pagamento). Nessun errore pagina.
+- Scan rapido: 0 critical/warning, 1 info Storage (immagini pubbliche, voluto). Deep scan avviato sul commit distribuito.

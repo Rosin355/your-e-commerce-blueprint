@@ -784,3 +784,4 @@ Draft PR [#42](https://github.com/Rosin355/your-e-commerce-blueprint/pull/42) pu
 
 ## SAL 21/11/2026 — sicurezza residua e checkout
 Checkout verificato funzionante in anteprima e produzione; fix apertura in nuova scheda dentro l'anteprima. Allowlist campi update_product pronta (deploy `shopify-admin-proxy` da autorizzare). Avviso email log clienti: falso positivo, test aggiunto. Dettagli: `docs/security-checkout-fix-2026-11-21.md`.
+- 21/11 12:00 UTC: deploy `shopify-admin-proxy` (allowlist attiva) + Publish frontend `index-DQT9047V`; checkout e Admin verificati. Deep scan in corso.
