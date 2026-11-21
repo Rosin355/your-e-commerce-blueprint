@@ -36,6 +36,11 @@ Riprovato oggi senza pagare, in anteprima e su onlinegarden.it: apertura del che
 ## 6. Publish e versione servita
 Dominio serve `index-DosIxhkd.js`, diverso da `index-CMoOo4zb.js` del Publish editor: è stato quindi completato un Publish più recente. Lo stato del job `e75abdfd…` non è leggibile con gli strumenti disponibili.
 
+## 6b. Dipendenze (8 avvisi)
+- react-router-dom 6.30.3: 5 moderate, correggibili restando sulla 6 (aggiornamento minore a 6.30.5 o successiva). Proposto nel rilascio, con build e prova navigazione.
+- zod 3.25.76: correzione solo nella 4 (cambio maggiore, incompatibile). Non aggiornato; rischio limitato ai pannelli Admin.
+- ws tramite client Cloud: nessuna versione corretta disponibile per il client; da riprendere quando esce.
+
 ## 7. Procedura (un solo intervento, dopo approvazione)
 1. Checkout pulito sul commit approvato, test: `node --import tsx --test scripts/tests/admin-proxy-payloads.test.ts scripts/tests/security-legacy-endpoints.test.ts`.
 2. Deploy delle 10 funzioni. Verifica per ciascuna: OPTIONS 200, senza login 401, con utente non Admin 403. Nessuna chiamata che modifica dati.
@@ -48,4 +53,4 @@ Dominio serve `index-DosIxhkd.js`, diverso da `index-CMoOo4zb.js` del Publish ed
 Rollback: funzioni → redeploy della stessa funzione da `e3c4e46` (baseline); SQL → ricreare `has_role` dal corpo originale (incluso nel file). Nessun dato toccato, quindi nessun ripristino dati.
 
 ## Autorizzazioni richieste (unica richiesta)
-A. Deploy delle 10 funzioni elencate. B. Applicazione dell'SQL ruoli. C. Publish frontend, solo se necessario.
+A. Deploy delle 10 funzioni elencate. B. Applicazione dell'SQL ruoli. C. Aggiornamento minore react-router-dom 6.30.x. D. Publish frontend (necessario solo se approvi C).
