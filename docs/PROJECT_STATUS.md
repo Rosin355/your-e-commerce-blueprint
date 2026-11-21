@@ -1,3 +1,15 @@
+## Aggiornamento 21 novembre 2026 — collaudo cliente autenticato e rilascio
+
+- Il proprietario ha fornito schermate dell'account Shopify autenticato che mostrano un ordine Shopify esistente, il suo dettaglio, articoli e totale: **visibilità ordine proprio verificata visivamente**. Non sono stati acquisiti né pubblicati recapiti, indirizzi o dati di pagamento.
+- La prova non certifica automaticamente il logout né l'isolamento verso un secondo profilo, né il recupero password staff. Questi controlli restano distinti.
+- **PR #61 MERGED** su `main`, merge commit `e74d584163cd35dbd84a00362f8cd60912466b2b` (documentazione soltanto).
+- Publish Lovable avviato per il progetto Online Garden, deployment ID `e75abdfd-a72e-4a23-a76b-1fbb2c657195`, risposta iniziale `pending`. Il connettore mostra il progetto pubblicato e pronto, ma **non conferma il completamento di questo deployment specifico né il bundle servito da onlinegarden.it**. Verifica HTTP da questa sessione non disponibile (risoluzione DNS nel runtime). Non dichiarare LIVE finché il bundle e le route non sono verificati.
+- Nessun deploy della funzione legacy `get-customer-orders` è stato eseguito in questo intervento. La continuità dell'API per eventuali vecchie sessioni resta da verificare.
+- Migrazione WooCommerce: stato invariato `BLOCKED_SOURCE_UNAVAILABLE`, zero clienti storici creati o associati e **0/953 ordini trasferiti**. Gli ordini Shopify visibili sono **ordini nativi del nuovo negozio**, non ordini Woo migrati.
+- SAL gestionale invariata **58%** fino alla verifica effettiva del Publish e ai gate Admin/commerciali/DNS.
+
+**Follow-up minimo:** verificare `/auth` e `/account` sul dominio live dopo la propagazione, login staff `/admin`, recupero staff e logout cliente su identità controllate; confermare asset e deployment, registrare il post-publish. Preservare credenziali/codici/indirizzi solo nelle interfacce originali.
+
 ## Area clienti e SAL del 21 novembre 2026
 
 **Decisione di rilascio: Publish sospeso.** La [PR #60](https://github.com/Rosin355/your-e-commerce-blueprint/pull/60) è integrata in `main` al merge `054f85c`. Lovable indica `ba257cb` come commit della preview. Sulla candidata passano build, navigazione, carrello ospite e apertura del checkout. Entrambi gli ingressi clienti raggiungono Shopify. Il collaudo OTP e il recupero staff autenticato richiedono identità controllate. Il dominio pubblico serve ancora il modulo con password e il bundle account che richiama la funzione ordini precedente. Nessun nuovo deployment frontend o Edge.
