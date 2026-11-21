@@ -1,8 +1,12 @@
 # Online Garden — developer handoff
 
-## Migrazione clienti e storico · 20 novembre 2026
+## Area clienti e chiusura del ciclo legacy · 21 novembre 2026
 
-La PR collega le route pubbliche a Shopify, ritira il bridge ordini per email/telefono e introduce estrazione, verifica dei totali, pilota, journal e riconciliazione. Il gate operativo è bloccato sulla fonte transazionale. Preparare token offline autorizzato, revisione nominativa, controlli Flow/Messaging/Sendcloud e collaudo di visibilità prima del batch. [Risultati, export e procedura operativa](migration/woocommerce-history-2026-11-20.md).
+Il candidato Lovable `ba257cb` include la [PR #60](https://github.com/Rosin355/your-e-commerce-blueprint/pull/60), merge `054f85c`. `/auth` e `/account` utilizzano il Customer Account ospitato e lasciano l’adesione al cliente. Supabase autentica gli operatori su `/admin`. Il recupero staff valido ritorna a `/admin` nel codice. In preview è stato osservato anche il ritorno a questa route dal messaggio per link privo di sessione.
+
+Il chunk pubblico `Account-siNMq2aN.js` contiene ancora un chiamante di `get-customer-orders`. La candidata elimina la dipendenza. **Distribuire prima il solo frontend dopo il collaudo autenticato** e verificare su entrambe le route pubbliche l’arrivo su Shopify. Per ritirare l’Edge attendere anche il riscontro che i bundle precedenti e le sessioni ancora aperte abbiano cessato di usarla, tramite telemetria aggregata delle invocazioni. Finché questo riscontro manca, conservare la funzione remota. In questo ciclo nessun Publish o deploy Edge. Il [registro di rilascio](release/SAL-2026-11-21.md) dettaglia versione pubblica e prove.
+
+Il recupero WooCommerce è chiuso come `BLOCKED_SOURCE_UNAVAILABLE`, con 0/953 ordini e 0/857 clienti trasferiti. Mantenere i due CSV nel deposito privato e conservare importatore e journal. Ogni associazione futura richiede identità verificata e copertura nell’autorizzazione documentata. [Registro di riconciliazione e specifica d’archivio](migration/woocommerce-history-2026-11-20.md).
 
 Aggiornamento: 2 ottobre 2026
 Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
