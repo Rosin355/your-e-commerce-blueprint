@@ -10,8 +10,8 @@ type Collection = { id: string; title: string; handle: string };
 type Publication = { updatedAt: string; logistics: { id: string; class: string }[]; status: string; storefrontVisible: boolean; channel: string; soldOut: boolean };
 export default function CatalogActions({ productId, context, technical }: { productId: string; technical: boolean; context: AdminContext | undefined }) {
   const [panel, setPanel] = useState<'prices' | 'categories' | 'publish' | null>(null);
-  const [prices, setPrices] = useState<Price[]>();
-  const [selected, setSelected] = useState<string[]>();
+  const [prices, setPrices] = useState<{ updatedAt: string; rows: Price[] }>();
+  const [selected, setSelected] = useState<{ updatedAt: string; ids: string[] }>();
   const [soldOutConfirmed, setSoldOutConfirmed] = useState(false);
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -33,9 +33,9 @@ export default function CatalogActions({ productId, context, technical }: { prod
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['admin', 'product', productId, user?.id] }),
   });
   if (!ordinary) return null;
-  const rows = prices ?? priceQuery.data?.variants ?? [];
-  const chosen = selected ?? categories.data?.selected ?? [];
-  const normalizedPrices = prices?.map(v => ({
+  const rows = prices?.rows ?? priceQuery.data?.variants ?? [];
+  const chosen = selected?.ids ?? categories.data?.selected ?? [];
+  const normalizedPrices = prices?.rows.map(v => ({
     ...v, price: v.price.trim().replace(',', '.'), compareAtPrice: v.compareAtPrice?.trim().replace(',', '.') || null,
   }));
   const decimal = /^(0|[1-9]\d{0,7})(\.\d{1,2})?$/;
@@ -46,6 +46,8 @@ export default function CatalogActions({ productId, context, technical }: { prod
     return before && (Number(v.price) !== Number(before.price) ||
       (v.compareAtPrice === null) !== (before.compareAtPrice === null) || Number(v.compareAtPrice) !== Number(before.compareAtPrice));
   });
+  const priceConflict = Boolean(prices && prices.updatedAt !== priceQuery.data?.updatedAt);
+  const categoryConflict = Boolean(selected && selected.updatedAt !== categories.data?.updatedAt);
   const error = panel === 'prices' ? priceQuery.error : panel === 'categories' ? categories.error : publication.error;
   return <details className='space-y-3 rounded-lg border bg-card p-4'>
     <summary className='cursor-pointer font-semibold'>Operazioni su Shopify</summary>
@@ -55,25 +57,28 @@ export default function CatalogActions({ productId, context, technical }: { prod
       {!technical && context?.canPublish && <Button variant='outline' onClick={() => { setPanel('publish'); command.reset(); }}>Verifica pubblicazione</Button>}
     </div>
     {technical && <p role='status'>Prodotto di collaudo · pubblicazione bloccata.</p>}
+    {!technical && !context?.canPublish && <p>La pubblicazione richiede un operatore abilitato per questo prodotto.</p>}
     {error && <p role='alert'>{error.message}</p>}
     {panel === 'prices' && <div className='space-y-3'>
       <p>Prezzi Shopify correnti. Il comando aggiorna solo i prezzi delle varianti visualizzate; SKU e inventario restano protetti.</p>
       {priceQuery.isPending && <p role='status'>Lettura prezzi…</p>}
       {rows.map((v, index) => <div key={v.id} className='grid gap-2 rounded border p-3 sm:grid-cols-3'>
         <p className='break-all'>{v.sku}</p>
-        <label>Prezzo (€)<Input inputMode='decimal' value={v.price} onChange={e => setPrices(rows.map((r, i) => i === index ? { ...r, price: e.target.value } : r))} /></label>
-        <label>Prezzo di confronto (€)<Input inputMode='decimal' value={v.compareAtPrice ?? ''} onChange={e => setPrices(rows.map((r, i) => i === index ? { ...r, compareAtPrice: e.target.value || null } : r))} /></label>
+        <label>Prezzo (€)<Input inputMode='decimal' value={v.price} onChange={e => setPrices({ updatedAt: prices?.updatedAt ?? priceQuery.data!.updatedAt, rows: rows.map((r, i) => i === index ? { ...r, price: e.target.value } : r) })} /></label>
+        <label>Prezzo di confronto (€)<Input inputMode='decimal' value={v.compareAtPrice ?? ''} onChange={e => setPrices({ updatedAt: prices?.updatedAt ?? priceQuery.data!.updatedAt, rows: rows.map((r, i) => i === index ? { ...r, compareAtPrice: e.target.value || null } : r) })} /></label>
       </div>)}
+      {priceConflict && <p role='alert'>I prezzi sono cambiati durante la modifica. <button className='underline' onClick={() => setPrices(undefined)}>Ricarica i valori attuali</button></p>}
       {invalidPrice && <p role='alert'>Inserisci il prezzo con al massimo due decimali. Il prezzo precedente, se indicato, deve superare quello di vendita.</p>}
-      <Button disabled={!changedPrices?.length || invalidPrice || !priceQuery.data || command.isPending || !context?.canSync} onClick={() => command.mutate({ action: 'set_catalog_prices', expectedUpdatedAt: priceQuery.data!.updatedAt, prices: changedPrices })}>Conferma e sincronizza prezzi</Button>
+      <Button disabled={priceConflict || !changedPrices?.length || invalidPrice || !priceQuery.data || command.isPending || !context?.canSync} onClick={() => command.mutate({ action: 'set_catalog_prices', expectedUpdatedAt: prices!.updatedAt, prices: changedPrices })}>Conferma e sincronizza prezzi</Button>
     </div>}
     {panel === 'categories' && <div className='space-y-2'>
       <p>Solo collezioni editoriali manuali verificate. Le altre associazioni esistenti vengono conservate; una bozza può restare senza categoria.</p>
       {categories.isPending && <p role='status'>Verifica categorie…</p>}
       {categories.data?.collections.map(c => <label key={c.id} className='flex min-h-11 items-center gap-2'>
-        <Checkbox checked={chosen.includes(c.id)} onCheckedChange={checked => setSelected(checked ? [...chosen, c.id] : chosen.filter(id => id !== c.id))} />{c.title}
+        <Checkbox checked={chosen.includes(c.id)} onCheckedChange={checked => setSelected({ updatedAt: selected?.updatedAt ?? categories.data!.updatedAt, ids: checked ? [...chosen, c.id] : chosen.filter(id => id !== c.id) })} />{c.title}
       </label>)}
-      <Button disabled={!selected || !categories.data || command.isPending || !context?.canSync} onClick={() => command.mutate({ action: 'set_catalog_collections', expectedUpdatedAt: categories.data!.updatedAt, collectionIds: chosen.filter(id => categories.data!.collections.some(c => c.id === id)) })}>Conferma associazioni editoriali</Button>
+      {categoryConflict && <p role='alert'>Le categorie sono cambiate durante la modifica. <button className='underline' onClick={() => setSelected(undefined)}>Ricarica la selezione attuale</button></p>}
+      <Button disabled={categoryConflict || !selected || !categories.data || command.isPending || !context?.canSync} onClick={() => command.mutate({ action: 'set_catalog_collections', expectedUpdatedAt: selected!.updatedAt, collectionIds: chosen.filter(id => categories.data!.collections.some(c => c.id === id)) })}>Conferma associazioni editoriali</Button>
     </div>}
     {!technical && panel === 'publish' && <div className='space-y-3'>
       {publication.isPending && <p role='status'>Verifica dati, immagini, varianti e canale del sito…</p>}

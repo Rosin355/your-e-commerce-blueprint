@@ -126,6 +126,7 @@ export interface ProductDraft {
   description: string;
   currency: string;
   vendor: string;
+  productType?: string;
   tags: string[];
   categoryIds: string[];
   variants: DraftVariant[];
@@ -201,6 +202,8 @@ export function validateDraft(raw: unknown): ProductDraft {
     'Categorie non valide.',
   );
   demand(Array.isArray(r.tags) && r.tags.length <= 50, 'Massimo 50 tag.');
+  const tags = r.tags.map((tag) => text(tag, 'Tag', 100, true));
+  demand(new Set(tags.map(tag => tag.toLowerCase())).size === tags.length, 'Tag duplicato.');
   demand(Array.isArray(r.images) && r.images.length <= 20, 'Massimo 20 immagini.');
   const images = r.images.map((i: Record<string, unknown>) => {
     demand(i && typeof i === 'object', 'Immagine non valida.');
@@ -231,7 +234,8 @@ export function validateDraft(raw: unknown): ProductDraft {
     description: text(r.description, 'Descrizione', 20000, true),
     currency: r.currency,
     vendor: text(r.vendor, 'Fornitore', 255),
-    tags: r.tags.map((t) => text(t, 'Tag', 100, true)),
+    ...(r.productType === undefined || r.productType === '' ? {} : { productType: text(r.productType, 'Tipo prodotto', 255, true) }),
+    tags,
     categoryIds: r.categoryIds,
     variants,
     images,

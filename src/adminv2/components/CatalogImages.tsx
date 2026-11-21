@@ -63,7 +63,7 @@ export default function CatalogImages({ images, onChange, ordinary, enabled, sku
     <div className='grid gap-3 sm:grid-cols-3'>{images.map(image => <div key={image.url} className='rounded-lg border p-2'>
       <img src={image.url} alt={image.alt} className='h-32 w-full object-contain' /><label className="block">Testo alternativo nella bozza
         <Input disabled={upload.isPending} value={image.alt} maxLength={250} onChange={e => onChange(images.map(i => i.url === image.url ? { ...i, alt: e.target.value } : i))} />
-      </label><p className="text-xs">Selezionata per la bozza · associazione registrata al salvataggio</p>
+      </label><p className="text-xs">Per l’invio a Shopify usa il testo alternativo registrato nella libreria.</p>
       <Button type='button' variant='outline' disabled={upload.isPending} onClick={() => onChange(images.filter(i => i.url !== image.url))}>Rimuovi dalla bozza</Button>
     </div>)}</div>
     {ordinary && enabled && Boolean(library.data?.media.length) && <details><summary>Scegli fra le tue immagini già caricate</summary>

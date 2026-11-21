@@ -62,6 +62,7 @@ export function useDashboardStats() {
 }
 
 export interface ProductFilters {
+  productSource?: string;
   category?: string;
   completeness?: "complete" | "incomplete";
   origin?: "shopify" | "import";

@@ -159,7 +159,7 @@ test('runtime context exposes only capability booleans and version; master OFF k
   const s = load({ master: false }); const response = await s.request({ action: 'get_admin_context' });
   assert.equal(response.status, 200);
   const context = await response.json();
-  assert.equal(context.backendVersion, 'admin-delivery-20261110-r1');
+  assert.equal(context.backendVersion, 'admin-delivery-20261121-r2');
   assert.equal(context.canWrite, false);
   assert.equal(context.operationalCapabilities.drafts, false);
   assert.equal(context.operationalCapabilities.draftShopify, false);

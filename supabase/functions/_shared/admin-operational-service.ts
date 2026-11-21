@@ -12,7 +12,6 @@ import {
   categoryDiff,
   demand,
   DRAFT_BOTANICAL_KEYS,
-  escapeHtml,
   operationalAccess,
   OperationalError,
   parseOperationalApproval,
@@ -145,7 +144,7 @@ function validatedFields(draft: ProductDraft, defs: FieldDefinition[]) {
   });
 }
 const PRODUCT_FIELDS =
-  `id handle status title descriptionHtml vendor tags seo { title description } metafield(namespace:"online_garden",key:"creation_id") { value } media(first:20){nodes{id status ... on MediaImage{image{url}}} pageInfo{hasNextPage}} variants(first:100) { nodes { id sku price compareAtPrice selectedOptions { name value } } pageInfo { hasNextPage } }`;
+  `id handle status title descriptionHtml vendor productType tags seo { title description } metafield(namespace:"online_garden",key:"creation_id") { value } collections(first:250){nodes{id} pageInfo{hasNextPage}} media(first:20){nodes{id status alt ... on MediaImage{image{url}}} pageInfo{hasNextPage}} variants(first:100) { nodes { id sku price compareAtPrice selectedOptions { name value } } pageInfo { hasNextPage } }`;
 interface ShopifyDraft {
   id: string;
   handle: string;
@@ -153,16 +152,23 @@ interface ShopifyDraft {
   title: string;
   descriptionHtml: string;
   vendor: string;
+  productType: string;
   tags: string[];
   seo: { title: string | null; description: string | null };
   metafield: { value: string } | null;
-  media?: { nodes: {id:string;status:string;image?:{url:string}|null}[];pageInfo:{hasNextPage:boolean} };
+  collections: { nodes: {id:string}[]; pageInfo: {hasNextPage:boolean} };
+  media?: { nodes: {id:string;status:string;alt:string | null;image?:{url:string}|null}[];pageInfo:{hasNextPage:boolean} };
   variants: {
-    nodes: { id: string; sku: string; price: string; compareAtPrice: string | null }[];
+    nodes: { id: string; sku: string; price: string; compareAtPrice: string | null; selectedOptions: { name: string; value: string }[] }[];
     pageInfo: { hasNextPage: boolean };
   };
 }
-function verifiedLinks(draft: ProductDraft, opId: string, product: ShopifyDraft) {
+// validateDraft has already enforced the editor's HTML allowlist.
+function draftDescriptionHtml(text: string) {
+  return text.includes('<') ? text : text.replace(/\n/g, '<br>');
+}
+
+function verifiedLinks(draft: ProductDraft, opId: string, product: ShopifyDraft, collections: string[]) {
   demand(
     product.metafield?.value === opId && product.handle === `og-draft-${opId}` &&
       !product.variants.pageInfo.hasNextPage,
@@ -170,9 +176,16 @@ function verifiedLinks(draft: ProductDraft, opId: string, product: ShopifyDraft)
   );
   demand(
     product.title === draft.title && (!draft.vendor || product.vendor === draft.vendor) &&
+      (!draft.productType || product.productType === draft.productType) &&
+      product.descriptionHtml.trim() === draftDescriptionHtml(draft.description).trim() &&
+      (!draft.seoTitle || (product.seo.title || product.title) === draft.seoTitle) &&
+      (!draft.seoDescription || product.seo.description === draft.seoDescription) &&
+      product.tags.length === draft.tags.length && draft.tags.every(tag => product.tags.includes(tag)) &&
+      collections.every(id => product.collections.nodes.some(c => c.id === id)) &&
       product.variants.nodes.every((v) =>
         draft.variants.some((x) =>
-          x.sku === v.sku && Number(x.price) === Number(v.price) &&
+          x.sku === v.sku && v.selectedOptions.length === 1 &&
+          v.selectedOptions[0].name === 'Formato' && v.selectedOptions[0].value === x.option && Number(x.price) === Number(v.price) &&
           (x.compareAtPrice === null
             ? v.compareAtPrice === null
             : Number(x.compareAtPrice) === Number(v.compareAtPrice))
@@ -180,7 +193,13 @@ function verifiedLinks(draft: ProductDraft, opId: string, product: ShopifyDraft)
       ),
     'La bozza Shopify è cambiata: riconciliazione manuale richiesta.',
   );
-  demand(!draft.images.length || (product.media && !product.media.pageInfo.hasNextPage && product.media.nodes.filter(m=>m.status==='READY'&&m.image?.url).length===draft.images.length && draft.images.every(i=>product.media!.nodes.some(m=>m.status==='READY'&&m.image?.url===i.url))), 'Attendere immagini Shopify disponibili: recuperare lo stato senza ricreare.');
+  if (draft.images.length) {
+    const media = product.media;
+    const ready = media?.nodes.filter(item => item.status === 'READY' && item.image?.url) ?? [];
+    demand(media && !media.pageInfo.hasNextPage && ready.length === draft.images.length &&
+      draft.images.every(image => ready.some(item => item.image?.url === image.url && item.alt === image.alt)),
+      'Attendere le immagini Shopify disponibili e recuperare lo stato senza ricreare la bozza.');
+  }
   return verifyCreatedMapping(draft, { ...product, variants: product.variants.nodes });
 }
 export async function handleOperational(
@@ -574,6 +593,15 @@ export async function handleOperational(
     return { ok: true, result: { state: op.state, productId: op.product_id } };
   }
   let product: ShopifyDraft;
+  let collections = [...(draft.collectionIds ?? [])];
+  if (draft.categoryIds.length) {
+    const catalog = await catalogCategories(db);
+    const selected = catalog.categories.filter(c => draft.categoryIds.includes(String(c.id)));
+    demand(selected.length === draft.categoryIds.length && selected.every(c =>
+      c.is_active && c.maps.length && c.maps.every(m => m.map_status === 'verified' && m.shopify_collection_gid)
+    ), 'Mapping categorie non verificato.');
+    collections = [...new Set([...collections, ...selected.flatMap(c => c.maps.map(m => String(m.shopify_collection_gid)))])];
+  }
   if (action === 'recover_shopify_draft') {
     demand(
       ['IN_FLIGHT', 'NEEDS_RECONCILIATION'].includes(op.state),
@@ -627,20 +655,7 @@ export async function handleOperational(
         'SKU già presente o ricerca Shopify non univoca.',
       );
     }
-    const catalog = await catalogCategories(db);
-    const selected = catalog.categories.filter((c) => draft.categoryIds.includes(String(c.id)));
-    demand(
-      selected.length === draft.categoryIds.length &&
-        selected.every((c) =>
-          c.is_active && c.maps.length > 0 &&
-          c.maps.every((m) => m.map_status === 'verified' && m.shopify_collection_gid)
-        ),
-      'Mapping categorie non verificato.',
-    );
     if(draft.categoryIds.length || draft.collectionIds?.length) demand(Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true', 'Assegnazioni categorie disabilitate.');
-    const collections = [
-      ...new Set([...selected.flatMap((c) => c.maps.map((m) => m.shopify_collection_gid)),...(draft.collectionIds??[])]),
-    ];
     // Verify manual collections before allowing a mutation.
     for (const id of collections) {
       const read = await shopify<{ collection: { id: string; ruleSet: unknown } | null }>(
@@ -654,8 +669,10 @@ export async function handleOperational(
     }
     const attachedFiles: {id:string}[]=[];
     if(draft.images.length){
-      const {data: ready,error: mediaError}=await db.from('admin_catalog_media').select('cdn_url,shopify_file_gid').eq('actor',auth.userId).eq('state','READY').in('cdn_url',draft.images.map(i=>i.url));
+      const {data: ready,error: mediaError}=await db.from('admin_catalog_media').select('cdn_url,shopify_file_gid,alt').eq('actor',auth.userId).eq('state','READY').in('cdn_url',draft.images.map(i=>i.url));
       demand(!mediaError&&draft.images.every(i=>ready?.some(m=>m.cdn_url===i.url&&/^gid:\/\/shopify\/MediaImage\/\d+$/.test(m.shopify_file_gid))), 'Le immagini della bozza devono essere disponibili nella tua libreria.');
+      demand(draft.images.every(i => ready?.some(m => m.cdn_url === i.url && m.alt === i.alt)),
+        'Per riutilizzare una foto su Shopify il testo alternativo deve corrispondere a quello della libreria.');
       draft.images.forEach(i=>attachedFiles.push({id:ready!.find(m=>m.cdn_url===i.url)!.shopify_file_gid}));
     }
     if (canary) requireCanaryDraft(requireCanaryScope(canaryScope(), auth.userId, auth.roles, action), draft, op.request_key);
@@ -669,9 +686,10 @@ export async function handleOperational(
       title: draft.title,
       status: 'DRAFT',
       handle: `og-draft-${op.id}`,
-      descriptionHtml: escapeHtml(draft.description).replace(/\n/g, '<br>'),
+      descriptionHtml: draftDescriptionHtml(draft.description),
       // An empty optional vendor leaves Shopify's own default untouched.
       ...(draft.vendor ? { vendor: draft.vendor } : {}),
+      ...(draft.productType ? { productType: draft.productType } : {}),
       tags: draft.tags,
       seo: { title: draft.seoTitle, description: draft.seoDescription },
       collections,
@@ -727,7 +745,7 @@ export async function handleOperational(
   if (canary && scope?.shopifyProductId && product.id !== scope.shopifyProductId) {
     throw new OperationalError('FORBIDDEN', 'Product GID diverso da quello approvato per il canary.');
   }
-  const links = verifiedLinks(draft, op.id, product);
+  const links = verifiedLinks(draft, op.id, product, collections);
   const { data: result, error: completeError } = await db.rpc('admin_complete_draft', {
     p_actor: auth.userId,
     p_id: op.id,

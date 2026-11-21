@@ -16,6 +16,7 @@ export default function DraftSummaryView({ draft, saved = false }: { draft: Draf
     <dl className="grid gap-3 sm:grid-cols-2">
       {Object.entries({
         Titolo: draft.title, SKU: draft.sku, Fornitore: draft.vendor,
+        ...(draft.productType ? { 'Tipo prodotto': draft.productType } : {}),
         Tag: draft.tags?.join(', '), Categorie: draft.categories?.join(', '),
         'Titolo SEO': draft.seoTitle, 'Descrizione SEO': draft.seoDescription,
       }).map(([label, value]) => <div key={label}><dt className="font-medium">{label}</dt><dd>{value || missing}</dd></div>)}

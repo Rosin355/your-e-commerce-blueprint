@@ -69,6 +69,13 @@ export function hasValue(value: unknown): boolean {
 /** Stati sintetici mostrati nella lista prodotti. */
 export function productStates(p: ProductSummary): string[] {
   const states: string[] = [];
+  if (p.publicationState !== undefined) {
+    const visibility = {
+      local_draft: 'Bozza interna', shopify_draft: 'Bozza Shopify', published: 'Pubblicato sul sito',
+      unlisted: 'Visibile tramite link', off_channel: 'Fuori dal canale del sito', archived: 'Archiviato su Shopify',
+    };
+    states.push(p.publicationState ? visibility[p.publicationState] : 'Pubblicazione da verificare');
+  }
   if (p.contentStatus === 'completo') states.push('Completo');
   else states.push('Da completare');
   if (p.reviewPendingCount > 0) states.push('Da verificare');

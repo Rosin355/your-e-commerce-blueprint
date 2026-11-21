@@ -4,7 +4,7 @@ import { listProducts } from "../../supabase/functions/_shared/admin-v2-queries-
 import { matchesProductFilters } from "../../supabase/functions/_shared/admin-v2-list-filters.ts";
 
 function fixture(count: number, extraFields = 0) {
-  const products = Array.from({length: count}, (_, i) => ({id: String(i), sku: String(i).padStart(5,"0"), entity_type:"simple", parent_product_id:null}));
+  const products = Array.from({length: count}, (_, i) => ({id: String(i), sku: String(i).padStart(5,"0"), entity_type:"simple", legacy_source:i<85?"unknown":"manuale", parent_product_id:null}));
   const values = products.flatMap((p,i) => [
     {id:p.sku+"-a",product_id:p.id,field_key:"title",value_text:i<60?"Altro":"Rosa"},
     {id:p.sku+"-b",product_id:p.id,field_key:"description",value_text:"Descrizione"},
@@ -37,6 +37,11 @@ test("category/search filters find products after the first 50, before page boun
   assert.equal(last.productRows.length,7);
   assert.equal(last.productRows[0].sku,"00085");
   assert.equal(last.nextCursor,null);
+});
+test("l'origine registrata seleziona prodotti anche oltre il primo batch", async () => {
+  const {db} = fixture(92);
+  const page = await listProducts(db as never, {productSource: "manuale", category:"Rose", pageSize:25});
+  assert.deepEqual(page.productRows.map(p => p.sku), Array.from({length:7}, (_, i) => String(85+i).padStart(5,"0")));
 });
 test("field pages over 500 retain review flags and return only selected product values",async()=>{
   const {db,counters}=fixture(51,12);

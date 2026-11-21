@@ -36,6 +36,7 @@ export default function ProductsPage() {
   const [gtin, setGtin] = useState('');
   const [entityType, setEntityType] = useState('all');
   const [category, setCategory] = useState('all');
+  const [productSource, setProductSource] = useState('all');
   const [origin, setOrigin] = useState('all');
   const [completeness, setCompleteness] = useState('all');
   const [toClassify, setToClassify] = useState(false);
@@ -45,6 +46,7 @@ export default function ProductsPage() {
   const debouncedSearch = useDebounced(search);
   const debouncedSku = useDebounced(sku);
   const debouncedGtin = useDebounced(gtin);
+  const debouncedCategory = useDebounced(category);
   const cursor = cursorStack[cursorStack.length - 1];
 
   const filters = useMemo<ProductFilters>(
@@ -54,19 +56,19 @@ export default function ProductsPage() {
       gtin: debouncedGtin || undefined,
       entityType: entityType === 'all' ? undefined : entityType,
       reviewRequired: reviewRequired || undefined,
-      category: category === 'all' ? undefined : category,
+      category: debouncedCategory === 'all' ? undefined : debouncedCategory,
+      productSource: productSource === 'all' ? undefined : productSource,
       completeness: completeness === 'all' ? undefined : completeness as 'complete' | 'incomplete',
       origin: origin === 'all' ? undefined : origin as 'shopify' | 'import',
       needsClassification: toClassify || undefined,
     }),
-    [debouncedSearch, debouncedSku, debouncedGtin, entityType, reviewRequired, category, completeness, origin, toClassify],
+    [debouncedSearch, debouncedSku, debouncedGtin, entityType, reviewRequired, debouncedCategory, productSource, completeness, origin, toClassify],
   );
 
   const { data, isLoading, isFetching, isError, error, refetch } = useProductList(filters, cursor);
 
   const items = data?.items ?? [];
-  const searchPending = search !== debouncedSearch || sku !== debouncedSku || gtin !== debouncedGtin;
-  const categoryOptions = [...new Set(items.map(p => p.categoryEffective).filter(Boolean) as string[])].sort();
+  const searchPending = search !== debouncedSearch || sku !== debouncedSku || gtin !== debouncedGtin || category !== debouncedCategory;
 
   const resetFilters = () => {
     setSearch('');
@@ -75,6 +77,7 @@ export default function ProductsPage() {
     setEntityType('all');
     setCategory('all');
     setOrigin('all');
+    setProductSource('all');
     setCompleteness('all');
     setToClassify(false);
     setReviewRequired(false);
@@ -147,21 +150,32 @@ export default function ProductsPage() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="categoria">Categoria</Label>
-            <Input disabled={ADMIN_READ_ONLY_RELEASE} id="categoria" list="categorie-suggerite"
+            <Input disabled={ADMIN_READ_ONLY_RELEASE} id="categoria"
               value={category === 'all' ? '' : category}
               onChange={e => onFilterChange(() => setCategory(e.target.value || 'all'))}
               placeholder="Tutte · cerca una categoria" />
-            <datalist id="categorie-suggerite">
-              {categoryOptions.map(c => <option key={c} value={c} />)}
-            </datalist>
           </div>
+          {!ADMIN_READ_ONLY_RELEASE && context.data?.supportsCatalogSourceAndProductType && <div className="space-y-1.5">
+            <Label htmlFor="provenienza">Origine del prodotto</Label>
+            <Select value={productSource} onValueChange={v => onFilterChange(() => setProductSource(v))}>
+              <SelectTrigger id="provenienza"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tutte</SelectItem>
+                <SelectItem value="manuale">Inserimento manuale</SelectItem>
+                <SelectItem value="woocommerce">WooCommerce</SelectItem>
+                <SelectItem value="bulbi">Catalogo bulbi</SelectItem>
+                <SelectItem value="shopify">Shopify</SelectItem>
+                <SelectItem value="unknown">Origine sconosciuta</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>}
           <div className="space-y-1.5">
             <Label htmlFor="origine">Sincronizzazione</Label>
             <Select disabled={ADMIN_READ_ONLY_RELEASE} value={origin} onValueChange={(v) => onFilterChange(() => setOrigin(v))}>
               <SelectTrigger id="origine"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tutte</SelectItem>
-                <SelectItem value="import">Mai sincronizzato</SelectItem>
+                <SelectItem value="import">Senza stato di sincronizzazione registrato</SelectItem>
                 <SelectItem value="shopify">Con stato di sincronizzazione</SelectItem>
               </SelectContent>
             </Select>
@@ -221,7 +235,7 @@ export default function ProductsPage() {
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}
         </div>
-      ) : items.length === 0 ? (
+      ) : isError ? null : items.length === 0 ? (
         <div className="rounded-lg border bg-card p-10 text-center">
           <p className="font-medium">Nessun prodotto trovato</p>
           <p className="text-sm text-muted-foreground">Prova a modificare la ricerca o i filtri.</p>

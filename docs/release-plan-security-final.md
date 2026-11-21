@@ -101,7 +101,7 @@ Il file [SQL aggiornato](docs/security-prepared/role-check-self-only.sql) usa co
 - La sessione tecnica read-only non ha EXECUTE su `has_role`: prove tramite claims simulati non eseguibili e non considerate PASS. Nessun grant aggiunto. Sessione Marco non disponibile: invarianti e codice verificati, suo collaudo autenticato non attestato.
 - Home, catalogo (9 link prodotto), PDP, aggiunta al carrello PASS. **Checkout non PASS**: permane «Creazione checkout…», nessuna navigazione dopo 45 secondi, nessun alert. Non attribuito alla migration: il flusso Shopify non usa `has_role`.
 - Scan rapido post-B: nessun Critical/Warning, un Info Storage già noto. **Publish NON richiesto**, nessun rollback, deploy o modifica Shopify. Recupero SQL disponibile nel file approvato ma richiede decisione prima dell'esecuzione; per il blocco checkout serve diagnosi mirata, non un ripristino dati.
-- Test live conservati in `scripts/tests/role-check-live.test.ts`: **4/4 PASS** (Admin proprio ruolo, ruolo editor altrui negato, anonimo senza EXECUTE, helper edit Admin preservato). I 5 finding sui ruoli segnati risolti dopo questi controlli. Restano Warning log clienti storici e Info Storage; scansione approfondita finale da completare.
+- Test live conservati in `scripts/live/role-check-live.test.ts`: **4/4 PASS** (Admin proprio ruolo, ruolo editor altrui negato, anonimo senza EXECUTE, helper edit Admin preservato). I 5 finding sui ruoli segnati risolti dopo questi controlli. Restano Warning log clienti storici e Info Storage; scansione approfondita finale da completare.
 
 ## Stato sicurezza e rilascio — 21 novembre 2026 (esito riferito dal collaudo Lovable)
 

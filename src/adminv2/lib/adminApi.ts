@@ -10,6 +10,7 @@ export type EntityType = 'simple' | 'variable' | 'variation';
 export interface AdminContext {
   roles: string[];
   ordinaryCatalog?: boolean;
+  supportsCatalogSourceAndProductType?: boolean;
   canUseAi?: boolean;
   canUploadImages?: boolean;
   canManagePrices?: boolean;
@@ -57,6 +58,7 @@ export interface ProductSummary {
   blockedCount: number;
   contentStatus: string;
   shopifyStatus: string;
+  publicationState?: 'local_draft' | 'shopify_draft' | 'published' | 'unlisted' | 'off_channel' | 'archived' | null;
   updatedAt: string;
 }
 

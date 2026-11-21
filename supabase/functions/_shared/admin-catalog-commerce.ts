@@ -20,7 +20,7 @@ const gql = <T>(q: string, v: Record<string, unknown> = {}) =>
   shopifyAdminGraphQLAtVersion<T>("2026-10", q, v);
 const A = "gid://shopify/Collection/734709547348",
   B = "gid://shopify/Collection/734709514580";
-const HEADLESS = "gid://shopify/Publication/338862113108";
+export const HEADLESS_PUBLICATION_ID = "gid://shopify/Publication/338862113108";
 export const COMMERCE_ACTIONS = [
   "list_editorial_collections",
   "get_catalog_prices",
@@ -82,7 +82,7 @@ export async function mappedCatalogProduct(
     variants(first:50){nodes{id sku price compareAtPrice inventoryQuantity inventoryItem{tracked requiresShipping} deliveryProfile{id}} pageInfo{hasNextPage}}
     collections(first:50){nodes{id handle} pageInfo{hasNextPage}}
   }}`,
-    { id, publication: HEADLESS },
+    { id, publication: HEADLESS_PUBLICATION_ID },
   );
   demand(
     data.product?.id === id && !data.product.variants.pageInfo.hasNextPage &&
@@ -400,10 +400,10 @@ async function publicationChecks(
   const channel = await gql<
     { publication: { id: string; catalog: { title: string } } | null }
   >("query DeliveryChannel($id:ID!){publication(id:$id){id catalog{title}}}", {
-    id: HEADLESS,
+    id: HEADLESS_PUBLICATION_ID,
   });
   demand(
-    channel.publication?.id === HEADLESS &&
+    channel.publication?.id === HEADLESS_PUBLICATION_ID &&
       channel.publication.catalog.title ===
         "Channel Catalog 338862113108 for Ecom Blueprint Gen 6ud1s Headless",
     "Canale del sito non verificato.",
@@ -586,7 +586,7 @@ export async function handleCatalogCommerce(
         { publishablePublish: { userErrors: unknown[] } }
       >(
         "mutation DeliveryPublish($id:ID!,$input:[PublicationInput!]!){publishablePublish(id:$id,input:$input){userErrors{message}}}",
-        { id: product.id, input: [{ publicationId: HEADLESS }] },
+        { id: product.id, input: [{ publicationId: HEADLESS_PUBLICATION_ID }] },
       );
       demand(
         !published.publishablePublish.userErrors.length,

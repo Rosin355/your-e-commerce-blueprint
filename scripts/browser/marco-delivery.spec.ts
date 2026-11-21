@@ -45,7 +45,7 @@ async function simulate(page: Page, options: { readError?: boolean; legacy?: boo
     calls.push(action);
     const reply = (result: object) => route.fulfill({ json: { ok: true, ...result } });
     switch (action) {
-      case 'get_admin_context': return reply({ roles: ['editor'], canWrite: true, canUseAi: true, ordinaryCatalog: true, canUploadImages: options.media === true, editableFieldKeys: ['description'], canPublish: true });
+      case 'get_admin_context': return reply({ roles: ['editor'], canWrite: true, canUseAi: true, ordinaryCatalog: true, supportsCatalogSourceAndProductType: true, canUploadImages: options.media === true, editableFieldKeys: ['description'], canPublish: true });
       case 'get_product': return reply({
         product: { productId, sku: saved.sku, entityType: 'simple', isActive: true },
         shopifyLive: sent ? { available: true, mapped: true, publicationStatus: 'DRAFT' } : { available: false, mapped: false }, history: [],
@@ -149,6 +149,7 @@ test('wizard reale: categoria, virgola, anteprima e riapertura del riepilogo', a
   await page.getByRole('textbox', { name: 'Descrizione verificata' }).fill('Lavanda di prova.');
   await page.getByRole('button', { name: '2. Dati commerciali' }).click();
   await page.getByLabel('Fornitore').fill(initial.vendor);
+  await page.getByLabel('Tipo prodotto').fill('Arbusto sintetico');
   await page.getByLabel('Tag separati da virgole').fill('collaudo');
   await page.getByRole('button', { name: '3. Categorie' }).click();
   await page.getByLabel('Cerca categoria').fill('aromatiche');
@@ -185,6 +186,7 @@ test('wizard reale: categoria, virgola, anteprima e riapertura del riepilogo', a
   await expect.poll(() => photo.evaluate(node => (node as HTMLImageElement).naturalWidth)).toBe(24);
   await expect(summary.getByText(initial.seoTitle)).toBeVisible();
   await expect(summary.getByText(initial.vendor)).toBeVisible();
+  await expect(summary.getByText('Arbusto sintetico')).toBeVisible();
   await expect(summary.getByText(initial.seoDescription)).toBeVisible();
   await expect(summary.getByText('Lavanda di prova.')).toBeVisible();
   await summary.screenshot({ path: testInfo.outputPath('riepilogo.png') });
