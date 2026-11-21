@@ -1,3 +1,17 @@
+## Aggiornamento corrente — 21 novembre 2026, ore 13:29 CET: security release verificata (report Lovable)
+
+**Fonte:** report del rilascio e scansione approfondita comunicato da Lovable; dati del codice controllati su GitHub. Questa nota registra le verifiche riferite senza attestare direttamente l'esecuzione dei test sul server.
+
+- `shopify-admin-proxy` ridistribuita con allowlist `sanitizeProductUpdatePayload`; SHA del codice inviato `8d86d25264f78f6faa2cecf2345ace7e627ce3620d45dbba2d26895836d26ee0`. Deployment ID non esposto; impossibile rileggere la revisione binaria in runtime. Secondo il report: chiave pubblica rifiutata 401, senza login rifiuto 500 senza dati (risposta anomala preesistente), sessione Admin legge catalogo, ID cliente/prodotto non valido respinto senza scritture.
+- Frontend pubblicato e verificato da Lovable su `onlinegarden.it`, asset `index-DQT9047V.js`: homepage, catalogo, accesso Shopify Customer Accounts e login Admin caricati; checkout Shopify raggiunto con prezzo/prodotto attesi e nessun pagamento/ordine eseguito.
+- Scansione quick: **0 Critical, 0 Warning, 1 Info** immagini prodotto pubbliche (comportamento intenzionale). Deep scan post-rilascio **0 Critical**; warning prodotto non più presente. Rimane avviso su email nei log, riferito a righe 69/189/237 di un precedente file: `sync/customers-sync-shopify.mjs` nella versione corrente ha **4 righe** e richiama `sync/lib/customer-preflight-cli.mjs` che espone solo percorso offline, report e codici d'errore sanitizzati. La prova sintetica `sync/tests/customer-log-redaction.test.mjs` controlla l'assenza di indirizzi email in stdout/stderr, anche sui casi di errore. **Triage: falso positivo storico rispetto al sorgente attuale; non afferma nulla sul contenuto dei log esistenti, che non è stato ispezionato.**
+- Scelta raccomandata: chiudere l'avviso stale come `false positive / outdated evidence`, mantenendo traccia di finding, commit, file e test; NON cancellare/alterare log, né nascondere finding nuovi. Conservare l'Info Storage come decisione accettata e motivata.
+- **Ancora da collaudare**: sessione personale di Marco nell'Admin V2 e una modifica controllata a un prodotto; eventuale verifica cross-account e logout cliente. Checkout è stato verificato fino all'apertura Shopify, **non** acquisto/pagamento reale.
+- Migrazione legacy: 0/857 clienti storici associati o creati e **0/953 ordini WooCommerce** importati. Stato `BLOCKED_SOURCE_UNAVAILABLE`.
+- **SAL 58%** rimane la stima gestionale del perimetro originale e non significa che il lavoro tecnico di sicurezza non sia chiuso. Una nuova baseline sulla consegna operativa senza storico non recuperabile potrà essere definita separatamente e approvata dal cliente.
+
+**Prossima fase:** Admin V2 — checklist finale su permessi di Marco, creazione/modifica DRAFT, immagini, varianti, AI, sincronizzazione Shopify, pubblicazione autorizzata, rollback e handoff, con test circoscritti e senza modificare il catalogo live senza consenso.
+
 ## Aggiornamento 21 novembre 2026 — collaudo cliente autenticato e rilascio
 
 - Il proprietario ha fornito schermate dell'account Shopify autenticato che mostrano un ordine Shopify esistente, il suo dettaglio, articoli e totale: **visibilità ordine proprio verificata visivamente**. Non sono stati acquisiti né pubblicati recapiti, indirizzi o dati di pagamento.
