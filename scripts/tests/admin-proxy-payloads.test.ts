@@ -29,3 +29,10 @@ test('product create keeps only mapper fields and https images', () => {
   assert.deepEqual(out, { title: 'T', vendor: 'V', product_type: 'P', tags: 't', body_html: '<p>x</p>',
     variants: [{ sku: 's', price: '5', compare_at_price: '6', inventory_quantity: 3 }], images: [{ src: 'https://cdn/x.jpg' }] });
 });
+
+test('product update keeps description, SEO and mapper fields only', async () => {
+  const { sanitizeProductUpdatePayload } = await import('../../supabase/functions/_shared/admin-proxy-payloads.ts');
+  const out = sanitizeProductUpdatePayload({ body_html: '<p>d</p>', metafields_global_title_tag: 'S', metafields_global_description_tag: 'D',
+    status: 'active', published: true, published_scope: 'global', handle: 'x', template_suffix: 'y', options: [{}], vendor: 'V' });
+  assert.deepEqual(out, { vendor: 'V', body_html: '<p>d</p>', metafields_global_title_tag: 'S', metafields_global_description_tag: 'D' });
+});

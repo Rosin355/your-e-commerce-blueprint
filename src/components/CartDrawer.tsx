@@ -38,7 +38,11 @@ export const CartDrawer = () => {
       // value from the store after the call.
       const checkoutUrl = await createCheckout();
       if (checkoutUrl) {
-        window.location.assign(checkoutUrl);
+        // Shopify checkout refuses to load inside frames (e.g. the editor preview): use a new tab there.
+        let framed = true;
+        try { framed = window.self !== window.top; } catch { /* cross-origin parent: framed */ }
+        if (framed) window.open(checkoutUrl, '_blank', 'noopener');
+        else window.location.assign(checkoutUrl);
         setIsOpen(false);
       } else {
         toast.error("Errore durante il checkout");

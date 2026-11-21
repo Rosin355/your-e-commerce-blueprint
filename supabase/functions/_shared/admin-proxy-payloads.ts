@@ -49,3 +49,12 @@ export function sanitizeProductCreatePayload(data: unknown): Obj {
   }
   return out;
 }
+
+// update_product: only fields sent by the Admin AI writer (description + SEO) and the
+// import mapper. Status, publication, handle, template, options etc. are never forwarded.
+export function sanitizeProductUpdatePayload(data: unknown): Obj {
+  if (!isObj(data)) throw new PayloadError("INVALID_PRODUCT");
+  const out = sanitizeProductCreatePayload(data);
+  Object.assign(out, pick(data, ["metafields_global_title_tag", "metafields_global_description_tag"], 1000));
+  return out;
+}

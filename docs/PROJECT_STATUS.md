@@ -781,3 +781,6 @@ Draft PR [#42](https://github.com/Rosin355/your-e-commerce-blueprint/pull/42) pu
 
 ## 21/11/2026 — Sicurezza
 10 funzioni legacy protette e distribuite; React Router 6.30.6. Restrizione ruoli preparata e in attesa di approvazione; Publish frontend in attesa. Dettagli: docs/release-plan-security-final.md.
+
+## SAL 21/11/2026 — sicurezza residua e checkout
+Checkout verificato funzionante in anteprima e produzione; fix apertura in nuova scheda dentro l'anteprima. Allowlist campi update_product pronta (deploy `shopify-admin-proxy` da autorizzare). Avviso email log clienti: falso positivo, test aggiunto. Dettagli: `docs/security-checkout-fix-2026-11-21.md`.

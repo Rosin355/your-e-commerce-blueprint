@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 import { assertAdminRequest } from "../_shared/admin-auth.ts";
-import { sanitizeCustomerPayload, parseCustomerId, sanitizeProductCreatePayload } from "../_shared/admin-proxy-payloads.ts";
+import { sanitizeCustomerPayload, parseCustomerId, sanitizeProductCreatePayload, sanitizeProductUpdatePayload } from "../_shared/admin-proxy-payloads.ts";
 import { corsHeaders, shopifyAdminFetch, shopifyAdminGraphQL, jsonResponse, resolveAdminAccessToken } from "../_shared/shopify-admin-client.ts";
 import {
   isHeadlessStorefrontConfigured,
@@ -977,7 +977,7 @@ serve(async (req) => {
           // imported via the base CSV) but lack metafield data.
           if (!metafields_only) {
             const updateRes = await shopifyAdminFetch(`products/${resolvedId}.json`, "PUT", {
-              product: { ...productData, id: resolvedId },
+              product: { ...sanitizeProductUpdatePayload(productData), id: resolvedId },
             });
             updatedId = updateRes.product?.id;
           }
