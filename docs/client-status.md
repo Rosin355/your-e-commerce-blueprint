@@ -1,5 +1,9 @@
 ## Stato aggiornato per il cliente — 21 novembre 2026
 
+## Area clienti · cosa può fare il cliente
+
+Account apre Shopify dal computer e dal telefono. Il cliente può consultare gli ordini del nuovo negozio associati al suo profilo. Rimangono aperte le prove di uscita, rientro e separazione su due profili controllati. Lo storico WooCommerce resta a 0/953. [Guida per Marco](customers/CLIENT-GUIDE.md) · [Riscontri e limiti](customers/FINAL-ACCEPTANCE.md).
+
 ## Consegna del pannello prodotti · 21 novembre 2026
 
 La versione aggiornata del pannello è pubblicata. Il collaudo ha verificato direttamente una bozza salvata nel gestionale e una diversa bozza su Shopify fuori vendita. Categorie, foto e formati sono descritti nella [guida cliente](admin-v2/CLIENT-GUIDE.md). Il checkout Shopify si è aperto con articolo e prezzo attesi. Resta da registrare la prima prova personale di Marco, incluso l’eventuale accesso Shopify per intervenire sulla galleria di un prodotto esistente. [Accettazione](admin-v2/FINAL-ACCEPTANCE.md) · [Rilascio sul sito](admin-v2/RELEASE-REPORT.md).

@@ -1,0 +1,11 @@
+# Area clienti Online Garden · guida per Marco e l’assistenza
+
+**Come si entra?** Sul computer si sceglie **Account**. Sul telefono si tocca l’icona della persona in alto. È disponibile anche [l’ingresso diretto](https://onlinegarden.it/account). La pagina Shopify mostra il nome Online Garden. Il cliente inserisce l’indirizzo usato per l’acquisto e digita sulla stessa pagina il codice monouso a sei cifre ricevuto da Shopify. Se lo desidera può usare il percorso Shop offerto nella pagina. [Guida Shopify agli account clienti](https://help.shopify.com/it/manual/customers/customer-accounts).
+
+**Dove sono gli acquisti?** Nell’area personale si apre **Ordini** e si seleziona l’acquisto per controllare articoli, totale e informazioni disponibili sulla consegna. Un ordine del nuovo negozio associato a un altro indirizzo richiede una verifica da parte dell’assistenza. È possibile continuare ad acquistare anche come ospite.
+
+**Come si torna al negozio o si esce?** Per riprendere la navigazione si può riaprire [onlinegarden.it](https://onlinegarden.it/). Per terminare la sessione su un dispositivo condiviso, usare **Esci** nel menu dell’account Shopify e verificare che alla riapertura venga richiesto l’accesso. Se il codice è scaduto, utilizzare il comando Shopify per richiedere un nuovo codice. Inserirlo solo nella pagina Shopify.
+
+**Cosa succede a chi acquistava sul vecchio sito?** Anche questi clienti possono accedere volontariamente. Al primo accesso Shopify può creare un profilo se l’email è nuova per il negozio. Le vecchie password WooCommerce non servono. I clienti del precedente sito non sono stati importati o associati. I 953 acquisti storici sono disponibili solo come conteggio e perciò non compaiono nell’area ordini.
+
+**Come gestire una segnalazione?** Chiedere al cliente, tramite il normale canale privato di assistenza, il numero d’ordine e l’indirizzo usato per acquistare. Questi elementi servono ad avviare la ricerca. Prima di comunicare un dettaglio o correggere un’associazione, verificare la titolarità secondo la procedura del negozio. Non chiedere password, codici monouso o dati di pagamento. Se l’acquisto è WooCommerce, spiegare il limite dell’archivio e registrare la richiesta privata. Evitare associazioni manuali basate sulla sola somiglianza di nome, email o telefono.

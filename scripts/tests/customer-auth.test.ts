@@ -20,9 +20,12 @@ async function fixture() {
   const publicKey = { ...await exportJWK(keys.publicKey), kid: 'synthetic' };
   let nonce = '', subject = 'synthetic-subject', customerId = 'gid://shopify/Customer/synthetic-a';
   let badNonce = false, badIssuer = false, badAudience = false, expired = false, badSignature = false;
+  let responseStatus = 200, graphCode = '';
+  let missingCustomer = false;
   let apiFail = false, omitRefresh = false, page = false;
   let clock = Date.now(); let refreshes = 0; let calls = 0;
   const otherKeys = await generateKeyPair('RS256');
+  const accessToken = () => 'synthetic-access-' + subject;
   const token = () => new SignJWT({ nonce: badNonce ? 'wrong' : nonce }).setProtectedHeader({ alg: 'RS256', kid: 'synthetic' }).setIssuer(badIssuer ? 'https://wrong.example.test' : config.issuer).setAudience(badAudience ? 'wrong' : config.clientId).setSubject(subject).setIssuedAt().setExpirationTime(expired ? Math.floor(Date.now()/1000)-100 : Math.floor(Date.now()/1000)+7200).sign(badSignature ? otherKeys.privateKey : keys.privateKey);
   const storage = new MemoryStorage(); storage.setItem('supabase.synthetic', 'staff-session-sentinel');
   const fetcher: typeof fetch = async (input, init) => {
@@ -36,22 +39,43 @@ async function fixture() {
       assert.equal(body.get('client_id'), config.clientId);
       if (body.get('grant_type') === 'authorization_code') { assert.ok(body.get('code_verifier')); assert.equal(body.get('redirect_uri'), config.origin+'/account/callback'); }
       else { assert.equal(body.get('grant_type'), 'refresh_token'); refreshes++; }
-      return Response.json({ access_token: 'synthetic-access', token_type: 'Bearer', expires_in: 120, id_token: await token(), ...(omitRefresh ? {} : { refresh_token: 'synthetic-refresh' }) });
+      return Response.json({ access_token: accessToken(), token_type: 'Bearer', expires_in: 120, id_token: await token(), ...(omitRefresh ? {} : { refresh_token: 'synthetic-refresh' }) });
     }
     if (url.endsWith('/graphql')) {
-      assert.equal(new Headers(init?.headers).get('Authorization'), 'synthetic-access');
+      assert.equal(new Headers(init?.headers).get('Authorization'), accessToken());
       const body = JSON.parse(init?.body as string);
       assert.ok(!/email:|phone:|mutation/i.test(body.query));
+      if (responseStatus !== 200) return new Response(null, { status: responseStatus });
+      if (graphCode) return Response.json({ errors: [{ extensions: { code: graphCode } }] });
+      if (missingCustomer) return Response.json({ data: { customer: null } });
       if (apiFail) return Response.json({ errors: [{ message: 'private-sentinel' }] });
       const next = !!body.variables.after;
-      return Response.json({ data: { customer: { id: customerId, firstName: null, lastName: null, emailAddress: null, orders: { nodes: [{ id: next ? 'order-b' : 'order-a', name: 'Synthetic order', processedAt: null, totalPrice: { amount: '1', currencyCode: 'EUR' } }], pageInfo: { hasNextPage: page && !next, endCursor: next ? 'page-b' : 'page-a' } } } } });
+      return Response.json({ data: { customer: { id: customerId, firstName: null, lastName: null, emailAddress: null, orders: { nodes: [{ id: customerId + (next ? '/order-2' : '/order-1'), name: 'Synthetic order', processedAt: null, totalPrice: { amount: '1', currencyCode: 'EUR' } }], pageInfo: { hasNextPage: page && !next, endCursor: next ? 'page-b' : 'page-a' } } } } });
     }
     throw new Error('Unexpected synthetic endpoint');
   };
   const api = createCustomerClient(config, storage, fetcher, () => clock);
   const begin = async () => { const url = new URL(await api.login()); nonce = url.searchParams.get('nonce')!; return url; };
   const callback = (url: URL) => new URL(config.origin+'/account/callback?code=synthetic-code&state='+url.searchParams.get('state'));
-  return { api, storage, fetcher, begin, callback, get refreshes() { return refreshes; }, get calls() { return calls; }, set badNonce(v: boolean) { badNonce=v; }, set badIssuer(v: boolean) { badIssuer=v; }, set badAudience(v: boolean) { badAudience=v; }, set expired(v: boolean) { expired=v; }, set badSignature(v: boolean) { badSignature=v; }, set apiFail(v: boolean) { apiFail=v; }, set omitRefresh(v: boolean) { omitRefresh=v; }, set customerId(v: string) { customerId=v; }, set page(v: boolean) { page=v; }, advance() { clock+=90000; } };
+  return {
+    api, storage, fetcher, begin, callback,
+    get refreshes() { return refreshes; },
+    get calls() { return calls; },
+    set badNonce(v: boolean) { badNonce = v; },
+    set badIssuer(v: boolean) { badIssuer = v; },
+    set badAudience(v: boolean) { badAudience = v; },
+    set expired(v: boolean) { expired = v; },
+    set badSignature(v: boolean) { badSignature = v; },
+    set apiFail(v: boolean) { apiFail = v; },
+    set omitRefresh(v: boolean) { omitRefresh = v; },
+    set subject(v: string) { subject = v; },
+    set graphCode(v: string) { graphCode = v; },
+    set missingCustomer(v: boolean) { missingCustomer = v; },
+    set responseStatus(v: number) { responseStatus = v; },
+    set customerId(v: string) { customerId = v; },
+    set page(v: boolean) { page = v; },
+    advance() { clock += 90000; }
+  };
 }
 test('feature flag requires exact true and defaults OFF', () => { for (const v of [undefined, false, true, 'false', 'TRUE', '1', '']) assert.equal(customerAuthEnabled(v), false); assert.equal(customerAuthEnabled('true'), true); });
 test('guest restore makes zero requests and preserves Supabase', async () => { const f=await fixture(); await f.api.restore(); assert.equal(f.calls,0); assert.equal(f.storage.getItem('supabase.synthetic'),'staff-session-sentinel'); });
@@ -94,4 +118,54 @@ test('a late customer response cannot resurrect data after logout', async () => 
  const api=createCustomerClient(config,f.storage,delayed);
  const completion=api.callback(f.callback(u)); await ready; await api.logout(); release();
  await assert.rejects(completion); assert.equal(api.getSnapshot().customer,null); assert.equal(f.storage.getItem('og.customer.session.v1'),null);
+});
+
+test('logout e successivo login nella stessa scheda separano ordini e stato staff', async () => {
+  const f = await fixture();
+  const first = await f.begin();
+  await f.api.callback(f.callback(first));
+  const firstOrder = f.api.getSnapshot().customer!.orders.nodes[0].id;
+  await f.api.logout();
+  f.api.finishLogout();
+  assert.equal(f.api.getSnapshot().customer, null);
+  f.subject = 'synthetic-subject-b';
+  f.customerId = 'gid://shopify/Customer/synthetic-b';
+  const second = await f.begin();
+  await f.api.callback(f.callback(second));
+  const orders = f.api.getSnapshot().customer!.orders.nodes;
+  assert.deepEqual(orders.map(order => order.id), ['gid://shopify/Customer/synthetic-b/order-1']);
+  assert.ok(!orders.some(order => order.id === firstOrder));
+  assert.equal(f.storage.getItem('supabase.synthetic'), 'staff-session-sentinel');
+});
+
+for (const condition of ['401', '403', 'identity', 'ACCESS_DENIED', 'UNAUTHENTICATED', 'missingCustomer'] as const) {
+  test('lista ordini rimuove la vecchia sessione dopo ' + condition, async () => {
+    const f = await fixture();
+    f.page = true;
+    const start = await f.begin();
+    await f.api.callback(f.callback(start));
+    if (condition === 'identity') f.customerId = 'gid://shopify/Customer/synthetic-b';
+    else if (condition === 'ACCESS_DENIED' || condition === 'UNAUTHENTICATED') f.graphCode = condition;
+    else if (condition === 'missingCustomer') f.missingCustomer = true;
+    else f.responseStatus = Number(condition);
+    await f.api.moreOrders();
+    assert.equal(f.api.getSnapshot().customer, null);
+    assert.equal(f.storage.getItem('og.customer.session.v1'), null);
+    assert.equal(f.storage.getItem('supabase.synthetic'), 'staff-session-sentinel');
+  });
+}
+
+test('un guasto temporaneo permette di riprovare la pagina degli ordini', async () => {
+  const f = await fixture();
+  f.page = true;
+  const start = await f.begin();
+  await f.api.callback(f.callback(start));
+  f.responseStatus = 503;
+  await f.api.moreOrders();
+  assert.equal(f.api.getSnapshot().customer?.orders.nodes.length, 1);
+  assert.ok(f.api.getSnapshot().error);
+  f.responseStatus = 200;
+  await f.api.moreOrders();
+  assert.equal(f.api.getSnapshot().customer?.orders.nodes.length, 2);
+  assert.equal(f.api.getSnapshot().error, null);
 });
