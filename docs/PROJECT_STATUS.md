@@ -1,3 +1,7 @@
+## SAL 21 novembre 2026 — PR #60 integrata, rilascio clienti pendente
+
+La [PR #60](https://github.com/Rosin355/your-e-commerce-blueprint/pull/60) è stata integrata su `main` (merge `054f85c30402faab8bf362073fe742b7179beb6b`). **Nessun publish Lovable o import dati è incluso nel merge.** La nuova autenticazione Shopify Customer Accounts è pronta nel codice con Supabase riservato allo staff. I 953 ordini WooCommerce non sono ricostruibili dai soli contatori disponibili; restano **0/953 importati** e nessun cliente storico è stato creato. La strategia immediata è accesso volontario self-service Shopify senza precreazione bulk degli 848 candidati non revisionati. **SAL stimato 58% sull'ambito originale**, migrazione dati 0%. Dettagli: [SAL del 21/11](release/SAL-2026-11-21.md).
+
 ## Gate tecnico · 20 novembre 2026
 
 ## Migrazione clienti e storico · 20 novembre 2026
