@@ -6,7 +6,20 @@ Baseline Git df2b23b1df8200537ec8bd823c7636d99d16b298. Sul dominio pubblico /adm
 
 Il candidato dichiara admin-delivery-20261121-r2 e supportsCatalogSourceAndProductType. Il contratto è additivo. Richiede il deploy della sola product-admin-api con il suo grafo di moduli _shared. La UI controlla la disponibilità del nuovo contratto. Nessuna modifica a product-admin-ai, all’allowlist del proxy, al checkout, alle migrazioni o ai grant. Il proxy di sicurezza già rilasciato ha SHA-256 sorgente 8d86d25264f78f6faa2cecf2345ace7e627ce3620d45dbba2d26895836d26ee0.
 
-**Stato al commit candidato:** test mirati riusciti. Merge, attestazione della Edge e Publish richiedono ciascuno il proprio riscontro. Aggiornare il registro sotto dopo i passaggi di produzione.
+## Registro di produzione
+
+| Passaggio | Riscontro del 21 novembre |
+| --- | --- |
+| Integrazione | [PR #62](https://github.com/Rosin355/your-e-commerce-blueprint/pull/62), candidato d5f94f0de50ac689f940250234eed094d9b3de67, [merge ca9050d](https://github.com/Rosin355/your-e-commerce-blueprint/commit/ca9050d004da3b27f2aff0cb8020bf58ab87d63d). Quattro controlli verdi: [applicazione e PostgreSQL 17](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/44907938001), [browser](https://github.com/Rosin355/your-e-commerce-blueprint/actions/runs/44907937949) e GitGuardian. |
+| Deploy Edge | Lovable ha verificato il checkout sul merge e distribuito esclusivamente product-admin-api con 36 file, inclusi 25 moduli condivisi. SHA-256 del pacchetto sorgente bdb1e1e65a5d00fb23941d9c61c630ec9fb0ac81018affbf9a997d4b6ba7638c. Lovable non espone ID della revisione o checksum binario in esecuzione. |
+| Smoke Edge autenticato | La UI in anteprima con sessione tecnica ha interrogato la Edge **di produzione**. get_admin_context, dashboard, catalogo e get_product hanno restituito HTTP 200. Marker admin-delivery-20261121-r2 e supporto al nuovo contratto confermati. Ricerca SKU della lavanda con un solo risultato, bozza riaperta. Modalità full, canaryConfigured=false; risultano abilitati scrittura, sync, bozze interne/Shopify, immagini, categorie, prezzi, AI e pubblicazione per quella sessione. Nessun cambio ai flag. |
+| Publish Lovable | Richiesta 1e2d8f2f-2040-4398-99dd-048201ea3be5. Il dominio [onlinegarden.it/admin](https://onlinegarden.it/admin) serve HTTP 200 con index-DSQ4UzGV.js, SHA-256 4f603cd21fdfae105489a165b8986bfea2b3a636f73585cfe21d85ef7c73e0fa. Impronte dell’entry, della modalità, di lista, dettaglio e nuovo prodotto identiche ai cinque asset del build locale. Sul dominio sono presenti marker r2, modalità operativa, filtro origine e tipo commerciale. |
+| Post-Publish pubblico | Login staff, homepage e catalogo caricati su Chromium a 1280 e 390 px. Il catalogo mostra collegamenti alle schede prodotto. Nessun overflow orizzontale rilevato su queste tre pagine. Il browser del gestore conferma HTTP 200 e lo stesso asset sul dominio. La sessione tecnica era disponibile in anteprima, mentre il dominio pubblico richiedeva il login. |
+| Clienti e checkout | Da /auth e /account il browser raggiunge il modulo email ospitato da Shopify, HTTP 200. Dal catalogo pubblico, un solo carrello ospite con la Dalia Purple Queen ha aperto il checkout Shopify con il prodotto e 5,00 €. La prova si è fermata prima di qualsiasi inserimento dati, ordine o pagamento. |
+
+Impronte SHA-256 dei sorgenti verificati prima del deploy: entrypoint 540514c0a0ea7ea76da4fc195f23e4fcb692cf27fe233c321fdbca461311efd2, servizio bozze 9f6890e01d1da8519cf4f8812bdb70ecc00f404dde614134abe9b439725969de, lettura delle pubblicazioni d79ae6e3c731deb02bd85d38336717cc850f8f0cc00c0371c93f45e6749785f3.
+
+Le due operazioni tecniche Lovable hanno utilizzato 2,0 e 0,8 crediti del workspace esistente. Nessuna ricarica o acquisto di servizi. Il connettore Shopify non dispone di uno scope staff/utenti per attestare i permessi nativi personali. Il journal operativo autorizza immagini in creazione e prezzi dei formati; la galleria e le modifiche strutturali di prodotti già collegati si eseguono nel pannello Shopify con i suoi permessi.
 
 ## Architettura e autorizzazioni
 

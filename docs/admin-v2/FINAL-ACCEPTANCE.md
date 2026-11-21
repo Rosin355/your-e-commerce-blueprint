@@ -2,13 +2,14 @@
 
 | Controllo | Prova disponibile | Esito e ambito |
 | --- | --- | --- |
+| Versione in produzione | Merge ca9050d, funzione r2 verificata con sessione tecnica e cinque asset del dominio identici al candidato. | PASS deploy e Publish |
 | Catalogo e ricerca | Ricerca globale per nome, SKU e GTIN. Filtri prima del cursore, righe oltre il primo lotto e oltre 500 valori. Guardie desktop e mobile. | PASS su fixture |
 | Bozza interna | Il database di produzione contiene una singola operazione per la lavanda tecnica TEST-OG-AI-001, un formato, una foto, nessun collegamento Shopify. Riepilogo già verificato sul sito con utenza tecnica. | PASS produzione per la bozza esistente. Salvataggio e riapertura della versione candidata su fixture |
 | Bozza Shopify e mapping | Su una diversa bozza tecnica preesistente il journal risulta VERIFIED_DRAFT. Shopify risponde DRAFT, canale del sito false, uno SKU con opzione Formato, un media READY con ALT e una collezione. | PASS rilettura diretta del 21 novembre. Invio, errore, riconciliazione e assenza di doppia creazione provati sul candidato con fixture |
 | Modifica, categorie, prezzi e formati | Campi tipizzati, FAQ, provenienza, concorrenza, storico e selezioni verificati dai test. La versione della selezione viene acquisita all’inizio della modifica. | PASS tecnico. Galleria e modifiche strutturali di prodotti esistenti usano autorizzazioni native Shopify |
 | AI | Confronto, scarto, accettazione, proposte obsolete e indisponibilità provati con fixture. Il percorso da fatti confermati ha una precedente generazione reale documentata. Per la proposta su un campo esiste anche un’accettazione tecnica live con rilettura della versione aggiornata. [Verbale di accettazione tecnica](../fase2d/ai-controlled-accept-2D9.md). | PASS tecnico. La nuova generazione dal comando di miglioramento campo resta da osservare in sessione autenticata |
-| Autorizzazione | Lettura mirata del grant approvato. Unico ruolo editor, otto capability, diciassette campi. Il creatore della lavanda è un altro operatore. | PASS configurazione. Il controllo personale è separato |
-| Sicurezza e checkout | Proxy già distribuito con allowlist, scansione precedente senza criticità. Raggiunto il checkout ospite nella verifica di baseline. | PASS conservazione del perimetro pubblicato |
+| Autorizzazione | Lettura mirata del grant approvato. Unico ruolo editor, otto capability, diciassette campi. Il creatore della lavanda è un altro operatore. | PASS configurazione. La sessione tecnica in anteprima ha letto la Edge di produzione r2. Il dominio pubblico richiede la sessione individuale. Le autorizzazioni native Shopify personali restano da confermare |
+| Sicurezza e checkout | Proxy già distribuito con allowlist, scansione precedente senza criticità. Dopo il Publish r2 raggiunto di nuovo il checkout ospite con Dalia Purple Queen a 5,00 € e i due ingressi al login clienti Shopify. | PASS conservazione del perimetro pubblicato |
 | Accettazione di Marco | Accesso con la sua sessione, autonomia, leggibilità sul suo dispositivo e azione consentita da lui scelta sulla sola fixture. | PENDING_CLIENT_ACCEPTANCE |
 
 ## Prima sessione con il cliente
