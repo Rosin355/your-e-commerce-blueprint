@@ -2,7 +2,7 @@
 
 ## Admin V2 · intervento del 21 novembre 2026
 
-Il candidato completa i filtri globali, gli stati di pubblicazione per canale, il tipo commerciale, il controllo dei formati Shopify e dei conflitti. La lettura di produzione conferma una bozza locale e una distinta bozza tecnica presente in Shopify fuori vendita. Per gli esiti correnti di merge, deploy e Publish consultare il [registro di rilascio](admin-v2/RELEASE-REPORT.md). Per Marco resta la [prova personale](admin-v2/FINAL-ACCEPTANCE.md).
+Admin V2 r2 è pubblicato su onlinegarden.it. La PR #62 è integrata su main al merge ca9050d e la nuova Edge ha risposto con il marker previsto a una sessione tecnica. La release completa i filtri globali, gli stati di pubblicazione per canale, il tipo commerciale, il controllo dei formati Shopify e dei conflitti. La lettura di produzione conferma una bozza locale e una distinta bozza tecnica presente in Shopify fuori vendita. Per gli esiti correnti di merge, deploy e Publish consultare il [registro di rilascio](admin-v2/RELEASE-REPORT.md). Per Marco resta la [prova personale](admin-v2/FINAL-ACCEPTANCE.md).
 
 **Fonte:** report del rilascio e scansione approfondita comunicato da Lovable; dati del codice controllati su GitHub. Questa nota registra le verifiche riferite senza attestare direttamente l'esecuzione dei test sul server.
 
