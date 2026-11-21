@@ -9,7 +9,7 @@ serve(async (request) => {
   }
 
   try {
-    assertAdminRequest(request);
+    await assertAdminRequest(request);
 
     const body = await request.json();
     const action: string = body?.action || "update_prices";

@@ -4,6 +4,7 @@
 // NO Shopify calls, NO AI calls, NO job mutations.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
+import { denyUnlessAdmin } from "../_shared/legacy-admin-access.ts";
 
 const ALLOWED_PATHS = [
   "csv-pipeline/jobs/5bba3f43-0d57-43fd-b20a-952aacdf680b/input.csv",
@@ -167,6 +168,9 @@ function sameValue(a: unknown, b: unknown): boolean {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  const denied = await denyUnlessAdmin(req, corsHeaders);
+  if (denied) return denied;
 
   try {
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};

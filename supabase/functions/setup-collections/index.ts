@@ -1,4 +1,5 @@
 import { corsHeaders, shopifyAdminGraphQL, jsonResponse } from "../_shared/shopify-admin-client.ts";
+import { denyUnlessAdmin } from "../_shared/legacy-admin-access.ts";
 
 interface CollectionSpec {
   handle: string;
@@ -144,6 +145,9 @@ async function addProductsToCollection(collectionId: string, productIds: string[
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const denied = await denyUnlessAdmin(req, corsHeaders);
+  if (denied) return denied;
 
   try {
     const url = new URL(req.url);
