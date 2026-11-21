@@ -134,6 +134,13 @@
       "when": 1795026931856,
       "tag": "0018_step_m_path_a_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1795260559047,
+      "tag": "0019_restrict_role_checks_to_self_or_trusted_service",
+      "breakpoints": true
     }
   ]
 }

@@ -91,3 +91,14 @@ Il file [SQL aggiornato](docs/security-prepared/role-check-self-only.sql) usa co
 **Decisione consigliata al titolare:** approvare l'opzione «Sì, applica B e pubblica», **nel preciso ordine B → smoke post-B su ruoli Admin/Marco/RLS/Storage/storefront → D soltanto se PASS → post-publish login/account/checkout → nuova deep scan**. In caso di fallimento fermarsi e applicare il rollback previsto. Questa nota non attiva il controllo UI e non attesta l'approvazione già effettuata né modifiche al database.
 
 **Stato dei dati:** migrazione WooCommerce ancora `BLOCKED_SOURCE_UNAVAILABLE`, 0/953 ordini trasferiti; SAL 58% finché non c'è prova del Publish.
+
+## B applicata; D fermata — 21 novembre 2026
+
+- Autorizzazione esplicita ricevuta: «Sì, applica B e pubblica», condizionata ai controlli.
+- Applicato byte-per-byte l'SQL approvato con runner nativo: `0019_restrict_role_checks_to_self_or_trusted_service.sql`. Read-back conferma il nuovo corpo di `has_role`; ACL dei quattro helper identiche.
+- Invariati 3 ruoli, entrambi i grant editoriali e tutte le policy public/storage: digest ruoli `b3a46a74f681172f8439422d95fe17e8`, capability `9f44f2c16fb2de907f94f4922bcb9c3a`, policy `b4b12a7a93a5eaa8dee833ea6ffa2f38`, identici prima/dopo.
+- Admin con sessione autorizzata: contesto admin/editor, elenco e dettaglio prodotti 200; RPC proprio admin/editor e helper edit/publish/taxonomy true; lettura RLS dei campi presente. Nessuna richiesta automatica di scrittura osservata; nessun errore pagina.
+- La sessione tecnica read-only non ha EXECUTE su `has_role`: prove tramite claims simulati non eseguibili e non considerate PASS. Nessun grant aggiunto. Sessione Marco non disponibile: invarianti e codice verificati, suo collaudo autenticato non attestato.
+- Home, catalogo (9 link prodotto), PDP, aggiunta al carrello PASS. **Checkout non PASS**: permane «Creazione checkout…», nessuna navigazione dopo 45 secondi, nessun alert. Non attribuito alla migration: il flusso Shopify non usa `has_role`.
+- Scan rapido post-B: nessun Critical/Warning, un Info Storage già noto. **Publish NON richiesto**, nessun rollback, deploy o modifica Shopify. Recupero SQL disponibile nel file approvato ma richiede decisione prima dell'esecuzione; per il blocco checkout serve diagnosi mirata, non un ripristino dati.
+- Test live conservati in `scripts/tests/role-check-live.test.ts`: **4/4 PASS** (Admin proprio ruolo, ruolo editor altrui negato, anonimo senza EXECUTE, helper edit Admin preservato). I 5 finding sui ruoli segnati risolti dopo questi controlli. Restano Warning log clienti storici e Info Storage; scansione approfondita finale da completare.
