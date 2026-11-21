@@ -477,7 +477,7 @@ export const HomeHeaderOverlay = ({ variant = "hero" }: { variant?: HomeHeaderOv
                 {isMobileSearchOpen ? <X className="h-5 w-5" strokeWidth={2.25} /> : <Search className="h-5 w-5" strokeWidth={2.25} />}
               </Button>
               <Link
-                to="/auth"
+                to="/account"
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-primary-dark transition-colors hover:bg-muted"
                 aria-label="Area account"
               >

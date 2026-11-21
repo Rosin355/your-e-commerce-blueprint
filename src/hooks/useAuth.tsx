@@ -8,7 +8,6 @@ interface AuthContextType {
   isAdmin: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, profileData?: { firstName: string; lastName: string; phone?: string }) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -66,21 +65,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, profileData?: { firstName: string; lastName: string; phone?: string }) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: profileData ? {
-          first_name: profileData.firstName,
-          last_name: profileData.lastName,
-        } : undefined,
-      },
-    });
-    return { error };
-  };
-
   const signOut = async () => {
     try {
       await supabase.auth.signOut({ scope: 'local' });
@@ -91,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, isLoading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, isAdmin, isLoading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

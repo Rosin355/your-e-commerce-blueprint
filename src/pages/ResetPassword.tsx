@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, hasStaffRecovery } from '@/integrations/supabase/client';
 import { KeyRound } from 'lucide-react';
 import { SiteHeader } from '@/components/storefront/SiteHeader';
 
@@ -18,10 +18,9 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setIsRecovery(true);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsRecovery(Boolean(session) && (event === 'PASSWORD_RECOVERY' || hasStaffRecovery(session?.user.id)));
     });
-    if (window.location.hash.includes('type=recovery')) setIsRecovery(true);
     return () => subscription.unsubscribe();
   }, []);
 
@@ -35,9 +34,9 @@ const ResetPassword = () => {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
       toast.success('Password aggiornata con successo.');
-      navigate('/auth');
-    } catch (err: any) {
-      toast.error(err.message || 'Impossibile aggiornare la password.');
+      navigate('/admin');
+    } catch {
+      toast.error('Impossibile aggiornare la password.');
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +55,7 @@ const ResetPassword = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
-              <Button onClick={() => navigate('/auth')} variant="outline">Torna al login</Button>
+              <Button onClick={() => navigate('/admin')} variant="outline">Torna al login</Button>
             </CardContent>
           </Card>
         </main>

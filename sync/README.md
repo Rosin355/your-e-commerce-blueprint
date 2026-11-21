@@ -83,3 +83,7 @@ Minimo per push Shopify:
 - `npm run sync:woo-to-shopify:dry-run`
 
 Il file `sync/woocommerce-to-shopify-template.mjs` ora delega alla nuova pipeline draft CSV.
+
+## Migrazione clienti e ordini storici
+
+I comandi clienti precedenti eseguono il preflight offline. Estrazione Woo, revisione privata, pilota, ripresa e riconciliazione sono documentati nella [procedura operativa](../docs/migration/woocommerce-history-2026-11-20.md).

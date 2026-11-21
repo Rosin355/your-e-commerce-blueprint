@@ -13,6 +13,9 @@ import NotFound from "./pages/NotFound";
 import { CONTACT_PATH, PRIVACY_POLICY } from "@/config/legal";
 
 const AdminGuard = lazy(() => import("./admin/AdminGuard"));
+const CustomerLogout = lazy(() => import("./customer/CustomerPages").then(m => ({
+  default: () => <m.CustomerBoundary><m.CustomerLogout /></m.CustomerBoundary>,
+})));
 const AccountCallback = lazy(() => import("./pages/AccountCallback"));
 const Account = lazy(() => import("./pages/Account"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -65,7 +68,6 @@ const ScrollToTop = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -83,14 +85,15 @@ const App = () => (
             <Route path="/auth" element={<SuspenseLoader><Auth /></SuspenseLoader>} />
             <Route path="/reset-password" element={<SuspenseLoader><ResetPassword /></SuspenseLoader>} />
             <Route path="/account/callback" element={<SuspenseLoader><AccountCallback /></SuspenseLoader>} />
+            <Route path="/account/logout" element={<SuspenseLoader><CustomerLogout /></SuspenseLoader>} />
             <Route path="/account" element={<SuspenseLoader><Account /></SuspenseLoader>} />
             
             {/* Strumenti tecnici della versione precedente (accesso diretto) */}
-            <Route path="/admin/import" element={<SuspenseLoader>{ADMIN_READ_ONLY_RELEASE ? <Navigate to="/admin/settings" replace /> : <AdminGuard />}</SuspenseLoader>} />
-            <Route path="/admin/settings-legacy" element={<SuspenseLoader>{ADMIN_READ_ONLY_RELEASE ? <Navigate to="/admin/settings" replace /> : <AdminGuard page="settings" />}</SuspenseLoader>} />
+            <Route path="/admin/import" element={<SuspenseLoader>{ADMIN_READ_ONLY_RELEASE ? <Navigate to="/admin/settings" replace /> : <AuthProvider><AdminGuard /></AuthProvider>}</SuspenseLoader>} />
+            <Route path="/admin/settings-legacy" element={<SuspenseLoader>{ADMIN_READ_ONLY_RELEASE ? <Navigate to="/admin/settings" replace /> : <AuthProvider><AdminGuard page="settings" /></AuthProvider>}</SuspenseLoader>} />
 
             {/* Nuovo Admin Online Garden (sola lettura) */}
-            <Route path="/admin" element={<SuspenseLoader><AdminV2Guard /></SuspenseLoader>}>
+            <Route path="/admin" element={<SuspenseLoader><AuthProvider><AdminV2Guard /></AuthProvider></SuspenseLoader>}>
               <Route index element={<SuspenseLoader><AdminDashboard /></SuspenseLoader>} />
               <Route path="products" element={<SuspenseLoader><AdminProducts /></SuspenseLoader>} />
               <Route path="products/new" element={<SuspenseLoader>{ADMIN_READ_ONLY_RELEASE ? <ReadOnlyFeaturePage title="Nuovo prodotto non ancora attivo" /> : <AdminNewProduct />}</SuspenseLoader>} />
@@ -106,7 +109,6 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </AuthProvider>
   </QueryClientProvider>
 );
 

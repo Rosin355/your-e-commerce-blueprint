@@ -1,5 +1,9 @@
 # Online Garden — developer handoff
 
+## Migrazione clienti e storico · 20 novembre 2026
+
+La PR collega le route pubbliche a Shopify, ritira il bridge ordini per email/telefono e introduce estrazione, verifica dei totali, pilota, journal e riconciliazione. Il gate operativo è bloccato sulla fonte transazionale. Preparare token offline autorizzato, revisione nominativa, controlli Flow/Messaging/Sendcloud e collaudo di visibilità prima del batch. [Risultati, export e procedura operativa](migration/woocommerce-history-2026-11-20.md).
+
 Aggiornamento: 2 ottobre 2026
 Baseline runtime approvata: `main@82f77933bc289043e223a7a48d9bd273e96bbc41`
 Baseline Git 2D.4A: `origin/main@0959f95202824cb2a005a6f140282995579a3895`
