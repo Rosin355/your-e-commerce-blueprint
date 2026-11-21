@@ -7,6 +7,7 @@ const SESSION = 'og.customer.session.v1';
 const TRANSACTION = 'og.customer.transaction.v1';
 const NOTICE = 'og.customer.logout-unconfirmed';
 const FAILURE = 'Impossibile completare l’operazione. Accedi nuovamente o riprova più tardi.';
+class InvalidCustomerSession extends Error {}
 interface Session { access: string; refresh?: string; idToken: string; expires: number; subject: string; customerId: string }
 interface Transaction { state: string; nonce: string; verifier: string; created: number }
 export interface CustomerSnapshot { status: 'guest' | 'loading' | 'authenticated' | 'error'; customer: CustomerData | null; error: string | null }
@@ -47,10 +48,16 @@ export function createCustomerClient(config: CustomerConfig, storage: Storage, f
   const query = async (s: Session, after: string | null = null): Promise<CustomerData> => {
     const { api } = await endpoints();
     const response = await fetcher(api, { method: 'POST', credentials: 'omit', cache: 'no-store', signal: AbortSignal.timeout(15000), headers: { 'Content-Type': 'application/json', Authorization: s.access }, body: JSON.stringify({ query: CUSTOMER_QUERY, variables: { after } }) });
+    if (response.status === 401 || response.status === 403) throw new InvalidCustomerSession();
     if (!response.ok) throw new Error('CUSTOMER_API');
     const body = await response.json();
     const customer = body.data?.customer as CustomerData;
-    if (body.errors?.length || !customer?.id?.startsWith('gid://shopify/Customer/') || !customer.orders?.pageInfo || !Array.isArray(customer.orders.nodes) || (s.customerId && customer.id !== s.customerId)) throw new Error('IDENTITY');
+    if (Array.isArray(body.errors) && body.errors.some((e: { extensions?: { code?: string } } | null) =>
+      ['ACCESS_DENIED', 'UNAUTHENTICATED'].includes(e?.extensions?.code ?? ''))) throw new InvalidCustomerSession();
+    if (s.customerId && ((customer && customer.id !== s.customerId) ||
+      (customer === null && !body.errors?.length))) throw new InvalidCustomerSession();
+    if (body.errors?.length || !customer?.id?.startsWith('gid://shopify/Customer/') ||
+      !customer.orders?.pageInfo || !Array.isArray(customer.orders.nodes)) throw new Error('CUSTOMER_API');
     return customer;
   };
   const save = (s: Session, customer: CustomerData, generation: number) => {
@@ -128,7 +135,11 @@ export function createCustomerClient(config: CustomerConfig, storage: Storage, f
         const next = await query(s, current.orders.pageInfo.endCursor);
         if (next.orders.pageInfo.hasNextPage && next.orders.pageInfo.endCursor === current.orders.pageInfo.endCursor) throw new Error('CURSOR');
         save(s, { ...next, orders: { ...next.orders, nodes: [...current.orders.nodes, ...next.orders.nodes.filter(order => !current.orders.nodes.some(old => old.id === order.id))] } }, generation);
-      } catch { if (generation === epoch) { publish({ ...snapshot, error: FAILURE }); } }
+      } catch (error) {
+        if (generation !== epoch) return;
+        if (error instanceof InvalidCustomerSession || s.expires <= now()) fail();
+        else publish({ ...snapshot, error: FAILURE });
+      }
     },
     async logout() {
       const idToken = session?.idToken;

@@ -1,5 +1,9 @@
 # Online Garden — chiusura area clienti e riconciliazione storica (21/11/2026)
 
+## Esito del collaudo
+
+Il [verbale finale](FINAL-ACCEPTANCE.md) registra i risultati, il rilascio e le verifiche personali ancora aperte. Sono disponibili la [guida di assistenza](CLIENT-GUIDE.md) e il [piano del pilota subordinato ad autorizzazione](MIGRATION-READINESS.md). I criteri qui sotto documentano la richiesta di partenza.
+
 ## Perimetro attuale verificato da repository
 
 - **Area clienti nuova:** `/auth` e `/account` usano il **Shopify Customer Account ospitato** come percorso predefinito. Il flag `VITE_SHOPIFY_CUSTOMER_AUTH_ENABLED` è disattivato per default; il client OAuth SPA opzionale non va attivato senza nuova registrazione/decisione. Supabase Auth rimane **solo staff/Admin**.

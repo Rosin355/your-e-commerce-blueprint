@@ -1,5 +1,9 @@
 # Online Garden — developer handoff
 
+## Area clienti Shopify · consegna tecnica
+
+Customer Accounts ospitato predefinito, OAuth SPA disattivato, sessioni staff Supabase separate. Le route /auth e /account raggiungono Shopify e la route legacy risponde HTTP 410 alla HEAD anonima. Il client opzionale libera la propria sessione sui rifiuti di autorizzazione durante la paginazione. [Collaudo, release e rollback](customers/FINAL-ACCEPTANCE.md) · [Preflight offline](customers/MIGRATION-READINESS.md).
+
 ## Consegna tecnica Admin V2 · 21 novembre 2026
 
 Il contratto additivo admin-delivery-20261121-r2 è in produzione al merge ca9050d. La release riguarda product-admin-api e il frontend Admin. La bozza locale, la bozza su Shopify e la pubblicazione sul canale hanno verifiche distinte. Il collegamento Shopify per modifiche native richiede accesso staff separato. [Versioni, riscontri e rollback](admin-v2/RELEASE-REPORT.md) · [Criteri di accettazione](admin-v2/FINAL-ACCEPTANCE.md).
