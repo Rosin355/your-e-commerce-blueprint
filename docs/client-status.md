@@ -1,3 +1,7 @@
+## Verifica checkout e sicurezza — 21 novembre 2026
+
+Il checkout Shopify è stato nuovamente verificato su sito pubblico e anteprima fino alla pagina di pagamento, senza completare acquisti. È disponibile una correzione per il checkout nel riquadro di anteprima Lovable. La protezione aggiuntiva sui campi prodotto dell'Admin è pronta nel codice ma deve ancora essere distribuita e collaudata; il Publish della versione più recente non è stato eseguito in questa fase. I controlli automatizzati disponibili non mostrano nuove regressioni, con cinque file test non eseguibili nel runner Node. Il recupero delle 953 transazioni del precedente sito rimane impossibile senza una fonte integra, perciò non sono state importate. [Report tecnico](security-checkout-fix-2026-11-21.md) · [SAL](release/SAL-2026-11-21.md).
+
 ## Aggiornamento 21 novembre — verifica area clienti Shopify
 
 L'accesso a un profilo Shopify e la consultazione di un ordine Shopify già esistente sono stati **verificati attraverso schermate fornite dal responsabile**. Il sito in anteprima aveva già superato navigazione, prodotti e carrello. La PR #61 è integrata; **il nuovo Publish è stato richiesto ma non ancora verificato come disponibile su onlinegarden.it**. Resta aperta una verifica dedicata per accesso e recupero dell'operatore staff. Lo storico WooCommerce non è stato importato, perché i dettagli dei 953 ordini non sono disponibili. La SAL rimane **58%**. [Dettagli del rilascio](release/SAL-2026-11-21.md).
