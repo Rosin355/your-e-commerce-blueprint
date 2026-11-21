@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 import { assertAdminRequest } from "../_shared/admin-auth.ts";
+import { sanitizeCustomerPayload, parseCustomerId, sanitizeProductCreatePayload } from "../_shared/admin-proxy-payloads.ts";
 import { corsHeaders, shopifyAdminFetch, shopifyAdminGraphQL, jsonResponse, resolveAdminAccessToken } from "../_shared/shopify-admin-client.ts";
 import {
   isHeadlessStorefrontConfigured,
@@ -883,11 +884,11 @@ serve(async (req) => {
         break;
       }
       case "create_customer":
-        result = { success: true, id: (await shopifyAdminFetch("customers.json", "POST", { customer: data })).customer?.id };
+        result = { success: true, id: (await shopifyAdminFetch("customers.json", "POST", { customer: sanitizeCustomerPayload(data) })).customer?.id };
         break;
       case "update_customer": {
-        const { id, ...customerData } = data;
-        result = { success: true, id: (await shopifyAdminFetch(`customers/${id}.json`, "PUT", { customer: customerData })).customer?.id };
+        const customerId = parseCustomerId(data?.id);
+        result = { success: true, id: (await shopifyAdminFetch(`customers/${customerId}.json`, "PUT", { customer: sanitizeCustomerPayload(data) })).customer?.id };
         break;
       }
       case "search_product": {
@@ -900,7 +901,7 @@ serve(async (req) => {
         result = await searchProductBySkuOrHandle(data);
         break;
       case "create_product":
-        result = { success: true, id: (await shopifyAdminFetch("products.json", "POST", { product: data })).product?.id };
+        result = { success: true, id: (await shopifyAdminFetch("products.json", "POST", { product: sanitizeProductCreatePayload(data) })).product?.id };
         break;
       case "update_product": {
         const { id, handle, sku, metafields, debug, retries, metafields_only, force, ...productData } = data;
