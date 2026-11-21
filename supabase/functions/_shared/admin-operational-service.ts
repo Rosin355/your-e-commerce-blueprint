@@ -178,7 +178,7 @@ function verifiedLinks(draft: ProductDraft, opId: string, product: ShopifyDraft,
     product.title === draft.title && (!draft.vendor || product.vendor === draft.vendor) &&
       (!draft.productType || product.productType === draft.productType) &&
       product.descriptionHtml.trim() === draftDescriptionHtml(draft.description).trim() &&
-      (!draft.seoTitle || product.seo.title === draft.seoTitle) &&
+      (!draft.seoTitle || (product.seo.title || product.title) === draft.seoTitle) &&
       (!draft.seoDescription || product.seo.description === draft.seoDescription) &&
       product.tags.length === draft.tags.length && draft.tags.every(tag => product.tags.includes(tag)) &&
       collections.every(id => product.collections.nodes.some(c => c.id === id)) &&

@@ -16,6 +16,7 @@ function simulation(
     remoteVendor?: string;
     productType?: string;
     remoteOption?: string;
+    useDefaultSeoTitle?: boolean;
   } = {},
 ) {
   const draft: ProductDraft = {
@@ -28,7 +29,7 @@ function simulation(
     tags: [],
     categoryIds: [],
     images: [],
-    seoTitle: '',
+    seoTitle: options.useDefaultSeoTitle ? 'Simulazione' : '',
     seoDescription: '',
     botanical: {},
     variants: [{ sku: 'QA-001', price: '12.00', compareAtPrice: null, option: 'Unico' }],
@@ -51,7 +52,7 @@ function simulation(
     title: draft.title,
     descriptionHtml: draft.description,
     tags: draft.tags,
-    seo: { title: draft.seoTitle, description: draft.seoDescription },
+    seo: { title: options.useDefaultSeoTitle ? null : draft.seoTitle, description: draft.seoDescription },
     productType: draft.productType ?? '',
     vendor: options.remoteVendor ?? draft.vendor,
     metafield: { value: id },
@@ -236,7 +237,7 @@ Deno.test('fornitore esplicito: un valore remoto diverso blocca il mapping', () 
   }));
 Deno.test('fornitore esplicito: invio e verifica mantengono il valore richiesto', () =>
   withFlags(async () => {
-    const s = simulation({ requestedVendor: 'Vivaio richiesto', remoteVendor: 'Vivaio richiesto' });
+    const s = simulation({ useDefaultSeoTitle: true, requestedVendor: 'Vivaio richiesto', remoteVendor: 'Vivaio richiesto' });
     await handleOperational(s.db, actor, {
       action: 'create_shopify_draft', operationId: id, confirm: true,
     }, s.shopify);

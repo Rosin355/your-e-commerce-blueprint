@@ -5,6 +5,7 @@ import test from 'node:test';
 // Read-only release check: no test users, mutations, paid providers, or token output.
 const sessionText = process.env.LOVABLE_BROWSER_SUPABASE_SESSION_JSON;
 const session = sessionText ? JSON.parse(sessionText) : undefined;
+const otherEditorId = process.env.OG_ROLE_CHECK_OTHER_EDITOR_ID;
 const settings = readFileSync('.env', 'utf8');
 const setting = (key: string) => process.env[key] ?? settings.match(new RegExp(`^${key}=["']?([^"'\\r\\n]+)`, 'm'))?.[1];
 const url = setting('VITE_SUPABASE_URL');
@@ -26,12 +27,14 @@ test('authenticated Admin can still check their own admin role', async () => {
 });
 test('authenticated caller cannot disclose the existing other editor role', async () => {
   assert.ok(session?.access_token, 'Authorized session required');
-  const result = await rpc('has_role', { _user_id: '19f12250-ae40-4b75-8c55-7143f7c46891', _role: 'editor' }, session.access_token);
+  assert.ok(otherEditorId, 'Reference editor fixture must be configured');
+  const result = await rpc('has_role', { _user_id: otherEditorId, _role: 'editor' }, session.access_token);
   assert.equal(result.status, 200);
   assert.equal(result.value, false);
 });
 test('anonymous callers remain denied execution of role checks', async () => {
-  const result = await rpc('has_role', { _user_id: '19f12250-ae40-4b75-8c55-7143f7c46891', _role: 'editor' });
+  assert.ok(otherEditorId, 'Reference editor fixture must be configured');
+  const result = await rpc('has_role', { _user_id: otherEditorId, _role: 'editor' });
   assert.ok([401, 403].includes(result.status));
 });
 test('authenticated Admin retains edit permission through the dependent helper', async () => {
