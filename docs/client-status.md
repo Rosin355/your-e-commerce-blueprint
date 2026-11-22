@@ -1,3 +1,7 @@
+## Consegna operativa al titolare
+
+Apri *Consulta storico.html* sul Mac autorizzato e scegli *conteggi.json*. Sono consultabili 858 account e 953 acquisti aggregati. I clienti Shopify non vedono dati storici; le associazioni verificate sono zero. Le indicazioni precedenti sul recupero delle transazioni sono superate dalla decisione definitiva del titolare. [Risultati e scheda per Marco](release/FINAL-DELIVERY-2026-11-22.md)
+
 ## Esito per il titolare · 22 novembre 2026
 
 Il checkout continua ad applicare la tariffa ordinaria alle nove località. Nel pannello Lovable la misurazione delle visite è attiva. I cinque testi hanno una revisione identificabile. Per lo storico manca la fonte con il dettaglio degli acquisti. Tutte le decisioni a carico del titolare sono raccolte nella [richiesta unica](release/FINAL-COMMERCIAL-CLOSEOUT-2026-11-22.md#g-unica-richiesta-conclusiva).

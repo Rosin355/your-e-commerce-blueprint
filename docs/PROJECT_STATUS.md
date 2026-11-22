@@ -1,3 +1,7 @@
+## Consegna del registro storico
+
+**PASS.** Archiviati privatamente 858 account e 953 acquisti aggregati. Controllo riga per riga, replay e copia privata verificati. Zero associazioni Shopify e zero ordini individuali recuperati/importati. SAL ufficiale 57,75%. [Rapporto di consegna](release/FINAL-DELIVERY-2026-11-22.md)
+
 ## Riscontro commerciale del 22 novembre 2026
 
 Isole minori bloccate per accesso al negozio Dev. Visitor Analytics attiva, con evento prima del consenso. Cinque testi revisionati attendono dati e firma. Le fonti accessibili contengono 953 acquisti conteggiati e zero transazioni individuali. Costo incrementale 0 €. [Rapporto commerciale completo](release/FINAL-COMMERCIAL-CLOSEOUT-2026-11-22.md)

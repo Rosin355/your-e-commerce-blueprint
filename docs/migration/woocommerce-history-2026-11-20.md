@@ -1,5 +1,28 @@
 # Online Garden · migrazione clienti e ordini del 20 novembre 2026
 
+## Registro definitivo dei conteggi
+
+**LEGACY_PURCHASE_COUNTS_ARCHIVED = PASS. LEGACY_INDIVIDUAL_ORDERS = SOURCE_UNAVAILABLE.** Il titolare ha chiuso il recupero delle transazioni. Il registro disaccoppia 858 identità Woo con conteggi positivi dai clienti Shopify. Gli 848 candidati, 8 quarantene, una corrispondenza email sospesa e un autore separato totalizzano 953 acquisti. Associazioni e ordini importati in Shopify sono zero. Gli input del 13/11 sono stati letti dalla cartella privata già autorizzata. Lo snapshot completo del 22/11 ha dato 16 profili Shopify univoci, conteggi esatti prima e dopo, una pagina terminale. La classificazione riusa i controlli del preflight. In SQLite sono persistiti solo ID, conteggi, ruoli, stato di verifica, impronte e data di acquisizione. La ricerca è chiusa. Le sezioni precedenti per data e l’importatore transazionale sono conservati per tracciabilità.
+
+**Riscontro indipendente.** Su tutti gli 858 ID sono stati confrontati conteggi e ruoli letti dai due CSV, dal database e dalla vista per il personale. Seconda esecuzione `ALREADY_ARCHIVED`, una sola riga di acquisizione, nessun collegamento e controllo SQLite superato. La copia `Registro-acquisti-aggregati-2026-11-22.sqlite` è nella stessa cartella privata Drive dei due CSV. Verificati destinatario unico proprietario, appartenenza della cartella e SHA-256 della copia riscaricata. Nel repository sono presenti soltanto programma, test con dati sintetici e risultati aggregati.
+
+### Uso e ripristino
+
+Sulla postazione autorizzata `OG_REGISTRY` indica la directory *Online Garden/Storico WooCommerce* sotto Application Support. Database e file di lettura hanno permessi 0600 e la directory 0700. Per il controllo e la rigenerazione della vista da una copia integra servono Node 22.22.3 e il checkout di questa versione.
+
+```sh
+node --require ./ci/offline-network.cjs sync/history/purchase-counts.mjs verify "$OG_REGISTRY"
+node --require ./ci/offline-network.cjs sync/history/purchase-counts.mjs viewer "$OG_REGISTRY"
+```
+
+Per il ripristino, scaricare il backup SQLite in una directory privata esterna a Git e rinominarlo `registro.sqlite`, impostare i permessi, eseguire `verify` e poi `viewer`. Quest’ultimo produce `Consulta storico.html` e `conteggi.json`. Conservare i tre file solo su dispositivi o spazi privati di personale incaricato. Per verificare di nuovo l’acquisizione, `import "$OG_REGISTRY" "$OG_INPUT"` usa i due CSV originali e `snapshot-input.json` in una directory privata. Il file di snapshot contiene dominio, timestamp ISO UTC, `customersCount` e `countAfter` con precisione `EXACT`, l’intera pagina `customers.nodes` (GID, email e telefono Shopify) e `pageInfo.hasNextPage=false`. Per più pagine usare `pages` con `after`, `nodes`, `pageInfo.hasNextPage` ed `endCursor` di ogni risposta. Il lettore verifica la catena e la pagina terminale. Un risultato paginato parziale, una revisione discordante o identificativi duplicati interrompono l’operazione. Conservare gli input transitori solo per la durata della verifica.
+
+### Identità e consultazione
+
+Il comando facoltativo `link "$OG_REGISTRY" "$OG_INPUT"` registra solo una decisione documentata relativa a un cliente Shopify già esistente. Occorrono uno snapshot completo recente e `decision.json` privato con `wooId`, `gid`, `shop`, `approvedAt`, `reviewer`, `authorization`, `verified=true`, `legacyOwnershipEvidence` e `shopifyOwnershipEvidence`. I riferimenti devono corrispondere a due riscontri indipendenti di titolarità verificati dall’incaricato. Conservarne la prova in privato. Il software controlla il GID presente nello snapshot, l’idoneità del ruolo, i conflitti, l’univocità e l’impronta della decisione. Una corrispondenza email da sola non prova la titolarità. L’autore e le quarantene sono esclusi dal comando. La risoluzione di una quarantena necessita di revisione separata. Non è stata eseguita alcuna decisione reale. Dopo eventuali decisioni approvate aggiornare la copia privata del journal. In caso di divergenza sospendere l’uso della vista e verificare la decisione sul registro prima di una rettifica autorizzata.
+
+La nuova route staff si appoggia all’identità e ai ruoli server già utilizzati dall’Admin. La vista locale non interroga Shopify né carica file sul sito. Sono assenti tabelle remote e accessi RLS aggiuntivi. Nessuna esposizione sul portale clienti. [Risultati di collaudo](../release/FINAL-DELIVERY-2026-11-22.md)
+
 ## Chiusura del ciclo · 21 novembre 2026
 
 **`BLOCKED_SOURCE_UNAVAILABLE` — 0/953 ordini trasferiti.** Il proprietario ha confermato l’indisponibilità del vecchio WooCommerce. La parte leggibile del TAR troncato non contiene il database ordini. La ricerca si chiude qui. Si conservano privatamente i due CSV minimizzati e, per un eventuale futuro ritrovamento, il codice dell’importatore e il relativo journal. Il writer è rimasto inattivo.

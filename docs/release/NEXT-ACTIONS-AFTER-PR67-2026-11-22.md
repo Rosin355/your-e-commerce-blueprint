@@ -1,5 +1,9 @@
 # Online Garden — azioni di sblocco dopo PR #67 (22 novembre 2026)
 
+## Decisione successiva alla PR #67
+
+La [consegna finale](FINAL-DELIVERY-2026-11-22.md) sostituisce la precedente lista operativa. Il committente ha chiuso la ricerca degli ordini individuali. La priorità 4 qui sotto documenta il contesto del mandato precedente ed è archiviata.
+
 **Stato verificato su GitHub:** [PR #67](https://github.com/Rosin355/your-e-commerce-blueprint/pull/67) MERGED, commit `fc61e5b338d9a2b0f7accccc42676f1e19b7d2a9`. Il rilascio modifica l'importatore e la documentazione, **non richiede Publish frontend**. SAL totale originale **57,75%**, invariata. Nessuna attività di questo elenco è attestata conclusa in produzione.
 
 ## Priorità 1 — Visitor Analytics / consenso

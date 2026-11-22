@@ -10,7 +10,7 @@ Online Garden è gestito da **M.G. PLANT DI GERON MARCO**, impresa individuale c
 
 Le condizioni si applicano agli acquisti dei consumatori sul negozio Online Garden. La scheda descrive specie, formato o variante, quantità e prezzo. Una pianta può variare naturalmente per portamento o fioritura. Restano vincolanti le caratteristiche promesse e la garanzia legale.
 
-Prima della conferma il cliente può controllare e modificare articoli, quantità e indirizzo. Il checkout espone il prezzo finale in euro, le imposte applicabili, la consegna e il totale da pagare. Il pulsante finale comporta un obbligo di pagamento. Il cliente riceve conferma dell’ordine su supporto durevole. Può acquistare come ospite o consultare in Shopify gli ordini collegati al proprio account. Se un articolo ordinato risulta indisponibile il venditore informa il cliente e restituisce gli importi eventualmente dovuti.
+Prima della conferma il cliente può controllare e modificare articoli, quantità e indirizzo. Il checkout espone il prezzo finale in euro, le imposte applicabili, la consegna e il totale da pagare. Il pulsante finale comporta un obbligo di pagamento. Il cliente riceve conferma dell’ordine su supporto durevole. Può acquistare come ospite o consultare nell’area clienti Shopify gli ordini del nuovo negozio collegati al proprio account. Se un articolo ordinato risulta indisponibile il venditore informa il cliente e restituisce gli importi eventualmente dovuti.
 
 Il pagamento avviene nel checkout Shopify tramite i metodi visualizzati per l’ordine. Non inviare dati carta o codici di autenticazione all’assistenza. Il venditore risponde dell’esecuzione del contratto anche quando si avvale di prestatori di pagamento o di consegna.
 

@@ -1,5 +1,9 @@
 # Clienti WooCommerce · preparazione alla riconciliazione
 
+## Esito definitivo dei contatori
+
+Nel registro riservato sono acquisiti 857 clienti e un autore separato. Le associazioni verificate con Shopify sono zero. Gli ordini individuali restano indisponibili. [Consegna del registro](../release/FINAL-DELIVERY-2026-11-22.md#a-storico-woocommerce)
+
 **Riscontro del 22 novembre.** Tutti gli 858 ID con conteggio positivo trovano una riga privata nel secondo CSV. Fra questi compare un autore con un ordine, da valutare individualmente sul documento originale. Restano zero associazioni con un GID Shopify approvate. Il pilota per la verifica di identità e il pilota per creare un singolo ordine sono operazioni distinte, ciascuna con il proprio mandato. Per autorizzare il lotto di ordini occorre un’ulteriore decisione successiva all’accettazione del singolo ordine. [Registro delle fonti e procedura](../migration/woocommerce-history-2026-11-20.md)
 
 Il preflight di riferimento è del 20 novembre 2026. Lo snapshot Shopify di quella data conteneva 14 profili. L’esecuzione di QA del 21 novembre ha utilizzato fixture sintetiche, con rete bloccata. I conteggi reali qui riportati provengono dal [report aggregato storico](../migration/customers-reconciliation-2026-11-20.json).

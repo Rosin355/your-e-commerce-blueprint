@@ -12,6 +12,7 @@ import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 import { CONTACT_PATH, PRIVACY_POLICY } from "@/config/legal";
 
+const HistoricalCounts = lazy(() => import("./legacy-counts/StaffViewer"));
 const AdminGuard = lazy(() => import("./admin/AdminGuard"));
 const CustomerLogout = lazy(() => import("./customer/CustomerPages").then(m => ({
   default: () => <m.CustomerBoundary><m.CustomerLogout /></m.CustomerBoundary>,
@@ -94,6 +95,7 @@ const App = () => (
 
             {/* Nuovo Admin Online Garden (sola lettura) */}
             <Route path="/admin" element={<SuspenseLoader><AuthProvider><AdminV2Guard /></AuthProvider></SuspenseLoader>}>
+              <Route path="storico-acquisti" element={<SuspenseLoader><HistoricalCounts /></SuspenseLoader>} />
               <Route index element={<SuspenseLoader><AdminDashboard /></SuspenseLoader>} />
               <Route path="products" element={<SuspenseLoader><AdminProducts /></SuspenseLoader>} />
               <Route path="products/new" element={<SuspenseLoader>{ADMIN_READ_ONLY_RELEASE ? <ReadOnlyFeaturePage title="Nuovo prodotto non ancora attivo" /> : <AdminNewProduct />}</SuspenseLoader>} />

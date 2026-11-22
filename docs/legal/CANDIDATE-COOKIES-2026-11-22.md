@@ -6,7 +6,7 @@
 
 La vetrina conserva nel browser gli articoli che aggiungi al carrello. Shopify gestisce la sessione di checkout e l’accesso all’area clienti. Il browser contatta anche i servizi che forniscono i caratteri, le immagini e il metodo di pagamento scelto. L’infrastruttura usa strumenti di sicurezza e protezione dai bot.
 
-Nella configurazione verificata, Lovable misura visite e clic sulla vetrina. Browser e servizi tecnici possono trasmettere l’indirizzo IP, informazioni sul dispositivo e la pagina richiesta. Nelle impostazioni del browser puoi ispezionare o cancellare cookie e dati locali. La cancellazione può svuotare il carrello o richiedere un nuovo accesso.
+Nella configurazione verificata, Lovable misura visite e clic sulla vetrina. Browser e servizi tecnici possono trasmettere l’indirizzo IP, informazioni sul dispositivo e la pagina richiesta. Nella prova sulla vetrina una richiesta di misurazione è partita già alla prima visita, prima di una scelta. Nelle impostazioni del browser puoi ispezionare o cancellare cookie e dati locali. La cancellazione può svuotare il carrello o richiedere un nuovo accesso.
 
 Il titolare è M.G. PLANT DI GERON MARCO. Per informazioni sulle tecnologie di navigazione e per esercitare i tuoi diritti puoi scrivere a **info@onlinegarden.it**.
 <!-- testo-cliente:fine -->
