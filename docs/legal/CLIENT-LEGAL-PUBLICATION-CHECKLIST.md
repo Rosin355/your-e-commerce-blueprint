@@ -1,3 +1,11 @@
+## Decisioni e bozze legali — 22 novembre 2026
+
+**Spedizioni:** Marco ha confermato che **tutte le isole minori devono usare la stessa tariffa speciale di Sicilia/Sardegna** già approvata, in entrambe le classi A/B. **Decisione commerciale CLOSED**; **applicazione checkout per CAP/località di isole minori NON verificata e NON certificata**. Non estendere supplementi a province miste senza criterio attendibile. [Verbale decisione](release/SHIPPING-MINOR-ISLANDS-DECISION-2026-11-22.md).
+
+**Legale:** preparate le bozze [Termini e condizioni](legal/DRAFT-TERMS-AND-CONDITIONS-2026-11-22.md) e [Revisione Privacy Policy](legal/DRAFT-PRIVACY-POLICY-REVIEW-2026-11-22.md). La Privacy Policy Shopify in italiano del 30 ottobre rimane **l'unica policy legale pubblicata** e non è stata sostituita. Mancano la ragione sociale e gli identificativi del venditore, sede, indirizzo resi, condizioni commerciali e tempi verificati, registro dei fornitori/retention e soluzione consenso cookie. Le bozze NON vanno pubblicate prima di integrazione e approvazione documentata da Marco/revisore legale. Fonte: policy Shopify live e audit legal precedente.
+
+**SAL progetto:** 57,75% ≈ 58% resta invariata. Le due bozze non equivalgono a pubblicazione né la decisione sulle isole a copertura tecnica.
+
 # Online Garden — checklist approvazione e pubblicazione legale
 
 1 novembre 2026. Documento operativo interno, non una policy del negozio. **Footer pubblicato e verificato** su https://onlinegarden.it dopo il merge della PR #43. Commit di produzione `8d2a160917895735658e34a37d6b337733a32649`. Il rilascio tecnico non certifica la readiness legale/commerciale.
