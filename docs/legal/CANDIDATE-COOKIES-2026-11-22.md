@@ -1,11 +1,15 @@
 # Cookie e tecnologie di navigazione
 **Inventario verificato sul percorso pubblico il 22 novembre 2026. Testo candidato per revisione, pubblicazione sospesa.**
 
+<!-- testo-cliente:inizio -->
 ## Per chi visita Online Garden
 
-La vetrina e il checkout usano tecnologie diverse. Il carrello sul dispositivo conserva gli articoli scelti e Shopify gestisce la sessione di checkout e l’area clienti. L’infrastruttura applica controlli di sicurezza e protezione dai bot. La vetrina contatta inoltre servizi per fornire i caratteri e le immagini. Alcuni servizi misurano l’utilizzo del sito. Le informazioni tecniche trasmesse possono comprendere l’indirizzo IP, il tipo di browser e la pagina richiesta. Le finalità, i destinatari e le condizioni delle misurazioni devono corrispondere alla configurazione effettivamente attiva quando l’informativa viene pubblicata.
+La vetrina conserva nel browser gli articoli che aggiungi al carrello. Shopify gestisce la sessione di checkout e l’accesso all’area clienti. Il browser contatta anche i servizi che forniscono i caratteri, le immagini e il metodo di pagamento scelto. L’infrastruttura usa strumenti di sicurezza e protezione dai bot.
 
-Il titolare è M.G. PLANT DI GERON MARCO. Per domande sulla navigazione o sui diritti puoi scrivere a **info@onlinegarden.it**. Il browser consente di cancellare cookie e dati locali. La cancellazione del carrello o dei dati di sessione può richiedere di ripetere la selezione o l’accesso. Il testo pubblico dovrà descrivere il controllo delle preferenze effettivamente disponibile per tutte le finalità facoltative.
+Nella configurazione verificata, Lovable misura visite e clic sulla vetrina. Browser e servizi tecnici possono trasmettere l’indirizzo IP, informazioni sul dispositivo e la pagina richiesta. Nelle impostazioni del browser puoi ispezionare o cancellare cookie e dati locali. La cancellazione può svuotare il carrello o richiedere un nuovo accesso.
+
+Il titolare è M.G. PLANT DI GERON MARCO. Per informazioni sulle tecnologie di navigazione e per esercitare i tuoi diritti puoi scrivere a **info@onlinegarden.it**.
+<!-- testo-cliente:fine -->
 
 ## Inventario tecnico per il titolare
 
@@ -35,3 +39,5 @@ Prova isolata nel browser di QA con blocco dei soli endpoint/script di telemetri
 | Solo strumenti necessari | Se dopo disattivazione e verifica di entrambi gli ambienti restano solo gli strumenti ammessi senza consenso, documentare le condizioni e il motivo dell’eventuale esclusione dei controlli facoltativi. |
 
 Non sono disponibili evidenze di un ciclo accetta/rifiuta/revoca in produzione. Prima della pubblicazione completare durata delle chiavi dove applicabile, responsabili e garanzie reali, comando effettivo di preferenze e verifica con il titolare. [Garante, linee guida cookie e altri strumenti](https://www.garanteprivacy.it/home/docweb/-/docweb-display/docweb/9677876) · [Informativa da confrontare](DRAFT-PRIVACY-POLICY-REVIEW-2026-11-22.md)
+
+Nel pannello del progetto pubblicato gli interruttori Visitor analytics, monitoraggio dei clic e Project monitoring sono attivi. L’operazione proposta riguarda solo Visitor analytics. L’accesso staff pubblico è stato aperto con e senza il solo loader, con entrambi i campi del modulo disponibili. I contatori sono nel verbale commerciale. L’effetto dell’interruttore reale sui dati raccolti rimane da misurare. [Impostazioni Lovable](https://docs.lovable.dev/features/analytics#enable-or-disable-visitor-analytics) · [Garante, linee guida](https://www.garanteprivacy.it/home/docweb/-/docweb-display/docweb/9677876)

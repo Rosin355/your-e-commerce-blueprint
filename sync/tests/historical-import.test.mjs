@@ -12,6 +12,14 @@ import { syntheticEmailOnlyScenario } from './customer-fixtures.mjs';
 
 const decision = { financialStatus: 'PAID', fulfillmentStatus: 'FULFILLED', evidence: 'synthetic source' };
 const customer = 'gid://shopify/Customer/500';
+test('senza archivio transazionale si ferma offline con il motivo specifico', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'og-no-archive-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const network = t.mock.method(globalThis, 'fetch', () => assert.fail('Unexpected network'));
+  await assert.rejects(run('prepare', dir), /BLOCKED_SOURCE_UNAVAILABLE/);
+  assert.deepEqual(fs.readdirSync(dir), []);
+  assert.equal(network.mock.callCount(), 0);
+});
 const line = {
   id: 7,
   name: 'Fixture',
@@ -243,6 +251,14 @@ test('interruzione dopo orderCreate, ripresa e replay senza una seconda creazion
     return Response.json({ data }, { headers: { 'x-shopify-api-version': VERSION } });
   });
   await assert.rejects(run('batch', dir), /PILOT_ACCEPTANCE/);
+  const secondId = String(orders.find(o => String(o.id) !== id).id);
+  rev.authorization.orderIds.push(secondId);
+  rev.authorization.reviewSha256 = approvalDigest(rev);
+  write('review.json', JSON.stringify(rev));
+  await assert.rejects(run('pilot', dir), /LIVE_AUTHORIZATION_REQUIRED/);
+  rev.authorization.orderIds = [id];
+  rev.authorization.reviewSha256 = approvalDigest(rev);
+  write('review.json', JSON.stringify(rev));
   await assert.rejects(run('pilot', dir), /simulated lost response/);
   const saved = remote;
   remote = null;
@@ -250,6 +266,30 @@ test('interruzione dopo orderCreate, ripresa e replay senza una seconda creazion
   remote = saved;
   await run('pilot', dir);
   await run('pilot', dir);
+  assert.equal(mutations, 1);
+  assert.equal(customerWrites, 1);
+  rev.pilotAcceptance = {
+    orderGid: remote.id, archiveSha256: rev.archiveSha256, acceptedAt: '2025-01-01T00:00:00Z',
+    stock: 'test', payments: 'test', notifications: 'test', fulfillment: 'test',
+    customerVisibility: 'test', otherCustomerDenied: 'test', reporting: 'test',
+  };
+  write('review.json', JSON.stringify(rev));
+  await assert.rejects(run('batch', dir), /SEPARATE_BATCH_AUTHORIZATION/);
+  rev.batchAuthorization = { ...rev.authorization, approvedAt: '2025-01-02T00:00:00Z' };
+  write('review.json', JSON.stringify(rev));
+  await assert.rejects(run('batch', dir), /SEPARATE_BATCH_AUTHORIZATION/);
+  rev.batchAuthorization.reference = 'separate-batch-test';
+  rev.batchAuthorization.approvedAt = '2024-12-31T00:00:00Z';
+  write('review.json', JSON.stringify(rev));
+  await assert.rejects(run('batch', dir), /SEPARATE_BATCH_AUTHORIZATION/);
+  rev.batchAuthorization.approvedAt = '2025-01-02T00:00:00Z';
+  rev.batchAuthorization.reviewSha256 = approvalDigest(rev, 'batch');
+  rev.batchAuthorization.orderIds = [id, secondId];
+  write('review.json', JSON.stringify(rev));
+  await assert.rejects(run('batch', dir), /AUTHORIZATION_REVIEW_CHANGED/);
+  rev.batchAuthorization.orderIds = [id];
+  write('review.json', JSON.stringify(rev));
+  await run('batch', dir);
   assert.equal(mutations, 1);
   assert.equal(customerWrites, 1);
   remote.customer = { id: 'gid://shopify/Customer/999' };
