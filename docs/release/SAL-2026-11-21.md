@@ -1,3 +1,9 @@
+## Anagrafica venditore da visura CCIAA — 22 novembre 2026
+
+Ricevuta e verificata visura ordinaria CCIAA Padova **M.G. PLANT DI GERON MARCO**, estratta il **22 marzo 2024** (documento T 553748808), impresa individuale, sede d'impresa **Via San Giovanni 25, 35010 Santa Giustina in Colle (PD)**, P. IVA **04347360242**, CF/Registro Imprese **GRNMRC86R20B563H**, REA **PD-464045**, PEC **geronmarco@pec.agritel.it**. La visura indica il commercio elettronico al dettaglio di piante nella sede. **Questi dati sono documentati al 2024, non attestati aggiornati al 2026; serve conferma che l'operatore effettivo di onlinegarden.it sia questa impresa.** Non incorporare nei documenti di progetto dati di residenza privata o di nascita del titolare. Nessun PDF della visura è stato pubblicato nel repository.
+
+Aggiornate con l'anagrafica storica le bozze [Termini](docs/legal/DRAFT-TERMS-AND-CONDITIONS-2026-11-22.md) e [Revisione Privacy](docs/legal/DRAFT-PRIVACY-POLICY-REVIEW-2026-11-22.md). **Entrambe ancora NON pubblicate**; rimangono da confermare indirizzo resi, tempi di consegna, esercizio diritti e trattamenti, eventuale DPO, consensi/telemetria e revisione finale delle condizioni. Shopify Privacy Policy live invariata. SAL totale invariata **57,75% ≈ 58%**.
+
 ## Decisioni e bozze legali — 22 novembre 2026
 
 **Spedizioni:** Marco ha confermato che **tutte le isole minori devono usare la stessa tariffa speciale di Sicilia/Sardegna** già approvata, in entrambe le classi A/B. **Decisione commerciale CLOSED**; **applicazione checkout per CAP/località di isole minori NON verificata e NON certificata**. Non estendere supplementi a province miste senza criterio attendibile. [Verbale decisione](release/SHIPPING-MINOR-ISLANDS-DECISION-2026-11-22.md).
