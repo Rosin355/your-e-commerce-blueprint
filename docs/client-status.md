@@ -1,3 +1,7 @@
+## Aggiornamento tariffe spedizione — 22 novembre 2026 (lettura Shopify live)
+
+Il profilo Shopify generale oggi prevede **Italia: 7,00 € fino a 54,99 €, gratuita da 55,00 €**; **UE: 14,99 €** e **altri paesi configurati: 19,99 €**. Non emerge una tariffa specifica per isole italiane, ma la verifica completa non è conclusa: il connettore non ha lo scope per leggere le personalizzazioni di consegna e mancano prove finale checkout per i CAP delle isole minori. Il precedente collaudo Roma 8,90 € è storico e non va presentato come tariffa attuale. Le tariffe contrattuali per isole minori devono essere definite e approvate dal cliente prima di modificare Shopify. [Verbale tariffe live](release/SHIPPING-LIVE-RATES-2026-11-22.md). SAL originale invariata al 58%.
+
 ## Stato aggiornato per il cliente — 21 novembre 2026
 
 ## Area clienti · cosa può fare il cliente
