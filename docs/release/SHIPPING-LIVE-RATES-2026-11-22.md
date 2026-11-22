@@ -20,38 +20,8 @@
 
 `deliveryProfiles` mostra tuttora 7 €/gratis Italia e 14,99 €/19,99 € estero nel **profilo generale**. Questo dato è reale ma non esaurisce la configurazione del checkout: Shopify Markets ha una **definizione di spedizione attiva A+B** per i mercati italiani. La priorità/tariffa finale in un carrello specifico può essere attestata solo da checkout o con API di calcolo; non dedurre la tariffa italiana effettiva dal solo profilo generale.
 
----
+## Riscontro corrente del 22 novembre
 
+I 69 preventivi Storefront su 23 destinazioni verificano una sola opzione per ogni carrello A, B e misto. Sono corretti 42 importi. Le 27 difformità riguardano nove destinazioni insulari di province con terraferma. In checkout sono stati riletti i nove importi sulle coppie positive e negative di Portoferraio, Livorno e Lipari. In ordine A/B/misto, Portoferraio e Livorno mostrano 8,90 / 5,90 / 11,90 €, mentre Lipari mostra 9,60 / 6,90 / 12,50 €. Il CAP, la città e la provincia effettivamente selezionati sono stati verificati dopo il ricalcolo. La decisione commerciale è acquisita. [Dettaglio tecnico e fonti](SHIPPING-MINOR-ISLANDS-DECISION-2026-11-22.md) · [Dati minimizzati](evidence/shipping-islands-2026-11-22.csv)
 
-
-## Evidenze lette dal negozio Shopify collegato
-
-**Negozio:** Online Garden, `ecom-blueprint-gen-6ud1s.myshopify.com`. **Metodo:** query Admin GraphQL read-only `deliveryProfiles` sulla versione 2026-10; nessuna mutation, nessuna prova d'ordine o modifica delle tariffe.
-
-Unico profilo restituito: **Profilo generale**, `default=true`, 4 definizioni di metodo attive, tre zone:
-- **Italia** (tutte le province incluse nello schema Shopify): metodo *Standard*, **7,00 EUR** per `TOTAL_PRICE` da 0 a 54,99 EUR, e **0,00 EUR** da 55,00 EUR in su.
-- **UE (Unione Europea)**: metodo *Standard Internazionale*, **14,99 EUR** da 0 EUR in su, per i paesi esplicitamente assegnati a questa zona.
-- **Internazionale**: metodo *Standard*, **19,99 EUR** da 0 EUR in su, per i paesi esplicitamente assegnati a questa zona.
-- Paginazione: `deliveryProfiles.hasNextPage=false`, tre zone e metodi non paginati (`hasNextPage=false`).
-- La query read-only `carrierServices` ha restituito **zero** servizi.
-
-**Importante:** il vecchio preventivo Roma **8,90 EUR** registrato nella checklist SEO del 12 novembre non equivale all'attuale tariffe generali Shopify, che risultano **7,00 EUR** sotto soglia. Questo scarto è una differenza temporale/di metodo da collaudare, non un cambio applicato da questa verifica.
-
-## Isole e limitazioni
-
-Il profilo generale non contiene zone specifiche per Sicilia, Sardegna o isole minori né una distinzione per CAP/località; poiché tutte le province italiane appartengono alla zona Italia, **la regola tariffaria base applicabile** a Elba (LI), Ischia/Capri/Procida (NA), Eolie (ME), Tremiti (FG), Ponza/Ventotene (LT), Sicilia e Sardegna è **7,00 EUR sotto 55 EUR / 0,00 EUR da 55 EUR**. Questa deduzione è basata **solo sulle regole del profilo**: non è una prova di preventivo finale con quei CAP.
-
-La query `deliveryCustomizations` è stata **negata** per mancanza dello scope `read_delivery_customizations`. Non è possibile attestare la presenza/assenza o gli effetti di personalizzazioni che nascondano/modifichino le opzioni di spedizione. Mancano anche prove checkout su CAP reali delle isole e conferma delle tariffe contrattuali del corriere/Sendcloud. **Non presentare come certificato l'importo finale per tutte le isole.**
-
-## Decisioni necessarie
-
-1. Marco deve confermare per iscritto se vuole una tariffa speciale per **tutte le isole minori**, e indicare importi/soglie e lista delle località/CAP rilevanti secondo il proprio corriere.
-2. Verificare in sola lettura nell'Admin Shopify eventuali personalizzazioni, con titolare munito di permessi adeguati, e testare con checkout/profilo di indirizzo di prova almeno: Roma, Palermo, Cagliari, Portoferraio, Capri, Ischia, Lipari, Ponza e Tremiti; registrare gli importi **senza completare pagamento**.
-3. Proporre una soluzione che distingua correttamente CAP/località (Shopify shipping zones a sola provincia non bastano) e valutarne limiti, disponibilità del piano, costi e compatibilità con Sendcloud; **nessuna app o Shopify Function aggiunta senza autorizzazione**.
-4. Eseguire nuova lettura e collaudo prima/dopo eventuale modifica, con rollback e consenso esplicito.
-
-## Stato progetto
-
-Resta la SAL complessiva originale **57,75%, arrotondata al 58%**. Admin V2 `r2` è pubblicato, accettazione di Marco pendente. Area clienti: 5/8 controlli finali, tre prove con identità reali controllate. Aperte inoltre: DNS Cloudflare e redirect 301, testi legali, notifiche, acquisto E2E, accessibilità Safari/iOS completa e permessi Shopify personali di Marco. Ordini WooCommerce: **0/953**, `BLOCKED_SOURCE_UNAVAILABLE`.
-
-Fonti Shopify: [Delivery Profiles Admin GraphQL](https://shopify.dev/docs/api/admin-graphql/2026-10/queries/deliveryProfiles). Fonti progetto: [checklist](PROJECT-CLOSEOUT-CHECKLIST.md), [SAL](SAL-2026-11-21.md).
+La lettura del profilo generale documentava separatamente Standard 7 €/0 € e tariffe estere. Restano metodi di quel profilo. Il costo italiano applicato ai carrelli sopra è quello osservato al checkout. Il piano Grow, le possibilità del selettore, i limiti degli scope e il rollback sono descritti nel dossier tecnico. Non sono state eseguite modifiche a metodi, collezioni o varianti.
