@@ -1,5 +1,7 @@
 # Unica richiesta conclusiva a Marco
 
+**Aggiornamento del 22 novembre.** Il mandato ricevuto ha autorizzato le due prove isolate. Sono stati verificati il selettore CAP/località e la soppressione di Visitor Analytics nel browser. Per le righe spedizioni e privacy fanno fede gli esiti e le operazioni residue nel [rapporto delle prove](PROVE-ISOLATE-SPEDIZIONI-ANALYTICS-2026-11-22.md). Questa autorizzazione copre soltanto il collaudo isolato.
+
 **Richiesta del 22 novembre 2026.** Il listino e l’identità del venditore sono già confermati. Scegli e firma solo le righe che intendi autorizzare. Una riga senza presupposti resta sospesa. La conferma di lettura dei documenti non fa scattare un intervento tecnico.
 
 | Operazione che richiede decisione | Oggetto esatto da autorizzare | Condizione prima dell’esecuzione |
