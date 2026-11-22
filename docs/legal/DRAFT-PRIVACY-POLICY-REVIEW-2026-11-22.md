@@ -3,8 +3,10 @@
 
 > **Fonte corrente:** Privacy Policy in italiano sul negozio Shopify (aggiornata il 30 ottobre 2026), [URL ufficiale](https://checkout.shopify.com/102600966484/policies/56892817748.html?locale=it), al momento unica policy effettivamente pubblicata. Questa è una revisione migliorativa, non una certificazione di conformità. La policy Shopify attuale contiene già categorie di dati, fonti, finalità, destinatari, Shopify, diritti, conservazione, trasferimenti e recapito. **Non duplicarla contemporaneamente nel frontend e in Shopify.** Dopo l'approvazione integrare il testo nella stessa sorgente ufficiale Shopify.
 
+> **Identità del venditore — fonte: visura camerale CCIAA di Padova estratta il 22/03/2024.** Denominazione **M.G. PLANT DI GERON MARCO**, impresa individuale, sede **Via San Giovanni 25, 35010 Santa Giustina in Colle (PD)**, P. IVA **04347360242**, codice fiscale/numero Registro Imprese **GRNMRC86R20B563H**, REA **PD-464045**, PEC **geronmarco@pec.agritel.it**. **Prima della pubblicazione occorre confermare che tali dati siano invariati al 2026 e che questa sia l'impresa che gestisce il negozio Online Garden.** La visura non fornisce un indirizzo per i resi né tempi di consegna. Non pubblicare dettagli di residenza privata o nascita.
+
 ### 1. Titolare del trattamento e contatti
-Il titolare del trattamento per gli acquisti e per il rapporto con i clienti del negozio Online Garden è **[RAGIONE SOCIALE COMPLETA]**, con sede in **[SEDE LEGALE]**, P. IVA **[NUMERO]**. Contatto privacy: **info@onlinegarden.it**. Dati di contatto del Responsabile della protezione dei dati, **se designato: [DPO E RECAPITI / NON APPLICABILE]**. Queste informazioni vanno verificate e rese pubbliche prima della sostituzione del testo esistente.
+Il titolare del trattamento per gli acquisti e per il rapporto con i clienti del negozio Online Garden è, **se confermato come effettivo operatore del sito**, **M.G. PLANT DI GERON MARCO**, impresa individuale con sede in **Via San Giovanni 25, 35010 Santa Giustina in Colle (PD), Italia**, P. IVA **04347360242**, C.F./numero Registro Imprese **GRNMRC86R20B563H**, REA **PD-464045**. Contatti: **info@onlinegarden.it**; PEC risultante dalla visura **geronmarco@pec.agritel.it**. Dati di contatto del Responsabile della protezione dei dati, **se designato: [DPO E RECAPITI / NON APPLICABILE]**. Queste informazioni vanno verificate e rese pubbliche prima della sostituzione del testo esistente.
 
 ### 2. Quali dati vengono trattati
 In relazione ai servizi utilizzati possono essere trattati: nome e cognome, indirizzi di consegna/fatturazione, email, numero telefonico, identificativi cliente e ordine, contenuto degli acquisti, pagamenti e relativi esiti, informazioni per resi e assistenza; dati tecnici di navigazione come IP, user-agent, log di sicurezza, identificativi di sessione e cookie o archiviazioni locali strettamente necessari. I sistemi di pagamento raccolgono i dati necessari all'operazione secondo le proprie informative; **non si presume che il negozio conservi numeri completi di carta**.
@@ -44,13 +46,13 @@ Sono impiegate misure tecniche e organizzative proporzionate ai rischi, tra cui 
 Il negozio non è specificamente destinato ai minori e gli acquisti sono soggetti alle condizioni di capacità di agire previste dalla legge. Il titolare può aggiornare l'informativa quando cambiano finalità, fornitori o norme applicabili, riportando la data effettiva e fornendo comunicazioni quando necessarie.
 
 ### 12. Contatti
-Per informazioni o esercizio dei diritti: **info@onlinegarden.it**. Titolare **[RAGIONE SOCIALE, INDIRIZZO E RECAPITI DA COMPLETARE]**.
+Per informazioni o esercizio dei diritti: **info@onlinegarden.it**. Titolare, **previa conferma di attualità e titolarità**, **M.G. PLANT DI GERON MARCO**, Via San Giovanni 25, 35010 Santa Giustina in Colle (PD), Italia, P. IVA **04347360242**, PEC **geronmarco@pec.agritel.it**.
 
 ---
 
 ## Gate prima di aggiornare la Privacy Shopify
 
-1. Completa ragione sociale, P. IVA, sede, eventuale DPO e recapiti confermati; per il GDPR sono dati obbligatori del titolare.
+1. **Conferma l'attualità al 2026 e l'effettiva titolarità di Online Garden** rispetto alla visura CCIAA del 22/03/2024; ragione sociale, P. IVA, sede, codice fiscale, REA e PEC sono stati inseriti dalla fonte. Verifica eventuale DPO e ulteriori recapiti, senza inventarli.
 2. Confronta punto per punto questa bozza con **tutto il testo Shopify pubblicato**, mantenendo informazioni corrette già presenti e senza impoverire l'informativa.
 3. Completa registro fornitori, Cookie Policy e verifica consenso/telemetria effettiva; non inventare un elenco cookies o una durata.
 4. Verifica retention per ciascuna finalità, basi giuridiche e trattamenti marketing, eventuali trasferimenti extra-SEE.
