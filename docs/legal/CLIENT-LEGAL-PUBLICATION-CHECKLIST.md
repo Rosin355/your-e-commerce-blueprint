@@ -14,7 +14,21 @@ Al 22 novembre 2026 M.G. PLANT DI GERON MARCO e la sede d’impresa sono conferm
 
 L’inventario e i candidati possono essere esaminati ora. L’esposizione nel negozio resta sospesa. [Richiesta unica](../release/FINAL-CLIENT-APPROVALS.md) · [Checklist personale](../release/PRODUCTION-HANDOVER.md#unica-checklist-di-accettazione-personale) · [Documentazione del footer già distribuito](FOOTER-AND-POLICY-INTEGRATION.md)
 
+## Pacchetto candidato del 22 novembre, revisione 3
+
+I cinque corpi cliente aggiornati sono nei file originari al commit `0e474b7`. Per la revisione si usa SHA-256 sugli stessi byte descritti nella revisione 2. Il titolare deve integrare i dati residui e approvare le impronte del testo completo prima della pubblicazione. Il riepilogo Shopify espone una sola Privacy del 30 ottobre. Nel nuovo controllo il footer italiano la raggiunge e il dialogo al checkout si apre. La [scheda unica per Marco](../release/FINAL-DELIVERY-2026-11-22.md#g-decisioni-residue-per-marco) elenca i dati commerciali e privacy da confermare.
+
+| Corpo cliente | SHA-256 della revisione 3 |
+|---|---|
+| [Termini](DRAFT-TERMS-AND-CONDITIONS-2026-11-22.md) | `954c7af5160c0653e5f39426692ffd8846dd34f9dd670119c448675fcf8f1ca1` |
+| [Privacy](DRAFT-PRIVACY-POLICY-REVIEW-2026-11-22.md) | `2bab8f306155f7334bac06d70ce221dd5c51b8d2fe39bd8181265b7123af15bf` |
+| [Spedizioni](CANDIDATE-SHIPPING-2026-11-22.md) | `652bd40d397d2358a813b178fe01e8f3abc140320019c3da93d1d8f1f043a2a9` |
+| [Resi](CANDIDATE-RETURNS-2026-11-22.md) | `0df23d141f55192b70730980b944c2c8e6eae08baf62080de442a585e95a1048` |
+| [Cookie](CANDIDATE-COOKIES-2026-11-22.md) | `cbb2d78cddf5ce741706b1727c1898af6a176bb1e60f407daa78981c40c21cb7` |
+
 ## Pacchetto candidato del 22 novembre, revisione 2
+
+Le impronte storiche si verificano sui file del commit `e0840e2`.
 
 Il commit `e0840e2` identifica i cinque file. Ogni impronta SHA-256 copre i byte UTF-8 fra le righe `<!-- testo-cliente:inizio -->` e `<!-- testo-cliente:fine -->`, compreso il ritorno a capo finale. Il titolo della sezione Shopify è identificato dalla prima colonna. Le note per il revisore rimangono nel fascicolo.
 

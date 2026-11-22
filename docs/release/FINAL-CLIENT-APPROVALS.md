@@ -1,3 +1,7 @@
+## Decisioni valide per la consegna finale
+
+Per questo mandato vale esclusivamente la [scheda consolidata per Marco](FINAL-DELIVERY-2026-11-22.md#g-decisioni-residue-per-marco). La ricerca delle transazioni WooCommerce è definitivamente chiusa. Il registro completo dei conteggi è già operativo. Le precedenti ipotesi di acquisizione transazionale e di autorizzazione al relativo pilota appartengono ai verbali storici.
+
 ## Decisioni aperte dopo la verifica commerciale del 22 novembre
 
 La [richiesta unica aggiornata](FINAL-COMMERCIAL-CLOSEOUT-2026-11-22.md#g-unica-richiesta-conclusiva) raccoglie accesso al negozio di prova e copertura del vettore, finestra per Visitor Analytics, dati e firme delle policy, fonte autentica dello storico. Per la migrazione il mandato per un ordine e il successivo mandato per un lotto definito hanno riferimenti distinti. Il [manifesto dei testi](../legal/CLIENT-LEGAL-PUBLICATION-CHECKLIST.md#pacchetto-candidato-del-22-novembre-revisione-2) identifica le versioni da integrare.
