@@ -1,43 +1,8 @@
-## Anagrafica venditore da visura CCIAA — 22 novembre 2026
+## Per Marco · 22 novembre 2026
 
-Ricevuta e verificata visura ordinaria CCIAA Padova **M.G. PLANT DI GERON MARCO**, estratta il **22 marzo 2024** (documento T 553748808), impresa individuale, sede d'impresa **Via San Giovanni 25, 35010 Santa Giustina in Colle (PD)**, P. IVA **04347360242**, CF/Registro Imprese **GRNMRC86R20B563H**, REA **PD-464045**, PEC **geronmarco@pec.agritel.it**. La visura indica il commercio elettronico al dettaglio di piante nella sede. **Questi dati sono documentati al 2024, non attestati aggiornati al 2026; serve conferma che l'operatore effettivo di onlinegarden.it sia questa impresa.** Non incorporare nei documenti di progetto dati di residenza privata o di nascita del titolare. Nessun PDF della visura è stato pubblicato nel repository.
-
-Aggiornate con l'anagrafica storica le bozze [Termini](docs/legal/DRAFT-TERMS-AND-CONDITIONS-2026-11-22.md) e [Revisione Privacy](docs/legal/DRAFT-PRIVACY-POLICY-REVIEW-2026-11-22.md). **Entrambe ancora NON pubblicate**; rimangono da confermare indirizzo resi, tempi di consegna, esercizio diritti e trattamenti, eventuale DPO, consensi/telemetria e revisione finale delle condizioni. Shopify Privacy Policy live invariata. SAL totale invariata **57,75% ≈ 58%**.
-
-## Decisioni e bozze legali — 22 novembre 2026
-
-**Spedizioni:** Marco ha confermato che **tutte le isole minori devono usare la stessa tariffa speciale di Sicilia/Sardegna** già approvata, in entrambe le classi A/B. **Decisione commerciale CLOSED**; **applicazione checkout per CAP/località di isole minori NON verificata e NON certificata**. Non estendere supplementi a province miste senza criterio attendibile. [Verbale decisione](release/SHIPPING-MINOR-ISLANDS-DECISION-2026-11-22.md).
-
-**Legale:** preparate le bozze [Termini e condizioni](legal/DRAFT-TERMS-AND-CONDITIONS-2026-11-22.md) e [Revisione Privacy Policy](legal/DRAFT-PRIVACY-POLICY-REVIEW-2026-11-22.md). La Privacy Policy Shopify in italiano del 30 ottobre rimane **l'unica policy legale pubblicata** e non è stata sostituita. Mancano la ragione sociale e gli identificativi del venditore, sede, indirizzo resi, condizioni commerciali e tempi verificati, registro dei fornitori/retention e soluzione consenso cookie. Le bozze NON vanno pubblicate prima di integrazione e approvazione documentata da Marco/revisore legale. Fonte: policy Shopify live e audit legal precedente.
-
-**SAL progetto:** 57,75% ≈ 58% resta invariata. Le due bozze non equivalgono a pubblicazione né la decisione sulle isole a copertura tecnica.
-
-## Rettifica prioritaria — 22 novembre 2026: rilettura *Shopify Markets* A+B
-
-**LA PRECEDENTE CONCLUSIONE «7 € sotto 55 € / spedizione gratuita da 55 € su tutta Italia» NON DESCRIVE IL LISTINO COMMERCIALE A+B.** Era una lettura isolata di `deliveryProfiles` (profilo generale), senza controllare le definizioni `markets.delivery.shipping.optionDefinitions`. Non usare i 7 €/0 € come tariffa commerciale certificata dei carrelli Online Garden.
-
-### Stato LIVE verificato direttamente via Admin GraphQL (sola lettura, 22/11)
-- `markets`: **Italy ACTIVE** e **Sicilia e Sardegna — Isole ACTIVE**, `shipping.isEnabled=true`, ognuno con una `DeliveryValueBasedOptionDefinition` **Standard attiva**, `freeDeliveryMinimumValue=null`. I `rateGroups` sono condizionati dalle collezioni `og-logistica-a-fallback` (A) e `og-logistica-b-approvati` (B). Paginazione di metodi, gruppi e fasce completata.
-- Tariffe A **Italia**: 0–18,99 € → **8,90 €**; 19–79,99 → **11,90 €**; 80–149,99 → **12,50 €**; 150–249,99 → **17,50 €**; 250–499,99 → **36 €**; ≥500 → **54 €**.
-- Tariffe A **Sicilia/Sardegna**: stesse fasce → **9,60 € / 12,50 € / 14,90 € / 17,50 € / 36 € / 54 €**.
-- Tariffe B (solo bulbi/grasse approvati) **Italia**: 0–49,99 € → **5,90 €**; 50–149,99 → **7,90 €**; ≥150 → **8,90 €**.
-- Tariffe B **Sicilia/Sardegna**: stesse fasce → **6,90 € / 8,90 € / 9,50 €**.
-- Nessuna spedizione gratuita nelle definizioni Markets A/B; carrello misto A+B segue A, secondo la politica commerciale approvata, già collaudata live il 5 novembre. Questa rilettura API non è un nuovo checkout per tutti gli scenari.
-
-**Origine decisionale:** [PR #45](https://github.com/Rosin355/your-e-commerce-blueprint/pull/45), Draft e non merged, ma il suo report documenta la **configurazione LIVE effettuata il 5 novembre** e sei checkout superati. [Matrice completa, ramo release b6ac09b](https://github.com/Rosin355/your-e-commerce-blueprint/blob/b6ac09b2059cff561ee36ec8ee331da4363cca4a/docs/SHIPPING-RATE-MATRIX.md). La mancata integrazione della PR non implica che le modifiche configurative Shopify siano state annullate: ora la lettura live Markets conferma gli scaglioni A+B.
-
-**Unico gap del requisito geografico:** applicazione automatica della fascia «Isole e zone disagiate» alle **isole minori in province miste** (Elba, Lido di Venezia, Pellestrina ecc.) non verificata; nessuna deroga al supplemento è autorizzata e nessun CAP/filtro inventato. Eventuali personalizzazioni `deliveryCustomizations` non leggibili con lo scope corrente. Nessuna modifica Shopify è stata eseguita da questa rettifica.
-
-### Distinzione fra le due superfici API
-
-`deliveryProfiles` mostra tuttora 7 €/gratis Italia e 14,99 €/19,99 € estero nel **profilo generale**. Questo dato è reale ma non esaurisce la configurazione del checkout: Shopify Markets ha una **definizione di spedizione attiva A+B** per i mercati italiani. La priorità/tariffa finale in un carrello specifico può essere attestata solo da checkout o con API di calcolo; non dedurre la tariffa italiana effettiva dal solo profilo generale.
+Il negozio, il carrello e il checkout sono operativi. Il prezzo delle isole è già approvato. Il checkout va corretto per nove località del campione. Cinque testi sono pronti per la revisione. La firma personale resta aperta. [Verbale e dettagli](release/FINAL-CLOSEOUT-2026-11-22.md). [Approvazioni](release/FINAL-CLIENT-APPROVALS.md) · [Checklist personale](release/PRODUCTION-HANDOVER.md#unica-checklist-di-accettazione-personale).
 
 ---
-
-
-## Aggiornamento tariffe spedizione — 22 novembre 2026 (lettura Shopify live)
-
-Il profilo Shopify generale oggi prevede **Italia: 7,00 € fino a 54,99 €, gratuita da 55,00 €**; **UE: 14,99 €** e **altri paesi configurati: 19,99 €**. Non emerge una tariffa specifica per isole italiane, ma la verifica completa non è conclusa: il connettore non ha lo scope per leggere le personalizzazioni di consegna e mancano prove finale checkout per i CAP delle isole minori. Il precedente collaudo Roma 8,90 € è storico e non va presentato come tariffa attuale. Le tariffe contrattuali per isole minori devono essere definite e approvate dal cliente prima di modificare Shopify. [Verbale tariffe live](release/SHIPPING-LIVE-RATES-2026-11-22.md). SAL originale invariata al 58%.
 
 ## Stato aggiornato per il cliente — 21 novembre 2026
 

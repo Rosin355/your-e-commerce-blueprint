@@ -1,5 +1,9 @@
 # Online Garden — developer handoff
 
+## Consegna operativa · 22 novembre 2026
+
+Verificatore offline dei preventivi, nove letture checkout, configurazioni Shopify, confronto DNS, rollback, prova d’ordine e checklist dal dispositivo del titolare. Nessuna modifica applicativa distribuita. [Verbale e dettagli](release/PRODUCTION-HANDOVER.md). [Approvazioni](release/FINAL-CLIENT-APPROVALS.md) · [Checklist personale](release/PRODUCTION-HANDOVER.md#unica-checklist-di-accettazione-personale).
+
 ## Area clienti Shopify · consegna tecnica
 
 Customer Accounts ospitato predefinito, OAuth SPA disattivato, sessioni staff Supabase separate. Le route /auth e /account raggiungono Shopify e la route legacy risponde HTTP 410 alla HEAD anonima. Il client opzionale libera la propria sessione sui rifiuti di autorizzazione durante la paginazione. [Collaudo, release e rollback](customers/FINAL-ACCEPTANCE.md) · [Preflight offline](customers/MIGRATION-READINESS.md).

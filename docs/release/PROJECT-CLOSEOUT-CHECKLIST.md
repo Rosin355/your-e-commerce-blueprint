@@ -1,3 +1,9 @@
+# Checklist di chiusura · 22 novembre 2026
+
+Il verbale corrente raccoglie gli esiti tecnici sui prezzi, consenso, policy, DNS, notifiche e SAL. La checklist operativa per Marco è unica. Le voci del 12 e 20 novembre riportate sotto sono la cronologia. [Verbale e dettagli](FINAL-CLOSEOUT-2026-11-22.md). [Approvazioni](FINAL-CLIENT-APPROVALS.md) · [Checklist personale](PRODUCTION-HANDOVER.md#unica-checklist-di-accettazione-personale).
+
+---
+
 ## Decisione del 20 novembre · backup storico e 301
 
 **Preparazione tecnica completata. Attivazione sospesa.** Sedici identità confermate nuovamente nel catalogo e nelle pagine pubbliche, zero redirect verso la nuova scheda. Restano tre identità incerte e 1.255 percorsi da riconciliare. Il referto TAR chiude l’analisi del frammento disponibile. Il recupero dei contenuti originali resta aperto fino a una fonte integra o a un export selettivo. Il titolare deve approvare destinazioni, livello HTTP, piano DNS/posta e rollback. [Matrice e procedura operativa](../seo/REDIRECT-301-RELEASE-GATE-2026-11-20.md)

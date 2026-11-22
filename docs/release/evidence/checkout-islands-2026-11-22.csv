@@ -1,0 +1,10 @@
+basket,city,zip,province,subtotal_eur,shipping_eur,standard_options
+A,Lipari,98055,ME,18.50,9.60,1
+A,Livorno,57123,LI,18.50,8.90,1
+A,Portoferraio,57037,LI,18.50,8.90,1
+B,Lipari,98055,ME,5.00,6.90,1
+B,Livorno,57123,LI,5.00,5.90,1
+B,Portoferraio,57037,LI,5.00,5.90,1
+M,Lipari,98055,ME,23.50,12.50,1
+M,Livorno,57123,LI,23.50,11.90,1
+M,Portoferraio,57037,LI,23.50,11.90,1
