@@ -94,7 +94,17 @@ export function identity(source, review, order, customers, classification, journ
   return null;
 }
 
-export function approvalDigest(review) {
+export function approvalDigest(review, mode = 'pilot') {
+  if (mode === 'batch') {
+    const scope = review.batchAuthorization ?? {};
+    return sha256(JSON.stringify([
+      'batch', SHOP, review.archiveSha256, review.accountsSha256, review.countsSha256,
+      review.pilotOrderId, review.authorization?.reference, review.pilotAcceptance,
+      scope.shop, scope.archiveSha256, scope.reference, scope.approvedAt, scope.expiresAt,
+      scope.orderIds, scope.checks,
+      review.customers, review.orders,
+    ]));
+  }
   return sha256(
     JSON.stringify([
       SHOP,
@@ -109,35 +119,43 @@ export function approvalDigest(review) {
   );
 }
 function authorize(review, digest, mode) {
-  const auth = review.authorization;
+  const batch = mode === 'batch';
+  const auth = batch ? review.batchAuthorization : review.authorization;
+  if (batch) {
+    const acceptance = review.pilotAcceptance;
+    for (const gate of ['stock', 'payments', 'notifications', 'fulfillment', 'customerVisibility', 'otherCustomerDenied', 'reporting'])
+      requireFact(acceptance?.[gate]?.trim(), 'PILOT_ACCEPTANCE_REQUIRED');
+    const acceptedAt = Date.parse(acceptance.acceptedAt);
+    const approvedAt = Date.parse(auth?.approvedAt);
+    requireFact(
+      review.authorization?.reference?.trim() && auth?.reference?.trim() &&
+        auth.reference.trim() !== review.authorization.reference.trim() &&
+        acceptedAt < approvedAt && approvedAt <= Date.now(),
+      'SEPARATE_BATCH_AUTHORIZATION_REQUIRED',
+    );
+  }
   requireFact(
     auth?.shop === SHOP &&
       auth.archiveSha256 === digest &&
       auth.reference?.trim() &&
       Date.parse(auth.expiresAt) > Date.now() &&
       Array.isArray(auth.orderIds) &&
-      auth.orderIds.includes(review.pilotOrderId),
+      auth.orderIds.length > 0 &&
+      (batch || (auth.orderIds.length === 1 && auth.orderIds[0] === review.pilotOrderId)),
     'LIVE_AUTHORIZATION_REQUIRED',
   );
-  requireFact(auth.reviewSha256 === approvalDigest(review), 'AUTHORIZATION_REVIEW_CHANGED');
+  requireFact(auth.reviewSha256 === approvalDigest(review, mode), 'AUTHORIZATION_REVIEW_CHANGED');
   for (const gate of ['flow', 'messaging', 'logistics', 'invoicing', 'analytics', 'exclusiveWriter'])
     requireFact(auth.checks?.[gate]?.trim(), 'SIDE_EFFECT_EVIDENCE_REQUIRED');
-  if (mode === 'batch')
-    for (const gate of [
-      'stock',
-      'payments',
-      'notifications',
-      'fulfillment',
-      'customerVisibility',
-      'otherCustomerDenied',
-    ])
-      requireFact(review.pilotAcceptance?.[gate]?.trim(), 'PILOT_ACCEPTANCE_REQUIRED');
+  return auth.orderIds;
 }
 export async function run(mode, folder) {
-  requireFact(['prepare', 'fingerprint', 'plan', 'pilot', 'batch'].includes(mode), 'MODE_REQUIRED');
+  requireFact(['prepare', 'fingerprint', 'batch-fingerprint', 'plan', 'pilot', 'batch'].includes(mode), 'MODE_REQUIRED');
   process.umask(0o077);
   const dir = privateDirectory(folder);
   const read = (name) => fs.readFileSync(privatePath(dir, name), 'utf8');
+  if (!fs.lstatSync(path.join(dir, 'orders.json'), { throwIfNoEntry: false }))
+    throw new MigrationStop('BLOCKED_SOURCE_UNAVAILABLE');
   const sourceCsv = read('sheet2-minimo.csv'),
     ordersCsv = read('id-orders.csv');
   const raw = read('orders.json'),
@@ -155,6 +173,7 @@ export async function run(mode, folder) {
       pilotOrderId: null,
       authorization: null,
       pilotAcceptance: null,
+      batchAuthorization: null,
     };
     fs.writeFileSync(path.join(dir, 'review.json'), JSON.stringify(template, null, 2) + '\n', {
       flag: 'wx',
@@ -170,17 +189,18 @@ export async function run(mode, folder) {
       review.countsSha256 === sha256(ordersCsv),
     'SOURCE_REVIEW_DIGEST_MISMATCH',
   );
-  if (mode === 'fingerprint') {
-    console.log(approvalDigest(review));
+  if (mode === 'fingerprint' || mode === 'batch-fingerprint') {
+    console.log(approvalDigest(review, mode === 'batch-fingerprint' ? 'batch' : 'pilot'));
     return;
   }
   const writing = mode !== 'plan';
+  const authorizedIds = writing ? authorize(review, digest, mode) : [];
+  const selected = new Set(authorizedIds);
   if (writing) {
-    authorize(review, digest, mode);
     const orderIds = new Set(orders.map((o) => legacyId(o.id)));
     requireFact(
-      review.authorization.orderIds.every((id) => typeof id === 'string' && orderIds.has(id)) &&
-        new Set(review.authorization.orderIds).size === review.authorization.orderIds.length,
+      authorizedIds.every((id) => typeof id === 'string' && orderIds.has(id)) &&
+        selected.size === authorizedIds.length,
       'AUTHORIZATION_IDS_INVALID',
     );
   }
@@ -206,11 +226,7 @@ export async function run(mode, folder) {
       pending.some((row) => row.legacy === String(row.kind === 'customer' ? o.customer_id : o.id));
     const work = writing
       ? orders
-          .filter(
-            (o) =>
-              review.authorization.orderIds.includes(String(o.id)) &&
-              (mode !== 'pilot' || String(o.id) === pilotId),
-          )
+          .filter((o) => selected.has(String(o.id)))
           .sort((a, b) => Number(isPending(b)) - Number(isPending(a)))
       : orders;
     requireFact(

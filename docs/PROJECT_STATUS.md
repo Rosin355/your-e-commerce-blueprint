@@ -1,3 +1,7 @@
+## Riscontro commerciale del 22 novembre 2026
+
+Isole minori bloccate per accesso al negozio Dev. Visitor Analytics attiva, con evento prima del consenso. Cinque testi revisionati attendono dati e firma. Le fonti accessibili contengono 953 acquisti conteggiati e zero transazioni individuali. Costo incrementale 0 €. [Rapporto commerciale completo](release/FINAL-COMMERCIAL-CLOSEOUT-2026-11-22.md)
+
 ## Chiusura commerciale · 22 novembre 2026
 
 Storefront, Shopify e Admin V2 r2 operativi. Misurati 69 preventivi, 27 difformità insulari. Identificati un evento hosting prima della scelta e una differenza DKIM fra zona attiva e preparata. Storico 0/953. SAL ponderata 57,75%. [Verbale e dettagli](release/FINAL-CLOSEOUT-2026-11-22.md). [Approvazioni](release/FINAL-CLIENT-APPROVALS.md) · [Checklist personale](release/PRODUCTION-HANDOVER.md#unica-checklist-di-accettazione-personale).

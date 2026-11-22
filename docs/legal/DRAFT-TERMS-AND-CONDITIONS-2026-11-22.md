@@ -1,6 +1,7 @@
 # Condizioni di vendita ai consumatori
 **Candidato del 22 novembre 2026 per la revisione del titolare. Pubblicazione sospesa.**
 
+<!-- testo-cliente:inizio -->
 ## Venditore e contatti
 
 Online Garden è gestito da **M.G. PLANT DI GERON MARCO**, impresa individuale con sede in Via San Giovanni 25, 35010 Santa Giustina in Colle (PD), Italia. Partita IVA 04347360242, codice fiscale e iscrizione al Registro delle Imprese GRNMRC86R20B563H, REA PD-464045. Assistenza e reclami via email a **info@onlinegarden.it**, PEC **geronmarco@pec.agritel.it**.
@@ -21,10 +22,19 @@ Per i beni ammessi il consumatore può recedere senza motivazione entro 14 giorn
 
 Il venditore risponde dei difetti di conformità esistenti alla consegna che si manifestano entro due anni. Il consumatore ha diritto al ripristino gratuito della conformità mediante riparazione o sostituzione, nei limiti di possibilità e proporzionalità, oppure a riduzione del prezzo o risoluzione nei casi previsti. Per i prodotti vivi rilevano natura, caratteristiche promesse, normale evoluzione e istruzioni di cura.
 
+## Conferma e rimedi
+
+Conserva il riepilogo ricevuto via email e le condizioni applicabili all’ordine. Se la conferma manca o presenta un errore, contatta l’assistenza indicando il riferimento dell’acquisto. Puoi usare la lingua italiana per l’ordine e per i reclami.
+
+Di regola, se il difetto si manifesta entro un anno dalla consegna, si presume che fosse presente alla consegna, salvo prova contraria o incompatibilità con la natura del bene o del difetto. L’azione per far valere un difetto che il venditore non abbia dolosamente occultato si prescrive in 26 mesi dalla consegna. I rimedi per la conformità sono gratuiti.
+
 ## Controversie
 
 Il cliente può presentare reclamo all’assistenza. Si applica la legge italiana, fatti salvi i diritti inderogabili di protezione del consumatore applicabili. Per le controversie di consumo si applica il foro inderogabile competente ai sensi del Codice del consumo.
+<!-- testo-cliente:fine -->
 
 ---
 
 **Nota interna al revisore, esclusa dal testo pubblico.** Impresa e sede confermate il 22/11. Integrare recapito telefonico del professionista, termine effettivo di consegna e istruzioni di recesso. Confermare il momento di accettazione commerciale, lingua e disponibilità della conferma su supporto durevole, eventuali obblighi ADR applicabili e verificare il riepilogo precontrattuale. Il recapito della sede non è stato designato come magazzino resi. [Spedizioni](CANDIDATE-SHIPPING-2026-11-22.md) · [Resi e modulo](CANDIDATE-RETURNS-2026-11-22.md) · [Codice del consumo](https://www.gazzettaufficiale.it/eli/id/2005/10/08/005G0232/sg)
+
+Ai fini della revisione il numero telefonico è valorizzato in Shopify nella scheda del negozio. Occorre confermare che sia destinato all’assistenza pubblica. Il titolare deve indicare quale comunicazione accetta la proposta di acquisto e quali condizioni la accompagnano. Una ricevuta automatica attesta la ricezione dell’ordine. Verificare il testo di quel messaggio prima di attribuirgli effetto di accettazione. [MIMIT, garanzia legale](https://www.mimit.gov.it/it/assistenza/domande-frequenti/le-garanzie-post-vendita-domande-frequenti-faq)

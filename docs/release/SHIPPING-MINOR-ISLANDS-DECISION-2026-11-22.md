@@ -1,5 +1,7 @@
 # Online Garden — decisione commerciale definitiva isole minori (22 novembre 2026)
 
+**Aggiornamento della verifica Dev.** La home di *Online Garden Shipping Test* nega l’accesso all’identità disponibile. Il Dev non figura come PreviewStore accessibile dal connettore corrente e su Grow manca la lettura delle personalizzazioni. Restano da verificare due opzioni già prezzate e acquistabili, una sola visibile alla destinazione corretta, wallet e gestione di frazioni/CAP condivisi secondo la lista contrattuale del vettore. Esito **BLOCKED**, costo sostenuto **0 €**. [Risultati e condizioni di attivazione](FINAL-COMMERCIAL-CLOSEOUT-2026-11-22.md#a-spedizioni)
+
 ## Esito del 22 novembre · 69 preventivi veri e copertura parziale
 
 Tre carrelli ospite con una Rosa Jasmina da 18,50 € (A), una Dalia Purple Queen da 5,00 € (B) e i due articoli insieme da 23,50 € (misto). Verificata l’appartenenza della variante B all’elenco di 161 ID della PR #45 e l’assenza della variante A dallo stesso elenco. Usati Storefront Cart e indirizzi di prova senza recapiti, sostituendo l’indirizzo a ogni lettura. Nessuna chiamata di creazione ordine. Per questi tre subtotali i valori attesi Italia sono 8,90 / 5,90 / 11,90 €, quelli speciali 9,60 / 6,90 / 12,50 €. Le classi e le soglie restano quelle approvate nel seguito.
