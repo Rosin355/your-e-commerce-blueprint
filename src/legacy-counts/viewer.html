@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'sha256-pqTg17W2qDvgMx9A1f7+Qwr6T+4QLUBQ1oQcAWuWaPc='; style-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Registro acquisti WooCommerce · Online Garden</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        color: #16382a;
+        background: #f8faf8;
+        max-width: 70rem;
+        margin: auto;
+        padding: clamp(1rem, 4vw, 3rem);
+      }
+      h1 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        line-height: 1.15;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+      }
+      input,
+      select,
+      button {
+        font: inherit;
+        min-height: 2.6rem;
+        padding: 0.3rem 0.6rem;
+        max-width: 100%;
+      }
+      button {
+        background: #fff;
+        color: inherit;
+        border: 1px solid #73887c;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+      .controls,
+      nav {
+        display: flex;
+        align-items: end;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+        margin: 1rem 0;
+      }
+      .scroll {
+        overflow: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        background: white;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.55rem 0.75rem;
+        border-bottom: 1px solid #d1dbd4;
+      }
+      th {
+        background: #e5eee8;
+      }
+      caption {
+        text-align: left;
+        font-weight: 600;
+        padding: 0.5rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Acquisti dal precedente negozio</h1>
+    <p>
+      Seleziona il file privato <b>conteggi.json</b> per consultare gli acquisti
+      aggregati per account. Il file viene letto solo su questo dispositivo.
+    </p>
+    <label for="file">Registro privato</label
+    ><input id="file" type="file" accept=".json,application/json" />
+    <p id="status" role="status" aria-live="polite">Nessun registro aperto.</p>
+    <section id="results" hidden>
+      <div class="controls">
+        <div>
+          <label for="search">ID WooCommerce</label
+          ><input id="search" inputmode="numeric" autocomplete="off" />
+        </div>
+        <div>
+          <label for="state">Riconciliazione</label
+          ><select id="state">
+            <option value="">Tutti gli stati</option>
+            <option value="candidate">Da verificare</option>
+            <option value="email_review">
+              Corrispondenza email da verificare
+            </option>
+            <option value="quarantine">Quarantena</option>
+            <option value="author">Autore separato</option>
+            <option value="verified">Associazione verificata</option>
+          </select>
+        </div>
+        <button id="close">Chiudi registro</button>
+      </div>
+      <div class="scroll">
+        <table>
+          <caption id="count"></caption>
+          <thead>
+            <tr>
+              <th>ID WooCommerce</th>
+              <th>Acquisti</th>
+              <th>Ruolo storico</th>
+              <th>Riconciliazione</th>
+              <th>Cliente Shopify verificato</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <nav aria-label="Pagine del registro">
+        <button id="prev">Indietro</button><span id="page"></span
+        ><button id="next">Avanti</button>
+      </nav>
+    </section>
+    <script>
+      'use strict';
+      const el = (id) => document.getElementById(id);
+      const labels = {
+        candidate: 'Da verificare',
+        quarantine: 'Quarantena',
+        email_review: 'Corrispondenza email da verificare',
+        author: 'Autore separato',
+        verified: 'Verificata',
+      };
+      let rows = [],
+        page = 0,
+        version = 0;
+      function checked(data) {
+        if (
+          data?.format !== 'onlinegarden-purchase-counts-v1' ||
+          !Array.isArray(data.rows) ||
+          data.rows.length !== 858
+        )
+          throw Error();
+        const ids = new Set(),
+          gids = new Set();
+        let total = 0,
+          authors = 0;
+        for (const r of data.rows) {
+          if (
+            !r ||
+            typeof r.woo_id !== 'string' ||
+            !/^[1-9]\d*$/.test(r.woo_id) ||
+            ids.has(r.woo_id) ||
+            !Number.isSafeInteger(r.purchases) ||
+            r.purchases < 1 ||
+            !['candidate', 'email_review', 'quarantine', 'author'].includes(
+              r.assessment,
+            ) ||
+            !['customer', 'author'].includes(r.role) ||
+            (r.role === 'author') !== (r.assessment === 'author') ||
+            (r.role === 'author' && r.purchases !== 1)
+          )
+            throw Error();
+          if (r.shopify_gid !== null) {
+            if (
+              typeof r.shopify_gid !== 'string' ||
+              !/^gid:\/\/shopify\/Customer\/[1-9]\d*$/.test(r.shopify_gid) ||
+              gids.has(r.shopify_gid) ||
+              !['candidate', 'email_review'].includes(r.assessment)
+            )
+              throw Error();
+            gids.add(r.shopify_gid);
+          }
+          ids.add(r.woo_id);
+          total += r.purchases;
+          if (r.role === 'author') authors++;
+        }
+        if (total !== 953 || authors !== 1) throw Error();
+        return data.rows;
+      }
+      function render() {
+        const query = el('search').value.trim(),
+          state = el('state').value;
+        const status = (r) => (r.shopify_gid ? 'verified' : r.assessment);
+        const selected = rows.filter(
+          (r) =>
+            (!query || r.woo_id === query) && (!state || status(r) === state),
+        );
+        const body = document.querySelector('tbody');
+        body.replaceChildren();
+        const limit = 25,
+          pages = Math.max(1, Math.ceil(selected.length / limit));
+        page = Math.min(page, pages - 1);
+        for (const r of selected.slice(page * limit, (page + 1) * limit)) {
+          const tr = body.insertRow();
+          for (const v of [
+            r.woo_id,
+            r.purchases,
+            r.role === 'author' ? 'Autore' : 'Cliente',
+            labels[status(r)],
+            r.shopify_gid ?? 'Nessuna',
+          ])
+            tr.insertCell().textContent = String(v);
+        }
+        el('count').textContent = selected.length + ' account trovati';
+        el('page').textContent = 'Pagina ' + (page + 1) + ' di ' + pages;
+        el('prev').disabled = page === 0;
+        el('next').disabled = page >= pages - 1;
+      }
+      function reset(message) {
+        version++;
+        rows = [];
+        page = 0;
+        el('results').hidden = true;
+        document.querySelector('tbody').replaceChildren();
+        el('search').value = '';
+        el('state').value = '';
+        el('status').textContent = message;
+      }
+      el('file').onchange = async () => {
+        reset('Lettura del registro…');
+        const current = version,
+          file = el('file').files[0];
+        try {
+          if (!file || file.size > 1024 * 1024) throw Error();
+          const next = checked(JSON.parse(await file.text()));
+          if (current !== version) return;
+          rows = next;
+          el('results').hidden = false;
+          el('status').textContent =
+            '858 account · 953 acquisti storici aggregati';
+          render();
+        } catch {
+          if (current === version)
+            reset(
+              'File non valido. Seleziona il registro esportato e verificato.',
+            );
+        }
+      };
+      el('close').onclick = () => {
+        reset('Registro chiuso.');
+        el('file').value = '';
+        el('file').focus();
+      };
+      el('search').oninput = el('state').onchange = () => {
+        page = 0;
+        render();
+      };
+      el('prev').onclick = () => {
+        page--;
+        render();
+      };
+      el('next').onclick = () => {
+        page++;
+        render();
+      };
+    </script>
+  </body>
+</html>
