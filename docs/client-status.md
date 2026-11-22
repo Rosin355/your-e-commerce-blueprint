@@ -1,3 +1,11 @@
+## Decisioni e bozze legali — 22 novembre 2026
+
+**Spedizioni:** Marco ha confermato che **tutte le isole minori devono usare la stessa tariffa speciale di Sicilia/Sardegna** già approvata, in entrambe le classi A/B. **Decisione commerciale CLOSED**; **applicazione checkout per CAP/località di isole minori NON verificata e NON certificata**. Non estendere supplementi a province miste senza criterio attendibile. [Verbale decisione](release/SHIPPING-MINOR-ISLANDS-DECISION-2026-11-22.md).
+
+**Legale:** preparate le bozze [Termini e condizioni](legal/DRAFT-TERMS-AND-CONDITIONS-2026-11-22.md) e [Revisione Privacy Policy](legal/DRAFT-PRIVACY-POLICY-REVIEW-2026-11-22.md). La Privacy Policy Shopify in italiano del 30 ottobre rimane **l'unica policy legale pubblicata** e non è stata sostituita. Mancano la ragione sociale e gli identificativi del venditore, sede, indirizzo resi, condizioni commerciali e tempi verificati, registro dei fornitori/retention e soluzione consenso cookie. Le bozze NON vanno pubblicate prima di integrazione e approvazione documentata da Marco/revisore legale. Fonte: policy Shopify live e audit legal precedente.
+
+**SAL progetto:** 57,75% ≈ 58% resta invariata. Le due bozze non equivalgono a pubblicazione né la decisione sulle isole a copertura tecnica.
+
 ## Rettifica prioritaria — 22 novembre 2026: rilettura *Shopify Markets* A+B
 
 **LA PRECEDENTE CONCLUSIONE «7 € sotto 55 € / spedizione gratuita da 55 € su tutta Italia» NON DESCRIVE IL LISTINO COMMERCIALE A+B.** Era una lettura isolata di `deliveryProfiles` (profilo generale), senza controllare le definizioni `markets.delivery.shipping.optionDefinitions`. Non usare i 7 €/0 € come tariffa commerciale certificata dei carrelli Online Garden.
