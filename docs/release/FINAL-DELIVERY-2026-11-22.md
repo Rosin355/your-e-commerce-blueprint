@@ -64,3 +64,18 @@ Il registro locale è operativo. Il Publish della pagina web richiede autorizzaz
 | Registro staff | Il visualizzatore locale è già disponibile. Per rendere raggiungibile la nuova pagina web approvare il Publish del commit collaudato. Per un eventuale singolo collegamento documentare in privato la titolarità indipendente di entrambe le identità e il mandato. | L’eventuale Publish abilita il lettore staff. L’eventuale decisione su un’identità aggiorna solo il registro privato. |
 
 L’archiviazione dei conteggi è conclusa. La chiusura della ricerca delle singole transazioni è definitiva.
+
+
+## Verifica indipendente del backup privato (22/11/2026)
+
+Riletta direttamente una copia SQLite del registro aggregato sul Drive collegato, senza divulgare identificativi o contatti di singole persone. Controllo in **sola lettura**:
+
+- File: `Registro-acquisti-aggregati-2026-11-22.sqlite`, 69.632 byte; SHA-256 della copia Drive verificata: `1c0211570f34196e995da5c4a75c5ad57fa979919391b15860b5e21da2d66282`.
+- `PRAGMA integrity_check`: `ok`.
+- Tabella `accounts`: **858 righe**, totale `SUM(purchases)` **953**. Ruoli: **857 customer (952 acquisti)**, **1 author (1 acquisto)**.
+- `assessment`: **848 candidate**, **8 quarantine**, **1 email_review**, **1 author**.
+- `verified_links`: **0**; metadati singoli dell'archiviazione: **1**.
+- Il file non contiene ordini transazionali con articoli, prezzi o date; **0 ordini WooCommerce importati** in Shopify. Nessun dato di riga o backup contenente identificatori personali è stato aggiunto al repository.
+- Questo controllo conferma il contenuto della copia disponibile su Drive, ma **non costituisce una seconda verifica dell'uguaglianza col file privato sul Mac**, attestata nel verbale precedente.
+
+**Conseguenze per la consegna:** `LEGACY_PURCHASE_COUNTS_ARCHIVED=PASS`; la route riservata `/admin/storico-acquisti` è pronta su `main` ma non ancora pubblicata. Pubblicazione, collegamenti identità e dati cliente restano soggetti ai rispettivi controlli di autorizzazione. SAL ponderata originaria invariata: **57,75%**.
