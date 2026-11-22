@@ -1,0 +1,70 @@
+city,zip,province,zone,basket,subtotal_cents,currency,expected_cents,option_count,quoted_cents,baseline_cents,market_fixture,candidate_handle
+Portoferraio,57037,LI,isole,A,1850,EUR,960,1,960,890,italy,qa-island
+Livorno,57123,LI,italia,A,1850,EUR,890,1,890,890,italy,qa-ordinary
+Lido di Venezia,30126,VE,isole,A,1850,EUR,960,1,960,890,italy,qa-island
+Pellestrina,30126,VE,isole,A,1850,EUR,960,1,960,890,italy,qa-island
+Mestre,30171,VE,italia,A,1850,EUR,890,1,890,890,italy,qa-ordinary
+Capri,80073,NA,isole,A,1850,EUR,960,1,960,890,italy,qa-island
+Ischia,80077,NA,isole,A,1850,EUR,960,1,960,890,italy,qa-island
+Procida,80079,NA,isole,A,1850,EUR,960,1,960,890,italy,qa-island
+Napoli,80133,NA,italia,A,1850,EUR,890,1,890,890,italy,qa-ordinary
+Lipari,98055,ME,isole,A,1850,EUR,960,1,960,960,regional,existing-standard
+Messina,98122,ME,isole,A,1850,EUR,960,1,960,960,regional,existing-standard
+Favignana,91023,TP,isole,A,1850,EUR,960,1,960,960,regional,existing-standard
+Trapani,91100,TP,isole,A,1850,EUR,960,1,960,960,regional,existing-standard
+Ponza,04027,LT,isole,A,1850,EUR,960,1,960,890,italy,qa-island
+Ventotene,04031,LT,isole,A,1850,EUR,960,1,960,890,italy,qa-island
+Latina,04100,LT,italia,A,1850,EUR,890,1,890,890,italy,qa-ordinary
+Isole Tremiti,71051,FG,isole,A,1850,EUR,960,1,960,890,italy,qa-island
+Foggia,71121,FG,italia,A,1850,EUR,890,1,890,890,italy,qa-ordinary
+Lampedusa,92031,AG,isole,A,1850,EUR,960,1,960,960,regional,existing-standard
+Agrigento,92100,AG,isole,A,1850,EUR,960,1,960,960,regional,existing-standard
+Pantelleria,91017,TP,isole,A,1850,EUR,960,1,960,960,regional,existing-standard
+Palermo,90133,PA,isole,A,1850,EUR,960,1,960,960,regional,existing-standard
+Cagliari,09124,CA,isole,A,1850,EUR,960,1,960,960,regional,existing-standard
+Portoferraio,57037,LI,isole,B,500,EUR,690,1,690,590,italy,qa-island
+Livorno,57123,LI,italia,B,500,EUR,590,1,590,590,italy,qa-ordinary
+Lido di Venezia,30126,VE,isole,B,500,EUR,690,1,690,590,italy,qa-island
+Pellestrina,30126,VE,isole,B,500,EUR,690,1,690,590,italy,qa-island
+Mestre,30171,VE,italia,B,500,EUR,590,1,590,590,italy,qa-ordinary
+Capri,80073,NA,isole,B,500,EUR,690,1,690,590,italy,qa-island
+Ischia,80077,NA,isole,B,500,EUR,690,1,690,590,italy,qa-island
+Procida,80079,NA,isole,B,500,EUR,690,1,690,590,italy,qa-island
+Napoli,80133,NA,italia,B,500,EUR,590,1,590,590,italy,qa-ordinary
+Lipari,98055,ME,isole,B,500,EUR,690,1,690,690,regional,existing-standard
+Messina,98122,ME,isole,B,500,EUR,690,1,690,690,regional,existing-standard
+Favignana,91023,TP,isole,B,500,EUR,690,1,690,690,regional,existing-standard
+Trapani,91100,TP,isole,B,500,EUR,690,1,690,690,regional,existing-standard
+Ponza,04027,LT,isole,B,500,EUR,690,1,690,590,italy,qa-island
+Ventotene,04031,LT,isole,B,500,EUR,690,1,690,590,italy,qa-island
+Latina,04100,LT,italia,B,500,EUR,590,1,590,590,italy,qa-ordinary
+Isole Tremiti,71051,FG,isole,B,500,EUR,690,1,690,590,italy,qa-island
+Foggia,71121,FG,italia,B,500,EUR,590,1,590,590,italy,qa-ordinary
+Lampedusa,92031,AG,isole,B,500,EUR,690,1,690,690,regional,existing-standard
+Agrigento,92100,AG,isole,B,500,EUR,690,1,690,690,regional,existing-standard
+Pantelleria,91017,TP,isole,B,500,EUR,690,1,690,690,regional,existing-standard
+Palermo,90133,PA,isole,B,500,EUR,690,1,690,690,regional,existing-standard
+Cagliari,09124,CA,isole,B,500,EUR,690,1,690,690,regional,existing-standard
+Portoferraio,57037,LI,isole,M,2350,EUR,1250,1,1250,1190,italy,qa-island
+Livorno,57123,LI,italia,M,2350,EUR,1190,1,1190,1190,italy,qa-ordinary
+Lido di Venezia,30126,VE,isole,M,2350,EUR,1250,1,1250,1190,italy,qa-island
+Pellestrina,30126,VE,isole,M,2350,EUR,1250,1,1250,1190,italy,qa-island
+Mestre,30171,VE,italia,M,2350,EUR,1190,1,1190,1190,italy,qa-ordinary
+Capri,80073,NA,isole,M,2350,EUR,1250,1,1250,1190,italy,qa-island
+Ischia,80077,NA,isole,M,2350,EUR,1250,1,1250,1190,italy,qa-island
+Procida,80079,NA,isole,M,2350,EUR,1250,1,1250,1190,italy,qa-island
+Napoli,80133,NA,italia,M,2350,EUR,1190,1,1190,1190,italy,qa-ordinary
+Lipari,98055,ME,isole,M,2350,EUR,1250,1,1250,1250,regional,existing-standard
+Messina,98122,ME,isole,M,2350,EUR,1250,1,1250,1250,regional,existing-standard
+Favignana,91023,TP,isole,M,2350,EUR,1250,1,1250,1250,regional,existing-standard
+Trapani,91100,TP,isole,M,2350,EUR,1250,1,1250,1250,regional,existing-standard
+Ponza,04027,LT,isole,M,2350,EUR,1250,1,1250,1190,italy,qa-island
+Ventotene,04031,LT,isole,M,2350,EUR,1250,1,1250,1190,italy,qa-island
+Latina,04100,LT,italia,M,2350,EUR,1190,1,1190,1190,italy,qa-ordinary
+Isole Tremiti,71051,FG,isole,M,2350,EUR,1250,1,1250,1190,italy,qa-island
+Foggia,71121,FG,italia,M,2350,EUR,1190,1,1190,1190,italy,qa-ordinary
+Lampedusa,92031,AG,isole,M,2350,EUR,1250,1,1250,1250,regional,existing-standard
+Agrigento,92100,AG,isole,M,2350,EUR,1250,1,1250,1250,regional,existing-standard
+Pantelleria,91017,TP,isole,M,2350,EUR,1250,1,1250,1250,regional,existing-standard
+Palermo,90133,PA,isole,M,2350,EUR,1250,1,1250,1250,regional,existing-standard
+Cagliari,09124,CA,isole,M,2350,EUR,1250,1,1250,1250,regional,existing-standard

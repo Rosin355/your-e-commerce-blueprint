@@ -1,5 +1,7 @@
 # Online Garden · verbale di chiusura tecnica del 22 novembre 2026
 
+**Seguito autorizzato del 22 novembre.** Il selettore raggiunge 69/69 nel modello isolato. La soppressione locale del solo script Visitor Analytics azzera gli invii osservati nei due profili trattati. Restano aperte la verifica del selettore nel checkout Grow e quella dell’interruttore Lovable. SAL 57,75%. [Rapporto unico delle due prove](PROVE-ISOLATE-SPEDIZIONI-ANALYTICS-2026-11-22.md)
+
 **Esito per Marco.** Il negozio può ricevere acquisti e mostrare i nuovi ordini ai clienti autenticati. La consegna commerciale completa resta aperta per tariffe insulari, pubblicazione delle informative, consenso, 301, prova d’ordine e accettazione personale. Lo storico WooCommerce ha una dipendenza documentale distinta.
 
 ## A. Lavori completati
