@@ -1,5 +1,18 @@
 # Online Garden — SAL per telefonata a Marco (21 novembre 2026)
 
+## Update area clienti dopo PR #64 — 21 novembre 2026
+
+- PR #64 [MERGED](https://github.com/Rosin355/your-e-commerce-blueprint/pull/64), commit `73bd840c5677b67e638b603eead8cdb7cd8fcda2`; fix minimale alla paginazione della SPA OAuth **disattivata**. Non necessario nuovo Publish per il percorso ospitato Shopify. Frontend pubblico controllato dal rapporto: `index-DSQ4UzGV.js`, Admin r2 conservato.
+- Percorso clienti: **5/8 criteri di accettazione** verificati nei rispettivi ambiti (**62,5% del collaudo**). Accesso al modulo email, visualizzazione di un proprio ordine pregressa, separazione dal login staff, checkout ospite e responsive/ritorno al negozio collaudati. Safari macOS e simulatore iPhone 17 iOS 26.3.1 coperti, **non necessariamente dispositivo iPhone fisico**.
+- **Tre verifiche ancora aperte con identità controllate:** ricezione OTP e rientro dopo scadenza effettiva, logout con nuova autenticazione sul servizio ospitato, isolamento degli ordini fra due profili reali distinti. Non impersonare titolari, non usare credenziali o ordini altrui.
+- Preflight WooCommerce offline PASS: 848 candidati a revisione, 8 quarantene e 1 email da disambiguare; **0 clienti importati/associati, 0/953 ordini Woo**.
+- **SAL complessiva invariata: 57,75% ≈ 58%** sul perimetro originario; il 62,5% del collaudo clienti non sostituisce il peso gestionale della macroarea account/migrazione (15%, avanzamento 30%, contributo 4,50).
+- Prossima attività indipendente dal collaudo delle identità: analisi **read-only** delle regole di spedizione, isole minori e impatto sul checkout; evitare modifiche a tariffe, condizioni, dominio o pagamenti senza autorizzazione.
+
+Fonti: [verbale](../customers/FINAL-ACCEPTANCE.md) · [piano anagrafiche](../customers/MIGRATION-READINESS.md) · [SAL ufficiale](SAL-2026-11-21.md).
+
+
+
 > Scheda sintetica per allineamento cliente. **Stato aggiornato** dai report di release e PR #62/#63. Distinguere codice integrato, backend deployato, frontend pubblicato, collaudo tecnico e accettazione personale. Non conservare dati personali o credenziali in questa scheda.
 
 ## Numeri
