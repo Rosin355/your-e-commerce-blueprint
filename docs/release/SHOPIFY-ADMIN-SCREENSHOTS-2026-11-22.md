@@ -40,3 +40,16 @@
 4. In shipping non modificare Standard o A/B sul negozio live; serve accesso al negozio Dev per collaudo della selezione insulare a costo zero.
 
 **SAL** originaria invariata: 57,75%. Questo documento registra nuove evidenze di impostazione, non chiusure produttive.
+
+## Dettaglio banner cookie — screenshot aggiuntivi 22/11, ore ~22:03 CET
+
+Schermata `Privacy dei clienti → Banner dei cookie` fornita dal responsabile:
+
+- `Usa impostazioni automatiche`: **ON**; il pannello riporta «Il banner dei cookie è visibile in Italia».
+- Anteprima del banner in italiano: «Consenso ai cookie», informazioni su finalità di personalizzazione/annunci/analisi, link Privacy, pulsanti **Accetta**, **Declina**, **Gestisci le preferenze**; selettore colori **Chiaro**; posizionamento **Inferiore al centro**.
+- `Mostra banner dei cookie nel check-out`: **OFF** (toggle grigio), con messaggio Shopify che segnala possibile impatto sulla conversione in caso di abilitazione.
+- Non è stata fotografata la scheda `Preferenze cookie`, né una prova della visualizzazione live sullo storefront React personalizzato `onlinegarden.it`, né il comportamento effettivo rifiuto/revoca o di Shopify Customer Privacy API.
+- Il banner Shopify governa i servizi gestiti da Shopify; l'evento Lovable precedentemente osservato HTTP 202 prima del consenso **non risulta coperto** da questa schermata. Shopify documenta che script/pixel esterni possono richiedere gating di consenso specifico. Per gli storefront custom/headless la trasmissione del consenso richiede integrazione e test della Customer Privacy API. Non dichiarare conforme l'intero sito dal solo pannello.
+- **Azione successiva senza modifica live:** navigare su `https://onlinegarden.it` in browser pulito/privato, osservare presenza del banner, aprire `Preferenze`, provare `Declina` e verificare persistenza e possibilità di modifica; poi provare il checkout ospite senza pagamento, distinguendo consenso Shopify e tracciamento Lovable. Valutare l'interruttore checkout in base al comportamento effettivo e alle esigenze legali, evitando di attivarlo alla cieca.
+
+Fonti: [Shopify Customer Privacy settings](https://help.shopify.com/it/manual/privacy-and-security/privacy/customer-privacy-settings/privacy-settings), [Shopify Customer Privacy API](https://shopify.dev/docs/api/customer-privacy).
