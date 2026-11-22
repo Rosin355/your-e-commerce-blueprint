@@ -1,3 +1,7 @@
+## Esito per il titolare · 22 novembre 2026
+
+Il checkout continua ad applicare la tariffa ordinaria alle nove località. Nel pannello Lovable la misurazione delle visite è attiva. I cinque testi hanno una revisione identificabile. Per lo storico manca la fonte con il dettaglio degli acquisti. Tutte le decisioni a carico del titolare sono raccolte nella [richiesta unica](release/FINAL-COMMERCIAL-CLOSEOUT-2026-11-22.md#g-unica-richiesta-conclusiva).
+
 ## Decisione operativa — 22 novembre 2026: chiusura commerciale in tre ambiti, ordini storici, DNS rinviato
 
 Mandato comunicato dal responsabile: dedicare **un unico intervento** a (1) tariffe speciali delle **nove località insulari ancora non conformi**, (2) **Visitor Analytics/consenso**, (3) **cinque informative** Termini, Privacy, Spedizioni, Resi, Cookie. **Cloudflare/DNS/16 redirect 301 rinviati a domani**: nessuna delega, record, proxy o redirect deve essere modificato in questo intervento. Il cliente dichiara di utilizzare le **email di notifica**; non richiede attività Sendcloud di gestione etichette/spedizioni in questo ciclo. La presenza eventuale di app/Flow/automazioni deve comunque essere controllata in sola lettura per evitare effetti collaterali sugli ordini storici.

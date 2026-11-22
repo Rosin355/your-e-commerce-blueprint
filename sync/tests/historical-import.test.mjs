@@ -279,6 +279,9 @@ test('interruzione dopo orderCreate, ripresa e replay senza una seconda creazion
   write('review.json', JSON.stringify(rev));
   await assert.rejects(run('batch', dir), /SEPARATE_BATCH_AUTHORIZATION/);
   rev.batchAuthorization.reference = 'separate-batch-test';
+  rev.batchAuthorization.approvedAt = rev.pilotAcceptance.acceptedAt;
+  write('review.json', JSON.stringify(rev));
+  await assert.rejects(run('batch', dir), /SEPARATE_BATCH_AUTHORIZATION/);
   rev.batchAuthorization.approvedAt = '2024-12-31T00:00:00Z';
   write('review.json', JSON.stringify(rev));
   await assert.rejects(run('batch', dir), /SEPARATE_BATCH_AUTHORIZATION/);

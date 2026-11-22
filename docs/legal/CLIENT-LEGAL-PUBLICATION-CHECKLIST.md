@@ -13,3 +13,17 @@ Al 22 novembre 2026 M.G. PLANT DI GERON MARCO e la sede d’impresa sono conferm
 **Flusso di pubblicazione.** Il responsabile integra i dati commerciali e conferma la revisione con il consulente. Registra separatamente la versione approvata di ciascun testo. Prima delle modifiche esportare privatamente le policy e i relativi URL attuali. L’operatore autorizzato aggiorna i tipi nativi in Shopify e verifica la lingua, la lettura nel checkout, il collegamento dalla vetrina e la conferma su supporto durevole. Per la Cookie Policy, se manca uno spazio nativo dedicato, usare una pagina approvata e raggiungibile con link coerenti e il meccanismo di preferenze pertinente. Evitare copie divergenti della privacy o pagine frontend con campi redazionali aperti. In caso di errore ripristinare testo e link dell’ultima versione valida. L’accettazione della prova documentale non equivale ad autorizzazione alla pubblicazione.
 
 L’inventario e i candidati possono essere esaminati ora. L’esposizione nel negozio resta sospesa. [Richiesta unica](../release/FINAL-CLIENT-APPROVALS.md) · [Checklist personale](../release/PRODUCTION-HANDOVER.md#unica-checklist-di-accettazione-personale) · [Documentazione del footer già distribuito](FOOTER-AND-POLICY-INTEGRATION.md)
+
+## Pacchetto candidato del 22 novembre, revisione 2
+
+Il commit `e0840e2` identifica i cinque file. Ogni impronta SHA-256 copre i byte UTF-8 fra le righe `<!-- testo-cliente:inizio -->` e `<!-- testo-cliente:fine -->`, compreso il ritorno a capo finale. Il titolo della sezione Shopify è identificato dalla prima colonna. Le note per il revisore rimangono nel fascicolo.
+
+| Testo e destinazione | SHA-256 del corpo candidato | Stato |
+|---|---|---|
+| [Termini](DRAFT-TERMS-AND-CONDITIONS-2026-11-22.md) | `4e7b5bb5f340883bbd891d3dedd2cb9c9d8fb0f628760fd7ad82a32395194ae6` | Candidato da integrare e approvare |
+| [Privacy](DRAFT-PRIVACY-POLICY-REVIEW-2026-11-22.md) | `ad73e0eb795a757be6ad4f38af38a5d9ea577e37fd3e4f89ca7391b57dcea307` | Candidato da integrare e approvare |
+| [Spedizioni](CANDIDATE-SHIPPING-2026-11-22.md) | `93d254dbcc84b9683aa4caa1927d87e93dd4ea290decceb9bb4f11a0771b3ac1` | Candidato da integrare e approvare |
+| [Resi](CANDIDATE-RETURNS-2026-11-22.md) | `aadcfb12c1da669056f2d24a954b39faeccba196d2ccacd32e55a0f74a02a20e` | Candidato da integrare e approvare |
+| [Cookie](CANDIDATE-COOKIES-2026-11-22.md) | `c5f8380b94be136bb05dd1f4d5f579a401d05c78bfe16db3f04d7c63e72bd154` | Candidato da integrare e approvare |
+
+Per Termini, Privacy, Spedizioni e Resi usare la corrispondente policy di Shopify. Per Cookie usare una pagina Shopify approvata con link in vetrina se non è disponibile un tipo nativo dedicato. La privacy pubblicata il 30 ottobre rimane la fonte del checkout. Il numero nella scheda negozio Shopify non compare nel corpo della privacy pubblica. Il titolare può confermare in privato se usarlo per l’assistenza o indicare quello corretto. Prima di esporre un testo integrato, calcolare il nuovo hash, associare la firma del titolare alla revisione, salvare la copia ripristinabile e verificare i collegamenti italiani in footer e checkout, inclusi i nuovi testi applicabili.

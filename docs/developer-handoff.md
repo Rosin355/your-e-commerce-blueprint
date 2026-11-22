@@ -1,5 +1,9 @@
 # Online Garden — developer handoff
 
+## Consegna commerciale e storico · 22 novembre 2026
+
+Il comando dello storico richiede un solo ID per il pilota e un’autorizzazione distinta per il lotto, collegata all’archivio, agli ID e all’accettazione del pilota. All’assenza dell’archivio si ferma in preflight. Prima di ogni scrittura verificare anche regole Flow, notifiche e azioni app. Il rapporto identifica il punto esatto di ripresa per checkout Dev, comando Lovable e informative. [Procedura dello storico](migration/woocommerce-history-2026-11-20.md) · [Rapporto commerciale](release/FINAL-COMMERCIAL-CLOSEOUT-2026-11-22.md)
+
 ## Consegna operativa · 22 novembre 2026
 
 Verificatore offline dei preventivi, nove letture checkout, configurazioni Shopify, confronto DNS, rollback, prova d’ordine e checklist dal dispositivo del titolare. Nessuna modifica applicativa distribuita. [Verbale e dettagli](release/PRODUCTION-HANDOVER.md). [Approvazioni](release/FINAL-CLIENT-APPROVALS.md) · [Checklist personale](release/PRODUCTION-HANDOVER.md#unica-checklist-di-accettazione-personale).

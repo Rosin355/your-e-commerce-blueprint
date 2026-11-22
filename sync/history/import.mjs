@@ -130,7 +130,7 @@ function authorize(review, digest, mode) {
     requireFact(
       review.authorization?.reference?.trim() && auth?.reference?.trim() &&
         auth.reference.trim() !== review.authorization.reference.trim() &&
-        acceptedAt <= approvedAt && approvedAt <= Date.now(),
+        acceptedAt < approvedAt && approvedAt <= Date.now(),
       'SEPARATE_BATCH_AUTHORIZATION_REQUIRED',
     );
   }

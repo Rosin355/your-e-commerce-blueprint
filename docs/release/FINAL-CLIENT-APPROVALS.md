@@ -1,3 +1,7 @@
+## Decisioni aperte dopo la verifica commerciale del 22 novembre
+
+La [richiesta unica aggiornata](FINAL-COMMERCIAL-CLOSEOUT-2026-11-22.md#g-unica-richiesta-conclusiva) raccoglie accesso al negozio di prova e copertura del vettore, finestra per Visitor Analytics, dati e firme delle policy, fonte autentica dello storico. Per la migrazione il mandato per un ordine e il successivo mandato per un lotto definito hanno riferimenti distinti. Il [manifesto dei testi](../legal/CLIENT-LEGAL-PUBLICATION-CHECKLIST.md#pacchetto-candidato-del-22-novembre-revisione-2) identifica le versioni da integrare.
+
 ## Decisione operativa — 22 novembre 2026: chiusura commerciale in tre ambiti, ordini storici, DNS rinviato
 
 Mandato comunicato dal responsabile: dedicare **un unico intervento** a (1) tariffe speciali delle **nove località insulari ancora non conformi**, (2) **Visitor Analytics/consenso**, (3) **cinque informative** Termini, Privacy, Spedizioni, Resi, Cookie. **Cloudflare/DNS/16 redirect 301 rinviati a domani**: nessuna delega, record, proxy o redirect deve essere modificato in questo intervento. Il cliente dichiara di utilizzare le **email di notifica**; non richiede attività Sendcloud di gestione etichette/spedizioni in questo ciclo. La presenza eventuale di app/Flow/automazioni deve comunque essere controllata in sola lettura per evitare effetti collaterali sugli ordini storici.
