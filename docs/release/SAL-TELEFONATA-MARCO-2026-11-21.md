@@ -1,5 +1,22 @@
 # Online Garden — SAL per telefonata a Marco (21 novembre 2026)
 
+## Aggiornamento dopo PR #65 — 22 novembre 2026 (stato per telefonata)
+
+**PR #65 MERGED** nel commit `a9f2808569c674641efb0d8414b3599ecd52e771`. Soltanto verificatore di QA offline e documentazione; nessun ulteriore Publish necessario, confermato dominio con asset `index-DSQ4UzGV.js` e Admin V2 r2. **SAL 57,75% (~58%) invariata**, perché le operazioni ancora bloccanti non sono state attivate.
+
+- **Spedizioni:** 69 preventivi su 23 destinazioni; 42 conformi, **27 difformi in 9 isole** (Portoferraio, Lido, Pellestrina, Capri, Ischia, Procida, Ponza, Ventotene, Tremiti), con fascia Italia invece di Sicilia/Sardegna per A, B, misto. La decisione sugli importi è approvata da Marco; installazione selettore e applicazione live **NON autorizzate**. Soluzione candidata solo da collaudare in isolamento dopo accessi/perimetro confermati, con zero costo incrementale e rollback; non adottare regola per intera provincia.
+- **Privacy/cookie:** evento Lovable `trackevents` ha risposto 202 prima della scelta, possibile trattamento preventivo da valutare. Proposta di disattivare **solo** Visitor Analytics, se il titolare autorizza e la prova su ambiente controllato mostra assenza di eventi facoltativi e preserva servizi essenziali. Cinque testi legali candidati pronti **solo per revisione**, non per Publish. Mancano ancora recapito telefonico commerciale, indirizzo/costo resi, tempi consegna, registry fornitori, retention, trasferimenti e policy consent.
+- **Redirect:** 16 destinazioni verificate, **0/16 redirect 301 live**. Necessario confronto selector DKIM, backup zone IONOS/Cloudflare, coordinamento gestore e prova di posta prima di cambio NS.
+- **Ordine E2E:** mai effettuato pagamento o nuovo ordine nel collaudo; proposta ordine controllato con addebito reale massimo 0 €, automazioni Sendcloud/etichette sotto controllo, test notifiche solo su caselle autorizzate.
+- **Accettazione:** Marco Admin 85% con firma cliente pendente; area clienti 5/8 con OTP/scadenza, logout e isolamento fra account veri ancora da attestare. Test iPhone 17 simulato, non su telefono fisico.
+- **Storico:** 0/953 ordini Woo importati. Il backup disponibile è incompleto: il recupero richiede fonte transazionale reale; proporre perimetro distinto con conferma scritta, senza dichiarare migrazione completata.
+
+**Sequenza consigliata:** autorizzare (1) prova **isolata** della soluzione spedizioni, (2) ricognizione e scelta sul tracciamento prima del consenso, senza deploy; quindi completare dati legali e loro revisione; poi autorizzare separatamente attivazione tariffaria, policy, DNS/301 e ordine controllato con gate e rollback. 
+
+Fonti: [verbale tecnico](FINAL-CLOSEOUT-2026-11-22.md) · [modulo autorizzazioni](FINAL-CLIENT-APPROVALS.md) · [handover](PRODUCTION-HANDOVER.md) · [PR #65](https://github.com/Rosin355/your-e-commerce-blueprint/pull/65).
+
+
+
 ## Update area clienti dopo PR #64 — 21 novembre 2026
 
 - PR #64 [MERGED](https://github.com/Rosin355/your-e-commerce-blueprint/pull/64), commit `73bd840c5677b67e638b603eead8cdb7cd8fcda2`; fix minimale alla paginazione della SPA OAuth **disattivata**. Non necessario nuovo Publish per il percorso ospitato Shopify. Frontend pubblico controllato dal rapporto: `index-DSQ4UzGV.js`, Admin r2 conservato.
