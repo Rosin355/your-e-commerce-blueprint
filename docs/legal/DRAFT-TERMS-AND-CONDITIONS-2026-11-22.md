@@ -1,10 +1,12 @@
 # Online Garden — Termini e condizioni di vendita
 **BOZZA PER REVISIONE LEGALE E APPROVAZIONE DEL TITOLARE — NON PUBBLICATA. 22 novembre 2026.**
 
-> Per la pubblicazione occorrono: [RAGIONE SOCIALE E FORMA GIURIDICA], [SEDE LEGALE COMPLETA], [PARTITA IVA E/O C.F.], [REGISTRO IMPRESE/REA SE APPLICABILE], [RECAPITO TELEFONICO SE RICHIESTO], [INDIRIZZO REALE PER RESI], [TEMPI DI PREPARAZIONE E CONSEGNA REALI], [PROCEDURA ASSISTENZA/RECLAMI E INDICAZIONE TRASPORTATORE SE NECESSARIA]. I campi non vanno pubblicati così.
+> **Identità del venditore — fonte: visura camerale CCIAA di Padova estratta il 22/03/2024.** Denominazione **M.G. PLANT DI GERON MARCO**, impresa individuale, sede **Via San Giovanni 25, 35010 Santa Giustina in Colle (PD)**, P. IVA **04347360242**, codice fiscale/numero Registro Imprese **GRNMRC86R20B563H**, REA **PD-464045**, PEC **geronmarco@pec.agritel.it**. **Prima della pubblicazione occorre confermare che tali dati siano invariati al 2026 e che questa sia l'impresa che gestisce il negozio Online Garden.** La visura non fornisce un indirizzo per i resi né tempi di consegna. Non pubblicare dettagli di residenza privata o nascita.
+
+> Restano da accertare: conferma dati impresa attuali e corrispondenza venditore/Online Garden, eventuale telefono obbligatorio, **indirizzo effettivo per i resi**, tempi reali di preparazione/consegna, canali assistenza, spese di restituzione e approvazione legale. Questi campi non vanno pubblicati incompleti.
 
 ## 1. Venditore e ambito
-Il negozio https://www.onlinegarden.it è gestito da **[RAGIONE SOCIALE]**, sede **[INDIRIZZO COMPLETO]**, P. IVA **[P. IVA]**, iscrizione Registro imprese **[DATI]** (di seguito «Venditore»). Per informazioni e assistenza: **info@onlinegarden.it**; ulteriori recapiti **[DA CONFERMARE]**. Queste condizioni disciplinano gli acquisti di piante, bulbi, succulente e altri articoli proposti nel negozio ai clienti consumatori. Eventuali condizioni specifiche dei prodotti e norme inderogabili applicabili prevalgono per la materia regolata.
+Il negozio https://www.onlinegarden.it è gestito, **previa verifica della titolarità commerciale attuale**, da **M.G. PLANT DI GERON MARCO**, impresa individuale con sede in **Via San Giovanni 25, 35010 Santa Giustina in Colle (PD), Italia**, P. IVA **04347360242**, codice fiscale/numero d'iscrizione al Registro delle Imprese **GRNMRC86R20B563H**, REA **PD-464045** (di seguito «Venditore»). Per informazioni e assistenza: **info@onlinegarden.it**; PEC risultante dalla visura: **geronmarco@pec.agritel.it**. Eventuali ulteriori recapiti: **[DA CONFERMARE]**. Queste condizioni disciplinano gli acquisti di piante, bulbi, succulente e altri articoli proposti nel negozio ai clienti consumatori. Eventuali condizioni specifiche dei prodotti e norme inderogabili applicabili prevalgono per la materia regolata.
 
 ## 2. Informazioni sui prodotti
 Caratteristiche essenziali, disponibilità, prezzo e varianti sono riportate nelle rispettive schede. Le fotografie sono illustrative; piante e altri prodotti di origine naturale possono presentare variazioni fisiologiche di forma, portamento, dimensione, fioritura e colorazione rispetto all'immagine. Tali differenze non eliminano la garanzia legale in caso di effettiva non conformità. Informazioni di coltivazione e stagionalità sono indicative e vanno considerate alla luce dell'ambiente e della cura effettiva.
@@ -50,7 +52,7 @@ Per i consumatori si applicano le disposizioni imperative di tutela previste dal
 ---
 
 ## Blocco prima della pubblicazione
-- Identità, P. IVA, sede, recapiti, sede di reso e tempi di consegna reali ancora non confermati.
+- Identità, P. IVA, sede, PEC e REA ora **documentati dalla visura CCIAA del 22/03/2024**, ma **attualità al 2026 e titolarità effettiva di Online Garden non confermate**; sede di reso, telefono eventuale e tempi di consegna reali restano da acquisire.
 - Politica di recesso per singole categorie botaniche da validare da professionista legale; nessuna esclusione generalizzata di tutti i prodotti vivi.
 - Prezzi A/B e condizioni geografiche **in policy spedizioni separata**; per isole minori manca validazione tecnica CAP/località.
 - Link checkout/footer Shopify e testi di reso/spedizioni/cookie richiedono approvazione e test.
