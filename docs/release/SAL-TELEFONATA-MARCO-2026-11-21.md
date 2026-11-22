@@ -1,3 +1,13 @@
+## Checkpoint PR #66 — 22 novembre 2026
+
+- **PR #66 MERGED** al commit `b981f4ff56c07e8965e61eac89216be85f892b8f`, soli report e strumenti offline. Nessuna modifica al negozio pubblico, nuovo Publish o costo aggiuntivo; **SAL 57,75% = circa 58% invariata**.
+- **Spedizioni:** 69/69 nel laboratorio con due opzioni ipotetiche già prezzate, 37 casi limite PASS; 27 anomalie live in nove isole **non risolte**, Shopify Grow/checkout non collaudabile sullo Shipping Test senza accesso tecnico. Nessuna autorizzazione a installare app, cambiare Markets o toccare prezzi.
+- **Analytics:** in quattro profili puliti Chromium, due POST iniziali nei controlli HTTP 202 prima della scelta, zero tentativi quando il solo loader eventi è sostituito nel browser; carrello, checkout e ingresso cliente preservati. **Non** equivale alla disattivazione della preferenza reale Lovable; perdita di statistiche visite/clic/errori attesa se si disattiva.
+- **Decisione consigliata:** accesso limitato al solo negozio Shipping Test con copertura del corriere; prova controllata del toggle Visitor Analytics nel progetto Lovable reale con fotografia dello stato iniziale, test funzionali, criterio di stop/ripristino e consenso distinto prima di eseguirla. Nessuna nuova infrastruttura necessaria.
+- **Attività successive:** finalizzare testi legali approvati con informazioni mancanti, proteggere posta nel cambio DNS/301, test ordine zero addebiti e accettazione Marco/identità clienti.
+
+[Rapporto PR #66](PROVE-ISOLATE-SPEDIZIONI-ANALYTICS-2026-11-22.md) · [Modello autorizzazioni](FINAL-CLIENT-APPROVALS.md).
+
 # Online Garden — SAL per telefonata a Marco (21 novembre 2026)
 
 ## Aggiornamento dopo PR #65 — 22 novembre 2026 (stato per telefonata)
