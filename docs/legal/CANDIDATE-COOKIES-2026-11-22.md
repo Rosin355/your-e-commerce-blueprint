@@ -1,17 +1,22 @@
 # Cookie e tecnologie di navigazione
-**Inventario verificato sul percorso pubblico il 22 novembre 2026. Testo candidato per revisione, pubblicazione sospesa.**
+
+**Revisione 4 del 23 novembre 2026. Candidato per approvazione del titolare.**
 
 <!-- testo-cliente:inizio -->
-## Per chi visita Online Garden
+## Vetrina, carrello e checkout
 
-La vetrina conserva nel browser gli articoli che aggiungi al carrello. Shopify gestisce la sessione di checkout e l’accesso all’area clienti. Il browser contatta anche i servizi che forniscono i caratteri, le immagini e il metodo di pagamento scelto. L’infrastruttura usa strumenti di sicurezza e protezione dai bot.
+Online Garden conserva nel browser gli articoli aggiunti al carrello per ritrovarli al tuo ritorno. Il sito richiede risorse per visualizzare caratteri e immagini e usa servizi di hosting e protezione dai bot. Il titolare ha disattivato Visitor Analytics di Lovable sulla vetrina. Il monitoraggio tecnico del progetto è un servizio distinto.
 
-Nella configurazione verificata, Lovable misura visite e clic sulla vetrina. Browser e servizi tecnici possono trasmettere l’indirizzo IP, informazioni sul dispositivo e la pagina richiesta. Nella prova sulla vetrina una richiesta di misurazione è partita già alla prima visita, prima di una scelta. Nelle impostazioni del browser puoi ispezionare o cancellare cookie e dati locali. La cancellazione può svuotare il carrello o richiedere un nuovo accesso.
+Shopify gestisce il checkout, la sessione e l’accesso all’area clienti. Quando apri il checkout il browser può contattare servizi di Shopify e dei fornitori di pagamento, inclusi servizi per mostrare i portafogli digitali disponibili. Il trattamento dei dati per l’acquisto e i contatti per esercitare i tuoi diritti sono descritti nell’informativa privacy del negozio.
 
-Il titolare è M.G. PLANT DI GERON MARCO. Per informazioni sulle tecnologie di navigazione e per esercitare i tuoi diritti puoi scrivere a **info@onlinegarden.it**.
+Puoi cancellare i dati del sito dalle impostazioni del browser. Questa operazione può svuotare il carrello e richiedere un nuovo accesso. Per informazioni sulle tecnologie utilizzate puoi contattare il titolare M.G. PLANT DI GERON MARCO all’indirizzo **info@onlinegarden.it** o alla PEC **geronmarco@pec.agritel.it**.
 <!-- testo-cliente:fine -->
 
-## Inventario tecnico per il titolare
+## Nota per la pubblicazione
+
+Integrare finalità, destinatari, identificatori e durate dopo la classificazione degli eventi del checkout e dello SDK. Quando il banner sarà verificato sul dominio italiano, inserire la posizione e il nome effettivo del comando permanente per scegliere le singole categorie, rifiutare o revocare. Documentare gli effetti successivi e i trattamenti che restano attivi. Il campione del 23 novembre è nel [verbale di rete](../release/PRIVACY-NETWORK-VERIFY-2026-11-23.md). [Scheda unica di Marco](../release/FINAL-CLIENT-APPROVALS.md) · [Garante, linee guida](https://www.garanteprivacy.it/home/docweb/-/docweb-display/docweb/9677876)
+
+## Inventario storico del 22 novembre, antecedente allo spegnimento
 
 Chromium in italiano, profilo nuovo, nessuna interazione di consenso, home → ricerca → scheda → carrello → checkout ospite. Registrati nomi, host, metodi ed esiti HTTP, senza valori dei cookie, payload individuali o URL di checkout. La lingua del browser non dimostra la regione usata dal provider per attivare il suo banner.
 
@@ -23,21 +28,3 @@ Chromium in italiano, profilo nuovo, nessuna interazione di consenso, home → r
 | Font e contenuti | `fonts.googleapis.com`, `fonts.gstatic.com`, CDN immagini Shopify e dominio Storefront API osservati. | Font esterni servono risorse grafiche e comportano un collegamento con terzi. Verificare configurazione/trasferimenti, valutare font locali. In questo campione non sono comparsi tag Google Ads, GA o Meta sulla vetrina. |
 | Checkout e Shop | `_shopify_essential`, `_shopify_cmp`, `__Host-Http-shop_binding`, `_shop_app_essential`; chiavi carrello, UI, scroll, receipt e source tracking. Richieste Shopify `/api/collect` (204), error analytics (202), wallet PayPal e Google, incluso un GET del componente pixel del wallet PayPal. | Distinguere sicurezza/sessione, preferenze e diagnostica da analytics o pubblicità. Nome e HTTP non provano finalità, base giuridica o durata. Nessuna transazione effettuata. Il cookie `_shopify_cmp` non dimostra una scelta sulla vetrina headless. |
 | Eventi cliente e advertising | Accesso API a `webPixel` negato (`read_pixels`), a `privacySettings` negato (`read_privacy_settings`). `webPixel` riguarda comunque l’app chiamante. Flag Shopify `dynamicRemarketing=false`. | Leggere in Admin Impostazioni → Eventi cliente e Privacy dei clienti per app pixel, pixel personalizzati, finalità, stato e regioni. Richiesta una sessione autorizzata in sola lettura. |
-
-## Soluzione minima e prove di accettazione
-
-Proposta prioritaria a costo incrementale nullo: se il titolare può rinunciare alle statistiche di visita della vetrina, disattivare **solo** Visitor Analytics lato hosting dopo autorizzazione, registrare valore iniziale e verificare cosa continua a partire. Si perde la nuova misurazione del traffico eventualmente dipendente dalla funzione. Se il servizio deve restare, occorre un interruttore che impedisca **prima del caricamento** gli strumenti opzionali finché manca consenso. Il caricamento iniettato prima di React rende insufficiente un banner che memorizzi soltanto la scelta dentro React. Conservare eventuali eventi tecnici indispensabili previa documentazione del provider. Nessuna CMP o variazione di configurazione attuata.
-
-Prova isolata nel browser di QA con blocco dei soli endpoint/script di telemetria della vetrina: nessuna risposta da trackevents, carrello e checkout apribili, dialogo con il testo della privacy Shopify leggibile, accesso clienti raggiungibile. Questo esperimento verifica dipendenze del percorso, non l’efficacia del toggle hosting o il consenso in produzione.
-
-| Prova dopo la decisione | Criterio verificabile |
-|---|---|
-| Primo accesso senza scelta | Profili puliti, desktop e Safari iOS, provenienza UE verificata. Nessun accesso/storage facoltativo o beacon prima della scelta. Acquisto e login utilizzabili. Fare lo stesso al passaggio al checkout. |
-| Rifiuta o chiudi | Rifiuto facile quanto l’accettazione, consenso predefinito negato e persistente al reload e in una nuova scheda. Nessun evento opzionale, anche uscendo dalla pagina. |
-| Accetta per finalità | Solo le categorie scelte si attivano dopo il gesto. Verificare richieste e scelta registrata; una riconciliazione della preferenza tra superfici va testata separatamente. |
-| Revoca o cambia | Comando sempre accessibile, stop agli eventi opzionali successivi, trattamento degli identificatori pregressi secondo la procedura adottata. Nuovo accesso mantiene la revoca. Ripetere dopo aggiornamenti del banner. |
-| Solo strumenti necessari | Se dopo disattivazione e verifica di entrambi gli ambienti restano solo gli strumenti ammessi senza consenso, documentare le condizioni e il motivo dell’eventuale esclusione dei controlli facoltativi. |
-
-Non sono disponibili evidenze di un ciclo accetta/rifiuta/revoca in produzione. Prima della pubblicazione completare durata delle chiavi dove applicabile, responsabili e garanzie reali, comando effettivo di preferenze e verifica con il titolare. [Garante, linee guida cookie e altri strumenti](https://www.garanteprivacy.it/home/docweb/-/docweb-display/docweb/9677876) · [Informativa da confrontare](DRAFT-PRIVACY-POLICY-REVIEW-2026-11-22.md)
-
-Nel pannello del progetto pubblicato gli interruttori Visitor analytics, monitoraggio dei clic e Project monitoring sono attivi. L’operazione proposta riguarda solo Visitor analytics. L’accesso staff pubblico è stato aperto con e senza il solo loader, con entrambi i campi del modulo disponibili. I contatori sono nel verbale commerciale. L’effetto dell’interruttore reale sui dati raccolti rimane da misurare. [Impostazioni Lovable](https://docs.lovable.dev/features/analytics#enable-or-disable-visitor-analytics) · [Garante, linee guida](https://www.garanteprivacy.it/home/docweb/-/docweb-display/docweb/9677876)

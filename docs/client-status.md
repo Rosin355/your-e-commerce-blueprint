@@ -1,5 +1,9 @@
 ## Riscontro del responsabile — Visitor Analytics disattivata, 23 novembre 2026
 
+## Consegna a Marco · 23 novembre
+
+Il cliente può già navigare, cambiare formato e arrivare al checkout. Il registro riservato copre 858 account e 953 acquisti come conteggi. Il banner è collaudato sul candidato, mentre i nove casi geografici richiedono il negozio Dev. Marco trova i contatti, i cinque testi aggiornati e le sole decisioni residue nella scheda collegata. [Verbale del 23 novembre](release/FINAL-HANDOVER-2026-11-23.md) · [Scheda unica per Marco](release/FINAL-CLIENT-APPROVALS.md)
+
 Il responsabile ha comunicato di avere **disattivato Visitor Analytics in Lovable** e di non avere osservato **alcuna richiesta `trackevents` nel Network** dopo la modifica. **Esito: positivo ma limitato al test manuale dichiarato.** La conferma indipendente delle condizioni di test (profilo pulito/Italia, più pagine, Safari, carrello, account e Admin autenticato) resta da eseguire; l'assenza osservata non dimostra l'assenza di qualsiasi altra telemetria. **Project monitoring deve rimanere attivo**, senza riabilitare Visitor Analytics salvo decisione distinta.
 
 La [PR #69](https://github.com/Rosin355/your-e-commerce-blueprint/pull/69) resta **OPEN** sul commit `a5f319ace864b398f43285bb9471d6cd5bd1ef12`: banner headless e trasferimento consenso testati solo sul candidato, non ancora pubblicati. **Classificazione della diagnostica Shopify Monorail e dei flussi checkout/wallet ancora PENDING**, senza dedurne finalità dal solo HTTP 200. Prima di merge/Publish: conferma tecnica e privacy sugli eventi residui e autorizzazione del rilascio, poi prove sul pubblico di consenso/rifiuto/revoca, carrello, checkout, login clienti e staff. SAL ufficiale 57,75% invariata.

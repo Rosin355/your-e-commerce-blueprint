@@ -6,13 +6,15 @@ const origin = 'https://onlinegarden.it';
 const product = '/products/bulbo-di-dalia-purple-queen-confezione-da-1-tubero';
 const loader = /^https:\/\/onlinegarden\.it\/__l5e\/events\.[\da-f]+\.js(?:\?.*)?$/;
 const collector = '/__l5e/trackevents';
+// After the owner disables Visitor Analytics, observe the real site without routing any request.
+const liveOff = process.argv.includes('--live-off');
 
 async function probe(browser, contextOptions, mode) {
-  const context = await browser.newContext({ ...contextOptions, locale: 'it-IT', serviceWorkers: 'block' });
+  const context = await browser.newContext({ ...contextOptions, locale: 'it-IT', serviceWorkers: mode === 'live-off' ? 'allow' : 'block' });
   const page = await context.newPage();
   let phase = 'home';
   const result = {
-    mode, initialRequests: 0, initial202: 0, posts: 0, accepted202: 0,
+    mode, collectorRequests: 0, initialRequests: 0, initial202: 0, posts: 0, accepted202: 0,
     loaderRequests: 0, loaderPaths: [], replaced: 0, legacyRequests: 0, otherHostingAssetsOK: 0,
     otherStorefrontPosts: 0,
     checkoutDiagnostics: 0, homepageChoiceControls: 0,
@@ -28,6 +30,7 @@ async function probe(browser, contextOptions, mode) {
     }
     if (u.pathname === '/~flock.js') result.legacyRequests++;
     if (u.pathname !== collector && req.method() === 'POST') result.otherStorefrontPosts++;
+    if (u.pathname === collector) result.collectorRequests++;
     if (u.pathname === collector && req.method() === 'POST') {
       result.posts++;
       if (phase === 'home') {
@@ -48,19 +51,31 @@ async function probe(browser, contextOptions, mode) {
         /monorail|produce_batch|otlp|telemetry/i.test(u.hostname + u.pathname)) result.checkoutDiagnostics++;
   });
   // Install the same route in both arms. The collector and every other resource remain reachable.
-  await context.route(loader, route => {
-    if (mode === 'control') return route.continue();
-    result.replaced++;
-    return route.fulfill({ status: 200, contentType: 'application/javascript', body: '/* isolated QA */' });
-  });
+  if (mode !== 'live-off') {
+    await context.route(loader, route => {
+      if (mode === 'control') return route.continue();
+      result.replaced++;
+      return route.fulfill({ status: 200, contentType: 'application/javascript', body: '/* isolated QA */' });
+    });
+  }
   try {
     await page.goto(origin, { waitUntil: 'domcontentloaded' });
     await page.locator('h1').first().waitFor({ state: 'attached' });
     // Identical observation window, before interacting with the site.
-    await page.waitForTimeout(7000);
+    await page.waitForTimeout(mode === 'live-off' ? 30000 : 7000);
     result.homepageChoiceControls = await page.getByRole('button', {
-      name: /^(accetta|rifiuta|consenti|gestisci i cookie|preferenze cookie)/i,
+      name: /^(accetta|declina|rifiuta|consenti|gestisci (?:i cookie|le preferenze)|preferenze cookie)/i,
     }).count();
+
+    if (mode === 'live-off') {
+      phase = 'catalog';
+      const privacy = page.locator('footer a').filter({ hasText: /privacy/i }).first();
+      const footerResponse = await context.request.get(await privacy.getAttribute('href'));
+      assert.ok(footerResponse.ok() && /dati personali/i.test(await footerResponse.text()));
+      await page.goto(origin + '/collections/all', { waitUntil: 'domcontentloaded' });
+      await page.locator('main a[href*="/products/"]').first().waitFor({ state: 'visible' });
+      result.catalogAndFooter = true;
+    }
 
     phase = 'cart';
     await page.goto(origin + product, { waitUntil: 'domcontentloaded' });
@@ -76,7 +91,15 @@ async function probe(browser, contextOptions, mode) {
     await drawer.getByRole('button', { name: /procedi al checkout/i }).click();
     await page.waitForURL(u => u.pathname.includes('/checkouts/'), { waitUntil: 'domcontentloaded' });
     await page.getByText(/Purple Queen/i).first().waitFor({ state: 'attached' });
-    await page.getByRole('button', { name: /informativa sulla privacy/i }).first().waitFor({ state: 'attached' });
+    const checkoutPrivacy = page.getByRole('button', { name: /informativa sulla privacy/i }).first();
+    await checkoutPrivacy.waitFor({ state: 'attached' });
+    if (mode === 'live-off') {
+      await checkoutPrivacy.click();
+      const policyDialog = page.getByRole('dialog').filter({ hasText: /privacy|dati personali/i }).first();
+      await policyDialog.waitFor({ state: 'visible' });
+      await policyDialog.getByText(/dati personali/i).first().waitFor({ state: 'visible' });
+      result.checkoutPrivacy = true;
+    }
     result.checkoutProduct = true;
     await page.waitForTimeout(2000);
 
@@ -86,6 +109,13 @@ async function probe(browser, contextOptions, mode) {
     await page.locator('input[type=email]').first().waitFor({ state: 'visible' });
     result.accountForm = true;
     await page.waitForTimeout(2000);
+    if (mode === 'live-off') {
+      phase = 'staff';
+      await page.goto(origin + '/admin', { waitUntil: 'domcontentloaded' });
+      await page.locator('input[type=password]').waitFor({ state: 'visible' });
+      await page.locator('input[type=email]').waitFor({ state: 'visible' });
+      result.staffLogin = true;
+    }
     return result;
   } catch (error) {
     // Checkout URLs may contain session identifiers. Do not log them or raw bodies.
@@ -101,10 +131,16 @@ for (const [engine, options, modes] of [
 ]) {
   const browser = await chromium.launch();
   try {
-    for (const mode of modes) {
+    for (const mode of liveOff ? ['live-off'] : modes) {
       const r = await probe(browser, options, mode);
       console.log(JSON.stringify({ engine, version: browser.version(), ...r }));
-      assert.ok(r.loaderRequests > 0 && r.otherHostingAssetsOK > 0 && r.cartAfterReload && r.checkoutProduct && r.accountForm);
+      assert.ok(r.cartAfterReload && r.checkoutProduct && r.accountForm);
+      if (mode === 'live-off') {
+        assert.equal(r.collectorRequests, 0, 'Visitor Analytics observed on public site');
+        assert.ok(r.catalogAndFooter && r.checkoutPrivacy && r.staffLogin);
+        continue;
+      }
+      assert.ok(r.loaderRequests > 0 && r.otherHostingAssetsOK > 0);
       if (mode === 'control') {
         assert.ok(r.initial202 > 0 && r.posts >= r.initial202 && r.replaced === 0, 'Missing positive control');
       } else {

@@ -1,10 +1,10 @@
 # Informativa sul trattamento dei dati personali
-**Testo candidato, da integrare con il registro del titolare e approvare. La versione Shopify del 30 ottobre resta in vigore.**
+**Revisione 4 del 23 novembre 2026. Candidato per approvazione del titolare.**
 
 <!-- testo-cliente:inizio -->
 ## Chi tratta i dati
 
-M.G. PLANT DI GERON MARCO, impresa individuale con sede in Via San Giovanni 25, 35010 Santa Giustina in Colle (PD), Italia, P. IVA 04347360242, è il titolare dei trattamenti svolti per il proprio negozio. Per informazioni e diritti puoi scrivere a **info@onlinegarden.it** o, via PEC, a **geronmarco@pec.agritel.it**.
+M.G. PLANT DI GERON MARCO, impresa individuale con sede in Via San Giovanni 25, 35010 Santa Giustina in Colle (PD), Italia, P. IVA 04347360242, C.F. GRNMRC86R20B563H, REA PD-464045, è il titolare dei trattamenti svolti per il proprio negozio. Per informazioni e diritti puoi scrivere a **info@onlinegarden.it** o, via PEC, a **geronmarco@pec.agritel.it**.
 
 ## Dati, fonti e finalità
 
@@ -18,23 +18,17 @@ Il personale autorizzato accede ai dati secondo le mansioni. Per account e check
 
 Per gli ordini consideriamo gli obblighi di documentazione, gli adempimenti fiscali e i tempi necessari per far valere o difendere diritti. Per account e assistenza consideriamo durata del servizio, gestione della richiesta e obblighi successivi. Per eventuali trasferimenti fuori dallo SEE sono necessarie le garanzie applicabili alla destinazione e al servizio effettivo. Puoi chiedere informazioni e, ove applicabile, copia delle garanzie ai recapiti del titolare.
 
-La vetrina è ospitata da Lovable. Nella configurazione osservata il servizio di analisi visite è attivo insieme alla registrazione dei clic. La disattivazione incide sulla misurazione di visite, clic ed errori del browser. Il checkout e l’account cliente sono servizi Shopify. Per le tecnologie che interessano queste superfici consulta anche l’informativa sulle tecnologie di navigazione.
+La vetrina è ospitata da Lovable. Il titolare ha disattivato Visitor Analytics, il servizio Lovable che misura le visite della vetrina. Il monitoraggio tecnico del progetto è distinto dalla misurazione delle visite. Il checkout e l’account cliente sono servizi Shopify. Per le tecnologie che interessano queste superfici consulta anche l’informativa sulle tecnologie di navigazione.
 
 ## Acquisti presso il precedente negozio
 
-Conserviamo un registro riservato al personale autorizzato con l’identificativo del vecchio account WooCommerce, il numero di acquisti, il ruolo storico e lo stato della verifica. I dati provengono dagli elenchi del precedente negozio. Per esercitare i tuoi diritti su questo registro puoi contattare il titolare. Il collegamento con un cliente Shopify richiede una verifica individuale. Il dettaglio dei singoli ordini non è disponibile.
+Conserviamo un registro riservato al personale autorizzato con l’identificativo del vecchio account WooCommerce, il numero di acquisti, il ruolo storico e lo stato della verifica. I dati provengono dagli elenchi del precedente negozio. Per esercitare i tuoi diritti su questo registro puoi contattare il titolare. Il personale consulta il file sul proprio dispositivo. La consultazione non carica l’archivio sul sito. Un eventuale collegamento con un cliente Shopify richiede una verifica individuale. Il dettaglio dei singoli ordini non è disponibile.
 
 ## Diritti e reclami
 
 Puoi chiedere accesso, rettifica, cancellazione, limitazione, portabilità e opposizione nei casi previsti. Puoi revocare un consenso con effetto per il futuro. Per tutelarti possiamo verificare la tua identità in misura proporzionata. Rispondiamo di norma entro un mese e, nei casi previsti, comunichiamo l’eventuale proroga e i relativi motivi. Puoi proporre reclamo al Garante per la protezione dei dati personali. Il servizio è destinato agli acquisti di persone con capacità di agire. La data dell’informativa verrà aggiornata quando cambierà il testo pubblicato. [Garante](https://www.garanteprivacy.it/) · [GDPR, articoli 12–22](https://eur-lex.europa.eu/eli/reg/2016/679/oj/ita)
 <!-- testo-cliente:fine -->
 
----
+## Nota per la pubblicazione
 
-## Confronto editoriale e condizioni per la pubblicazione
-
-Riletta integralmente via Admin API l’unica policy pubblicata, in italiano, aggiornata il 30/10/2026. Conservarne fonti dirette e tecniche, categorie transazionali, assistenza, sicurezza, minori, diritti/reclami, criteri di conservazione, trasferimenti, ruolo autonomo di Shopify, portale privacy e aggiornamenti. Il candidato identifica il titolare effettivo e distingue la vetrina Lovable dal checkout e account Shopify. La password del vecchio sito e i 953 ordini Woo non sono parte del nuovo account. [Versione pubblicata](https://checkout.shopify.com/102600966484/policies/56892817748.html?locale=it)
-
-Il modello pubblico cita marketing via email/SMS, pubblicità personalizzata tra negozi, affiliate e funzionalità avanzate. Verificare per ciascuna affermazione uso reale, configurazione e documentazione prima di mantenerla o eliminarla. Il flag Shopify dynamicRemarketing letto a false copre solo quella funzione. Per sicurezza/antifrode, difesa dei diritti e telemetria documentare per ciascun trattamento finalità, base, eventuale interesse perseguito e relativa valutazione. Identificare eventuali decisioni unicamente automatizzate con effetti significativi e, se esistono, fornire le informazioni dovute. Integrare destinatari, ruoli, contratti, localizzazione e garanzie effettive, tempi o criteri operativi per log, analitiche e assistenza, gestione dei diritti ed eventuale DPO solo se designato. Questa revisione non attribuisce automaticamente a un’app installata il ruolo di responsabile o una base per marketing. [Inventario e prove](CANDIDATE-COOKIES-2026-11-22.md)
-
-Confronto del 22/11 con tutte le 13 sezioni della privacy Shopify del 30/10. Sono conservati i riferimenti per diritti e portale Shopify. Il registro deve motivare ogni uso effettivo, incluso lo stato finale di visite e clic. Il registro aggregato è stato costituito in archivio privato locale con copia riservata in Google Drive. Il titolare deve completare la scheda di trattamento con finalità e base giuridica, destinatari/ruoli, conservazione, misure di accesso e obblighi informativi applicabili, compreso l’art. 14 GDPR ove i dati non provengano dall’interessato. I 953 ordini individuali non sono disponibili.
+Confrontata con la Privacy italiana Shopify del 30 ottobre, ancora unica policy nativa. Completare con il titolare il registro effettivo di basi e finalità, destinatari e ruoli, criteri di conservazione, trasferimenti e garanzie, incluse assistenza, archivio storico, sicurezza, hosting e servizi Shopify. Confermare marketing, eventuali decisioni automatizzate significative e DPO solo se pertinenti. Valutare gli obblighi informativi relativi alle fonti pregresse. [Privacy attiva](https://checkout.shopify.com/102600966484/policies/56892817748.html?locale=it) · [Accordo sul trattamento Shopify](https://www.shopify.com/legal/dpa) [Scheda unica di Marco](../release/FINAL-CLIENT-APPROVALS.md)

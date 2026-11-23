@@ -1,5 +1,9 @@
 # Checklist di chiusura · 22 novembre 2026
 
+## Esito corrente · 23 novembre
+
+PASS per percorso ospite fino al checkout, Visitor Analytics nel campione pubblico, protezione del registro nel candidato e SEO tecnica del catalogo. BLOCKED per merge/Publish #69, cinque informative (quattro native e una pagina Cookie), Dev spedizioni, accettazione personale e attivazione DNS. Il registro aggregato è chiuso, con zero ordini transazionali ricostruiti. Le sezioni precedenti per data sono evidenze storiche. [Verbale del 23 novembre](FINAL-HANDOVER-2026-11-23.md) · [Scheda unica per Marco](FINAL-CLIENT-APPROVALS.md)
+
 Il verbale corrente raccoglie gli esiti tecnici sui prezzi, consenso, policy, DNS, notifiche e SAL. La checklist operativa per Marco è unica. Le voci del 12 e 20 novembre riportate sotto sono la cronologia. [Verbale e dettagli](FINAL-CLOSEOUT-2026-11-22.md). [Approvazioni](FINAL-CLIENT-APPROVALS.md) · [Checklist personale](PRODUCTION-HANDOVER.md#unica-checklist-di-accettazione-personale).
 
 ---
