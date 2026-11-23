@@ -69,3 +69,14 @@ L'operatore ha mostrato nel pannello Cloudflare **11 record** preparati, contro 
 **STOP delega.** Il proprietario può fare **Export** della zona Cloudflare adesso, e salvare una copia privata della zona IONOS (ove possibile), senza cambiare DNS. Il futuro allineamento dei due TXT in Cloudflare va verificato contro i valori originali e le eventuali configurazioni Lovable; l'uso di proxy arancione sui record web richiede una prova preliminare origine/TLS/SSL con il dominio esistente e i redirect, e non implica automaticamente compatibilità o corretto HTTPS. MX, SPF e DKIM devono restare DNS only. Verificare anche l'eventuale DKIM Shopify/posta terza non rilevato nelle schermate prima di applicare la nuova delega. Nessun NS/record/proxy è stato modificato dall'assistente.
 
 **Prossimo passo operativo unico:** cliccare `Export` su Cloudflare DNS → Records per ottenere backup privato; poi aprire i TXT `_lovable` e `_lovable.www` in IONOS e copiare i valori non troncati su canale privato (non screenshot pubblico), senza premere Salva. Solo dopo l'allineamento esatto e il controllo DKIM/posta autorizzare la migrazione.
+
+## Allineamento verifiche Lovable: valori completi IONOS ricevuti — 23/11/2026 ore ~18:21 CET
+
+Il responsabile ha fornito i valori non troncati di entrambi i record TXT IONOS. Mappatura corretta, senza scambiarli:
+
+- `_lovable.onlinegarden.it` → `lovable_verify=c29dcda6f994037a481d7a2c2b1ee5c3908f9df878449f6079d0e6ce22527c34`.
+- `_lovable.www.onlinegarden.it` → `lovable_verify=ed9f29114c1680e867c3317c5f05ece7f49637007d5b5ba6947cace25ef70c25`.
+
+**Istruzione data:** aggiungere a Cloudflare DNS come **TXT** con Name `_lovable` e `_lovable.www`, rispettivi Content esatti e TTL Auto. Cloudflare aggiunge il suffisso di zona automaticamente. Il totale atteso passa da **11 a 13 record**. Nessuna modifica necessaria su IONOS. Al momento della redazione **non è stato ancora verificato il salvataggio dei due record Cloudflare**; screenshot/lettura dei 13 record richiesti per segnare questo controllo PASS.
+
+L'export della zona Cloudflare `onlinegarden.it.txt` è stato fornito dal responsabile e include i 11 record preliminari, con SOA e NS Cloudflare; va conservato privatamente e **non importato su IONOS**. Restano da confrontare tutti i record in produzione, in particolare selettore DKIM `s42582890`, impostazioni proxy arancione dell'A/WWW, TLS/origine, backup zona IONOS e posta. **STOP al cambio NS/delega finché non sono concluse le verifiche e la finestra non è autorizzata.**
