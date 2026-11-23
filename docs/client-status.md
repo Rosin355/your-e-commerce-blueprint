@@ -1,3 +1,13 @@
+## Cookie headless — checkpoint PR #69, 23 novembre 2026
+
+**PR #69 OPEN, NON MERGED** al commit `9f93e91d6915fb2a291984349e4841be0e823b0b`; tre controlli GitHub verdi, build/typecheck/lint mirato PASS, **33 test specifici** e **661 test Node** superati. Il candidato integra banner ufficiale Shopify nel frontend React, preferenze rifiuta/accetta/granulari, link footer e trasmissione dei soli segnali espliciti al checkout; Chromium desktop/mobile, Safari desktop e iOS simulato superati negli scenari documentati. **Il banner continua a mancare in produzione** finché la PR non viene integrata e la versione approvata non viene pubblicata.
+
+**Rischio residuo di review:** il candidato sovrascrive `window.fetch` nell'entrypoint privacy con un wrapper che risponde artificialmente 204 a POST diagnostici dell'SDK Shopify su endpoint Monorail/OpenTelemetry, identificati tramite host/payload. La whitelist è circoscritta, e i test passano, ma il comportamento dipende dagli schemi di un SDK remoto e potrebbe variare o interferire con diagnostica futura. Richiedere una valutazione esplicita di manutenzione/compatibilità e una strategia per SDK evoluti prima di firmare il rilascio; non presentare la soppressione locale come prova di conformità complessiva.
+
+**Produzione ancora BLOCKED:** Visitor Analytics Lovable continua a inviare HTTP 202 pre-consenso, incluso test con React non montato. Shopify checkout ospitato continua a emettere richieste tecniche/diagnostiche/wallet, con finalità da distinguere; non inventare classificazioni o sopprimere traffico tecnico indiscriminatamente. Per sbloccare: autorizzazione dedicata alla disattivazione della **sola** Visitor Analytics nella finestra controllata, Project monitoring intatto; verifica del wrapper; classificazione delle richieste checkout con owner privacy; solo poi merge/Publish e test post-release su dominio pubblico, inclusi carrello/account/Admin e rifiuto/revoca in IT. Rollback senza riattivare per default analytics pre-consenso. **SAL originaria 57,75% invariata**.
+
+Fonti: [PR #69](https://github.com/Rosin355/your-e-commerce-blueprint/pull/69) · [verbale candidato](https://github.com/Rosin355/your-e-commerce-blueprint/blob/9f93e91d6915fb2a291984349e4841be0e823b0b/docs/release/FINAL-CLOSEOUT-2026-11-22.md#consenso-sulla-vetrina-headless-del-23-novembre-2026).
+
 ## Consegna operativa al titolare
 
 Apri *Consulta storico.html* sul Mac autorizzato e scegli *conteggi.json*. Sono consultabili 858 account e 953 acquisti aggregati. I clienti Shopify non vedono dati storici; le associazioni verificate sono zero. Le indicazioni precedenti sul recupero delle transazioni sono superate dalla decisione definitiva del titolare. [Risultati e scheda per Marco](release/FINAL-DELIVERY-2026-11-22.md)
