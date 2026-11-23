@@ -1,4 +1,5 @@
 import { storefrontApiRequest, CART_CREATE_MUTATION } from './shopify';
+import { checkoutVisitorConsent } from './shopify-privacy';
 import type { CartItem } from '@/stores/cartStore';
 
 export async function createStorefrontCheckout(items: CartItem[]): Promise<string> {
@@ -12,10 +13,11 @@ export async function createStorefrontCheckout(items: CartItem[]): Promise<strin
     }));
 
     const cartData = await storefrontApiRequest(CART_CREATE_MUTATION, {
+      visitorConsent: await checkoutVisitorConsent(),
       input: {
         lines,
       },
-    });
+    }, undefined, '2026-10');
 
     // A checkout requires a successful cartCreate payload.
     if (!cartData?.data?.cartCreate) {

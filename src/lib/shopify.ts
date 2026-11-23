@@ -173,7 +173,7 @@ export const STOREFRONT_PRODUCTS_QUERY = `
 `;
 
 export const CART_CREATE_MUTATION = `
-  mutation cartCreate($input: CartInput!) {
+  mutation cartCreate($input: CartInput!, $visitorConsent: VisitorConsent) @inContext(visitorConsent: $visitorConsent) {
     cartCreate(input: $input) {
       cart {
         id
@@ -216,8 +216,8 @@ export const CART_CREATE_MUTATION = `
   }
 `;
 
-export async function storefrontApiRequest(query: string, variables: Record<string, unknown> = {}, signal?: AbortSignal) {
-  const response = await fetch(SHOPIFY_STOREFRONT_URL, {
+export async function storefrontApiRequest(query: string, variables: Record<string, unknown> = {}, signal?: AbortSignal, apiVersion = SHOPIFY_API_VERSION) {
+  const response = await fetch(`https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${apiVersion}/graphql.json`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

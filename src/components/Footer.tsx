@@ -1,10 +1,13 @@
+import { CookiePreferences } from "./CookiePreferences";
 import { PaymentInformation } from "./storefront/PaymentInformation";
 import { FOOTER_CATEGORIES, collectionHref } from "@/config/categories";
 import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, CONTACT_PATH, PUBLIC_LEGAL_LINKS } from "@/config/legal";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export const Footer = () => {
   const categories = FOOTER_CATEGORIES;
+  const { pathname } = useLocation();
+  const storefront = !/^\/(?:admin|account|auth|reset-password)(?:\/|$)/.test(pathname);
 
   return (
     <footer className="border-t border-border/70 bg-background">
@@ -51,6 +54,7 @@ export const Footer = () => {
           <nav aria-labelledby="footer-legal-heading">
             <h3 id="footer-legal-heading" className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Legale</h3>
             <ul className="mt-4 space-y-2.5">
+              {storefront && <CookiePreferences />}
               {PUBLIC_LEGAL_LINKS.map((policy) => (
                 <li key={policy.path}>
                   <a href={policy.href} className="inline-flex min-h-6 items-center text-sm text-foreground/90 transition-colors hover:text-primary">
