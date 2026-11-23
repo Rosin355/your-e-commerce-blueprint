@@ -1,10 +1,14 @@
 // Opt-in QA with the built storefront, real Shopify banner and guest checkout. No payment step.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { chromium, webkit, devices } from 'playwright';
 
-const [engine = 'chromium', form = 'desktop'] = process.argv.slice(2);
+const [engine = 'chromium', form = 'desktop', ...options] = process.argv.slice(2);
+assert.ok(options.every((flag) => ['--sdk-review', '--public'].includes(flag)));
+const sdkReview = options.includes('--sdk-review');
+const publicSite = options.includes('--public');
 assert.ok(['chromium', 'webkit'].includes(engine) && ['desktop', 'mobile'].includes(form));
 const driver = engine === 'chromium' ? chromium : webkit;
 const device = engine === 'chromium' ? devices['Pixel 7'] : devices['iPhone 15'];
@@ -12,17 +16,50 @@ const browser = await driver.launch();
 const context = await browser.newContext({
   ...(form === 'mobile' ? device : { viewport: { width: 1365, height: 900 } }),
   locale: 'it-IT',
-  serviceWorkers: 'block',
+  serviceWorkers: publicSite ? 'allow' : 'block',
 });
 const origin = 'https://onlinegarden.it';
 const pdp = origin + '/products/bulbo-di-dalia-purple-queen-confezione-da-1-tubero';
-const dist = path.resolve('dist');
+const dist = path.resolve(process.env.OG_QA_DIST || 'dist');
 const metrics = {};
 const checkouts = [];
 const diagnosticHosts = {};
 const unexpected = [];
 const hostedDiagnostics = {};
-function recordHostedDiagnostic(request, url) {
+const storefrontDiagnostics = {};
+const pendingDiagnostics = new WeakMap();
+// Review fingerprint only. The storefront itself always loads Shopify's hosted SDK.
+const sdkUrl = 'https://cdn.shopify.com/shopifycloud/privacy-banner/storefront-banner.js';
+const reviewedSdkHash = 'c8d12d01ba0e2f81d699a83c08720f2aec90927c5ef65aaa1bbe0dd9e6f3c9e1';
+const sdkDigests = [];
+const unreviewedTraffic = {};
+const knownResourceHosts = new Set([
+  'onlinegarden.it',
+  'cdn.shopify.com',
+  'fonts.googleapis.com',
+  'fonts.gstatic.com',
+]);
+function expectedStorefrontRequest(url, req, category) {
+  if (
+    url.hostname === 'ecom-blueprint-gen-6ud1s.myshopify.com' &&
+    req.method() === 'POST' &&
+    (category === 'privacy_api' || category === 'storefront_api')
+  )
+    return /^\/api\/(?:[0-9]{4}-[0-9]{2}|unstable)\/graphql\.json$/.test(url.pathname);
+  if (req.method() !== 'GET' || !knownResourceHosts.has(url.hostname)) return false;
+  if (req.resourceType() === 'script')
+    return url.href === sdkUrl || (url.origin === origin && /^\/assets\/.+\.js$/.test(url.pathname));
+  return ['image', 'font', 'stylesheet'].includes(req.resourceType());
+}
+let fetchPreserved;
+if (sdkReview) {
+  context.setDefaultTimeout(30000);
+  await context.addInitScript(() => {
+    const original = window.fetch;
+    window.ogQaFetchUnchanged = () => original === window.fetch;
+  });
+}
+function diagnosticKey(request, url) {
   // Keep only vendor schema/metric names. Cart URLs, event payloads and identifiers stay in the browser.
   const labels = new Set();
   function collect(value) {
@@ -47,8 +84,7 @@ function recordHostedDiagnostic(request, url) {
   const path = /^\/(?:v1\/[a-z_]+|[a-z/_-]*produce_batch)\/?$/.test(url.pathname)
     ? url.pathname
     : '(altro percorso)';
-  const key = [phase, url.hostname, path, [...labels].sort().join(',')].join(' ');
-  hostedDiagnostics[key] = (hostedDiagnostics[key] ?? 0) + 1;
+  return [phase, url.hostname, path, [...labels].sort().join(',')].join(' ').trim();
 }
 
 const seenHosts = new Set();
@@ -80,30 +116,66 @@ context.on('request', (req) => {
   const key = classify(u, req);
   seenHosts.add(u.hostname);
   const storefront =
-    !req.isNavigationRequest() &&
     req
-      .frame()
-      .page()
-      .url()
-      .startsWith(origin + '/');
+      .serviceWorker()
+      ?.url()
+      .startsWith(origin + '/') ||
+    (!req.isNavigationRequest() &&
+      req
+        .frame()
+        .page()
+        .url()
+        .startsWith(origin + '/'));
+  if (
+    sdkReview &&
+    storefront &&
+    !['misurazione_o_diagnostica', 'lovable_events'].includes(key) &&
+    !expectedStorefrontRequest(u, req, key)
+  ) {
+    const label = [phase, req.method(), u.hostname, req.resourceType()].join(' ');
+    unreviewedTraffic[label] = (unreviewedTraffic[label] ?? 0) + 1;
+  }
   if (storefront && (key === 'misurazione_o_diagnostica' || key === 'lovable_events'))
     unexpected.push({ phase, host: u.hostname, kind: key });
-  if (!storefront && key === 'misurazione_o_diagnostica') recordHostedDiagnostic(req, u);
+  if (key === 'misurazione_o_diagnostica' || key === 'lovable_events') {
+    const label = diagnosticKey(req, u);
+    if (storefront) {
+      pendingDiagnostics.set(req, label);
+      const entry = (storefrontDiagnostics[label] ??= { attempts: 0, responses: {} });
+      entry.attempts++;
+    } else hostedDiagnostics[label] = (hostedDiagnostics[label] ?? 0) + 1;
+  }
   const bucket = (metrics[phase] ??= {});
   bucket[key] = (bucket[key] ?? 0) + 1;
   if (req.postData()?.includes('mutation cartCreate'))
     cartConsent = JSON.parse(req.postData()).variables.visitorConsent;
 });
-await context.route(origin + '/**', async (route) => {
-  const req = route.request(),
-    u = new URL(req.url());
-  if (req.isNavigationRequest()) return route.fulfill({ path: path.join(dist, 'index.html') });
-  if (u.pathname.startsWith('/assets/')) {
-    const file = path.resolve(dist, '.' + u.pathname);
-    if (file.startsWith(dist + path.sep) && fs.existsSync(file)) return route.fulfill({ path: file });
+context.on('response', (response) => {
+  const key = pendingDiagnostics.get(response.request());
+  if (key) {
+    const statuses = storefrontDiagnostics[key].responses;
+    statuses[response.status()] = (statuses[response.status()] ?? 0) + 1;
   }
-  return route.continue();
+  if (sdkReview && response.url() === sdkUrl) {
+    sdkDigests.push(
+      response
+        .body()
+        .then((bytes) => createHash('sha256').update(bytes).digest('hex'))
+        .catch(() => 'indisponibile'),
+    );
+  }
 });
+if (!publicSite)
+  await context.route(origin + '/**', async (route) => {
+    const req = route.request(),
+      u = new URL(req.url());
+    if (req.isNavigationRequest()) return route.fulfill({ path: path.join(dist, 'index.html') });
+    if (u.pathname.startsWith('/assets/')) {
+      const file = path.resolve(dist, '.' + u.pathname);
+      if (file.startsWith(dist + path.sep) && fs.existsSync(file)) return route.fulfill({ path: file });
+    }
+    return route.continue();
+  });
 let page = await context.newPage();
 const purposes = ['analytics', 'marketing', 'preferences'];
 function expectedFlags(choice) {
@@ -174,7 +246,34 @@ async function checkout(expected) {
   }
   checkouts.push({ expected, received, host });
 }
-try {
+async function reviewTransport() {
+  await page.goto(origin, { waitUntil: 'domcontentloaded' });
+  // Observe passive traffic before even querying the SDK from the test.
+  await page.getByRole('button', { name: 'Declina', exact: true }).waitFor();
+  await page.waitForTimeout(7000);
+  const region = await state('');
+  fetchPreserved = await page.evaluate(() => window.ogQaFetchUnchanged());
+  phase = 'rifiuto';
+  await page.getByRole('button', { name: 'Declina', exact: true }).click();
+  await state('no');
+  phase = 'ricarica_rifiuto';
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await state('no');
+  phase = 'accettazione';
+  await prefs('#shopify-pc__prefs__header-accept');
+  await state('yes');
+  phase = 'granulare';
+  await page.getByRole('button', { name: 'Preferenze cookie', exact: true }).click();
+  await page.locator('label[for="shopify-pc__prefs__marketing-input"]').click();
+  await page.locator('#shopify-pc__prefs__header-save').click();
+  await state('granulare');
+  phase = 'revoca';
+  await prefs('#shopify-pc__prefs__header-decline');
+  await state('no');
+  await checkout('no');
+  return region;
+}
+async function fullReview() {
   await page.goto(origin, { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Declina', exact: true }).waitFor();
   assert.equal(await page.getByRole('button', { name: 'Gestisci le preferenze', exact: true }).count(), 1);
@@ -254,8 +353,28 @@ try {
   await page.locator('input[type=password]').waitFor({ state: 'visible' });
   assert.equal(await page.locator('[data-storefront-privacy]').count(), 0);
   assert.equal(await page.locator('#shopify-pc__banner:visible').count(), 0);
+  return region;
+}
+try {
+  const region = sdkReview ? await reviewTransport() : await fullReview();
+  const sdkSHA256 = [...new Set(await Promise.all(sdkDigests))];
+  const blocked =
+    unexpected.length > 0 ||
+    (sdkReview &&
+      (!fetchPreserved ||
+        sdkSHA256.length !== 1 ||
+        sdkSHA256[0] !== reviewedSdkHash ||
+        Object.keys(unreviewedTraffic).length > 0));
   console.log(
     JSON.stringify({
+      mode: sdkReview ? 'sdk-review' : 'full',
+      target: publicSite ? 'public' : 'candidate',
+      functional: 'PASS',
+      observedNetworkGate: blocked ? 'NO-GO' : 'PASS',
+      fetchPreserved,
+      sdkSHA256,
+      unreviewedTraffic,
+      storefrontDiagnostics,
       engine,
       form,
       region,
@@ -267,10 +386,16 @@ try {
       hosts: [...seenHosts],
     }),
   );
-  if (unexpected.length) process.exitCode = 1;
+  if (blocked) process.exitCode = 1;
 } catch (error) {
   console.error(
     JSON.stringify({
+      mode: sdkReview ? 'sdk-review' : 'full',
+      target: publicSite ? 'public' : 'candidate',
+      functional: 'FAIL',
+      observedNetworkGate: 'NO-GO',
+      storefrontDiagnostics,
+      unreviewedTraffic,
       engine,
       form,
       phase,

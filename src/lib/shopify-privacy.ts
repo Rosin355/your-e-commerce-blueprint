@@ -1,5 +1,4 @@
 import { SHOPIFY_STORE_PERMANENT_DOMAIN, SHOPIFY_STOREFRONT_TOKEN } from './shopify';
-import { withoutPrivacyDiagnostics } from './shopify-privacy-diagnostics';
 
 type Choice = 'yes' | 'no' | '';
 type VisitorChoices = Partial<Record<'analytics' | 'marketing' | 'preferences' | 'sale_of_data', Choice>>;
@@ -98,7 +97,6 @@ function withTimeout<T>(operation: Promise<T>, timeout: number): Promise<T> {
 
 export function initializeStorefrontPrivacy() {
   if (!configured) {
-    window.fetch = withoutPrivacyDiagnostics(window.fetch.bind(window));
     synchronizeOpenStorefronts();
     configured = true;
   }

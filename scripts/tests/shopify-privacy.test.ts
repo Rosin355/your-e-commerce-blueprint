@@ -1,38 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { withoutPrivacyDiagnostics } from '../../src/lib/shopify-privacy-diagnostics';
 import { checkoutVisitorConsent, initializeStorefrontPrivacy } from '../../src/lib/shopify-privacy';
-
-test('la diagnostica del consenso è facoltativa, le altre chiamate conservano input e risposta', async () => {
-  const calls: unknown[] = [];
-  const upstream = new Response('ricevuto');
-  const filtered = withoutPrivacyDiagnostics(async (input, init) => {
-    calls.push([input, init]);
-    return upstream;
-  });
-  const events = 'https://monorail-edge.shopifysvc.com/v1/produce';
-  const metrics = 'https://otlp-http-production.shopifysvc.com/v1/metrics';
-  const post = (payload: unknown) => ({ method: 'POST', body: JSON.stringify(payload) });
-  const diagnostic = post({ schema_id: 'customer_privacy_api_events/2.0' });
-  const batch = (service: string) => ({
-    resource: { attributes: [{ key: 'service.name', value: { stringValue: service } }] },
-  });
-  assert.equal((await filtered(events, diagnostic)).status, 204);
-  assert.equal(
-    (await filtered(metrics, post({ resourceMetrics: [batch('consent-tracking-api')] }))).status,
-    204,
-  );
-  assert.equal(calls.length, 0);
-  for (const [url, init] of [
-    ['https://store.example/api/2026-10/graphql.json', diagnostic],
-    [events, post({ schema_id: 'staff_monitoring/1' })],
-    [metrics, post({ resourceMetrics: [batch('checkout'), batch('consent-tracking-api')] })],
-    [events, { method: 'POST', body: 'invalid-json' }],
-  ] as const) {
-    assert.equal(await filtered(url, init), upstream);
-    assert.deepEqual(calls.at(-1), [url, init]);
-  }
-});
 
 test('il checkout trasferisce soltanto le scelte esplicite Shopify, compresa la revoca', async () => {
   let choice: Record<string, string> = {};
@@ -76,6 +44,8 @@ test('carica il banner una sola volta, riprova dopo un errore e lascia a Shopify
   const browser = { location: { hostname: 'www.onlinegarden.it' }, fetch, setTimeout, clearTimeout };
   const stub = (key: string, value: unknown) =>
     Object.defineProperty(globalThis, key, { configurable: true, value });
+  // A host may provide a read-only transport. Consent initialization must never replace it.
+  Object.defineProperty(browser, 'fetch', { value: fetch, writable: false });
   stub('window', browser);
   stub('BroadcastChannel', undefined);
   stub('document', {
@@ -102,6 +72,7 @@ test('carica il banner una sola volta, riprova dopo un errore e lascia a Shopify
     scripts[1].onload();
     await retry;
     await initializeStorefrontPrivacy();
+    assert.strictEqual(browser.fetch, fetch);
     assert.equal(loads.length, 1);
     assert.equal(loads[0].storefrontRootDomain, 'onlinegarden.it');
     assert.equal(loads[0].locale, 'it');
