@@ -1,3 +1,13 @@
+## Checkpoint privacy — 23 novembre 2026, PR #69 HEAD a5f319a
+
+**Verificato su GitHub:** [PR #69](https://github.com/Rosin355/your-e-commerce-blueprint/pull/69) **OPEN**, non integrata né pubblicata. HEAD `a5f319ace864b398f43285bb9471d6cd5bd1ef12`, CI passata. La revisione rimuove l'intercettazione globale di `window.fetch` e il generatore di risposte sintetiche HTTP 204; il banner e il trasferimento del consenso al checkout restano funzionanti sul candidato.
+
+**Importante distinzione privacy:** 3 POST `customer_privacy_api_events/2.0` a Shopify Monorail prima della scelta (HTTP 200) sono **diagnostica tecnica osservata**. L'HTTP 200 da solo non stabilisce se si tratta di tracciamento facoltativo o di trattamento tecnico necessario. Servono finalità, payload minimo, retention, basi, ruoli e conferma Shopify/referente privacy per classificarle. Evitare wrapper, blocchi globali fetch/XHR/sendBeacon e workaround non supportati. Altri flussi di checkout e wallet restano da qualificare separatamente.
+
+**Problema produttivo certo:** l'hosting Lovable continua a inviare eventi `/__l5e/trackevents` con HTTP 202 prima del consenso; i test dimostrano che il caricamento avviene anche senza React. Il nuovo banner non è ancora pubblicato, quindi manca sulla vetrina. Decidere e autorizzare la disattivazione della **sola Visitor Analytics**, conservando Project monitoring e registrando il suo effetto sulle statistiche. Dopo classificazione dei flussi e GO privacy, merge/Publish dell'esatto commit approvato, test pubblici del banner, rifiuto e revoca, flag checkout, carrello/account/admin; rollback della build in caso di regressioni. Non promettere conformità senza prove.
+
+**Nessun Publish, nessun cambio live, SAL 57,75% invariata.** Registrata [review operativa nella PR #69](https://github.com/Rosin355/your-e-commerce-blueprint/pull/69).
+
 ## Cookie headless — checkpoint PR #69, 23 novembre 2026
 
 **PR #69 OPEN, NON MERGED** al commit `9f93e91d6915fb2a291984349e4841be0e823b0b`; tre controlli GitHub verdi, build/typecheck/lint mirato PASS, **33 test specifici** e **661 test Node** superati. Il candidato integra banner ufficiale Shopify nel frontend React, preferenze rifiuta/accetta/granulari, link footer e trasmissione dei soli segnali espliciti al checkout; Chromium desktop/mobile, Safari desktop e iOS simulato superati negli scenari documentati. **Il banner continua a mancare in produzione** finché la PR non viene integrata e la versione approvata non viene pubblicata.
