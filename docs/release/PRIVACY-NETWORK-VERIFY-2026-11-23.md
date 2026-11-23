@@ -26,3 +26,10 @@
 - [PR #69](https://github.com/Rosin355/your-e-commerce-blueprint/pull/69) e [verbale](FINAL-CLOSEOUT-2026-11-22.md)
 
 **Stato:** guida operativa. Nessuna verifica è marcata PASS in produzione dal solo presente documento.
+
+
+## Riscontro del responsabile — Lovable Visitor Analytics spento (23/11/2026)
+
+**Evidenza comunicata direttamente dal titolare/operatore:** «Ho disattivato Visitor Analytics su Lovable e nel Network non vedo più richieste `trackevents`». Registrare quindi **`LOVABLE_VISITOR_ANALYTICS=OFF (segnalazione operatore)`**, **`TRACK_EVENTS=0 (riscontro manuale nel campione osservato)`**. Questa annotazione non è una misura di rete indipendente dell'assistente; mancano ancora screenshot/HAR sanitizzato, browser/region/campione temporale precisi e controllo dell'Admin autenticato.
+
+**Conseguenza:** il precedente blocco dovuto a invii Lovable `/__l5e/trackevents` sembra risolto **nel campione riportato**; non ripristinare la telemetria senza nuova valutazione. Gli invii Monorail del SDK Shopify e le richieste del checkout/wallet **non sono classificati** e restano da documentare. La PR #69 all'HEAD `a5f319ace864b398f43285bb9471d6cd5bd1ef12` rimane OPEN e non pubblicata, come confermato via GitHub il 23/11. Per il GO al Publish servono ancora valutazione finalità dati Shopify, riesame privacy e accettazione specifica del rilascio con test pubblico dopo deploy. SAL ufficiale 57,75%, invariata.
