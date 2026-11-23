@@ -103,3 +103,18 @@ Il responsabile ha mostrato il pannello `SSL/TLS → Overview` per `onlinegarden
 **Rischio Cloudflare/Lovable da verificare prima di cambiare NS:** i record A `@`/`www` sono attualmente **Proxied** (nuvola arancione), e i 301 Cloudflare ne richiedono una gestione proxy appropriata. Verificare nel pannello domini Lovable il supporto esplicito al **traffico dietro CDN/reverse proxy** per il custom domain corrente e che l'origine risponda correttamente a Cloudflare; non convertire A/CNAME né cambiare il proxy alla cieca. Inoltre controllare lo stato del certificato di **Edge Certificates/Universal SSL**, ma non trattare eventuale pending prima dell'attivazione della zona come un certificato attivo. Nessuna modifica SSL/TLS, NS, proxy o DNS effettuata.
 
 **Prossima verifica non distruttiva:** aprire `Cloudflare → SSL/TLS → Edge Certificates`, fotografare la riga `Universal SSL` con stato e hostname coperti; poi verificare la configurazione del dominio custom in Lovable. Ancora STOP delega e 301 fino ai gate DKIM/posta, DNSSEC, origine/TLS, zona di ritorno e autorizzazione.
+
+
+## Screenshot Cloudflare Edge Certificates — 23/11/2026 ore 19:09 CET
+
+L'operatore ha mostrato le schermate `SSL/TLS → Edge Certificates` di Cloudflare (account Free) per `onlinegarden.it`, senza modifiche:
+
+- **Universal SSL**: non disabilitato; il pulsante visibile è «Disable Universal SSL» (indica che la funzione è abilitata, **non** che esista già un certificato attivo).
+- **Manage Edge Certificates → Hosts: No certificates.** Nessun certificato Edge attivo elencato. **STOP al proxy pubblico fino alla verifica di emissione.** Cloudflare documenta che, in setup full DNS, Universal SSL può essere emesso entro 15 minuti–24 ore dall'attivazione della zona; finché il certificato non è `Active`, il proxy HTTPS può non funzionare: [guida ufficiale](https://developers.cloudflare.com/ssl/edge-certificates/universal-ssl/enable-universal-ssl/).
+- **SSL/TLS mode** già `Full` nella schermata precedente: HTTPS origine cifrato, certificato origine non validato. Non impostare `Full (strict)` prima della validazione dell'origine/certificato.
+- `TLS 1.3` ON, `Automatic HTTPS Rewrites` ON, `Opportunistic Encryption` ON; `Always Use HTTPS` OFF; `HSTS` OFF; `Minimum TLS version` TLS 1.0 default. Mantenere per ora gli interruttori invariati. Dopo il rilascio, valutare minimo TLS 1.2 a beneficio della sicurezza, con verifica client.
+- **Advanced Certificate Manager** mostrato come opzione commerciale non attiva, **non acquistare** per risolvere il preflight.
+- **Rischio proxy Lovable:** i due A Cloudflare `@` e `www` sono **Proxied**. Verificare in Lovable la modalità esatta del custom domain `onlinegarden.it` e il supporto al reverse proxy; se la connessione Lovable è configurata come normale dominio diretto A/TXT, la configurazione proxy arancione è un rischio di guasto. Non convertire tipo record o disconnettere dominio senza procedura.
+- **Email non attiva** secondo il titolare; mancano prova di recapito, DKIM selettore effettivo, backup zona IONOS. **No cambio NS oggi** finché mancano queste verifiche e piano di rollback.
+
+**Prossima verifica singola e sola lettura:** `Cloudflare → Overview` per confermare lo stato zona `Pending/Active` e i nameserver richiesti. Poi `Lovable → progetto Online Garden → Settings → Domains` per leggere stato dominio e impostazioni proxy senza toccarle. Confrontare prima di preparare la finestra delega; non attivare HSTS o comprare SSL avanzato.
