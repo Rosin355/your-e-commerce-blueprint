@@ -2,7 +2,7 @@
 
 ## Chiusura AI della nuova bozza · 24 novembre 2026
 
-La migrazione 0020 aggiunge prenotazione server e audit per nuova bozza, con opt-in per attore e chiave. La Edge accetta il contratto storico della descrizione. I pacchetti recuperabili, il comportamento in assenza della routine, i checksum e il collaudo sono nel registro operativo. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
+La migrazione 0020 è registrata nel Cloud e la Edge è distribuita dal merge e11995c. La prenotazione server usa opt-in per attore e chiave. La Edge accetta il contratto storico della descrizione. I pacchetti recuperabili, il comportamento in assenza della routine, i checksum e il collaudo sono nel registro operativo. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
 
 ## PR #73 · selezione editoriale della nuova bozza
 
