@@ -1,3 +1,4 @@
+import { isSeasonalField, normalizeMonths } from './admin-v2-field-policy.ts';
 import { sanitizeEditorialHtml } from './vendor/editorial-html.mjs';
 export const DRAFT_BOTANICAL_KEYS = [
   'nome_botanico',
@@ -227,6 +228,13 @@ export function validateDraft(raw: unknown): ProductDraft {
     'Contenuti botanici non validi.',
   );
   demand(r.collectionIds===undefined || (Array.isArray(r.collectionIds) && r.collectionIds.length<=23 && r.collectionIds.every(id=>typeof id==='string' && /^gid:\/\/shopify\/Collection\/\d+$/.test(id)) && new Set(r.collectionIds).size===r.collectionIds.length),'Collezioni non valide.');
+  const botanical = { ...r.botanical as Record<string, unknown> };
+  for (const key of Object.keys(botanical)) {
+    if (isSeasonalField(key)) {
+      try { botanical[key] = normalizeMonths(botanical[key]); }
+      catch { throw new OperationalError('VALIDATION_ERROR', 'Periodo botanico: seleziona solo mesi validi.'); }
+    }
+  }
   return {
     ...(r.collectionIds!==undefined ? {collectionIds:r.collectionIds as string[]} : {}),
     title: text(r.title, 'Nome prodotto', 255, true),
@@ -241,7 +249,7 @@ export function validateDraft(raw: unknown): ProductDraft {
     images,
     seoTitle: text(r.seoTitle, 'Titolo SEO', 70),
     seoDescription: text(r.seoDescription, 'Descrizione SEO', 320),
-    botanical: r.botanical as Record<string, unknown>,
+    botanical,
   };
 }
 export function categoryDiff(current: string[], proposed: string[], allowed: string[]) {

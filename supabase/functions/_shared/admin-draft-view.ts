@@ -1,3 +1,4 @@
+import { SEASONAL_FIELD_KEYS } from './admin-v2-field-policy.ts';
 export const draftRecord = (value: unknown): Record<string, unknown> =>
   value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
 const text = (value: unknown) => typeof value === 'string' && value.trim() ? value : null;
@@ -9,6 +10,10 @@ export function projectDraft(raw: unknown, names: ReadonlyMap<string, string>) {
   const ids = draftStrings(p.categoryIds);
   const collections = p.collectionIds === undefined ? [] : draftStrings(p.collectionIds);
   return {
+    seasons: SEASONAL_FIELD_KEYS.flatMap(key => {
+      const months = draftStrings(draftRecord(p.botanical)[key]);
+      return months?.length ? [{ key, months }] : [];
+    }),
     title: text(p.title), sku: text(p.sku), description: text(p.description),
     productType: text(p.productType), vendor: text(p.vendor), currency: text(p.currency), tags: draftStrings(p.tags),
     categories: [...(ids ?? []), ...(collections ?? [])].map(id => names.get(id) ?? 'Categoria registrata · nome non verificato'),

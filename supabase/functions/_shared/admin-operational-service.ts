@@ -202,6 +202,27 @@ function verifiedLinks(draft: ProductDraft, opId: string, product: ShopifyDraft,
   }
   return verifyCreatedMapping(draft, { ...product, variants: product.variants.nodes });
 }
+async function verifyShopifySkus(draft: ProductDraft, shopify: typeof graphql) {
+  const skus = new Set([draft.sku, ...draft.variants.map(v => v.sku)].map(sku => sku.toLowerCase()));
+  // validateDraft restricts each term to letters, digits, dots, underscores and hyphens.
+  const query = [...new Set([draft.sku, ...draft.variants.map(v => v.sku)])]
+    .map(sku => `sku:"${sku}"`).join(' OR ');
+  let found;
+  try {
+    found = await shopify<{ productVariants: { nodes: { sku: string | null }[]; pageInfo: { hasNextPage: boolean } } }>(
+      'query DraftSku($query:String!){productVariants(first:100,query:$query){nodes{sku} pageInfo{hasNextPage}}}', { query },
+    );
+  } catch {
+    throw new OperationalError('CATALOG_UNAVAILABLE', 'Verifica dei codici su Shopify non disponibile. Riprova prima di salvare.');
+  }
+  if (found.productVariants.nodes.some(v => v.sku && skus.has(v.sku.toLowerCase()))) {
+    throw new OperationalError('SKU_CONFLICT', 'Codice già utilizzato su Shopify. Genera un nuovo codice nelle opzioni avanzate.');
+  }
+  if (found.productVariants.pageInfo.hasNextPage) {
+    throw new OperationalError('CATALOG_UNAVAILABLE', 'Verifica dei codici Shopify incompleta. Nessuna disponibilità confermata.');
+  }
+}
+
 export async function handleOperational(
   db: SupabaseClient,
   auth: AuthContext,
@@ -510,14 +531,15 @@ export async function handleOperational(
         ...new Set(skus),
       ]);
       if (error) throw new OperationalError('CATALOG_UNAVAILABLE', 'Verifica SKU non disponibile.');
-      demand(!data?.length, 'SKU già presente nel catalogo interno.');
+      if (data?.length) throw new OperationalError('SKU_CONFLICT', 'Codice già utilizzato nel catalogo o in una bozza. Genera un nuovo codice nelle opzioni avanzate.');
+      await verifyShopifySkus(draft, shopify);
       return {
         ok: true,
         draft,
-        canSave: flags.drafts && scoped('save_new_product') && (!canary || draft.sku === scope?.sku),
-        shopifySkuVerified: false,
+        canSave: flags.drafts && (ordinary ? catalogAllowed(auth, 'drafts') : scoped('save_new_product') && (!canary || draft.sku === scope?.sku)),
+        shopifySkuVerified: true,
         warnings: [
-          'Unicità Shopify verificata solo prima dell’invio autorizzato.',
+          'Codici verificati nel catalogo interno e su Shopify.',
           'Inventario e pubblicazione non vengono modificati.',
         ],
       };
@@ -527,6 +549,11 @@ export async function handleOperational(
       'Conferma o identificativo richiesta mancante.',
     );
     if (canary) requireCanaryDraft(requireCanaryScope(canaryScope(), auth.userId, auth.roles, action), draft, p.idempotencyKey);
+    // A completed request must remain replayable even after its product reaches Shopify.
+    const previous = await db.from('admin_product_operations').select('id')
+      .eq('actor', auth.userId).eq('request_key', p.idempotencyKey).maybeSingle();
+    if (previous.error) throw new OperationalError('CATALOG_UNAVAILABLE', 'Impossibile verificare lo stato della bozza.');
+    if (!previous.data) await verifyShopifySkus(draft, shopify);
     const { data, error } = await db.rpc('admin_save_new_draft', {
       p_actor: auth.userId,
       p_key: p.idempotencyKey,
@@ -639,22 +666,7 @@ export async function handleOperational(
       'query DraftCurrency{shop{currencyCode}}',
     );
     demand(shop.shop.currencyCode === draft.currency, 'Valuta diversa dalla valuta base Shopify.');
-    // A variable product's family SKU must not collide with another Shopify variant.
-    for (const sku of new Set([draft.sku, ...draft.variants.map((v) => v.sku)])) {
-      const found = await shopify<
-        { productVariants: { nodes: { sku: string }[]; pageInfo: { hasNextPage: boolean } } }
-      >(
-        'query DraftSku($query:String!){productVariants(first:100,query:$query){nodes{sku} pageInfo{hasNextPage}}}',
-        { query: `sku:"${sku}"` },
-      );
-      demand(
-        !found.productVariants.pageInfo.hasNextPage &&
-          !found.productVariants.nodes.some((v) =>
-            v.sku.toLowerCase() === sku.toLowerCase()
-          ),
-        'SKU già presente o ricerca Shopify non univoca.',
-      );
-    }
+    await verifyShopifySkus(draft, shopify);
     if(draft.categoryIds.length || draft.collectionIds?.length) demand(Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true', 'Assegnazioni categorie disabilitate.');
     // Verify manual collections before allowing a mutation.
     for (const id of collections) {

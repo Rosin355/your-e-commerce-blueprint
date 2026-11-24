@@ -26,6 +26,14 @@ DO $$ DECLARE a uuid:='00000000-0000-4000-8000-000000000001'; other_actor uuid:=
  ASSERT NOT public.admin_claim_catalog_approval(approval,a,repeat('a',64)),'Second claim accepted';
  UPDATE public.admin_catalog_approvals SET state='COMPLETE' WHERE id=approval;
  saved:=public.admin_save_new_draft(a,gen_random_uuid(),repeat('c',64),'{"sku":"DELIVERY-FIXTURE","variants":[{"sku":"DELIVERY-FIXTURE"}],"categoryIds":[]}', '[{"key":"title","text":"Fixture"}]');
+ -- A second draft colliding on an existing variant must roll back the entire family.
+ BEGIN
+   PERFORM public.admin_save_new_draft(a,gen_random_uuid(),repeat('d',64),
+     '{"sku":"MARCO-COLLISION","variants":[{"sku":"MARCO-COLLISION-1"},{"sku":"delivery-fixture"}],"categoryIds":[]}', '[]');
+   RAISE EXCEPTION 'Expected normalized SKU collision';
+ EXCEPTION WHEN unique_violation THEN
+   ASSERT NOT EXISTS(SELECT 1 FROM public.products WHERE sku_norm IN ('marco-collision','marco-collision-1'));
+ END;
  -- The ordinary wizard persists collection GIDs with the operation, alongside prices.
  DECLARE test_payload jsonb := '{"sku":"TEST-OG-AI-001","title":"TEST - Lavanda","description":"<p>Descrizione sintetica.</p>","currency":"EUR","variants":[{"sku":"TEST-OG-AI-001","option":"Formato unico","price":"10.00"}],"collectionIds":["gid://shopify/Collection/123"],"categoryIds":[]}';
          test_saved jsonb; replay jsonb; test_key uuid := gen_random_uuid();

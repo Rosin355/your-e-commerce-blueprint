@@ -587,3 +587,76 @@ Deno.test('publication badges distinguish local, Shopify and channel state and p
   });
   assertEquals(Object.fromEntries(await listPublicationStates(db, products, () => Promise.reject(new Error('Shopify unavailable')))), { local: 'local_draft' });
 });
+
+Deno.test('anteprima e salvataggio verificano famiglia e varianti, replay e collisione atomica', () =>
+  withFlags(async () => {
+    const flag = 'PRODUCT_ADMIN_DRAFTS_ENABLED';
+    const before = Deno.env.get(flag);
+    Deno.env.set(flag,'true');
+    try {
+      const draft = simulation({multiVariant:true}).op.payload;
+      const auth = {...actor,catalogApproval:{action:'save_new_product',target:'new-sku:qa-parent',before:{}}};
+      for (const scenario of ['libero','locale','variante','pagina incompleta','offline','concorrenza','replay']) {
+        let remoteReads = 0;
+        let saves = 0;
+        const db = {
+          from(table:string) {
+            const fields = ['title','description'].map(key=>({key, visible:true, editable:true, field_group:'main', data_type:'text', editor_type:'text',validation_rules:{}}));
+            const chain = {
+              select() {return chain;}, order() {return chain;}, eq() {return chain;},
+              range: async () => ({data:[],error:null}),
+              in(key:string, values:string[]) {
+                assertEquals([table,key],['products','sku_norm']);
+                assertEquals(values,['qa-parent','qa-001','qa-002']);
+                return Promise.resolve({data:scenario==='locale' ? [{sku:'qa-002'}] : [],error:null});
+              },
+              maybeSingle() {
+                assertEquals(table,'admin_product_operations');
+                return Promise.resolve({data:scenario==='replay' ? {id} : null,error:null});
+              },
+              then(resolve:(v:unknown)=>void) {
+                assertEquals(table,'product_field_definitions');
+                resolve({data:fields,error:null});
+              },
+            };
+            return chain;
+          },
+          async rpc(name:string, args:Record<string,unknown>) {
+            assertEquals(name,'admin_save_new_draft');
+            assertEquals(args.p_key,id);
+            saves++;
+            return {data:{state:'LOCAL_DRAFT'},error:scenario==='concorrenza' ? {code:'23505'} : null};
+          },
+        } as unknown as SupabaseClient;
+        const shopify = async <T>(document:string,vars?:Record<string,unknown>):Promise<T> => {
+          remoteReads++;
+          assertEquals(document.startsWith('query DraftSku('),true);
+          assertEquals(vars?.query,'sku:"QA-PARENT" OR sku:"QA-001" OR sku:"QA-002"');
+          if (scenario === 'offline') throw Error('offline');
+          return {productVariants:{nodes:scenario === 'variante' ? [{sku:'qa-002'}] : [],pageInfo:{hasNextPage:scenario === 'pagina incompleta'}}} as T;
+        };
+        const run = (action:string) => handleOperational(db,auth,{action,draft,confirm:true,idempotencyKey:id},shopify);
+        if (scenario === 'locale' || scenario === 'variante' || scenario === 'offline' || scenario === 'pagina incompleta') {
+          const error = await assertRejects(()=>run('preview_new_product'),OperationalError);
+          assertEquals(error.code,scenario==='locale' || scenario==='variante' ? 'SKU_CONFLICT' : 'CATALOG_UNAVAILABLE');
+          if (scenario !== 'locale') {
+            const saveError = await assertRejects(()=>run('save_new_product'),OperationalError);
+            assertEquals(saveError.code,error.code);
+          }
+          assertEquals(saves,0);
+          assertEquals(remoteReads,scenario==='locale' ? 0 : 2);
+        } else if (scenario === 'concorrenza') {
+          const error = await assertRejects(()=>run('save_new_product'),OperationalError);
+          assertEquals(error.code,'SKU_CONFLICT');
+          assertEquals(saves,1);
+        } else {
+          if (scenario === 'libero') await run('preview_new_product');
+          await run('save_new_product');
+          assertEquals(remoteReads,scenario==='libero' ? 2 : 0);
+          assertEquals(saves,1);
+        }
+      }
+    } finally {
+      if (before === undefined) Deno.env.delete(flag); else Deno.env.set(flag,before);
+    }
+  }));

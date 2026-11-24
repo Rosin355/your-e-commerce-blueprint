@@ -24,7 +24,6 @@ for (const width of [1280,390]) test(`editor, liste, prezzi e AI sintetica a ${w
  await page.getByRole('button',{name:'Aggiungi elemento'}).click();
  await page.getByRole('textbox',{name:'Punti di forza, elemento 3'}).fill('Terzo');
  await expect(page.getByTestId('list')).toHaveText('Secondo|Primo|Terzo');
- await page.getByRole('button',{name:'Più formati',exact:true}).click();
  await page.getByRole('button',{name:'Aggiungi formato',exact:true}).click();
  await page.getByRole('textbox',{name:'Prezzo di vendita 2',exact:true}).fill('12,50');
  await expect(page.getByTestId('variants')).toContainText('12,50');

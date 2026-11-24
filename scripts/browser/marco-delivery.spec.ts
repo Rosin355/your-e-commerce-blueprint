@@ -3,6 +3,14 @@ import { projectDraft } from '../../supabase/functions/_shared/admin-draft-view'
 import type { AdminAiSuggestion } from '../../src/adminv2/lib/adminApi';
 import type { ProductDraft } from '../../supabase/functions/_shared/admin-operational-core';
 
+const seasons = [
+  ['periodo_di_fioritura','Fioritura'], ['periodo_di_messa_a_dimora','Messa a dimora'],
+  ['periodo_di_raccolta','Raccolta'], ['periodo_ottimale_di_potatura','Potatura'],
+] as const;
+const definitions = [
+  { key: 'description', label: 'Descrizione', editor_type: 'richtext', data_type: 'text', ai_allowed: true },
+  ...seasons.map(([key,label]) => ({ key,label,editor_type:'multiselect',data_type:'array',ai_allowed:false })),
+].map(field => ({ ...field, editable:true, visible:true, manual_only:false, required:false, validation_rules:{} }));
 const productId = 'b998f5bb-e9d4-4d53-a448-7a5129f91ddc';
 const collection = 'gid://shopify/Collection/123';
 const categoryName = 'Aromatiche da esterno';
@@ -16,11 +24,13 @@ const initial: ProductDraft = {
   seoTitle: 'Titolo SEO sintetico', seoDescription: 'Descrizione SEO sintetica',
 };
 
-async function simulate(page: Page, options: { readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string } = {}) {
+async function simulate(page: Page, options: { readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; legacyPreview?: boolean; collision?: string; aiError?: string; existing?: { id:string; months:string[] }; currentText?: string } = {}) {
   let saved = structuredClone(initial);
   if (options.legacy) saved.description = '<p onclick="">Testo <strong>verificato</strong>.</p><ul><li>Voce</li></ul><script type="application/json">contenuto escluso</script>';
   let value = options.currentText ?? saved.description;
   let version = 1;
+  let collision = options.collision;
+  let existingMonths = options.existing?.months;
   let sent = false;
   let pending: AdminAiSuggestion | undefined;
   const uploadKeys: string[] = [];
@@ -44,16 +54,21 @@ async function simulate(page: Page, options: { readError?: boolean; legacy?: boo
     const action = input.action;
     calls.push(action);
     const reply = (result: object) => route.fulfill({ json: { ok: true, ...result } });
+    if (collision === action) {
+      collision = undefined;
+      return route.fulfill({status:400, json:{ok:false,error:{code:'SKU_CONFLICT'}}});
+    }
     switch (action) {
       case 'get_admin_context': return reply({ roles: ['editor'], canWrite: true, canUseAi: true, ordinaryCatalog: true, supportsCatalogSourceAndProductType: true, canUploadImages: options.media === true, editableFieldKeys: ['description'], canPublish: true });
       case 'get_product': return reply({
-        product: { productId, sku: saved.sku, entityType: 'simple', isActive: true },
+        product: { productId: options.existing?.id ?? productId, sku: saved.sku, entityType: 'simple', isActive: true },
         shopifyLive: sent ? { available: true, mapped: true, publicationStatus: 'DRAFT' } : { available: false, mapped: false }, history: [],
         sections: [{ key: 'content', label: 'Contenuti', fields: [{
           key: 'description', label: 'Descrizione', value, version, dataType: 'text', editorType: 'richtext',
           sourceState: 'original_absent', validationRules: {}, syncState: 'INTERNAL_ONLY',
           capabilities: { currentValueExists: true, canUpdate: true, canSuggestAi: true },
-        }] }],
+        }, ...(existingMonths ? [{key:seasons[0][0],label:'Fioritura',value:existingMonths,version,dataType:'array',editorType:'multiselect',
+          sourceState:'original_absent',validationRules:{},syncState:'INTERNAL_ONLY',capabilities:{currentValueExists:true,canUpdate:true}}] : [])] }],
       });
       case 'get_product_operations': return reply({ canManageDraft: true, ordinaryCatalog: true, canSendDraft: options.allowDraftSend === true, operations: [{
         id: 'operation', state: sent ? 'VERIFIED_DRAFT' : 'LOCAL_DRAFT', created_at: '2026-11-20', admin_operation_events: [],
@@ -88,8 +103,20 @@ async function simulate(page: Page, options: { readError?: boolean; legacy?: boo
         uploadKeys.push(input.idempotencyKey);
         if (uploadKeys.length === 1) return route.fulfill({ status: 503, json: { error: { code: 'INTERNAL_ERROR' } } });
         return reply({ media: { id: 'file-1', state: 'READY', url: initial.images[0].url, alt: input.alt } });
-      case 'get_field_definitions': return reply({ definitions: [] });
-      case 'preview_new_product': return reply({ warnings: [] });
+      case 'update_field':
+        expect(input.productId).toBe(options.existing?.id);
+        expect(input.fieldKey).toBe(seasons[0][0]);
+        expect(input.expectedVersion).toBe(version);
+        existingMonths=input.value;
+        return reply({ result:{version:++version} });
+      case 'suggest_confirmed_field':
+        expect(Object.keys(input).sort()).toEqual(['action','confirmed','facts','fieldKey','requestKey']);
+        expect(input.confirmed).toBe(true);
+        expect(input.fieldKey).toBe('description');
+        if (options.aiError) return route.fulfill({ status: 422, json:{ok:false,error:{code:options.aiError}} });
+        return reply({value:'<p>'+input.facts[0]+'</p>'});
+      case 'get_field_definitions': return reply({ definitions });
+      case 'preview_new_product': return reply({ warnings: [], shopifySkuVerified: options.legacyPreview ? undefined : true });
       case 'prepare_catalog_approval': return reply({ approvalId: 'synthetic-approval' });
       case 'create_shopify_draft':
         expect(options.allowDraftSend).toBe(true);
@@ -104,7 +131,7 @@ async function simulate(page: Page, options: { readError?: boolean; legacy?: boo
       default: unexpected.push(action); return route.fulfill({ status: 403, json: { ok: false } });
     }
   });
-  return { calls, unexpected, uploadKeys, advanceVersion: () => { version++; } };
+  return { calls, unexpected, uploadKeys, get saved() {return saved;}, get existingMonths() {return existingMonths;}, advanceVersion: () => { version++; } };
 }
 
 test('scheda reale: proposta immediata, refresh, scarto, obsolescenza e applicazione interna', async ({ page }) => {
@@ -113,7 +140,7 @@ test('scheda reale: proposta immediata, refresh, scarto, obsolescenza e applicaz
   const generate = page.getByRole('button', { name: 'Migliora il testo con AI' });
   await expect(page.getByText('Bozza interna non inviata · fuori vendita')).toBeVisible();
   await expect(page.getByText('Prezzo di vendita 10,00 EUR', { exact: false })).toBeVisible();
-  await expect(page.getByText(categoryName, { exact: true })).toBeVisible();
+  await expect(page.getByText(categoryName, { exact: true }).filter({visible: true})).toBeVisible();
   await expect(generate).toBeVisible();
   const reads = model.calls.filter(action => action === 'get_ai_suggestions').length;
   await generate.click({ clickCount: 2 });
@@ -145,31 +172,29 @@ test('wizard reale: categoria, virgola, anteprima e riapertura del riepilogo', a
   const model = await simulate(page, { media: true });
   await page.goto('/admin/products/new');
   await page.getByLabel('Nome prodotto').fill(initial.title);
-  await page.getByLabel('SKU famiglia').fill(initial.sku);
+  await expect(page.getByLabel(/SKU famiglia/)).toBeHidden();
   await page.getByRole('textbox', { name: 'Descrizione verificata' }).fill('Lavanda di prova.');
-  await page.getByRole('button', { name: '2. Dati commerciali' }).click();
+  await page.getByText('Opzioni avanzate', { exact: true }).click();
   await page.getByLabel('Fornitore').fill(initial.vendor);
   await page.getByLabel('Tipo prodotto').fill('Arbusto sintetico');
   await page.getByLabel('Tag separati da virgole').fill('collaudo');
-  await page.getByRole('button', { name: '3. Categorie' }).click();
   await page.getByLabel('Cerca categoria').fill('aromatiche');
   await page.getByRole('checkbox', { name: categoryName }).check();
   await expect(page.getByText('Selezionate · ' + categoryName)).toBeVisible();
-  await page.getByRole('button', { name: '4. Immagini e formati' }).click();
   await page.getByRole('textbox', { name: 'Prezzo di vendita 1' }).fill('10,00');
   await page.getByText('Scegli fra le tue immagini già caricate').click();
   await page.getByRole('button', { name: /Foto lavanda sintetica/ }).click();
-  await page.getByRole('button', { name: '5. Botanica e SEO' }).click();
   await page.getByText('SEO facoltativa').click();
   await page.getByLabel('Titolo SEO').fill(initial.seoTitle);
   await page.getByLabel('Descrizione SEO').fill(initial.seoDescription);
-  await page.getByRole('button', { name: '6. Anteprima' }).click();
+  await page.getByRole('button', { name: '2. Anteprima e salvataggio' }).click();
   await expect(page.getByRole('img', { name: initial.images[0].alt })).toBeVisible();
-  await expect(page.locator('.prose p')).toHaveText('Lavanda di prova.');
-  await expect(page.getByText(categoryName, { exact: true })).toBeVisible();
+  await expect(page.locator('.prose:visible p')).toHaveText('Lavanda di prova.');
+  await expect(page.getByText(categoryName, { exact: true }).filter({visible: true})).toBeVisible();
   await expect(page.getByText(/Prezzo di vendita 10,00 EUR/)).toBeVisible();
+  await page.getByText('Codici e dettagli avanzati').click();
   await expect(page.getByText(initial.seoTitle)).toBeVisible();
-  await expect(page.getByText(initial.seoDescription)).toBeVisible();
+  await expect(page.getByText(initial.seoDescription).filter({visible:true})).toBeVisible();
   await expect(page.getByText(initial.vendor)).toBeVisible();
   await page.locator('fieldset').screenshot({ path: testInfo.outputPath('anteprima.png') });
   await page.getByRole('button', { name: 'Verifica anteprima' }).click();
@@ -179,7 +204,7 @@ test('wizard reale: categoria, virgola, anteprima e riapertura del riepilogo', a
   await page.getByRole('link', { name: 'Apri scheda prodotto e storico' }).click();
   await expect(page.getByRole('heading', { name: 'Riepilogo della bozza interna salvata' })).toBeVisible();
   await expect(page.getByText(/Prezzo di vendita 10,00 EUR/)).toBeVisible();
-  await expect(page.getByText(categoryName, { exact: true })).toBeVisible();
+  await expect(page.getByText(categoryName, { exact: true }).filter({visible: true})).toBeVisible();
   const summary = page.getByRole('heading', { name: 'Riepilogo della bozza interna salvata' }).locator('..');
   const photo = summary.getByRole('img', { name: initial.images[0].alt });
   await expect(photo).toBeVisible();
@@ -222,7 +247,6 @@ test('riepilogo legacy in sola lettura: struttura sicura, foto e SEO', async ({ 
 test('upload simulato: una chiave per lo stesso file anche dopo nuova selezione, rimozione solo locale', async ({ page }) => {
   const model = await simulate(page, { media: true });
   await page.goto('/admin/products/new');
-  await page.getByRole('button', { name: '4. Immagini e formati' }).click();
   const image = { name: 'fixture.png', mimeType: 'image/png', buffer: Buffer.from('fixture locale') };
   const file = page.getByLabel('Scegli immagine dal computer');
   await file.setInputFiles(image);
@@ -257,4 +281,165 @@ test('invio simulato in DRAFT solo dopo conferma esplicita aggiorna lo stato sen
   expect(model.calls.filter(action => action === 'create_shopify_draft')).toHaveLength(1);
   expect(model.calls).not.toContain('publish_catalog_product');
   expect(model.unexpected).toEqual([]);
+});
+
+async function fillEssential(page: Page) {
+  await page.getByLabel('Nome prodotto (obbligatorio)').fill('Bozza di collaudo');
+  await page.getByRole('textbox', { name:'Descrizione verificata' }).fill('Descrizione sintetica di collaudo.');
+  await page.getByLabel('Prezzo di vendita 1').fill('12,50');
+}
+
+for (const width of [1280,390]) test('bozza semplice e quattro calendari indipendenti a '+width+'px', async ({ page }) => {
+  const model = await simulate(page);
+  await page.setViewportSize({width,height:900});
+  await page.goto('/admin/products/new');
+  const advanced = page.getByText('Opzioni avanzate',{exact:true});
+  const sku = page.locator('#sku');
+  await expect(sku).toBeHidden();
+  const family = await sku.inputValue();
+  expect(family).toMatch(/^OG-NP-[A-F0-9]{10}-[A-F0-9]{10}$/);
+  await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+  await expect(page.locator('#title')).toBeFocused();
+  await expect(page.locator('#title')).toHaveAttribute('aria-describedby','title-error');
+  await expect(page.getByText('Inserisci una descrizione verificata', {exact:false})).toBeVisible();
+  await fillEssential(page);
+  await advanced.focus();
+  await page.keyboard.press('Enter');
+  await expect(sku).toBeVisible();
+  await page.getByText('Informazioni botaniche e FAQ facoltative').click();
+  const order = [
+    ['Novembre','Maggio','Febbraio'], ['Dicembre','Gennaio','Aprile'],
+    ['Novembre','Maggio','Febbraio'], ['Dicembre','Aprile','Gennaio'],
+  ];
+  const expected = [
+    ['Febbraio','Maggio','Novembre'], ['Gennaio','Aprile','Dicembre'],
+    ['Febbraio','Novembre'], ['Gennaio','Aprile','Dicembre'],
+  ];
+  for (const [i,[,label]] of seasons.entries()) {
+    // Dispatch different inputs within the same JS task, before the next paint.
+    await page.evaluate(({label, months}) => {
+      for (const month of months) document.querySelector<HTMLElement>('[aria-label="'+label+': '+month+'"]')!.click();
+    },{label,months:order[i]});
+  }
+  await page.getByRole('checkbox',{name:'Raccolta: Maggio'}).uncheck();
+  await advanced.click();
+  await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+  await expect(page.getByText('Febbraio, Maggio, Novembre',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Indietro'}).click();
+  await advanced.click();
+  await expect(sku).toHaveValue(family);
+  for (const [i,[,label]] of seasons.entries()) {
+    for (const month of expected[i]) await expect(page.getByRole('checkbox',{name:label+': '+month})).toBeChecked();
+  }
+  await expect(page.getByRole('checkbox',{name:'Raccolta: Maggio'})).not.toBeChecked();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+  await page.getByRole('button',{name:'Verifica anteprima'}).click();
+  await page.getByRole('checkbox',{name:/Confermo i dati/}).check();
+  page.once('dialog',dialog=>dialog.accept());
+  await page.getByRole('button',{name:'Salva bozza nell’Admin'}).click();
+  await page.getByRole('link',{name:'Apri scheda prodotto e storico'}).click();
+  await page.reload();
+  const summary = page.getByRole('heading',{name:'Riepilogo della bozza interna salvata'}).locator('..');
+  for (const [i,[key]] of seasons.entries()) {
+    expect(model.saved.botanical[key]).toEqual(expected[i]);
+    await expect(summary.getByText(expected[i].join(', '),{exact:true}).first()).toBeVisible();
+  }
+  expect(model.saved.variants[0].sku).toBe(family);
+  expect(model.saved.sku).toBe(family);
+  expect(model.calls).not.toContain('create_shopify_draft');
+  expect(model.unexpected).toEqual([]);
+});
+
+for (const collision of ['preview_new_product','save_new_product']) test('conflitto SKU durante '+collision+' recuperabile',async({page})=>{
+  const model = await simulate(page,{collision});
+  await page.goto('/admin/products/new');
+  await fillEssential(page);
+  const family = await page.locator('#sku').inputValue();
+  await page.getByRole('button',{name:'Aggiungi formato'}).click();
+  await page.getByLabel('Nome formato 2').fill('Secondo');
+  await page.getByLabel('Prezzo di vendita 2').fill('15');
+  page.on('dialog',dialog=>dialog.accept());
+  async function preview() {
+    await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+    await page.getByRole('button',{name:'Verifica anteprima'}).click();
+  }
+  async function save() {
+    await page.getByRole('checkbox',{name:/Confermo i dati/}).check();
+    await page.getByRole('button',{name:'Salva bozza nell’Admin'}).click();
+  }
+  await preview();
+  if (collision === 'save_new_product') await save();
+  await expect(page.locator('#sku')).toBeFocused();
+  await expect(page.getByText(/Un codice è già in uso/)).toBeVisible();
+  await page.getByRole('button',{name:'Genera altri codici'}).click();
+  const replacement = await page.locator('#sku').inputValue();
+  expect(replacement).not.toBe(family);
+  await expect(page.getByLabel('Prezzo di vendita 2')).toHaveValue('15');
+  await preview();
+  await save();
+  await expect(page.getByRole('link',{name:'Apri scheda prodotto e storico'})).toBeVisible();
+  expect(model.saved.variants.map(v=>v.sku)).toEqual([replacement+'-1',replacement+'-2']);
+  expect(model.unexpected).toEqual([]);
+});
+
+for (const [i, months] of [['Febbraio','Novembre'],['Gennaio','Dicembre']].entries()) test('modifica mirata mesi su scheda esistente '+(i+1),async({page})=>{
+  const id = productId.slice(0,-1)+String(i+1);
+  const model = await simulate(page,{existing:{id,months}});
+  await page.goto('/admin/products/'+id);
+  const card = page.locator('article').filter({has:page.getByRole('heading',{name:'Fioritura'})});
+  await card.getByRole('button',{name:'Modifica',exact:true}).click();
+  await card.getByRole('checkbox',{name:'Fioritura: Maggio'}).check();
+  page.on('dialog',d=>d.accept());
+  await card.getByRole('button',{name:'Salva bozza',exact:true}).click();
+  await expect.poll(()=>model.existingMonths).toEqual([months[0],'Maggio',months[1]]);
+  await page.reload();
+  await card.getByRole('button',{name:'Modifica',exact:true}).click();
+  await expect(card.getByRole('checkbox',{name:'Fioritura: Maggio'})).toBeChecked();
+  expect(model.saved.sku).toBe(initial.sku);
+  expect(model.calls.filter(a=>['save_new_product','sync_field','create_shopify_draft','publish_catalog_product'].includes(a))).toEqual([]);
+  expect(model.unexpected).toEqual([]);
+});
+
+for (const [code,message] of [
+  ['VALIDATION_ERROR','non superano la verifica'],['FORBIDDEN','non è autorizzato'],['RATE_LIMITED','troppe proposte'],
+  ['AI_NOT_CONFIGURED','non è configurato'],['AI_PROVIDER_ERROR','non è disponibile'],['AI_TIMEOUT','in tempo'],
+  ['MALFORMED_AI_OUTPUT','formato sicuro'],['','Proposta da revisionare'],
+]) test('AI su nuova bozza, '+(code || 'proposta approvata'),async({page})=>{
+  const model=await simulate(page,{aiError:code});
+  await page.goto('/admin/products/new');
+  await fillEssential(page);
+  await page.getByText('Aiuto AI per la descrizione (facoltativo)').click();
+  const assistant=page.getByRole('region',{name:'Assistenza AI Descrizione'});
+  const fact='La scheda contiene una fotografia di prova.';
+  await assistant.getByRole('textbox',{name:/Informazioni fattuali/}).fill(fact);
+  await assistant.getByRole('checkbox').check();
+  await page.getByLabel('Nome prodotto (obbligatorio)').fill('Titolo aggiornato');
+  await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+  await page.getByRole('button',{name:'Indietro'}).click();
+  await expect(assistant.getByRole('checkbox')).toBeChecked();
+  await assistant.getByRole('button',{name:'Organizza le informazioni con AI'}).click();
+  await expect(assistant.getByText(message,{exact:false})).toBeVisible();
+  const description=page.getByRole('textbox',{name:'Descrizione verificata'});
+  await expect(description).toHaveText('Descrizione sintetica di collaudo.');
+  if (!code) {
+    page.once('dialog',d=>d.accept());
+    await assistant.getByRole('button',{name:'Applica alla compilazione'}).click();
+    await expect(description).toHaveText(fact);
+  }
+  expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(1);
+  expect(model.calls).not.toContain('save_new_product');
+  expect(model.unexpected).toEqual([]);
+});
+
+test('incompatibilità con il vecchio server lascia disponibile la compilazione e blocca il salvataggio', async ({page})=>{
+  const model = await simulate(page,{legacyPreview:true});
+  await page.goto('/admin/products/new');
+  await fillEssential(page);
+  await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+  await page.getByRole('button',{name:'Verifica anteprima'}).click();
+  await expect(page.getByText(/Attendi l’aggiornamento prima di salvare/)).toBeVisible();
+  await page.getByRole('checkbox',{name:/Confermo i dati/}).check();
+  await expect(page.getByRole('button',{name:'Salva bozza nell’Admin'})).toBeDisabled();
+  expect(model.calls).not.toContain('save_new_product');
 });

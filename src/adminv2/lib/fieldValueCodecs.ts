@@ -1,8 +1,15 @@
 import type { AdminField } from './adminApi';
 import {
   normalizeMonths,
+  type Month,
   isSeasonalField,
 } from '../../../supabase/functions/_shared/admin-v2-field-policy.ts';
+
+export function toggleMonth(value: unknown, month: Month, checked: boolean) {
+  const selected = Array.isArray(value) ? value : [];
+  const next = checked ? [...selected, month] : selected.filter(item => item !== month);
+  return next.length ? normalizeMonths(next) : [];
+}
 
 export interface FaqItem {
   question: string;

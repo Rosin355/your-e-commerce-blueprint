@@ -12,18 +12,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { AdminField } from '../lib/adminApi';
-import { editorKind, parseFaqValue } from '../lib/fieldValueCodecs';
+import { editorKind, parseFaqValue, toggleMonth } from '../lib/fieldValueCodecs';
 import FaqEditor from './FaqEditor';
-import { MONTHS } from '../../../supabase/functions/_shared/admin-v2-field-policy.ts';
+import { MONTHS, type Month } from '../../../supabase/functions/_shared/admin-v2-field-policy.ts';
 
 interface FieldEditorProps {
   field: Pick<AdminField, 'key' | 'label' | 'editorType' | 'dataType' | 'validationRules' | 'required'>;
   value: unknown;
   onChange: (value: unknown) => void;
+  onMonthToggle?: (month: Month, checked: boolean) => void;
   disabled?: boolean;
 }
 
-export default function FieldEditor({ field, value, onChange, disabled = false }: FieldEditorProps) {
+export default function FieldEditor({ field, value, onChange, onMonthToggle, disabled = false }: FieldEditorProps) {
   const kind = editorKind(field);
 
   if (kind === 'richtext') return <RichTextEditor value={typeof value === 'string' ? value : ''} onChange={onChange} disabled={disabled} label={field.label} />;
@@ -131,11 +132,10 @@ export default function FieldEditor({ field, value, onChange, disabled = false }
               <Checkbox
                 className="shrink-0"
                 checked={selected.includes(month)}
-                onCheckedChange={(checked) => onChange(
-                  checked
-                    ? [...selected, month]
-                    : selected.filter((item) => item !== month),
-                )}
+                onCheckedChange={checked => {
+                  if (onMonthToggle) onMonthToggle(month, checked === true);
+                  else onChange(toggleMonth(value, month, checked === true));
+                }}
                 disabled={disabled}
                 aria-label={`${field.label}: ${month}`}
               />

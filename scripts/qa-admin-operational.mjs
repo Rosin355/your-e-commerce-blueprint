@@ -38,6 +38,7 @@ const catalog = () => ({
   notice: 'SIMULAZIONE QA — conteggi interni, nessun dato live.',
   observedAt: new Date().toISOString(),
   missingCanonicalHandles: [],
+  canAuthorDraft: true,
   canSaveDraft: true,
   canSendDraft: false,
   canAssign: mode === 'confirm',
@@ -137,7 +138,7 @@ await context.route('**/*', async (route) => {
       return json({ok:true,reason:'Assegnazione simulata verificata'});
     }
     if (p.action === 'preview_new_product') {
-      return json({ ok: true, warnings: ['Anteprima simulata. Nessuna chiamata live.'] });
+      return json({ ok: true, shopifySkuVerified: true, warnings: ['Anteprima simulata. Nessuna chiamata live.'] });
     }
     if (p.action === 'save_new_product') {
       return json({
@@ -217,20 +218,19 @@ try {
     }
     await page.goto('http://127.0.0.1:5189/admin/products/new');
     await page.getByRole('heading', { name: 'Nuovo prodotto', exact: true }).waitFor();
-    await page.getByLabel('Nome prodotto', { exact: true }).fill('Prodotto simulato per QA');
-    await page.getByLabel('SKU famiglia', { exact: true }).fill('QA-MANUALE-001');
+    await page.getByLabel('Nome prodotto (obbligatorio)', { exact: true }).fill('Prodotto simulato per QA');
     await page.getByLabel('Descrizione verificata', { exact: true }).fill(
       'Solo fixture locale, non un prodotto in vendita.',
     );
-    await page.getByRole('button', { name: '4. Immagini e formati', exact: true }).click();
-    await page.getByLabel('Prezzo', { exact: true }).fill('12.30');
+    await page.getByLabel('Prezzo di vendita 1', { exact: true }).fill('12.30');
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     if ([390, 1440].includes(width)) {
       await page.screenshot({ path: `${output}/new-product-formats-${width}.png`, fullPage: true });
     }
-    await page.getByRole('button', { name: '5. Botanica e SEO', exact: true }).click();
+    await page.getByText('Opzioni avanzate', { exact: true }).click();
+    await page.getByText('Informazioni botaniche e FAQ facoltative').click();
     await page.getByLabel('Periodo di fioritura: Marzo', { exact: true }).check();
-    await page.getByRole('button', { name: '6. Anteprima', exact: true }).click();
+    await page.getByRole('button', { name: '2. Anteprima e salvataggio', exact: true }).click();
     await page.getByRole('button', { name: 'Verifica anteprima', exact: true }).click();
     await page.getByText('Anteprima simulata. Nessuna chiamata live.', { exact: true }).waitFor();
     await page.getByRole('checkbox', { name: 'Confermo i dati: salva soltanto una bozza interna.' })

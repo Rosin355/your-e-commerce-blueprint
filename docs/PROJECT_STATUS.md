@@ -1,3 +1,7 @@
+## Admin V2 · candidato del 24 novembre 2026
+
+**PASS tecnico sul branch dedicato.** Modulo essenziale, SKU automatici, mesi indipendenti e assistente da fatti verificati collaudati con dati sintetici. Ricerca SKU verificata anche su Shopify in sola lettura. Rilascio della Edge, Publish e accettazione di Marco ancora aperti. SAL ponderata **57,75%**. [Verbale](admin-v2/MARCO-UX-FIXES-2026-11-23.md)
+
 ## Consegna del registro storico
 
 **PASS.** Archiviati privatamente 858 account e 953 acquisti aggregati. Controllo riga per riga, replay e copia privata verificati. Zero associazioni Shopify e zero ordini individuali recuperati/importati. SAL ufficiale 57,75%. [Rapporto di consegna](release/FINAL-DELIVERY-2026-11-22.md)

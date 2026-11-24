@@ -1,5 +1,17 @@
 # Online Garden — sessione di collaudo con Marco (23 novembre 2026)
 
+## Collaudo dei quattro fix Admin · aggiunta del 24 novembre
+
+**PENDING_CLIENT_ACCEPTANCE.** Eseguire sul candidato autorizzato con l’account personale di Marco. Per i mesi usare una scheda tecnica fuori vendita con dati di prova, evitando di attribuirli a una pianta reale.
+
+- [ ] Da telefono e computer aprire **Nuovo prodotto**, completare nome, descrizione e prezzo senza aprire le opzioni avanzate. Aggiungere una foto dalla propria libreria e una categoria se disponibili.
+- [ ] Aggiungere un secondo formato, inserire il relativo prezzo e annotare la corrispondenza dei due codici. Cambiare nome, passare all’anteprima e tornare indietro.
+- [ ] Provare Febbraio/Maggio/Novembre e Dicembre/Gennaio/Aprile su due calendari distinti. Togliere e reinserire un mese, richiudere le opzioni e controllare il riepilogo.
+- [ ] Con il suo permesso AI, fornire una frase già verificata. Leggere la proposta, controllare che la descrizione resti intatta fino alla conferma e decidere se applicarla. Se fallisce, annotare solo messaggio e orario e proseguire manualmente.
+- [ ] Verificare l’anteprima, salvare **solo la bozza interna**, riaprirla e confrontare codici, prezzi, mesi, foto e descrizione. In una scheda esistente è sufficiente consultare/annullare la modifica. Concludere senza inviare o pubblicare su Shopify.
+
+Registrare data, versione, browser/dispositivo, esito di ogni punto e decisione di Marco. L’assenza di accesso al provider resta un blocco del punto AI. [Verbale tecnico](../admin-v2/MARCO-UX-FIXES-2026-11-23.md)
+
 **Stato:** checklist di test, NON verbale firmato; nessuna prova nuova dichiarata PASS da questo documento. Fonte: [handover e checklist personale](PRODUCTION-HANDOVER.md), [approvazioni](FINAL-CLIENT-APPROVALS.md), [revisione 4 informative](../legal/CLIENT-LEGAL-PUBLICATION-CHECKLIST.md).
 
 ## Cosa dire
