@@ -1,6 +1,7 @@
+import AiErrorNotice from '../components/AiErrorNotice';
 import DraftSummaryView from '../components/DraftSummaryView';
 import { projectDraft } from '../../../supabase/functions/_shared/admin-draft-view';
-import ConfirmedAiAssistant from '../components/ConfirmedAiAssistant';
+import DraftSheetAssistant from '../components/DraftSheetAssistant';
 import VariantEditor from '../components/VariantEditor';
 import RichTextEditor from '../components/RichTextEditor';
 import { useState } from 'react';
@@ -135,7 +136,7 @@ export default function NewProductPage() {
       <header>
         <Link to='/admin/products' className='text-sm underline'>Torna ai prodotti</Link>
         <h1 className='text-2xl font-semibold mt-2'>Nuovo prodotto</h1>
-        <p>Compilazione manuale. Nessuna pubblicazione automatica.</p>
+        <p>Compila la scheda e controlla l’anteprima prima di salvare la bozza interna.</p>
       </header>
       <nav aria-label='Passaggi creazione' className='flex flex-wrap gap-2'>
         {steps.map((label, i) => (
@@ -156,18 +157,28 @@ export default function NewProductPage() {
         <legend className='px-2 font-semibold'>{steps[step]}</legend>
         <div hidden={step !== 0} className="space-y-5">
           {field('Nome prodotto (obbligatorio)', 'title')}
+          {adminContext.data?.canUseAi === false && <p className="text-sm">L’assistente AI è disabilitato per questo account o ambiente. Puoi compilare la bozza a mano.</p>}
+          {adminContext.data?.canUseAi && catalogue.data?.canAuthorDraft && definitions.data &&
+            <DraftSheetAssistant draft={draft} context={{
+              title: draft.title,
+              categories: [...draft.categoryIds, ...(draft.collectionIds ?? [])].flatMap(id => categoryNames.has(id) ? [categoryNames.get(id)!] : []),
+              definitions: definitions.data.definitions.filter(d =>
+                ['description', 'seo_title', 'seo_description', 'tags'].includes(d.key) ||
+                ['productType', 'product_type'].includes(String(d.shopify_mapping?.field))),
+              canFillDraft: ordinary && catalogue.data.canSaveDraft,
+              editableKeys: adminContext.data.editableFieldKeys ?? [],
+              supportsType: adminContext.data.supportsCatalogSourceAndProductType === true,
+            }} onApply={change => {
+              update(change);
+              if (change.description !== undefined) setDescriptionRevision(n => n + 1);
+              if (change.tags) setTagsInput(change.tags.join(', '));
+            }} />}
           <section aria-label="Descrizione del prodotto" className="space-y-2">
             <h2 className="font-semibold">Descrizione (obbligatoria)</h2>
             <RichTextEditor key={descriptionRevision} value={draft.description} onChange={description => update({ description })}
               simple label="Descrizione verificata" inputId="description" error={errors.description} disabled={locked} />
             {errors.description && <p id="description-error" className="text-sm text-destructive">{errors.description}</p>}
-            {adminContext.data?.canUseAi && definitions.data?.definitions.filter(d => d.key === 'description' &&
-              adminContext.data?.editableFieldKeys?.includes(d.key) && d.visible && d.editable && d.ai_allowed && !d.manual_only).map(d =>
-              <details key={d.key}><summary className="cursor-pointer">Aiuto AI per la descrizione (facoltativo)</summary>
-                <ConfirmedAiAssistant field={{key:d.key,label:d.label,editorType:d.editor_type,dataType:d.data_type,validationRules:d.validation_rules ?? {},required:d.required}}
-                  onApply={value => { update({ description: value as string }); setDescriptionRevision(n => n + 1); }} />
-              </details>)}
-            {definitions.isError && <p role="alert">Impossibile leggere i campi disponibili per AI e botanica. Puoi compilare la descrizione a mano.</p>}
+            {definitions.isError && <AiErrorNotice>Impossibile leggere i campi disponibili per AI e botanica. Puoi compilare la descrizione a mano.</AiErrorNotice>}
           </section>
           <VariantEditor currency={draft.currency} sku={draft.sku} variants={draft.variants} errors={errors} onChange={variants => {
             setSkuError(''); update({ variants });

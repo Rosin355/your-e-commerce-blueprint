@@ -1,3 +1,7 @@
+## Chiusura AI della nuova bozza · 24 novembre 2026
+
+Il candidato per le nuove bozze include la selezione SEO per campo, la revisione dei tag e il tipo manuale. La SAL resta 57,75%. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
+
 ## Aggiornamento corrente — 21 novembre 2026, ore 13:29 CET: security release verificata (report Lovable)
 
 ## Admin V2 · intervento del 21 novembre 2026

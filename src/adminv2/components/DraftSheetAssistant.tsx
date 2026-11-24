@@ -1,0 +1,202 @@
+import { useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { confirmedFacts } from '../../../supabase/functions/_shared/admin-ai-facts';
+import type { ProductDraft } from '../../../supabase/functions/_shared/admin-operational-core';
+import { suggestConfirmedField, suggestDraftEditorial } from '../lib/adminApi';
+import { editorialKeys } from '../../../supabase/functions/_shared/admin-draft-editorial';
+import { explainAiRequestError } from '../lib/explainAiError';
+import { localSheet, manualDraftType, sheetDefinition, sheetKeys, sheetLabels, sheetValueError, type SheetContext,
+  type SheetChange, type SheetKey, type SheetPreview } from '../lib/draftSheet';
+import AiErrorNotice from './AiErrorNotice';
+import RichTextEditor from './RichTextEditor';
+import EditorialText from './EditorialText';
+
+interface Preview {
+  contextKey: string;
+  rows: SheetPreview;
+  source?: 'model' | 'confirmed_facts';
+  descriptionError?: string;
+}
+interface Props {
+  draft: ProductDraft;
+  context: SheetContext;
+  onApply: (change: SheetChange) => void;
+}
+
+export default function DraftSheetAssistant({ draft, context, onApply }: Props) {
+  const [text, setText] = useState('');
+  const [confirmed, setConfirmed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [inputError, setInputError] = useState('');
+  const [result, setResult] = useState<Preview>();
+  const revision = useRef(0);
+  const pending = useRef(false);
+  // Ignore late responses when the product, selected categories or effective grants change.
+  const contextKey = JSON.stringify(context);
+  useEffect(() => {
+    revision.current++;
+    setConfirmed(false);
+    setResult(undefined);
+    setInputError('');
+  }, [contextKey]);
+  const preview = result?.contextKey === contextKey ? result : undefined;
+
+  function invalidate() {
+    revision.current++;
+    setInputError('');
+    setResult(undefined);
+  }
+
+  async function prepare() {
+    if (pending.current) return;
+    let facts: string[];
+    try {
+      if (!context.title.trim() || context.title.trim().length > 255) throw new Error('Inserisci un nome prodotto da 1 a 255 caratteri.');
+      facts = confirmedFacts(text.split('\n').map(v => v.trim()).filter(Boolean), confirmed);
+    } catch (error) {
+      setInputError(error instanceof Error ? error.message : 'Controlla le informazioni inserite.');
+      return;
+    }
+    const current = revision.current;
+    // Keep the reviewer's other rows (and manual edits) during a description-only retry.
+    const next: Preview = { contextKey, rows: { ...(preview?.rows ?? localSheet(context, facts)) } };
+    setInputError('');
+    if (!next.rows.description.reason || preview?.descriptionError) {
+      pending.current = true;
+      setBusy(true);
+      try {
+        const requestKey = crypto.randomUUID();
+        const proposal = preview?.descriptionError
+          ? await suggestConfirmedField({fieldKey: 'description', confirmed: true, facts, requestKey})
+          : await suggestDraftEditorial({draftTitle: context.title.trim(), facts, requestKey});
+        if ('editorial' in proposal && proposal.editorial) {
+          for (const key of editorialKeys) {
+            const row = proposal.editorial[key];
+            if (!row || !['model','deterministic'].includes(row.source) || sheetValueError(key, row.value, context)) continue;
+            // The offline tag fallback also includes the categories selected in this form.
+            if (row.source === 'deterministic' && key === 'tags') continue;
+            next.rows[key] = row;
+          }
+        }
+        if ('descriptionError' in proposal && proposal.descriptionError) {
+          next.descriptionError = proposal.descriptionError.message;
+          next.rows.description = {};
+        } else {
+          if (typeof proposal.value !== 'string') throw new Error('Formato descrizione non valido.');
+          const reason = sheetValueError('description', proposal.value, context);
+          next.rows.description = reason ? { reason } : { value: proposal.value };
+          next.source = proposal.source;
+        }
+      } catch (error) {
+        next.descriptionError = explainAiRequestError(error);
+        next.rows.description = {};
+      } finally {
+        pending.current = false;
+        setBusy(false);
+      }
+    }
+    if (current === revision.current) setResult(next);
+  }
+
+  function edit(key: SheetKey, value: string | string[], tagText?: string) {
+    if (preview) setResult({ ...preview, rows: { ...preview.rows, [key]: { ...preview.rows[key], value, source: 'manual', tagText, reason: undefined } } });
+  }
+
+  function different(key: SheetKey) {
+    const value = preview?.rows[key].value;
+    return value !== undefined && JSON.stringify(draft[key]) !== JSON.stringify(value);
+  }
+  function applicable(key: SheetKey) {
+    const value = preview?.rows[key].value;
+    return !preview?.rows[key].excluded && value !== undefined && different(key) && !sheetValueError(key, value, context);
+  }
+  function apply(keys: SheetKey[]) {
+    if (!preview || busy) return;
+    const eligible = keys.filter(applicable);
+    if (!eligible.length) return;
+    const overwrite = eligible.filter(key => Boolean(draft[key]?.length));
+    const question = ['Applicare alla bozza i campi ' + eligible.map(k => sheetLabels[k]).join(', ') + '?',
+      ...(overwrite.length ? ['Sostituirai i valori già inseriti in ' + overwrite.map(k => sheetLabels[k]).join(', ') + '.'] : []),
+      'Il salvataggio richiede una conferma separata.'].join('\n');
+    if (!window.confirm(question)) return;
+    const change: SheetChange = {};
+    for (const key of eligible) {
+      const value = preview.rows[key].value;
+      if (key === 'tags' && Array.isArray(value)) change.tags = value;
+      else if (key !== 'tags' && typeof value === 'string') change[key] = value;
+    }
+    onApply(change);
+  }
+
+  return <section aria-label="Assistenza AI nuova scheda" className="space-y-3 rounded-lg border bg-card p-4">
+    <h2 className="font-semibold">Scheda da informazioni verificate</h2>
+    <label htmlFor="draft-ai-facts" className="block">Informazioni verificate</label>
+    <Textarea id="draft-ai-facts" aria-describedby="draft-ai-help" maxLength={6011} value={text}
+        onChange={e => { invalidate(); setConfirmed(false); setText(e.target.value); }} />
+    <p id="draft-ai-help" className="text-sm">Inserisci da 1 a 12 righe di 12–500 caratteri. Una riga può contenere più frasi. Per esempio, se verificato, «La scheda riporta il nome Quercus robur». Evita dati personali e commerciali.</p>
+    <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={confirmed}
+      onChange={e => { invalidate(); setConfirmed(e.target.checked); }} />Confermo il nome e le informazioni verificate per questo prodotto</label>
+    <Button type="button" disabled={busy || !confirmed || Boolean(preview && !preview.descriptionError)} onClick={prepare}>
+      {busy ? 'Preparazione in corso…' : preview?.descriptionError ? 'Riprova la descrizione' : 'Completa scheda con AI'}
+    </Button>
+    {inputError && <AiErrorNotice>{inputError}</AiErrorNotice>}
+    {preview && <section aria-label="Proposte per la bozza" className="space-y-3">
+      <h3 className="font-semibold">Anteprima delle proposte</h3>
+      <p className="text-sm">Ogni campo indica come è stata preparata la proposta. Puoi applicare i campi singolarmente.</p>
+      {sheetKeys.map(key => {
+        const row = preview.rows[key];
+        const value = row.value;
+        const validation = value === undefined ? undefined : sheetValueError(key, value, context);
+        return <div key={key} role="group" aria-label={sheetLabels[key]} className="space-y-2 rounded border p-3">
+          <h4 className="font-medium">{sheetLabels[key]}</h4>
+          {key !== 'description' && value !== undefined && row.source && <p className="text-sm">{{
+            model: 'Selezione del modello su informazioni verificate',
+            deterministic: key === 'productType' ? 'Corrispondenza con il registro dei tipi verificati' : 'Fallback deterministico da informazioni verificate',
+            manual: 'Modifica manuale in anteprima',
+          }[row.source]}</p>}
+          {row.reason && <p className="text-sm">{row.reason}</p>}
+          {key === 'description' && preview.descriptionError && <AiErrorNotice>{preview.descriptionError}</AiErrorNotice>}
+          {key === 'description' && typeof value === 'string' && <>
+            <p role="status">{row.source === 'manual' ? 'Descrizione rivista manualmente.' : preview.source === 'confirmed_facts' ? 'Descrizione ricomposta con le righe originali confermate.' : preview.source === 'model' ? 'Descrizione organizzata dal modello e verificata.' : 'Descrizione proposta dal servizio. Questa versione non indica la fonte della proposta.'}</p>
+            {sheetDefinition(key, context)?.editor_type === 'richtext'
+              ? <RichTextEditor label="Proposta descrizione" disabled={busy} simple value={value} onChange={v => edit(key, v)} />
+              : <Textarea disabled={busy} aria-label="Proposta descrizione" value={value} onChange={e => edit(key, e.target.value)} />}
+          </>}
+          {(key === 'seoTitle' || key === 'seoDescription') && typeof value === 'string' &&
+            <Textarea disabled={busy} aria-label={'Proposta ' + sheetLabels[key]} value={value} onChange={e => edit(key, e.target.value)} />}
+          {key === 'tags' && Array.isArray(value) && <label className="block">Tag proposti, separati da virgole
+            <Textarea disabled={busy} value={row.tagText ?? value.join(', ')} onChange={e =>
+              edit('tags', e.target.value.split(',').map(v => v.trim()).filter(Boolean), e.target.value)} /></label>}
+          {key === 'productType' && manualDraftType(context) && <div className="space-y-2">
+            <label className="block">Tipo manuale per questa bozza
+              <input className="block w-full rounded border p-2" maxLength={255} disabled={busy} value={typeof value === 'string' ? value : ''}
+                onChange={e => edit(key, e.target.value)} /></label>
+            <p className="text-sm">Proposte dal catalogo commerciale, da confermare per questo prodotto.</p>
+            <div className="flex flex-wrap gap-2">{['Alberi','Arbusti'].map(label =>
+              <Button key={label} disabled={busy} type="button" variant="outline" onClick={() => edit(key, label)}>{label}</Button>)}</div>
+          </div>}
+          {key === 'productType' && Boolean(row.options?.length) &&
+            <label className="block">Tipo verificato<select disabled={busy} className="block w-full rounded border p-2" value={value ?? ''}
+              onChange={e => edit(key, e.target.value)}><option value="">Scegli un tipo</option>
+              {row.options!.map(v => <option key={v} value={v}>{v}</option>)}</select></label>}
+          {validation && <p role="alert" className="text-destructive">{validation}</p>}
+          {different(key) && Boolean(draft[key]?.length) && <div className="text-sm"><strong>Valore attuale</strong>
+            {key === 'description' ? <EditorialText value={draft.description} /> : <p>{key === 'tags' ? draft.tags.join(', ') : draft[key]}</p>}</div>}
+          {value !== undefined && !different(key) && <p className="text-sm">Presente nella bozza</p>}
+          {value !== undefined && different(key) && <div className="flex flex-wrap gap-2">
+            <Button disabled={busy || !applicable(key)} type="button" variant="outline" onClick={() => apply([key])}>Applica {sheetLabels[key]}</Button>
+            <Button disabled={busy} type="button" variant="ghost" onClick={() => setResult({ ...preview, rows: {
+              ...preview.rows, [key]: { ...row, excluded: !row.excluded },
+            } })}>{row.excluded ? 'Includi ' : 'Escludi '}{sheetLabels[key]}</Button>
+            {row.excluded && <span className="self-center text-sm">Escluso dall’approvazione</span>}
+          </div>}
+        </div>;
+      })}
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" disabled={busy || !sheetKeys.some(applicable)} onClick={() => apply(sheetKeys)}>Applica tutte le proposte disponibili</Button>
+        <Button type="button" variant="outline" disabled={busy} onClick={invalidate}>Scarta anteprima</Button>
+      </div>
+    </section>}
+  </section>;
+}

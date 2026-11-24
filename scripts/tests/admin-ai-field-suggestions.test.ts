@@ -331,7 +331,7 @@ test('23. UX contiene stati responsive/accessibili senza JSON grezzo', () => {
   assert.match(source, /Proposta AI non più aggiornata/);
   assert.match(source, /field\.version !== suggestion\.baseVersion/);
   assert.match(source, /Genera nuova proposta/);
-  assert.match(source, /role="alert"/);
+  assert.match(source, /<AiErrorNotice>/);
   assert.doesNotMatch(source, /JSON\.stringify\(draft/);
   assert.match(fieldCard, /const canImprove = field\.capabilities\.canSuggestAi &&/);
   assert.match(fieldCard, /\(canImprove \|\| aiSuggestion\) && onGenerateAi/);

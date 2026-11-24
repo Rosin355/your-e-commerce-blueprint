@@ -4,6 +4,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AdminApiError, type AdminAiSuggestion, type AdminField } from '../lib/adminApi';
 import { normalizeEditorValue } from '../lib/fieldValueCodecs';
+import AiErrorNotice from './AiErrorNotice';
 import FieldEditor from './FieldEditor';
 import ValueDisplay from './ValueDisplay';
 
@@ -122,7 +123,7 @@ export default function AiSuggestionCard({
         </Button>
         {resolution === 'accepted' && <p className="text-xs text-emerald-700">Proposta accettata e salvata nella cronologia.</p>}
         {resolution === 'rejected' && <p className="text-xs text-muted-foreground">Proposta rifiutata. Il prodotto non è stato modificato.</p>}
-        {error && <p role="alert" className="text-xs text-destructive">{error}</p>}
+        {error && <AiErrorNotice>{error}</AiErrorNotice>}
       </div>
     );
   }
@@ -142,7 +143,7 @@ export default function AiSuggestionCard({
               {busy === 'generate' ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="mr-1 h-3.5 w-3.5" />}Genera nuova proposta
             </Button>
           </div>
-          {error && <p role="alert" className="text-xs">{error}</p>}
+          {error && <AiErrorNotice>{error}</AiErrorNotice>}
         </AlertDescription>
       </Alert>
     );
@@ -169,7 +170,7 @@ export default function AiSuggestionCard({
       <p className="mt-2 text-xs text-muted-foreground">
         Con «Applica alla bozza» salvi la tua revisione nel solo campo interno. Se ricarichi prima, ritrovi la proposta AI originale.
       </p>
-      {error && <p role="alert" className="mt-2 text-xs text-destructive">{error}</p>}
+      {error && <AiErrorNotice>{error}</AiErrorNotice>}
       <div className="mt-3 flex flex-wrap gap-2">
         <Button size="sm" variant="outline" onClick={() => setEditing((value) => !value)} disabled={busy !== null}>
           <Pencil className="mr-1 h-3.5 w-3.5" />{editing ? 'Chiudi modifica' : 'Modifica proposta'}

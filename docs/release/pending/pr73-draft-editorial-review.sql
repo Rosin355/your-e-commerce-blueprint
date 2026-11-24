@@ -1,0 +1,2 @@
+-- Historical proposal superseded by drizzle/migrations/0020_admin_new_draft_editorial.sql.
+-- Run the canonical migration through the project migration journal.

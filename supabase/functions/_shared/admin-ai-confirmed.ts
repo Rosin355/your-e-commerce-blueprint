@@ -6,14 +6,55 @@ export { confirmedFacts } from './admin-ai-facts.ts';
 export function authorizeConfirmedAi(auth: AuthContext, def: FieldDefinition | null, action: unknown) {
   if (action !== 'suggest_confirmed_field' || !def || !catalogAiAllowed(auth,def.key) || !(CONFIRMED_AI_FIELDS as readonly string[]).includes(def.key) || !def.visible || !def.editable || aiDefinitionEligibility(def) !== 'allowed') throw new Error('Azione AI non autorizzata per questo account e campo.');
 }
-export async function generateConfirmedProposal(def: FieldDefinition, facts: string[], generate: (strategy: NonNullable<ReturnType<typeof strategyForField>>, context: AiTrustedContext) => Promise<{ value: unknown }>) {
+export class ConfirmedProposalError extends Error {
+  constructor(public code: 'INVALID_MODEL_PROPOSAL' | 'INVALID_FIELD_VALUE', message: string) {
+    super(message);
+  }
+}
+
+export async function generateConfirmedProposal(
+  def: FieldDefinition,
+  facts: string[],
+  generate: (strategy: NonNullable<ReturnType<typeof strategyForField>>, context: AiTrustedContext) => Promise<{ value: unknown }>,
+) {
   const strategy = strategyForField(def.key)!;
-  const response = await generate({ ...strategy, instruction: 'Organizza esclusivamente le frasi confermate, riportandole ESATTAMENTE senza cambiare parole o aggiungere fatti. Per il testo separale con un a capo; per gli elenchi usa una frase per voce. Non aggiungere titoli, HTML, prezzi o specifiche.' }, { sku: '', fieldKey: def.key, fieldLabel: def.label, currentValue: strategy.kind === 'text' ? facts.join('\n') : facts, wordpressOriginal: null, sourceSnapshotId: null, trustedRelatedValues: {} });
-  const parts = typeof response.value === 'string' ? response.value.split(/\n+/).map(x=>x.trim()).filter(Boolean) : response.value;
-  // Extractive mode: a model cannot introduce even a negation or an unsupported number/claim.
-  if (!Array.isArray(parts) || !parts.length || parts.some(x=>typeof x!=='string' || !facts.includes(x)) || new Set(parts).size!==parts.length) throw new Error('La proposta contiene informazioni diverse da quelle confermate. Nessuna modifica effettuata; compila manualmente.');
-  const value = strategy.kind === 'text' ? (def.editor_type === 'richtext' ? parts.map(x=>`<p>${x.replace(/&/g,'&amp;')}</p>`).join('') : parts.join('\n\n')) : parts;
-  const valid = validateSuggestedValue(def,strategy,value);
-  if (!valid.ok) throw new Error('Proposta non valida per il campo. Nessuna modifica effettuata.');
-  return valid.value;
+  const response = await generate({
+    ...strategy,
+    instruction: 'Riordina le righe confermate. Riproduci ogni riga intera esattamente una volta, inclusa la punteggiatura. Per il testo separale con un a capo, per gli elenchi usa una riga per voce. Evita titoli e HTML.',
+  }, {
+    sku: '', fieldKey: def.key, fieldLabel: def.label,
+    currentValue: strategy.kind === 'text' ? facts.join('\n') : facts,
+    wordpressOriginal: null, sourceSnapshotId: null, trustedRelatedValues: {},
+  });
+
+  return validateConfirmedProposal(def, facts, response.value);
+}
+
+export function validateConfirmedProposal(def: FieldDefinition, facts: string[], raw: unknown) {
+  const strategy = strategyForField(def.key)!;
+  const parts = typeof raw === 'string'
+    ? raw.split(/\n+/).map(line => line.trim()).filter(Boolean)
+    : raw;
+  if (!Array.isArray(parts) || !parts.length || !parts.every(part => typeof part === 'string' && part.trim())) {
+    throw new ConfirmedProposalError('INVALID_MODEL_PROPOSAL', 'Il modello ha restituito una proposta illeggibile.');
+  }
+  const extractive = parts.every(part => facts.includes(part)) && new Set(parts).size === parts.length;
+  const description = def.key === 'description';
+  const useOriginals = !extractive || (description && parts.length !== facts.length);
+  if (useOriginals && !description) {
+    throw new ConfirmedProposalError('INVALID_MODEL_PROPOSAL', 'Il modello ha cambiato i fatti confermati.');
+  }
+
+  const lines: string[] = useOriginals ? facts : parts;
+  const source = useOriginals ? 'confirmed_facts' : 'model';
+  let value: string | string[] = lines;
+  if (strategy.kind === 'text') {
+    value = def.editor_type === 'richtext'
+      ? lines.map(line => `<p>${line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`).join('')
+      : lines.join('\n\n');
+  }
+  // The shared field validator also requires canonical, sanitized editorial HTML.
+  const valid = validateSuggestedValue(def, strategy, value);
+  if (!valid.ok) throw new ConfirmedProposalError('INVALID_FIELD_VALUE', 'Il testo supera i limiti o non rispetta il formato del campo.');
+  return { value: valid.value, source };
 }

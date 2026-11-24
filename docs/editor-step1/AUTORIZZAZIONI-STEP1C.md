@@ -1,3 +1,7 @@
+## Chiusura AI della nuova bozza · 24 novembre 2026
+
+Il mandato del 24 novembre consente tre opt-in per le nuove bozze del solo Marco, subordinati al collaudo PostgreSQL. Il registro globale tags.ai_allowed resta falso. Per verifiche e stato effettivo dell’attivazione consultare il verbale corrente. [Stato di rilascio e rollback](../release/PR73-CHIUSURA-AI.md)
+
 ## Preflight grant B per test AI operatore — 19 novembre 2026
 
 **Stato: PREPARATO DA LOVABLE IN SOLA LETTURA, NON ANCORA AUTORIZZATO / NON ESEGUITO.** Lovable riferisce che il grant B (fingerprint `21ed8fbc`) e' collegato univocamente alla sessione dell'operatore attuale, con ruoli admin+editor, attivo, 7 capability e 14 field_keys, baseline `2026-11-13 11:00:44 UTC`. Il grant A di Marco (fingerprint `437eb03e`) ha gia' 8 capability/17 campi, aggiornato `2026-11-18 20:29 UTC`, e non deve essere modificato.

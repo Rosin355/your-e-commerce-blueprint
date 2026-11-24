@@ -1,7 +1,10 @@
-import { authorizeConfirmedAi, confirmedFacts, generateConfirmedProposal } from '../_shared/admin-ai-confirmed.ts';
+import { getFieldDefinitions } from '../_shared/admin-v2-queries.ts';
+import { generateDraftSheet } from './draft-sheet.ts';
+import { registryKeys, safeLabel } from '../_shared/admin-draft-editorial.ts';
+import { ConfirmedProposalError, authorizeConfirmedAi, confirmedFacts, generateConfirmedProposal } from '../_shared/admin-ai-confirmed.ts';
 import { payloadHash } from '../_shared/admin-v2-commands.ts';
 import { loadCatalogGrant, catalogMode } from '../_shared/admin-catalog-approvals.ts';
-import { catalogAiAllowed } from '../_shared/admin-catalog-policy.ts';
+import { catalogAiAllowed, catalogAllowed } from '../_shared/admin-catalog-policy.ts';
 // Fase 2D — proposte AI field-by-field. Nessuna chiamata Shopify e nessun publish.
 import { corsHeaders } from "../_shared/cors.ts";
 import {
@@ -72,6 +75,9 @@ const HTTP: Record<string, number> = {
   FIELD_NOT_EDITABLE: 422,
   AI_NOT_ALLOWED: 422,
   VALIDATION_ERROR: 422,
+  INVALID_CONFIRMED_FACTS: 422,
+  INVALID_MODEL_PROPOSAL: 502,
+  INVALID_FIELD_VALUE: 422,
   VERSION_CONFLICT: 409,
   IDEMPOTENCY_CONFLICT: 409,
   SUGGESTION_STALE: 409,
@@ -185,17 +191,77 @@ export async function handleProductAdminAi(
     await loadCatalogGrant(serviceClient(), auth);
     const repo = deps.repository();
     if (action === 'suggest_confirmed_field') {
-      if (!writesEnabled()) return fail('WRITES_DISABLED','Assistenza AI temporaneamente disabilitata.');
-      const def = typeof payload.fieldKey === 'string' ? await repo.getDefinition(payload.fieldKey) : null;
-      try { authorizeConfirmedAi(auth,def,action); } catch { return fail('FORBIDDEN','Azione AI non autorizzata per questo account e campo.'); }
+      const requestId = isUuid(payload.requestKey) ? payload.requestKey as string : crypto.randomUUID();
+      const trace = { scope: 'product-admin-ai', action, requestId, field: null as string | null };
+      function reject(code: string, stage: string, message: string) {
+        console.warn(JSON.stringify({ ...trace, stage, code }));
+        return fail(code, message, { requestId });
+      }
+      if (!writesEnabled()) return reject('WRITES_DISABLED', 'authorization', 'Assistenza AI temporaneamente disabilitata.');
+      const sheet = Object.hasOwn(payload, 'draftTitle');
+      if (sheet && Object.keys(payload).some(k => !['action','fieldKey','draftTitle','facts','requestKey','confirmed'].includes(k)))
+        return reject('VALIDATION_ERROR', 'input', 'La scheda nuova accetta solo nome e fatti confermati.');
+      if (sheet && (payload.fieldKey !== 'description' || typeof payload.draftTitle !== 'string' ||
+        !safeLabel(payload.draftTitle) || payload.draftTitle.length > 255))
+        return reject('VALIDATION_ERROR', 'input', 'Verifica il nome del prodotto.');
+      const registry = sheet ? await getFieldDefinitions(serviceClient()) : undefined;
+      const def = registry ? registry.find(d => d.key === 'description') ?? null :
+        typeof payload.fieldKey === 'string' ? await repo.getDefinition(payload.fieldKey) : null;
+      trace.field = def?.key ?? null;
+      try { authorizeConfirmedAi(auth, def, action); }
+      catch { return reject('FORBIDDEN', 'authorization', 'Azione AI non autorizzata per questo account e campo.'); }
       let facts: string[];
-      try { facts=confirmedFacts(payload.facts,payload.confirmed); } catch (error) { return fail('VALIDATION_ERROR',(error as Error).message); }
-      if (!isUuid(payload.requestKey)) return fail('VALIDATION_ERROR','Identificativo richiesta mancante.');
-      const { data: reserved, error } = await serviceClient().rpc('reserve_confirmed_ai_request',{p_actor:auth.userId,p_request_key:payload.requestKey,p_field_key:def!.key,p_context_hash:await payloadHash({facts}),p_action:action});
-      if (error) return fail('FORBIDDEN','Impossibile autorizzare la richiesta AI.');
-      if (!reserved) return fail('RATE_LIMITED','Richiesta già inviata o limite di 5 richieste al minuto raggiunto. Nessun retry automatico.');
-      try { return json({ok:true,value:await generateConfirmedProposal(def!,facts,deps.generate)}); }
-      catch(error) { if (error instanceof AiProviderError) throw error; return fail('VALIDATION_ERROR','Proposta non valida o informazioni insufficienti. Nessuna modifica effettuata; compila manualmente.'); }
+      try { facts = confirmedFacts(payload.facts, payload.confirmed); }
+      catch { return reject('INVALID_CONFIRMED_FACTS', 'input', 'Verifica le righe inserite e confermale.'); }
+      if (!isUuid(payload.requestKey)) return reject('VALIDATION_ERROR', 'request', 'Identificativo richiesta non valido.');
+      const useDraft = sheet && catalogAllowed(auth, 'drafts') && Deno.env.get('PRODUCT_ADMIN_DRAFTS_ENABLED') === 'true';
+      if (sheet && !useDraft) return reject('FORBIDDEN', 'authorization', 'Il tuo account non è abilitato alle nuove bozze.');
+      let batch = useDraft && Deno.env.get('PRODUCT_ADMIN_DRAFT_AI_EDITORIAL_ENABLED') !== 'false';
+      // The legacy RPC authorizes description alone. Additional inference requires
+      // a transaction explicitly authorizing the individual fields for this actor.
+      const hash = await payloadHash(sheet ? {facts, title:payload.draftTitle} : {facts});
+      const reservation = {p_actor:auth.userId,p_request_key:payload.requestKey,p_context_hash:hash};
+      const reserveDescription = () => serviceClient().rpc('reserve_confirmed_ai_request',{...reservation,p_field_key:def!.key,p_action:action});
+      let result = batch
+        ? await serviceClient().rpc('reserve_new_draft_editorial_v1', reservation)
+        : await reserveDescription();
+      // During rollout or rollback PostgREST can report the new routine absent.
+      // No transaction was executed in this case. Every other error fails closed.
+      if (batch && result.error?.code === 'PGRST202') {
+        batch = false;
+        result = await reserveDescription();
+      }
+      const {data: reserved, error} = result;
+      if (error) {
+        return error.code === '42501'
+          ? reject('FORBIDDEN', 'reservation', 'Richiesta AI non autorizzata.')
+          : reject('INTERNAL_ERROR', 'reservation', 'Impossibile verificare la prenotazione editoriale.');
+      }
+      if (reserved === false || (batch && reserved?.reserved === false)) return reject('RATE_LIMITED', 'reservation', 'Richiesta già inviata o limite raggiunto.');
+      if (batch ? reserved?.reserved !== true || !Array.isArray(reserved.fields) : reserved !== true)
+        return reject('INTERNAL_ERROR', 'reservation', 'Risposta di autorizzazione non valida.');
+      try {
+        const keys = Object.values(registryKeys).filter(key => key === 'tags' || catalogAllowed(auth, 'edit', key));
+        const definitions = registry?.filter(d => keys.some(key => key === d.key)) ?? [];
+        const authorizedFields = batch ? keys.filter(key => reserved.fields.includes(key) && (key === 'tags' || auth.catalogGrant?.fieldKeys.includes(key))) : [];
+        const proposal = useDraft
+          ? await generateDraftSheet(def!, facts, payload.draftTitle as string, definitions, authorizedFields, deps.generate)
+          : await generateConfirmedProposal(def!, facts, deps.generate);
+        if (proposal.source === 'confirmed_facts') {
+          console.info(JSON.stringify({ ...trace, stage: 'fallback', code: 'INVALID_MODEL_PROPOSAL' }));
+        }
+        return json({ ok: true, ...proposal });
+      } catch (error) {
+        if (error instanceof ConfirmedProposalError) {
+          return reject(error.code, error.code === 'INVALID_FIELD_VALUE' ? 'field' : 'model', error.message);
+        }
+        if (error instanceof AiProviderError) {
+          return error.code === 'MALFORMED_AI_OUTPUT'
+            ? reject('INVALID_MODEL_PROPOSAL', 'model', 'La risposta AI non contiene una proposta utilizzabile.')
+            : reject(error.code, 'provider', error.message);
+        }
+        return reject('INTERNAL_ERROR', 'generation', 'Errore del servizio durante la preparazione della proposta.');
+      }
     }
 
     if (action === "get_ai_suggestions") {

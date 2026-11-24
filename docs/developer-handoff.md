@@ -1,5 +1,34 @@
 # Online Garden — developer handoff
 
+## Chiusura AI della nuova bozza · 24 novembre 2026
+
+La migrazione 0020 aggiunge prenotazione server e audit per nuova bozza, con opt-in per attore e chiave. La Edge accetta il contratto storico della descrizione. I pacchetti recuperabili, il comportamento in assenza della routine, i checksum e il collaudo sono nel registro operativo. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
+
+## PR #73 · selezione editoriale della nuova bozza
+
+Chiamata additiva a `suggest_confirmed_field` con `fieldKey=description` e `draftTitle`. Il server legge il registro una volta, usa i grant della sessione e ignora campi autorizzativi inviati dal browser. Senza `PRODUCT_ADMIN_DRAFT_AI_EDITORIAL_ENABLED=true` usa la quota originale, chiama il provider per la descrizione e restituisce proposte SEO deterministiche. La versione precedente del frontend conserva il proprio contratto anche con la nuova Edge.
+
+Il percorso strutturato richiede l’opt-in esplicito per attore/campo restituito dalla transazione `reserve_draft_editorial_ai_request`, la capacità bozze, il permesso AI, la chiave nel grant e un campo consentito dal registro. I candidati degli altri campi sono esclusi dal prompt. Una prenotazione assente o illeggibile ferma la chiamata. La prenotazione scrive una volta nel journal di frequenza e registra a parte il perimetro autorizzato. Il servizio non può assegnare opt-in. Il contratto proposto rimane fuori da Supabase e Drizzle finché il responsabile non ne approva introduzione e destinatari. [Proposta SQL per la revisione](release/pending/pr73-draft-editorial-review.sql)
+
+`admin-draft-editorial.ts` costruisce alternative verificabili. `draft-sheet.ts` controlla la risposta e ogni valore contro la definizione server. Il provider riceve indici e fatti, con un limite di 256 token in uscita. `source=model` identifica la scelta editoriale del modello, `deterministic` il fallback. Il retry esplicito della descrizione conserva le revisioni degli altri campi. La UI usa le categorie selezionate nel modulo soltanto per la variante locale dei tag. [Evidenze, limiti e collaudo](admin-v2/AI-ERROR-LIVE-2026-11-24.md)
+
+## Storico a c623b001 · scheda assistita
+
+La nuova pagina usa il contratto di `suggest_confirmed_field` del commit `8fb057f`. Il payload comprende azione, campo `description`, fatti confermati, conferma e UUID. La Edge verifica grant, campo e limite di frequenza. Il fallback estrattivo e i suoi codici diagnostici appartengono già a quel commit. Questa estensione cambia solo il frontend e i test. L’estensione non introduce un nuovo contratto di rete.
+
+`src/adminv2/lib/draftSheet.ts` compone i metadati nel browser usando il registro restituito da `get_field_definitions`. Per copiare i metadati occorrono assistenza abilitata e capacità effettiva di salvare bozze ordinarie. I campi SEO richiedono anche la rispettiva chiave modificabile. I tag riprendono valori letterali con il permesso della bozza, con filtro dei tag logistici. Il codice esercita il permesso di inferenza solo per la descrizione. I comandi di modifica di prodotti esistenti e le relative policy restano quelli del servizio.
+
+Il tipo richiede il collegamento univoco del registro al campo core Shopify e un `validation_rules.enum` di etichette valide. Una corrispondenza esatta su nome, categoria selezionata o fatto confermato genera una proposta. Il formato esplicito «Tipo prodotto: Alberi» è riconosciuto solo se il valore esiste nel dominio. Valori discordanti, assenti o multipli richiedono una scelta. La riga risulta esclusa quando manca il dominio. Il registro letto in produzione il 24 novembre contiene i due campi SEO, i tag e la descrizione, senza una definizione mappata per il tipo. Serve un elenco convalidato dal responsabile per abilitare la quinta riga in produzione.
+
+La UI conserva la revisione fra i due passaggi della creazione. Dopo un cambio di nome, categoria, fatti o permessi invalida le proposte precedenti. Ogni approvazione confronta i valori correnti e aggiorna soltanto le cinque chiavi editoriali. Il server conserva il controllo finale durante anteprima e salvataggio. [Collaudo, limiti e rollback](admin-v2/AI-ERROR-LIVE-2026-11-24.md)
+
+## Correzione AI da fatti confermati · candidata del 24 novembre
+
+Il backend da rilasciare è `product-admin-ai`. Il browser invia lo stesso payload di prima. L’API mantiene `ok` e `value` e aggiunge `source` (`model` o `confirmed_facts`), letto come opzionale per compatibilità. Con la precedente Edge il frontend può ancora ricevere `VALIDATION_ERROR`; la distinzione tra input, modello e campo richiede il nuovo handler. I codici dedicati sono `INVALID_CONFIRMED_FACTS`, `INVALID_MODEL_PROPOSAL` e `INVALID_FIELD_VALUE`. Il riferimento mostrato negli errori della richiesta corrisponde al campo `requestId` del log.
+
+Il fallback riguarda esclusivamente la descrizione generata a partire da fatti confermati. Il flusso dei suggerimenti salvati su campi già compilati conserva le proprie regole. La revisione distribuita del frontend per il ritorno è `index-jqOemgjy.js`. [Diagnosi, prove, gate e ripristino](admin-v2/AI-ERROR-LIVE-2026-11-24.md#verifiche-e-rilascio)
+
+
 ## Consegna tecnica Admin V2 · 21 novembre 2026
 
 Il contratto additivo admin-delivery-20261121-r2 riguarda product-admin-api e il frontend Admin. La bozza locale, la bozza su Shopify e la pubblicazione sul canale hanno verifiche distinte. Il collegamento Shopify per modifiche native richiede accesso staff separato. [Versioni, riscontri e rollback](admin-v2/RELEASE-REPORT.md) · [Criteri di accettazione](admin-v2/FINAL-ACCEPTANCE.md).

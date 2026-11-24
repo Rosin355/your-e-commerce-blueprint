@@ -1,5 +1,19 @@
 # Online Garden — note Admin UX
 
+## Chiusura AI della nuova bozza · 24 novembre 2026
+
+Nella stessa anteprima i tag accettano correzioni separate da virgole. Per il tipo senza mapping appare un campo manuale con le scelte Alberi e Arbusti. Selezionare una voce la etichetta come modifica manuale e richiede ancora Applica. Descrizione, SEO e tag mantengono una fonte visibile per campo. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
+
+## Nuovo prodotto · provenienza dei suggerimenti SEO
+
+Nell’unica anteprima di **Completa scheda con AI**, ciascuna proposta SEO o tag indica **Selezione del modello** oppure **Fallback deterministico**. La correzione di un testo aggiorna l’etichetta in **Modifica manuale in anteprima**. L’operatore può confrontare il valore esistente, escludere una singola riga o annullare la sostituzione cumulativa. Se il tipo resta manuale, le altre righe mantengono i propri comandi. [Percorso di Marco](admin-v2/CLIENT-GUIDE.md)
+
+## Nuovo prodotto · scheda assistita della PR #73
+
+Il nome e le informazioni verificate precedono il pulsante **Completa scheda con AI**, visibile nel primo passaggio. L’anteprima raggruppa descrizione, titolo SEO, meta description, tag e tipo. Ciascun gruppo presenta valore o motivazione, valore corrente in caso di sostituzione e comandi di approvazione. **Escludi** permette di conservare quel campo durante l’approvazione cumulativa. Il selettore di tipo propone soltanto le etichette del dominio verificato.
+
+I messaggi di input ed errore del provider hanno bordo, icona, testo e ruolo di avviso. L’inserimento manuale rimane disponibile. Un errore sulla descrizione permette di rivedere i metadati e riprovare. La bozza e la revisione restano disponibili passando all’anteprima e tornando ai dati. Le opzioni tecniche restano sotto **Opzioni avanzate**. [Guida al percorso e ai pulsanti](admin-v2/CLIENT-GUIDE.md)
+
 ## Catalogo e schede · 21 novembre 2026
 
 La lista separa origine del record, sincronizzazione e pubblicazione sul canale. Il filtro categoria accetta testo anche per prodotti oltre la pagina visibile. In caso di conflitto prezzi o categorie, il modulo offre di rileggere la versione corrente. Il riepilogo della bozza contiene anche il tipo commerciale. La galleria e la struttura dei prodotti già collegati hanno un percorso staff Shopify. [Flussi e prime prove con Marco](admin-v2/CLIENT-GUIDE.md).

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import AiErrorNotice from './AiErrorNotice';
 import FieldEditor from './FieldEditor';
 import { suggestConfirmedField, type AdminField } from '../lib/adminApi';
-import { AdminApiError } from '../lib/AdminApiError';
+import { explainAiRequestError } from '../lib/explainAiError';
 import { confirmedFacts } from '../../../supabase/functions/_shared/admin-ai-facts';
 
 interface Props {
@@ -12,22 +13,10 @@ interface Props {
   generate?: typeof suggestConfirmedField;
 }
 
-function explainError(error: unknown) {
-  if (!(error instanceof AdminApiError)) return 'Connessione al servizio AI interrotta. I fatti inseriti sono conservati.';
-  switch (error.code) {
-    case 'VALIDATION_ERROR': return 'La proposta o i fatti non superano la verifica del campo. Controlla le frasi confermate oppure compila a mano.';
-    case 'FORBIDDEN': return 'Il tuo account non è autorizzato a usare l’AI su questo campo. Puoi continuare a mano.';
-    case 'RATE_LIMITED': case 'AI_NOT_CONFIGURED': case 'AI_PROVIDER_ERROR': case 'AI_TIMEOUT':
-    case 'MALFORMED_AI_OUTPUT': case 'AI_NOT_ALLOWED': case 'WRITES_DISABLED': case 'UNAUTHENTICATED':
-      return error.message;
-    default: return 'Impossibile completare la proposta. I fatti inseriti sono conservati.';
-  }
-}
-
 export default function ConfirmedAiAssistant({field, onApply, generate = suggestConfirmedField}: Props) {
   const [text, setText] = useState('');
   const [confirmed, setConfirmed] = useState(false);
-  const [proposal, setProposal] = useState<unknown>();
+  const [proposal, setProposal] = useState<Awaited<ReturnType<typeof suggestConfirmedField>>>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const revision = useRef(0);
@@ -45,8 +34,8 @@ export default function ConfirmedAiAssistant({field, onApply, generate = suggest
     let facts: string[];
     try {
       facts = confirmedFacts(text.split('\n').map(line => line.trim()).filter(Boolean), confirmed);
-    } catch {
-      setError('Controlla i fatti inseriti. Servono da 1 a 12 frasi di 12–500 caratteri, senza link, email o HTML.');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Controlla le righe inserite e confermale.');
       return;
     }
     const current = revision.current;
@@ -55,9 +44,11 @@ export default function ConfirmedAiAssistant({field, onApply, generate = suggest
     setBusy(true);
     try {
       const result = await generate({ fieldKey:field.key, facts, confirmed:true, requestKey:crypto.randomUUID() });
-      if (revision.current === current) setProposal(result.value);
+      if (revision.current === current) setProposal(result);
     } catch (cause) {
-      if (revision.current === current) setError(explainError(cause));
+      if (revision.current === current) {
+        setError(explainAiRequestError(cause));
+      }
     } finally {
       inFlight.current = false;
       setBusy(false);
@@ -66,7 +57,7 @@ export default function ConfirmedAiAssistant({field, onApply, generate = suggest
 
   return <section aria-label={`Assistenza AI ${field.label}`} className="mt-4 space-y-3 rounded border p-3">
     <h3 className="font-semibold">Aiutami a compilare con informazioni verificate</h3>
-    <p className="text-sm">Scrivi una frase verificata per riga, da 12 a 500 caratteri. Puoi inserirne fino a 12. L’AI può riordinare le frasi confermate. Evita dati personali, prezzi, stock, SKU e certificazioni da dedurre.</p>
+    <p className="text-sm">Inserisci da 1 a 12 righe di 12–500 caratteri. Una riga può contenere più frasi. Per esempio, se lo hai verificato: «La scheda riporta il nome Quercus robur». L’AI può riordinare le frasi confermate. Evita dati personali, prezzi, stock, SKU e certificazioni da dedurre.</p>
     <label className="block">Fatti verificati da dare all’AI
       <Textarea aria-label={`Informazioni fattuali ${field.label}`} maxLength={6011} value={text}
         onChange={e => { invalidate(); setConfirmed(false); setText(e.target.value); }} />
@@ -78,15 +69,16 @@ export default function ConfirmedAiAssistant({field, onApply, generate = suggest
     <Button type="button" disabled={busy || !confirmed || proposal !== undefined} onClick={requestProposal}>
       {busy ? 'Preparazione proposta…' : 'Organizza le informazioni con AI'}
     </Button>
-    {error && <p role="alert">{error}</p>}
+    {error && <AiErrorNotice>{error}</AiErrorNotice>}
     {proposal !== undefined && <div className="space-y-3">
       <h4>Proposta da revisionare</h4>
-      <FieldEditor field={field} value={proposal} onChange={setProposal} />
+      {proposal.source === 'confirmed_facts' && <p role="status" className="text-sm">Il modello ha modificato o omesso alcune parole. L’anteprima iniziale è stata composta con le tue righe originali, nello stesso ordine.</p>}
+      <FieldEditor field={field} value={proposal.value} onChange={value => setProposal({ ...proposal, value })} />
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="outline" onClick={invalidate}>Scarta proposta</Button>
         <Button type="button" onClick={() => {
           if (window.confirm('Applicare la proposta alla compilazione locale? Il salvataggio richiede una conferma separata.')) {
-            onApply(proposal);
+            onApply(proposal.value);
             invalidate();
           }
         }}>Applica alla compilazione</Button>
