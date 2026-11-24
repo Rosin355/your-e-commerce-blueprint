@@ -222,3 +222,15 @@ karsyn.ns.cloudflare.com.
 ```
 
 **Riscontro: la delega a Cloudflare è visibile sul resolver 1.1.1.1.** Non confondere con attivazione già verificata nell'interfaccia Cloudflare o propagazione su tutti i resolver. Prossimi controlli: `dig NS onlinegarden.it @8.8.8.8 +short`, screenshot `Cloudflare → Overview` con stato `Active` e verifica HTTPS di `https://onlinegarden.it`, `https://www.onlinegarden.it`, `https://onlinegarden.it/admin`, `https://onlinegarden.it/account`. I record A apex/www restano DNS only: il sito raggiunge direttamente l'origine Lovable e i redirect Cloudflare non sono ancora applicati. Il certificato Edge Cloudflare va verificato come `Active` prima di qualsiasi modifica Proxied, e il comportamento HTTPS con Lovable deve essere collaudato; non attivare proxy, HSTS o redirect in questa fase. Stato `PUBLIC_NS_1_1_1_1=PASS`; `PUBLIC_NS_8_8_8_8=PENDING`; `CLOUDFLARE_ACTIVE=PENDING`; `EDGE_CERT_ACTIVE=PENDING`; `REDIRECT_301=0/16`. La posta resta non testata in attesa dell'attivazione.
+
+
+## Doppia conferma nameserver Cloudflare — 24/11/2026
+
+Il responsabile ha fornito output diretto dal Terminale Mac per `dig NS onlinegarden.it @8.8.8.8 +short`, che restituisce:
+```text
+carlos.ns.cloudflare.com.
+karsyn.ns.cloudflare.com.
+```
+Identica risposta era stata riscontrata prima con resolver Cloudflare `1.1.1.1`. **`PUBLIC_NS_1_1_1_1=PASS`, `PUBLIC_NS_8_8_8_8=PASS`; delegazione Cloudflare riscontrata da entrambi**, senza implicare propagazione completata presso tutti i resolver o stato della zona Active. **IONOS cambio NS già confermato**; ora nessun'altra modifica al registrar per questo passaggio.
+
+**Gate successivi:** verificare `Cloudflare Overview: Active`, `SSL/TLS → Edge Certificates: Active` per apex e `www`/wildcard prima di proxy, e un test HTTPS diretto di home, `www`, `/admin`, `/account` e checkout ospitato. A e www Cloudflare restano DNS only; Cloudflare redirect 301 ancora non attivi `0/16`. Email non attiva e recapito non collaudato. Nessuna nuova modifica del proxy o dei nameserver consigliata. Conservare backup originali e rollback. SAL ufficiale invariata finché i criteri live non sono collaudati.
