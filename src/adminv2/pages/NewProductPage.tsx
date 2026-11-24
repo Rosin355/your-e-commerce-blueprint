@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import FieldEditor from '../components/FieldEditor';
+import { toggleMonth } from '../lib/fieldValueCodecs';
+import { changeFamilySku, draftErrors, generateFamilySku, initialDraft } from '../lib/newDraft';
 import CatalogImages from '../components/CatalogImages';
 import { callAdminApi, callCatalogCommand } from '../lib/adminApi';
 import { OPERATION_LABELS, useCategoryCatalogue } from '../lib/operationalApi';
@@ -22,34 +24,15 @@ import {
   type ProductDraft,
 } from '../../../supabase/functions/_shared/admin-operational-core';
 import type { FieldDefinition } from '../../../supabase/functions/_shared/admin-v2-types';
-const initial: ProductDraft = {
-  title: '',
-  sku: '',
-  description: '',
-  currency: 'EUR',
-  vendor: '',
-  tags: [],
-  categoryIds: [],
-  variants: [{ sku: '', price: '', compareAtPrice: null, option: 'Formato unico' }],
-  images: [],
-  seoTitle: '',
-  seoDescription: '',
-  botanical: {},
-};
-const steps = [
-  'Informazioni',
-  'Dati commerciali',
-  'Categorie',
-  'Immagini e formati',
-  'Botanica e SEO',
-  'Anteprima',
-];
+const steps = ['Dati prodotto', 'Anteprima e salvataggio'];
 export default function NewProductPage() {
-  const [draft, setDraft] = useState<ProductDraft>(initial);
+  const [draft, setDraft] = useState<ProductDraft>(initialDraft);
   const [descriptionRevision,setDescriptionRevision]=useState(0);
   const [uploading, setUploading] = useState(false);
   const [categorySearch, setCategorySearch] = useState('');
   const [step, setStep] = useState(0);
+  const [showErrors, setShowErrors] = useState(false);
+  const [skuError, setSkuError] = useState('');
   const [tagsInput, setTagsInput] = useState('');
   const [key, setKey] = useState(() => crypto.randomUUID());
   const [confirmed, setConfirmed] = useState(false);
@@ -71,13 +54,24 @@ export default function NewProductPage() {
       callAdminApi<{ definitions: FieldDefinition[] }>({ action: 'get_field_definitions' }),
     retry: false,
   });
+  const errors = showErrors ? draftErrors(draft, definitions.data?.definitions) : {};
+  function reportConflict(error: unknown) {
+    if (!(error instanceof AdminApiError) || error.code !== 'SKU_CONFLICT') return;
+    setLocked(false);
+    setConfirmed(false);
+    setSkuError('Un codice è già in uso. Premi “Genera altri codici” e verifica di nuovo l’anteprima.');
+    setStep(0);
+    focusField('sku');
+  }
   const preview = useMutation({
+    onError: (error: Error) => reportConflict(error),
     mutationFn: () =>
-      callAdminApi<{ warnings: string[] }>({ action: 'preview_new_product', draft }),
+      callAdminApi<{ warnings: string[]; shopifySkuVerified?: boolean }>({ action: 'preview_new_product', draft }),
   });
   const save = useMutation({
     onError: error => {
       if (error instanceof AdminApiError && error.code === 'CANCELLED') setLocked(false);
+      reportConflict(error);
     },
     mutationFn: () =>
       callCatalogCommand<{ result: { productId: string; operationId: string; state: string } }>({
@@ -95,36 +89,46 @@ export default function NewProductPage() {
         confirm: true,
       }),
   });
-  const update = (change: Partial<ProductDraft>) => {
-    setDraft((d) => ({ ...d, ...change }));
+  const update = (change: Partial<ProductDraft> | ((previous: ProductDraft) => Partial<ProductDraft>)) => {
+    setDraft(previous => ({ ...previous, ...(typeof change === 'function' ? change(previous) : change) }));
     preview.reset();
+    if (!locked) save.reset();
     setConfirmed(false);
     setKey(crypto.randomUUID());
   };
-  const field = (
-    label: string,
-    k: 'title' | 'sku' | 'description' | 'currency' | 'vendor' | 'productType' | 'seoTitle' | 'seoDescription',
-    area = false,
-  ) => (
-    <label className='block space-y-1'>
-      <span>{label}</span>
-      {area
-        ? <Textarea value={draft[k] ?? ''} onChange={(e) => update({ [k]: e.target.value })} />
-        : (
-          <Input
-            value={draft[k] ?? ''}
-            onChange={(e) => {
-              const value = e.target.value;
-              update(
-                k === 'sku' && draft.variants.length === 1
-                  ? { sku: value, variants: [{ ...draft.variants[0], sku: value }] }
-                  : { [k]: value },
-              );
-            }}
-          />
-        )}
-    </label>
-  );
+  function focusField(id: string) {
+    requestAnimationFrame(() => {
+      const element = document.getElementById(id);
+      for (let parent = element?.parentElement; parent; parent = parent.parentElement) {
+        if (parent instanceof HTMLDetailsElement) parent.open = true;
+      }
+      element?.focus();
+    });
+  }
+  function navigate(to: number) {
+    if (to === 1 && !locked) {
+      setShowErrors(true);
+      const invalid = Object.keys(draftErrors(draft, definitions.data?.definitions))[0];
+      if (invalid || skuError) { setStep(0); focusField(invalid || 'sku'); return; }
+    }
+    setStep(to);
+  }
+  function rename(value: string, replaceAll = false) {
+    setSkuError('');
+    update(previous => changeFamilySku(previous, value, replaceAll));
+  }
+  const field = (label: string, k: 'title' | 'sku' | 'currency' | 'vendor' | 'productType' | 'seoTitle' | 'seoDescription', area = false) => {
+    const error = (k === 'sku' && skuError) || errors[k];
+    const props = {
+      id: k, value: draft[k] ?? '', required: k === 'title' || k === 'sku' || k === 'currency',
+      'aria-invalid': Boolean(error), 'aria-describedby': error ? k + '-error' : undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => k === 'sku' ? rename(e.target.value) : update({ [k]: e.target.value }),
+    };
+    return <label className="block space-y-1"><span>{label}</span>
+      {area ? <Textarea {...props} /> : <Input {...props} />}
+      {error && <span id={k + '-error'} className="text-sm text-destructive">{error}</span>}
+    </label>;
+  };
   if (catalogue.data && !catalogue.data.canAuthorDraft) return <p role='status'>Il tuo ruolo consente la consultazione, senza creazione di prodotti.</p>;
   return (
     <div className='max-w-4xl space-y-5'>
@@ -142,7 +146,7 @@ export default function NewProductPage() {
             className='min-h-11'
             variant={step === i ? 'default' : 'outline'}
             aria-current={step === i ? 'step' : undefined}
-            onClick={() => setStep(i)}
+            onClick={() => navigate(i)}
           >
             {i + 1}. {label}
           </Button>
@@ -150,40 +154,27 @@ export default function NewProductPage() {
       </nav>
       <fieldset disabled={locked} className='space-y-4 rounded-xl border bg-card p-4 sm:p-6'>
         <legend className='px-2 font-semibold'>{steps[step]}</legend>
-        {step === 0 && (
-          <>
-            {field('Nome prodotto', 'title')}
-            {field('SKU famiglia', 'sku')}
-            <p className="font-medium">Testo del prodotto · puoi modificare qui</p>
-            <RichTextEditor key={descriptionRevision} value={draft.description} onChange={description => update({ description })} label="Descrizione verificata" />
-            {adminContext.data?.canUseAi && definitions.data?.definitions.filter(d=>d.key==='description' && adminContext.data?.editableFieldKeys?.includes(d.key) && d.visible && d.editable && d.ai_allowed && !d.manual_only).map(d=><ConfirmedAiAssistant key={`${draft.sku}:${draft.title}`} field={{key:d.key,label:d.label,editorType:d.editor_type,dataType:d.data_type,validationRules:d.validation_rules ?? {},required:d.required}} onApply={value=>{update({description:value as string});setDescriptionRevision(v=>v+1);}}/>)}
-            <p className='text-sm text-muted-foreground'>
-              Inserisci soltanto informazioni note. I contenuti botanici non vengono completati
-              automaticamente.
-            </p>
-          </>
-        )}
-        {step === 1 && (
-          <>
-            {field('Valuta della bozza (codice ISO)', 'currency')}
-            {field('Fornitore', 'vendor')}
-            {adminContext.data?.supportsCatalogSourceAndProductType && field('Tipo prodotto', 'productType')}
-            <label className='block'>
-              Tag separati da virgole<Input
-                value={tagsInput}
-                onChange={(e) => { setTagsInput(e.target.value); update({ tags: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) }); }}
-              />
-            </label>
-            <p>
-              Prezzi per ciascun formato nel passaggio “Immagini e formati”. Inventario e
-              disponibilità saranno gestiti in Shopify secondo le autorizzazioni; non viene
-              assegnata alcuna quantità predefinita.
-            </p>
-          </>
-        )}
-        {step === 2 && (
-          <>
-            <p>La bozza può essere salvata senza categoria. Nessuna corrispondenza viene dedotta dal nome.</p>
+        <div hidden={step !== 0} className="space-y-5">
+          {field('Nome prodotto (obbligatorio)', 'title')}
+          <section aria-label="Descrizione del prodotto" className="space-y-2">
+            <h2 className="font-semibold">Descrizione (obbligatoria)</h2>
+            <RichTextEditor key={descriptionRevision} value={draft.description} onChange={description => update({ description })}
+              simple label="Descrizione verificata" inputId="description" error={errors.description} disabled={locked} />
+            {errors.description && <p id="description-error" className="text-sm text-destructive">{errors.description}</p>}
+            {adminContext.data?.canUseAi && definitions.data?.definitions.filter(d => d.key === 'description' &&
+              adminContext.data?.editableFieldKeys?.includes(d.key) && d.visible && d.editable && d.ai_allowed && !d.manual_only).map(d =>
+              <details key={d.key}><summary className="cursor-pointer">Aiuto AI per la descrizione (facoltativo)</summary>
+                <ConfirmedAiAssistant field={{key:d.key,label:d.label,editorType:d.editor_type,dataType:d.data_type,validationRules:d.validation_rules ?? {},required:d.required}}
+                  onApply={value => { update({ description: value as string }); setDescriptionRevision(n => n + 1); }} />
+              </details>)}
+            {definitions.isError && <p role="alert">Impossibile leggere i campi disponibili per AI e botanica. Puoi compilare la descrizione a mano.</p>}
+          </section>
+          <VariantEditor currency={draft.currency} sku={draft.sku} variants={draft.variants} errors={errors} onChange={variants => {
+            setSkuError(''); update({ variants });
+          }} />
+          <section id="categories" tabIndex={-1} aria-describedby={errors.categories ? "categories-error" : undefined} className="space-y-2" aria-label="Categoria">
+            <h2 className="font-semibold">Categoria (facoltativa)</h2>
+            {errors.categories && <p id="categories-error" role="alert">{errors.categories}</p>}
             <label className="block">Cerca categoria<Input type="search" value={categorySearch} onChange={e => setCategorySearch(e.target.value)} /></label>
             <p aria-live="polite">Selezionate · {summary.categories?.join(', ') || 'Nessuna categoria'}</p>
             {ordinary ? <>
@@ -199,17 +190,18 @@ export default function NewProductPage() {
                 <Checkbox checked={draft.categoryIds.includes(c.id)} onCheckedChange={checked => update({ categoryIds: checked ? [...draft.categoryIds, c.id] : draft.categoryIds.filter(id => id !== c.id) })} />{c.display_name}
               </label>)}
             </>}
-          </>
-        )}
-        {step === 3 && (
-          <>
-            <VariantEditor currency={draft.currency} sku={draft.sku} variants={draft.variants} onChange={variants => update({ variants })} />
-            <CatalogImages onUploadingChange={setUploading} images={draft.images} onChange={images => update({ images })} ordinary={ordinary}
+          </section>
+          <CatalogImages errors={errors} onUploadingChange={setUploading} images={draft.images} onChange={images => update({ images })} ordinary={ordinary}
               enabled={adminContext.data?.canUploadImages === true} sku={draft.sku} requestKey={catalogue.data?.canaryRequestKey} />
-          </>
-        )}
-        {step === 4 && (
-          <>
+          <details className="space-y-3"><summary className="cursor-pointer font-medium">Opzioni avanzate</summary>
+            {field('Codice prodotto (SKU famiglia)', 'sku')}
+            <Button type="button" variant="outline" onClick={() => rename(generateFamilySku(), true)}>Genera altri codici</Button>
+            {field('Valuta (codice ISO)', 'currency')}
+            {field('Fornitore', 'vendor')}
+            {adminContext.data?.supportsCatalogSourceAndProductType && field('Tipo prodotto', 'productType')}
+            <label className="block">Tag separati da virgole<Input id="tags" value={tagsInput} aria-invalid={Boolean(errors.tags)} aria-describedby={errors.tags ? 'tags-error' : undefined}
+              onChange={e => { setTagsInput(e.target.value); update({ tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) }); }} /></label>
+            {errors.tags && <p id="tags-error" className="text-sm text-destructive">{errors.tags}</p>}
             <details><summary className='cursor-pointer font-medium'>SEO facoltativa</summary>
             {field('Titolo SEO', 'seoTitle')}
             {field('Descrizione SEO', 'seoDescription', true)}
@@ -221,7 +213,7 @@ export default function NewProductPage() {
               (DRAFT_BOTANICAL_KEYS as readonly string[]).includes(d.key) && d.visible &&
               d.editable && !d.manual_only
             ).map((d) => (
-              <div key={d.key}>
+              <div key={d.key} id={d.key} tabIndex={-1} role="group" aria-label={d.label} aria-describedby={errors[d.key] ? d.key + "-error" : undefined}>
                 <h3>{d.label}</h3>
                 <FieldEditor
                   field={{
@@ -233,15 +225,22 @@ export default function NewProductPage() {
                     required: d.required,
                   }}
                   value={draft.botanical[d.key]}
-                  onChange={(value) =>
-                    update({ botanical: { ...draft.botanical, [d.key]: value } })}
+                  onChange={value => update(previous => ({ botanical: { ...previous.botanical, [d.key]: value } }))}
+                  onMonthToggle={(month, checked) => update(previous => {
+                    const botanical = { ...previous.botanical };
+                    const months = toggleMonth(botanical[d.key], month, checked);
+                    if (months.length) botanical[d.key] = months;
+                    else delete botanical[d.key];
+                    return { botanical };
+                  })}
                 />
+                {errors[d.key] && <p id={d.key + "-error"} className="text-sm text-destructive">{errors[d.key]}</p>}
               </div>
             ))}
             </details>
-          </>
-        )}
-        {step === 5 && (
+          </details>
+        </div>
+        {step === 1 && (
           <>
             <h2 className='font-semibold'>Anteprima della bozza interna</h2>
             <p>Compilazione locale · fuori vendita</p>
@@ -251,7 +250,9 @@ export default function NewProductPage() {
             </Button>
             {preview.isError && <p role='alert'>{preview.error.message}</p>}
             {preview.data && (
-              <div role='status'>{preview.data.warnings.map((w) => <p key={w}>{w}</p>)}</div>
+              <div role='status'>{preview.data.warnings.map((w) => <p key={w}>{w}</p>)}
+                {preview.data.shopifySkuVerified !== true && <p>Il server non ha confermato la verifica dei codici su Shopify. Attendi l’aggiornamento prima di salvare.</p>}
+              </div>
             )}
             <label className='flex min-h-11 items-center gap-2'>
               <Checkbox
@@ -261,7 +262,7 @@ export default function NewProductPage() {
             </label>
             <Button
               type='button'
-              disabled={!preview.data || !confirmed || !catalogue.data?.canSaveDraft ||
+              disabled={preview.data?.shopifySkuVerified !== true || !confirmed || !catalogue.data?.canSaveDraft ||
                 save.isPending}
               onClick={() => {
                 setLocked(true);
@@ -280,10 +281,10 @@ export default function NewProductPage() {
         )}
       </fieldset>
       <div className='flex justify-between gap-2'>
-        <Button variant='outline' disabled={uploading || step === 0} onClick={() => setStep((s) => s - 1)}>
+        <Button variant='outline' disabled={uploading || step === 0} onClick={() => navigate(0)}>
           Indietro
         </Button>
-        <Button disabled={uploading || step === 5} onClick={() => setStep((s) => s + 1)}>Continua</Button>
+        <Button disabled={uploading || step === 1} onClick={() => navigate(1)}>Vai all’anteprima</Button>
       </div>
       {save.isError && (
         <div role='alert'>

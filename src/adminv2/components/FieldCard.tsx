@@ -11,7 +11,7 @@ import ValueDisplay from './ValueDisplay';
 import FieldEditor from './FieldEditor';
 import AiSuggestionCard from './AiSuggestionCard';
 import { AdminApiError, type AdminAiSuggestion, type AdminField, type FieldCommandAction } from '../lib/adminApi';
-import { editorKind, isEditorValueSupported, normalizeEditorValue, parseFaqValue } from '../lib/fieldValueCodecs';
+import { editorKind, isEditorValueSupported, normalizeEditorValue, parseFaqValue, toggleMonth } from '../lib/fieldValueCodecs';
 import { isLegacyAi, isManualField, LEGACY_AI_NOTICE, originLabel, reviewLabel } from '../lib/labels';
 
 function cloneValue(value: unknown): unknown {
@@ -211,7 +211,7 @@ export default function FieldCard({ field, onGenerateConfirmed, onCommand, onSyn
           <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{!field.capabilities.currentValueExists && field.shopifyLiveValue != null ? 'Valore letto da Shopify' : 'Valore editoriale interno'}</h4>
           {editing ? (
             <div aria-describedby={visibleValidationError ? errorId : undefined}>
-              <FieldEditor field={field} value={draft} onChange={setDraft} disabled={busy !== null} />
+              <FieldEditor field={field} value={draft} onChange={setDraft} onMonthToggle={(month, checked) => setDraft((previous: unknown) => toggleMonth(previous, month, checked))} disabled={busy !== null} />
             </div>
           ) : initialValue == null ? (
             <p className="text-sm text-muted-foreground">Dato assente nei campi editoriali. Per le nuove bozze consulta il riepilogo della creazione.</p>

@@ -21,8 +21,8 @@ async function mediaRequestKey(base64: string, mimeType: string) {
   return [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join('-');
 }
 
-export default function CatalogImages({ images, onChange, ordinary, enabled, sku, requestKey, onUploadingChange }: {
-  images: Image[]; onChange: (images: Image[]) => void; ordinary: boolean; enabled: boolean; sku: string; requestKey?: string | null; onUploadingChange: (busy: boolean) => void;
+export default function CatalogImages({ images, onChange, ordinary, enabled, sku, requestKey, onUploadingChange, errors = {} }: {
+  errors?: Record<string,string>; images: Image[]; onChange: (images: Image[]) => void; ordinary: boolean; enabled: boolean; sku: string; requestKey?: string | null; onUploadingChange: (busy: boolean) => void;
 }) {
   const [file, setFile] = useState<File>();
   const [alt, setAlt] = useState('');
@@ -48,7 +48,7 @@ export default function CatalogImages({ images, onChange, ordinary, enabled, sku
     return { url: result.media.url, alt: result.media.alt };
   }, onSuccess: image => { add(image); if (ordinary && enabled) void library.refetch(); } });
   return <section className='space-y-3'>
-    <h2 className='font-semibold'>Immagini</h2>
+    <h2 className='font-semibold'>Fotografie (facoltative)</h2>
     <p className='text-sm'>Carica dal computer un file JPEG o PNG, massimo 5 MB. L’immagine viene aggiunta soltanto quando Shopify la rende disponibile.</p>
     <Input aria-label='Scegli immagine dal computer' type='file' accept='image/jpeg,image/png' disabled={upload.isPending || !enabled}
       onChange={e => { setFile(e.target.files?.[0]); upload.reset(); }} />
@@ -60,10 +60,10 @@ export default function CatalogImages({ images, onChange, ordinary, enabled, sku
     <p className='text-sm'>Rimuovere la foto dalla bozza conserva il file nella libreria.</p>
     {upload.isSuccess && <p role='status'>File pronto nella libreria.</p>}
     {upload.isError && <p role='alert'>{upload.error.message} Controlla le immagini già caricate prima di riprovare.</p>}
-    <div className='grid gap-3 sm:grid-cols-3'>{images.map(image => <div key={image.url} className='rounded-lg border p-2'>
-      <img src={image.url} alt={image.alt} className='h-32 w-full object-contain' /><label className="block">Testo alternativo nella bozza
-        <Input disabled={upload.isPending} value={image.alt} maxLength={250} onChange={e => onChange(images.map(i => i.url === image.url ? { ...i, alt: e.target.value } : i))} />
-      </label><p className="text-xs">Per l’invio a Shopify usa il testo alternativo registrato nella libreria.</p>
+    <div className='grid gap-3 sm:grid-cols-3'>{images.map((image,i) => <div key={image.url} className='rounded-lg border p-2'>
+      <img src={image.url} alt={image.alt} className='h-32 w-full object-contain' /><label className="block">Testo alternativo nella bozza (obbligatorio)
+        <Input id={'image-alt-'+i} required aria-invalid={Boolean(errors['image-alt-'+i])} aria-describedby={errors['image-alt-'+i] ? 'image-alt-error-'+i : undefined} disabled={upload.isPending} value={image.alt} maxLength={250} onChange={e => onChange(images.map(i => i.url === image.url ? { ...i, alt: e.target.value } : i))} />
+      </label>{errors['image-alt-'+i] && <p id={'image-alt-error-'+i} className="text-sm text-destructive">{errors['image-alt-'+i]}</p>}<p className="text-xs">Per l’invio a Shopify usa il testo alternativo registrato nella libreria.</p>
       <Button type='button' variant='outline' disabled={upload.isPending} onClick={() => onChange(images.filter(i => i.url !== image.url))}>Rimuovi dalla bozza</Button>
     </div>)}</div>
     {ordinary && enabled && Boolean(library.data?.media.length) && <details><summary>Scegli fra le tue immagini già caricate</summary>

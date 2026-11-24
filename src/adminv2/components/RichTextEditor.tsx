@@ -5,14 +5,14 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { sanitizeEditorialHtml } from '../../../supabase/functions/_shared/vendor/editorial-html.mjs';
 
-export default function RichTextEditor({ value, onChange, disabled = false, label = 'Descrizione' }: { value: string; onChange: (value: string) => void; disabled?: boolean; label?: string }) {
+export default function RichTextEditor({ value, onChange, disabled = false, label = 'Descrizione', inputId, error, simple = false }: { value: string; onChange: (value: string) => void; disabled?: boolean; label?: string; inputId?: string; error?: string; simple?: boolean }) {
   const [link, setLink] = useState('');
   const [linkError, setLinkError] = useState(false);
   const [unsupported, setUnsupported] = useState(false);
   const originalValue = useRef(value).current;
   const clean = useRef(DOMPurify.sanitize(sanitizeEditorialHtml(originalValue))).current;
   const editor = useEditor({ extensions: [StarterKit.configure({ link: { openOnClick: false, HTMLAttributes: { rel: null, target: null } }, codeBlock: false, code: false })], content: clean, editable: !disabled && !unsupported,
-    editorProps: { attributes: { role: 'textbox', 'aria-multiline': 'true', 'aria-label': label, class: 'prose prose-sm max-w-none min-h-40 rounded border p-3 focus:outline-none focus:ring-2 focus:ring-ring' } },
+    editorProps: { attributes: { role: 'textbox', ...(inputId ? { id: inputId, 'aria-required': 'true' } : {}), 'aria-multiline': 'true', 'aria-label': label, class: 'prose prose-sm max-w-none min-h-40 rounded border p-3 focus:outline-none focus:ring-2 focus:ring-ring' } },
     onCreate: ({ editor }) => {
       // Unsupported structures are preserved in the caller's draft, never silently flattened.
       const original = document.createElement('div'); original.innerHTML = clean;
@@ -23,12 +23,17 @@ export default function RichTextEditor({ value, onChange, disabled = false, labe
     onUpdate: ({ editor }) => onChange(DOMPurify.sanitize(sanitizeEditorialHtml(editor.getHTML()))),
   });
   useEffect(() => { editor?.setEditable(!disabled && !unsupported, false); }, [editor, disabled, unsupported]);
+  useEffect(() => {
+    if (!editor || !inputId) return;
+    const dom = editor.view.dom;
+    dom.setAttribute('aria-invalid', String(Boolean(error)));
+    if (error) dom.setAttribute('aria-describedby', inputId + '-error');
+    else dom.removeAttribute('aria-describedby');
+  }, [editor, inputId, error]);
   if (!editor) return <p role="status">Caricamento editor…</p>;
   const locked = disabled || unsupported;
   const action = (text: string, fn: () => void) => <Button type="button" size="sm" variant="outline" disabled={locked} onClick={fn}>{text}</Button>;
-  return <div className="space-y-3">
-    {unsupported && <p role="alert">Il contenuto contiene formattazioni non supportate. L’originale è conservato: annulla e richiedi assistenza per modificarlo senza perdita.</p>}
-    <div role="toolbar" aria-label={`Formattazione ${label}`} className="flex flex-wrap gap-2">
+  const toolbar = <div role="toolbar" aria-label={`Formattazione ${label}`} className="flex flex-wrap gap-2">
       {action('Paragrafo', () => editor.chain().focus().setParagraph().run())}
       {action('Grassetto', () => editor.chain().focus().toggleBold().run())}
       {action('Corsivo', () => editor.chain().focus().toggleItalic().run())}
@@ -36,11 +41,17 @@ export default function RichTextEditor({ value, onChange, disabled = false, labe
       {action('Elenco numerato', () => editor.chain().focus().toggleOrderedList().run())}
       {action('Annulla modifica', () => editor.chain().focus().undo().run())}
       {action('Ripristina', () => editor.chain().focus().redo().run())}
-    </div>
-    <EditorContent editor={editor} />
+    </div>;
+  const links = <>
     <label className="block text-sm">Indirizzo del link selezionato<input className="mt-1 w-full rounded border p-2" value={link} disabled={locked} onChange={e => setLink(e.target.value)} placeholder="https://…" /></label>
     {action('Inserisci link', () => { if (!/^(https?:\/\/|mailto:|\/[^/]|#)/i.test(link)) { setLinkError(true); return; } setLinkError(false); editor.chain().focus().extendMarkRange('link').setLink({ href: link }).run(); })}
     {action('Rimuovi link', () => editor.chain().focus().unsetLink().run())}
     {linkError && <p role="alert">Usa un indirizzo https, un percorso del sito o un link email valido.</p>}
+  </>;
+  return <div className="space-y-3">
+    {unsupported && <p role="alert">Il contenuto contiene formattazioni non supportate. L’originale è conservato: annulla e richiedi assistenza per modificarlo senza perdita.</p>}
+    {!simple && toolbar}
+    <EditorContent editor={editor} />
+    {simple ? <details className="space-y-2"><summary className="cursor-pointer">Formatta il testo o inserisci un link</summary>{toolbar}{links}</details> : links}
   </div>;
 }
