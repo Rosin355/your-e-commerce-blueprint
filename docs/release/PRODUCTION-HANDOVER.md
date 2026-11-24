@@ -162,3 +162,17 @@ Su richiesta dell'operatore è stato tentato un controllo diretto dei record `DS
 ## Primo risultato DS Cloudflare resolver 1.1.1.1 — 24/11/2026
 
 Il responsabile ha eseguito su Mac il comando di lettura DNS `dig DS onlinegarden.it @1.1.1.1 +noall +comments +answer`. Output diretto comunicato: `status: NOERROR`, `ANSWER: 0`, `AUTHORITY: 1`, `ADDITIONAL: 1`. **Esito della sola interrogazione: nessun record DS restituito dal resolver 1.1.1.1 nel momento del test**, non si presume una valutazione definitiva dello stato DNSSEC dal solo pannello IONOS. In attesa di secondo riscontro indipendente con `dig DS onlinegarden.it @8.8.8.8 +noall +comments +answer`. **Nessun record o nameserver modificato.** Mantieni il gate di cambio NS chiuso fino a backup completo e verifiche residue di proxy/TLS, posta e rollback.
+
+
+## DNSSEC DS — doppia verifica PASS del 24/11/2026
+
+Il responsabile ha eseguito in Terminale su Mac le due interrogazioni read-only richieste, condividendo integralmente i rispettivi riepiloghi:
+
+| Query | Header | Risultato |
+| --- | --- | --- |
+| `dig DS onlinegarden.it @1.1.1.1 +noall +comments +answer` | `status: NOERROR, ANSWER: 0, AUTHORITY: 1` | Nessun DS restituito |
+| `dig DS onlinegarden.it @8.8.8.8 +noall +comments +answer` | `status: NOERROR, ANSWER: 0, AUTHORITY: 1` | Nessun DS restituito |
+
+**Esito: `DNSSEC_PREVIOUS_DS_ABSENT = PASS` nelle due letture pubbliche indipendenti.** Non serve acquistare DNS Pro né intervenire sui record DS in questa situazione. **Non equivale a GO per il cambio nameserver.**
+
+**Stato migrazione DNS al 24/11:** Cloudflare in attesa delega; zona DNS preparata con 13 record, due TXT Lovable e A apex/www **DNS only**; Lovable dominio Attivo/www incluso; Cloudflare Edge Certificate ancora `No certificates`, modalità `Full`; posta titolare non ancora attiva, quindi impossibile testarne il recapito o il selettore DKIM effettivo. **Restano prima della delega:** (1) backup completo e verificato IONOS oltre all'export Cloudflare aggiornato; (2) conferma definitiva del servizio email previsto e riconciliazione `s42582890._domainkey` con le impostazioni di invio; (3) finestra/rischi/rollback autorizzati; (4) controllo della continuità Lovable HTTPS in DNS-only e successiva attivazione certificat Edge/proxy solo dopo test. I 16 redirect 301 restano 0/16 live, senza incrementi SAL. Nessuna modifica NS, DNS o posta effettuata per questa verifica.
