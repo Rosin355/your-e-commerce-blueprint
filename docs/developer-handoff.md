@@ -1,5 +1,12 @@
 # Online Garden — developer handoff
 
+## Admin V2 — GO A e GO B eseguiti il 24/11/2026
+
+**Rilascio riferito e documentato da Lovable:** `product-admin-api` del ramo isolato distribuita con pacchetto SHA-256 `941e75a42795384b112123e405c943d148e3b28564d43d6b3c94908d7d8c6039` (non è hash letto dal runtime); smoke `OPTIONS 200`, anonimo `401`, `get_admin_context`, `get_dashboard_stats`, `list_products` autenticati `200`. Il marker `admin-delivery-20261121-r2` non distingue candidato e precedente. Frontend live `index-jqOemgjy.js`, rollback disponibile via Cronologia Lovable alla versione r2 con `index-DSQ4UzGV.js`. Backup Edge r2 da `ca9050d004da3b27f2aff0cb8020bf58ab87d63d` richiede una **nuova distribuzione**, non un rollback automatico della revisione attiva. Prove live anonime home/catalogo/account/Admin e carrello→checkout PASS nel verbale; nessuna prova delle nuove funzionalità in una sessione reale di Marco, che resta PENDING. Non ripetere Publish per soli documenti. Tenere separata la PR #69 cookie e Cloudflare (zona Active, Edge cert non attestato). [Registro](release/ADMIN-V2-MARCO-RELEASE-2026-11-24.md).
+
+---
+
+
 ## Consegna tecnica del rilascio Admin isolato
 
 Il riferimento frontend è `5a37f71d02070f51a5b2e841d15bf7cda3b72747`. Mantenere il candidato Edge della #71 e associare il rollback alla versione attiva registrata in Supabase. In Lovable selezionare il ramo isolato nella finestra concordata e verificare lo SHA prima del Publish. [Revisione, prove, inventari e procedura per il gestore](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#revisione-pubblicabile-e-verifiche-del-24-novembre)
