@@ -1,6 +1,14 @@
 # Online Garden — developer handoff
 
-## Scheda assistita della nuova bozza · PR #73
+## PR #73 · selezione editoriale della nuova bozza
+
+Chiamata additiva a `suggest_confirmed_field` con `fieldKey=description` e `draftTitle`. Il server legge il registro una volta, usa i grant della sessione e ignora campi autorizzativi inviati dal browser. Senza `PRODUCT_ADMIN_DRAFT_AI_EDITORIAL_ENABLED=true` usa la quota originale, chiama il provider per la descrizione e restituisce proposte SEO deterministiche. La versione precedente del frontend conserva il proprio contratto anche con la nuova Edge.
+
+Il percorso strutturato richiede l’opt-in esplicito per attore/campo restituito dalla transazione `reserve_draft_editorial_ai_request`, la capacità bozze, il permesso AI, la chiave nel grant e un campo consentito dal registro. I candidati degli altri campi sono esclusi dal prompt. Una prenotazione assente o illeggibile ferma la chiamata. La prenotazione scrive una volta nel journal di frequenza e registra a parte il perimetro autorizzato. Il servizio non può assegnare opt-in. Il contratto proposto rimane fuori da Supabase e Drizzle finché il responsabile non ne approva introduzione e destinatari. [Proposta SQL per la revisione](release/pending/pr73-draft-editorial-review.sql)
+
+`admin-draft-editorial.ts` costruisce alternative verificabili. `draft-sheet.ts` controlla la risposta e ogni valore contro la definizione server. Il provider riceve indici e fatti, con un limite di 256 token in uscita. `source=model` identifica la scelta editoriale del modello, `deterministic` il fallback. Il retry esplicito della descrizione conserva le revisioni degli altri campi. La UI usa le categorie selezionate nel modulo soltanto per la variante locale dei tag. [Evidenze, limiti e collaudo](admin-v2/AI-ERROR-LIVE-2026-11-24.md)
+
+## Storico a c623b001 · scheda assistita
 
 La nuova pagina usa il contratto di `suggest_confirmed_field` del commit `8fb057f`. Il payload comprende azione, campo `description`, fatti confermati, conferma e UUID. La Edge verifica grant, campo e limite di frequenza. Il fallback estrattivo e i suoi codici diagnostici appartengono già a quel commit. Questa estensione cambia solo il frontend e i test. L’estensione non introduce un nuovo contratto di rete.
 

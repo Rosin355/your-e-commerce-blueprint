@@ -2,7 +2,42 @@
 
 **Stato al termine dell’intervento — FIX IN PR, PASS tecnico, collaudo live aperto.** La versione pubblicata di riferimento è `index-jqOemgjy.js`. SAL **57,75%**.
 
-## Completa scheda con AI · esito sulla stessa PR #73
+## Qualità SEO · candidato corrente della PR #73
+
+**PASS tecnico isolato. Attivazione della selezione AI per SEO e tag in attesa di autorizzazione.** Il pulsante e la revisione introdotti a `c623b001` rimangono il punto di ingresso. Il modello può scegliere fra titoli preparati dal nome e da nomi esplicitamente confermati, fra estratti interi della scheda e fra etichette verificabili. In produzione il registro consente AI su descrizione e campi SEO, mentre `tags.ai_allowed` è falso. Il contratto di prenotazione attivo nel sorgente approvato autorizza la descrizione ed esclude tutti e tre i metadati dall’inferenza. Il candidato parte con lo stesso perimetro.
+
+| Campo | Con autorizzazione per quel campo | Fallback e revisione |
+| --- | --- | --- |
+| Descrizione | Il modello ordina le righe confermate. La Edge verifica che ogni riga compaia una volta. | Se l’ordine è invalido si ricompongono tutte le righe originali. Restano distinti gli errori di input, provider e validazione. |
+| Titolo SEO | Il modello seleziona un titolo entro 70 caratteri. Se Marco conferma «Nome comune: Farnia» può scegliere fra «Quercus robur», «Quercus robur (Farnia)» e «Farnia (Quercus robur)». | Prima variante valida secondo le regole del campo. Una sostituzione manuale è segnalata in anteprima. |
+| Meta description | Il modello sceglie un estratto integro, anche con il nome prodotto, entro 320 caratteri. L’insieme dei candidati conserva le righe di precisazione riconosciute. | Primo estratto valido. Se nessun testo intero rispetta il limite, Marco può compilare il campo. La revisione umana controlla anche eventuali dipendenze di significato fra frasi. |
+| Tag | Il modello seleziona fino a cinque etichette da nome e dichiarazioni esplicite di nome comune, nome botanico o cultivar. Il server verifica indici, unicità, forma, dimensione e registro. | Etichette verificate, deduplicate, più le categorie selezionate nel modulo. |
+| Tipo prodotto | La classificazione usa il registro approvato dal responsabile. | Con il registro attuale il tipo resta manuale. Si possono approvare e salvare gli altri quattro campi. |
+
+Il provider riceve una sola richiesta per tentativo. La risposta strutturata contiene indici, con budget di 256 token in uscita. Una selezione invalida attiva il fallback del solo campo interessato. La provenienza visualizzata distingue modello, compilazione deterministica e revisione manuale. Il budget condiviso resta cinque prenotazioni al minuto per operatore. Non è stato misurato un costo reale.
+
+### Tipi Shopify · proposta per Marco
+
+Lettura completa in sola lettura sul negozio `ecom-blueprint-gen-6ud1s.myshopify.com`. L’Admin API ha restituito una pagina con quattro stringhe distinte e `hasNextPage=false`. La query restituisce tipi già assegnati a prodotti. [Documentazione Shopify](https://shopify.dev/docs/api/admin-graphql/2026-10/queries/productTypes)
+
+| Valore Shopify esatto | Decisione proposta per le nuove schede |
+| --- | --- |
+| `simple` | Escludere dal selettore commerciale. Identifica la struttura semplice importata. |
+| `variable` | Escludere. Il numero di formati è già gestito dal modulo. |
+| `variation` | Escludere. È una distinzione tecnica delle varianti. |
+| `wgm_gift_card, virtual` | Escludere dalle schede delle piante. Shopify lo restituisce come un unico valore. |
+
+**Lista iniziale sottoposta a Marco:** «Alberi» e «Arbusti», già presenti nel menu commerciale del progetto. Marco può approvare entrambe le voci, una sola, indicare nomi diversi o mantenere il campo manuale. Occorre poi autorizzare separatamente il mapping del registro a `productType`. Il documento costituisce la proposta e non abilita alcuna voce. [Terminologia del catalogo](../../src/config/categories.ts)
+
+### Verifiche sul candidato SEO
+
+- Typecheck, build operativa e Deno check della Edge superati. Entry frontend `index-BVKTmXhO.js`, SHA-256 `53138a4151354cd8f8e750d2903d9d38cb70bd805e2695ff7d1857113b6ed2d0`.
+- 84 test Node di dominio e permessi, quattro test sul vero handler HTTP con provider sintetico. Coperti grant mancanti, opt-in parziali, registro negativo, output inventato, indice fuori intervallo, risposta duplicata, rate limit, campo negato e una sola chiamata esterna per richiesta ammessa.
+- PostgreSQL 16 temporaneo su socket locale. Eseguiti la prenotazione originale e il contratto proposto. Verificate cinque prenotazioni registrate, sesta rifiutata, replay rifiutato, account e campi limitati, ACL del servizio e assenza di esecuzione dai ruoli browser. La proposta SQL è in `docs/release/pending`, fuori dalle migrazioni.
+- 11 test Chromium con traffico esterno bloccato. Desktop e mobile, fallback, errore provider e riprova, annullamento della sovrascrittura, modifica manuale, approvazione parziale e cumulativa, due formati, salvataggio e riapertura della bozza interna. Invii a Shopify pari a zero. Prova con il provider e la sessione autentica di Marco da eseguire.
+- [Piano definitivo per merge, snapshot, deploy, anteprima, Publish e rollback](../release/ADMIN-V2-MARCO-RELEASE-2026-11-24.md#piano-definitivo-pr-73--qualità-seo).
+
+## Storico a c623b001 · cinque campi in anteprima
 
 Implementati sulla base isolata i requisiti aggiunti al verbale del titolare. **PASS tecnico** per l’anteprima con cinque righe, le approvazioni parziali o cumulative, gli errori e la riapertura interna simulata. **BLOCKED in produzione** per il suggerimento automatico del tipo finché il registro non fornisce un dominio approvato. Collaudo autentico con Marco da eseguire.
 

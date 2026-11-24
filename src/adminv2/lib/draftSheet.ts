@@ -2,6 +2,8 @@ import type { FieldDefinition } from '../../../supabase/functions/_shared/admin-
 import type { ProductDraft } from '../../../supabase/functions/_shared/admin-operational-core';
 import { isFieldEditable, validateValue } from '../../../supabase/functions/_shared/admin-v2-validation';
 
+import { editorialOptions, type EditorialProposal } from '../../../supabase/functions/_shared/admin-draft-editorial';
+
 export const sheetLabels = {
   description: 'Descrizione',
   seoTitle: 'Titolo SEO',
@@ -65,7 +67,7 @@ export function sheetValueError(key: SheetKey, value: string | string[], context
   const def = sheetDefinition(key, context)!;
   if (key === 'tags') {
     if (!Array.isArray(value) || !value.length || value.length > 50 ||
-      value.some(v => !plain(v) || v.includes(',') || v.length > 100 || /^og(?:qa)?shipping/i.test(v)) ||
+      value.some(v => typeof v !== 'string' || !plain(v) || v.includes(',') || v.length > 100 || /^og(?:qa)?shipping/i.test(v)) ||
       new Set(value.map(v => v.toLocaleLowerCase('it'))).size !== value.length)
       return 'Usa tag distinti, senza virgole o codici logistici, di massimo 100 caratteri.';
   } else {
@@ -82,21 +84,21 @@ export function sheetValueError(key: SheetKey, value: string | string[], context
   return checked.ok ? undefined : checked.message || 'Valore non ammesso dal registro.';
 }
 
-export interface SheetRow { value?: string | string[]; reason?: string; options?: string[]; excluded?: boolean }
+export interface SheetRow { value?: string | string[]; reason?: string; options?: string[]; excluded?: boolean; source?: EditorialProposal['source'] | 'manual' }
 export type SheetPreview = Record<SheetKey, SheetRow>;
 
-// Only description goes to the existing provider. The other rows copy operator-supplied
-// text into the existing internal draft form after review.
+// Offline candidates also keep the review usable if the provider is unavailable.
 export function localSheet(context: SheetContext, facts: string[]): SheetPreview {
   function copy(key: SheetKey, value: string | string[], empty: string): SheetRow {
     const reason = reasonUnavailable(key, context) || (!value.length ? empty : sheetValueError(key, value, context));
-    return reason ? { reason } : { value };
+    return reason ? { reason } : { value, source: 'deterministic' };
   }
   const title = context.title.trim();
-  const tags = [title, ...context.categories].filter((tag, i, all) =>
+  const options = editorialOptions(title, facts);
+  const tags = [...options.tags, ...context.categories].filter((tag, i, all) =>
     all.findIndex(v => v.toLocaleLowerCase('it') === tag.toLocaleLowerCase('it')) === i &&
     !sheetValueError('tags', [tag], context));
-  const meta = facts.find(line => !sheetValueError('seoDescription', line, context)) ?? '';
+  const meta = options.seoDescription.find(line => !sheetValueError('seoDescription', line, context)) ?? '';
   const typeReason = reasonUnavailable('productType', context);
   let productType: SheetRow = { reason: typeReason };
   if (!typeReason) {
@@ -108,12 +110,12 @@ export function localSheet(context: SheetContext, facts: string[]): SheetPreview
     const labels = new Set([title, ...context.categories, ...facts, ...declarations].map(v => v.trim().toLocaleLowerCase('it')));
     const matches = options.filter(v => labels.has(v.toLocaleLowerCase('it')));
     const unknownDeclaration = declarations.some(label => !options.some(v => v.toLocaleLowerCase('it') === label));
-    productType = matches.length === 1 && !unknownDeclaration ? { value: matches[0], options } :
+    productType = matches.length === 1 && !unknownDeclaration ? { value: matches[0], options, source: 'deterministic' } :
       { options, reason: options.length ? 'Conferma manualmente il tipo fra quelli verificati.' : 'Nessun tipo supera i controlli del registro.' };
   }
   return {
     description: { reason: reasonUnavailable('description', context) },
-    seoTitle: copy('seoTitle', title, 'Inserisci un nome utilizzabile come titolo SEO.'),
+    seoTitle: copy('seoTitle', options.seoTitle.find(v => !sheetValueError('seoTitle', v, context)) ?? title, 'Inserisci un nome utilizzabile come titolo SEO.'),
     seoDescription: copy('seoDescription', meta, 'Nessuna riga intera rispetta i limiti della meta description. Compilala a mano.'),
     tags: copy('tags', tags, 'Nome e categorie selezionate non contengono etichette utilizzabili.'),
     productType,

@@ -79,3 +79,15 @@ test('nessun troncamento di fatti, tag duplicati, markup o tag riservati', () =>
   assert.ok(sheetValueError('tags', ['OGShipping-A'], context));
   assert.ok(sheetValueError('tags', ['uno', 'UNO'], context));
 });
+
+test('SEO editoriale: nomi confermati, negazioni e limiti senza ritagli di parole', () => {
+  const options=localSheet(context,['Nome comune: Farnia','La scheda non attesta rusticità.']);
+  assert.equal(options.seoTitle.value,'Quercus robur (Farnia)');
+  assert.deepEqual(options.tags.value,['Quercus robur','Farnia','Alberi']);
+  assert.match(options.seoDescription.value as string,/non attesta/);
+  const invalid=localSheet(context,['La pianta non è un albero certificato.','Nome comune: <inventato>']);
+  assert.equal(invalid.seoTitle.value,'Quercus robur');
+  assert.deepEqual(invalid.tags.value,['Quercus robur','Alberi']);
+  const long=localSheet(context,['r'.repeat(310),'Ma solo in un caso specifico.']);
+  assert.equal(long.seoDescription.value,undefined);
+});

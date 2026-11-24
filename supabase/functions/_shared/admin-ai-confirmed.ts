@@ -27,9 +27,14 @@ export async function generateConfirmedProposal(
     wordpressOriginal: null, sourceSnapshotId: null, trustedRelatedValues: {},
   });
 
-  const parts = typeof response.value === 'string'
-    ? response.value.split(/\n+/).map(line => line.trim()).filter(Boolean)
-    : response.value;
+  return validateConfirmedProposal(def, facts, response.value);
+}
+
+export function validateConfirmedProposal(def: FieldDefinition, facts: string[], raw: unknown) {
+  const strategy = strategyForField(def.key)!;
+  const parts = typeof raw === 'string'
+    ? raw.split(/\n+/).map(line => line.trim()).filter(Boolean)
+    : raw;
   if (!Array.isArray(parts) || !parts.length || !parts.every(part => typeof part === 'string' && part.trim())) {
     throw new ConfirmedProposalError('INVALID_MODEL_PROPOSAL', 'Il modello ha restituito una proposta illeggibile.');
   }

@@ -1,5 +1,9 @@
 # Online Garden — note Admin UX
 
+## Nuovo prodotto · provenienza dei suggerimenti SEO
+
+Nell’unica anteprima di **Completa scheda con AI**, ciascuna proposta SEO o tag indica **Selezione del modello** oppure **Fallback deterministico**. La correzione di un testo aggiorna l’etichetta in **Modifica manuale in anteprima**. L’operatore può confrontare il valore esistente, escludere una singola riga o annullare la sostituzione cumulativa. Se il tipo resta manuale, le altre righe mantengono i propri comandi. [Percorso di Marco](admin-v2/CLIENT-GUIDE.md)
+
 ## Nuovo prodotto · scheda assistita della PR #73
 
 Il nome e le informazioni verificate precedono il pulsante **Completa scheda con AI**, visibile nel primo passaggio. L’anteprima raggruppa descrizione, titolo SEO, meta description, tag e tipo. Ciascun gruppo presenta valore o motivazione, valore corrente in caso di sostituzione e comandi di approvazione. **Escludi** permette di conservare quel campo durante l’approvazione cumulativa. Il selettore di tipo propone soltanto le etichette del dominio verificato.

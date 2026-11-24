@@ -1,7 +1,10 @@
+import { getFieldDefinitions } from '../_shared/admin-v2-queries.ts';
+import { generateDraftSheet } from './draft-sheet.ts';
+import { registryKeys, safeLabel } from '../_shared/admin-draft-editorial.ts';
 import { ConfirmedProposalError, authorizeConfirmedAi, confirmedFacts, generateConfirmedProposal } from '../_shared/admin-ai-confirmed.ts';
 import { payloadHash } from '../_shared/admin-v2-commands.ts';
 import { loadCatalogGrant, catalogMode } from '../_shared/admin-catalog-approvals.ts';
-import { catalogAiAllowed } from '../_shared/admin-catalog-policy.ts';
+import { catalogAiAllowed, catalogAllowed } from '../_shared/admin-catalog-policy.ts';
 // Fase 2D — proposte AI field-by-field. Nessuna chiamata Shopify e nessun publish.
 import { corsHeaders } from "../_shared/cors.ts";
 import {
@@ -195,7 +198,13 @@ export async function handleProductAdminAi(
         return fail(code, message, { requestId });
       }
       if (!writesEnabled()) return reject('WRITES_DISABLED', 'authorization', 'Assistenza AI temporaneamente disabilitata.');
-      const def = typeof payload.fieldKey === 'string' ? await repo.getDefinition(payload.fieldKey) : null;
+      const sheet = Object.hasOwn(payload, 'draftTitle');
+      if (sheet && (payload.fieldKey !== 'description' || typeof payload.draftTitle !== 'string' ||
+        !safeLabel(payload.draftTitle) || payload.draftTitle.length > 255))
+        return reject('VALIDATION_ERROR', 'input', 'Verifica il nome del prodotto.');
+      const registry = sheet ? await getFieldDefinitions(serviceClient()) : undefined;
+      const def = registry ? registry.find(d => d.key === 'description') ?? null :
+        typeof payload.fieldKey === 'string' ? await repo.getDefinition(payload.fieldKey) : null;
       trace.field = def?.key ?? null;
       try { authorizeConfirmedAi(auth, def, action); }
       catch { return reject('FORBIDDEN', 'authorization', 'Azione AI non autorizzata per questo account e campo.'); }
@@ -203,15 +212,30 @@ export async function handleProductAdminAi(
       try { facts = confirmedFacts(payload.facts, payload.confirmed); }
       catch { return reject('INVALID_CONFIRMED_FACTS', 'input', 'Verifica le righe inserite e confermale.'); }
       if (!isUuid(payload.requestKey)) return reject('VALIDATION_ERROR', 'request', 'Identificativo richiesta non valido.');
-      const { data: reserved, error } = await serviceClient().rpc('reserve_confirmed_ai_request',{p_actor:auth.userId,p_request_key:payload.requestKey,p_field_key:def!.key,p_context_hash:await payloadHash({facts}),p_action:action});
+      const useDraft = sheet && catalogAllowed(auth, 'drafts') && Deno.env.get('PRODUCT_ADMIN_DRAFTS_ENABLED') === 'true';
+      const batch = useDraft && Deno.env.get('PRODUCT_ADMIN_DRAFT_AI_EDITORIAL_ENABLED') === 'true';
+      // The legacy RPC authorizes description alone. Additional inference requires
+      // a transaction explicitly authorizing the individual fields for this actor.
+      const hash = await payloadHash(sheet ? {facts, title:payload.draftTitle} : {facts});
+      const reservation = {p_actor:auth.userId,p_request_key:payload.requestKey,p_context_hash:hash};
+      const { data: reserved, error } = batch
+        ? await serviceClient().rpc('reserve_draft_editorial_ai_request', reservation)
+        : await serviceClient().rpc('reserve_confirmed_ai_request',{...reservation,p_field_key:def!.key,p_action:action});
       if (error) {
         return error.code === '42501'
           ? reject('FORBIDDEN', 'reservation', 'Richiesta AI non autorizzata.')
-          : reject('INTERNAL_ERROR', 'reservation', 'Impossibile verificare il limite di richieste AI.');
+          : reject('INTERNAL_ERROR', 'reservation', 'Impossibile verificare la prenotazione editoriale.');
       }
-      if (!reserved) return reject('RATE_LIMITED', 'reservation', 'Richiesta già inviata o limite raggiunto.');
+      if (reserved === false || (batch && reserved?.reserved === false)) return reject('RATE_LIMITED', 'reservation', 'Richiesta già inviata o limite raggiunto.');
+      if (batch ? reserved?.reserved !== true || !Array.isArray(reserved.fields) : reserved !== true)
+        return reject('INTERNAL_ERROR', 'reservation', 'Risposta di autorizzazione non valida.');
       try {
-        const proposal = await generateConfirmedProposal(def!, facts, deps.generate);
+        const keys = Object.values(registryKeys).filter(key => key === 'tags' || catalogAllowed(auth, 'edit', key));
+        const definitions = registry?.filter(d => keys.some(key => key === d.key)) ?? [];
+        const authorizedFields = batch ? keys.filter(key => reserved.fields.includes(key) && auth.catalogGrant?.fieldKeys.includes(key)) : [];
+        const proposal = useDraft
+          ? await generateDraftSheet(def!, facts, payload.draftTitle as string, definitions, authorizedFields, deps.generate)
+          : await generateConfirmedProposal(def!, facts, deps.generate);
         if (proposal.source === 'confirmed_facts') {
           console.info(JSON.stringify({ ...trace, stage: 'fallback', code: 'INVALID_MODEL_PROPOSAL' }));
         }

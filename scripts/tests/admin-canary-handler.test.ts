@@ -22,10 +22,11 @@ const draft = { title: 'Bozza sintetica', sku: 'QA-DRAFT-ONLY', description: 'Fi
   variants: [{ sku: 'QA-DRAFT-ONLY', price: '10.00', compareAtPrice: null, option: 'Unico' }] };
 
 // Execute the real HTTP entrypoint and local module graph. All I/O is synthetic and closed.
-function load(options: { scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; commerce?: boolean; media?: boolean; ai?: { grant: boolean; reserved?: boolean; output?: unknown; http?: number; maxLength?: number } } = {}) {
+function load(options: { scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; commerce?: boolean; media?: boolean; ai?: { grant: boolean; reserved?: boolean; output?: unknown; http?: number; maxLength?: number; batch?: boolean; fields?: string[]; optIns?: string[]; tagsAi?: boolean; badReservation?: boolean } } = {}) {
   let handler!: (request: Request) => Promise<Response>;
   const calls = { rpc: 0, shopifyMutations: 0, statusReads: 0, events: 0, uploads: 0 };
   const traces: string[] = [];
+  const providerRequests: { messages: {content:string}[]; tools: {function:{name:string;parameters:unknown}}[] }[] = [];
   const env: Record<string, string> = {
     SUPABASE_URL: 'https://iekwvvihjwghosqdxrdi.supabase.co', PRODUCT_ADMIN_WRITE_MODE: options.fullMode ? 'full' : 'canary',
     PRODUCT_ADMIN_WRITES_ENABLED: String(options.master ?? true), PRODUCT_ADMIN_DRAFTS_ENABLED: 'true',
@@ -43,12 +44,16 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
   const grant = { enabled: options.catalog === true, capabilities: ['edit','sync','drafts','prices','publish','images','categories'], field_keys: ['title'] };
   if (options.ai) {
     env.LOVABLE_API_KEY = 'synthetic-only';
-    grant.field_keys = ['description'];
+    grant.field_keys = ['description', ...(options.ai.fields ?? [])];
+    env.PRODUCT_ADMIN_DRAFT_AI_EDITORIAL_ENABLED = String(options.ai.batch === true);
     if (options.ai.grant) grant.capabilities.push('ai');
   }
   const db = {
     from(table: string) {
-      const data = table === 'admin_catalog_media' ? media : table === 'admin_catalog_capabilities' ? grant : table === 'admin_catalog_approvals' ? approvals : table === 'products' ? product : table === 'product_field_definitions' ? [definition] :
+      const data = table === 'admin_catalog_media' ? media : table === 'admin_catalog_capabilities' ? grant : table === 'admin_catalog_approvals' ? approvals : table === 'products' ? product : table === 'product_field_definitions' ? [definition, ...(options.ai ? [
+          {...definition, key:'seo_title',editor_type:'text'}, {...definition,key:'seo_description',editor_type:'textarea'},
+          {...definition,key:'tags',editor_type:'multiselect',data_type:'json',ai_allowed:options.ai.tagsAi === true},
+        ] : [])] :
         table === 'product_current_values' ? [{ product_id: productId, field_key: 'title', value_text: 'Prima', version: 1, review_status: 'approved' }] :
         table === 'product_sync_csv_products' ? { sku: product.sku, shopify_product_id: options.mapping ?? 'gid://shopify/Product/123' } :
         table === 'admin_product_operations' ? { id: operationId, actor, request_key: options.opKey ?? requestKey, product_id: productId, state: options.opState ?? 'LOCAL_DRAFT', payload: draft } : null;
@@ -64,7 +69,12 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
       };
       return q;
     },
-    async rpc(name: string, parameters: Record<string,unknown>) { if (options.ai && name === 'reserve_confirmed_ai_request') {
+    async rpc(name: string, parameters: Record<string,unknown>) { if (options.ai && name === 'reserve_draft_editorial_ai_request') {
+        assert.deepEqual(Object.keys(parameters).sort(),['p_actor','p_context_hash','p_request_key']);
+        calls.rpc++;
+        return {data: options.ai.badReservation ? true : {reserved:options.ai.reserved !== false,fields:options.ai.optIns ?? []},error:null};
+      }
+      if (options.ai && name === 'reserve_confirmed_ai_request') {
         assert.equal(parameters.p_actor, actor); calls.rpc++; return {data:options.ai.reserved !== false,error:null};
       }
       if (name === 'admin_claim_catalog_approval') { const row = approvals.find(a => a.id === parameters.p_id && a.actor === parameters.p_actor && a.payload_hash === parameters.p_hash && a.state === 'PENDING'); if (row) row.state = 'IN_FLIGHT'; return { data: !!row, error: null }; } assert.equal(name, 'admin_update_product_field'); calls.rpc++; calls.events++;
@@ -99,9 +109,10 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
       if (!id.startsWith('.')) throw Error(`Unexpected dependency ${id}`);
       return module(resolve(dirname(file), id));
     };
-    vm.runInNewContext(compiled, { exports, require, Request, Response, URL, TextEncoder, crypto, Blob, FormData, atob, AbortSignal, AbortController, clearTimeout, fetch: async (url: string) => {
+    vm.runInNewContext(compiled, { exports, require, Request, Response, URL, TextEncoder, crypto, Blob, FormData, atob, AbortSignal, AbortController, clearTimeout, fetch: async (url: string, init: RequestInit) => {
       if (options.ai && url === 'https://ai.gateway.lovable.dev/v1/chat/completions') {
-        return Response.json({choices:[{message:{tool_calls:[{function:{arguments:JSON.stringify({suggested_value:options.ai.output})}}]}}]}, {status:options.ai.http ?? 200});
+        providerRequests.push(JSON.parse(String(init.body)));
+        return Response.json({choices:[{message:{tool_calls:[{function:{name:providerRequests.at(-1)!.tools[0].function.name,arguments:JSON.stringify({suggested_value:options.ai.output})}}]}}]}, {status:options.ai.http ?? 200});
       }
       assert.equal(url, 'https://storage.googleapis.com/synthetic-upload'); calls.uploads++; return new Response('', {status:201}); },
       console: { log() {}, error() {}, warn: (line: string) => traces.push(line), info: (line: string) => traces.push(line) }, setTimeout, Deno: { env: { get: (key: string) => env[key] }, serve: (fn: typeof handler) => { handler = fn; } } }, { filename: file });
@@ -111,7 +122,7 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
   const request = (body: Record<string, unknown>) => handler(new Request('https://fixture.invalid', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   }));
-  return { traces, calls, request, grant, approvals };
+  return { traces, calls, request, grant, approvals, providerRequests };
 }
 const edit = { action: 'update_field', productId, fieldKey: 'title', value: 'Dopo', expectedVersion: 1, idempotencyKey: requestKey };
 
@@ -323,4 +334,61 @@ test('AI da fatti confermati: handler Editor, diagnosi per fase e fallback senza
     assert.equal(trace.code,example.code ?? 'INVALID_MODEL_PROPOSAL');
     assert.ok(!fixture.traces[0].includes(facts[0]));
   }
+});
+
+test('Scheda SEO: prenotazione per campo, una richiesta strutturata e validazione server', async () => {
+  const facts = ['Nome comune: Farnia', 'Il cartellino riporta Quercus robur.'];
+  const payload = {action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts};
+  const keys = ['seo_title','seo_description','tags'];
+  const fixture = load({endpoint:'product-admin-ai', catalog:true, role:'editor', ai:{
+    grant:true,batch:true,fields:keys,optIns:keys,tagsAi:true,output:{description:[1,0],seoTitle:0,seoDescription:0,tags:[1,0],sku:'IGNORA'},
+  }});
+  const body = await (await fixture.request(payload)).json();
+  assert.equal(body.ok,true);
+  assert.equal(body.value,'<p>'+facts[1]+'</p><p>'+facts[0]+'</p>');
+  assert.deepEqual(body.editorial,{
+    seoTitle:{value:'Quercus robur (Farnia)',source:'model'},
+    seoDescription:{value:facts[1],source:'model'},tags:{value:['Farnia','Quercus robur'],source:'model'},
+  });
+  assert.equal(body.sku,undefined);
+  assert.equal(fixture.calls.rpc,1);
+  assert.equal(fixture.providerRequests.length,1);
+  assert.equal(fixture.providerRequests[0].tools[0].function.name,'select_draft_editorial');
+  assert.equal(fixture.calls.shopifyMutations,0);
+  assert.equal(fixture.calls.events,0);
+});
+
+test('Scheda SEO: valori inventati o indici fuori dominio scartati campo per campo', async () => {
+  const facts=['Nome comune: Farnia','La scheda non conferma la resistenza al gelo.'];
+  const fixture=load({endpoint:'product-admin-ai',catalog:true,role:'editor',ai:{grant:true,batch:true,
+    fields:['seo_title','seo_description','tags'],optIns:['seo_title','seo_description','tags'],tagsAi:true,
+    output:{description:[1,1],seoTitle:'Farnia certificata',seoDescription:42,tags:[0,0]}}});
+  const body=await (await fixture.request({action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts})).json();
+  assert.equal(body.source,'confirmed_facts');
+  assert.deepEqual(Object.values(body.editorial).map((r:any)=>r.source),['deterministic','deterministic','deterministic']);
+  assert.equal(body.editorial.seoDescription.value,facts.join(' '));
+  assert.ok(!JSON.stringify(body).includes('certificata'));
+  assert.equal(fixture.providerRequests.length,1);
+});
+
+test('Scheda SEO: registro, permessi e prenotazione prevalgono sul payload', async()=>{
+  const data={action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts:['Nome comune: Farnia'],fields:['tags','seo_description','seo_title']};
+  const setup={grant:true,batch:true,fields:['seo_title','tags'],optIns:['seo_title','seo_description','tags'],output:{description:[0],seoTitle:0,tags:[0]}};
+  const fixture=load({endpoint:'product-admin-ai',catalog:true,role:'editor',ai:setup});
+  const body=await (await fixture.request(data)).json();
+  assert.equal(body.editorial.seoDescription,undefined);
+  assert.equal(body.editorial.tags.source,'deterministic');
+  const prompt=JSON.parse(fixture.providerRequests[0].messages[1].content);
+  assert.deepEqual(Object.keys(prompt).sort(),['description','seoTitle']);
+  for (const [extra,status] of [[{reserved:false},429],[{badReservation:true},500],[{grant:false},403]] as const) {
+    const f=load({endpoint:'product-admin-ai',catalog:true,role:'editor',ai:{...setup,...extra}});
+    assert.equal((await f.request(data)).status,status);
+    assert.equal(f.providerRequests.length,0);
+  }
+  const old=load({endpoint:'product-admin-ai',catalog:true,role:'editor',ai:{...setup,batch:false,output:data.facts.join('\n')}});
+  const fallback=await (await old.request(data)).json();
+  assert.equal(old.providerRequests.length,1);
+  assert.equal(old.providerRequests[0].tools[0].function.name,'propose_field_improvement');
+  assert.equal(fallback.editorial.seoTitle.source,'deterministic');
+  assert.equal(fallback.editorial.tags.source,'deterministic');
 });

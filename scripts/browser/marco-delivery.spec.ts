@@ -16,7 +16,7 @@ const initial: ProductDraft = {
   seoTitle: 'Titolo SEO sintetico', seoDescription: 'Descrizione SEO sintetica',
 };
 
-async function simulate(page: Page, options: { readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; denyDescription?: boolean } = {}) {
+async function simulate(page: Page, options: { readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; modelSeo?: boolean; denyDescription?: boolean } = {}) {
   const failures = [...(options.aiFailures ?? [])];
   let saved = structuredClone(initial);
   if (options.legacy) saved.description = '<p onclick="">Testo <strong>verificato</strong>.</p><ul><li>Voce</li></ul><script type="application/json">contenuto escluso</script>';
@@ -98,13 +98,17 @@ async function simulate(page: Page, options: { readError?: boolean; legacy?: boo
         ] : [])]});
       }
       case 'suggest_confirmed_field': {
-        expect(Object.keys(input).sort()).toEqual(['action','confirmed','facts','fieldKey','requestKey']);
+        expect(Object.keys(input).sort()).toEqual(['action','confirmed',...('draftTitle' in input ? ['draftTitle'] : []),'facts','fieldKey','requestKey']);
+        if ('draftTitle' in input) expect(input.draftTitle).toBeTruthy();
         expect(input.fieldKey).toBe('description');
         expect(input.confirmed).toBe(true);
         const failure = failures.shift();
         if (failure === 'connection') return route.abort('failed');
         if (failure) return route.fulfill({status:failure === 'FORBIDDEN' ? 403 : 422,json:{ok:false,error:{code:failure}}});
-        return reply({source:'confirmed_facts',value:input.facts.map((line:string) => `<p>${line}</p>`).join('')});
+        return reply({...(options.modelSeo && input.draftTitle ? {editorial:{
+          seoTitle:{value:input.draftTitle+' (Farnia)',source:'model'},seoDescription:{value:input.facts[0],source:'model'},
+          tags:{value:[input.draftTitle],source:'deterministic'},
+        }} : {}),source:'confirmed_facts',value:input.facts.map((line:string) => `<p>${line}</p>`).join('')});
       }
       case 'preview_new_product': return reply({ warnings: [], shopifySkuVerified:true });
       case 'prepare_catalog_approval': return reply({ approvalId: 'synthetic-approval' });
@@ -514,5 +518,40 @@ test('Scheda AI Editor: metadata utilizzabili durante errore provider e campo es
   await expect(page.locator('#seoTitle')).toHaveValue('Nome SEO rivisto');
   expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(2);
   expect(model.calls).not.toContain('save_new_product');
+  expect(model.unexpected).toEqual([]);
+});
+
+test('Scheda SEO: origine modello e fallback, revisione e riapertura interna', async ({page}) => {
+  const model=await simulate(page,{sheet:true,modelSeo:true,noTypeDomain:true});
+  await page.goto('/admin/products/new');
+  await page.getByLabel('Nome prodotto (obbligatorio)').fill('Quercus robur');
+  await page.getByLabel('Prezzo di vendita 1',{exact:true}).fill('12.00');
+  const assistant=page.getByRole('region',{name:'Assistenza AI nuova scheda'});
+  const facts='Il cartellino riporta Quercus robur.\nNome comune: Farnia';
+  await assistant.getByLabel('Informazioni verificate',{exact:true}).fill(facts);
+  await assistant.getByRole('checkbox').check();
+  await assistant.getByRole('button',{name:'Completa scheda con AI'}).click();
+  const title=assistant.getByRole('group',{name:'Titolo SEO',exact:true});
+  await expect(title).toContainText('Selezione del modello');
+  await expect(assistant.getByRole('group',{name:'Meta description SEO'})).toContainText('Selezione del modello');
+  await expect(assistant.getByRole('group',{name:'Tag',exact:true})).toContainText('Fallback deterministico');
+  await expect(assistant.getByRole('group',{name:'Tipo prodotto'})).toContainText('Manca un elenco verificato');
+  await assistant.getByLabel('Proposta Titolo SEO').fill('Farnia (Quercus robur)');
+  await expect(title).toContainText('Modifica manuale');
+  page.once('dialog',d=>d.accept());
+  await assistant.getByRole('button',{name:'Applica tutte le proposte disponibili'}).click();
+  await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+  await page.getByRole('button',{name:'Verifica anteprima'}).click();
+  await page.getByRole('checkbox',{name:/Confermo i dati/}).check();
+  page.once('dialog',d=>d.accept());
+  await page.getByRole('button',{name:'Salva bozza nell’Admin'}).click();
+  await page.getByRole('link',{name:'Apri scheda prodotto e storico'}).click();
+  await page.reload();
+  const summary=page.getByRole('heading',{name:'Riepilogo della bozza interna salvata'}).locator('..');
+  await expect(summary.getByText('Farnia (Quercus robur)',{exact:true})).toBeVisible();
+  expect(model.saved()).toMatchObject({seoTitle:'Farnia (Quercus robur)',seoDescription:facts.split('\n')[0],
+    tags:['Quercus robur','Farnia'],currency:'EUR'});
+  expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(1);
+  expect(model.calls).not.toContain('create_shopify_draft');
   expect(model.unexpected).toEqual([]);
 });

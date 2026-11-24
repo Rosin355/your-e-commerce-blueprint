@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { confirmedFacts } from '../../../supabase/functions/_shared/admin-ai-facts';
 import type { ProductDraft } from '../../../supabase/functions/_shared/admin-operational-core';
-import { suggestConfirmedField } from '../lib/adminApi';
+import { suggestConfirmedField, suggestDraftEditorial } from '../lib/adminApi';
+import { editorialKeys } from '../../../supabase/functions/_shared/admin-draft-editorial';
 import { explainAiRequestError } from '../lib/explainAiError';
 import { localSheet, sheetDefinition, sheetKeys, sheetLabels, sheetValueError, type SheetContext,
   type SheetChange, type SheetKey, type SheetPreview } from '../lib/draftSheet';
@@ -65,11 +66,28 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
       pending.current = true;
       setBusy(true);
       try {
-        const proposal = await suggestConfirmedField({ fieldKey: 'description', facts, confirmed: true, requestKey: crypto.randomUUID() });
-        if (typeof proposal.value !== 'string') throw new Error('Formato descrizione non valido.');
-        const reason = sheetValueError('description', proposal.value, context);
-        next.rows.description = reason ? { reason } : { value: proposal.value };
-        next.source = proposal.source;
+        const requestKey = crypto.randomUUID();
+        const proposal = preview?.descriptionError
+          ? await suggestConfirmedField({fieldKey: 'description', confirmed: true, facts, requestKey})
+          : await suggestDraftEditorial({draftTitle: context.title.trim(), facts, requestKey});
+        if ('editorial' in proposal && proposal.editorial) {
+          for (const key of editorialKeys) {
+            const row = proposal.editorial[key];
+            if (!row || !['model','deterministic'].includes(row.source) || sheetValueError(key, row.value, context)) continue;
+            // The offline tag fallback also includes the categories selected in this form.
+            if (row.source === 'deterministic' && key === 'tags') continue;
+            next.rows[key] = row;
+          }
+        }
+        if ('descriptionError' in proposal && proposal.descriptionError) {
+          next.descriptionError = proposal.descriptionError.message;
+          next.rows.description = {};
+        } else {
+          if (typeof proposal.value !== 'string') throw new Error('Formato descrizione non valido.');
+          const reason = sheetValueError('description', proposal.value, context);
+          next.rows.description = reason ? { reason } : { value: proposal.value };
+          next.source = proposal.source;
+        }
       } catch (error) {
         next.descriptionError = explainAiRequestError(error);
         next.rows.description = {};
@@ -82,7 +100,7 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
   }
 
   function edit(key: SheetKey, value: string | string[]) {
-    if (preview) setResult({ ...preview, rows: { ...preview.rows, [key]: { ...preview.rows[key], value, reason: undefined } } });
+    if (preview) setResult({ ...preview, rows: { ...preview.rows, [key]: { ...preview.rows[key], value, source: 'manual', reason: undefined } } });
   }
 
   function different(key: SheetKey) {
@@ -125,17 +143,22 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
     {inputError && <AiErrorNotice>{inputError}</AiErrorNotice>}
     {preview && <section aria-label="Proposte per la bozza" className="space-y-3">
       <h3 className="font-semibold">Anteprima delle proposte</h3>
-      <p className="text-sm">SEO e tag riprendono il nome, le righe confermate e le categorie selezionate. Puoi applicare i campi singolarmente.</p>
+      <p className="text-sm">Ogni campo indica come è stata preparata la proposta. Puoi applicare i campi singolarmente.</p>
       {sheetKeys.map(key => {
         const row = preview.rows[key];
         const value = row.value;
         const validation = value === undefined ? undefined : sheetValueError(key, value, context);
         return <div key={key} role="group" aria-label={sheetLabels[key]} className="space-y-2 rounded border p-3">
           <h4 className="font-medium">{sheetLabels[key]}</h4>
+          {key !== 'description' && value !== undefined && row.source && <p className="text-sm">{{
+            model: 'Selezione del modello su informazioni verificate',
+            deterministic: key === 'productType' ? 'Corrispondenza con il registro dei tipi verificati' : 'Fallback deterministico da informazioni verificate',
+            manual: 'Modifica manuale in anteprima',
+          }[row.source]}</p>}
           {row.reason && <p className="text-sm">{row.reason}</p>}
           {key === 'description' && preview.descriptionError && <AiErrorNotice>{preview.descriptionError}</AiErrorNotice>}
           {key === 'description' && typeof value === 'string' && <>
-            <p role="status">{preview.source === 'confirmed_facts' ? 'Descrizione ricomposta con le righe originali confermate.' : preview.source === 'model' ? 'Descrizione organizzata dal modello e verificata.' : 'Descrizione proposta dal servizio. Questa versione non indica la fonte della proposta.'}</p>
+            <p role="status">{row.source === 'manual' ? 'Descrizione rivista manualmente.' : preview.source === 'confirmed_facts' ? 'Descrizione ricomposta con le righe originali confermate.' : preview.source === 'model' ? 'Descrizione organizzata dal modello e verificata.' : 'Descrizione proposta dal servizio. Questa versione non indica la fonte della proposta.'}</p>
             {sheetDefinition(key, context)?.editor_type === 'richtext'
               ? <RichTextEditor label="Proposta descrizione" disabled={busy} simple value={value} onChange={v => edit(key, v)} />
               : <Textarea disabled={busy} aria-label="Proposta descrizione" value={value} onChange={e => edit(key, e.target.value)} />}

@@ -1,3 +1,4 @@
+import type { EditorialKey, EditorialProposal } from '../../../supabase/functions/_shared/admin-draft-editorial';
 // F6 — Unico canale dati dell'Admin: la Edge Function product-admin-api.
 // Il browser non interroga mai direttamente le tabelle del catalogo.
 import { supabase } from '@/integrations/supabase/client';
@@ -379,5 +380,16 @@ export async function suggestConfirmedField(input: { fieldKey: string; facts: st
   if (!result?.ok || result.value == null) {
     throw new AdminApiError('INVALID_MODEL_PROPOSAL', MESSAGES.INVALID_MODEL_PROPOSAL);
   }
+  return result;
+}
+
+export async function suggestDraftEditorial(input: {draftTitle: string; facts: string[]; requestKey: string}) {
+  const result = await callAdminAiApi<{
+    ok: boolean; value?: unknown; source?: 'model' | 'confirmed_facts';
+    descriptionError?: {code: string; message: string};
+    editorial?: Partial<Record<EditorialKey, EditorialProposal>>;
+  }>({action: 'suggest_confirmed_field', fieldKey: 'description', confirmed: true, ...input});
+  if (!result?.ok || (typeof result.value !== 'string' && !result.descriptionError))
+    throw new AdminApiError('INVALID_MODEL_PROPOSAL', MESSAGES.INVALID_MODEL_PROPOSAL);
   return result;
 }
