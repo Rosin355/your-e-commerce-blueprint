@@ -150,3 +150,54 @@ Nuovo screenshot del responsabile da `Cloudflare → DNS → Records`: indicator
 Il gestore ha mostrato la sezione finale del pannello `IONOS → onlinegarden.it → DNS`. Vengono visualizzati soltanto i record standard e il riquadro promozionale DNS Pro, **nessuna sezione DNSSEC visibile**. Secondo la [guida ufficiale IONOS](https://www.ionos.it/aiuto/domini/domain-guard/impostare-e-gestire-il-dnssec/) DNSSEC nel pannello richiede DNS Pro o Domain Guard; questa assenza **non dimostra** che il dominio sia unsigned presso il Registro .it. Nessuna modifica o acquisto necessario. 
 
 **Prossimo gate read-only:** interrogare pubblicamente i record **DS** di `onlinegarden.it` nel registro .it (ad esempio `dnschecker.org` selezionando `DS`, e/o `dnsviz.net`), salvare schermata e verificare se vi siano DS di delega precedente. Se ci sono DS, organizzarne la rimozione tramite registrar prima della modifica NS e attendere la propagazione; se non ce ne sono, segnare `DNSSEC_PREVIOUS_DS_ABSENT` soltanto dopo verifica. Mantenere **STOP modifica nameserver** in attesa di export backup definitivo, compatibilità SSL/proxy, stato mail/operatore autorizzato e rollback. Stato Cloudflare preparatorio: 13 record, A `@`/`www` DNS only. 
+
+
+## Tentativo verifica DS remota — 24/11/2026 (NO RESULT)
+
+Su richiesta dell'operatore è stato tentato un controllo diretto dei record `DS onlinegarden.it` tramite Google Public DNS e Cloudflare DNS over HTTPS con la navigazione disponibile; gli endpoint hanno restituito errore di accesso dell'ambiente. La prova DNS mediante resolver di sistema/1.1.1.1/8.8.8.8 dall'ambiente di esecuzione fallisce per `Network is unreachable`. I motori di ricerca hanno restituito guide generiche ma **nessun risultato DNSSEC DS specifico e verificabile per il dominio**. L'assenza della voce DNSSEC nell'interfaccia IONOS **non attesta l'assenza di DS**. Stato dunque `DNSSEC_DS=UNVERIFIED` (non `DISABLED`). Nessuna modifica DNS/NS effettuata.
+
+**Verifica minima richiesta su Mac del responsabile:** `dig DS onlinegarden.it @1.1.1.1 +noall +comments +answer` e, in conferma indipendente, `dig DS onlinegarden.it @8.8.8.8 +noall +comments +answer`. Solo con `status: NOERROR` e nessuna riga DS in entrambe si può marcare `DS_NOT_PUBLISHED`. `SERVFAIL`, `timeout` o errori di rete sono inconcludenti, e righe DS positive richiedono piano di rimozione dal registro prima di delega. Non condividere token, credenziali o dati privati. **STOP al cambio NS** fino al risultato e agli altri gate del preflight.
+
+
+## Primo risultato DS Cloudflare resolver 1.1.1.1 — 24/11/2026
+
+Il responsabile ha eseguito su Mac il comando di lettura DNS `dig DS onlinegarden.it @1.1.1.1 +noall +comments +answer`. Output diretto comunicato: `status: NOERROR`, `ANSWER: 0`, `AUTHORITY: 1`, `ADDITIONAL: 1`. **Esito della sola interrogazione: nessun record DS restituito dal resolver 1.1.1.1 nel momento del test**, non si presume una valutazione definitiva dello stato DNSSEC dal solo pannello IONOS. In attesa di secondo riscontro indipendente con `dig DS onlinegarden.it @8.8.8.8 +noall +comments +answer`. **Nessun record o nameserver modificato.** Mantieni il gate di cambio NS chiuso fino a backup completo e verifiche residue di proxy/TLS, posta e rollback.
+
+
+## DNSSEC DS — doppia verifica PASS del 24/11/2026
+
+Il responsabile ha eseguito in Terminale su Mac le due interrogazioni read-only richieste, condividendo integralmente i rispettivi riepiloghi:
+
+| Query | Header | Risultato |
+| --- | --- | --- |
+| `dig DS onlinegarden.it @1.1.1.1 +noall +comments +answer` | `status: NOERROR, ANSWER: 0, AUTHORITY: 1` | Nessun DS restituito |
+| `dig DS onlinegarden.it @8.8.8.8 +noall +comments +answer` | `status: NOERROR, ANSWER: 0, AUTHORITY: 1` | Nessun DS restituito |
+
+**Esito: `DNSSEC_PREVIOUS_DS_ABSENT = PASS` nelle due letture pubbliche indipendenti.** Non serve acquistare DNS Pro né intervenire sui record DS in questa situazione. **Non equivale a GO per il cambio nameserver.**
+
+**Stato migrazione DNS al 24/11:** Cloudflare in attesa delega; zona DNS preparata con 13 record, due TXT Lovable e A apex/www **DNS only**; Lovable dominio Attivo/www incluso; Cloudflare Edge Certificate ancora `No certificates`, modalità `Full`; posta titolare non ancora attiva, quindi impossibile testarne il recapito o il selettore DKIM effettivo. **Restano prima della delega:** (1) backup completo e verificato IONOS oltre all'export Cloudflare aggiornato; (2) conferma definitiva del servizio email previsto e riconciliazione `s42582890._domainkey` con le impostazioni di invio; (3) finestra/rischi/rollback autorizzati; (4) controllo della continuità Lovable HTTPS in DNS-only e successiva attivazione certificat Edge/proxy solo dopo test. I 16 redirect 301 restano 0/16 live, senza incrementi SAL. Nessuna modifica NS, DNS o posta effettuata per questa verifica.
+
+## Procedura operativa concordata: posta da attivare in seguito, NS su IONOS (24/11/2026)
+
+Il responsabile chiede di completare la migrazione dei nameserver IONOS e rimandare l'attivazione della casella email. **Questa intenzione NON equivale a conferma che i nameserver siano stati già cambiati**, né dimostra che nessun altro indirizzo del dominio debba ricevere posta.
+
+**Baseline verificata:** Cloudflare 13 record DNS, A apex/www `185.158.133.1` su `DNS only`, TXT Lovable presenti, MX `mx00.ionos.it`/`mx01.ionos.it` e SPF/DMARC/DKIM presenti; Lovable `onlinegarden.it` attivo/www incluso; DS non pubblicati in interrogazioni `1.1.1.1` e `8.8.8.8`; Cloudflare zona Pending, Edge cert `No certificates` prima della delega. Vecchi NS IONOS esatti: `ns1041.ui-dns.biz`, `ns1098.ui-dns.de`, `ns1037.ui-dns.org`, `ns1126.ui-dns.com`. Nuovi NS assegnati Cloudflare `carlos.ns.cloudflare.com`, `karsyn.ns.cloudflare.com`.
+
+**Checklist GO prima di cliccare Salva nel pannello IONOS:**
+
+1. Copia offline integra dei 12 record IONOS (valori interi TXT, **priorità MX**, TTL) e screenshot degli NS di partenza; aggiornare l'export Cloudflare dei **13** record dopo le ultime modifiche.
+2. Verificare che i record necessari ai servizi attivi del dominio siano rappresentati in Cloudflare. Se la posta di Marco non è attiva, **non attribuirle un PASS**; il gestore deve accettare il rischio di non poter testare il recapito e confermare che non esistano altre caselle operative / servizi terzi omessi. Per la futura posta di IONOS la configurazione attuale MX/SPF/CNAME è preservata, ma va verificata o aggiornata quando sarà attivata.
+3. Possibilità di intervento immediato per rollback e test sito. NS cambia autorità di tutta la zona, non soltanto dei redirect.
+
+**A questi gate soddisfatti, passaggio manuale previsto**: IONOS → Domini & SSL → onlinegarden.it → Nameserver → Utilizza name server personali → inserire come **unici** due NS `carlos.ns.cloudflare.com` e `karsyn.ns.cloudflare.com` nei campi Name server 1 e 2; lasciare 3 e 4 vuoti/eliminare precedenti se presenti → confermare, poi verificare `dig NS onlinegarden.it @1.1.1.1 +short` e `@8.8.8.8`. Non fare trasferimento del registrar, non toccare `@/www` DNS only, non comprare certificati IONOS, non attivare HSTS/proxy/redirect in questo passaggio. In caso di errore applicare rollback verso i quattro NS IONOS originari dal pannello Name server (tenendo conto della propagazione).
+
+**Dopo cambio**: controllare Cloudflare Overview Active, HTTPS della home/catalogo/admin/account su apex e www; verificare il certificato Universal SSL al bordo (Cloudflare può impiegare da 15 minuti a 24 ore dall'attivazione della zona), prima di valutare proxy arancione e attivare i 16 redirect 301. Non attivare proxy se non esiste certificato Edge Active o se Lovable non è compatibile. Non affermare `REDIRECTS_301=PASS` prima di test live; stato SAL invariato. Codex PR #71 è intervento separato, non autorizza DNS.
+
+**Riferimenti ufficiali:** [IONOS nameserver](https://www.ionos.it/aiuto/domini/utilizzare-un-proprio-name-server/utilizzare-un-proprio-name-server-per-un-dominio/), [.it verifica](https://www.ionos.it/aiuto/domini/informazioni-generali-sulle-impostazioni-dns/modificare-le-impostazioni-dns-per-un-dominio-it/), [Cloudflare setup](https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/), [Universal SSL](https://developers.cloudflare.com/ssl/edge-certificates/universal-ssl/enable-universal-ssl/).
+
+
+## IONOS — modulo nameserver compilato, salvataggio non attestato (24/11/2026 11:28 CET)
+
+Il titolare ha mostrato screenshot della pagina `Utilizza name server personali` in IONOS per `onlinegarden.it`, con `Name server 1=carlos.ns.cloudflare.com`, `Name server 2=karsyn.ns.cloudflare.com`, `Name server 3` e `Name server 4` vuoti. La configurazione inserita coincide esattamente con i due nameserver assegnati alla zona Cloudflare. Nello screenshot il pulsante `Salva` è ancora presente: **non è attestato alcun click su Salva, né il cambio effettivo della delega**. La doppia verifica DNSSEC del 24/11 è PASS (resolver 1.1.1.1 e 8.8.8.8 `NOERROR`, `ANSWER 0`). L'email commerciale è ancora da attivare: il responsabile vuole gestirla dopo. **Condizioni prima del salvataggio:** export privati IONOS/Cloudflare effettivamente conservati e conferma che il dominio non ha altre caselle attive in uso; salvare soltanto se soddisfatte. 
+
+**Dopo il salvataggio:** osservare conferma IONOS, verificare delega tramite DNS pubblici `dig NS onlinegarden.it @1.1.1.1 +short` e `@8.8.8.8`, Cloudflare Overview `Active`, e smoke test HTTPS home, catalogo, admin, account con A `@` e `www` DNS-only. Prima di passare a proxy arancione e attivare i 16 redirect, attendere SSL Edge realmente `Active`, fare test di compatibilità Lovable/proxy e preparare rollback. Se errore, ripristinare NS IONOS originari documentati. Non confondere precompilazione con cutover effettuato. Non aggiornare SAL fino a verifica finale.
