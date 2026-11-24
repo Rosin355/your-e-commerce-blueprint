@@ -1,8 +1,8 @@
 # Online Garden — developer handoff
 
-## Consegna del pacchetto #71
+## Consegna tecnica del rilascio Admin isolato
 
-La transizione r2 → Edge candidata è stata eseguita in isolamento. Per il deploy usare il grafo dei 36 file, il manifest verificato e le impronte della build operativa. La preview Lovable deve puntare al commit integrato prima del Publish. Confrontare anche l’intero bundle con l’ultima versione pubblica. [Artefatti e istruzioni di ripristino](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#artefatti-compatibilità-e-sicurezza)
+Il riferimento frontend è `5a37f71d02070f51a5b2e841d15bf7cda3b72747`. Mantenere il candidato Edge della #71 e associare il rollback alla versione attiva registrata in Supabase. In Lovable selezionare il ramo isolato nella finestra concordata e verificare lo SHA prima del Publish. [Revisione, prove, inventari e procedura per il gestore](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#revisione-pubblicabile-e-verifiche-del-24-novembre)
 
 ## Admin V2 · correzioni collaudo Marco del 24 novembre
 

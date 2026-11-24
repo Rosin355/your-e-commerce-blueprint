@@ -1,8 +1,8 @@
 # Rilascio operativo Admin V2 · 21 novembre 2026
 
-## Registro di preparazione · PR #71 del 24 novembre
+## Registro del merge #71 · 24 novembre
 
-Preparati i due pacchetti della Edge e le build frontend di ritorno e candidata. Il frontend r2 ha superato in isolamento la prova di collisione e salvataggio contro la nuova logica server. La distribuzione attende i GO distinti su merge, Edge e Publish. L’ultimo rilascio pubblico documentato è r2. Impronte, limite HTTP 403 sul download della revisione gestita e delta pubblicabile sono nel [registro #71](../release/PR71-RELEASE-CHECKLIST-2026-11-24.md#registro-di-preparazione-admin-v2).
+La #71 è integrata in `main` a `50e02a5` con quattro controlli verdi. L’ultima ricevuta di deploy della sola `product-admin-api` risale a r2 da `ca9050d`. I 36 sorgenti per il ripristino sono verificati. Manca la conferma della revisione gestita attiva. L’editor Lovable è al merge e cinque asset pubblici coincidono con r2. [Evidenze e autorizzazioni A, B e C](../release/PR71-RELEASE-CHECKLIST-2026-11-24.md#registro-di-preparazione-admin-v2)
 
 ## Versioni e decisione di rilascio
 

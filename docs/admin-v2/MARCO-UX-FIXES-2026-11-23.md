@@ -1,8 +1,8 @@
 # Online Garden — Admin V2, interventi prioritari dal collaudo Marco (23 novembre 2026)
 
-## Preparazione al rilascio del 24 novembre
+## Esito del merge del 24 novembre
 
-Superata anche la prova di transizione della UI r2 con la Edge candidata. Preparati snapshot sorgente e rollback. Le verifiche pubbliche e l’AI autentica di Marco attendono i GO di rilascio. [Registro, limiti e sequenza](../release/PR71-RELEASE-CHECKLIST-2026-11-24.md#registro-di-preparazione-admin-v2)
+Le quattro correzioni verificate sotto sono su `main` nel merge `50e02a5`. Il nuovo modulo è presente nell’editor Lovable. Il dominio pubblico serve r2. Il collaudo con Marco e la generazione AI con la sua utenza restano aperti. [Registro del merge e condizioni di rilascio](../release/PR71-RELEASE-CHECKLIST-2026-11-24.md#registro-di-preparazione-admin-v2)
 
 ## Verifica tecnica del 24 novembre 2026
 
