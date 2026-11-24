@@ -1,5 +1,12 @@
 # Online Garden · verbale di merge e piano di rilascio Admin V2 · 24 novembre 2026
 
+## Esito post-Publish — 24/11/2026
+
+**GO A e GO B eseguiti da Lovable sul ramo isolato** (fonte: [registro di rilascio](ADMIN-V2-MARCO-RELEASE-2026-11-24.md)). `product-admin-api` distribuita con smoke 200/401 positivi secondo Lovable; pacchetto hashato, ID runtime non disponibile. Frontend live passato da `index-DSQ4UzGV.js` a `index-jqOemgjy.js`; PASS riferiti per home, catalogo, `/admin` login, `/account` login, PDP, carrello e apertura checkout Shopify senza acquisto. **Non verificati su sessione Marco:** gestione Admin autenticata, SKU automatici, mesi indipendenti, AI, salvataggio e riapertura. Rollback frontend via Cronologia Lovable; backend via nuovo deploy delle sorgenti r2 `ca9050d`, non restaurazione della revisione runtime conosciuta. **SAL 57,75% invariata**, nessun nuovo Publish richiesto per documentazione. Le sezioni precedenti con NO-GO descrivono lo stato di preparazione prima del rilascio.
+
+---
+
+
 La [PR #71](https://github.com/Rosin355/your-e-commerce-blueprint/pull/71) risulta integrata in `main` alle **11:56:38 CET**. Il primo controllo di questa verifica ha trovato la PR già chiusa con stato `MERGED`. SAL ufficiale **57,75%**.
 
 ## Registro di preparazione Admin V2
