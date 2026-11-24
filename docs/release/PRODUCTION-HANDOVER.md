@@ -210,3 +210,15 @@ Il responsabile ha mostrato la schermata di conferma IONOS «**Il name server è
 **Prossimi controlli operativi:** leggere Cloudflare Overview fino a stato Active; eseguire `dig NS onlinegarden.it @1.1.1.1 +short` e `dig NS onlinegarden.it @8.8.8.8 +short`; verificare home, `www`, `/admin`, `/account`, checkout fino all'apertura ma senza ordine; mantenere A `@` e `www` su **DNS only** e lasciare inalterati SSL/TLS, HSTS, record MX/DIT/TXT. Prima del proxy arancione occorre certificato Universal SSL Edge realmente Active, compatibilità Lovable e rollback. Le email sono state rinviate per decisione del titolare e non sono ancora collaudabili; la zona Cloudflare deve preservare la futura configurazione IONOS prevista.
 
 **Il cambio NS NON è un trasferimento di proprietà o registrar del dominio.** Non considerare terminato Cloudflare finché la delega e le prove live non siano completate.
+
+
+## Prima conferma NS Cloudflare da 1.1.1.1 — 24/11/2026
+
+A seguito della conferma IONOS del cambio NS, il responsabile ha riportato il risultato del comando richiesto `dig NS onlinegarden.it @1.1.1.1 +short`:
+
+```text
+carlos.ns.cloudflare.com.
+karsyn.ns.cloudflare.com.
+```
+
+**Riscontro: la delega a Cloudflare è visibile sul resolver 1.1.1.1.** Non confondere con attivazione già verificata nell'interfaccia Cloudflare o propagazione su tutti i resolver. Prossimi controlli: `dig NS onlinegarden.it @8.8.8.8 +short`, screenshot `Cloudflare → Overview` con stato `Active` e verifica HTTPS di `https://onlinegarden.it`, `https://www.onlinegarden.it`, `https://onlinegarden.it/admin`, `https://onlinegarden.it/account`. I record A apex/www restano DNS only: il sito raggiunge direttamente l'origine Lovable e i redirect Cloudflare non sono ancora applicati. Il certificato Edge Cloudflare va verificato come `Active` prima di qualsiasi modifica Proxied, e il comportamento HTTPS con Lovable deve essere collaudato; non attivare proxy, HSTS o redirect in questa fase. Stato `PUBLIC_NS_1_1_1_1=PASS`; `PUBLIC_NS_8_8_8_8=PENDING`; `CLOUDFLARE_ACTIVE=PENDING`; `EDGE_CERT_ACTIVE=PENDING`; `REDIRECT_301=0/16`. La posta resta non testata in attesa dell'attivazione.
