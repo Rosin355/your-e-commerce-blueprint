@@ -29,3 +29,27 @@ Verificato dal codice attuale di Lovable e dal commit isolato `5a37f71`:
 6. **Rilascio:** realizzare fix su un **ramo dedicato** dal codice pubblicato, test e PR. Dopo merge, deploy mirato dell'Edge eventualmente modificata e Publish Lovable solo con GO separati e rollback. Non fare Publish direttamente durante il collaudo. Fino al fix, provare manualmente input una frase verificata per riga e, se fallisce ancora, conservare errore e proseguire senza AI.
 
 **Accettazione**: il tester può inserire fatti verificati sulla farnia, ottenere anteprima (o fallback estrattivo sicuro), scegliere esplicitamente "Applica" per la descrizione obbligatoria, salvarla solo nella bozza interna, riaprirla e verificare contenuto; un errore è visivamente rosso, leggibile e distinto dal testo descrittivo.
+
+## Proposta UX aggiuntiva — Compila scheda con AI (24/11/2026)
+
+**Stato: PROPOSTA DEL TITOLARE/TEAM, NON IMPLEMENTATA E NON PUBBLICATA.** Da integrare, se approvata, nello stesso fix dell'errore AI per evitare due cicli di sviluppo e deploy.
+
+### Attuale vs desiderato
+
+Il modulo nuovo prodotto precompila SKU famiglia, EUR e fornitore; `productType`, tag, `seoTitle` e `seoDescription` sono attualmente campi manuali nel pannello `Opzioni avanzate`. L'assistente `ConfirmedAiAssistant` presente nella prima schermata interviene sulla `description`, non su tutti i metadati. Il proprietario desidera che l'editor compili pochi campi e riceva suggerimenti AI per gli altri, senza dover conoscere SEO o definire manualmente un tipo prodotto.
+
+### Requisiti candidato
+
+- Azione unica **"Completa scheda con AI"** dopo inserimento minimo di nome prodotto e fonti/fatti verificati; possibile supporto foto come contesto solo se la fonte è verificata e non come base per affermazioni non confermate.
+- Un'unica chiamata o pipeline idempotente produce una **proposta non salvata**, con `description`, `seoTitle`, `seoDescription`, `tags`, `productType` (solo tipologie consentite e verificate), ciascuno con stato suggerito/applicato/escluso e motivazione se non generabile. I campi obbligatori non possono essere aggirati.
+- Marco può **approvare tutti i valori compatibili o uno per uno**, correggere e annullare; la proposta non deve sovrascrivere campi già compilati manualmente senza conferma specifica. Nessun salvataggio prodotto o sincronizzazione Shopify automatica.
+- I tag devono essere dedotti strettamente da nome, categoria e fatti confermati, senza keyword stuffing, certificazioni non dimostrate, prezzi o disponibilità presunti. I metadati SEO richiedono lunghezze adeguate e niente claim inventati. `productType` non deve essere inventato: risolverlo contro tassonomia/mapping approvati; se ambiguo, mostrare alternative e chiedere scelta.
+- Nascondere sotto **"Dettagli avanzati (facoltativi)"** SKU, valuta, fornitore, tipo, tag, SEO; dare agli editor un riepilogo trasparente dei valori proposti. SKU resta automatico con controllo collisioni. I campi manuali devono restare accessibili al responsabile.
+- Per stagionalità, irrigazione, esposizione, potatura, tossicità, resistenza, origine e altre proprietà botaniche non verificate, **non generare valori**: lasciare vuoto e contrassegnare per revisione.
+- Errore AI del ticket precedente: usare stile rosso `text-destructive`, etichetta comprensibile e `role=alert`; distinguere input, output, timeout, provider, autorizzazione. Fatti e dati form devono persistere durante errori, step e ritorno da anteprima.
+- Eseguire test unitari/integrazione/E2E delle proposte multiple e revisione parziale, due formati, duplicazioni, input scarso, override campo manuale, versione locale/salvataggio, validazione lato server e autorizzazioni Editor; documentare UX per designer, sviluppatore e guida Marco.
+- Rilascio su PR dedicata e **GO separati** per backend e frontend; nessun deploy o Publish mentre è in corso il test della produzione. SAL invariata fino all'accettazione.
+
+### Criterio di accettazione
+
+Marco inserisce nome, almeno un fatto verificato, formati e prezzo; preme **Completa scheda con AI**, rivede descrizione/SEO/tag/tipo, approva solo i campi desiderati, salva una **bozza interna non pubblicata**, riapre e trova tutti i dati approvati. In caso di un solo campo non verificabile l'operazione resta utilizzabile e indica esattamente cosa compilare manualmente.
