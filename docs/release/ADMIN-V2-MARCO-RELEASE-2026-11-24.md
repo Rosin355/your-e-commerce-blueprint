@@ -43,3 +43,11 @@ Rollback frontend: Cronologia Lovable → versione con asset `index-DSQ4UzGV.js`
 - OPTIONS 200; senza autenticazione 401; Admin: `get_admin_context`, `get_dashboard_stats`, `list_products` 200.
 - Nota: il candidato mantiene il marker `admin-delivery-20261121-r2`, quindi il marker non distingue r2 dal candidato.
 - Nessuna scrittura, nessun Publish. Prossimo: GO B (Publish).
+
+## GO B — esito Publish (24/11/2026 ~15:12 UTC)
+- Publish dal branch isolato (HEAD contenente `5a37f71`); scan prima: 0 Critical, 1 warning stale log email, 1 info.
+- Asset live `index-jqOemgjy.js` (precedente r2 `index-DSQ4UzGV.js`).
+- Home, catalogo, `/admin`, `/account` HTTP 200; PDP Dalia Purple Queen €5, aggiunta al carrello, checkout Shopify
+  `/checkouts/cn/...` aperto senza acquisto; nessun errore JS.
+- Admin su dominio pubblico: solo form di login visibile (nessuna sessione nel browser di test): da collaudare con Marco.
+- Rollback frontend: Cronologia Lovable → versione con `index-DSQ4UzGV.js`.
