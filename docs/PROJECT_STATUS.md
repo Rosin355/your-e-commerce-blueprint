@@ -1,6 +1,6 @@
-## Preparazione rilascio Admin · PR #71
+## Admin V2 · merge della PR #71
 
-Pacchetti Edge e frontend verificati, compreso il ritorno a r2. Merge, distribuzione, pubblicazione e accettazione restano gate distinti. Il Publish attende la verifica dell’intero delta rispetto alla versione pubblica. SAL **57,75%**. [Registro](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#registro-di-preparazione-admin-v2)
+Merge `50e02a5` verificato su main e nell’editor Lovable. Il frontend pubblico serve r2. Revisione Edge attiva da confermare e pubblicazione da delimitare. Restano aperti deploy, Publish e collaudo Marco. SAL **57,75%**. [Registro](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#registro-di-preparazione-admin-v2)
 
 ## Admin V2 · candidato del 24 novembre 2026
 

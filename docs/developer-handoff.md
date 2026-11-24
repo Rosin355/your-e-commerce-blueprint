@@ -1,8 +1,8 @@
 # Online Garden — developer handoff
 
-## Consegna del pacchetto #71
+## Consegna dopo il merge #71
 
-La transizione r2 → Edge candidata è stata eseguita in isolamento. Per il deploy usare il grafo dei 36 file, il manifest verificato e le impronte della build operativa. La preview Lovable deve puntare al commit integrato prima del Publish. Confrontare anche l’intero bundle con l’ultima versione pubblica. [Artefatti e istruzioni di ripristino](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#artefatti-compatibilità-e-sicurezza)
+`main` ed editor Lovable coincidono a `50e02a5`. L’entry pubblica corrisponde a r2. Per il GO Edge identificare la revisione di `product-admin-api` attiva e il relativo rollback. Per il GO Publish isolare l’Admin sul frontend pubblico r2 oppure ottenere approvazione esplicita anche per sessioni clienti e visualizzatore staff. Per il collaudo attendere il GO con Marco. [Registro delle verifiche e rollback](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#sequenza-autorizzata-e-rollback)
 
 ## Admin V2 · correzioni collaudo Marco del 24 novembre
 
