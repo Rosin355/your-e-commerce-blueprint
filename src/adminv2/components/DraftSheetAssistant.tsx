@@ -6,7 +6,7 @@ import type { ProductDraft } from '../../../supabase/functions/_shared/admin-ope
 import { suggestConfirmedField, suggestDraftEditorial } from '../lib/adminApi';
 import { editorialKeys } from '../../../supabase/functions/_shared/admin-draft-editorial';
 import { explainAiRequestError } from '../lib/explainAiError';
-import { localSheet, sheetDefinition, sheetKeys, sheetLabels, sheetValueError, type SheetContext,
+import { localSheet, manualDraftType, sheetDefinition, sheetKeys, sheetLabels, sheetValueError, type SheetContext,
   type SheetChange, type SheetKey, type SheetPreview } from '../lib/draftSheet';
 import AiErrorNotice from './AiErrorNotice';
 import RichTextEditor from './RichTextEditor';
@@ -99,8 +99,8 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
     if (current === revision.current) setResult(next);
   }
 
-  function edit(key: SheetKey, value: string | string[]) {
-    if (preview) setResult({ ...preview, rows: { ...preview.rows, [key]: { ...preview.rows[key], value, source: 'manual', reason: undefined } } });
+  function edit(key: SheetKey, value: string | string[], tagText?: string) {
+    if (preview) setResult({ ...preview, rows: { ...preview.rows, [key]: { ...preview.rows[key], value, source: 'manual', tagText, reason: undefined } } });
   }
 
   function different(key: SheetKey) {
@@ -165,7 +165,17 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
           </>}
           {(key === 'seoTitle' || key === 'seoDescription') && typeof value === 'string' &&
             <Textarea disabled={busy} aria-label={'Proposta ' + sheetLabels[key]} value={value} onChange={e => edit(key, e.target.value)} />}
-          {key === 'tags' && Array.isArray(value) && <p>{value.join(', ')}</p>}
+          {key === 'tags' && Array.isArray(value) && <label className="block">Tag proposti, separati da virgole
+            <Textarea disabled={busy} value={row.tagText ?? value.join(', ')} onChange={e =>
+              edit('tags', e.target.value.split(',').map(v => v.trim()).filter(Boolean), e.target.value)} /></label>}
+          {key === 'productType' && manualDraftType(context) && <div className="space-y-2">
+            <label className="block">Tipo manuale per questa bozza
+              <input className="block w-full rounded border p-2" maxLength={255} disabled={busy} value={typeof value === 'string' ? value : ''}
+                onChange={e => edit(key, e.target.value)} /></label>
+            <p className="text-sm">Proposte dal catalogo commerciale, da confermare per questo prodotto.</p>
+            <div className="flex flex-wrap gap-2">{['Alberi','Arbusti'].map(label =>
+              <Button key={label} disabled={busy} type="button" variant="outline" onClick={() => edit(key, label)}>{label}</Button>)}</div>
+          </div>}
           {key === 'productType' && Boolean(row.options?.length) &&
             <label className="block">Tipo verificato<select disabled={busy} className="block w-full rounded border p-2" value={value ?? ''}
               onChange={e => edit(key, e.target.value)}><option value="">Scegli un tipo</option>

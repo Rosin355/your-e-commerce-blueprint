@@ -1,5 +1,9 @@
 # Admin V2 per Marco — registro di rilascio e rollback (24/11/2026)
 
+## Chiusura AI della nuova bozza · 24 novembre 2026
+
+La procedura corrente riguarda soltanto il ramo isolato, la migrazione 0020, le abilitazioni per nuova bozza e la Edge product-admin-ai. La sezione dedicata distingue le operazioni eseguite dai passi ancora aperti. [Stato di rilascio e rollback](PR73-CHIUSURA-AI.md)
+
 Branch `codex/rilascio-admin-v2-isolato-20261124`, candidato `5a37f71d02070f51a5b2e841d15bf7cda3b72747`
 (HEAD Lovable `2325274` differisce solo per `.lovable/plan.md`). PR #69/#70 escluse.
 

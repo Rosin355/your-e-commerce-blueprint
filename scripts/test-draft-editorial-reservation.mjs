@@ -1,7 +1,10 @@
+import postgres from 'postgres';
+import {drizzle} from 'drizzle-orm/postgres-js';
+import {migrate} from 'drizzle-orm/postgres-js/migrator';
 // Disposable PostgreSQL on a private Unix socket. Ignore connection environment variables.
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {mkdtempSync, readFileSync, rmSync} from 'node:fs';
+import {mkdtempSync, readFileSync, rmSync, mkdirSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 const dir = mkdtempSync(join(tmpdir(),'og-draft-seo-'));
@@ -10,7 +13,7 @@ const env = {PATH:process.env.PATH, LANG:'C', LC_ALL:'C'};
 const cmd = (name,args,input) => execFileSync(name,args,{env,encoding:'utf8',input,stdio:['pipe','pipe','pipe']});
 const sql = query => cmd('psql',['-X','-qAt','-w','-v','ON_ERROR_STOP=1','-h',dir,'-p','54844','-U','postgres','-d','postgres'],query).trim();
 const actor='90000000-0000-4000-8000-000000000001';
-const reserve = i => `SELECT public.reserve_draft_editorial_ai_request('${actor}','80000000-0000-4000-8000-${String(i).padStart(12,'0')}',repeat('a',64));`;
+const reserve = i => `SELECT public.reserve_new_draft_editorial_v1('${actor}','80000000-0000-4000-8000-${String(i).padStart(12,'0')}',repeat('a',64));`;
 let started=false;
 try {
   cmd('initdb',['-D',cluster,'-U','postgres','--auth=trust','--no-locale']);
@@ -20,34 +23,58 @@ try {
     CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY);
     CREATE TABLE public.user_roles(user_id uuid, role text);
     CREATE TABLE public.admin_catalog_capabilities(user_id uuid,enabled boolean,capabilities text[],field_keys text[]);
-    CREATE TABLE public.product_field_definitions(key text PRIMARY KEY,visible boolean,editable boolean,ai_allowed boolean,manual_only boolean,field_group text,applies_to text);
+    CREATE TABLE public.product_field_definitions(key text PRIMARY KEY,visible boolean,editable boolean,ai_allowed boolean,manual_only boolean,field_group text,applies_to text,data_type text,shopify_mapping jsonb);
     CREATE TABLE public.product_ai_generation_reservations(actor uuid,reserved_at timestamptz);
     GRANT SELECT ON ALL TABLES IN SCHEMA public TO service_role;
     INSERT INTO auth.users VALUES('${actor}');
     INSERT INTO public.user_roles VALUES('${actor}','editor');
-    INSERT INTO public.admin_catalog_capabilities VALUES('${actor}',true,ARRAY['edit','ai','drafts'],ARRAY['description','seo_title','seo_description','tags']);
-    INSERT INTO public.product_field_definitions SELECT key,true,true,key!='tags',false,'editorial','both' FROM unnest(ARRAY['description','seo_title','seo_description','tags']) key;`);
+    INSERT INTO public.admin_catalog_capabilities VALUES('${actor}',true,ARRAY['edit','ai','drafts'],ARRAY['description','seo_title','seo_description']);
+    INSERT INTO public.product_field_definitions SELECT key,true,true,key!='tags',false,'editorial','both',CASE WHEN key='tags' THEN 'json' ELSE 'text' END,CASE WHEN key='tags' THEN '{"type":"core","field":"tags"}'::jsonb ELSE '{}'::jsonb END FROM unnest(ARRAY['description','seo_title','seo_description','tags']) key;`);
   const old=readFileSync('supabase/migrations/20261116164306_admin_ai_confirmed_context.sql','utf8');
   sql(old.slice(old.indexOf('CREATE TABLE public.admin_confirmed_ai_requests'),old.indexOf('-- Preserve the original reservation')));
-  sql(readFileSync('docs/release/pending/pr73-draft-editorial-review.sql','utf8'));
+  const folder=join(dir,'migration');
+  mkdirSync(join(folder,'meta'),{recursive:true});
+  const journal=JSON.parse(readFileSync('drizzle/migrations/meta/_journal.json','utf8'));
+  const entry=journal.entries.at(-1);
+  assert.equal(entry.tag,'0020_admin_new_draft_editorial');
+  writeFileSync(join(folder,'meta/_journal.json'),JSON.stringify({...journal,entries:[entry]}));
+  writeFileSync(join(folder,entry.tag+'.sql'),readFileSync('drizzle/migrations/'+entry.tag+'.sql'));
+  const db=postgres({host:dir,port:54844,user:'postgres',database:'postgres',max:1});
+  try {
+    // Simulate a leaked default grant through a SET-only membership. DDL and journal must roll back together.
+    sql("CREATE ROLE draft_acl_fixture; GRANT draft_acl_fixture TO authenticated WITH INHERIT FALSE; ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT UPDATE ON TABLES TO draft_acl_fixture;");
+    await assert.rejects(migrate(drizzle(db),{migrationsFolder:folder}));
+    assert.equal(sql("SELECT to_regclass('public.admin_draft_ai_field_opt_ins') IS NULL"),'t');
+    assert.equal(sql('SELECT count(*) FROM drizzle.__drizzle_migrations'),'0');
+    sql("ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE UPDATE ON TABLES FROM draft_acl_fixture; REVOKE draft_acl_fixture FROM authenticated;");
+    await migrate(drizzle(db),{migrationsFolder:folder});
+    await migrate(drizzle(db),{migrationsFolder:folder});
+  } finally { await db.end(); }
+  assert.equal(sql('SELECT count(*) FROM drizzle.__drizzle_migrations'),'1');
   const request = i => JSON.parse(sql('SET ROLE service_role; '+reserve(i)));
   assert.deepEqual(request(1),{reserved:true,fields:[]});
   assert.deepEqual(request(1),{reserved:false});
-  sql(`INSERT INTO public.admin_draft_ai_field_opt_ins VALUES('${actor}','seo_title'),('${actor}','tags');`);
-  assert.deepEqual(request(2),{reserved:true,fields:['seo_title']});
-  sql("UPDATE public.product_field_definitions SET ai_allowed=true WHERE key='tags';");
-  assert.deepEqual(request(3),{reserved:true,fields:['seo_title','tags']});
+  sql(`INSERT INTO public.admin_draft_ai_field_opt_ins(actor,field_key,approved_reference) VALUES('${actor}','seo_title','TEST'),('${actor}','tags','TEST');`);
+  assert.deepEqual(request(2),{reserved:true,fields:['seo_title','tags']});
+  assert.equal(sql("SELECT ai_allowed FROM public.product_field_definitions WHERE key='tags'"),'f');
+  sql("UPDATE public.product_field_definitions SET ai_allowed=false WHERE key='seo_title';");
+  assert.deepEqual(request(3),{reserved:true,fields:['tags']});
   sql("UPDATE public.product_field_definitions SET manual_only=true WHERE key='seo_title';");
   assert.deepEqual(request(4),{reserved:true,fields:['tags']});
+  sql("DELETE FROM public.admin_draft_ai_field_opt_ins WHERE field_key='tags';");
   sql("UPDATE public.admin_catalog_capabilities SET field_keys=ARRAY['description'];");
   assert.deepEqual(request(5),{reserved:true,fields:[]});
   assert.deepEqual(request(6),{reserved:false});
   assert.equal(sql('SELECT count(*) FROM public.admin_confirmed_ai_requests'),'5');
   assert.equal(sql('SELECT count(*) FROM public.admin_draft_ai_request_scopes'),'5');
   assert.equal(sql("SELECT has_table_privilege('service_role','public.admin_draft_ai_field_opt_ins','INSERT,UPDATE,DELETE')"),'f');
-  for (const role of ['anon','authenticated']) assert.equal(sql(`SELECT has_function_privilege('${role}','public.reserve_draft_editorial_ai_request(uuid,uuid,text)','EXECUTE')`),'f');
+  for (const role of ['anon','authenticated']) assert.equal(sql(`SELECT has_function_privilege('${role}','public.reserve_new_draft_editorial_v1(uuid,uuid,text)','EXECUTE')`),'f');
   sql("UPDATE public.admin_catalog_capabilities SET capabilities=ARRAY['edit','ai'];");
   assert.throws(()=>request(7), /FORBIDDEN/);
+  assert.equal(sql("SELECT prosecdef FROM pg_proc WHERE oid='public.reserve_new_draft_editorial_v1(uuid,uuid,text)'::regprocedure"),'f');
+  assert.equal(sql("SELECT bool_and(relrowsecurity) FROM pg_class WHERE oid IN ('public.admin_draft_ai_field_opt_ins'::regclass,'public.admin_draft_ai_request_scopes'::regclass)"),'t');
+  for(const role of ['anon','authenticated']) assert.throws(()=>sql('SET ROLE '+role+'; '+reserve(8)), /permission denied/);
+  assert.throws(()=>sql("SET ROLE service_role; DELETE FROM public.admin_draft_ai_field_opt_ins"),/permission denied/);
   console.log('PASS PostgreSQL: opt-in per attore/campo, registro, permessi, quota condivisa, replay e journal.');
 } finally {
   if (started) cmd('pg_ctl',['-D',cluster,'-m','fast','-w','stop']);

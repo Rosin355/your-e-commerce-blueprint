@@ -1,5 +1,9 @@
 # Accettazione Admin V2 · 21 novembre 2026
 
+## Chiusura AI della nuova bozza · 24 novembre 2026
+
+La prova tecnica eseguita usa fixture sintetiche. Per l’accettazione personale verificare nella stessa bozza le origini dei suggerimenti, il tipo manuale, due formati, tre mesi, foto e categoria fino alla riapertura. Registrare la conferma di Marco. [Stato di rilascio e rollback](../release/PR73-CHIUSURA-AI.md)
+
 | Controllo | Prova disponibile | Esito e ambito |
 | --- | --- | --- |
 | Catalogo e ricerca | Ricerca globale per nome, SKU e GTIN. Filtri prima del cursore, righe oltre il primo lotto e oltre 500 valori. Guardie desktop e mobile. | PASS su fixture |

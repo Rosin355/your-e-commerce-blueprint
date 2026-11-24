@@ -1,5 +1,9 @@
 # Online Garden — note Admin UX
 
+## Chiusura AI della nuova bozza · 24 novembre 2026
+
+Nella stessa anteprima i tag accettano correzioni separate da virgole. Per il tipo senza mapping appare un campo manuale con le scelte Alberi e Arbusti. Selezionare una voce la etichetta come modifica manuale e richiede ancora Applica. Descrizione, SEO e tag mantengono una fonte visibile per campo. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
+
 ## Nuovo prodotto · provenienza dei suggerimenti SEO
 
 Nell’unica anteprima di **Completa scheda con AI**, ciascuna proposta SEO o tag indica **Selezione del modello** oppure **Fallback deterministico**. La correzione di un testo aggiorna l’etichetta in **Modifica manuale in anteprima**. L’operatore può confrontare il valore esistente, escludere una singola riga o annullare la sostituzione cumulativa. Se il tipo resta manuale, le altre righe mantengono i propri comandi. [Percorso di Marco](admin-v2/CLIENT-GUIDE.md)

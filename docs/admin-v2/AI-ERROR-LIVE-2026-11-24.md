@@ -1,5 +1,9 @@
 # Online Garden — Admin V2 / errore AI sulla nuova bozza (24 novembre 2026)
 
+## Chiusura AI della nuova bozza · 24 novembre 2026
+
+Il collaudo integrato copre la stessa bozza dalla descrizione vuota alla riapertura, inclusi mesi, formati, categoria e immagine. Il verbale corrente aggiorna le decisioni operative storiche. [Stato di rilascio e rollback](../release/PR73-CHIUSURA-AI.md)
+
 **Stato al termine dell’intervento — FIX IN PR, PASS tecnico, collaudo live aperto.** La versione pubblicata di riferimento è `index-jqOemgjy.js`. SAL **57,75%**.
 
 ## Qualità SEO · candidato corrente della PR #73

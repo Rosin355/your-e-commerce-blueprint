@@ -40,6 +40,13 @@ export function editorialOptions(title: string, facts: string[]): EditorialOptio
   return { seoTitle: unique(titles.filter(v => safeLabel(v) && v.length <= 70)), seoDescription: meta, tags };
 }
 
+// The tags exception is only for this native field and a positive per-actor draft reservation.
+export function draftModelEligible(def: FieldDefinition) {
+  return def.key === 'tags'
+    ? ['array', 'json'].includes(def.data_type) && def.shopify_mapping?.type === 'core' && def.shopify_mapping.field === 'tags'
+    : def.ai_allowed;
+}
+
 export function resolveEditorialField(key: EditorialKey, options: EditorialOptions, pick: unknown,
   def: FieldDefinition): EditorialProposal | undefined {
   if (def.key !== registryKeys[key] || def.manual_only || def.applies_to === 'variant' || !isFieldEditable(def).ok) return;
@@ -50,7 +57,7 @@ export function resolveEditorialField(key: EditorialKey, options: EditorialOptio
     if (Array.isArray(pick) && pick.length > 0 && pick.length <= 5 && pick.every(validIndex) && new Set(pick).size === pick.length)
       selected = pick.map(n => choices[n]);
   } else if (validIndex(pick)) selected = choices[pick];
-  if (def.ai_allowed && selected !== undefined && validateValue(def, selected).ok) return { value: selected, source: 'model' };
+  if (draftModelEligible(def) && selected !== undefined && validateValue(def, selected).ok) return { value: selected, source: 'model' };
   if (key === 'tags') {
     const tags = choices.filter(v => validateValue(def, [v]).ok).slice(0, 5);
     if (tags.length && validateValue(def, tags).ok) return { value: tags, source: 'deterministic' };

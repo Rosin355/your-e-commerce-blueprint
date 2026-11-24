@@ -51,7 +51,7 @@ export function reasonUnavailable(key: SheetKey, context: SheetContext) {
     return 'Il tuo account non è abilitato a completare e salvare i metadati della bozza interna.';
   const def = sheetDefinition(key, context);
   if (key === 'productType' && (!context.supportsType || !def || !domain(def).length)) {
-    return 'Manca un elenco verificato di tipi prodotto collegati a Shopify. Lascia il tipo da verificare con il responsabile.';
+    return 'Manca un elenco verificato di tipi prodotto collegati a Shopify. Conferma una scelta per questa bozza oppure lascia vuoto.';
   }
   if (!def || def.applies_to === 'variant' || def.manual_only || !isFieldEditable(def).ok)
     return 'Il registro non consente la compilazione assistita di questo campo. Verifica il campo nelle opzioni del prodotto.';
@@ -61,7 +61,16 @@ export function reasonUnavailable(key: SheetKey, context: SheetContext) {
     return 'Il registro riserva la descrizione alla compilazione manuale.';
 }
 
+export function manualDraftType(context: SheetContext) {
+  return context.canFillDraft && context.supportsType && !context.definitions.some(d =>
+    d.shopify_mapping?.type === 'core' && ['productType','product_type'].includes(String(d.shopify_mapping.field)));
+}
+
 export function sheetValueError(key: SheetKey, value: string | string[], context: SheetContext) {
+  if (key === 'productType' && manualDraftType(context)) {
+    return typeof value === 'string' && plain(value) && value.trim().length > 0 && value.length <= 255
+      ? undefined : 'Scrivi o scegli un tipo commerciale per questa bozza, entro 255 caratteri.';
+  }
   const unavailable = reasonUnavailable(key, context);
   if (unavailable) return unavailable;
   const def = sheetDefinition(key, context)!;
@@ -84,7 +93,7 @@ export function sheetValueError(key: SheetKey, value: string | string[], context
   return checked.ok ? undefined : checked.message || 'Valore non ammesso dal registro.';
 }
 
-export interface SheetRow { value?: string | string[]; reason?: string; options?: string[]; excluded?: boolean; source?: EditorialProposal['source'] | 'manual' }
+export interface SheetRow { value?: string | string[]; reason?: string; options?: string[]; excluded?: boolean; source?: EditorialProposal['source'] | 'manual'; tagText?: string }
 export type SheetPreview = Record<SheetKey, SheetRow>;
 
 // Offline candidates also keep the review usable if the provider is unavailable.

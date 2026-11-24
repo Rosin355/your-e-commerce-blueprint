@@ -22,7 +22,7 @@ const draft = { title: 'Bozza sintetica', sku: 'QA-DRAFT-ONLY', description: 'Fi
   variants: [{ sku: 'QA-DRAFT-ONLY', price: '10.00', compareAtPrice: null, option: 'Unico' }] };
 
 // Execute the real HTTP entrypoint and local module graph. All I/O is synthetic and closed.
-function load(options: { scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; commerce?: boolean; media?: boolean; ai?: { grant: boolean; reserved?: boolean; output?: unknown; http?: number; maxLength?: number; batch?: boolean; fields?: string[]; optIns?: string[]; tagsAi?: boolean; badReservation?: boolean } } = {}) {
+function load(options: { anonymous?: boolean; scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; commerce?: boolean; media?: boolean; ai?: { grant: boolean; reserved?: boolean; output?: unknown; http?: number; maxLength?: number; batch?: boolean; fields?: string[]; optIns?: string[]; tagsAi?: boolean; badReservation?: boolean; reservationError?: string } } = {}) {
   let handler!: (request: Request) => Promise<Response>;
   const calls = { rpc: 0, shopifyMutations: 0, statusReads: 0, events: 0, uploads: 0 };
   const traces: string[] = [];
@@ -52,7 +52,7 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
     from(table: string) {
       const data = table === 'admin_catalog_media' ? media : table === 'admin_catalog_capabilities' ? grant : table === 'admin_catalog_approvals' ? approvals : table === 'products' ? product : table === 'product_field_definitions' ? [definition, ...(options.ai ? [
           {...definition, key:'seo_title',editor_type:'text'}, {...definition,key:'seo_description',editor_type:'textarea'},
-          {...definition,key:'tags',editor_type:'multiselect',data_type:'json',ai_allowed:options.ai.tagsAi === true},
+          {...definition,key:'tags',editor_type:'multiselect',data_type:'json',shopify_mapping:{type:'core',field:'tags'},ai_allowed:options.ai.tagsAi === true},
         ] : [])] :
         table === 'product_current_values' ? [{ product_id: productId, field_key: 'title', value_text: 'Prima', version: 1, review_status: 'approved' }] :
         table === 'product_sync_csv_products' ? { sku: product.sku, shopify_product_id: options.mapping ?? 'gid://shopify/Product/123' } :
@@ -69,9 +69,10 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
       };
       return q;
     },
-    async rpc(name: string, parameters: Record<string,unknown>) { if (options.ai && name === 'reserve_draft_editorial_ai_request') {
+    async rpc(name: string, parameters: Record<string,unknown>) { if (options.ai && name === 'reserve_new_draft_editorial_v1') {
         assert.deepEqual(Object.keys(parameters).sort(),['p_actor','p_context_hash','p_request_key']);
         calls.rpc++;
+        if (options.ai.reservationError) return {data:null,error:{code:options.ai.reservationError}};
         return {data: options.ai.badReservation ? true : {reserved:options.ai.reserved !== false,fields:options.ai.optIns ?? []},error:null};
       }
       if (options.ai && name === 'reserve_confirmed_ai_request') {
@@ -87,7 +88,10 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
     const compiled = ts.transpileModule(readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
     const require = (id: string): unknown => {
       if (id === 'npm:@supabase/supabase-js@2/cors') return { corsHeaders: {} };
-      if (id.endsWith('/admin-v2-auth.ts')) return { authenticate: async () => ({ userId: actor, roles: [options.role ?? 'admin'] }), serviceClient: () => db, AuthError: class extends Error {} };
+      if (options.anonymous && id === 'https://esm.sh/@supabase/supabase-js@2.49.8') {
+        return {createClient: () => { throw new Error('Unexpected database access before authentication'); }};
+      }
+      if (id.endsWith('/admin-v2-auth.ts') && !options.anonymous) return { authenticate: async () => ({ userId: actor, roles: [options.role ?? 'admin'] }), serviceClient: () => db, AuthError: class extends Error {} };
       if (id.endsWith('/shopify-admin-client.ts')) {
         const graphql = async (query: string, vars: Record<string, unknown> = {}) => {
           if (options.media && query.includes('AdminStage')) { calls.shopifyMutations++; return {stagedUploadsCreate:{stagedTargets:[{url:'https://storage.googleapis.com/synthetic-upload',resourceUrl:'https://storage.googleapis.com/synthetic-resource',parameters:[]}],userErrors:[]}}; }
@@ -341,7 +345,7 @@ test('Scheda SEO: prenotazione per campo, una richiesta strutturata e validazion
   const payload = {action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts};
   const keys = ['seo_title','seo_description','tags'];
   const fixture = load({endpoint:'product-admin-ai', catalog:true, role:'editor', ai:{
-    grant:true,batch:true,fields:keys,optIns:keys,tagsAi:true,output:{description:[1,0],seoTitle:0,seoDescription:0,tags:[1,0],sku:'IGNORA'},
+    grant:true,batch:true,fields:['seo_title','seo_description'],optIns:keys,tagsAi:false,output:{description:[1,0],seoTitle:0,seoDescription:0,tags:[1,0],sku:'IGNORA'},
   }});
   const body = await (await fixture.request(payload)).json();
   assert.equal(body.ok,true);
@@ -372,9 +376,13 @@ test('Scheda SEO: valori inventati o indici fuori dominio scartati campo per cam
 });
 
 test('Scheda SEO: registro, permessi e prenotazione prevalgono sul payload', async()=>{
-  const data={action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts:['Nome comune: Farnia'],fields:['tags','seo_description','seo_title']};
-  const setup={grant:true,batch:true,fields:['seo_title','tags'],optIns:['seo_title','seo_description','tags'],output:{description:[0],seoTitle:0,tags:[0]}};
+  const data={action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts:['Nome comune: Farnia']};
+  const setup={grant:true,batch:true,fields:['seo_title'],optIns:['seo_title','seo_description'],output:{description:[0],seoTitle:0,tags:[0]}};
   const fixture=load({endpoint:'product-admin-ai',catalog:true,role:'editor',ai:setup});
+  for(const extra of [{productId},{fields:['tags']}]) {
+    assert.equal((await fixture.request({...data,...extra})).status,422);
+    assert.equal(fixture.providerRequests.length,0);
+  }
   const body=await (await fixture.request(data)).json();
   assert.equal(body.editorial.seoDescription,undefined);
   assert.equal(body.editorial.tags.source,'deterministic');
@@ -391,4 +399,35 @@ test('Scheda SEO: registro, permessi e prenotazione prevalgono sul payload', asy
   assert.equal(old.providerRequests[0].tools[0].function.name,'propose_field_improvement');
   assert.equal(fallback.editorial.seoTitle.source,'deterministic');
   assert.equal(fallback.editorial.tags.source,'deterministic');
+});
+
+test('Scheda SEO: RPC assente conserva il servizio precedente, errore ambiguo blocca la richiesta', async () => {
+  const facts = ['Il cartellino riporta Quercus robur.'];
+  const input = {action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts};
+  for (const reservationError of ['PGRST202','08006']) {
+    const fixture = load({endpoint:'product-admin-ai',catalog:true,role:'editor',ai:{
+      grant:true,batch:true,fields:['seo_title'],reservationError,output:facts[0],
+    }});
+    const result = await fixture.request(input);
+    if (reservationError === 'PGRST202') {
+      assert.equal(result.status,200);
+      assert.equal((await result.json()).editorial.seoTitle.source,'deterministic');
+      assert.equal(fixture.providerRequests.length,1);
+      assert.equal(fixture.calls.rpc,2);
+    } else {
+      assert.equal(result.status,500);
+      assert.equal(fixture.providerRequests.length,0);
+      assert.equal(fixture.calls.rpc,1);
+    }
+  }
+});
+
+test('Nuova bozza anonima: l’autenticazione effettiva rifiuta prima di database, prenotazione e provider', async () => {
+  const fixture = load({endpoint:'product-admin-ai',anonymous:true,ai:{grant:false}});
+  const result = await fixture.request({action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Scheda tecnica',
+    confirmed:true,requestKey,facts:['Nome verificato per il collaudo.']});
+  assert.equal(result.status,401);
+  assert.equal((await result.json()).error.code,'UNAUTHENTICATED');
+  assert.equal(fixture.calls.rpc,0);
+  assert.equal(fixture.providerRequests.length,0);
 });

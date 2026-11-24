@@ -1,5 +1,9 @@
 # Online Garden — developer handoff
 
+## Chiusura AI della nuova bozza · 24 novembre 2026
+
+La migrazione 0020 aggiunge prenotazione server e audit per nuova bozza, con opt-in per attore e chiave. La Edge accetta il contratto storico della descrizione. I pacchetti recuperabili, il comportamento in assenza della routine, i checksum e il collaudo sono nel registro operativo. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
+
 ## PR #73 · selezione editoriale della nuova bozza
 
 Chiamata additiva a `suggest_confirmed_field` con `fieldKey=description` e `draftTitle`. Il server legge il registro una volta, usa i grant della sessione e ignora campi autorizzativi inviati dal browser. Senza `PRODUCT_ADMIN_DRAFT_AI_EDITORIAL_ENABLED=true` usa la quota originale, chiama il provider per la descrizione e restituisce proposte SEO deterministiche. La versione precedente del frontend conserva il proprio contratto anche con la nuova Edge.

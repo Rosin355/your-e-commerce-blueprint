@@ -1,5 +1,5 @@
 import { ConfirmedProposalError, generateConfirmedProposal, validateConfirmedProposal } from '../_shared/admin-ai-confirmed.ts';
-import { editorialKeys, editorialOptions, registryKeys, resolveEditorialField, type EditorialKey, type EditorialOptions, type EditorialProposal } from '../_shared/admin-draft-editorial.ts';
+import { draftModelEligible, editorialKeys, editorialOptions, registryKeys, resolveEditorialField, type EditorialKey, type EditorialOptions, type EditorialProposal } from '../_shared/admin-draft-editorial.ts';
 import type { FieldDefinition } from '../_shared/admin-v2-types.ts';
 import { callDraftSheetProvider, type callAiProvider } from './provider.ts';
 
@@ -13,7 +13,7 @@ export async function generateDraftSheet(description: FieldDefinition, facts: st
     const def = definitions.find(d => d.key === registryKeys[key]);
     if (!def || !resolveEditorialField(key, options, undefined, def)) continue;
     fields.set(key, def);
-    if (def.ai_allowed && modelFields.includes(def.key)) candidates[key] = options[key];
+    if (draftModelEligible(def) && modelFields.includes(def.key)) candidates[key] = options[key];
   }
 
   let proposal;

@@ -199,6 +199,8 @@ export async function handleProductAdminAi(
       }
       if (!writesEnabled()) return reject('WRITES_DISABLED', 'authorization', 'Assistenza AI temporaneamente disabilitata.');
       const sheet = Object.hasOwn(payload, 'draftTitle');
+      if (sheet && Object.keys(payload).some(k => !['action','fieldKey','draftTitle','facts','requestKey','confirmed'].includes(k)))
+        return reject('VALIDATION_ERROR', 'input', 'La scheda nuova accetta solo nome e fatti confermati.');
       if (sheet && (payload.fieldKey !== 'description' || typeof payload.draftTitle !== 'string' ||
         !safeLabel(payload.draftTitle) || payload.draftTitle.length > 255))
         return reject('VALIDATION_ERROR', 'input', 'Verifica il nome del prodotto.');
@@ -213,14 +215,23 @@ export async function handleProductAdminAi(
       catch { return reject('INVALID_CONFIRMED_FACTS', 'input', 'Verifica le righe inserite e confermale.'); }
       if (!isUuid(payload.requestKey)) return reject('VALIDATION_ERROR', 'request', 'Identificativo richiesta non valido.');
       const useDraft = sheet && catalogAllowed(auth, 'drafts') && Deno.env.get('PRODUCT_ADMIN_DRAFTS_ENABLED') === 'true';
-      const batch = useDraft && Deno.env.get('PRODUCT_ADMIN_DRAFT_AI_EDITORIAL_ENABLED') === 'true';
+      if (sheet && !useDraft) return reject('FORBIDDEN', 'authorization', 'Il tuo account non è abilitato alle nuove bozze.');
+      let batch = useDraft && Deno.env.get('PRODUCT_ADMIN_DRAFT_AI_EDITORIAL_ENABLED') !== 'false';
       // The legacy RPC authorizes description alone. Additional inference requires
       // a transaction explicitly authorizing the individual fields for this actor.
       const hash = await payloadHash(sheet ? {facts, title:payload.draftTitle} : {facts});
       const reservation = {p_actor:auth.userId,p_request_key:payload.requestKey,p_context_hash:hash};
-      const { data: reserved, error } = batch
-        ? await serviceClient().rpc('reserve_draft_editorial_ai_request', reservation)
-        : await serviceClient().rpc('reserve_confirmed_ai_request',{...reservation,p_field_key:def!.key,p_action:action});
+      const reserveDescription = () => serviceClient().rpc('reserve_confirmed_ai_request',{...reservation,p_field_key:def!.key,p_action:action});
+      let result = batch
+        ? await serviceClient().rpc('reserve_new_draft_editorial_v1', reservation)
+        : await reserveDescription();
+      // During rollout or rollback PostgREST can report the new routine absent.
+      // No transaction was executed in this case. Every other error fails closed.
+      if (batch && result.error?.code === 'PGRST202') {
+        batch = false;
+        result = await reserveDescription();
+      }
+      const {data: reserved, error} = result;
       if (error) {
         return error.code === '42501'
           ? reject('FORBIDDEN', 'reservation', 'Richiesta AI non autorizzata.')
@@ -232,7 +243,7 @@ export async function handleProductAdminAi(
       try {
         const keys = Object.values(registryKeys).filter(key => key === 'tags' || catalogAllowed(auth, 'edit', key));
         const definitions = registry?.filter(d => keys.some(key => key === d.key)) ?? [];
-        const authorizedFields = batch ? keys.filter(key => reserved.fields.includes(key) && auth.catalogGrant?.fieldKeys.includes(key)) : [];
+        const authorizedFields = batch ? keys.filter(key => reserved.fields.includes(key) && (key === 'tags' || auth.catalogGrant?.fieldKeys.includes(key))) : [];
         const proposal = useDraft
           ? await generateDraftSheet(def!, facts, payload.draftTitle as string, definitions, authorizedFields, deps.generate)
           : await generateConfirmedProposal(def!, facts, deps.generate);

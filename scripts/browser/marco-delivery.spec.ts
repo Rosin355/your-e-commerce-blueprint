@@ -94,6 +94,7 @@ async function simulate(page: Page, options: { readError?: boolean; legacy?: boo
         return reply({definitions:[def, ...(options.sheet ? [
           {...def, key:'seo_title', editor_type:'text'}, {...def, key:'seo_description', editor_type:'textarea'},
           {...def, key:'tags', editor_type:'multiselect', data_type:'json', ai_allowed:false},
+          {...def, key:'periodo_di_fioritura', label:'Periodo di fioritura', editor_type:'multiselect', data_type:'json', ai_allowed:false},
           ...(options.noTypeDomain ? [] : [{...def, key:'shopify_product_type', editor_type:'select', shopify_mapping:{ type:'core',field:'productType' }, validation_rules:{enum:['Alberi','Arbusti']}}]),
         ] : [])]});
       }
@@ -367,9 +368,12 @@ test('AI descrizione editor senza grant: compilazione manuale disponibile', asyn
 });
 
 test('Scheda AI Editor: approvazione parziale e cumulativa, due formati e riapertura interna', async ({page}) => {
-  const model = await simulate(page, {sheet:true});
+  const model = await simulate(page, {sheet:true,media:true});
   await page.goto('/admin/products/new');
   await page.getByLabel('Nome prodotto (obbligatorio)').fill('Quercus robur');
+  await page.getByRole('checkbox',{name:categoryName}).check();
+  await page.getByText('Scegli fra le tue immagini già caricate').click();
+  await page.getByRole('button',{name:/Foto lavanda sintetica/}).click();
   await page.getByRole('button',{name:'Aggiungi formato'}).click();
   await page.getByLabel('Nome formato 1',{exact:true}).fill('Piccolo');
   await page.getByLabel('Nome formato 2',{exact:true}).fill('Grande');
@@ -378,6 +382,8 @@ test('Scheda AI Editor: approvazione parziale e cumulativa, due formati e riaper
   const advanced = page.getByText('Opzioni avanzate',{exact:true});
   await advanced.click();
   const sku = await page.locator('#sku').inputValue();
+  await page.getByText('Informazioni botaniche e FAQ facoltative').click();
+  for (const month of ['Novembre','Febbraio','Maggio']) await page.getByRole('checkbox',{name:'Periodo di fioritura: '+month,exact:true}).check();
   await page.locator('#vendor').fill('Fornitore manuale');
   await page.locator('#tags').fill('Tag manuale');
   await page.getByText('SEO facoltativa').click();
@@ -432,9 +438,12 @@ test('Scheda AI Editor: approvazione parziale e cumulativa, due formati e riaper
   for (const label of ['Quercus robur verificata','Alberi','Fornitore manuale',sku]) {
     await expect(summary.getByText(label,{exact:true})).toBeVisible();
   }
+  await expect(summary.getByText('Febbraio, Maggio, Novembre',{exact:true})).toBeVisible();
+  await expect(summary.getByText(categoryName,{exact:true}).first()).toBeVisible();
   const saved = model.saved();
   expect(saved).toMatchObject({title:'Quercus robur',description:'<p>'+verifiedParagraph+'</p>',seoTitle:'Quercus robur verificata',
-    seoDescription:verifiedParagraph,tags:['Quercus robur'],productType:'Alberi',sku,currency:'EUR',vendor:'Fornitore manuale',
+    seoDescription:verifiedParagraph,tags:['Quercus robur',categoryName],productType:'Alberi',sku,currency:'EUR',vendor:'Fornitore manuale',
+    collectionIds:[collection],images:initial.images,botanical:{periodo_di_fioritura:['Febbraio','Maggio','Novembre']},
     variants:[{sku:sku+'-1',option:'Piccolo',price:'12.00'},{sku:sku+'-2',option:'Grande',price:'17.50'}]});
   expect(model.calls.filter(a=>a==='save_new_product')).toHaveLength(1);
   expect(model.calls).not.toContain('create_shopify_draft');
@@ -536,6 +545,9 @@ test('Scheda SEO: origine modello e fallback, revisione e riapertura interna', a
   await expect(assistant.getByRole('group',{name:'Meta description SEO'})).toContainText('Selezione del modello');
   await expect(assistant.getByRole('group',{name:'Tag',exact:true})).toContainText('Fallback deterministico');
   await expect(assistant.getByRole('group',{name:'Tipo prodotto'})).toContainText('Manca un elenco verificato');
+  await assistant.getByRole('button',{name:'Alberi',exact:true}).click();
+  await expect(assistant.getByLabel('Tipo manuale per questa bozza')).toHaveValue('Alberi');
+  await assistant.getByLabel('Tag proposti, separati da virgole').fill('Farnia, Quercus robur');
   await assistant.getByLabel('Proposta Titolo SEO').fill('Farnia (Quercus robur)');
   await expect(title).toContainText('Modifica manuale');
   page.once('dialog',d=>d.accept());
@@ -550,7 +562,7 @@ test('Scheda SEO: origine modello e fallback, revisione e riapertura interna', a
   const summary=page.getByRole('heading',{name:'Riepilogo della bozza interna salvata'}).locator('..');
   await expect(summary.getByText('Farnia (Quercus robur)',{exact:true})).toBeVisible();
   expect(model.saved()).toMatchObject({seoTitle:'Farnia (Quercus robur)',seoDescription:facts.split('\n')[0],
-    tags:['Quercus robur','Farnia'],currency:'EUR'});
+    tags:['Farnia','Quercus robur'],productType:'Alberi',currency:'EUR'});
   expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(1);
   expect(model.calls).not.toContain('create_shopify_draft');
   expect(model.unexpected).toEqual([]);

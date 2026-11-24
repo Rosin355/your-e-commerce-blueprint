@@ -141,6 +141,13 @@
       "when": 1795260559047,
       "tag": "0019_restrict_role_checks_to_self_or_trusted_service",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1795539011604,
+      "tag": "0020_admin_new_draft_editorial",
+      "breakpoints": true
     }
   ]
 }
