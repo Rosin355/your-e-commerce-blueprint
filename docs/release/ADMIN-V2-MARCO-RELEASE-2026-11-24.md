@@ -51,3 +51,17 @@ Rollback frontend: Cronologia Lovable → versione con asset `index-DSQ4UzGV.js`
   `/checkouts/cn/...` aperto senza acquisto; nessun errore JS.
 - Admin su dominio pubblico: solo form di login visibile (nessuna sessione nel browser di test): da collaudare con Marco.
 - Rollback frontend: Cronologia Lovable → versione con `index-DSQ4UzGV.js`.
+
+## Estensione della PR #73 · scheda assistita
+
+Ramo isolato `codex/ai-descrizione-bozza-20261124`, base PR `codex/rilascio-admin-v2-isolato-20261124`. L’estensione prosegue da `8fb057f`. Il commit della PR è il riferimento per costruire il candidato. La build operativa locale produce `index-BuUb1t_n.js`, SHA-256 `9f7dc7f1b8a09f81114ca110199b955f3c5307e8c7855f3ae17e2ce77fbada35`.
+
+| Operazione | Giudizio e condizione |
+| --- | --- |
+| A · Deploy della sola `product-admin-ai` | **GO tecnico, esecuzione in attesa**. La correzione Edge della #73 appartiene a `8fb057f`. Questa estensione riusa quel pacchetto. Identificare la revisione attiva e la configurazione, verificare lo snapshot con hash e sorgenti ripristinabili, quindi ottenere autorizzazione specifica. Se la revisione candidata è già attestata in esecuzione, passare al collaudo. In caso di regressione, ripristinare lo snapshot attivo verificato. |
+| B · Anteprima autenticata | **GO tecnico al collaudo controllato**, dopo verifica di branch, SHA e contratto della Edge candidata. Richiedere sessione e autorizzazione per la chiamata reale ed eventuale salvataggio della bozza tecnica. Con Marco verificare una richiesta, fonte della proposta, scelta parziale, rifiuto della sovrascrittura, riprova, eventuale blocco del tipo e riapertura dei due formati. Il backend verifica gli SKU in lettura. Fermarsi alla bozza interna. Registrare esito e riferimento tecnico senza registrare i fatti inseriti. |
+| C · Publish Lovable | **NO-GO** in attesa di collaudo autenticato, accettazione dell’eventuale tipo lasciato vuoto e autorizzazione al Publish sullo SHA verificato. Per il rollback ripubblicare dalla cronologia la versione con `index-jqOemgjy.js`, SHA-256 `74449f1d0f5cf1f834a076535f8e04681e9598160486ab81c2144b8ab3a10c4e`, e verificare caricamento Admin e compilazione manuale. |
+
+**Tipo prodotto.** Il registro letto il 24 novembre è privo di un dominio mappato al campo Shopify. Per attivare i suggerimenti del tipo serve un elenco verificato dal responsabile e un’integrazione del registro autorizzata. Il tester può già verificare il motivo mostrato e il completamento degli altri campi in anteprima.
+
+Typecheck, build operativa, lint mirato, Deno check, 83 test Node, un test HTTP su sette scenari e dieci test Chromium superati sul candidato. La prova con il provider e con la sessione personale di Marco è pendente. **SAL ufficiale 57,75%**. [Verbale tecnico e risultati](../admin-v2/AI-ERROR-LIVE-2026-11-24.md)

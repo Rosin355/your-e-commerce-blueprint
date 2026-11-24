@@ -1,5 +1,15 @@
 # Online Garden — developer handoff
 
+## Scheda assistita della nuova bozza · PR #73
+
+La nuova pagina usa il contratto di `suggest_confirmed_field` del commit `8fb057f`. Il payload comprende azione, campo `description`, fatti confermati, conferma e UUID. La Edge verifica grant, campo e limite di frequenza. Il fallback estrattivo e i suoi codici diagnostici appartengono già a quel commit. Questa estensione cambia solo il frontend e i test. L’estensione non introduce un nuovo contratto di rete.
+
+`src/adminv2/lib/draftSheet.ts` compone i metadati nel browser usando il registro restituito da `get_field_definitions`. Per copiare i metadati occorrono assistenza abilitata e capacità effettiva di salvare bozze ordinarie. I campi SEO richiedono anche la rispettiva chiave modificabile. I tag riprendono valori letterali con il permesso della bozza, con filtro dei tag logistici. Il codice esercita il permesso di inferenza solo per la descrizione. I comandi di modifica di prodotti esistenti e le relative policy restano quelli del servizio.
+
+Il tipo richiede il collegamento univoco del registro al campo core Shopify e un `validation_rules.enum` di etichette valide. Una corrispondenza esatta su nome, categoria selezionata o fatto confermato genera una proposta. Il formato esplicito «Tipo prodotto: Alberi» è riconosciuto solo se il valore esiste nel dominio. Valori discordanti, assenti o multipli richiedono una scelta. La riga risulta esclusa quando manca il dominio. Il registro letto in produzione il 24 novembre contiene i due campi SEO, i tag e la descrizione, senza una definizione mappata per il tipo. Serve un elenco convalidato dal responsabile per abilitare la quinta riga in produzione.
+
+La UI conserva la revisione fra i due passaggi della creazione. Dopo un cambio di nome, categoria, fatti o permessi invalida le proposte precedenti. Ogni approvazione confronta i valori correnti e aggiorna soltanto le cinque chiavi editoriali. Il server conserva il controllo finale durante anteprima e salvataggio. [Collaudo, limiti e rollback](admin-v2/AI-ERROR-LIVE-2026-11-24.md)
+
 ## Correzione AI da fatti confermati · candidata del 24 novembre
 
 Il backend da rilasciare è `product-admin-ai`. Il browser invia lo stesso payload di prima. L’API mantiene `ok` e `value` e aggiunge `source` (`model` o `confirmed_facts`), letto come opzionale per compatibilità. Con la precedente Edge il frontend può ancora ricevere `VALIDATION_ERROR`; la distinzione tra input, modello e campo richiede il nuovo handler. I codici dedicati sono `INVALID_CONFIRMED_FACTS`, `INVALID_MODEL_PROPOSAL` e `INVALID_FIELD_VALUE`. Il riferimento mostrato negli errori della richiesta corrisponde al campo `requestId` del log.

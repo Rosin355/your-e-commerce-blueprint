@@ -16,7 +16,7 @@ const initial: ProductDraft = {
   seoTitle: 'Titolo SEO sintetico', seoDescription: 'Descrizione SEO sintetica',
 };
 
-async function simulate(page: Page, options: { readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean } = {}) {
+async function simulate(page: Page, options: { readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; denyDescription?: boolean } = {}) {
   const failures = [...(options.aiFailures ?? [])];
   let saved = structuredClone(initial);
   if (options.legacy) saved.description = '<p onclick="">Testo <strong>verificato</strong>.</p><ul><li>Voce</li></ul><script type="application/json">contenuto escluso</script>';
@@ -46,7 +46,7 @@ async function simulate(page: Page, options: { readError?: boolean; legacy?: boo
     calls.push(action);
     const reply = (result: object) => route.fulfill({ json: { ok: true, ...result } });
     switch (action) {
-      case 'get_admin_context': return reply({ roles: ['editor'], canWrite: true, canUseAi: options.allowAi !== false, ordinaryCatalog: true, supportsCatalogSourceAndProductType: true, canUploadImages: options.media === true, editableFieldKeys: ['description'], canPublish: true });
+      case 'get_admin_context': return reply({ roles: ['editor'], canWrite: true, canUseAi: options.allowAi !== false, ordinaryCatalog: true, supportsCatalogSourceAndProductType: true, canUploadImages: options.media === true, editableFieldKeys: [...(options.denyDescription ? [] : ['description']), ...(options.sheet ? ['seo_title', 'seo_description'] : [])], canPublish: true });
       case 'get_product': return reply({
         product: { productId, sku: saved.sku, entityType: 'simple', isActive: true },
         shopifyLive: sent ? { available: true, mapped: true, publicationStatus: 'DRAFT' } : { available: false, mapped: false }, history: [],
@@ -89,8 +89,16 @@ async function simulate(page: Page, options: { readError?: boolean; legacy?: boo
         uploadKeys.push(input.idempotencyKey);
         if (uploadKeys.length === 1) return route.fulfill({ status: 503, json: { error: { code: 'INTERNAL_ERROR' } } });
         return reply({ media: { id: 'file-1', state: 'READY', url: initial.images[0].url, alt: input.alt } });
-      case 'get_field_definitions': return reply({definitions:[{key:'description',label:'Descrizione',editor_type:'richtext',data_type:'text',visible:true,editable:true,ai_allowed:true,manual_only:false,validation_rules:{}}]});
+      case 'get_field_definitions': {
+        const def = {key:'description',label:'Descrizione',editor_type:'richtext',data_type:'text',visible:true,editable:true,ai_allowed:true,manual_only:false,validation_rules:{}};
+        return reply({definitions:[def, ...(options.sheet ? [
+          {...def, key:'seo_title', editor_type:'text'}, {...def, key:'seo_description', editor_type:'textarea'},
+          {...def, key:'tags', editor_type:'multiselect', data_type:'json', ai_allowed:false},
+          ...(options.noTypeDomain ? [] : [{...def, key:'shopify_product_type', editor_type:'select', shopify_mapping:{ type:'core',field:'productType' }, validation_rules:{enum:['Alberi','Arbusti']}}]),
+        ] : [])]});
+      }
       case 'suggest_confirmed_field': {
+        expect(Object.keys(input).sort()).toEqual(['action','confirmed','facts','fieldKey','requestKey']);
         expect(input.fieldKey).toBe('description');
         expect(input.confirmed).toBe(true);
         const failure = failures.shift();
@@ -113,7 +121,7 @@ async function simulate(page: Page, options: { readError?: boolean; legacy?: boo
       default: unexpected.push(action); return route.fulfill({ status: 403, json: { ok: false } });
     }
   });
-  return { calls, unexpected, uploadKeys, advanceVersion: () => { version++; } };
+  return { calls, unexpected, uploadKeys, saved: () => structuredClone(saved), advanceVersion: () => { version++; } };
 }
 
 test('scheda reale: proposta immediata, refresh, scarto, obsolescenza e applicazione interna', async ({ page }) => {
@@ -276,11 +284,10 @@ for (const width of [390,1280]) test('AI descrizione vuota: errore, riprova e sa
   await page.goto('/admin/products/new');
   await page.getByLabel('Nome prodotto (obbligatorio)').fill('Quercus robur');
   await page.getByRole('textbox',{name:'Prezzo di vendita 1'}).fill('10');
-  await page.getByText('Aiuto AI per la descrizione (facoltativo)').click();
-  const panel = page.getByRole('region',{name:'Assistenza AI Descrizione'});
+  const panel = page.getByRole('region',{name:'Assistenza AI nuova scheda'});
   const description = page.getByRole('textbox',{name:'Descrizione verificata'});
-  const facts = panel.getByRole('textbox',{name:/Informazioni fattuali/});
-  const run = panel.getByRole('button',{name:'Organizza le informazioni con AI'});
+  const facts = panel.getByRole('textbox',{name:/Informazioni verificate/});
+  const run = panel.getByRole('button',{name:/Completa scheda con AI|Riprova la descrizione/});
   await facts.fill('breve');
   await panel.getByRole('checkbox').check();
   await run.press('Enter');
@@ -307,7 +314,7 @@ for (const width of [390,1280]) test('AI descrizione vuota: errore, riprova e sa
   await expect(alert).toHaveCount(0);
   await expect(panel.getByRole('status')).toContainText('righe originali');
   await expect(description).toHaveText('');
-  const apply=panel.getByRole('button',{name:'Applica alla compilazione'});
+  const apply=panel.getByRole('button',{name:'Applica Descrizione',exact:true});
   page.once('dialog',dialog=>dialog.dismiss());
   await apply.press('Enter');
   await expect(description).toHaveText('');
@@ -351,6 +358,161 @@ test('AI descrizione editor senza grant: compilazione manuale disponibile', asyn
   const model=await simulate(page,{allowAi:false});
   await page.goto('/admin/products/new');
   await expect(page.getByRole('textbox',{name:'Descrizione verificata'})).toBeEditable();
-  await expect(page.getByText('Aiuto AI per la descrizione (facoltativo)')).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Completa scheda con AI'})).toHaveCount(0);
   expect(model.calls).not.toContain('suggest_confirmed_field');
+});
+
+test('Scheda AI Editor: approvazione parziale e cumulativa, due formati e riapertura interna', async ({page}) => {
+  const model = await simulate(page, {sheet:true});
+  await page.goto('/admin/products/new');
+  await page.getByLabel('Nome prodotto (obbligatorio)').fill('Quercus robur');
+  await page.getByRole('button',{name:'Aggiungi formato'}).click();
+  await page.getByLabel('Nome formato 1',{exact:true}).fill('Piccolo');
+  await page.getByLabel('Nome formato 2',{exact:true}).fill('Grande');
+  await page.getByLabel('Prezzo di vendita 1',{exact:true}).fill('12.00');
+  await page.getByLabel('Prezzo di vendita 2',{exact:true}).fill('17.50');
+  const advanced = page.getByText('Opzioni avanzate',{exact:true});
+  await advanced.click();
+  const sku = await page.locator('#sku').inputValue();
+  await page.locator('#vendor').fill('Fornitore manuale');
+  await page.locator('#tags').fill('Tag manuale');
+  await page.getByText('SEO facoltativa').click();
+  await page.locator('#seoTitle').fill('SEO manuale');
+  await advanced.click();
+
+  const assistant = page.getByRole('region',{name:'Assistenza AI nuova scheda'});
+  await assistant.getByRole('textbox',{name:'Informazioni verificate'}).fill(verifiedParagraph);
+  await assistant.getByRole('checkbox').check();
+  await assistant.getByRole('button',{name:'Completa scheda con AI'}).click();
+  const preview = assistant.getByRole('region',{name:'Proposte per la bozza'});
+  await expect(preview.getByRole('heading',{level:4})).toHaveCount(5);
+  await expect(preview.getByLabel('Tipo verificato')).toHaveValue('');
+  await expect(preview.getByRole('button',{name:'Applica Tipo prodotto'})).toHaveCount(0);
+  await expect(page.getByRole('textbox',{name:'Descrizione verificata',exact:true})).toHaveText('');
+  page.once('dialog',d => d.accept());
+  await preview.getByRole('button',{name:'Applica Descrizione',exact:true}).click();
+  await expect(page.getByRole('textbox',{name:'Descrizione verificata',exact:true})).toHaveText(verifiedParagraph);
+  await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+  await page.getByRole('button',{name:'Indietro'}).click();
+  await expect(assistant.getByLabel('Informazioni verificate',{exact:true})).toHaveValue(verifiedParagraph);
+  await expect(preview.getByRole('group',{name:'Descrizione',exact:true})).toContainText('Presente nella bozza');
+  await preview.getByLabel('Tipo verificato').selectOption('Alberi');
+  await preview.getByLabel('Proposta Titolo SEO').fill('Quercus robur verificata');
+  await advanced.click();
+  await page.locator('#seoTitle').fill('SEO modificato durante la revisione');
+  await advanced.click();
+  const all = preview.getByRole('button',{name:'Applica tutte le proposte disponibili'});
+  const cancelled = page.waitForEvent('dialog');
+  const firstClick = all.click();
+  const dialog = await cancelled;
+  expect(dialog.message()).toContain('Sostituirai i valori già inseriti in Titolo SEO, Tag.');
+  await dialog.dismiss();
+  await firstClick;
+  await advanced.click();
+  await expect(page.locator('#seoTitle')).toHaveValue('SEO modificato durante la revisione');
+  await expect(page.locator('#tags')).toHaveValue('Tag manuale');
+  await expect(page.locator('#productType')).toHaveValue('');
+  await advanced.click();
+  page.once('dialog',d=>d.accept());
+  await all.click();
+  expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(1);
+  expect(model.calls).not.toContain('save_new_product');
+  await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+  await page.getByRole('button',{name:'Verifica anteprima'}).click();
+  await page.getByRole('checkbox',{name:/Confermo i dati/}).check();
+  page.once('dialog',d=>d.accept());
+  await page.getByRole('button',{name:'Salva bozza nell’Admin'}).click();
+  await page.getByRole('link',{name:'Apri scheda prodotto e storico'}).click();
+  await page.reload();
+  const summary = page.getByRole('heading',{name:'Riepilogo della bozza interna salvata'}).locator('..');
+  for (const label of ['Quercus robur verificata','Alberi','Fornitore manuale',sku]) {
+    await expect(summary.getByText(label,{exact:true})).toBeVisible();
+  }
+  const saved = model.saved();
+  expect(saved).toMatchObject({title:'Quercus robur',description:'<p>'+verifiedParagraph+'</p>',seoTitle:'Quercus robur verificata',
+    seoDescription:verifiedParagraph,tags:['Quercus robur'],productType:'Alberi',sku,currency:'EUR',vendor:'Fornitore manuale',
+    variants:[{sku:sku+'-1',option:'Piccolo',price:'12.00'},{sku:sku+'-2',option:'Grande',price:'17.50'}]});
+  expect(model.calls.filter(a=>a==='save_new_product')).toHaveLength(1);
+  expect(model.calls).not.toContain('create_shopify_draft');
+  expect(model.unexpected).toEqual([]);
+});
+
+test('Scheda AI Editor: un campo negato lascia utilizzabili gli altri', async ({page}) => {
+  const model = await simulate(page, {sheet:true,denyDescription:true});
+  await page.goto('/admin/products/new');
+  await page.getByLabel('Nome prodotto (obbligatorio)').fill('Nome verificato');
+  const assistant=page.getByRole('region',{name:'Assistenza AI nuova scheda'});
+  await assistant.getByLabel('Informazioni verificate',{exact:true}).fill(verifiedParagraph);
+  await assistant.getByRole('checkbox').check();
+  await assistant.getByRole('button',{name:'Completa scheda con AI'}).click();
+  await expect(assistant.getByRole('group',{name:'Descrizione',exact:true})).toContainText('permesso di modifica');
+  page.once('dialog',d=>d.accept());
+  await assistant.getByRole('button',{name:'Applica Titolo SEO'}).click();
+  await expect(page.locator('#seoTitle')).toHaveValue('Nome verificato');
+  await expect(page.getByRole('textbox',{name:'Descrizione verificata',exact:true})).toHaveText('');
+  expect(model.calls).not.toContain('suggest_confirmed_field');
+  expect(model.calls).not.toContain('save_new_product');
+});
+
+test('Scheda AI Editor: il cambio nome scarta la risposta in ritardo e conserva i fatti', async ({page}) => {
+  const model = await simulate(page, {sheet:true});
+  let started!: () => void;
+  const requestStarted = new Promise<void>(resolve => { started=resolve; });
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release=resolve; });
+  await page.route('**/functions/v1/product-admin-ai', async route => {
+    started();
+    await pending;
+    await route.fulfill({ json:{ok:true,value:'<p>'+verifiedParagraph+'</p>',source:'model'} });
+  });
+  await page.goto('/admin/products/new');
+  const title=page.getByLabel('Nome prodotto (obbligatorio)');
+  const assistant=page.getByRole('region',{name:'Assistenza AI nuova scheda'});
+  await title.fill('Prima scheda');
+  await assistant.getByLabel('Informazioni verificate',{exact:true}).fill(verifiedParagraph);
+  await assistant.getByRole('checkbox').check();
+  await assistant.getByRole('button',{name:'Completa scheda con AI'}).click();
+  await requestStarted;
+  await title.fill('Seconda scheda');
+  release();
+  await expect(assistant.getByRole('button',{name:'Completa scheda con AI'})).toBeDisabled();
+  await expect(assistant.getByLabel('Informazioni verificate',{exact:true})).toHaveValue(verifiedParagraph);
+  await expect(assistant.getByRole('checkbox')).not.toBeChecked();
+  await expect(assistant.getByRole('region',{name:'Proposte per la bozza'})).toHaveCount(0);
+  expect(model.calls).not.toContain('save_new_product');
+});
+
+test('Scheda AI Editor: metadata utilizzabili durante errore provider e campo escluso preservato al retry', async ({page}) => {
+  const model = await simulate(page,{sheet:true,noTypeDomain:true,aiFailures:['AI_PROVIDER_ERROR']});
+  await page.goto('/admin/products/new');
+  await page.getByLabel('Nome prodotto (obbligatorio)').fill('Quercus robur');
+  await page.getByRole('checkbox',{name:categoryName}).check();
+  await page.getByText('Opzioni avanzate',{exact:true}).click();
+  await page.locator('#tags').fill('Tag originale');
+  const assistant=page.getByRole('region',{name:'Assistenza AI nuova scheda'});
+  await assistant.getByLabel('Informazioni verificate',{exact:true}).fill(verifiedParagraph);
+  await assistant.getByRole('checkbox').check();
+  await assistant.getByRole('button',{name:'Completa scheda con AI'}).click();
+  await expect(assistant.getByRole('alert')).toBeVisible();
+  await expect(assistant.getByRole('group',{name:'Tipo prodotto',exact:true})).toContainText('Manca un elenco verificato');
+  await expect(assistant.getByRole('group',{name:'Tag',exact:true})).toContainText('Quercus robur, '+categoryName);
+  await assistant.getByRole('button',{name:'Escludi Tag',exact:true}).click();
+  await assistant.getByLabel('Proposta Titolo SEO').fill('Nome SEO rivisto');
+  page.once('dialog',d=>d.accept());
+  await assistant.getByRole('button',{name:'Applica tutte le proposte disponibili'}).click();
+  await expect(page.locator('#seoTitle')).toHaveValue('Nome SEO rivisto');
+  await expect(page.locator('#tags')).toHaveValue('Tag originale');
+  await expect(page.locator('#productType')).toHaveValue('');
+  await expect(page.getByRole('textbox',{name:'Descrizione verificata',exact:true})).toHaveText('');
+  await assistant.getByRole('button',{name:'Riprova la descrizione'}).click();
+  await expect(assistant.getByRole('alert')).toHaveCount(0);
+  await expect(assistant.getByRole('button',{name:'Includi Tag',exact:true})).toBeVisible();
+  await expect(assistant.getByLabel('Proposta Titolo SEO')).toHaveValue('Nome SEO rivisto');
+  await assistant.getByRole('button',{name:'Scarta anteprima'}).click();
+  await expect(assistant.getByRole('region',{name:'Proposte per la bozza'})).toHaveCount(0);
+  await expect(page.locator('#tags')).toHaveValue('Tag originale');
+  await expect(page.locator('#seoTitle')).toHaveValue('Nome SEO rivisto');
+  expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(2);
+  expect(model.calls).not.toContain('save_new_product');
+  expect(model.unexpected).toEqual([]);
 });

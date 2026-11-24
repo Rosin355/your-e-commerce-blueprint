@@ -2,6 +2,29 @@
 
 **Stato al termine dell’intervento — FIX IN PR, PASS tecnico, collaudo live aperto.** La versione pubblicata di riferimento è `index-jqOemgjy.js`. SAL **57,75%**.
 
+## Completa scheda con AI · esito sulla stessa PR #73
+
+Implementati sulla base isolata i requisiti aggiunti al verbale del titolare. **PASS tecnico** per l’anteprima con cinque righe, le approvazioni parziali o cumulative, gli errori e la riapertura interna simulata. **BLOCKED in produzione** per il suggerimento automatico del tipo finché il registro non fornisce un dominio approvato. Collaudo autentico con Marco da eseguire.
+
+| Campo | Origine e condizione di applicazione |
+| --- | --- |
+| Descrizione obbligatoria | Una richiesta alla Edge già corretta in questa PR. L’anteprima indica se il risultato deriva dal modello o dalla ricomposizione delle righe originali. Si può correggere o escludere la proposta. |
+| Titolo SEO | Copia del nome confermato, massimo 70 caratteri e vincoli del registro. Richiede il campo modificabile per l’account. |
+| Meta description SEO | Prima riga confermata che rispetta integralmente i vincoli, massimo 320 caratteri. Se manca, la riga resta da compilare. |
+| Tag | Copia letterale del nome e delle categorie selezionate nella bozza. Si verificano registro, duplicati, lunghezza e prefissi logistici. I tag presenti vengono sostituiti solo dopo conferma specifica. |
+| Tipo prodotto | Dominio chiuso della definizione mappata al tipo Shopify. In caso di corrispondenza univoca si propone il valore. Se occorre una scelta compare l’elenco consentito. Un registro privo di dominio produce una motivazione e lascia proseguire. |
+
+Il 24 novembre una lettura delle sole definizioni di Lovable Cloud ha confermato `description`, `seo_title` e `seo_description` modificabili con AI abilitata nel registro, e `tags` modificabile con AI disabilitata. La policy per l’invio al modello consente la descrizione. Il frontend copia localmente nome, etichette e righe verificate nei metadati della bozza su approvazione dell’Editor. La lettura non ha trovato una definizione mappata a `productType`. L’unica colonna denominata `product_type` nello schema pubblico appartiene allo staging CSV. I valori importati e le collezioni, da soli, non attestano tipi approvati.
+
+**Prove sull’estensione**
+
+- Typecheck, build operativa e lint mirato superati. Entry locale `index-BuUb1t_n.js`, SHA-256 `9f7dc7f1b8a09f81114ca110199b955f3c5307e8c7855f3ae17e2ce77fbada35`. Deno check superato sulla Edge della PR.
+- 83 test Node su composizione, validazione, permessi esistenti, proposta da fatti e assistente su prodotto esistente. Un ulteriore test del vero handler HTTP con sette scenari e servizi simulati. Verificati prenotazione, rifiuto permessi, provider, fallback e limiti di campo.
+- 10 test Chromium con servizi simulati e rete esterna bloccata. Compresi tastiera, 390 e 1280 px, due formati, SKU, EUR, fornitore e prezzi, approvazione singola e cumulativa, esclusione, conferma annullata, modifica manuale durante la revisione, errore provider, riprova, risposta in ritardo dopo cambio nome, salvataggio e riapertura dopo ricarica. Verificata l’assenza di invii a Shopify.
+- Ripetizione browser dalla radice: `npm run test:editor-browser -- --workers=1 -g 'AI descrizione|Scheda AI Editor|AI da fatti confermati: campo vuoto|scheda reale: proposta immediata'`. La suite usa dati sintetici e intercetta le richieste dell’Admin. Il collaudo registrato ha inoltre bloccato il traffico esterno di Chromium.
+
+**Decisione di rilascio**. GO tecnico per la sola Edge già corretta in `8fb057f`. Prima del deploy occorrono snapshot verificato della funzione attiva e autorizzazione. GO tecnico alla preparazione dell’anteprima autenticata sullo SHA approvato. Eseguire il collaudo autentico con un Editor autorizzato e la Edge verificata. NO-GO al Publish fino al suo esito e al successivo GO del responsabile. Per i passi e il rollback consultare il [registro del rilascio](../release/ADMIN-V2-MARCO-RELEASE-2026-11-24.md#estensione-della-pr-73--scheda-assistita). SAL **57,75%**.
+
 ## Esito della diagnosi
 
 Ho riprodotto il rifiuto sul sorgente distribuito `5a37f71`: un paragrafo con due frasi confermate passa quando il provider lo restituisce identico. Cambiare soltanto il punto finale in un punto esclamativo fa fallire il confronto estrattivo. Prima della correzione lo stesso HTTP 422 `VALIDATION_ERROR` copriva fatti non validi, testo riformulato e vincoli del campo. La chiamata dell’assistente invia fatti, chiave del campo, conferma e chiave della richiesta. Può partire con la descrizione vuota.
@@ -16,6 +39,8 @@ La lettura aggregata su Lovable Cloud ha confermato che `description` è un camp
 - Un avviso con ruolo accessibile, testo rosso, bordo e icona identifica gli errori nelle schede AI di creazione e di modifica. Un errore con riferimento permette al gestore di cercare la fase. La nuova diagnostica registra azione, ID della richiesta, campo, fase e codice. Fatti, proposte, token e identità restano esclusi dalle tracce.
 
 ## Verifiche e rilascio
+
+Prove storiche del solo fix descrizione a `8fb057f`. Per i risultati e l’asset correnti vedere la sezione sulla scheda assistita sopra.
 
 | Verifica | Esito sul candidato |
 | --- | --- |

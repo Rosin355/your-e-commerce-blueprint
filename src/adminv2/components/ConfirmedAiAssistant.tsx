@@ -4,26 +4,13 @@ import { Textarea } from '@/components/ui/textarea';
 import AiErrorNotice from './AiErrorNotice';
 import FieldEditor from './FieldEditor';
 import { suggestConfirmedField, type AdminField } from '../lib/adminApi';
-import { AdminApiError } from '../lib/AdminApiError';
+import { explainAiRequestError } from '../lib/explainAiError';
 import { confirmedFacts } from '../../../supabase/functions/_shared/admin-ai-facts';
 
 interface Props {
   field: Pick<AdminField, 'key' | 'label' | 'editorType' | 'dataType' | 'validationRules' | 'required'>;
   onApply: (value: unknown) => void;
   generate?: typeof suggestConfirmedField;
-}
-
-function explainError(error: unknown) {
-  if (!(error instanceof AdminApiError)) return 'Impossibile preparare la proposta. I fatti inseriti sono conservati. Puoi riprovare.';
-  switch (error.code) {
-    case 'VALIDATION_ERROR': return 'Il servizio non ha convalidato la richiesta. I fatti inseriti sono conservati. Puoi riprovare oppure compilare la descrizione a mano.';
-    case 'FORBIDDEN': return 'Il tuo account non è autorizzato a usare l’AI su questo campo. Puoi continuare a mano.';
-    case 'RATE_LIMITED': case 'AI_NOT_CONFIGURED': case 'AI_PROVIDER_ERROR': case 'AI_TIMEOUT':
-    case 'INVALID_CONFIRMED_FACTS': case 'INVALID_MODEL_PROPOSAL': case 'INVALID_FIELD_VALUE': case 'AI_CONNECTION_ERROR':
-    case 'MALFORMED_AI_OUTPUT': case 'AI_NOT_ALLOWED': case 'WRITES_DISABLED': case 'UNAUTHENTICATED':
-      return error.message;
-    default: return 'Impossibile completare la proposta. I fatti inseriti sono conservati.';
-  }
 }
 
 export default function ConfirmedAiAssistant({field, onApply, generate = suggestConfirmedField}: Props) {
@@ -60,8 +47,7 @@ export default function ConfirmedAiAssistant({field, onApply, generate = suggest
       if (revision.current === current) setProposal(result);
     } catch (cause) {
       if (revision.current === current) {
-        const reference = cause instanceof AdminApiError ? cause.details?.requestId : null;
-        setError(explainError(cause) + (typeof reference === 'string' && /^[0-9a-f-]{36}$/i.test(reference) ? ' Riferimento ' + reference : ''));
+        setError(explainAiRequestError(cause));
       }
     } finally {
       inFlight.current = false;
