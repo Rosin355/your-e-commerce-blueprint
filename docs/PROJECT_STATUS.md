@@ -1,5 +1,9 @@
 ## Consegna del registro storico
 
+## Stato al 23 novembre 2026
+
+Operativi vetrina, carrello, ingresso al checkout, account e Admin V2 r2. Visitor Analytics spenta dal proprietario, zero richieste al collettore nelle due sessioni indipendenti. PR #69 funzionale, rilascio NO-GO per la classificazione Shopify. Cinque candidati r4 in revisione. Restano prova Dev per le isole, accettazione personale e finestra DNS. SAL originale 57,75%. Readiness del nuovo negozio 4/10 criteri. [Verbale del 23 novembre](release/FINAL-HANDOVER-2026-11-23.md) · [Scheda unica per Marco](release/FINAL-CLIENT-APPROVALS.md)
+
 **PASS.** Archiviati privatamente 858 account e 953 acquisti aggregati. Controllo riga per riga, replay e copia privata verificati. Zero associazioni Shopify e zero ordini individuali recuperati/importati. SAL ufficiale 57,75%. [Rapporto di consegna](release/FINAL-DELIVERY-2026-11-22.md)
 
 ## Riscontro commerciale del 22 novembre 2026

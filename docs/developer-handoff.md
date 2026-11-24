@@ -1,5 +1,9 @@
 # Online Garden — developer handoff
 
+## Consegna operativa · 23 novembre
+
+Base main 91c89f4 e PR #69 a5f319a. Nuovo controllo pubblico ripetibile con `node scripts/qa/probe-visitor-analytics.mjs --live-off`, senza sostituzioni di rete. Il test mirato del candidato conserva fetch e restituisce NO-GO sugli eventi aperti. Due test del registro staff superati con fixture locale. Il verbale elenca versioni di ritorno, dipendenze e responsabili per ogni superficie. [Verbale del 23 novembre](release/FINAL-HANDOVER-2026-11-23.md) · [Scheda unica per Marco](release/FINAL-CLIENT-APPROVALS.md)
+
 ## Registro storico aggregato
 
 Il registro SQLite è privato e indipendente dai servizi del negozio. La route aggiuntiva `/admin/storico-acquisti` usa il controllo ruoli esistente e un frame senza accesso di rete. Non distribuire file di conteggi o decisioni nel frontend. [Acquisizione e ripristino](migration/woocommerce-history-2026-11-20.md#registro-definitivo-dei-conteggi) · [Consegna](release/FINAL-DELIVERY-2026-11-22.md)

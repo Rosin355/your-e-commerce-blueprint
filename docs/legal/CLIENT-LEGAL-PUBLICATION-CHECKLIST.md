@@ -1,18 +1,39 @@
-# Fascicolo delle informative · decisione del titolare
+# Fascicolo delle informative e dei contatti Shopify
 
-Al 22 novembre 2026 M.G. PLANT DI GERON MARCO e la sede d’impresa sono confermate dal responsabile sulla base della visura del 22/03/2024. Gli identificativi sono riportati nei termini. Nessun indirizzo di residenza privata è utilizzato. L’unica informativa pubblicata in Shopify è la privacy del 30 ottobre. Il footer e il dialogo del checkout la rendono consultabile.
+## Revisione 4 del 23 novembre 2026
 
-| Candidato | Già verificato | Informazioni indispensabili per il testo pubblico |
-|---|---|---|
-| [Condizioni di vendita](DRAFT-TERMS-AND-CONDITIONS-2026-11-22.md) | Venditore, identificativi, sede d’impresa, PEC, assistenza, checkout ospite | Telefono commerciale, momento di accettazione, conferma durevole, condizioni effettive di consegna e recesso, eventuali obblighi ADR |
-| [Spedizioni](CANDIDATE-SHIPPING-2026-11-22.md) | Due listini con fasce complete, misto A. Prove in checkout su importi distinti | Servizio e copertura effettiva, tempi di preparazione e consegna, estero, verifica integrale per le isole minori prima di annunciarne l’applicazione |
-| [Resi e rimborsi](CANDIDATE-RETURNS-2026-11-22.md) | Termini legali, modulo tipo, rimborsi e verifica per singolo bene deperibile | Magazzino/indirizzo di restituzione, chi sostiene le spese, costo quando il bene non è normalmente restituibile per posta, eccezioni documentate e funzione elettronica realmente accessibile con ricevuta |
-| [Revisione privacy](DRAFT-PRIVACY-POLICY-REVIEW-2026-11-22.md) | Confronto con l’intero testo Shopify, contatti per diritti, ruoli e servizi distinti | Registro finalità/basi, fornitori e ruoli effettivi, conservazione e trasferimenti, servizi avanzati/marketing, eventuale DPO solo se designato |
-| [Cookie e preferenze](CANDIDATE-COOKIES-2026-11-22.md) | Inventario prima della scelta e dopo carrello, prove rete, cookie e storage. Soppressione locale sperimentata | Risposta hosting sul trattamento, inventario Customer Events in Admin, scelta e prove preventive, rifiuto/revoca e persistenza se dovuti |
+Cinque testi candidati negli stessi file della r3. Ogni SHA-256 identifica i byte UTF-8 che seguono la riga del marcatore iniziale fino al marcatore finale escluso, compreso il ritorno a capo finale. Una modifica al testo richiede nuova impronta e approvazione. Il titolare può rivedere questa versione ora. La pubblicazione richiede che siano stati inseriti i dati mancanti e verificati i servizi descritti. [Scheda unica di Marco](../release/FINAL-CLIENT-APPROVALS.md)
 
-**Flusso di pubblicazione.** Il responsabile integra i dati commerciali e conferma la revisione con il consulente. Registra separatamente la versione approvata di ciascun testo. Prima delle modifiche esportare privatamente le policy e i relativi URL attuali. L’operatore autorizzato aggiorna i tipi nativi in Shopify e verifica la lingua, la lettura nel checkout, il collegamento dalla vetrina e la conferma su supporto durevole. Per la Cookie Policy, se manca uno spazio nativo dedicato, usare una pagina approvata e raggiungibile con link coerenti e il meccanismo di preferenze pertinente. Evitare copie divergenti della privacy o pagine frontend con campi redazionali aperti. In caso di errore ripristinare testo e link dell’ultima versione valida. L’accettazione della prova documentale non equivale ad autorizzazione alla pubblicazione.
+| Testo da approvare | SHA-256 del corpo cliente r4 |
+|---|---|
+| [Termini e condizioni](DRAFT-TERMS-AND-CONDITIONS-2026-11-22.md) | `b97c5607d6ca0c0402663930c6f9ab90d19e80850e88f95a6ef7bb302465e20e` |
+| [Privacy Policy](DRAFT-PRIVACY-POLICY-REVIEW-2026-11-22.md) | `9ee1d6c86395bca92db2758f9e5d7fe29dbb8f3a041cc7cb38644f0c3d64ca60` |
+| [Spedizione e consegna](CANDIDATE-SHIPPING-2026-11-22.md) | `d292e5264e6c90ea123327358a845390d3f3f15d6437917b2912a5d067a8f8ad` |
+| [Resi e rimborsi](CANDIDATE-RETURNS-2026-11-22.md) | `939eac108aad57e0150366524879c5e00a6c70d5d3929ade0ffefbf894ab7449` |
+| [Cookie Policy](CANDIDATE-COOKIES-2026-11-22.md) | `afe8c7b7c8c0182e196cadb54ba0fa4fd934bb390b00f7de256d804d24270e15` |
 
-L’inventario e i candidati possono essere esaminati ora. L’esposizione nel negozio resta sospesa. [Richiesta unica](../release/FINAL-CLIENT-APPROVALS.md) · [Checklist personale](../release/PRODUCTION-HANDOVER.md#unica-checklist-di-accettazione-personale) · [Documentazione del footer già distribuito](FOOTER-AND-POLICY-INTEGRATION.md)
+## Informazioni di contatto per il campo nativo Shopify
+
+> M.G. PLANT DI GERON MARCO
+>
+> Via San Giovanni 25, 35010 Santa Giustina in Colle (PD), Italia
+>
+> P. IVA 04347360242 · C.F. GRNMRC86R20B563H · REA PD-464045
+>
+> Email di assistenza e reclami: info@onlinegarden.it
+>
+> PEC: geronmarco@pec.agritel.it
+
+La scheda negozio contiene un telefono. Aggiungere il numero destinato all’assistenza dopo la conferma di Marco, prima del salvataggio. La sede indicata riceve comunicazioni. La destinazione fisica dei resi ha un campo separato nella scheda decisionale.
+
+## Unica sessione autorizzata di pubblicazione
+
+1. Selezionare Online Garden, verificare dominio, lingua italiana, cinque corpi completi e versione approvata dei contatti. Registrare in privato versione, operatore e orario. Salvare gli attuali testi completi, URL, stato automatico/manuale della Privacy e collegamenti. Il 23/11 la lettura Admin API ha restituito soltanto PRIVACY_POLICY, aggiornata il 30/10 alle 15:02 UTC. Il footer italiano e il checkout la espongono.
+2. In **Impostazioni → Informative** inserire Termini, Privacy, Spedizioni, Resi e Informazioni di contatto nelle rispettive sedi. Applicare titoli e tabelle nell’editor, preservando tutti i valori A/B. Verificare preventivamente se l’aggiornamento automatico della Privacy interferisce con la versione firmata. Per Cookie, predisporre una pagina Shopify raggiungibile tramite URL pubblico, oppure una destinazione pubblicabile sulla vetrina headless se la pagina Shopify non è raggiungibile. Il relativo collegamento sulla vetrina rientra nel Publish frontend autorizzato.
+3. Usare la versione approvata del solo corpo cliente. Verificare nel rendering italiano di ciascuna destinazione testo normalizzato, dati di contatto, accenti, importi, tabelle e link. Registrare URL canonici e evidenza del contenuto visualizzato; aggiornare la lista dei link in `src/config/legal.ts` solo con destinazioni realmente pubbliche. La configurazione del footer fa parte del rilascio della vetrina. Verificare da ospite su mobile/desktop anche le informative native nel dialogo del checkout, il percorso di preferenze e il recesso.
+4. Se un salvataggio fallisce, interrompere la sequenza, annotare quali campi sono effettivamente pubblicati e ripristinare testi, pagine e collegamenti dalla copia precedente. I salvataggi Shopify sono distinti. Una sessione unica richiede questa riconciliazione. Verificare dal pubblico il ripristino prima di riaprire il rilascio. [Documentazione Shopify](https://help.shopify.com/en/manual/checkout-settings/refund-privacy-tos)
+
+## Revisioni precedenti
 
 ## Pacchetto candidato del 22 novembre, revisione 3
 
