@@ -192,3 +192,18 @@ test('formati e prezzi: valori ambigui, duplicati e confronto non maggiore sono 
 test('nuova bozza rifiuta HTML attivo anche senza editor frontend', () => {
   const input=fixture();input.description='<img src=x onerror="alert(1)">';assert.throws(()=>validateDraft(input),/HTML/);
 });
+
+test('nuova bozza normalizza tutti i calendari prima di validare e non riscrive la sorgente', () => {
+  const original = { ...fixture(), botanical: {
+    periodo_di_fioritura:['Novembre','Maggio','Febbraio','Febbraio'],
+    periodo_di_messa_a_dimora:['Dicembre','Gennaio','Aprile'],
+    periodo_di_raccolta:['Febbraio','Novembre'], periodo_ottimale_di_potatura:['Novembre','Maggio'],
+  } };
+  const draft = validateDraft(original);
+  assert.deepEqual(draft.botanical,{
+    periodo_di_fioritura:['Febbraio','Maggio','Novembre'], periodo_di_messa_a_dimora:['Gennaio','Aprile','Dicembre'],
+    periodo_di_raccolta:['Febbraio','Novembre'], periodo_ottimale_di_potatura:['Maggio','Novembre'],
+  });
+  assert.equal(original.botanical.periodo_di_fioritura[0],'Novembre');
+  assert.throws(()=>validateDraft({...original,botanical:{periodo_di_fioritura:['Inverno']}}),/mesi validi/);
+});

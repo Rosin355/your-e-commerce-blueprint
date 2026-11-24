@@ -1,3 +1,11 @@
+## Collaudo Admin · stato di rilascio
+
+Il vecchio gestionale ha superato una prova isolata con il nuovo servizio. Sono pronti i file per il ripristino. Il collaudo personale di Marco verrà svolto dopo il rilascio autorizzato. La SAL resta **57,75%**. [Procedura e stato](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#registro-di-preparazione-admin-v2)
+
+## Creazione prodotti · 24 novembre 2026
+
+La versione in revisione permette di creare una bozza con nome, descrizione e prezzo senza inventare codici. I mesi selezionati si ritrovano riaprendo la scheda. Marco potrà confermare l’autonomia sul proprio dispositivo e usare l’AI con i propri permessi dopo l’approvazione del rilascio. La prova tecnica non modifica la SAL del **57,75%**. [Guida per Marco](admin-v2/CLIENT-GUIDE.md)
+
 ## Riscontro del responsabile — Visitor Analytics disattivata, 23 novembre 2026
 
 Il responsabile ha comunicato di avere **disattivato Visitor Analytics in Lovable** e di non avere osservato **alcuna richiesta `trackevents` nel Network** dopo la modifica. **Esito: positivo ma limitato al test manuale dichiarato.** La conferma indipendente delle condizioni di test (profilo pulito/Italia, più pagine, Safari, carrello, account e Admin autenticato) resta da eseguire; l'assenza osservata non dimostra l'assenza di qualsiasi altra telemetria. **Project monitoring deve rimanere attivo**, senza riabilitare Visitor Analytics salvo decisione distinta.

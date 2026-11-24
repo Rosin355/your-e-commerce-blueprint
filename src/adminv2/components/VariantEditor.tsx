@@ -1,21 +1,51 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
-import type { ProductDraft } from '../../../supabase/functions/_shared/admin-operational-core';
-export default function VariantEditor({ sku, currency = 'EUR', variants, onChange }: { currency?: string; sku: string; variants: ProductDraft['variants']; onChange: (variants: ProductDraft['variants']) => void }) {
-  const [multiple, setMultiple] = useState(variants.length > 1);
+import type { ProductDraft, DraftVariant } from '../../../supabase/functions/_shared/admin-operational-core';
+import { addFormat, type DraftErrors } from '../lib/newDraft';
+
+interface Props {
+  sku: string;
+  currency?: string;
+  variants: DraftVariant[];
+  onChange: (variants: ProductDraft['variants']) => void;
+  errors?: DraftErrors;
+}
+
+export default function VariantEditor({ sku, currency = 'EUR', variants, onChange, errors = {} }: Props) {
   const [compare, setCompare] = useState(variants.some(v => v.compareAtPrice));
-  return <section className="space-y-4"><h2 className="font-semibold">Come vendi questo prodotto?</h2>
-    <div className="flex flex-wrap gap-3" role="group" aria-label="Numero di formati"><Button type="button" variant={!multiple ? 'default' : 'outline'} onClick={() => { if (variants.length > 1 && !window.confirm('Rimuovere gli altri formati dalla compilazione?')) return; setMultiple(false); onChange([{ ...variants[0], sku }]); }}>Un solo formato</Button><Button type="button" variant={multiple ? 'default' : 'outline'} onClick={() => { setMultiple(true); if (variants.length === 1 && sku && variants[0].sku === sku) onChange([{ ...variants[0], sku: `${sku}-1` }]); }}>Più formati</Button></div>
-    <p className="text-sm">Inserisci soltanto formati reali, ad esempio “Vaso diametro 14 cm” o “Confezione da 5 bulbi”. Lo SKU identifica ciascun formato. Indica un prezzo precedente soltanto se documentato e superiore al prezzo di vendita.</p>
-    <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={compare} onChange={e => { if (!e.target.checked && variants.some(v => v.compareAtPrice) && !window.confirm('Rimuovere i prezzi precedenti inseriti?')) return; setCompare(e.target.checked); if (!e.target.checked) onChange(variants.map(v => ({ ...v, compareAtPrice: null }))); }} />Inserisci un prezzo precedente reale (facoltativo)</label>
-    {variants.map((v, i) => <div className="grid gap-3 rounded border p-3 sm:grid-cols-2" key={i}>
-      {(['option', ...(multiple ? ['sku'] : []), 'price', ...(compare ? ['compareAtPrice'] : [])] as ('option'|'sku'|'price'|'compareAtPrice')[]).map(k => <label className="block" key={k}>{({ option: 'Nome formato', sku: 'Codice SKU del formato', price: `Prezzo di vendita (${currency})`, compareAtPrice: `Prezzo precedente (${currency})` })[k]}<Input aria-label={`${k === 'price' ? 'Prezzo di vendita' : k === 'option' ? 'Nome formato' : k === 'sku' ? 'SKU formato' : 'Prezzo precedente'} ${i+1}`} value={v[k] ?? ''} inputMode={k.includes('rice') ? 'decimal' : undefined} onChange={e => onChange(variants.map((x,j) => i===j ? { ...x, [k]: e.target.value } : x))} /></label>)}
-      {!multiple && <p className="text-sm">Codice SKU: {sku || 'inserisci il codice prodotto nel primo passaggio'} — condiviso con il prodotto.</p>}
-      {multiple && variants.length>1 && <Button type="button" variant="outline" onClick={() => onChange(variants.filter((_,j) => i!==j))}>Rimuovi formato {i+1}</Button>}
-      <p className="text-sm">{v.option || 'Formato da indicare'} · {v.price ? `${v.price} ${currency}` : 'Prezzo da indicare'}</p>
+  const multiple = variants.length > 1;
+  function remove(index: number) {
+    const left = variants.filter((_, i) => index !== i);
+    onChange(left.length === 1 ? [{ ...left[0], sku }] : left);
+  }
+  function input(i: number, key: keyof DraftVariant, label: string, required = false) {
+    const id = `variant-${i}-${key}`;
+    return <label className="block">{label} {i + 1}{required && ' (obbligatorio)'}
+      <Input aria-label={label + ' ' + (i + 1)} id={id} required={required} aria-invalid={Boolean(errors[id])}
+        aria-describedby={errors[id] ? id + '-error' : undefined}
+        inputMode={key === 'price' || key === 'compareAtPrice' ? 'decimal' : 'text'}
+        value={variants[i][key] ?? ''} onChange={e => onChange(variants.map((v, j) => j === i ? { ...v, [key]: e.target.value } : v))} />
+      {errors[id] && <span id={id + '-error'} className="text-sm text-destructive">{errors[id]}</span>}
+    </label>;
+  }
+  return <section className="space-y-3" aria-label="Formati e prezzi">
+    <h2 className="font-semibold">Formato e prezzo ({currency})</h2>
+    {variants.map((_, i) => <div key={i} className="space-y-2 rounded border p-3">
+      <div className="grid gap-3 sm:grid-cols-2">{input(i, 'option', 'Nome formato', true)}{input(i, 'price', 'Prezzo di vendita', true)}</div>
+      {compare && input(i, 'compareAtPrice', 'Prezzo precedente')}
+      {multiple && <details><summary className="cursor-pointer">Codice avanzato del formato {i + 1}</summary>{input(i, 'sku', 'SKU formato')}</details>}
+      {multiple && <Button type="button" variant="outline" onClick={() => {
+        if (window.confirm('Rimuovere questo formato dalla bozza?')) remove(i);
+      }}>Rimuovi formato {i + 1}</Button>}
     </div>)}
-    {multiple && <Button type="button" variant="outline" disabled={variants.length>=50} onClick={() => { const used = new Set([sku,...variants.map(v=>v.sku)].map(s=>s.toLowerCase())); let n=1; while(used.has(`${sku}-${n}`.toLowerCase())) n++; onChange([...variants,{ sku: sku ? `${sku}-${n}` : '', option:'', price:'', compareAtPrice:null }]); }}>Aggiungi formato</Button>}
-    <p className="text-sm">Per i prezzi puoi usare la virgola (es. 12,50). Nessuna disponibilità o quantità viene assegnata. I codici proposti devono essere confermati e sono verificati dal server prima del salvataggio; non modificare SKU di prodotti già esistenti.</p>
+    <Button type="button" variant="outline" disabled={variants.length >= 50} onClick={() => onChange(addFormat(variants, sku))}>Aggiungi formato</Button>
+    <details><summary className="cursor-pointer">Prezzo precedente (facoltativo)</summary>
+      <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={compare} onChange={e => {
+        if (!e.target.checked && variants.some(v => v.compareAtPrice) && !window.confirm('Rimuovere i prezzi precedenti inseriti?')) return;
+        setCompare(e.target.checked);
+        if (!e.target.checked) onChange(variants.map(v => ({ ...v, compareAtPrice: null })));
+      }} />Inserisci un prezzo precedente reale</label>
+    </details>
   </section>;
 }

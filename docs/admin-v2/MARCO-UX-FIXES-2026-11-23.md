@@ -1,6 +1,34 @@
 # Online Garden — Admin V2, interventi prioritari dal collaudo Marco (23 novembre 2026)
 
-**Stato:** problemi segnalati dall'utente durante una sessione di collaudo in produzione; analisi statica GitHub del 23/11, **FIX NON IMPLEMENTATI** e nessun nuovo Publish autorizzato. Conservare il collaudo sul prodotto nuovo come evidenza, evitando dati personali o SKU completi del cliente negli esempi. DNS/IONOS sospeso per mancanza dell'accesso autorizzato; nessun cambio NS o record.
+## Preparazione al rilascio del 24 novembre
+
+Superata anche la prova di transizione della UI r2 con la Edge candidata. Preparati snapshot sorgente e rollback. Le verifiche pubbliche e l’AI autentica di Marco attendono i GO di rilascio. [Registro, limiti e sequenza](../release/PR71-RELEASE-CHECKLIST-2026-11-24.md#registro-di-preparazione-admin-v2)
+
+## Verifica tecnica del 24 novembre 2026
+
+**PASS sul candidato da main `fa178bb`. Rilascio e accettazione personale di Marco in attesa.**
+
+| Segnalazione | Causa e modifica | Prova |
+| --- | --- | --- |
+| Troppi campi | Il percorso iniziale richiedeva sei passaggi. Nome, descrizione, formato, prezzo, categoria e foto sono ora nella prima schermata. Il secondo passaggio verifica e salva. Le opzioni avanzate conservano i valori quando richiuse. | Chromium a 1280 e 390 px, tastiera, focus sul primo errore, associazione messaggio-campo, assenza di scorrimento orizzontale, anteprima e riapertura. |
+| SKU obbligatorio a mano | La bozza partiva con due codici vuoti. Ora la nuova compilazione inizializza una famiglia `OG-NP-` con 80 bit casuali. Un formato condivide lo SKU della famiglia, più formati ricevono suffissi distinti. È disponibile la modifica manuale. | Test del validatore, due bozze, varianti, conflitto in anteprima e al salvataggio, rigenerazione esplicita conservando gli altri dati. |
+| Mesi non consecutivi | L’editor inviava l’ordine dei clic e la validazione del registro richiedeva l’ordine cronologico. Gli aggiornamenti funzionali operano sul valore corrente. Il modulo e la validazione server usano `normalizeMonths`. L’ultima deselezione omette il periodo facoltativo dalla bozza. | Quattro calendari indipendenti, Febbraio/Maggio/Novembre, Dicembre/Gennaio/Aprile, clic inversi e rapidi, deselezione intermedia, cambio schermata, salvataggio e riapertura. Due schede esistenti sintetiche hanno conservato il proprio SKU. |
+| AI diversa nella creazione | La chiave React dipendeva da nome e SKU. Una modifica smontava l’assistente e cancellava fatti e proposta. Anche il cambio di passaggio lo smontava. Un unico messaggio mascherava gli errori del servizio. Ora l’assistente mantiene lo stato, invalida le proposte se cambiano i fatti e distingue gli errori. | Handler HTTP reale eseguito con dipendenze sintetiche, prove UI di errori distinti, scarto, conferma esplicita e compilazione manuale. Il codice della singola anomalia osservata da Marco il 23/11 resta sconosciuto. |
+
+### Verifiche sul catalogo e sull’AI
+
+- **Shopify, sola lettura.** Sul negozio collegato la ricerca combinata `productVariants` ha trovato uno SKU esistente anche nel secondo termine e con maiuscole/minuscole diverse. Due codici di prova assenti hanno restituito zero risultati. Il servizio verifica catalogo locale e bozze, ripete la lettura Shopify al primo salvataggio e prima dell’eventuale invio distinto. Un risultato parziale o un servizio indisponibile blocca la verifica. Il vincolo univoco su `sku_norm` e la transazione esistente proteggono le scritture locali concorrenti. Una lettura remota non riserva il codice presso Shopify.
+- **Richiesta AI.** Su nuova bozza e su campo vuoto l’azione è `suggest_confirmed_field`. Invia il campo, le frasi confermate e una chiave di richiesta. Su un campo esistente valorizzato, `generate_ai_suggestion` parte dal prodotto e dalla versione salvata. Il server controlla editor, grant AI e modifica, definizione del campo, limiti e proposta. Nel primo percorso sono ammessi soltanto frammenti identici alle frasi confermate. Il modulo distingue validazione, permessi, limite, configurazione, timeout, errore del provider e risposta malformata.
+- **Riscontri sull’ambiente collegato.** Confermati in lettura definizione `description` abilitata all’AI, quattro definizioni mensili, due grant editor compatibili e presenza di tabella e RPC di prenotazione. La configurazione Lovable elenca il nome `LOVABLE_API_KEY`. Nessun valore acquisito. Due richieste anonime a `product-admin-ai` hanno ricevuto 401. La presenza della chiave e delle prenotazioni non attesta validità della chiave, credito del gateway o esito di una generazione con l’account di Marco. L’esito live resta da registrare sul candidato autorizzato.
+- **Esecuzione locale.** Typecheck TypeScript, build Vite, lint dei file coinvolti e Deno check degli entrypoint superati. Suite mirate con **29 casi Playwright**, **130 test Node** e **18 test Deno**. I browser usano l’applicazione reale con trasporto controllato. Gli esiti dei controlli di integrazione e PostgreSQL sono registrati su GitHub nella PR.
+
+### Rilascio e ripristino
+
+Dopo review e approvazione, distribuire prima `product-admin-api` con i moduli condivisi del commit approvato. In una nuova anteprima autorizzata verificare il segnale `shopifySkuVerified: true` e la rilettura dei mesi. La nuova UI blocca il salvataggio quando risponde la vecchia Edge. Distribuire il frontend su Lovable solo dopo autorizzazione distinta. Il gateway AI e lo schema database esistenti sono sufficienti. Per il ripristino riportare prima il frontend e poi la Edge alle rispettive versioni precedenti. Conservare le bozze interne già salvate e i loro SKU. Una nuova bozza è in memoria fino al salvataggio, quindi avvisare gli operatori prima di ricaricare la pagina.
+
+Il collaudo personale si conclude con una bozza interna e l’esito dell’AI registrato per l’account di Marco. [Checklist della sessione](../release/MARCO-ACCEPTANCE-SESSION-2026-11-23.md)
+
+**Rilevazione iniziale del 23 novembre.** Problemi segnalati dall'utente durante una sessione di collaudo in produzione; analisi statica GitHub del 23/11, **FIX NON IMPLEMENTATI** e nessun nuovo Publish autorizzato. Conservare il collaudo sul prodotto nuovo come evidenza, evitando dati personali o SKU completi del cliente negli esempi. DNS/IONOS sospeso per mancanza dell'accesso autorizzato; nessun cambio NS o record.
 
 ## Evidenze della sessione
 
@@ -10,7 +38,7 @@ Screenshots del flusso `https://onlinegarden.it/admin/products/new`, descrizione
 3. Nella creazione, mesi selezionati in ordine sparso/non consecutivi sembrano non essere acquisiti, a differenza dei flussi di modifica.
 4. Marco non conosce gli SKU: chiede **generazione automatica** all'inizio del wizard senza doverli conoscere.
 
-## Riscontro di codice (stato attuale)
+## Riscontro di codice precedente alla correzione
 
 - `src/adminv2/pages/NewProductPage.tsx`: `initial.sku=''`, `initial.variants[0].sku=''`, in step 0 campo manuale `SKU famiglia`; `update` resetta `preview`, `confirmed`, `key` in qualunque modifica; form HTML ad alta densità; bottone AI sulla descrizione montato condizionalmente a `canUseAi` e definizione/allowlist. Non identificata da screenshot una causa univoca di errore runtime.
 - `src/adminv2/components/ConfirmedAiAssistant.tsx`: `catch` mostra sempre «Informazioni insufficienti, richiesta non autorizzata o provider non disponibile» e reimposta la casella; non distingue `VALIDATION_ERROR`, `FORBIDDEN`, `RATE_LIMITED`, `AI_NOT_CONFIGURED`, `AI_PROVIDER_ERROR` e altri codici. Richiede facts confermati, 1–12 righe e 12–500 caratteri per riga. Evitare richieste AI ripetute in serie.

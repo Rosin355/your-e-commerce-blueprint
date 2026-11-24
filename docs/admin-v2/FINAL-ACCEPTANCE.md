@@ -1,5 +1,9 @@
 # Accettazione Admin V2 · 21 novembre 2026
 
+## Aggiornamento del 24 novembre · autonomia nella creazione
+
+**PASS tecnico. Accettazione personale aperta.** La prova di Marco richiede una nuova bozza con codici automatici, mesi non consecutivi, proposta AI esplicitamente approvata e confronto del riepilogo dopo la riapertura. Registrare separatamente gli esiti se il provider è indisponibile. [Checklist eseguibile](../release/MARCO-ACCEPTANCE-SESSION-2026-11-23.md) · [Verbale tecnico](MARCO-UX-FIXES-2026-11-23.md)
+
 | Controllo | Prova disponibile | Esito e ambito |
 | --- | --- | --- |
 | Versione in produzione | Merge ca9050d, funzione r2 verificata con sessione tecnica e cinque asset del dominio identici al candidato. | PASS deploy e Publish |
