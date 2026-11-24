@@ -77,3 +77,18 @@ Per chiudere il registro, aggiungere la nuova revisione Edge effettivamente dist
 ## Stato della delega DNS registrato su main
 
 Cambio nameserver IONOS → Cloudflare già eseguito. I resolver `1.1.1.1` e `8.8.8.8` hanno entrambi confermato la delega. Stato **Active** della zona, certificato **Edge** per dominio e www e attivazione/verifica dei **16 redirect** restano pendenti. La lettura degli asset pubblici per la #71 non attesta questi tre esiti. [Verbale dell’infrastruttura](PRODUCTION-HANDOVER.md)
+
+
+## Controllo ramo isolato per selezione manuale Lovable — 24/11/2026
+
+Dopo una risposta Lovable in plan mode che dichiarava il ramo non disponibile nel **checkout attivo del progetto**, la verifica GitHub API sul repository collegato `Rosin355/your-e-commerce-blueprint` ha restituito che il branch remoto **esiste già**:
+- `refs/heads/codex/rilascio-admin-v2-isolato-20261124` → `5a37f71d02070f51a5b2e841d15bf7cda3b72747`.
+- **Distinguere** “non esiste nel checkout locale attivo `main`” da “non esiste su GitHub”: il secondo enunciato è falso. Nessun nuovo push o branch creation necessario.
+- In Lovable, `Project settings → Git → GitHub` verificare link repository **esattamente `Rosin355/your-e-commerce-blueprint`**, `Connected` e sync status. Nel **branch picker** cercare `codex/rilascio-admin-v2-isolato-20261124`, selezionare il ramo remoto esistente (non `Create branch`), annotare branch e SHA mostrati. Prima del cambio assicurarsi che non vi siano edit non sincronizzati nell'editor: il branch switch cambia immediatamente checkout e sync dell'editor (non è un Publish). Mantenere fermo agente Lovable mentre avviene lo switch. **Non autorizza Edge deploy o Publish.**
+- Se il ramo non compare nel picker, ottenere screenshot dell'elenco del picker e dell'URL repository mostrato dalla connessione. Non premere `Disconnect`/`Reconnect`, non creare branch omonimo da `main`, non fare merge del ramo isolato su `main`, non pubblicare. [Lovable Git sync e Switch branches](https://docs.lovable.dev/integrations/github#switch-branches). Il problema può essere connessione a repo errato, limitazioni di sync o UI e richiede diagnosi specifica.
+- Dopo selezione, confrontare `git rev-parse HEAD` con il full SHA, diff vs riferimento r2 e preflight build; se il checkout continua su `main` o il commit diverge, **NO-GO**.
+- La zona Cloudflare è stata confermata **Active** con screenshot del 24/11; rettifica la riga precedente sotto “Stato della delega DNS” che riportava Active pending. Rimangono **NO-GO** a proxy Cloudflare e 301 fino a certificato Edge Active (alla stessa data la tabella Edge Certificates mostrava `No certificates`).
+
+### Decisioni
+
+`GITHUB_ISOLATED_BRANCH=PASS`, `LOVABLE_SELECTED_BRANCH=PENDING`, `EDGE_ROLLBACK_RUNTIME=UNVERIFIED`, `EDGE_DEPLOY=NO_GO`, `LOVABLE_PUBLISH=NO_GO`, `AI_REAL_ACCOUNT=PENDING`. SAL ufficiale invariata 57,75%.
