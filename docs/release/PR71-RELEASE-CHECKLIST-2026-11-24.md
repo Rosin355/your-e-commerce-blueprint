@@ -92,3 +92,12 @@ Dopo una risposta Lovable in plan mode che dichiarava il ramo non disponibile ne
 ### Decisioni
 
 `GITHUB_ISOLATED_BRANCH=PASS`, `LOVABLE_SELECTED_BRANCH=PENDING`, `EDGE_ROLLBACK_RUNTIME=UNVERIFIED`, `EDGE_DEPLOY=NO_GO`, `LOVABLE_PUBLISH=NO_GO`, `AI_REAL_ACCOUNT=PENDING`. SAL ufficiale invariata 57,75%.
+
+
+## Lovable branch effettivamente selezionato — 24/11/2026, 15:24 CET
+
+L'operatore ha mostrato screenshot di `Lovable → Altro → Git`: repository `Rosin355/your-e-commerce-blueprint`, branch **`codex/rilascio-admin-v2-isolato-20261124`**, stato **Connected / In sync with GitHub**, avviso **Branch switched**. Controllo indipendente con `Lovable get_project`: `latest_commit_sha=5a37f71d02070f51a5b2e841d15bf7cda3b72747`. Controllo GitHub ref: lo stesso SHA. **`LOVABLE_SELECTED_BRANCH=PASS`**, `SHA_MATCH=PASS`.
+
+Confronto GitHub tra r2 `ca9050d004da3b27f2aff0cb8020bf58ab87d63d` e ramo isolato: **13 file** cambiati, **10** sotto `src/adminv2`, **3** sotto `supabase/functions/_shared`, **nessun file** in sessioni clienti, catalogo pubblico, checkout, cookie, storico staff. Questo è **PASS per perimetro sorgenti**, non prova di deploy.
+
+Una richiesta Lovable in `plan_mode` per preflight di sola lettura ha risposto `awaiting_input` contenendo un'azione proposta di scrittura `.lovable/plan.md`; **non è stata approvata da qui**, quindi **nessun test funzionale o build Lovable dichiarato PASS** sulla base di questa interazione. L'operatore può eseguire i controlli di preview dal ramo senza modifiche. Nessun GO Edge deploy, nessun GO Publish. `EDGE_ACTIVE_REVISION=UNVERIFIED`, `EDGE_DEPLOY=NO_GO`, `LOVABLE_PUBLISH=NO_GO`, `MARCO_AI_LIVE=PENDING`. Restano richieste autorizzazioni distinte e strategia di rollback verificata.
