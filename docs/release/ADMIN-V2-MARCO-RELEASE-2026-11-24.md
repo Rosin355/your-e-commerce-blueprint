@@ -36,3 +36,10 @@ Rollback frontend: Cronologia Lovable → versione con asset `index-DSQ4UzGV.js`
 5. «Aiuto AI»: confermare i fatti, generare proposta.
 6. Approvare il testo e salvare come bozza interna.
 7. Riaprire la bozza: tutti i dati presenti; stato «bozza locale», nessun prodotto su Shopify.
+
+## GO A — esito deploy (24/11/2026 ~15:05 UTC)
+- Distribuita solo `product-admin-api` (+ `_shared`), sorgente identico a `5a37f71`.
+- SHA-256 pacchetto inviato: `941e75a42795384b112123e405c943d148e3b28564d43d6b3c94908d7d8c6039`; ID runtime non esposto.
+- OPTIONS 200; senza autenticazione 401; Admin: `get_admin_context`, `get_dashboard_stats`, `list_products` 200.
+- Nota: il candidato mantiene il marker `admin-delivery-20261121-r2`, quindi il marker non distingue r2 dal candidato.
+- Nessuna scrittura, nessun Publish. Prossimo: GO B (Publish).
