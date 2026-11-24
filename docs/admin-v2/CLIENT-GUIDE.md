@@ -1,5 +1,9 @@
 # Usare l’Admin di Online Garden
 
+## Disponibilità della nuova procedura
+
+La procedura semplificata è pronta per il collaudo tecnico. Il responsabile comunicherà quando usarla su onlinegarden.it. Per la prima prova con Marco usare una bozza dal titolo **TEST ADMIN — NON PUBBLICARE**, due formati e salvataggio interno. Annotare l’esito effettivo dell’assistente AI. [Prova guidata](../release/MARCO-ACCEPTANCE-SESSION-2026-11-23.md)
+
 Apri [l’area staff](https://onlinegarden.it/admin) con la tua utenza personale. Il catalogo si trova in **Prodotti**. Inserisci un nome, uno SKU o un codice a barre. Puoi combinare categoria, tipo, origine, completezza e revisione. «Aggiornato» descrive la sincronizzazione. La visibilità sul canale ha una voce dedicata. Apri la scheda per verificare anche la disponibilità.
 
 ## Creare un prodotto

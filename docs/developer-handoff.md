@@ -1,5 +1,9 @@
 # Online Garden — developer handoff
 
+## Consegna del pacchetto #71
+
+La transizione r2 → Edge candidata è stata eseguita in isolamento. Per il deploy usare il grafo dei 36 file, il manifest verificato e le impronte della build operativa. La preview Lovable deve puntare al commit integrato prima del Publish. Confrontare anche l’intero bundle con l’ultima versione pubblica. [Artefatti e istruzioni di ripristino](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#artefatti-compatibilità-e-sicurezza)
+
 ## Admin V2 · correzioni collaudo Marco del 24 novembre
 
 La generazione SKU riguarda esclusivamente il nuovo modulo. L’Edge ripete i controlli con il vincolo locale esistente e restituisce `shopifySkuVerified` nell’anteprima. Distribuire prima `product-admin-api`, poi il frontend approvato. Nessuna migrazione o distribuzione di `product-admin-ai` richiesta. Le prenotazioni AI e i permessi per campo restano quelli già attivi. Per ripristinare seguire l’ordine inverso e conservare le bozze salvate. Diagnosi, prove, limiti e procedura operativa sono nel [verbale Marco](admin-v2/MARCO-UX-FIXES-2026-11-23.md).

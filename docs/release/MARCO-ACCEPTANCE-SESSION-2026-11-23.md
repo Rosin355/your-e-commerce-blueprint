@@ -1,5 +1,9 @@
 # Online Garden — sessione di collaudo con Marco (23 novembre 2026)
 
+## Condizioni della sessione #71
+
+Rileggere prima una bozza tecnica esistente. Per la nuova prova usare il titolo **TEST ADMIN — NON PUBBLICARE** e conservare il collegamento interno per ritrovarla. Registrare separatamente versione pubblica, `AI_REAL_ACCOUNT` e accettazione personale. Il responsabile registra il termine della prova lasciando la fixture fuori vendita. [Gate di rilascio](PR71-RELEASE-CHECKLIST-2026-11-24.md#sequenza-autorizzata-e-rollback)
+
 ## Collaudo dei quattro fix Admin · aggiunta del 24 novembre
 
 **PENDING_CLIENT_ACCEPTANCE.** Eseguire sul candidato autorizzato con l’account personale di Marco. Per i mesi usare una scheda tecnica fuori vendita con dati di prova, evitando di attribuirli a una pianta reale.

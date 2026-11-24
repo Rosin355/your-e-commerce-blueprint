@@ -1,5 +1,9 @@
 # Rilascio operativo Admin V2 · 21 novembre 2026
 
+## Registro di preparazione · PR #71 del 24 novembre
+
+Preparati i due pacchetti della Edge e le build frontend di ritorno e candidata. Il frontend r2 ha superato in isolamento la prova di collisione e salvataggio contro la nuova logica server. La distribuzione attende i GO distinti su merge, Edge e Publish. L’ultimo rilascio pubblico documentato è r2. Impronte, limite HTTP 403 sul download della revisione gestita e delta pubblicabile sono nel [registro #71](../release/PR71-RELEASE-CHECKLIST-2026-11-24.md#registro-di-preparazione-admin-v2).
+
 ## Versioni e decisione di rilascio
 
 Baseline Git df2b23b1df8200537ec8bd823c7636d99d16b298. Sul dominio pubblico /admin restituisce HTTP 200 e presenta l’accesso staff. Prima del rilascio l’entry servita è index-DQT9047V.js, SHA-256 92331f363c01fb877add34d91bc2f8cfb668b684d6db885525b51a22f8de1a24. Il chunk della modalità di rilascio conferma la build operativa admin-delivery-20261110-r1. Un caricamento anonimo dimostra il funzionamento dell’ingresso pubblico. I privilegi richiedono una sessione staff.
