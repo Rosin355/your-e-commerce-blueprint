@@ -1,23 +1,24 @@
-# Fattibilita redirect 301 /prodotto/... su hosting nativo Lovable
+# Preflight Admin V2 r3 (sola lettura) — esito
 
-Solo verifica: nessuna modifica eseguita.
+## 1. Commit e perimetro — VERIFICATO
+- Checkout a `5a37f71d02070f51a5b2e841d15bf7cda3b72747`, nessuna modifica locale.
+- Diff da `ca9050d`: 13 file (10 `src/adminv2`, 3 `_shared` di product-admin-api). Nessun file clienti/checkout/storico/cookie. PR #69/#70 escluse.
 
-## Esito: NO (redirect 301 per percorso non disponibili nell'hosting nativo)
+## 2. Build/anteprima — PASS PARZIALE
+- VERIFICATO: anteprima locale `/admin` risponde 200.
+- NON VERIFICATO: nessun esito di build registrato per questo commit (log build assente). PASS build solo riferito.
 
-| Punto | Esito | Fonte / prova |
-|---|---|---|
-| a) Redirect configurabile in Lovable prima della SPA | NO | Documentazione ufficiale (docs.lovable.dev/features/hosting, /features/custom-domain): nessuna regola redirect per percorso; esiste solo il fallback SPA verso index.html. Nessuna impostazione del genere visibile per il progetto. |
-| b) `_redirects` / `vercel.json` / `netlify.toml` | NO | Documentazione: questi file non vengono interpretati da Lovable. Nel progetto non esistono (verificato). |
-| c) React Router / JS | Non e HTTP 301 | Avviene nel browser dopo una risposta 200; i motori di ricerca non lo trattano come 301 server. |
-| d) Normalizzazione www | 302 (by design) | Prova live: `www.onlinegarden.it/prodotto/test-legacy` -> 302 verso `onlinegarden.it/prodotto/test-legacy`; il dominio principale risponde 200. Documentazione: tra domini collegati Lovable usa 302/307, non 301, perche il dominio principale si puo cambiare. Unico 301 nativo: da HTTP a HTTPS. |
+## 3. Funzioni Admin — DA VERIFICARE
+- Codice: SKU generato automaticamente e propagato ai formati, validazione SKU univoci (VERIFICATO nel codice).
+- UI semplificata, mesi indipendenti, AI con fatti confermati, bozza interna: non collaudati in UI; richiedono sessione Admin e, per la bozza, una scrittura (esclusa). Inoltre l'anteprima usa la product-admin-api di produzione ancora r2: le parti backend nuove non sono provabili prima del deploy.
 
-Conseguenza: oggi un singolo salto 301 dalla prima richiesta su entrambi gli host non si puo ottenere con le sole funzioni di Lovable. Su www ci sarebbero comunque almeno 302 + eventuale redirect successivo.
+## 4. Runtime/rollback product-admin-api — NO-GO resta
+- Lovable Cloud non espone revisione, ID o checksum runtime: solo impronta del pacchetto inviato.
+- Rollback = nuovo deploy da `ca9050d` (non ripristino runtime).
 
-## Cosa chiedere al supporto Lovable (non posso aprire io la richiesta)
-Testo proposto:
-"Progetto Online Garden, domini onlinegarden.it (principale) e www.onlinegarden.it, DNS su IONOS. Chiediamo se l'hosting Lovable puo configurare lato server 16 redirect HTTP 301 permanenti da /prodotto/<slug> a /products/<handle>, applicati prima della SPA e su entrambi gli host con un solo salto (anche www/prodotto/... direttamente al percorso finale sul dominio principale). Chiediamo inoltre se la normalizzazione www puo essere 301 invece di 302. Se non disponibile, e prevista una funzione o un'eccezione per il progetto?"
+## 5. Prossimo passo operatore
+1. GO A (Edge): deploy solo product-admin-api da `5a37f71`, controlli OPTIONS/401/letture Admin; rollback redeploy `ca9050d`.
+2. Collaudo anteprima con sessione Admin (bozza test interna, non pubblicata).
+3. GO B (Publish) separato; rollback via Cronologia alla versione `index-DSQ4UzGV.js`.
 
-Allegare l'elenco dei 16 URL vecchi -> nuovi.
-
-## Nota
-Nessuna implementazione proposta come certa finche il supporto non conferma. Nessuna modifica a DNS, domini, Publish, codice o impostazioni.
+Esito: NO-GO deploy e Publish finché non arrivano GO A e GO B espliciti.
