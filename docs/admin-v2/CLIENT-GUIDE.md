@@ -4,6 +4,8 @@
 
 Le quattro correzioni sono entrate in `main` il 24 novembre. Su onlinegarden.it è ancora attivo il gestionale r2. Attendi la conferma di rilascio del responsabile prima della prova. Con la tua utenza crea una bozza interna **TEST ADMIN — NON PUBBLICARE**, aggiungi due formati, controlla i codici generati e riaprila per verificare i mesi scelti. Per l’AI fornisci un fatto confermato e decidi se applicare la proposta. [Prova guidata](../release/MARCO-ACCEPTANCE-SESSION-2026-11-23.md)
 
+Il permesso per bozze e AI sulla descrizione risulta attivo sul tuo profilo editor. Durante la prova passa all’anteprima e torna alla descrizione prima di approvare il testo. Usa **Salva bozza nell’Admin**, poi riapri la bozza. Se l’AI segnala un limite o un problema del servizio, annota il messaggio e prosegui con la compilazione manuale. [Stato del rilascio](../release/PR71-RELEASE-CHECKLIST-2026-11-24.md#revisione-pubblicabile-e-verifiche-del-24-novembre)
+
 Apri [l’area staff](https://onlinegarden.it/admin) con la tua utenza personale. Il catalogo si trova in **Prodotti**. Inserisci un nome, uno SKU o un codice a barre. Puoi combinare categoria, tipo, origine, completezza e revisione. «Aggiornato» descrive la sincronizzazione. La visibilità sul canale ha una voce dedicata. Apri la scheda per verificare anche la disponibilità.
 
 ## Creare un prodotto

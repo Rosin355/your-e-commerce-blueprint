@@ -1,8 +1,8 @@
 # Online Garden — developer handoff
 
-## Consegna dopo il merge #71
+## Consegna tecnica del rilascio Admin isolato
 
-`main` ed editor Lovable coincidono a `50e02a5`. L’entry pubblica corrisponde a r2. Per il GO Edge identificare la revisione di `product-admin-api` attiva e il relativo rollback. Per il GO Publish isolare l’Admin sul frontend pubblico r2 oppure ottenere approvazione esplicita anche per sessioni clienti e visualizzatore staff. Per il collaudo attendere il GO con Marco. [Registro delle verifiche e rollback](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#sequenza-autorizzata-e-rollback)
+Il riferimento frontend è `5a37f71d02070f51a5b2e841d15bf7cda3b72747`. Mantenere il candidato Edge della #71 e associare il rollback alla versione attiva registrata in Supabase. In Lovable selezionare il ramo isolato nella finestra concordata e verificare lo SHA prima del Publish. [Revisione, prove, inventari e procedura per il gestore](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#revisione-pubblicabile-e-verifiche-del-24-novembre)
 
 ## Admin V2 · correzioni collaudo Marco del 24 novembre
 

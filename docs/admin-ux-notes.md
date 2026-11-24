@@ -1,5 +1,9 @@
 # Online Garden — note Admin UX
 
+## Collaudo della creazione semplificata · 24 novembre
+
+Nella revisione isolata verificare leggibilità del modulo su telefono, focus sul campo in errore, apertura delle opzioni avanzate e ritorno dall’anteprima. Fatti confermati e proposta AI devono rimanere disponibili cambiando passaggio. Il riepilogo della bozza deve mostrare gli stessi mesi selezionati. Marco decide separatamente l’applicazione del testo e il salvataggio interno. [Revisione e ambito di collaudo](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#revisione-pubblicabile-e-verifiche-del-24-novembre)
+
 ## Catalogo e schede · 21 novembre 2026
 
 La versione r2 pubblicata separa in lista origine del record, sincronizzazione e pubblicazione sul canale. Il filtro categoria accetta testo anche per prodotti oltre la pagina visibile. In caso di conflitto prezzi o categorie, il modulo offre di rileggere la versione corrente. Il riepilogo della bozza contiene anche il tipo commerciale. La galleria e la struttura dei prodotti già collegati hanno un percorso staff Shopify. [Flussi e prime prove con Marco](admin-v2/CLIENT-GUIDE.md).

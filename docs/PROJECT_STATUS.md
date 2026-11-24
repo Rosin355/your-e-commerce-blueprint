@@ -1,6 +1,6 @@
 ## Admin V2 · merge della PR #71
 
-Merge `50e02a5` verificato su main e nell’editor Lovable. Il frontend pubblico serve r2. Revisione Edge attiva da confermare e pubblicazione da delimitare. Restano aperti deploy, Publish e collaudo Marco. SAL **57,75%**. [Registro](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#registro-di-preparazione-admin-v2)
+Merge `50e02a5` su main. Il frontend pubblico serve r2. Il ramo isolato `5a37f71` è pronto e la revisione Edge attiva è da confermare. Restano aperti deploy, Publish e collaudo Marco. SAL **57,75%**. [Registro](release/PR71-RELEASE-CHECKLIST-2026-11-24.md#registro-di-preparazione-admin-v2)
 
 ## Admin V2 · candidato del 24 novembre 2026
 
