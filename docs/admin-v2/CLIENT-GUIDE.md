@@ -1,5 +1,12 @@
 # Usare l’Admin di Online Garden
 
+## Novità del 24 novembre — correzioni pubblicate, prova personale richiesta
+
+L'Admin V2 aggiornato è stato **pubblicato** su `https://onlinegarden.it/admin`; Lovable ha registrato il nuovo asset `index-jqOemgjy.js`. Dopo l'accesso con il tuo profilo editor, crea una bozza interna identificabile come **TEST ADMIN — NON PUBBLICARE** e completa la [checklist di 7 passi](../release/ADMIN-V2-MARCO-RELEASE-2026-11-24.md#checklist-marco-nessuna-pubblicazione-shopify): nome e descrizione, due formati e prezzi, categoria e foto; controlla gli SKU automatici, scegli mesi non consecutivi (es. marzo/giugno/ottobre), prova una proposta AI su fatti verificati, accettala esplicitamente, salva **solo** nell'Admin e riapri per controllare dati e mesi. **Non usare Crea bozza Shopify, sincronizzazione o Pubblica** durante la prova. Se AI non funziona, conserva messaggio d'errore e schermata senza dati sensibili e continua manualmente. Il collaudo non è ancora stato confermato con il tuo account; avvisa il responsabile dopo la prova. Per rollback tecnico non usare comandi dal tuo account, contatta il responsabile. [Verbale rilascio](../release/ADMIN-V2-MARCO-RELEASE-2026-11-24.md).
+
+---
+
+
 ## Quando usare la nuova procedura
 
 Le quattro correzioni sono entrate in `main` il 24 novembre. Su onlinegarden.it è ancora attivo il gestionale r2. Attendi la conferma di rilascio del responsabile prima della prova. Con la tua utenza crea una bozza interna **TEST ADMIN — NON PUBBLICARE**, aggiungi due formati, controlla i codici generati e riaprila per verificare i mesi scelti. Per l’AI fornisci un fatto confermato e decidi se applicare la proposta. [Prova guidata](../release/MARCO-ACCEPTANCE-SESSION-2026-11-23.md)
