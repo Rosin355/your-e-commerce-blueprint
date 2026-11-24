@@ -1,6 +1,6 @@
 ## Chiusura AI della nuova bozza · 24 novembre 2026
 
-Il 24 novembre, dopo il collaudo PostgreSQL, sono stati attivati e verificati tre opt-in per le sole nuove bozze di Marco: seo_title, seo_description e tags. Il registro globale tags.ai_allowed resta falso. Per verifiche e stato effettivo dell’attivazione consultare il verbale corrente. [Stato di rilascio e rollback](../release/PR73-CHIUSURA-AI.md)
+Il 24 novembre, dopo il collaudo PostgreSQL, sono stati attivati e verificati tre opt-in per le sole nuove bozze di Marco: seo_title, seo_description e tags. Il registro globale tags.ai_allowed resta falso. Il collaudo reale con il distinto operatore tecnico ha registrato una richiesta con elenco dei campi editoriali aggiuntivi vuoto. I suoi tre metadati hanno usato il fallback. La verifica personale dei tre campi con il grant di Marco resta aperta. [Stato di rilascio e rollback](../release/PR73-CHIUSURA-AI.md)
 
 ## Preflight grant B per test AI operatore — 19 novembre 2026
 

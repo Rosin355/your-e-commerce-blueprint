@@ -2,7 +2,7 @@
 
 ## Chiusura AI della nuova bozza · 24 novembre 2026
 
-La prova tecnica eseguita usa fixture sintetiche. Per l’accettazione personale verificare nella stessa bozza le origini dei suggerimenti, il tipo manuale, due formati, tre mesi, foto e categoria fino alla riapertura. Registrare la conferma di Marco. [Stato di rilascio e rollback](../release/PR73-CHIUSURA-AI.md)
+Il percorso tecnico è stato eseguito con un account staff in anteprima e con rilettura su onlinegarden.it. Una richiesta reale ha organizzato la descrizione. SEO e tag hanno usato il fallback previsto per quell’account. Per Marco resta da verificare in prima persona la selezione del modello sui suoi tre campi abilitati. Per l’accettazione personale verificare nella stessa bozza le origini dei suggerimenti, il tipo manuale, due formati, tre mesi, foto e categoria fino alla riapertura. Registrare la conferma di Marco. [Stato di rilascio e rollback](../release/PR73-CHIUSURA-AI.md)
 
 | Controllo | Prova disponibile | Esito e ambito |
 | --- | --- | --- |

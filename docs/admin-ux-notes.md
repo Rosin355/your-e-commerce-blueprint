@@ -2,7 +2,7 @@
 
 ## Chiusura AI della nuova bozza · 24 novembre 2026
 
-Nella stessa anteprima i tag accettano correzioni separate da virgole. Per il tipo senza mapping appare un campo manuale con le scelte Alberi e Arbusti. Selezionare una voce la etichetta come modifica manuale e richiede ancora Applica. Descrizione, SEO e tag mantengono una fonte visibile per campo. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
+Nella stessa anteprima i tag accettano correzioni separate da virgole. Per il tipo senza mapping appare un campo manuale con le scelte Alberi e Arbusti. Selezionare una voce la etichetta come modifica manuale e richiede ancora Applica. Sul frontend pubblicato è stata osservata la fonte modello sulla descrizione e la fonte deterministica sui tre metadati dell’operatore tecnico. Il titolo cambiato in anteprima è stato applicato dopo aver verificato che Annulla conservasse il valore precedente. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
 
 ## Nuovo prodotto · provenienza dei suggerimenti SEO
 

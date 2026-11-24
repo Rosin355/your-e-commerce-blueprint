@@ -4,9 +4,9 @@
 
 Il collaudo integrato copre la stessa bozza dalla descrizione vuota alla riapertura, inclusi mesi, formati, categoria e immagine. Il verbale corrente aggiorna le decisioni operative storiche. [Stato di rilascio e rollback](../release/PR73-CHIUSURA-AI.md)
 
-**Stato al termine dell’intervento — FIX IN PR, PASS tecnico, collaudo live aperto.** La versione pubblicata di riferimento è `index-jqOemgjy.js`. SAL **57,75%**.
+**Fix pubblicato e descrizione verificata con una generazione reale.** L’asset pubblico è `index-BcqOotvz.js`. Il riferimento di rollback resta `index-jqOemgjy.js`. Il test reale con account tecnico ha utilizzato il fallback per SEO e tag. La selezione del modello sui tre campi nominativi e l’accettazione restano da provare con Marco. SAL **57,75%**.
 
-## Qualità SEO · candidato corrente della PR #73
+## Storico della qualità SEO prima della migrazione 0020
 
 **PASS tecnico isolato. Attivazione della selezione AI per SEO e tag in attesa di autorizzazione.** Il pulsante e la revisione introdotti a `c623b001` rimangono il punto di ingresso. Il modello può scegliere fra titoli preparati dal nome e da nomi esplicitamente confermati, fra estratti interi della scheda e fra etichette verificabili. In produzione il registro consente AI su descrizione e campi SEO, mentre `tags.ai_allowed` è falso. Il contratto di prenotazione attivo nel sorgente approvato autorizza la descrizione ed esclude tutti e tre i metadati dall’inferenza. Il candidato parte con lo stesso perimetro.
 

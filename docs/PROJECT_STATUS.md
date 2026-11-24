@@ -1,6 +1,6 @@
 ## Chiusura AI della nuova bozza · 24 novembre 2026
 
-La PR #73 è integrata sul ramo isolato e la Edge product-admin-ai è distribuita. Il database ha tre abilitazioni per la sola nuova bozza di Marco. Il verbale riporta disponibilità frontend e prova del provider. La SAL resta 57,75%. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
+La PR #73 è integrata sul ramo isolato e la Edge product-admin-ai è distribuita. Il database ha tre abilitazioni per la sola nuova bozza di Marco. Il frontend è pubblicato su onlinegarden.it. Una generazione reale sulla descrizione e la riapertura della bozza di collaudo sono verificate. La prova SEO e tag con l’account di Marco rimane aperta. La SAL resta 57,75%. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
 
 ## Aggiornamento corrente — 21 novembre 2026, ore 13:29 CET: security release verificata (report Lovable)
 
