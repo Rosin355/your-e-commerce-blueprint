@@ -138,7 +138,7 @@ export async function callAiProvider(
         "Risposta AI non valida",
       );
     }
-    if (!("suggested_value" in parsed)) {
+    if (!parsed || typeof parsed !== "object" || !("suggested_value" in parsed)) {
       throw new AiProviderError(
         "MALFORMED_AI_OUTPUT",
         "Valore suggerito mancante",

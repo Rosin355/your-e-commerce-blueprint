@@ -1,3 +1,4 @@
+import AiErrorNotice from '../components/AiErrorNotice';
 import DraftSummaryView from '../components/DraftSummaryView';
 import { projectDraft } from '../../../supabase/functions/_shared/admin-draft-view';
 import ConfirmedAiAssistant from '../components/ConfirmedAiAssistant';
@@ -167,7 +168,7 @@ export default function NewProductPage() {
                 <ConfirmedAiAssistant field={{key:d.key,label:d.label,editorType:d.editor_type,dataType:d.data_type,validationRules:d.validation_rules ?? {},required:d.required}}
                   onApply={value => { update({ description: value as string }); setDescriptionRevision(n => n + 1); }} />
               </details>)}
-            {definitions.isError && <p role="alert">Impossibile leggere i campi disponibili per AI e botanica. Puoi compilare la descrizione a mano.</p>}
+            {definitions.isError && <AiErrorNotice>Impossibile leggere i campi disponibili per AI e botanica. Puoi compilare la descrizione a mano.</AiErrorNotice>}
           </section>
           <VariantEditor currency={draft.currency} sku={draft.sku} variants={draft.variants} errors={errors} onChange={variants => {
             setSkuError(''); update({ variants });

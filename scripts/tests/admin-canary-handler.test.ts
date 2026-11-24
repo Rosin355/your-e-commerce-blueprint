@@ -22,9 +22,10 @@ const draft = { title: 'Bozza sintetica', sku: 'QA-DRAFT-ONLY', description: 'Fi
   variants: [{ sku: 'QA-DRAFT-ONLY', price: '10.00', compareAtPrice: null, option: 'Unico' }] };
 
 // Execute the real HTTP entrypoint and local module graph. All I/O is synthetic and closed.
-function load(options: { scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; commerce?: boolean; media?: boolean } = {}) {
+function load(options: { scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; commerce?: boolean; media?: boolean; ai?: { grant: boolean; reserved?: boolean; output?: unknown; http?: number; maxLength?: number } } = {}) {
   let handler!: (request: Request) => Promise<Response>;
   const calls = { rpc: 0, shopifyMutations: 0, statusReads: 0, events: 0, uploads: 0 };
+  const traces: string[] = [];
   const env: Record<string, string> = {
     SUPABASE_URL: 'https://iekwvvihjwghosqdxrdi.supabase.co', PRODUCT_ADMIN_WRITE_MODE: options.fullMode ? 'full' : 'canary',
     PRODUCT_ADMIN_WRITES_ENABLED: String(options.master ?? true), PRODUCT_ADMIN_DRAFTS_ENABLED: 'true',
@@ -32,7 +33,7 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
     PRODUCT_ADMIN_OPERATIONAL_APPROVAL: JSON.stringify({ action: 'create_shopify_draft', target: operationId, expiresAt: scope().expiresAt }),
   };
   const product = { id: productId, sku: options.sku ?? 'QA-DRAFT-ONLY', entity_type: 'simple', is_active: true };
-  const definition = { key: 'title', label: 'Titolo', field_group: 'main', data_type: 'text', editor_type: 'text',
+  const definition = options.ai ? {key:'description', label:'Descrizione', field_group:'main', data_type:'text', editor_type:'richtext', visible:true, editable:true, manual_only:false, ai_allowed:true, applies_to:'both', validation_rules:{maxLength:options.ai.maxLength}} : { key: 'title', label: 'Titolo', field_group: 'main', data_type: 'text', editor_type: 'text',
     visible: true, editable: true, manual_only: false, applies_to: 'both', validation_rules: {}, ai_allowed: false };
   const commerceProduct = { id:'gid://shopify/Product/123',title:'TEST ADMIN — NON PUBBLICARE',handle:'fixture',status:'DRAFT',updatedAt:'2026-11-10T12:00:00Z',
     variants:{nodes:[{id:'gid://shopify/ProductVariant/456',sku:'QA-DRAFT-ONLY',price:'10.00',compareAtPrice:null}],pageInfo:{hasNextPage:false}},
@@ -40,6 +41,11 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
   const media: Record<string, unknown>[] = [];
   const approvals: Record<string, unknown>[] = [];
   const grant = { enabled: options.catalog === true, capabilities: ['edit','sync','drafts','prices','publish','images','categories'], field_keys: ['title'] };
+  if (options.ai) {
+    env.LOVABLE_API_KEY = 'synthetic-only';
+    grant.field_keys = ['description'];
+    if (options.ai.grant) grant.capabilities.push('ai');
+  }
   const db = {
     from(table: string) {
       const data = table === 'admin_catalog_media' ? media : table === 'admin_catalog_capabilities' ? grant : table === 'admin_catalog_approvals' ? approvals : table === 'products' ? product : table === 'product_field_definitions' ? [definition] :
@@ -58,7 +64,10 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
       };
       return q;
     },
-    async rpc(name: string, parameters: Record<string,unknown>) { if (name === 'admin_claim_catalog_approval') { const row = approvals.find(a => a.id === parameters.p_id && a.actor === parameters.p_actor && a.payload_hash === parameters.p_hash && a.state === 'PENDING'); if (row) row.state = 'IN_FLIGHT'; return { data: !!row, error: null }; } assert.equal(name, 'admin_update_product_field'); calls.rpc++; calls.events++;
+    async rpc(name: string, parameters: Record<string,unknown>) { if (options.ai && name === 'reserve_confirmed_ai_request') {
+        assert.equal(parameters.p_actor, actor); calls.rpc++; return {data:options.ai.reserved !== false,error:null};
+      }
+      if (name === 'admin_claim_catalog_approval') { const row = approvals.find(a => a.id === parameters.p_id && a.actor === parameters.p_actor && a.payload_hash === parameters.p_hash && a.state === 'PENDING'); if (row) row.state = 'IN_FLIGHT'; return { data: !!row, error: null }; } assert.equal(name, 'admin_update_product_field'); calls.rpc++; calls.events++;
       return { data: { ok: true, code: 'APPLIED', version: 2 }, error: null }; },
   };
   const cache = new Map<string, Record<string, unknown>>();
@@ -90,15 +99,19 @@ function load(options: { scope?: unknown; status?: string; sku?: string; role?: 
       if (!id.startsWith('.')) throw Error(`Unexpected dependency ${id}`);
       return module(resolve(dirname(file), id));
     };
-    vm.runInNewContext(compiled, { exports, require, Request, Response, URL, TextEncoder, crypto, Blob, FormData, atob, AbortSignal, fetch: async (url: string) => { assert.equal(url, 'https://storage.googleapis.com/synthetic-upload'); calls.uploads++; return new Response('', {status:201}); },
-      console: { log() {}, error() {} }, setTimeout, Deno: { env: { get: (key: string) => env[key] }, serve: (fn: typeof handler) => { handler = fn; } } }, { filename: file });
+    vm.runInNewContext(compiled, { exports, require, Request, Response, URL, TextEncoder, crypto, Blob, FormData, atob, AbortSignal, AbortController, clearTimeout, fetch: async (url: string) => {
+      if (options.ai && url === 'https://ai.gateway.lovable.dev/v1/chat/completions') {
+        return Response.json({choices:[{message:{tool_calls:[{function:{arguments:JSON.stringify({suggested_value:options.ai.output})}}]}}]}, {status:options.ai.http ?? 200});
+      }
+      assert.equal(url, 'https://storage.googleapis.com/synthetic-upload'); calls.uploads++; return new Response('', {status:201}); },
+      console: { log() {}, error() {}, warn: (line: string) => traces.push(line), info: (line: string) => traces.push(line) }, setTimeout, Deno: { env: { get: (key: string) => env[key] }, serve: (fn: typeof handler) => { handler = fn; } } }, { filename: file });
     return exports;
   }
   module(resolve('supabase/functions/' + (options.endpoint ?? 'product-admin-api') + '/index.ts'));
   const request = (body: Record<string, unknown>) => handler(new Request('https://fixture.invalid', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   }));
-  return { calls, request, grant, approvals };
+  return { traces, calls, request, grant, approvals };
 }
 const edit = { action: 'update_field', productId, fieldKey: 'title', value: 'Dopo', expectedVersion: 1, idempotencyKey: requestKey };
 
@@ -272,4 +285,42 @@ test('SKU TEST-OG-AI-001: editor con publish non può preparare o inviare la pub
   assert.ok(executed.status >= 400);
   assert.equal(fixture.calls.shopifyMutations, 0);
   assert.equal(fixture.calls.rpc, 0);
+});
+
+test('AI da fatti confermati: handler Editor, diagnosi per fase e fallback senza scritture prodotto', async () => {
+  const facts = ['La scheda riporta Quercus robur. Il nome è stato verificato.'];
+  const request = {action:'suggest_confirmed_field', fieldKey:'description', confirmed:true, requestKey, facts};
+  const cases = [
+    { ai:{ grant:false }, status:403, code:'FORBIDDEN', reservations:0 },
+    { ai:{ grant:true }, override:{confirmed:false}, status:422, code:'INVALID_CONFIRMED_FACTS', reservations:0 },
+    { ai:{ grant:true, reserved:false }, status:429, code:'RATE_LIMITED', reservations:1 },
+    { ai:{ grant:true, output:null }, status:502, code:'INVALID_MODEL_PROPOSAL', reservations:1 },
+    { ai:{ grant:true, http:503 }, status:502, code:'AI_PROVIDER_ERROR', reservations:1 },
+    { ai:{ grant:true, maxLength:16, output:'Parafrasi di prova' }, status:422, code:'INVALID_FIELD_VALUE', reservations:1 },
+    { ai:{ grant:true, output:'Il modello aggiunge un dettaglio.' }, status:200, code:null, reservations:1 },
+  ];
+  for (const example of cases) {
+    const fixture = load({ endpoint:'product-admin-ai', catalog:true, role:'editor', ai:example.ai });
+    const response = await fixture.request({...request,...example.override});
+    const body = await response.json();
+    assert.equal(response.status, example.status, JSON.stringify(body));
+    if (example.code) {
+      assert.equal(body.error.code,example.code);
+      assert.equal(body.error.details.requestId,requestKey);
+      assert.equal(body.value,undefined);
+    } else {
+      assert.equal(body.source,'confirmed_facts');
+      assert.equal(body.value,`<p>${facts[0]}</p>`);
+    }
+    assert.equal(fixture.calls.rpc,example.reservations);
+    assert.equal(fixture.calls.events,0);
+    assert.equal(fixture.calls.shopifyMutations,0);
+    assert.equal(fixture.traces.length,1);
+    const trace = JSON.parse(fixture.traces[0]);
+    assert.deepEqual(Object.keys(trace).sort(),['action','code','field','requestId','scope','stage']);
+    assert.equal(trace.field,'description');
+    assert.equal(trace.requestId,requestKey);
+    assert.equal(trace.code,example.code ?? 'INVALID_MODEL_PROPOSAL');
+    assert.ok(!fixture.traces[0].includes(facts[0]));
+  }
 });

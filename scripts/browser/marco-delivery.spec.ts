@@ -16,7 +16,8 @@ const initial: ProductDraft = {
   seoTitle: 'Titolo SEO sintetico', seoDescription: 'Descrizione SEO sintetica',
 };
 
-async function simulate(page: Page, options: { readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string } = {}) {
+async function simulate(page: Page, options: { readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean } = {}) {
+  const failures = [...(options.aiFailures ?? [])];
   let saved = structuredClone(initial);
   if (options.legacy) saved.description = '<p onclick="">Testo <strong>verificato</strong>.</p><ul><li>Voce</li></ul><script type="application/json">contenuto escluso</script>';
   let value = options.currentText ?? saved.description;
@@ -45,7 +46,7 @@ async function simulate(page: Page, options: { readError?: boolean; legacy?: boo
     calls.push(action);
     const reply = (result: object) => route.fulfill({ json: { ok: true, ...result } });
     switch (action) {
-      case 'get_admin_context': return reply({ roles: ['editor'], canWrite: true, canUseAi: true, ordinaryCatalog: true, supportsCatalogSourceAndProductType: true, canUploadImages: options.media === true, editableFieldKeys: ['description'], canPublish: true });
+      case 'get_admin_context': return reply({ roles: ['editor'], canWrite: true, canUseAi: options.allowAi !== false, ordinaryCatalog: true, supportsCatalogSourceAndProductType: true, canUploadImages: options.media === true, editableFieldKeys: ['description'], canPublish: true });
       case 'get_product': return reply({
         product: { productId, sku: saved.sku, entityType: 'simple', isActive: true },
         shopifyLive: sent ? { available: true, mapped: true, publicationStatus: 'DRAFT' } : { available: false, mapped: false }, history: [],
@@ -88,8 +89,16 @@ async function simulate(page: Page, options: { readError?: boolean; legacy?: boo
         uploadKeys.push(input.idempotencyKey);
         if (uploadKeys.length === 1) return route.fulfill({ status: 503, json: { error: { code: 'INTERNAL_ERROR' } } });
         return reply({ media: { id: 'file-1', state: 'READY', url: initial.images[0].url, alt: input.alt } });
-      case 'get_field_definitions': return reply({ definitions: [] });
-      case 'preview_new_product': return reply({ warnings: [] });
+      case 'get_field_definitions': return reply({definitions:[{key:'description',label:'Descrizione',editor_type:'richtext',data_type:'text',visible:true,editable:true,ai_allowed:true,manual_only:false,validation_rules:{}}]});
+      case 'suggest_confirmed_field': {
+        expect(input.fieldKey).toBe('description');
+        expect(input.confirmed).toBe(true);
+        const failure = failures.shift();
+        if (failure === 'connection') return route.abort('failed');
+        if (failure) return route.fulfill({status:failure === 'FORBIDDEN' ? 403 : 422,json:{ok:false,error:{code:failure}}});
+        return reply({source:'confirmed_facts',value:input.facts.map((line:string) => `<p>${line}</p>`).join('')});
+      }
+      case 'preview_new_product': return reply({ warnings: [], shopifySkuVerified:true });
       case 'prepare_catalog_approval': return reply({ approvalId: 'synthetic-approval' });
       case 'create_shopify_draft':
         expect(options.allowDraftSend).toBe(true);
@@ -257,4 +266,91 @@ test('invio simulato in DRAFT solo dopo conferma esplicita aggiorna lo stato sen
   expect(model.calls.filter(action => action === 'create_shopify_draft')).toHaveLength(1);
   expect(model.calls).not.toContain('publish_catalog_product');
   expect(model.unexpected).toEqual([]);
+});
+
+const verifiedParagraph = 'La scheda riporta Quercus robur. Il riferimento è stato controllato.';
+
+for (const width of [390,1280]) test('AI descrizione vuota: errore, riprova e salvataggio interno a '+width+'px', async ({page}) => {
+  const model = await simulate(page,{aiFailures:['connection','INVALID_MODEL_PROPOSAL']});
+  await page.setViewportSize({width,height:860});
+  await page.goto('/admin/products/new');
+  await page.getByLabel('Nome prodotto (obbligatorio)').fill('Quercus robur');
+  await page.getByRole('textbox',{name:'Prezzo di vendita 1'}).fill('10');
+  await page.getByText('Aiuto AI per la descrizione (facoltativo)').click();
+  const panel = page.getByRole('region',{name:'Assistenza AI Descrizione'});
+  const description = page.getByRole('textbox',{name:'Descrizione verificata'});
+  const facts = panel.getByRole('textbox',{name:/Informazioni fattuali/});
+  const run = panel.getByRole('button',{name:'Organizza le informazioni con AI'});
+  await facts.fill('breve');
+  await panel.getByRole('checkbox').check();
+  await run.press('Enter');
+  const alert = panel.getByRole('alert');
+  await expect(alert).toContainText('La riga 1');
+  await expect(alert.locator('svg[aria-hidden="true"]')).toBeVisible();
+  await expect(alert).toHaveCSS('border-top-style','solid');
+  const color = await alert.evaluate(node => getComputedStyle(node).color);
+  const [red,green,blue] = color.match(/\d+/g)!.map(Number);
+  expect(red).toBeGreaterThan(green);
+  expect(red).toBeGreaterThan(blue);
+  expect(model.calls).not.toContain('suggest_confirmed_field');
+  await facts.fill(verifiedParagraph);
+  await expect(alert).toHaveCount(0);
+  await panel.getByRole('checkbox').check();
+  for (const message of ['Connessione al servizio AI','Il modello ha restituito']) {
+    await run.press('Enter');
+    await expect(alert).toContainText(message);
+    await expect(facts).toHaveValue(verifiedParagraph);
+    await expect(panel.getByRole('checkbox')).toBeChecked();
+    await expect(description).toHaveText('');
+  }
+  await run.press('Enter');
+  await expect(alert).toHaveCount(0);
+  await expect(panel.getByRole('status')).toContainText('righe originali');
+  await expect(description).toHaveText('');
+  const apply=panel.getByRole('button',{name:'Applica alla compilazione'});
+  page.once('dialog',dialog=>dialog.dismiss());
+  await apply.press('Enter');
+  await expect(description).toHaveText('');
+  page.once('dialog',dialog=>dialog.accept());
+  await apply.press('Enter');
+  await expect(description).toHaveText(verifiedParagraph);
+  expect(model.calls).not.toContain('save_new_product');
+  await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+  await page.getByRole('button',{name:'Verifica anteprima'}).click();
+  await page.getByRole('checkbox',{name:/Confermo i dati/}).check();
+  page.once('dialog',dialog=>dialog.accept());
+  await page.getByRole('button',{name:'Salva bozza nell’Admin'}).click();
+  await page.getByRole('link',{name:'Apri scheda prodotto e storico'}).click();
+  await page.reload();
+  const summary = page.getByRole('heading',{name:'Riepilogo della bozza interna salvata'}).locator('..');
+  await expect(summary.getByText(verifiedParagraph,{exact:true})).toBeVisible();
+  expect(model.calls.filter(action=>action==='save_new_product')).toHaveLength(1);
+  expect(model.calls).not.toContain('create_shopify_draft');
+  expect(model.unexpected).toEqual([]);
+});
+
+test('AI descrizione esistente: permesso negato e proposta applicata solo al modulo editor', async ({page})=>{
+  const model = await simulate(page,{currentText:'',aiFailures:['FORBIDDEN']});
+  await page.goto('/admin/products/'+productId);
+  const panel = page.getByRole('region',{name:'Assistenza AI Descrizione'});
+  await panel.getByRole('textbox',{name:/Informazioni fattuali/}).fill(verifiedParagraph);
+  await panel.getByRole('checkbox').check();
+  const run=panel.getByRole('button',{name:'Organizza le informazioni con AI'});
+  await run.click();
+  await expect(panel.getByRole('alert')).toContainText('non è autorizzato');
+  await run.click();
+  await expect(panel.getByRole('status')).toContainText('righe originali');
+  page.once('dialog',dialog=>dialog.accept());
+  await panel.getByRole('button',{name:'Applica alla compilazione'}).click();
+  await expect(page.getByRole('textbox',{name:'Descrizione',exact:true})).toHaveText(verifiedParagraph);
+  expect(model.calls).not.toContain('update_field');
+  expect(model.unexpected).toEqual([]);
+});
+
+test('AI descrizione editor senza grant: compilazione manuale disponibile', async ({page})=>{
+  const model=await simulate(page,{allowAi:false});
+  await page.goto('/admin/products/new');
+  await expect(page.getByRole('textbox',{name:'Descrizione verificata'})).toBeEditable();
+  await expect(page.getByText('Aiuto AI per la descrizione (facoltativo)')).toHaveCount(0);
+  expect(model.calls).not.toContain('suggest_confirmed_field');
 });

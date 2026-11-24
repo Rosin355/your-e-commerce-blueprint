@@ -1,5 +1,12 @@
 # Online Garden — developer handoff
 
+## Correzione AI da fatti confermati · candidata del 24 novembre
+
+Il backend da rilasciare è `product-admin-ai`. Il browser invia lo stesso payload di prima. L’API mantiene `ok` e `value` e aggiunge `source` (`model` o `confirmed_facts`), letto come opzionale per compatibilità. Con la precedente Edge il frontend può ancora ricevere `VALIDATION_ERROR`; la distinzione tra input, modello e campo richiede il nuovo handler. I codici dedicati sono `INVALID_CONFIRMED_FACTS`, `INVALID_MODEL_PROPOSAL` e `INVALID_FIELD_VALUE`. Il riferimento mostrato negli errori della richiesta corrisponde al campo `requestId` del log.
+
+Il fallback riguarda esclusivamente la descrizione generata a partire da fatti confermati. Il flusso dei suggerimenti salvati su campi già compilati conserva le proprie regole. La revisione distribuita del frontend per il ritorno è `index-jqOemgjy.js`. [Diagnosi, prove, gate e ripristino](admin-v2/AI-ERROR-LIVE-2026-11-24.md#verifiche-e-rilascio)
+
+
 ## Consegna tecnica Admin V2 · 21 novembre 2026
 
 Il contratto additivo admin-delivery-20261121-r2 riguarda product-admin-api e il frontend Admin. La bozza locale, la bozza su Shopify e la pubblicazione sul canale hanno verifiche distinte. Il collegamento Shopify per modifiche native richiede accesso staff separato. [Versioni, riscontri e rollback](admin-v2/RELEASE-REPORT.md) · [Criteri di accettazione](admin-v2/FINAL-ACCEPTANCE.md).

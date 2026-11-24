@@ -1,3 +1,4 @@
+import AiErrorNotice from '../components/AiErrorNotice';
 import { isTechnicalProduct } from '../../../supabase/functions/_shared/admin-operational-core';
 import { SHOPIFY_STORE_PERMANENT_DOMAIN } from '@/lib/shopify';
 import CatalogActions from '../components/CatalogActions';
@@ -144,9 +145,9 @@ export default function ProductDetailPage() {
       </section>}
 
       {!ADMIN_READ_ONLY_RELEASE && context?.canUseAi && aiSuggestions.isLoading && <p role="status">Recupero delle proposte salvate…</p>}
-      {context?.canUseAi && aiSuggestions.isError && <p role="alert">Lettura delle proposte non riuscita. Puoi modificare la bozza manualmente.{' '}
+      {context?.canUseAi && aiSuggestions.isError && <AiErrorNotice>Lettura delle proposte non riuscita. Puoi modificare la bozza manualmente.{' '}
         <button className="underline" onClick={() => void aiSuggestions.refetch()}>Rileggi le proposte salvate</button>
-      </p>}
+      </AiErrorNotice>}
       <Accordion type="multiple" defaultValue={sections.slice(0, 2).map((s) => s.key)}>
         {sections.map((section) => (
           <AccordionItem key={section.key} value={section.key}>

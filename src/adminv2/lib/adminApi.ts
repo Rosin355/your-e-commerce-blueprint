@@ -207,6 +207,10 @@ const MESSAGES: Record<string, string> = {
   AI_NOT_CONFIGURED: 'Il servizio AI non è configurato.',
   AI_TIMEOUT: 'Il servizio AI non ha risposto in tempo.',
   AI_PROVIDER_ERROR: 'Il servizio AI non è disponibile. Riprova più tardi.',
+  INVALID_CONFIRMED_FACTS: 'Controlla le informazioni inserite. Usa da 1 a 12 righe confermate di 12–500 caratteri, senza link, email o HTML.',
+  INVALID_MODEL_PROPOSAL: 'Il modello ha restituito una proposta inutilizzabile. Le informazioni inserite sono conservate. Puoi riprovare.',
+  INVALID_FIELD_VALUE: 'Il testo non rispetta il formato o i limiti del campo. Rivedi le righe confermate e riprova.',
+  AI_CONNECTION_ERROR: 'Connessione al servizio AI interrotta. Controlla la rete e riprova.',
   MALFORMED_AI_OUTPUT: 'La proposta ricevuta non è in un formato sicuro.',
   INTERNAL_ERROR: 'Si è verificato un problema. Riprova tra qualche istante.',
   BLOCK_SYNC: 'Questo campo non può essere sincronizzato: verifica la mappatura e lo stato di approvazione.',
@@ -231,11 +235,14 @@ async function invokeWithAdminSession<T>(
 
   if (signal?.aborted) throw new DOMException('Richiesta annullata', 'AbortError');
   if (error) {
+    if (functionName === 'product-admin-ai' && error.name === 'FunctionsFetchError') {
+      throw new AdminApiError('AI_CONNECTION_ERROR', MESSAGES.AI_CONNECTION_ERROR);
+    }
     const ctx = (error as { context?: Response }).context;
     if (ctx && typeof ctx.json === 'function') {
       try {
         const payload = await ctx.json();
-        const code = payload?.error?.code ?? 'INTERNAL_ERROR';
+        const code = payload?.error?.code ?? (functionName === 'product-admin-ai' && ctx.status === 401 ? 'UNAUTHENTICATED' : 'INTERNAL_ERROR');
         throw new AdminApiError(
           code,
           MESSAGES[code] ?? payload?.error?.message ?? MESSAGES.INTERNAL_ERROR,
@@ -366,5 +373,11 @@ export async function sendFieldSyncCommand(input: {
 }
 
 export async function suggestConfirmedField(input: { fieldKey: string; facts: string[]; confirmed: boolean; requestKey: string }) {
-  return callAdminAiApi<{ok:true;value:unknown}>({action:'suggest_confirmed_field',...input});
+  const result = await callAdminAiApi<{ok:true;value:unknown;source?: 'model' | 'confirmed_facts'}>({
+    action: 'suggest_confirmed_field', ...input,
+  });
+  if (!result?.ok || result.value == null) {
+    throw new AdminApiError('INVALID_MODEL_PROPOSAL', MESSAGES.INVALID_MODEL_PROPOSAL);
+  }
+  return result;
 }

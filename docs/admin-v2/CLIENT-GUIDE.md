@@ -4,11 +4,21 @@ Apri [l’area staff](https://onlinegarden.it/admin) con la tua utenza personale
 
 ## Creare un prodotto
 
-1. Scegli **Nuovo prodotto**. Inserisci nome, descrizione e SKU univoco. Nei dati commerciali aggiungi marca o fornitore, tipo prodotto e tag.
-2. Seleziona le categorie o le collezioni editoriali disponibili. In **Immagini e formati** imposta un prezzo per ciascun formato. Un prodotto semplice usa lo stesso SKU della scheda. Un prodotto con più formati usa uno SKU famiglia e uno SKU diverso per ciascun formato.
-3. Per la foto scegli un JPEG o PNG fino a 5 MB. Scrivi il testo alternativo prima del caricamento e attendi la miniatura. Per inviare la foto a Shopify usa il testo registrato nella libreria. Puoi recuperare un file già caricato. Rimuoverlo dalla bozza conserva il file.
-4. Compila botanica e SEO. In **Anteprima** controlla descrizione, prezzi, foto, SKU e selezioni. Esegui la verifica, spunta la conferma e scegli **Salva bozza nell’Admin**. Riapri il prodotto dal collegamento per controllare il riepilogo persistito. Fino al salvataggio mantieni aperta la pagina.
+1. Apri **Nuovo prodotto**. Inserisci nome, descrizione verificata e prezzo. Il formato iniziale è **Formato unico** e la valuta è **EUR**. Puoi rinominare il formato o scegliere **Aggiungi formato**, indicando nome e prezzo per ogni riga. Il gestionale assegna i codici.
+2. Se pertinenti, scegli la categoria e le fotografie. Per caricare una foto usa un JPEG o PNG fino a 5 MB, scrivi il testo alternativo e attendi la miniatura. Puoi anche scegliere un file dalla tua libreria. Rimuoverlo dalla bozza conserva il file caricato.
+3. In **Opzioni avanzate** trovi fornitore, tipo, tag, SEO, SKU, botanica e FAQ. Seleziona ciascun mese verificato anche in ordine sparso. Un altro clic sullo stesso mese lo deseleziona. Richiudi la sezione quando hai finito.
+4. Scegli **Vai all’anteprima**, poi **Verifica anteprima**. Per un codice già occupato usa **Genera altri codici** e ripeti la verifica. Se Shopify è irraggiungibile, conserva aperta la scheda e riprova. Spunta la conferma, scegli **Salva bozza nell’Admin** e apri **Apri scheda prodotto e storico** per rileggere formati, mesi e foto. Ricaricare o abbandonare la pagina prima del salvataggio fa perdere la compilazione locale.
 5. Quando la scheda è pronta, apri **Operazioni Shopify e storico**, scegli **Crea bozza Shopify** e conferma. Cerca lo stato **Bozza Shopify verificata**. La bozza resta fuori vendita. Se l’esito è incerto, usa **Recupera stato senza ricreare** sulla stessa operazione. Se la scheda segnala cambiamenti dopo il salvataggio, richiedi una verifica prima di inviare.
+
+### Preparare la descrizione con l’assistente
+
+Apri **Nuovo prodotto**, inserisci il nome, il formato e il prezzo. Il modulo genera i codici SKU. Se vuoi usare l’assistente puoi lasciare vuota la **Descrizione** mentre prepari la proposta: servirà un testo approvato per completare la bozza.
+
+1. Apri **Aiuto AI per la descrizione**. Scrivi soltanto informazioni verificate e confermale. Puoi usare una riga con più frasi oppure separare i fatti su righe diverse. Ogni riga può contenere da 12 a 500 caratteri. Per esempio, se hai controllato il cartellino, puoi scrivere «Il cartellino riporta il nome Quercus robur».
+2. Premi **Organizza le informazioni con AI** e rileggi la proposta. Con la correzione in collaudo, se il modello cambia i fatti vedrai un avviso che identifica l’uso delle tue righe originali. Se compare un errore rosso, segui l’indicazione e riprova. Il testo inserito resta nel modulo aperto.
+3. Scegli **Applica alla compilazione** e conferma. Controlla la descrizione nel campo obbligatorio, completa gli altri dati, apri l’anteprima e scegli **Salva bozza nell’Admin**. Riapri la bozza e confronta il testo salvato. L’invio a Shopify richiede un’azione distinta.
+
+Il responsabile comunicherà la disponibilità della correzione sul dominio pubblico. [Stato del difetto e collaudo](AI-ERROR-LIVE-2026-11-24.md)
 
 ## Modificare e usare l’AI
 

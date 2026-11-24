@@ -1,4 +1,4 @@
-import { authorizeConfirmedAi, confirmedFacts, generateConfirmedProposal } from '../_shared/admin-ai-confirmed.ts';
+import { ConfirmedProposalError, authorizeConfirmedAi, confirmedFacts, generateConfirmedProposal } from '../_shared/admin-ai-confirmed.ts';
 import { payloadHash } from '../_shared/admin-v2-commands.ts';
 import { loadCatalogGrant, catalogMode } from '../_shared/admin-catalog-approvals.ts';
 import { catalogAiAllowed } from '../_shared/admin-catalog-policy.ts';
@@ -72,6 +72,9 @@ const HTTP: Record<string, number> = {
   FIELD_NOT_EDITABLE: 422,
   AI_NOT_ALLOWED: 422,
   VALIDATION_ERROR: 422,
+  INVALID_CONFIRMED_FACTS: 422,
+  INVALID_MODEL_PROPOSAL: 502,
+  INVALID_FIELD_VALUE: 422,
   VERSION_CONFLICT: 409,
   IDEMPOTENCY_CONFLICT: 409,
   SUGGESTION_STALE: 409,
@@ -185,17 +188,45 @@ export async function handleProductAdminAi(
     await loadCatalogGrant(serviceClient(), auth);
     const repo = deps.repository();
     if (action === 'suggest_confirmed_field') {
-      if (!writesEnabled()) return fail('WRITES_DISABLED','Assistenza AI temporaneamente disabilitata.');
+      const requestId = isUuid(payload.requestKey) ? payload.requestKey as string : crypto.randomUUID();
+      const trace = { scope: 'product-admin-ai', action, requestId, field: null as string | null };
+      function reject(code: string, stage: string, message: string) {
+        console.warn(JSON.stringify({ ...trace, stage, code }));
+        return fail(code, message, { requestId });
+      }
+      if (!writesEnabled()) return reject('WRITES_DISABLED', 'authorization', 'Assistenza AI temporaneamente disabilitata.');
       const def = typeof payload.fieldKey === 'string' ? await repo.getDefinition(payload.fieldKey) : null;
-      try { authorizeConfirmedAi(auth,def,action); } catch { return fail('FORBIDDEN','Azione AI non autorizzata per questo account e campo.'); }
+      trace.field = def?.key ?? null;
+      try { authorizeConfirmedAi(auth, def, action); }
+      catch { return reject('FORBIDDEN', 'authorization', 'Azione AI non autorizzata per questo account e campo.'); }
       let facts: string[];
-      try { facts=confirmedFacts(payload.facts,payload.confirmed); } catch (error) { return fail('VALIDATION_ERROR',(error as Error).message); }
-      if (!isUuid(payload.requestKey)) return fail('VALIDATION_ERROR','Identificativo richiesta mancante.');
+      try { facts = confirmedFacts(payload.facts, payload.confirmed); }
+      catch { return reject('INVALID_CONFIRMED_FACTS', 'input', 'Verifica le righe inserite e confermale.'); }
+      if (!isUuid(payload.requestKey)) return reject('VALIDATION_ERROR', 'request', 'Identificativo richiesta non valido.');
       const { data: reserved, error } = await serviceClient().rpc('reserve_confirmed_ai_request',{p_actor:auth.userId,p_request_key:payload.requestKey,p_field_key:def!.key,p_context_hash:await payloadHash({facts}),p_action:action});
-      if (error) return fail('FORBIDDEN','Impossibile autorizzare la richiesta AI.');
-      if (!reserved) return fail('RATE_LIMITED','Richiesta già inviata o limite di 5 richieste al minuto raggiunto. Nessun retry automatico.');
-      try { return json({ok:true,value:await generateConfirmedProposal(def!,facts,deps.generate)}); }
-      catch(error) { if (error instanceof AiProviderError) throw error; return fail('VALIDATION_ERROR','Proposta non valida o informazioni insufficienti. Nessuna modifica effettuata; compila manualmente.'); }
+      if (error) {
+        return error.code === '42501'
+          ? reject('FORBIDDEN', 'reservation', 'Richiesta AI non autorizzata.')
+          : reject('INTERNAL_ERROR', 'reservation', 'Impossibile verificare il limite di richieste AI.');
+      }
+      if (!reserved) return reject('RATE_LIMITED', 'reservation', 'Richiesta già inviata o limite raggiunto.');
+      try {
+        const proposal = await generateConfirmedProposal(def!, facts, deps.generate);
+        if (proposal.source === 'confirmed_facts') {
+          console.info(JSON.stringify({ ...trace, stage: 'fallback', code: 'INVALID_MODEL_PROPOSAL' }));
+        }
+        return json({ ok: true, ...proposal });
+      } catch (error) {
+        if (error instanceof ConfirmedProposalError) {
+          return reject(error.code, error.code === 'INVALID_FIELD_VALUE' ? 'field' : 'model', error.message);
+        }
+        if (error instanceof AiProviderError) {
+          return error.code === 'MALFORMED_AI_OUTPUT'
+            ? reject('INVALID_MODEL_PROPOSAL', 'model', 'La risposta AI non contiene una proposta utilizzabile.')
+            : reject(error.code, 'provider', error.message);
+        }
+        return reject('INTERNAL_ERROR', 'generation', 'Errore del servizio durante la preparazione della proposta.');
+      }
     }
 
     if (action === "get_ai_suggestions") {

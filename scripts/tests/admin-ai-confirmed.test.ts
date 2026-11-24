@@ -23,16 +23,46 @@ test('campo mancante espone assistenza ma non genera o inizializza automaticamen
 });
 test('nuova bozza e campo vuoto producono una proposta separata da fatti confermati',async()=>{
  let calls=0;const value=await generateConfirmedProposal(def,confirmedFacts(facts,true),async(_strategy,ctx)=>{calls++;assert.equal(ctx.sku,'');assert.deepEqual(ctx.trustedRelatedValues,{});return {value:facts.join('\n')};});
- assert.equal(calls,1);assert.equal(value,facts.map(x=>`<p>${x}</p>`).join(''));
+ assert.equal(calls,1);assert.deepEqual(value, { source: 'model', value: facts.map(x=>`<p>${x}</p>`).join('') });
 });
 test('liste: ordine proposto lecito e nessun fatto aggiunto',async()=>{
- const d={...def,key:'key_features',editor_type:'multiselect',data_type:'json'};assert.deepEqual(await generateConfirmedProposal(d,facts,async()=>({value:[facts[1],facts[0]]})),[facts[1],facts[0]]);
+ const d={...def,key:'key_features',editor_type:'multiselect',data_type:'json'};assert.deepEqual(await generateConfirmedProposal(d,facts,async()=>({value:[facts[1],facts[0]]})),{source:'model', value:[facts[1],facts[0]]});
 });
 for(const value of ['Il fiore è non tossico.','Prezzo 99 euro.','Altezza 120 cm.','Stock 20 pezzi.','SKU NUOVO-123.','Certificazione biologica garantita.','<script>alert(1)</script>'])test('rifiuta invenzione: '+value,async()=>{
- await assert.rejects(generateConfirmedProposal(def,facts,async()=>({value})),/diverse/);
+ const proposal = await generateConfirmedProposal(def, facts, async () => ({ value }));
+ assert.deepEqual(proposal, { source: 'confirmed_facts', value: facts.map(line => `<p>${line}</p>`).join('') });
 });
 test('errore provider resta errore, nessuna proposta sostitutiva inventata',async()=>{await assert.rejects(generateConfirmedProposal(def,facts,async()=>{throw Error('synthetic failure');}));});
 
 test('handler deriva attore dalla sessione verificata, non dal payload',()=>{
  const source=readFileSync('supabase/functions/product-admin-ai/index.ts','utf8');assert.match(source,/const auth = await deps.authenticate\(req\)/);assert.match(source,/p_actor:auth.userId/);assert.doesNotMatch(source,/p_actor:payload/);
+});
+
+test('un paragrafo di più frasi o tre righe distinte, senza descrizione preesistente', async () => {
+  const lines = ['La scheda riporta Quercus robur.', 'Il nome è stato trascritto dal cartellino.', 'Il riferimento A & B è verificato.'];
+  for (const original of [[lines.join(' ')], lines]) {
+    const input = confirmedFacts(original, true);
+    const result = await generateConfirmedProposal(def, input, async () => ({ value: [...input].reverse().join('\n') }));
+    const html = [...input].reverse().map(line => `<p>${line.replace(/&/g, '&amp;')}</p>`).join('');
+    assert.deepEqual(result, { value: html, source: 'model' });
+  }
+});
+
+test('punteggiatura, omissioni e duplicati usano tutte le righe originali in ordine', async () => {
+  const expected = facts.map(line => `<p>${line}</p>`).join('');
+  for (const value of [facts[0], facts.join('\n') + '!', [facts[0],facts[0]]]) {
+    assert.deepEqual(await generateConfirmedProposal(def, facts, async () => ({ value })),
+      { value: expected, source: 'confirmed_facts' });
+  }
+});
+
+test('formato modello illeggibile e limiti del campo hanno diagnosi distinte', async () => {
+  for (const value of [null, {}, [], ['']]) {
+    await assert.rejects(generateConfirmedProposal(def, facts, async () => ({value})), {code:'INVALID_MODEL_PROPOSAL'});
+  }
+  const limited = {...def, validation_rules:{ maxLength: 15 }};
+  for (const value of [facts.join('\n'), 'Una parafrasi generata.']) {
+    await assert.rejects(generateConfirmedProposal(limited, facts, async () => ({value})), {code:'INVALID_FIELD_VALUE'});
+  }
+  await assert.rejects(generateConfirmedProposal({...def,key:'key_features'}, facts, async () => ({value:['Testo inatteso']})), {code:'INVALID_MODEL_PROPOSAL'});
 });
