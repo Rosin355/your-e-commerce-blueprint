@@ -201,6 +201,61 @@ export type Database = {
           },
         ]
       }
+      admin_draft_ai_field_opt_ins: {
+        Row: {
+          actor: string
+          approved_reference: string
+          field_key: string
+          granted_at: string
+        }
+        Insert: {
+          actor: string
+          approved_reference: string
+          field_key: string
+          granted_at?: string
+        }
+        Update: {
+          actor?: string
+          approved_reference?: string
+          field_key?: string
+          granted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_draft_ai_field_opt_ins_field_key_fkey"
+            columns: ["field_key"]
+            isOneToOne: false
+            referencedRelation: "product_field_definitions"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      admin_draft_ai_request_scopes: {
+        Row: {
+          actor: string
+          fields: string[]
+          request_key: string
+        }
+        Insert: {
+          actor: string
+          fields: string[]
+          request_key: string
+        }
+        Update: {
+          actor?: string
+          fields?: string[]
+          request_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_draft_ai_request_scopes_actor_request_key_fkey"
+            columns: ["actor", "request_key"]
+            isOneToOne: true
+            referencedRelation: "admin_confirmed_ai_requests"
+            referencedColumns: ["actor", "request_key"]
+          },
+        ]
+      }
       admin_operation_events: {
         Row: {
           actor: string
@@ -1915,6 +1970,10 @@ export type Database = {
           p_request_key: string
         }
         Returns: boolean
+      }
+      reserve_new_draft_editorial_v1: {
+        Args: { p_actor: string; p_context_hash: string; p_request_key: string }
+        Returns: Json
       }
       reserve_product_ai_generation: {
         Args: {
