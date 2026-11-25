@@ -1,5 +1,16 @@
 # Accettazione Admin V2 · 21 novembre 2026
 
+## Collaudo personale sul candidato consolidato
+
+- [x] Fixture di nuova bozza, prodotto esistente, proposta per campo, conservazione dei valori, conflitti e verifica del singolo aggiornamento.
+- [x] Fixture di DRAFT, rifiuto della pubblicazione tecnica, rimozione, archiviazione, ripristino, cancellazione autorizzata e casi di rifiuto. Ricevuta dopo riapertura verificata in Chromium.
+- [ ] Marco accede con il proprio Editor e riconferma dati reali, provenienza delle proposte AI, descrizioni distinte, tag, foto, ALT, prezzi e formati sulla bozza concordata.
+- [x] Safari desktop nativo su fixture locale. Apertura e annullamento del confronto con zero scritture.
+- [ ] Percorso autenticato completo in Safari desktop e iPhone sulla revisione candidata. Verifica finale sulla vetrina dopo il Publish.
+- [ ] DRAFT reale e operazioni commerciali soltanto sul prodotto e sul canale autorizzati. Registrare accettazione con data ed esito. Le variazioni strutturali delle famiglie restano fuori dalla consegna verificata.
+
+SAL 57,75%. [Sequenza unica di collaudo, limiti e responsabilità](../release/ADMIN-V2-CONSEGNA-MARCO-2026-11-25.md)
+
 ## Chiusura AI della nuova bozza · 24 novembre 2026
 
 Il percorso tecnico è stato eseguito con un account staff in anteprima e con rilettura su onlinegarden.it. Una richiesta reale ha organizzato la descrizione. SEO e tag hanno usato il fallback previsto per quell’account. Per Marco resta da verificare in prima persona la selezione del modello sui suoi tre campi abilitati. Per l’accettazione personale verificare nella stessa bozza le origini dei suggerimenti, il tipo manuale, due formati, tre mesi, foto e categoria fino alla riapertura. Registrare la conferma di Marco. [Stato di rilascio e rollback](../release/PR73-CHIUSURA-AI.md)

@@ -1,5 +1,9 @@
 # Step 1 — UX di verifica
 
+## Candidato per Marco · 25 novembre 2026
+
+Nel percorso principale contano i contenuti e l’esito dell’operazione. La vista raccoglie nome, foto, prezzi/formati, testi, SEO e tag. Il pannello tecnico è chiuso alla prima apertura. Nella proposta editoriale, confrontare valore attuale, suggerimento, origine ed eventuali dati mancanti. Verde per preparare/salvare, blu per Shopify, ambra per i controlli, grigio per annullare, rosso per errori ed eliminazione. L’azione distruttiva mostra l’effetto e richiede la digitazione esatta. Verificare con Marco la comprensione delle diciture «Solo Admin», «Admin e Shopify», «Fuori vendita» e «esito da riconciliare». Restano aperti Safari desktop e iPhone. [Collaudo e ricevute](../release/ADMIN-V2-CONSEGNA-MARCO-2026-11-25.md)
+
 ## Passaggio al collaudo con Marco · 20 novembre 2026
 
 Sono online il riepilogo della creazione, i campi modificabili segnalati, la descrizione formattata, gli stati di vendita e le azioni distinte di scrittura assistita. La prova Admin ha mostrato «Bozza interna non inviata · fuori vendita» accanto ai dati della lavanda. Ricerca categorie, prezzi per formato, sezioni facoltative e confronto delle proposte sono coperti dai test del candidato.

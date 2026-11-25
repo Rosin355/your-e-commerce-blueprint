@@ -1,3 +1,7 @@
+## Candidato unico Admin V2 · decisione del 25 novembre 2026
+
+Base isolata `ddc27ef` comprensiva delle PR #73–75. Il candidato applicativo `97797af` copre revisione editoriale, creazione DRAFT, aggiornamenti selettivi e ciclo di vendita con journal. Il dominio serve `index-BcqOotvz.js`. Preparazione tecnica verificata. SQL, grant, Edge, Publish e collaudo commerciale attendono decisioni distinte. Aperte Safari, sessione di Marco, IA autentica e modifiche strutturali delle varianti esistenti. SAL **57,75%**. [Verbale operativo corrente](release/ADMIN-V2-CONSEGNA-MARCO-2026-11-25.md)
+
 ## Admin V2 operativo per Marco · 25 novembre 2026
 
 PR #74 integrata sul ramo Lovable isolato a `f5b7ae0`. Editor sincronizzato, produzione a `index-BcqOotvz.js`. Il registro e il journal sono pronti per la decisione SQL. Restano aperti la scelta dei tre grant personali, il recupero verificabile della Edge attiva e il collaudo autenticato di Marco. Deploy Edge e Publish in NO-GO. SAL ufficiale **57,75%**. [Verbale, decisioni e rollback](release/MARCO-EDITOR-SHOPIFY-2026-11-25.md)
