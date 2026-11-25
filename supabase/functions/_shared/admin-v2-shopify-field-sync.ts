@@ -17,7 +17,7 @@ import { currentValueOf } from "./admin-v2-validation.ts";
 export const EDITORIAL_SYNC_API_VERSION = '2026-10';
 const editorialGraphQL: ShopifyGraphQL = (query, variables) => shopifyAdminGraphQLAtVersion(EDITORIAL_SYNC_API_VERSION, query, variables, true);
 function graphqlForTarget(target: ShopifyFieldTarget): ShopifyGraphQL {
-  return target.kind === 'metafield' && isEditorialList(target.key) ? editorialGraphQL : shopifyAdminGraphQL;
+  return target.kind === 'metafield' && (isEditorialList(target.key) || target.key === 'short_intro') ? editorialGraphQL : shopifyAdminGraphQL;
 }
 
 export type SyncFailureCode =
@@ -102,6 +102,14 @@ query AdminEditorialListTarget($id: ID!, $namespace: String!, $key: String!) {
     id
     metafield(namespace: $namespace, key: $key) { namespace key type value compareDigest }
   }
+}`;
+
+const SHORT_INTRO_TARGET = `
+query AdminShortIntro($id:ID!, $namespace:String!, $key:String!) {
+  metafieldDefinitions(ownerType:PRODUCT, namespace:$namespace, key:$key, first:2) {
+    nodes { namespace key type { name } access { storefront } }
+  }
+  product(id:$id) { id metafield(namespace:$namespace,key:$key) { namespace key type value compareDigest } }
 }`;
 
 const EXACT_VARIANT_TARGET = `
@@ -264,6 +272,23 @@ export async function readExactMetafieldTarget(
   if (target.kind !== "metafield") {
     throw new ShopifyFieldSyncError("BLOCK_SYNC", "Target metafield non valido.");
   }
+  if (target.key === 'short_intro') {
+    const id = toProductGid(shopifyProductId);
+    const read = await graphql<{
+      product: { id: string; metafield: ShopifyMetafieldSnapshot | null } | null;
+      metafieldDefinitions: { nodes: { namespace: string; key: string; type: { name: string }; access: { storefront: string } }[] };
+    }>(SHORT_INTRO_TARGET, { id, namespace: target.namespace, key: target.key });
+    const defs = read.metafieldDefinitions?.nodes;
+    const def = defs?.[0];
+    const field = read.product?.metafield;
+    if (!def || defs.length !== 1 || def.namespace !== 'custom' || def.key !== 'short_intro' ||
+        def.type.name !== 'multi_line_text_field' || def.access.storefront !== 'PUBLIC_READ' ||
+        read.product?.id !== id || field === undefined || (field && (!field.compareDigest ||
+        field.key !== def.key || field.namespace !== def.namespace || field.type !== def.type.name))) {
+      throw new ShopifyFieldSyncError('BLOCK_SYNC', 'Definizione o valore della descrizione breve non verificabili.');
+    }
+    return field;
+  }
   if (isEditorialList(target.key)) return (await readEditorialListTarget(shopifyProductId,target,graphql)).metafield ?? null;
   const id = toProductGid(shopifyProductId);
   const data = await graphql<{
@@ -336,6 +361,14 @@ export function buildShopifyWritePlan(input: {
 }): ShopifyWritePlan {
   const productId = toProductGid(input.productId);
   if (input.target.kind === "product") {
+    if (input.target.field === 'tags') {
+      const protectedTags = (value: unknown) => Array.isArray(value)
+        ? value.filter(t => typeof t === 'string' && /^og(?:qa)?shipping/i.test(t)).sort() : null;
+      const original = protectedTags(input.resolvedTarget?.value);
+      if (!original || JSON.stringify(original) !== JSON.stringify(protectedTags(input.value))) {
+        throw new ShopifyFieldSyncError('BLOCK_SYNC', 'Mantieni invariati i tag logistici già presenti.');
+      }
+    }
     return {
       operation: "productUpdate",
       variables: { product: { id: productId, [input.target.field]: input.value } },
@@ -396,7 +429,7 @@ export function buildShopifyWritePlan(input: {
         namespace: target.namespace,
         key: target.key,
         type: editorial ? input.resolvedTarget!.editorialDefinition!.type : metafieldType,
-        ...(editorial ? {compareDigest: input.resolvedTarget?.metafield?.compareDigest ?? null} : {}),
+        ...(editorial || target.key === 'short_intro' ? {compareDigest: input.resolvedTarget?.metafield?.compareDigest ?? null} : {}),
         value: wireValue,
       }],
     },
@@ -616,12 +649,12 @@ export async function syncFieldToShopify(input: {
     expected,
     expectedRemote: input.expectedRemote,
     hasExpectedRemote: input.hasExpectedRemote,
-    verifyBeforeWrite: isEditorialList(input.command.fieldKey) ? async () => {
+    verifyBeforeWrite: async () => {
       const current = await getCurrentValue(input.db, input.command.productId, input.command.fieldKey);
       if (!current || current.version !== input.command.expectedVersion || current.review_status !== 'approved' || current.publish_blocked || await payloadHash({value:currentValueOf(current)}) !== await payloadHash({value:currentValueOf(input.row)})) {
         throw new ShopifyFieldSyncError('STATE_DRIFT','La bozza è cambiata dopo la conferma: ricarica prima di sincronizzare.');
       }
-    } : undefined,
+    },
     previousVerifiedAt: input.row.shopify_verified_at,
     previousVerifiedValue: input.row.shopify_verified_value,
   });

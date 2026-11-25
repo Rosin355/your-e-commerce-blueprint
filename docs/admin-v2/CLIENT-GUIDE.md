@@ -32,3 +32,13 @@ Su un campo abilitato scegli **Migliora il testo con AI**. Confronta la proposta
 - **Verifica pubblicazione** controlla la scheda e il canale. Solo un operatore abilitato può confermare **Pubblica sul sito**. Un prodotto tecnico resta escluso dalla pubblicazione. Se un comando è disabilitato, leggi il motivo visualizzato.
 
 Per la prima prova personale usa la bozza tecnica di lavanda già presente. Registra l’esito nella [scheda di accettazione](FINAL-ACCEPTANCE.md).
+
+## Prossima versione · gestire un prodotto
+
+1. Apri **Prodotti**. Cerca il nome o lo SKU di un formato. Espandi la famiglia per vedere formati e prezzi.
+2. Apri il prodotto padre. In **Contenuti del prodotto** modifica il testo breve e quello esteso. Con l’AI conferma i fatti e scegli quali proposte applicare.
+3. Premi **Salva modifiche**. Confronta il valore interno con Shopify, scegli il singolo aggiornamento e conferma. Attendi la rilettura prima di considerare aggiornata la scheda.
+4. Se sei abilitato, in **Immagini e testi alternativi** puoi aggiungere foto della tua libreria. Per cambiare ALT scegli la foto da sostituire e carica la copia con il testo corretto. In **Modifica dei formati** puoi rinominare un formato esistente. Controlla il prima/dopo e conferma l’invio.
+5. Per un nuovo prodotto crea prima la bozza interna, poi la bozza Shopify. Controlla foto, prezzi, categoria, quantità, spedizione e canale. Conferma la pubblicazione del singolo prodotto e apri il collegamento alla vetrina. Il pannello distingue visibilità e disponibilità all’acquisto.
+
+Se l’esito resta da verificare, conserva la bozza e riapri lo storico. Le pagine pubbliche mostrano ancora la release precedente. [Verbale, collaudo e rollback](../release/MARCO-EDITOR-SHOPIFY-2026-11-25.md)

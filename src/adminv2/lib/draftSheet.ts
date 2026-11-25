@@ -5,7 +5,8 @@ import { isFieldEditable, validateValue } from '../../../supabase/functions/_sha
 import { editorialOptions, type EditorialProposal } from '../../../supabase/functions/_shared/admin-draft-editorial';
 
 export const sheetLabels = {
-  description: 'Descrizione',
+  description: 'Descrizione estesa',
+  shortDescription: 'Descrizione breve',
   seoTitle: 'Titolo SEO',
   seoDescription: 'Meta description SEO',
   tags: 'Tag',
@@ -30,7 +31,7 @@ export function sheetDefinition(key: SheetKey, context: SheetContext) {
       ['productType', 'product_type'].includes(String(d.shopify_mapping.field)));
     return mapped.length === 1 ? mapped[0] : undefined;
   }
-  const registryKey = { description: 'description', seoTitle: 'seo_title', seoDescription: 'seo_description', tags: 'tags' }[key];
+  const registryKey = { description: 'description', shortDescription: 'short_description', seoTitle: 'seo_title', seoDescription: 'seo_description', tags: 'tags' }[key];
   return context.definitions.find(d => d.key === registryKey);
 }
 
@@ -55,9 +56,9 @@ export function reasonUnavailable(key: SheetKey, context: SheetContext) {
   }
   if (!def || def.applies_to === 'variant' || def.manual_only || !isFieldEditable(def).ok)
     return 'Il registro non consente la compilazione assistita di questo campo. Verifica il campo nelle opzioni del prodotto.';
-  if (['description', 'seoTitle', 'seoDescription'].includes(key) && !context.editableKeys.includes(def.key))
+  if (['description', 'shortDescription', 'seoTitle', 'seoDescription'].includes(key) && !context.editableKeys.includes(def.key))
     return 'Il tuo account non ha il permesso di modifica per questo campo.';
-  if (key === 'description' && !def.ai_allowed)
+  if ((key === 'description' || key === 'shortDescription') && !def.ai_allowed)
     return 'Il registro riserva la descrizione alla compilazione manuale.';
 }
 
@@ -85,7 +86,7 @@ export function sheetValueError(key: SheetKey, value: string | string[], context
     if (key === 'description') {
       if (value.length > 20000 || !value.replace(/<[^>]*>|&nbsp;/g, '').trim()) return 'Controlla la descrizione obbligatoria.';
     } else {
-      const max = { seoTitle: 70, seoDescription: 320, productType: 255 }[key];
+      const max = { shortDescription: 320, seoTitle: 70, seoDescription: 320, productType: 255 }[key];
       if (!plain(value) || value.length > max) return 'Usa testo semplice entro ' + max + ' caratteri.';
     }
   }
@@ -123,6 +124,8 @@ export function localSheet(context: SheetContext, facts: string[]): SheetPreview
       { options, reason: options.length ? 'Conferma manualmente il tipo fra quelli verificati.' : 'Nessun tipo supera i controlli del registro.' };
   }
   return {
+    shortDescription: copy('shortDescription', facts.length > 1 ? facts.find(line => line.length <= 320) ?? '' : '',
+      'Inserisci almeno due informazioni distinte o scrivi una sintesi manuale.'),
     description: { reason: reasonUnavailable('description', context) },
     seoTitle: copy('seoTitle', options.seoTitle.find(v => !sheetValueError('seoTitle', v, context)) ?? title, 'Inserisci un nome utilizzabile come titolo SEO.'),
     seoDescription: copy('seoDescription', meta, 'Nessuna riga intera rispetta i limiti della meta description. Compilala a mano.'),

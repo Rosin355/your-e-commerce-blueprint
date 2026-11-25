@@ -22,7 +22,7 @@ const draft = { title: 'Bozza sintetica', sku: 'QA-DRAFT-ONLY', description: 'Fi
   variants: [{ sku: 'QA-DRAFT-ONLY', price: '10.00', compareAtPrice: null, option: 'Unico' }] };
 
 // Execute the real HTTP entrypoint and local module graph. All I/O is synthetic and closed.
-function load(options: { anonymous?: boolean; scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; commerce?: boolean; media?: boolean; ai?: { grant: boolean; reserved?: boolean; output?: unknown; http?: number; maxLength?: number; batch?: boolean; fields?: string[]; optIns?: string[]; tagsAi?: boolean; badReservation?: boolean; reservationError?: string } } = {}) {
+function load(options: { anonymous?: boolean; scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; assets?: boolean; imageAssigned?:boolean; commerce?: boolean; publishable?: boolean; indexed?: boolean; media?: boolean; ai?: { grant: boolean; reserved?: boolean; output?: unknown; http?: number; maxLength?: number; batch?: boolean; fields?: string[]; optIns?: string[]; tagsAi?: boolean; badReservation?: boolean; reservationError?: string } } = {}) {
   let handler!: (request: Request) => Promise<Response>;
   const calls = { rpc: 0, shopifyMutations: 0, statusReads: 0, events: 0, uploads: 0 };
   const traces: string[] = [];
@@ -39,9 +39,23 @@ function load(options: { anonymous?: boolean; scope?: unknown; status?: string; 
   const commerceProduct = { id:'gid://shopify/Product/123',title:'TEST ADMIN — NON PUBBLICARE',handle:'fixture',status:'DRAFT',updatedAt:'2026-11-10T12:00:00Z',
     variants:{nodes:[{id:'gid://shopify/ProductVariant/456',sku:'QA-DRAFT-ONLY',price:'10.00',compareAtPrice:null}],pageInfo:{hasNextPage:false}},
     collections:{nodes:[],pageInfo:{hasNextPage:false}} };
+  if (options.publishable) {
+    Object.assign(commerceProduct, {title:'Scheda sintetica', description:'Descrizione verificata per il test isolato.',
+      seo:{title:'Titolo',description:'Descrizione'}, media:{nodes:[{status:'READY',image:{url:'https://cdn.shopify.com/fixture.png'}}]},
+      collections:{nodes:[{id:'gid://shopify/Collection/12',handle:'alberi',title:'Alberi'}],pageInfo:{hasNextPage:false}}, publishedOnPublication:false});
+    Object.assign(commerceProduct.variants.nodes[0], {title:'Unico', inventoryQuantity:2, inventoryItem:{tracked:true, requiresShipping:true},
+      deliveryProfile:{id:'gid://shopify/DeliveryProfile/139796676948'}});
+  }
   const media: Record<string, unknown>[] = [];
+  const oldFile = 'gid://shopify/MediaImage/101';
+  const newFile = 'gid://shopify/MediaImage/102';
+  const newAlt = 'Vista laterale verificata';
+  const assetImages = [{id:oldFile,status:'READY',alt:'Prima',image:{url:'https://cdn.shopify.com/a.png'}}];
+  const assetOption = {id:'gid://shopify/ProductOption/1', name:'Formato',optionValues:[{id:'gid://shopify/ProductOptionValue/9',name:'Unico'}]};
+  if(options.assets) media.push({id:requestKey,actor,state:'READY',shopify_file_gid:newFile,alt:newAlt});
   const approvals: Record<string, unknown>[] = [];
   const grant = { enabled: options.catalog === true, capabilities: ['edit','sync','drafts','prices','publish','images','categories'], field_keys: ['title'] };
+  if (options.assets) grant.field_keys.push('product_gallery','product_formats');
   if (options.ai) {
     env.LOVABLE_API_KEY = 'synthetic-only';
     grant.field_keys = ['description', ...(options.ai.fields ?? [])];
@@ -56,7 +70,7 @@ function load(options: { anonymous?: boolean; scope?: unknown; status?: string; 
         ] : [])] :
         table === 'product_current_values' ? [{ product_id: productId, field_key: 'title', value_text: 'Prima', version: 1, review_status: 'approved' }] :
         table === 'product_sync_csv_products' ? { sku: product.sku, shopify_product_id: options.mapping ?? 'gid://shopify/Product/123' } :
-        table === 'admin_product_operations' ? { id: operationId, actor, request_key: options.opKey ?? requestKey, product_id: productId, state: options.opState ?? 'LOCAL_DRAFT', payload: draft } : null;
+        table === 'admin_product_operations' ? [{ id: operationId, actor, request_key: options.opKey ?? requestKey, product_id: productId, state: options.opState ?? 'LOCAL_DRAFT', payload: draft }] : null;
       let added: Record<string, unknown> | undefined;
       const changes: Record<string, unknown> = {};
       const filters: Record<string, unknown> = {};
@@ -92,11 +106,48 @@ function load(options: { anonymous?: boolean; scope?: unknown; status?: string; 
         return {createClient: () => { throw new Error('Unexpected database access before authentication'); }};
       }
       if (id.endsWith('/admin-v2-auth.ts') && !options.anonymous) return { authenticate: async () => ({ userId: actor, roles: [options.role ?? 'admin'] }), serviceClient: () => db, AuthError: class extends Error {} };
+      if (options.publishable && id.endsWith('/shopify-storefront-server.ts')) return {
+        shopifyStorefrontGraphQL:async () => ({product: {id:commerceProduct.id,availableForSale:true}, products:{pageInfo:{hasNextPage:false,endCursor:null},nodes:options.indexed === false ? [] : [{id:commerceProduct.id}]}}),
+      };
       if (id.endsWith('/shopify-admin-client.ts')) {
         const graphql = async (query: string, vars: Record<string, unknown> = {}) => {
+          if(options.assets && query.includes('EditorProductAssets')) return {product:{...commerceProduct,
+            options:[structuredClone(assetOption)],media:{nodes:structuredClone(assetImages),pageInfo:{hasNextPage:false}},
+            variants:{nodes:commerceProduct.variants.nodes.map(v=>({...v,selectedOptions:[{name:'Formato',value:assetOption.optionValues[0].name}],
+            media:{nodes:options.imageAssigned ? [{id:oldFile}] : [],pageInfo:{hasNextPage:false}}})),pageInfo:{hasNextPage:false}}}};
+          if(options.assets && query.includes('EditorLibraryImage')) return {node:{id:newFile,alt:newAlt,fileStatus:'READY'}};
+          if(options.assets && query.includes('EditorImageReference')) {
+            const [file]=vars.files as {id:string;referencesToAdd?:string[];referencesToRemove?:string[]}[];
+            assert.deepEqual(Array.from(file.referencesToAdd ?? file.referencesToRemove ?? []),[commerceProduct.id]);
+            assert.equal('alt' in file,false);
+            if(file.referencesToAdd) assetImages.push({id:newFile,status:'READY',alt:newAlt,image:{url:'https://cdn.shopify.com/b.png'}});
+            else assetImages.splice(assetImages.findIndex(m=>m.id===file.id),1);
+            calls.shopifyMutations++; return {fileUpdate:{files:[{id:file.id}],userErrors:[]}};
+          }
+          if(options.assets && query.includes('EditorFormatName')) {
+            assert.equal(vars.product,commerceProduct.id);
+            assert.match(query,/LEAVE_AS_IS/);
+            assetOption.optionValues[0].name=(vars.values as {name:string}[])[0].name;
+            calls.shopifyMutations++;return {productOptionUpdate:{userErrors:[]}};
+          }
           if (options.media && query.includes('AdminStage')) { calls.shopifyMutations++; return {stagedUploadsCreate:{stagedTargets:[{url:'https://storage.googleapis.com/synthetic-upload',resourceUrl:'https://storage.googleapis.com/synthetic-resource',parameters:[]}],userErrors:[]}}; }
           if (options.media && query.includes('AdminFile')) { calls.shopifyMutations++; return {fileCreate:{files:[{id:'gid://shopify/MediaImage/789'}],userErrors:[]}}; }
           if (options.media && query.includes('AdminMedia')) return {node:{id:'gid://shopify/MediaImage/789',fileStatus:'READY',image:{url:'https://cdn.shopify.com/fixture.png',width:16,height:16}}};
+          if (options.commerce && query.includes('AdminFamilyIdentity')) return {
+            productVariants: { nodes: [{sku: commerceProduct.variants.nodes[0].sku, product: {id: commerceProduct.id}}], pageInfo: {hasNextPage: false} },
+          };
+          if (options.publishable && query.includes('DeliveryShipping')) return {
+            a:{sources:[{targetType:'VARIANTS',inclusion:{matchType:'ALL',conditions:[{__typename:'CollectionSourceInclusionConditionVariantPrice',relation:'GREATER_THAN',value:{amount:'-0.01'}}]},
+              exclusion:{matchType:'ANY',conditions:[{__typename:'CollectionSourceExclusionConditionCollection',values:[{id:vars.b}]}]}}]},
+            b:{sources:[{targetType:'VARIANTS',inclusion:{conditions:[],selections:{nodes:[],pageInfo:{hasNextPage:false}}},exclusion:{conditions:[]}}]},
+          };
+          if (options.publishable && query.includes('DeliveryChannel')) return {publication:{id:vars.id,catalog:{title:'Channel Catalog 338862113108 for Ecom Blueprint Gen 6ud1s Headless'}}};
+          if (options.publishable && query.includes('DeliveryActivate')) {
+            calls.shopifyMutations++; commerceProduct.status='ACTIVE'; return {productUpdate:{userErrors:[]}};
+          }
+          if (options.publishable && query.includes('DeliveryPublish')) {
+            calls.shopifyMutations++; Object.assign(commerceProduct,{publishedOnPublication:true}); return {publishablePublish:{userErrors:[]}};
+          }
           if (options.commerce && query.includes('DeliveryProduct')) return {product:commerceProduct};
           if (options.commerce && query.includes('DeliveryPrices')) { calls.shopifyMutations++;
             const proposed=vars.variants as typeof commerceProduct.variants.nodes;
@@ -187,7 +238,7 @@ test('runtime context exposes only capability booleans and version; master OFF k
   const s = load({ master: false }); const response = await s.request({ action: 'get_admin_context' });
   assert.equal(response.status, 200);
   const context = await response.json();
-  assert.equal(context.backendVersion, 'admin-delivery-20261121-r2');
+  assert.equal(context.backendVersion, 'admin-editor-20261125');
   assert.equal(context.canWrite, false);
   assert.equal(context.operationalCapabilities.drafts, false);
   assert.equal(context.operationalCapabilities.draftShopify, false);
@@ -369,7 +420,7 @@ test('Scheda SEO: valori inventati o indici fuori dominio scartati campo per cam
     output:{description:[1,1],seoTitle:'Farnia certificata',seoDescription:42,tags:[0,0]}}});
   const body=await (await fixture.request({action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts})).json();
   assert.equal(body.source,'confirmed_facts');
-  assert.deepEqual(Object.values(body.editorial).map((r:any)=>r.source),['deterministic','deterministic','deterministic']);
+  assert.deepEqual(Object.values(body.editorial as Record<string,{source:string}>).map(r=>r.source),['deterministic','deterministic','deterministic']);
   assert.equal(body.editorial.seoDescription.value,facts.join(' '));
   assert.ok(!JSON.stringify(body).includes('certificata'));
   assert.equal(fixture.providerRequests.length,1);
@@ -430,4 +481,50 @@ test('Nuova bozza anonima: l’autenticazione effettiva rifiuta prima di databas
   assert.equal((await result.json()).error.code,'UNAUTHENTICATED');
   assert.equal(fixture.calls.rpc,0);
   assert.equal(fixture.providerRequests.length,0);
+});
+
+test('pubblicazione esplicita sul canale, rilettura per handle e catalogo, nessun successo prima dell’indicizzazione', async () => {
+  for (const indexed of [true,false]) {
+    const s = load({role:'editor',catalog:true,commerce:true,publishable:true,indexed,scope:null});
+    const cmd={action:'publish_catalog_product',productId,idempotencyKey:requestKey,expectedUpdatedAt:'2026-11-10T12:00:00Z',
+      logistics:[{id:'gid://shopify/ProductVariant/456',class:'A'}],allowSoldOut:false};
+    const prepared=await s.request({action:'prepare_catalog_approval',command:cmd,confirm:true});
+    assert.equal(prepared.status,200); assert.equal(s.calls.shopifyMutations,0);
+    const {approvalId}=await prepared.json();
+    const response=await s.request({...cmd,approvalId,confirm:true});
+    assert.equal(s.calls.shopifyMutations,2);
+    if (indexed) {
+      assert.equal(response.status,200);
+      assert.equal((await response.json()).result.state,'STOREFRONT_VERIFIED');
+    } else assert.notEqual(response.status,200);
+  }
+});
+
+test('galleria nominale e formato esistente richiedono confronto e rilettura indipendenti',async()=>{
+  for (const proposal of [
+    {action:'set_catalog_image',change:'replace',imageId:'gid://shopify/MediaImage/101',libraryId:requestKey},
+    {action:'rename_catalog_format',optionValueId:'gid://shopify/ProductOptionValue/9',name:'Vaso grande'},
+  ]) {
+    const command={...proposal,productId,idempotencyKey:requestKey,expectedUpdatedAt:'2026-11-10T12:00:00Z'};
+    for(const assets of [false,true]) {
+      const s=load({role:'editor',scope:null,catalog:true,fullMode:true,commerce:true,assets});
+      const approval=await s.request({action:'prepare_catalog_approval',command,confirm:true});
+      if(!assets){assert.equal(approval.status,403);assert.equal(s.calls.shopifyMutations,0);continue;}
+      assert.equal(approval.status,200,JSON.stringify(await approval.clone().json()));
+      const {approvalId}=await approval.json();
+      const result=await s.request({...command,approvalId,confirm:true});
+      assert.equal(result.status,200,JSON.stringify(await result.clone().json()));
+      assert.equal((await result.json()).result.state,'VERIFIED');
+      assert.equal(s.calls.shopifyMutations,proposal.action==='set_catalog_image'?2:1);
+    }
+  }
+});
+test('una foto associata a una variante e un file fuori dalla libreria impediscono l’invio',async()=>{
+  for(const assigned of [false,true]) {
+    const s=load({role:'editor',scope:null,catalog:true,fullMode:true,commerce:true,assets:true,imageAssigned:assigned});
+    const command={action:'set_catalog_image',change:'replace',imageId:'gid://shopify/MediaImage/101',
+      libraryId:assigned ? requestKey : productId,productId,idempotencyKey:requestKey,expectedUpdatedAt:'2026-11-10T12:00:00Z'};
+    assert.notEqual((await s.request({action:'prepare_catalog_approval',command,confirm:true})).status,200);
+    assert.equal(s.calls.shopifyMutations,0);
+  }
 });

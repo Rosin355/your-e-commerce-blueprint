@@ -163,7 +163,7 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
               ? <RichTextEditor label="Proposta descrizione" disabled={busy} simple value={value} onChange={v => edit(key, v)} />
               : <Textarea disabled={busy} aria-label="Proposta descrizione" value={value} onChange={e => edit(key, e.target.value)} />}
           </>}
-          {(key === 'seoTitle' || key === 'seoDescription') && typeof value === 'string' &&
+          {(key === 'shortDescription' || key === 'seoTitle' || key === 'seoDescription') && typeof value === 'string' &&
             <Textarea disabled={busy} aria-label={'Proposta ' + sheetLabels[key]} value={value} onChange={e => edit(key, e.target.value)} />}
           {key === 'tags' && Array.isArray(value) && <label className="block">Tag proposti, separati da virgole
             <Textarea disabled={busy} value={row.tagText ?? value.join(', ')} onChange={e =>
@@ -185,7 +185,7 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
             {key === 'description' ? <EditorialText value={draft.description} /> : <p>{key === 'tags' ? draft.tags.join(', ') : draft[key]}</p>}</div>}
           {value !== undefined && !different(key) && <p className="text-sm">Presente nella bozza</p>}
           {value !== undefined && different(key) && <div className="flex flex-wrap gap-2">
-            <Button disabled={busy || !applicable(key)} type="button" variant="outline" onClick={() => apply([key])}>Applica {sheetLabels[key]}</Button>
+            <Button disabled={busy || !applicable(key)} type="button" variant="editorial" onClick={() => apply([key])}>Applica {sheetLabels[key]}</Button>
             <Button disabled={busy} type="button" variant="ghost" onClick={() => setResult({ ...preview, rows: {
               ...preview.rows, [key]: { ...row, excluded: !row.excluded },
             } })}>{row.excluded ? 'Includi ' : 'Escludi '}{sheetLabels[key]}</Button>
@@ -194,7 +194,7 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
         </div>;
       })}
       <div className="flex flex-wrap gap-2">
-        <Button type="button" disabled={busy || !sheetKeys.some(applicable)} onClick={() => apply(sheetKeys)}>Applica tutte le proposte disponibili</Button>
+        <Button variant="editorial" type="button" disabled={busy || !sheetKeys.some(applicable)} onClick={() => apply(sheetKeys)}>Applica tutte le proposte disponibili</Button>
         <Button type="button" variant="outline" disabled={busy} onClick={invalidate}>Scarta anteprima</Button>
       </div>
     </section>}

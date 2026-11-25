@@ -1,8 +1,10 @@
+import { assetAllowed, assetWrites } from '../_shared/admin-catalog-assets.ts';
 import { shopifyStorefrontGraphQL } from '../_shared/shopify-storefront-server.ts';
 import { decodeEditorialList } from '../_shared/editorial-list-codec.ts';
 import { listPublicationStates } from '../_shared/admin-list-publication.ts';
 import { COMMERCE_ACTIONS, handleCatalogCommerce, commerceSnapshot } from '../_shared/admin-catalog-commerce.ts';
 import { loadCatalogGrant, prepareCatalogApproval, withCatalogApproval, catalogMode } from '../_shared/admin-catalog-approvals.ts';
+import { verifyCatalogIdentity } from '../_shared/admin-catalog-identity.ts';
 import { catalogAllowed, catalogAiAllowed, EDITORIAL_AI_FIELDS, isEditorialList, requireCatalog, CATALOG_MUTATIONS } from '../_shared/admin-catalog-policy.ts';
 import { handleCatalogMedia } from '../_shared/admin-catalog-media.ts';
 import { payloadHash } from '../_shared/admin-v2-commands.ts';
@@ -116,7 +118,7 @@ Deno.serve(async (req) => {
     if (action === 'sync_field' && isEditorialList(payload.fieldKey)) requireCatalog(auth, 'sync', String(payload.fieldKey));
     if (action === 'prepare_catalog_approval') {
       const command=payload.command as Record<string,unknown>;
-      const commerce=['set_catalog_prices','set_catalog_collections','publish_catalog_product'].includes(String(command?.action));
+      const commerce=[...assetWrites,'set_catalog_prices','set_catalog_collections','publish_catalog_product'].includes(String(command?.action));
       return json(await prepareCatalogApproval(deliveryDb, auth, payload, commerce?()=>commerceSnapshot(deliveryDb,auth,command):undefined));
     }
     if (['upload_catalog_image','get_catalog_media','list_catalog_media'].includes(action)) return json(await handleCatalogMedia(deliveryDb, auth, payload));
@@ -158,16 +160,19 @@ Deno.serve(async (req) => {
         canWrite: canWriteNow,
         canSync: (catalogAllowed(auth,'sync') || canSyncShopify(auth.roles)) && shopifySyncEnabled() && enabled &&
           (mode === "full" || (canWriteNow && scope?.actions.includes("sync_field"))),
-        backendVersion: "admin-delivery-20261121-r2",
+        backendVersion: "admin-editor-20261125",
+        supportsDistinctDescriptions: true,
         supportsCatalogSourceAndProductType: true,
         ordinaryCatalog: ordinary,
         canUseAi: enabled && catalogAiAllowed(auth),
         canUploadImages: enabled && (catalogAllowed(auth,"images") || (scope?.actorId===auth.userId && scope.actions.includes("upload_catalog_image"))),
+        canManageGallery: enabled && shopifySyncEnabled() && assetAllowed(auth,'set_catalog_image'),
+        canRenameFormats: enabled && shopifySyncEnabled() && assetAllowed(auth,'rename_catalog_format'),
         canManagePrices: enabled && catalogAllowed(auth,"prices"),
         canPublish: enabled && catalogAllowed(auth,"publish"),
         canaryConfigured: scope !== null,
         operationalCapabilities: {
-          drafts: operationalFlags().drafts,
+          drafts: enabled && operationalFlags().drafts && (catalogAllowed(auth, 'drafts') || (scope?.actorId === auth.userId && scope.actions.includes('save_new_product'))),
           draftShopify: operationalFlags().shopify,
           categories: enabled && (!ordinary || catalogAllowed(auth,'categories')) && Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true',
           approvalConfigured: ordinary || operationalFlags().approval,
@@ -196,7 +201,8 @@ Deno.serve(async (req) => {
     }
 
     if (action === "list_products") {
-      const { productRows, nextCursor, currentValues } = await listProducts(db, {
+      const { productRows, nextCursor, currentValues, variantsByParent } = await listProducts(db, {
+        groupFamilies: payload.groupFamilies === true,
         search: typeof payload.search === "string" ? payload.search : undefined,
         sku: typeof payload.sku === "string" ? payload.sku : undefined,
         gtin: typeof payload.gtin === "string" ? payload.gtin : undefined,
@@ -234,7 +240,7 @@ Deno.serve(async (req) => {
           values.filter((v) => v.product_id === row.id),
           row.parent_product_id ? (parentSkuById.get(row.parent_product_id) ?? null) : null,
         );
-        return { ...summary, publicationState: publicationStates.get(row.id) ?? null };
+        return { ...summary, ...(payload.groupFamilies === true ? { variants: variantsByParent.get(row.id) ?? [] } : {}), publicationState: publicationStates.get(row.id) ?? null };
       });
       return json({ ok: true, items, nextCursor, pageSize: items.length });
     }
@@ -326,8 +332,13 @@ Deno.serve(async (req) => {
               }
             } catch { /* Unknown channel visibility must never be presented as published. */ }
           }
+          let identityVerified = false;
+          if (auth.catalogGrant?.enabled) {
+            try { await verifyCatalogIdentity(db, product, live.id); identityVerified = true; }
+            catch { /* Keep editorial work available while writes stay blocked. */ }
+          }
           shopifyLive = {
-            siteVisible, siteAvailability,
+            identityVerified, siteVisible, siteAvailability,
             available: true,
             mapped: true,
             productId: live.id,
@@ -486,9 +497,10 @@ Deno.serve(async (req) => {
         return fail("BLOCK_SYNC", "Mappatura Shopify assente per questo SKU");
       }
 
-      if (isEditorialList(fieldKey) && String(auth.catalogApproval?.before.shopifyProductId) !== String(mapping.shopify_product_id)) return fail('BLOCK_SYNC','Il mapping Shopify è cambiato dopo la conferma. Ricarica la scheda.');
+      if (auth.catalogApproval && String(auth.catalogApproval?.before.shopifyProductId) !== String(mapping.shopify_product_id)) return fail('BLOCK_SYNC','Il mapping Shopify è cambiato dopo la conferma. Ricarica la scheda.');
       try {
         if (catalogMode(auth) === 'canary') requireCanaryScope(canaryScope(), auth.userId, auth.roles, 'sync_field', fieldKey);
+        if (auth.catalogGrant?.enabled) await verifyCatalogIdentity(db, commandProduct, mapping.shopify_product_id);
         const result = await syncFieldToShopify({
           db,
           command,
@@ -510,6 +522,7 @@ Deno.serve(async (req) => {
       } catch (error) {
         const syncError = error instanceof ShopifyFieldSyncError
           ? error
+          : error instanceof OperationalError ? new ShopifyFieldSyncError("BLOCK_SYNC", error.message)
           : new ShopifyFieldSyncError("SHOPIFY_WRITE_FAILED", "Shopify non disponibile.");
         const recorded = await markSyncResult(db, {
           ...command,
@@ -651,7 +664,7 @@ Deno.serve(async (req) => {
 
     console.log(redactedLog(action, actorId, String(result?.code ?? "APPLIED")));
     return json({ ok: true, result });
-    }, ['set_catalog_prices','set_catalog_collections','publish_catalog_product'].includes(action)?()=>commerceSnapshot(deliveryDb,auth,payload):undefined);
+    }, [...assetWrites,'set_catalog_prices','set_catalog_collections','publish_catalog_product'].includes(action)?()=>commerceSnapshot(deliveryDb,auth,payload):undefined);
   } catch (err) {
     if (err instanceof OperationalError) {
       console.log(redactedLog(action, actorId, err.code));

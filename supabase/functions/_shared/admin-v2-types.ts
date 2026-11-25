@@ -120,6 +120,7 @@ export interface ListProductsFilters {
 }
 
 export interface ListProductsRequest extends ListProductsFilters {
+  groupFamilies?: boolean;
   cursor?: string | null;
   pageSize?: number;
 }

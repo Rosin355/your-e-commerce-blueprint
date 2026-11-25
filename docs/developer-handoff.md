@@ -1,5 +1,10 @@
 # Online Garden — developer handoff
 
+## Candidato operativo Marco del 25 novembre
+
+L’unica Edge candidata è product-admin-api. Il cliente AI usa il contratto già pubblicato. Le nuove operazioni di galleria e formato richiedono grant personali, versione Shopify, approvazione nel journal e rilettura. Il registro descrizioni, i nuovi comandi del journal e le singole abilitazioni hanno script psql reversibili in docs/release/pending. I pacchetti di rollback richiedono verifica della revisione Edge attiva prima del deploy. [Verbale, collaudo e rollback](release/MARCO-EDITOR-SHOPIFY-2026-11-25.md)
+
+
 ## Chiusura AI della nuova bozza · 24 novembre 2026
 
 La migrazione 0020 è registrata nel Cloud e la Edge è distribuita dal merge e11995c. La prenotazione server usa opt-in per attore e chiave. La Edge accetta il contratto storico della descrizione. Il frontend pubblicato serve index-BcqOotvz.js. Una bozza salvata dall’anteprima con la Edge attiva è stata riletta sul dominio pubblico. I pacchetti per il ripristino, le impronte e i limiti del collaudo sono nel registro operativo. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)

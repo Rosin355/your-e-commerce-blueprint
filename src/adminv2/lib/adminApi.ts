@@ -11,10 +11,13 @@ export type EntityType = 'simple' | 'variable' | 'variation';
 export interface AdminContext {
   roles: string[];
   ordinaryCatalog?: boolean;
+  supportsDistinctDescriptions?: boolean;
   supportsCatalogSourceAndProductType?: boolean;
   canUseAi?: boolean;
   canUploadImages?: boolean;
   canManagePrices?: boolean;
+  canManageGallery?: boolean;
+  canRenameFormats?: boolean;
   canPublish?: boolean;
   writesEnabled: boolean;
   writeMode?: 'canary' | 'full';
@@ -47,6 +50,7 @@ export interface DashboardStats {
 }
 
 export interface ProductSummary {
+  variants?: { productId: string; sku: string; format: string | null; price: number | string | null }[];
   productId: string;
   sku: string;
   title: string | null;
@@ -165,6 +169,7 @@ export interface ProductDetail {
     syncStatus?: string | null;
     price?: string | number | null;
     compareAtPrice?: string | number | null;
+    identityVerified?: boolean;
     mappingSource?: string;
     error?: string | null;
   };

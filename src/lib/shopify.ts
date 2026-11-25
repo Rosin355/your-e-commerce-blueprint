@@ -1,3 +1,4 @@
+import { HIDDEN_STOREFRONT_PRODUCT_IDS } from '../../supabase/functions/_shared/storefront-excluded-products';
 
 // Storefront config is env-driven via Vite (VITE_*). These are PUBLIC values by design:
 // the Storefront API token is a public access token meant to ship in the browser bundle.
@@ -244,10 +245,7 @@ export async function storefrontApiRequest(query: string, variables: Record<stri
  * Prodotti di test nascosti dalla vetrina (stato Shopify invariato, reversibile).
  * ID Shopify: 15357653156180 (TEST-001), 15357653188948 (TEST-002).
  */
-export const HIDDEN_STOREFRONT_PRODUCT_IDS: ReadonlySet<string> = new Set([
-  "gid://shopify/Product/15357653156180",
-  "gid://shopify/Product/15357653188948",
-]);
+export { HIDDEN_STOREFRONT_PRODUCT_IDS };
 export const isHiddenStorefrontProduct = (p: { node?: { id?: string } } | null | undefined) =>
   !!p?.node?.id && HIDDEN_STOREFRONT_PRODUCT_IDS.has(p.node.id);
 const visibleOnly = <T extends { node?: { id?: string } }>(list: T[]): T[] => list.filter((p) => !isHiddenStorefrontProduct(p));

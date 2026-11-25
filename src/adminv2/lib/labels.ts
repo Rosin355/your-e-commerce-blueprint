@@ -71,7 +71,7 @@ export function productStates(p: ProductSummary): string[] {
   const states: string[] = [];
   if (p.publicationState !== undefined) {
     const visibility = {
-      local_draft: 'Bozza interna', shopify_draft: 'Bozza Shopify', published: 'Pubblicato sul sito',
+      local_draft: 'Bozza interna', shopify_draft: 'Bozza Shopify', published: 'Pubblicato sul canale',
       unlisted: 'Visibile tramite link', off_channel: 'Fuori dal canale del sito', archived: 'Archiviato su Shopify',
     };
     states.push(p.publicationState ? visibility[p.publicationState] : 'Pubblicazione da verificare');
@@ -112,7 +112,7 @@ export function siteState(live: { available: boolean; publicationStatus?: string
     if (live.publicationStatus === 'ACTIVE' || live.publicationStatus === 'UNLISTED') {
       if (live.siteVisible === false) return 'Non visibile sul canale del sito · fuori vendita';
       if (live.siteVisible === true && typeof live.siteAvailability === 'boolean') {
-        const visibility = live.publicationStatus === 'UNLISTED' ? 'Consultabile tramite link' : 'Pubblicato sul sito';
+        const visibility = live.publicationStatus === 'UNLISTED' ? 'Consultabile tramite link' : 'Pubblicato sul canale · presenza in catalogo da verificare';
         return visibility + (live.siteAvailability ? ' · disponibile per la vendita' : ' · al momento non acquistabile');
       }
     }

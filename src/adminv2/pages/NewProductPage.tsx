@@ -162,9 +162,9 @@ export default function NewProductPage() {
             <DraftSheetAssistant draft={draft} context={{
               title: draft.title,
               categories: [...draft.categoryIds, ...(draft.collectionIds ?? [])].flatMap(id => categoryNames.has(id) ? [categoryNames.get(id)!] : []),
-              definitions: definitions.data.definitions.filter(d =>
-                ['description', 'seo_title', 'seo_description', 'tags'].includes(d.key) ||
-                ['productType', 'product_type'].includes(String(d.shopify_mapping?.field))),
+              definitions: definitions.data.definitions.filter(d => (d.key !== 'short_description' || adminContext.data.supportsDistinctDescriptions) && (
+                ['description', 'short_description', 'seo_title', 'seo_description', 'tags'].includes(d.key) ||
+                ['productType', 'product_type'].includes(String(d.shopify_mapping?.field)))),
               canFillDraft: ordinary && catalogue.data.canSaveDraft,
               editableKeys: adminContext.data.editableFieldKeys ?? [],
               supportsType: adminContext.data.supportsCatalogSourceAndProductType === true,
@@ -173,8 +173,14 @@ export default function NewProductPage() {
               if (change.description !== undefined) setDescriptionRevision(n => n + 1);
               if (change.tags) setTagsInput(change.tags.join(', '));
             }} />}
+          {adminContext.data?.supportsDistinctDescriptions && adminContext.data.editableFieldKeys?.includes('short_description') && <label className="block" htmlFor="shortDescription">
+            Descrizione breve
+            <Textarea id="shortDescription" maxLength={320} value={draft.shortDescription ?? ''} onChange={e => update({shortDescription: e.target.value})} aria-describedby="short-help" />
+            <span id="short-help" className="text-sm">Una sintesi per la parte alta della pagina prodotto, entro 320 caratteri.</span>
+            {errors.shortDescription && <span role="alert" className="text-destructive">{errors.shortDescription}</span>}
+          </label>}
           <section aria-label="Descrizione del prodotto" className="space-y-2">
-            <h2 className="font-semibold">Descrizione (obbligatoria)</h2>
+            <h2 className="font-semibold">Descrizione estesa (obbligatoria)</h2>
             <RichTextEditor key={descriptionRevision} value={draft.description} onChange={description => update({ description })}
               simple label="Descrizione verificata" inputId="description" error={errors.description} disabled={locked} />
             {errors.description && <p id="description-error" className="text-sm text-destructive">{errors.description}</p>}
@@ -273,7 +279,7 @@ export default function NewProductPage() {
             </label>
             <Button
               type='button'
-              disabled={preview.data?.shopifySkuVerified !== true || !confirmed || !catalogue.data?.canSaveDraft ||
+              variant='editorial' disabled={preview.data?.shopifySkuVerified !== true || !confirmed || !catalogue.data?.canSaveDraft ||
                 save.isPending}
               onClick={() => {
                 setLocked(true);
@@ -324,7 +330,7 @@ export default function NewProductPage() {
             {catalogue.data?.canSendDraft &&
               (ordinary || catalogue.data.approvedOperationId === save.data.result.operationId) && (
               <Button
-                disabled={send.isPending || Boolean(send.data)}
+                variant='shopify' disabled={send.isPending || Boolean(send.data)}
                 onClick={() => {
                   if (window.confirm('Creare soltanto una bozza Shopify, senza pubblicarla?')) {
                     send.mutate('create_shopify_draft');

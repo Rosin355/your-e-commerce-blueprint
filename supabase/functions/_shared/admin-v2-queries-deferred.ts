@@ -82,6 +82,7 @@ export async function listProducts(
   const pageSize = normalizePageSize(req.pageSize);
   const selected: Array<{ id: string; sku: string; parent_product_id: string | null; entity_type: string; updated_at: string; is_active: boolean }> = [];
   const selectedValues: CurrentValueRow[] = [];
+  const variantsByParent = new Map<string, { productId: string; sku: string; format: string | null; price: number | string | null }[]>();
   let after = req.cursor;
   // Read candidate products in stable batches. Filters are evaluated before the
   // page boundary, never on the 25 products already returned to the browser.
@@ -89,28 +90,56 @@ export async function listProducts(
     let pq = db.from("products")
       .select("id,sku,entity_type,parent_product_id,updated_at,is_active")
       .order("sku", { ascending: true }).limit(50);
-    if (req.sku?.trim()) pq = pq.ilike("sku", `%${escapeLike(req.sku.trim())}%`);
+    if (req.groupFamilies) pq = pq.is('parent_product_id', null);
+    if (!req.groupFamilies && req.sku?.trim()) pq = pq.ilike("sku", `%${escapeLike(req.sku.trim())}%`);
     if (req.productSource) pq = pq.eq("legacy_source", req.productSource);
-    if (req.entityType) pq = pq.eq("entity_type", req.entityType);
+    if (req.entityType && !(req.groupFamilies && req.entityType === "variation")) pq = pq.eq("entity_type", req.entityType);
     if (after) pq = pq.gt("sku", after);
     const { data, error } = await pq;
     if (error) throw error;
     const batch = data ?? [];
     if (!batch.length) break;
-    const ids = batch.map((p: { id: string }) => p.id);
+    const children: typeof selected = [];
+    if (req.groupFamilies) {
+      const parents = batch.map(p => p.id);
+      for (let offset = 0;; offset += 250) {
+        const result = await db.from('products').select('id,sku,entity_type,parent_product_id,updated_at,is_active')
+          .in('parent_product_id', parents).order('id').range(offset, offset + 249);
+        if (result.error) throw result.error;
+        children.push(...(result.data ?? []));
+        if ((result.data?.length ?? 0) < 250) break;
+      }
+    }
+    const ids = [...batch, ...children].map((p: { id: string }) => p.id);
     const values: CurrentValueRow[] = [];
     // PostgREST's row ceiling must not silently truncate fields/review flags.
+    for (let start = 0; start < ids.length; start += 50) {
     for (let offset = 0;; offset += 500) {
       const page = await db.from("product_current_values")
         .select("id,product_id,sku,field_key,entity_type,value_text,value_number,value_json,value_origin,origin,review_status,publish_blocked,protected_on_reimport,source_snapshot_id,is_locked,publish_state,shopify_verified_value,shopify_verified_at,shopify_sync_error_code,shopify_sync_error_message,version,updated_at")
-        .in("product_id", ids).order("id").range(offset, offset + 499);
+        .in("product_id", ids.slice(start, start + 50)).order("id").range(offset, offset + 499);
       if (page.error) throw page.error;
       values.push(...(page.data ?? []));
       if ((page.data?.length ?? 0) < 500) break;
     }
+    }
     for (const product of batch) {
       const current = values.filter(v => v.product_id === product.id);
-      if (!matchesProductFilters(product, current, req)) continue;
+      const variants = children.filter(child => child.parent_product_id === product.id);
+      const members = req.groupFamilies ? [product, ...variants] : [product];
+      const matches = members.some(member => {
+        if (req.groupFamilies && req.entityType === 'variation' && member.entity_type !== 'variation') return false;
+        if (req.groupFamilies && req.sku && !member.sku.toLowerCase().includes(req.sku.trim().toLowerCase())) return false;
+        const fields = member === product ? current : values.filter(v => v.product_id === member.id);
+        return matchesProductFilters(member, fields, req);
+      });
+      if (!matches) continue;
+      if (variants.length) variantsByParent.set(product.id, variants.map(v => {
+        const fields = values.filter(row => row.product_id === v.id);
+        const price = fields.find(row => row.field_key === 'price');
+        return { productId: v.id, sku: v.sku, format: fields.find(row => row.field_key === 'title')?.value_text ?? null,
+          price: price?.value_number ?? price?.value_text ?? null };
+      }));
       selected.push(product);
       selectedValues.push(...current);
       if (selected.length > pageSize) break;
@@ -124,7 +153,7 @@ export async function listProducts(
   const productRows = selected.slice(0, pageSize);
   const ids = new Set(productRows.map(p => p.id));
   return {
-    productRows,
+    productRows, variantsByParent,
     currentValues: selectedValues.filter(v => ids.has(v.product_id)),
     nextCursor: hasMore ? productRows[productRows.length - 1].sku : null,
     items: productRows.map(p => p.id),

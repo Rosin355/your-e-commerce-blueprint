@@ -35,6 +35,8 @@ export function draftErrors(draft: ProductDraft, definitions: FieldDefinition[] 
   const validPrice = (value: string) => /^(0|[1-9]\d{0,7})([.,]\d{1,2})?$/.test(value);
   if (!draft.title.trim() || draft.title.trim().length > 255) errors.title = 'Inserisci un nome da 1 a 255 caratteri.';
   if (!draft.description.replace(/<[^>]*>|&nbsp;/g, '').trim() || draft.description.length > 20000) errors.description = 'Inserisci una descrizione verificata, entro 20.000 caratteri.';
+  if (draft.shortDescription && (draft.shortDescription.length > 320 || /[<>]/.test(draft.shortDescription) ||
+    draft.shortDescription.trim() === draft.description.replace(/<[^>]*>/g, '').trim())) errors.shortDescription = 'Inserisci una sintesi distinta dal testo esteso, entro 320 caratteri.';
   if (!validSku(draft.sku)) errors.sku = 'Usa da 1 a 80 lettere, numeri, trattini, punti o underscore.';
   if (!/^[A-Z]{3}$/.test(draft.currency)) errors.currency = 'Inserisci un codice valuta di tre lettere maiuscole, ad esempio EUR.';
   const skus = new Set<string>(draft.variants.length > 1 ? [draft.sku.toLowerCase()] : []);

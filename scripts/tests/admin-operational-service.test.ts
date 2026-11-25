@@ -16,6 +16,8 @@ function simulation(
     remoteVendor?: string;
     productType?: string;
     remoteOption?: string;
+    short?: string;
+    missingShortMapping?: boolean;
     useDefaultSeoTitle?: boolean;
   } = {},
 ) {
@@ -23,6 +25,7 @@ function simulation(
     title: 'Simulazione',
     sku: 'QA-001',
     description: '<p>Test <strong>editoriale</strong></p>',
+    shortDescription: options.short,
     productType: options.productType,
     currency: 'EUR',
     vendor: options.requestedVendor ?? '',
@@ -39,7 +42,7 @@ function simulation(
     draft.variants.push({ sku: 'QA-002', price: '13.00', compareAtPrice: null, option: 'Altro' });
   }
   const op = {
-    id,
+    actor: actor.userId, id,
     product_id: '30000000-0000-4000-8000-000000000001',
     payload: draft,
     state: 'LOCAL_DRAFT',
@@ -50,6 +53,7 @@ function simulation(
     status: 'DRAFT',
     handle: `og-draft-${id}`,
     title: draft.title,
+    shortIntro: options.short ? {type:'multi_line_text_field',value:options.short} : null,
     descriptionHtml: draft.description,
     tags: draft.tags,
     seo: { title: options.useDefaultSeoTitle ? null : draft.seoTitle, description: draft.seoDescription },
@@ -93,6 +97,11 @@ function simulation(
           update = v;
           return chain;
         },
+        maybeSingle() {
+          const definition = {key:'short_description',editable:true,publishable:true,shopify_mapping:
+            options.missingShortMapping ? {} : {type:'metafield',namespace:'custom',key:'short_intro'}};
+          return Promise.resolve({data:table === 'product_field_definitions' ? definition : null,error:null});
+        },
         single() {
           return Promise.resolve({ data: op, error: null });
         },
@@ -121,6 +130,7 @@ function simulation(
     },
   } as unknown as SupabaseClient;
   const shopify = async <T>(query: string, variables: Record<string, unknown> = {}): Promise<T> => {
+    if (query.includes('DraftShortDefinition')) return {metafieldDefinitions:{nodes:[{type:{name:'multi_line_text_field'},access:{storefront:'PUBLIC_READ'}}]}} as T;
     if (query.includes('DraftCurrency')) {
       return { shop: { currencyCode: options.currency ?? 'EUR' } } as T;
     }
@@ -587,3 +597,18 @@ Deno.test('publication badges distinguish local, Shopify and channel state and p
   });
   assertEquals(Object.fromEntries(await listPublicationStates(db, products, () => Promise.reject(new Error('Shopify unavailable')))), { local: 'local_draft' });
 });
+
+Deno.test('la bozza Shopify registra entrambi i testi solo per l’autore abilitato',()=>withFlags(async()=>{
+  const s=simulation({short:'Sintesi verificata.'});
+  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','edit','sync'],fieldKeys:['short_description']}};
+  const command={action:'create_shopify_draft',operationId:id,confirm:true};
+  await assertRejects(()=>handleOperational(s.db,{...author,userId:'00000000-0000-4000-8000-000000000009'},command,s.shopify));
+  assertEquals(s.mutations,0);
+  const missing=simulation({short:'Sintesi verificata.',missingShortMapping:true});
+  await assertRejects(()=>handleOperational(missing.db,author,command,missing.shopify));
+  assertEquals(missing.mutations,0);
+  await handleOperational(s.db,author,command,s.shopify);
+  assertEquals(s.input?.descriptionHtml,'<p>Test <strong>editoriale</strong></p>');
+  assertEquals((s.input?.metafields as {key:string;value:string}[]).find(f=>f.key==='short_intro')?.value,'Sintesi verificata.');
+  assertEquals(s.mutations,1);
+}));

@@ -3,8 +3,12 @@ import assert from "node:assert/strict";
 import { listProducts } from "../../supabase/functions/_shared/admin-v2-queries-deferred.ts";
 import { matchesProductFilters } from "../../supabase/functions/_shared/admin-v2-list-filters.ts";
 
-function fixture(count: number, extraFields = 0) {
+function fixture(count: number, extraFields = 0, family = false) {
   const products = Array.from({length: count}, (_, i) => ({id: String(i), sku: String(i).padStart(5,"0"), entity_type:"simple", legacy_source:i<85?"unknown":"manuale", parent_product_id:null}));
+  if (family) {
+    Object.assign(products[1], {entity_type:'variable'});
+    Object.assign(products[count - 1], {sku:'CHILD-LAST', entity_type:'variation', parent_product_id:products[1].id});
+  }
   const values = products.flatMap((p,i) => [
     {id:p.sku+"-a",product_id:p.id,field_key:"title",value_text:i<60?"Altro":"Rosa"},
     {id:p.sku+"-b",product_id:p.id,field_key:"description",value_text:"Descrizione"},
@@ -18,6 +22,7 @@ function fixture(count: number, extraFields = 0) {
     const chain:any={
       select:()=>chain, order:(key:string)=>{data=[...data].sort((a:any,b:any)=>String(a[key]).localeCompare(String(b[key])));return chain;},
       limit:(n:number)=>{max=n;return chain;}, gt:(k:string,v:string)=>{data=data.filter((r:any)=>r[k]>v);return chain;},
+      is:(k:string,v:unknown)=>{data=data.filter((r:any)=>r[k]===v);return chain;},
       eq:(k:string,v:string)=>{data=data.filter((r:any)=>r[k]===v);return chain;},
       ilike:(_k:string,_v:string)=>chain,
       in:(k:string,ids:string[])=>{data=data.filter((r:any)=>ids.includes(r[k]));return chain;},
@@ -66,4 +71,12 @@ test("filters combine; effective category wins over raw; sync is not product ori
   assert.equal(matchesProductFilters({sku:"OG_1"},values,{origin:"import"}),false);
   assert.equal(matchesProductFilters({sku:"OG_1"},values,{needsClassification:true}),false);
   assert.equal(matchesProductFilters({sku:"OG_1"},[],{needsClassification:true,completeness:"incomplete"}),true);
+});
+
+test('la ricerca SKU ritrova il padre anche quando la variante è fuori dalla pagina del padre',async()=>{
+  const {db}=fixture(62,0,true);
+  const result=await listProducts(db as never,{groupFamilies:true,sku:'child-last',pageSize:10});
+  assert.deepEqual(result.productRows.map(p=>p.id),['1']);
+  assert.equal(result.variantsByParent.get('1')?.[0].sku,'CHILD-LAST');
+  assert.equal(result.nextCursor,null);
 });

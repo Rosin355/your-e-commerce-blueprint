@@ -1,7 +1,7 @@
 name: Editor Step 1 synthetic browser checks
 on:
   pull_request:
-    branches: [main]
+    branches: [main, codex/rilascio-admin-v2-isolato-20261124]
     paths:
       - 'src/adminv2/**'
       - 'supabase/functions/**'

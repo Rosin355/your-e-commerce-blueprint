@@ -22,6 +22,7 @@ import {
 } from './admin-operational-core.ts';
 import { payloadHash, writeMode, writesEnabled } from './admin-v2-commands.ts';
 import { getExactShopifyProductMapping, getFieldDefinitions } from './admin-v2-queries-deferred.ts';
+import { resolveShopifyTarget } from './admin-v2-field-policy.ts';
 import { isFieldEditable, validateValue } from './admin-v2-validation.ts';
 import { shopifyAdminGraphQLAtVersion } from './shopify-admin-client.ts';
 
@@ -114,6 +115,7 @@ function validatedFields(draft: ProductDraft, defs: FieldDefinition[]) {
   const entries: Record<string, unknown> = {
     title: draft.title,
     description: draft.description,
+    ...(draft.shortDescription ? { short_description: draft.shortDescription } : {}),
     seo_title: draft.seoTitle,
     seo_description: draft.seoDescription,
   };
@@ -144,13 +146,14 @@ function validatedFields(draft: ProductDraft, defs: FieldDefinition[]) {
   });
 }
 const PRODUCT_FIELDS =
-  `id handle status title descriptionHtml vendor productType tags seo { title description } metafield(namespace:"online_garden",key:"creation_id") { value } collections(first:250){nodes{id} pageInfo{hasNextPage}} media(first:20){nodes{id status alt ... on MediaImage{image{url}}} pageInfo{hasNextPage}} variants(first:100) { nodes { id sku price compareAtPrice selectedOptions { name value } } pageInfo { hasNextPage } }`;
+  `id handle status title shortIntro:metafield(namespace:"custom",key:"short_intro"){type value} descriptionHtml vendor productType tags seo { title description } metafield(namespace:"online_garden",key:"creation_id") { value } collections(first:250){nodes{id} pageInfo{hasNextPage}} media(first:20){nodes{id status alt ... on MediaImage{image{url}}} pageInfo{hasNextPage}} variants(first:100) { nodes { id sku price compareAtPrice selectedOptions { name value } } pageInfo { hasNextPage } }`;
 interface ShopifyDraft {
   id: string;
   handle: string;
   status: string;
   title: string;
   descriptionHtml: string;
+  shortIntro?: { value: string; type: string } | null;
   vendor: string;
   productType: string;
   tags: string[];
@@ -178,6 +181,7 @@ function verifiedLinks(draft: ProductDraft, opId: string, product: ShopifyDraft,
     product.title === draft.title && (!draft.vendor || product.vendor === draft.vendor) &&
       (!draft.productType || product.productType === draft.productType) &&
       product.descriptionHtml.trim() === draftDescriptionHtml(draft.description).trim() &&
+      (!draft.shortDescription || (product.shortIntro?.type === 'multi_line_text_field' && product.shortIntro.value === draft.shortDescription)) &&
       (!draft.seoTitle || (product.seo.title || product.title) === draft.seoTitle) &&
       (!draft.seoDescription || product.seo.description === draft.seoDescription) &&
       product.tags.length === draft.tags.length && draft.tags.every(tag => product.tags.includes(tag)) &&
@@ -262,7 +266,7 @@ export async function handleOperational(
     return {
       ok: true,
       ...await catalogCategories(db),
-      canAuthorDraft: (catalogAllowed(auth,'drafts') || auth.roles.some(r => ['admin', 'tech_admin', 'editor'].includes(r))),
+      canAuthorDraft: flags.drafts && (ordinary ? catalogAllowed(auth,'drafts') : scoped('save_new_product') && auth.roles.some(r => ['admin','tech_admin','editor'].includes(r))),
       canManageCategories: (catalogAllowed(auth,'drafts') || auth.roles.some(r => ['admin', 'tech_admin'].includes(r))),
       canRecoverDraft: ordinary ? writesEnabled() && catalogAllowed(auth,'drafts') : writesEnabled() && scoped('recover_shopify_draft') && approval()?.action === 'create_shopify_draft' && (catalogAllowed(auth,'drafts') || auth.roles.some(r => ['admin', 'tech_admin'].includes(r))),
       ordinaryCatalog: ordinary,
@@ -518,6 +522,7 @@ export async function handleOperational(
     if(ordinary && (draft.collectionIds?.length || draft.categoryIds.length)) { requireCatalog(auth,'categories'); demand(Deno.env.get('PRODUCT_ADMIN_CATEGORIES_ENABLED') === 'true', 'Categorie disabilitate: puoi salvare la bozza senza assegnazioni.'); }
     if(draft.collectionIds?.length){const eligible=await editorialCollections();demand(draft.collectionIds.every(id=>eligible.some(c=>c.id===id)),'Collezione editoriale non verificata.');}
     const defs = await getFieldDefinitions(db);
+    if (draft.shortDescription) requireCatalog(auth, 'edit', 'short_description');
     const fields = validatedFields(draft, defs);
     const catalog = await catalogCategories(db);
     demand(
@@ -540,6 +545,9 @@ export async function handleOperational(
         shopifySkuVerified: true,
         warnings: [
           'Codici verificati nel catalogo interno e su Shopify.',
+          ...(!draft.images.length ? ['Per pubblicare servirà una foto pronta con testo alternativo.'] : []),
+          ...(!draft.categoryIds.length && !draft.collectionIds?.length ? ['Assegna una categoria editoriale prima della pubblicazione.'] : []),
+          ...(draft.variants.some(v => Number(v.price) <= 0) ? ['Verifica i prezzi prima della pubblicazione.'] : []),
           'Inventario e pubblicazione non vengono modificati.',
         ],
       };
@@ -574,15 +582,15 @@ export async function handleOperational(
     const canManageDraft = catalogAllowed(auth, 'drafts') || auth.roles.some(r => ['admin', 'tech_admin'].includes(r));
     const columns = 'id,product_id,state,created_at,updated_at,admin_operation_events(state,created_at)';
     const { data, error } = await db.from('admin_product_operations')
-      .select(canManageDraft ? columns + ',payload' : columns)
+      .select(canManageDraft ? columns + ',payload,actor' : columns)
       .eq('product_id', p.productId).order('created_at', { ascending: false });
     if (error) throw new OperationalError('CATALOG_UNAVAILABLE', 'Storico operazioni non disponibile.');
     const operations = await Promise.all((data ?? []).map(async row => {
-      const { id, state, product_id, created_at, updated_at, admin_operation_events, payload } = row as unknown as {
+      const { id, state, product_id, created_at, updated_at, admin_operation_events, payload, actor } = row as unknown as {
         id: string; state: string; product_id: string; created_at: string; updated_at: string;
-        admin_operation_events: { state: string; created_at: string }[]; payload?: unknown;
+        admin_operation_events: { state: string; created_at: string }[]; payload?: unknown; actor?: string;
       };
-      return { id, state, product_id, created_at, updated_at, admin_operation_events,
+      return { id, state, product_id, created_at, updated_at, admin_operation_events, canOperate: !ordinary || actor === auth.userId,
         ...(canManageDraft ? { summary: await readDraftSummary(db, payload, shopify) } : {}) };
     }));
     return {
@@ -606,7 +614,9 @@ export async function handleOperational(
     p.operationId,
   ).single();
   if (error || !op) throw new OperationalError('NOT_FOUND', 'Operazione non disponibile.');
+  if (ordinary && op.actor !== auth.userId) throw new OperationalError('FORBIDDEN', 'Questa operazione appartiene a un altro operatore.');
   const draft = validateDraft(op.payload);
+  if (draft.shortDescription && action === 'create_shopify_draft') requireCatalog(auth, 'sync', 'short_description');
   if (canary) {
     requireCanaryDraft(requireCanaryScope(scope, auth.userId, auth.roles, action), draft, op.request_key);
     if ((scope?.productId && scope.productId !== op.product_id) || op.actor !== auth.userId) {
@@ -679,6 +689,17 @@ export async function handleOperational(
         'Collezione mancante o automatica: assegnazione manuale non consentita.',
       );
     }
+    if (ordinary && draft.shortDescription) {
+        const {data: field, error: registryError} = await db.from('product_field_definitions')
+          .select('key,editable,publishable,shopify_mapping').eq('key','short_description').maybeSingle();
+        demand(!registryError && field?.editable && resolveShopifyTarget(field as FieldDefinition)?.kind === 'metafield',
+          'Il collegamento della descrizione breve deve essere approvato nel registro Admin.');
+        const definitions = await shopify<{metafieldDefinitions:{nodes:{type:{name:string};access:{storefront:string}}[]}}>(
+          'query DraftShortDefinition{metafieldDefinitions(ownerType:PRODUCT,namespace:"custom",key:"short_intro",first:2){nodes{type{name} access{storefront}}}}', {});
+        const rows = definitions.metafieldDefinitions.nodes;
+        demand(rows.length === 1 && rows[0].type.name === 'multi_line_text_field' && rows[0].access.storefront === 'PUBLIC_READ',
+          'Definizione Shopify della descrizione breve non verificata.');
+    }
     const attachedFiles: {id:string}[]=[];
     if(draft.images.length){
       const {data: ready,error: mediaError}=await db.from('admin_catalog_media').select('cdn_url,shopify_file_gid,alt').eq('actor',auth.userId).eq('state','READY').in('cdn_url',draft.images.map(i=>i.url));
@@ -724,7 +745,7 @@ export async function handleOperational(
         key: 'creation_id',
         type: 'single_line_text_field',
         value: op.id,
-      }],
+      }, ...(draft.shortDescription ? [{ namespace: 'custom', key: 'short_intro', type: 'multi_line_text_field', value: draft.shortDescription }] : [])],
     };
     try {
       const created = await shopify<
