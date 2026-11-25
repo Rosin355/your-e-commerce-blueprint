@@ -16,7 +16,7 @@ const initial: ProductDraft = {
   seoTitle: 'Titolo SEO sintetico', seoDescription: 'Descrizione SEO sintetica',
 };
 
-async function simulate(page: Page, options: { assets?:boolean; readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; modelSeo?: boolean; denyDescription?: boolean } = {}) {
+async function simulate(page: Page, options: { assets?:boolean; lifecycle?:boolean; existingAi?:boolean; syncReview?:boolean; conflictAfterSave?:boolean; readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; modelSeo?: boolean; denyDescription?: boolean } = {}) {
   let changedFormat='Unico';
   const gallery:{id:string;alt:string;url:string;variant:boolean}[]=[];
   const failures = [...(options.aiFailures ?? [])];
@@ -24,6 +24,7 @@ async function simulate(page: Page, options: { assets?:boolean; readError?: bool
   if (options.legacy) saved.description = '<p onclick="">Testo <strong>verificato</strong>.</p><ul><li>Voce</li></ul><script type="application/json">contenuto escluso</script>';
   let value = options.currentText ?? saved.description;
   let version = 1;
+  let liveContent = value;
   let sent = false;
   let pending: AdminAiSuggestion | undefined;
   const uploadKeys: string[] = [];
@@ -48,12 +49,13 @@ async function simulate(page: Page, options: { assets?:boolean; readError?: bool
     calls.push(action);
     const reply = (result: object) => route.fulfill({ json: { ok: true, ...result } });
     switch (action) {
-      case 'get_admin_context': return reply({ roles: ['editor'], canWrite: true, canUseAi: options.allowAi !== false, ordinaryCatalog: true, canManageGallery: options.assets===true, canRenameFormats:options.assets===true, canSync:options.assets===true, supportsCatalogSourceAndProductType: true, supportsDistinctDescriptions: true, canUploadImages: options.media === true, editableFieldKeys: [...(options.denyDescription ? [] : ['description']), ...(options.sheet ? ['short_description', 'seo_title', 'seo_description'] : [])], canPublish: true });
+      case 'get_admin_context': return reply({ lifecycleActions:options.lifecycle?['archive_catalog_product']:[], roles: ['editor'], canWrite: true, canUseAi: options.allowAi !== false, ordinaryCatalog: true, canManageGallery: options.assets===true, canRenameFormats:options.assets===true, canSync:options.assets===true, supportsCatalogSourceAndProductType: true, supportsDistinctDescriptions: true, canUploadImages: options.media === true, editableFieldKeys: [...(options.denyDescription ? [] : ['description']), ...(options.sheet ? ['short_description', 'seo_title', 'seo_description'] : [])], canPublish: true });
       case 'get_product': return reply({
         product: { productId, sku: saved.sku, entityType: 'simple', isActive: true },
         shopifyLive: options.assets ? {available:true,mapped:true,identityVerified:true,publicationStatus:'DRAFT'} : sent ? { available: true, mapped: true, publicationStatus: 'DRAFT' } : { available: false, mapped: false }, history: [],
         sections: [{ key: 'content', label: 'Contenuti', fields: [{
-          key: 'description', label: 'Descrizione', value, version, dataType: 'text', editorType: 'richtext',
+          key: 'description', label: 'Descrizione', aiAllowed:options.existingAi===true, value, version,
+          ...(options.syncReview?{shopifyBaselineHash:version>1 && options.conflictAfterSave?'changed':'initial-hash',shopifySyncAllowed:true,shopifyLiveValue:liveContent}:{}), dataType: 'text', editorType: 'richtext',
           sourceState: 'original_absent', validationRules: {}, syncState: 'INTERNAL_ONLY',
           capabilities: { currentValueExists: true, canUpdate: true, canSuggestAi: true },
         }, {key:'gtin',label:'EAN tecnico',value:'EAN-SINTETICO',version:1,dataType:'text',editorType:'text',sourceState:'original_absent',
@@ -63,6 +65,10 @@ async function simulate(page: Page, options: { assets?:boolean; readError?: bool
         id: 'operation', state: sent ? 'VERIFIED_DRAFT' : 'LOCAL_DRAFT', created_at: '2026-11-20', admin_operation_events: [],
         summary: projectDraft(saved, names),
       }] });
+      case 'preview_catalog_lifecycle': return reply({hash:'fixture-hash',plan:{title:'Scheda tecnica',status:'DRAFT',variants:[],channels:[]}});
+      case 'archive_catalog_product': expect(input.planHash).toBe('fixture-hash'); return reply({result:{state:'ARCHIVED'}});
+      case 'sync_field': expect(input.expectedVersion).toBe(version);expect(input.expectedShopifyHash).toBe('initial-hash');liveContent=value;return reply({result:{state:'SYNCED'}});
+      case 'update_field': expect(input.expectedVersion).toBe(version); value=input.value;version++;return reply({result:{version}});
       case 'get_product_formats': return reply({updatedAt:changedFormat,formats:[{id:'option-value',name:changedFormat}],variants:[{sku:'QA',format:changedFormat,price:'10.00'}]});
       case 'get_product_gallery': return reply({updatedAt:'v'+gallery.length,images:gallery});
       case 'rename_catalog_format': expect(input.expectedUpdatedAt).toBe('Unico'); changedFormat=input.name;return reply({result:{state:'VERIFIED'}});
@@ -90,7 +96,7 @@ async function simulate(page: Page, options: { assets?:boolean; readError?: bool
         pending = undefined;
         return reply({ suggestion: result, result: { version } });
       }
-      case 'catalog_categories': return reply({ categories: [], canAuthorDraft: true, canSaveDraft: true });
+      case 'catalog_categories': return reply({ categories: [], canAuthorDraft: true, canSaveDraft: true, canSendDraft:options.allowDraftSend===true });
       case 'list_editorial_collections': return reply({ collections: [{ id: collection, title: categoryName, handle: 'technical-handle' }] });
       case 'list_catalog_media': return reply({ media: [{ id: 'ready-file', state: 'READY', ...initial.images[0] }] });
       case 'upload_catalog_image':
@@ -175,7 +181,7 @@ test('wizard reale: categoria, virgola, anteprima e riapertura del riepilogo', a
   const model = await simulate(page, { media: true });
   await page.goto('/admin/products/new');
   await page.getByLabel('Nome prodotto').fill(initial.title);
-  await page.getByText('Opzioni avanzate', {exact:true}).click();
+  await page.getByText('Opzioni avanzate · Dati tecnici e permessi', {exact:true}).click();
   await page.locator('#sku').fill(initial.sku);
   await page.getByRole('textbox', { name: 'Descrizione verificata' }).fill('Lavanda di prova.');
   await page.getByLabel('Fornitore').fill(initial.vendor);
@@ -386,7 +392,7 @@ test('Scheda AI Editor: approvazione parziale e cumulativa, due formati e riaper
   await page.getByLabel('Nome formato 2',{exact:true}).fill('Grande');
   await page.getByLabel('Prezzo di vendita 1',{exact:true}).fill('12.00');
   await page.getByLabel('Prezzo di vendita 2',{exact:true}).fill('17.50');
-  const advanced = page.getByText('Opzioni avanzate',{exact:true});
+  const advanced = page.getByText('Opzioni avanzate · Dati tecnici e permessi',{exact:true});
   await advanced.click();
   const sku = await page.locator('#sku').inputValue();
   await page.getByText('Informazioni botaniche e FAQ facoltative').click();
@@ -508,7 +514,7 @@ test('Scheda AI Editor: metadata utilizzabili durante errore provider e campo es
   await page.goto('/admin/products/new');
   await page.getByLabel('Nome prodotto (obbligatorio)').fill('Quercus robur');
   await page.getByRole('checkbox',{name:categoryName}).check();
-  await page.getByText('Opzioni avanzate',{exact:true}).click();
+  await page.getByText('Opzioni avanzate · Dati tecnici e permessi',{exact:true}).click();
   await page.locator('#tags').fill('Tag originale');
   const assistant=page.getByRole('region',{name:'Assistenza AI nuova scheda'});
   await assistant.getByLabel('Informazioni verificate',{exact:true}).fill(verifiedParagraph);
@@ -642,4 +648,69 @@ for(const kind of ['galleria','formato']) test('Editor nominale · confronto e s
   await comparison.getByRole('button',{name:'Invia aggiornamenti a Shopify'}).click();
   await expect(page.getByText('Aggiornato su Shopify. Valori riletti e verificati.')).toBeVisible();
   expect(model.calls.filter(a=>a===action)).toHaveLength(1);
+});
+
+test('scheda esistente: fonti precaricate, proposta autorizzata e riepilogo prima del salvataggio',async({page})=>{
+  const model=await simulate(page,{existingAi:true,currentText:'Fatto sintetico confermato dal responsabile.'});
+  await page.goto('/admin/products/'+productId);
+  const assistant=page.getByRole('region',{name:'Assistenza AI prodotto esistente'});
+  await expect(assistant.getByLabel('Informazioni verificate',{exact:true})).toHaveValue('Fatto sintetico confermato dal responsabile.');
+  await assistant.getByRole('checkbox').check();
+  await assistant.getByRole('button',{name:'Migliora scheda con AI'}).click();
+  await expect(assistant.getByText('Proposte AI per questo prodotto')).toBeVisible();
+  page.once('dialog',d=>d.accept());
+  await assistant.getByRole('button',{name:'Applica Descrizione estesa',exact:true}).click();
+  expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(1);
+  expect(model.calls).not.toContain('update_field');
+  const review=page.getByRole('region',{name:'Revisione modifiche'});
+  await review.getByRole('button',{name:/Rivedi modifiche/}).click();
+  await review.getByRole('button',{name:'Conferma salvataggio interno'}).click();
+  await expect(review.getByText(/salvato in Admin/)).toBeVisible();
+  expect(model.calls.filter(a=>a==='update_field')).toHaveLength(1);
+  expect(model.calls).not.toContain('sync_field');
+});
+test('archiviazione nominale: annulla senza scrivere e conferma soltanto il piano selezionato',async({page})=>{
+  const model=await simulate(page,{assets:true,lifecycle:true});
+  await page.goto('/admin/products/'+productId);
+  const panel=page.getByRole('region',{name:'Gestione della vendita'});
+  await expect(page.getByRole('button',{name:'Elimina definitivamente'})).toHaveCount(0);
+  await panel.getByRole('button',{name:'Archivia prodotto'}).click();
+  await panel.getByRole('button',{name:'Annulla'}).click();
+  expect(model.calls).not.toContain('archive_catalog_product');
+  await panel.getByRole('button',{name:'Archivia prodotto'}).click();
+  await panel.getByRole('button',{name:'Conferma · Archivia prodotto'}).click();
+  await expect(panel.getByRole('status')).toContainText('Operazione verificata');
+  expect(model.calls.filter(a=>a==='archive_catalog_product')).toHaveLength(1);
+});
+test('un solo consenso salva e crea DRAFT, senza pubblicare',async({page})=>{
+  const model=await simulate(page,{allowDraftSend:true,sheet:true});
+  await page.goto('/admin/products/new');
+  await page.getByLabel('Nome prodotto (obbligatorio)').fill('Pianta di collaudo');
+  await page.getByRole('textbox',{name:'Descrizione verificata'}).fill('Descrizione verificata del prodotto.');
+  await page.getByLabel('Prezzo di vendita 1',{exact:true}).fill('10.00');
+  await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+  await page.getByRole('button',{name:'Verifica anteprima'}).click();
+  await page.getByRole('checkbox',{name:/Confermo i dati/}).check();
+  let confirmations=0;page.on('dialog',async d=>{confirmations++; await d.accept();});
+  await page.getByRole('button',{name:'Salva e crea bozza Shopify'}).click();
+  await expect.poll(()=>model.calls.filter(a=>a==='create_shopify_draft').length).toBe(1);
+  expect(model.calls.filter(a=>a==='save_new_product')).toHaveLength(1);
+  expect(confirmations).toBe(1);
+  expect(model.calls).not.toContain('publish_catalog_product');
+});
+
+for(const conflict of [false,true])test('revisione Shopify: '+(conflict?'il confronto mutato interrompe la sincronizzazione':'scrive il solo campo approvato'),async({page})=>{
+  const model=await simulate(page,{assets:true,syncReview:true,conflictAfterSave:conflict});
+  await page.goto('/admin/products/'+productId);
+  await page.getByRole('button',{name:'Modifica Descrizione estesa'}).click();
+  await page.getByRole('textbox',{name:'Descrizione',exact:true}).fill('Contenuto editoriale confermato.');
+  await page.getByRole('button',{name:'Aggiungi alla revisione'}).click();
+  const review=page.getByRole('region',{name:'Revisione modifiche'});
+  await review.getByRole('button',{name:/Rivedi modifiche/}).click();
+  await expect(review).toContainText('Admin e Shopify');
+  await review.getByRole('button',{name:'Salva e aggiorna Shopify'}).click();
+  if(conflict)await expect(review.getByRole('alert')).toContainText('Shopify è cambiato');
+  else await expect(review.getByRole('status')).toContainText('aggiornamento verificato');
+  expect(model.calls.filter(a=>a==='update_field')).toHaveLength(1);
+  expect(model.calls.filter(a=>a==='sync_field')).toHaveLength(conflict?0:1);
 });

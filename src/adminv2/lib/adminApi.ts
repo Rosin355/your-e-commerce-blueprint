@@ -11,7 +11,9 @@ export type EntityType = 'simple' | 'variable' | 'variation';
 export interface AdminContext {
   roles: string[];
   ordinaryCatalog?: boolean;
+  lifecycleActions?: string[];
   supportsDistinctDescriptions?: boolean;
+  supportsSheetEvidence?: boolean;
   supportsCatalogSourceAndProductType?: boolean;
   canUseAi?: boolean;
   canUploadImages?: boolean;
@@ -277,7 +279,7 @@ export async function callAdminApi<T = unknown>(
 
 /** An uncertain retry reuses the same server request, rather than issuing a new write. */
 const catalogRequests = new Map<string, string>();
-export async function callCatalogCommand<T = unknown>(body: Record<string, unknown>): Promise<T> {
+export async function callCatalogCommand<T = unknown>(body: Record<string, unknown>, options: {reviewed?:boolean} = {}): Promise<T> {
   const { idempotencyKey: supplied, ...identity } = body;
   const fingerprint = JSON.stringify(identity);
   let key = catalogRequests.get(fingerprint);
@@ -288,8 +290,9 @@ export async function callCatalogCommand<T = unknown>(body: Record<string, unkno
   }
   const command = { ...body, idempotencyKey: key };
   const context = await callAdminApi<AdminContext>({ action: 'get_admin_context' });
+  if (options.reviewed && !context.ordinaryCatalog) throw new AdminApiError('FORBIDDEN','La sessione editoriale è cambiata. Riapri il riepilogo.');
   if (!context.ordinaryCatalog) return callAdminApi<T>({ ...command, confirm: true });
-  if (!window.confirm('Confermi questa operazione sui dati visualizzati? Il server registrerà la conferma e controllerà che i dati non siano cambiati.')) {
+  if (!options.reviewed && !window.confirm('Confermi questa operazione sui dati visualizzati? Il server registrerà la conferma e controllerà che i dati non siano cambiati.')) {
     throw new AdminApiError('CANCELLED', 'Operazione annullata. Nessun dato modificato.');
   }
   try {

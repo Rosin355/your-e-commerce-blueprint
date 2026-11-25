@@ -1,3 +1,4 @@
+import { lifecycleWrites, lifecycleAllowed, lifecyclePlan, lifecycleDigest, executeLifecycle } from './admin-catalog-lifecycle.ts';
 import { assetActions, assetWrites, requireAsset, readAssetState, assetPlan, assetView, applyAsset } from './admin-catalog-assets.ts';
 import { HIDDEN_STOREFRONT_PRODUCT_IDS } from './storefront-excluded-products.ts';
 import { verifyCatalogIdentity } from './admin-catalog-identity.ts';
@@ -25,7 +26,7 @@ const A = "gid://shopify/Collection/734709547348",
   B = "gid://shopify/Collection/734709514580";
 export const HEADLESS_PUBLICATION_ID = "gid://shopify/Publication/338862113108";
 export const COMMERCE_ACTIONS = [
-  ...assetActions,
+  ...assetActions, ...lifecycleWrites, "preview_catalog_lifecycle",
   "list_editorial_collections",
   "get_catalog_prices",
   "set_catalog_prices",
@@ -97,7 +98,7 @@ export async function mappedCatalogProduct(
       !data.product.collections.pageInfo.hasNextPage,
     "Stato Shopify incompleto o prodotto oltre il limite del gestionale.",
   );
-  if ([...assetActions,'set_catalog_prices','set_catalog_collections','publish_catalog_product','preview_catalog_publication'].includes(String(p.action))) {
+  if ([...assetActions,...lifecycleWrites,'preview_catalog_lifecycle','set_catalog_prices','set_catalog_collections','publish_catalog_product','preview_catalog_publication'].includes(String(p.action))) {
     demand(product.entity_type !== 'variation', 'Apri il prodotto padre per gestire questa operazione.');
     const skus = await verifyCatalogIdentity(db, product, id);
     demand(skus.length === data.product.variants.nodes.length && data.product.variants.nodes.every(v => skus.includes(v.sku)),
@@ -205,6 +206,14 @@ export async function commerceSnapshot(
   auth: AuthContext,
   p: Record<string, unknown>,
 ) {
+  if (lifecycleWrites.includes(String(p.action))) {
+    demand(lifecycleAllowed(auth, String(p.action)), 'Azione non autorizzata.');
+    const product = await mappedCatalogProduct(db, p);
+    const plan = await lifecyclePlan(db, auth, String(p.action), String(p.productId), product, HEADLESS_PUBLICATION_ID);
+    demand(p.planHash === await lifecycleDigest(plan), 'Il riepilogo è cambiato. Verifica nuovamente.');
+    if (p.action === 'delete_catalog_product') demand(p.typedTitle === plan.title, 'Conferma del nome mancante.');
+    return plan;
+  }
   if (assetWrites.includes(String(p.action))) requireAsset(auth,p.action);
   const product = await mappedCatalogProduct(db, p);
   demand(
@@ -224,6 +233,7 @@ export async function commerceSnapshot(
         (p.prices as { id: string }[]).some((x) => x.id === v.id)
       ).map((v) => ({
         id: v.id,
+        title: v.title,
         sku: v.sku,
         price: v.price,
         compareAtPrice: v.compareAtPrice,
@@ -462,6 +472,17 @@ export async function handleCatalogCommerce(
   p: Record<string, unknown>,
 ) {
   const action = String(p.action);
+  if (action === 'preview_catalog_lifecycle' || lifecycleWrites.includes(action)) {
+    const requested = action === 'preview_catalog_lifecycle' ? String(p.operation) : action;
+    demand(lifecycleAllowed(auth, requested), 'Azione non autorizzata.');
+    const product = await mappedCatalogProduct(db, p);
+    const plan = await lifecyclePlan(db, auth, requested, String(p.productId), product, HEADLESS_PUBLICATION_ID);
+    const hash = await lifecycleDigest(plan);
+    if (action === 'preview_catalog_lifecycle') return {ok:true, plan, hash};
+    demand(auth.catalogApproval?.action === action && p.confirm === true && p.planHash === hash,
+      'Il riepilogo approvato è cambiato. Verifica nuovamente.');
+    return await executeLifecycle(plan, HEADLESS_PUBLICATION_ID, p.typedTitle);
+  }
   if (assetActions.includes(action)) {
     requireAsset(auth,action);
     const mapped = await mappedCatalogProduct(db,p);
@@ -489,6 +510,7 @@ export async function handleCatalogCommerce(
       updatedAt: product.updatedAt,
       variants: product.variants.nodes.map((v) => ({
         id: v.id,
+        title: v.title,
         sku: v.sku,
         price: v.price,
         compareAtPrice: v.compareAtPrice,

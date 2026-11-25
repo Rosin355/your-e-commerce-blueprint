@@ -11,6 +11,10 @@ import { localSheet, manualDraftType, sheetDefinition, sheetKeys, sheetLabels, s
 import AiErrorNotice from './AiErrorNotice';
 import RichTextEditor from './RichTextEditor';
 import EditorialText from './EditorialText';
+import ValueDisplay from './ValueDisplay';
+import FieldEditor from './FieldEditor';
+import { validateValue } from '../../../supabase/functions/_shared/admin-v2-validation';
+import { evidenceLabels, evidenceReview, type EvidenceKey, type EvidenceReview } from '../lib/sheetEvidence';
 
 interface Preview {
   contextKey: string;
@@ -19,13 +23,16 @@ interface Preview {
   descriptionError?: string;
 }
 interface Props {
-  draft: ProductDraft;
+  draft: Pick<ProductDraft,SheetKey|'botanical'>;
+  sourceRevision?: string;
+  sources?: {text:string; origin:string}[];
   context: SheetContext;
-  onApply: (change: SheetChange) => void;
+  onApply: (change: SheetChange, extra?: Record<string,unknown>) => void;
 }
 
-export default function DraftSheetAssistant({ draft, context, onApply }: Props) {
-  const [text, setText] = useState('');
+export default function DraftSheetAssistant({ draft, context, onApply, sources, sourceRevision }: Props) {
+  const [text, setText] = useState(() => sources?.map(f=>f.text).join('\n') ?? '');
+  const [extra,setExtra] = useState<EvidenceReview>({});
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [inputError, setInputError] = useState('');
@@ -33,7 +40,7 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
   const revision = useRef(0);
   const pending = useRef(false);
   // Ignore late responses when the product, selected categories or effective grants change.
-  const contextKey = JSON.stringify(context);
+  const contextKey = JSON.stringify([context, sourceRevision]);
   useEffect(() => {
     revision.current++;
     setConfirmed(false);
@@ -67,7 +74,7 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
       setBusy(true);
       try {
         const requestKey = crypto.randomUUID();
-        const proposal = preview?.descriptionError
+        const proposal = (sources || preview?.descriptionError)
           ? await suggestConfirmedField({fieldKey: 'description', confirmed: true, facts, requestKey})
           : await suggestDraftEditorial({draftTitle: context.title.trim(), facts, requestKey});
         if ('editorial' in proposal && proposal.editorial) {
@@ -96,7 +103,7 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
         setBusy(false);
       }
     }
-    if (current === revision.current) setResult(next);
+    if (current === revision.current) { setExtra(evidenceReview(facts,context.definitions,context.editableKeys)); setResult(next); }
   }
 
   function edit(key: SheetKey, value: string | string[], tagText?: string) {
@@ -111,13 +118,21 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
     const value = preview?.rows[key].value;
     return !preview?.rows[key].excluded && value !== undefined && different(key) && !sheetValueError(key, value, context);
   }
-  function apply(keys: SheetKey[]) {
+  function extraValid(key: EvidenceKey) {
+    const row=extra[key], def=context.definitions.find(d=>d.key===key);
+    return row?.selected && def && validateValue(def,row.value).ok &&
+      JSON.stringify(row.value)!==JSON.stringify(draft.botanical[key]);
+  }
+  const extraKeys = (Object.keys(extra) as EvidenceKey[]).filter(extraValid);
+  function apply(keys: SheetKey[], includeExtra=false) {
     if (!preview || busy) return;
     const eligible = keys.filter(applicable);
-    if (!eligible.length) return;
+    const extras=includeExtra?extraKeys:[];
+    if (!eligible.length && !extras.length) return;
     const overwrite = eligible.filter(key => Boolean(draft[key]?.length));
-    const question = ['Applicare alla bozza i campi ' + eligible.map(k => sheetLabels[k]).join(', ') + '?',
+    const question = ['Applicare alla bozza i campi ' + [...eligible.map(k => sheetLabels[k]),...extras.map(k=>evidenceLabels[k])].join(', ') + '?',
       ...(overwrite.length ? ['Sostituirai i valori già inseriti in ' + overwrite.map(k => sheetLabels[k]).join(', ') + '.'] : []),
+      ...extras.filter(k=>draft.botanical[k]!=null).map(k=>'Sostituirai il valore attuale di '+evidenceLabels[k]+'.'),
       'Il salvataggio richiede una conferma separata.'].join('\n');
     if (!window.confirm(question)) return;
     const change: SheetChange = {};
@@ -126,23 +141,24 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
       if (key === 'tags' && Array.isArray(value)) change.tags = value;
       else if (key !== 'tags' && typeof value === 'string') change[key] = value;
     }
-    onApply(change);
+    onApply(change,Object.fromEntries(extras.map(k=>[k,extra[k]!.value])));
   }
 
-  return <section aria-label="Assistenza AI nuova scheda" className="space-y-3 rounded-lg border bg-card p-4">
+  return <section aria-label={sources?"Assistenza AI prodotto esistente":"Assistenza AI nuova scheda"} className="space-y-3 rounded-lg border bg-card p-4">
     <h2 className="font-semibold">Scheda da informazioni verificate</h2>
+    {sources && <details><summary>Informazioni già disponibili · da controllare</summary><ul>{sources.map(s=><li key={s.text}>{s.origin} · {s.text}</li>)}</ul></details>}
     <label htmlFor="draft-ai-facts" className="block">Informazioni verificate</label>
     <Textarea id="draft-ai-facts" aria-describedby="draft-ai-help" maxLength={6011} value={text}
         onChange={e => { invalidate(); setConfirmed(false); setText(e.target.value); }} />
-    <p id="draft-ai-help" className="text-sm">Inserisci da 1 a 12 righe di 12–500 caratteri. Una riga può contenere più frasi. Per esempio, se verificato, «La scheda riporta il nome Quercus robur». Evita dati personali e commerciali.</p>
+    <p id="draft-ai-help" className="text-sm">Inserisci da 1 a 12 righe di 12–500 caratteri. Una riga può contenere più frasi. Per esempio, se verificato, «La scheda riporta il nome Quercus robur». Per indicare un vantaggio usa «Punto di forza: …». Per le domande usa «FAQ: domanda? risposta». Evita dati personali e commerciali.</p>
     <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={confirmed}
       onChange={e => { invalidate(); setConfirmed(e.target.checked); }} />Confermo il nome e le informazioni verificate per questo prodotto</label>
-    <Button type="button" disabled={busy || !confirmed || Boolean(preview && !preview.descriptionError)} onClick={prepare}>
-      {busy ? 'Preparazione in corso…' : preview?.descriptionError ? 'Riprova la descrizione' : 'Completa scheda con AI'}
+    <Button variant="editorial" type="button" disabled={busy || !confirmed || Boolean(preview && !preview.descriptionError)} onClick={prepare}>
+      {busy ? 'Preparazione in corso…' : preview?.descriptionError ? 'Riprova la descrizione' : sources ? 'Migliora scheda con AI' : 'Completa scheda con AI'}
     </Button>
     {inputError && <AiErrorNotice>{inputError}</AiErrorNotice>}
     {preview && <section aria-label="Proposte per la bozza" className="space-y-3">
-      <h3 className="font-semibold">Anteprima delle proposte</h3>
+      <h3 className="font-semibold">Proposte AI per questo prodotto</h3>
       <p className="text-sm">Ogni campo indica come è stata preparata la proposta. Puoi applicare i campi singolarmente.</p>
       {sheetKeys.map(key => {
         const row = preview.rows[key];
@@ -181,8 +197,9 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
               onChange={e => edit(key, e.target.value)}><option value="">Scegli un tipo</option>
               {row.options!.map(v => <option key={v} value={v}>{v}</option>)}</select></label>}
           {validation && <p role="alert" className="text-destructive">{validation}</p>}
-          {different(key) && Boolean(draft[key]?.length) && <div className="text-sm"><strong>Valore attuale</strong>
+          {Boolean(draft[key]?.length) && <div className="text-sm"><strong>Valore attuale</strong>
             {key === 'description' ? <EditorialText value={draft.description} /> : <p>{key === 'tags' ? draft.tags.join(', ') : draft[key]}</p>}</div>}
+          {!draft[key]?.length && <p className="text-sm">Valore attuale · vuoto</p>}
           {value !== undefined && !different(key) && <p className="text-sm">Presente nella bozza</p>}
           {value !== undefined && different(key) && <div className="flex flex-wrap gap-2">
             <Button disabled={busy || !applicable(key)} type="button" variant="editorial" onClick={() => apply([key])}>Applica {sheetLabels[key]}</Button>
@@ -193,8 +210,21 @@ export default function DraftSheetAssistant({ draft, context, onApply }: Props) 
           </div>}
         </div>;
       })}
+      {(Object.keys(evidenceLabels) as EvidenceKey[]).map(key=>{
+        const row=extra[key], def=context.definitions.find(d=>d.key===key);
+        if (!row || !def) return <p key={key} className="text-sm">{evidenceLabels[key]} · informazioni confermate insufficienti o campo non abilitato.</p>;
+        const valid=validateValue(def,row.value);
+        return <div key={key} className="space-y-2 rounded border p-3"><label><input type="checkbox" checked={row.selected}
+          onChange={e=>setExtra({...extra,[key]:{...row,selected:e.target.checked}})}/> {evidenceLabels[key]}</label>
+          <p>{row.manual?'Modifica manuale':'Selezione deterministica dai fatti confermati'}</p>
+          <p>Valore attuale</p><ValueDisplay label={evidenceLabels[key]} value={draft.botanical[key]}/>
+          <FieldEditor field={{key,label:def.label,editorType:def.editor_type,dataType:def.data_type,validationRules:def.validation_rules,required:def.required}}
+            value={row.value} onChange={value=>setExtra({...extra,[key]:{...row,value,manual:true}})}/>
+          {!valid.ok && <AiErrorNotice>{valid.message}</AiErrorNotice>}
+        </div>;
+      })}
       <div className="flex flex-wrap gap-2">
-        <Button variant="editorial" type="button" disabled={busy || !sheetKeys.some(applicable)} onClick={() => apply(sheetKeys)}>Applica tutte le proposte disponibili</Button>
+        <Button variant="editorial" type="button" disabled={busy || (!sheetKeys.some(applicable) && !extraKeys.length)} onClick={() => apply(sheetKeys,true)}>Applica tutte le proposte disponibili</Button>
         <Button type="button" variant="outline" disabled={busy} onClick={invalidate}>Scarta anteprima</Button>
       </div>
     </section>}

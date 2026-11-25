@@ -54,6 +54,8 @@ export interface FieldCardProps {
   field: AdminField;
   prepared?: { value: unknown; version: number | null; hash?: string };
   advanced?: boolean;
+  onWorkingValue?: (value:unknown, editing:boolean)=>void;
+  onStage?: (value:unknown,version:number|null,hash?:string)=>void;
   onGenerateConfirmed?: typeof suggestConfirmedField;
   onCommand?: (input: { action: FieldCommandAction; fieldKey: string; value?: unknown; expectedShopifyHash?: string; expectedVersion: number }) => Promise<{ ok: boolean; code?: string; result?: Record<string, unknown> }>;
   onSync?: (input: { fieldKey: string; expectedVersion: number; expectedShopifyHash?: string; idempotencyKey?: string }) => Promise<{ ok: boolean; result?: Record<string, unknown> }>;
@@ -65,7 +67,7 @@ export interface FieldCardProps {
   onAcceptAi?: (input: { suggestionId: string; value: unknown; expectedVersion: number; idempotencyKey: string }) => Promise<unknown>;
 }
 
-export default function FieldCard({ field, prepared, advanced, onGenerateConfirmed, onCommand, onSync, syncEnabled = false, onConflict, aiSuggestion, onGenerateAi, onRejectAi, onAcceptAi }: FieldCardProps) {
+export default function FieldCard({ field, prepared, advanced, onStage, onWorkingValue, onGenerateConfirmed, onCommand, onSync, syncEnabled = false, onConflict, aiSuggestion, onGenerateAi, onRejectAi, onAcceptAi }: FieldCardProps) {
   const [comparison, setComparison] = useState<{ version: number; hash: string; previous: unknown; next: unknown } | null>(null);
   const name = ({ short_description: 'Descrizione breve', description: 'Descrizione estesa' } as Record<string,string>)[field.key] ?? field.label;
   const legacyAi = isLegacyAi(field);
@@ -105,6 +107,7 @@ export default function FieldCard({ field, prepared, advanced, onGenerateConfirm
       toast(res?.code === 'NO_CHANGE'
         ? { title: 'Nessuna modifica', description: 'Il valore era già questo.' }
         : { title: 'Modifica salvata', description: `${field.label} aggiornato.` });
+      onWorkingValue?.(undefined,false);
       setEditing(false);
     } catch (err) {
       const message = err instanceof AdminApiError ? err.message : 'Non è stato possibile salvare. Riprova.';
@@ -147,6 +150,7 @@ export default function FieldCard({ field, prepared, advanced, onGenerateConfirm
       toast(saved.code === 'NO_CHANGE'
         ? { title: 'Nessuna modifica', description: 'Il valore era già questo.' }
         : { title: 'Salvato nell’Admin', description: `${field.label} aggiornato nella bozza interna.` });
+      onWorkingValue?.(undefined,false);
       setEditing(false);
     } catch (err) {
       const message = err instanceof AdminApiError ? err.message : 'Operazione non completata. Riprova.';
@@ -183,6 +187,7 @@ export default function FieldCard({ field, prepared, advanced, onGenerateConfirm
     setBusy('update_field');
     try {
       await onConflict?.();
+      onWorkingValue?.(undefined,false);
       setEditing(false);
       setConflictVersion(null);
       toast({ title: 'Valore ricaricato', description: 'Confronta la nuova versione prima di modificare.' });
@@ -216,7 +221,7 @@ export default function FieldCard({ field, prepared, advanced, onGenerateConfirm
           <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{!field.capabilities.currentValueExists && field.shopifyLiveValue != null ? 'Valore letto da Shopify' : 'Valore editoriale interno'}</h4>
           {editing ? (
             <div aria-describedby={visibleValidationError ? errorId : undefined}>
-              <FieldEditor field={field} value={draft} onChange={setDraft} onMonthToggle={(month, checked) => setDraft((previous: unknown) => toggleMonth(previous, month, checked))} disabled={busy !== null} />
+              <FieldEditor field={field} value={draft} onChange={value=>{setDraft(value);onWorkingValue?.(value,true);}} onMonthToggle={(month, checked) => setDraft((previous: unknown) => toggleMonth(previous, month, checked))} disabled={busy !== null} />
             </div>
           ) : initialValue == null ? (
             <p className="text-sm text-muted-foreground">Dato assente nei campi editoriali. Per le nuove bozze consulta il riepilogo della creazione.</p>
@@ -278,8 +283,10 @@ export default function FieldCard({ field, prepared, advanced, onGenerateConfirm
       <div className="flex flex-wrap gap-2 pt-3">
         {editing ? (
           <>
+            {onStage && <Button size="sm" variant="editorial" disabled={busy!==null || !dirty || seasonalDraftEmpty}
+              onClick={()=>{const value=normalizeEditorValue(field,draft);if(value.ok===false){setValidationError(value.message);return;}onStage(value.value,editVersion,editHash);}}>Aggiungi alla revisione</Button>}
             <Button size="sm" variant="editorial" onClick={() => void save()} disabled={busy !== null || conflictVersion !== null || !dirty || seasonalDraftEmpty} title={!dirty ? 'Nessuna modifica da salvare' : undefined}>{busy === 'update_field' && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}Salva modifiche</Button>
-            <Button size="sm" variant="outline" onClick={() => setEditing(false)} disabled={busy !== null}>Annulla</Button>
+            <Button size="sm" variant="outline" onClick={() => {onWorkingValue?.(undefined,false);setEditing(false);}} disabled={busy !== null}>Annulla</Button>
           </>
         ) : !canUpdate ? (
           <Tooltip>

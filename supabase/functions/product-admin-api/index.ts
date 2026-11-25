@@ -1,3 +1,4 @@
+import { lifecycleAllowed, lifecycleWrites } from '../_shared/admin-catalog-lifecycle.ts';
 import { assetAllowed, assetWrites } from '../_shared/admin-catalog-assets.ts';
 import { shopifyStorefrontGraphQL } from '../_shared/shopify-storefront-server.ts';
 import { decodeEditorialList } from '../_shared/editorial-list-codec.ts';
@@ -118,7 +119,7 @@ Deno.serve(async (req) => {
     if (action === 'sync_field' && isEditorialList(payload.fieldKey)) requireCatalog(auth, 'sync', String(payload.fieldKey));
     if (action === 'prepare_catalog_approval') {
       const command=payload.command as Record<string,unknown>;
-      const commerce=[...assetWrites,'set_catalog_prices','set_catalog_collections','publish_catalog_product'].includes(String(command?.action));
+      const commerce=[...assetWrites,...lifecycleWrites,'set_catalog_prices','set_catalog_collections','publish_catalog_product'].includes(String(command?.action));
       return json(await prepareCatalogApproval(deliveryDb, auth, payload, commerce?()=>commerceSnapshot(deliveryDb,auth,command):undefined));
     }
     if (['upload_catalog_image','get_catalog_media','list_catalog_media'].includes(action)) return json(await handleCatalogMedia(deliveryDb, auth, payload));
@@ -162,10 +163,12 @@ Deno.serve(async (req) => {
           (mode === "full" || (canWriteNow && scope?.actions.includes("sync_field"))),
         backendVersion: "admin-editor-20261125",
         supportsDistinctDescriptions: true,
+        supportsSheetEvidence: true,
         supportsCatalogSourceAndProductType: true,
         ordinaryCatalog: ordinary,
         canUseAi: enabled && catalogAiAllowed(auth),
         canUploadImages: enabled && (catalogAllowed(auth,"images") || (scope?.actorId===auth.userId && scope.actions.includes("upload_catalog_image"))),
+        lifecycleActions: enabled && shopifySyncEnabled() ? lifecycleWrites.filter(action => lifecycleAllowed(auth, action)) : [],
         canManageGallery: enabled && shopifySyncEnabled() && assetAllowed(auth,'set_catalog_image'),
         canRenameFormats: enabled && shopifySyncEnabled() && assetAllowed(auth,'rename_catalog_format'),
         canManagePrices: enabled && catalogAllowed(auth,"prices"),
@@ -664,7 +667,7 @@ Deno.serve(async (req) => {
 
     console.log(redactedLog(action, actorId, String(result?.code ?? "APPLIED")));
     return json({ ok: true, result });
-    }, [...assetWrites,'set_catalog_prices','set_catalog_collections','publish_catalog_product'].includes(action)?()=>commerceSnapshot(deliveryDb,auth,payload):undefined);
+    }, [...assetWrites,...lifecycleWrites,'set_catalog_prices','set_catalog_collections','publish_catalog_product'].includes(action)?()=>commerceSnapshot(deliveryDb,auth,payload):undefined);
   } catch (err) {
     if (err instanceof OperationalError) {
       console.log(redactedLog(action, actorId, err.code));

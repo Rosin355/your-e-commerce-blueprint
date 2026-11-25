@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { callAdminApi, callCatalogCommand, type AdminContext } from '../lib/adminApi';
-type Price = { id: string; sku: string; price: string; compareAtPrice: string | null };
+type Price = { title?: string; id: string; sku: string; price: string; compareAtPrice: string | null };
 type Collection = { id: string; title: string; handle: string };
 type Publication = { title: string; description: string; images: number; categories: string[]; variants: {format:string; price:string; quantity:number}[]; channelPublished:boolean; availableForSale:boolean; updatedAt: string; logistics: { id: string; class: string }[]; status: string; storefrontVisible: boolean; channel: string; soldOut: boolean };
 export default function CatalogActions({ productId, context, technical, showPublication }: { productId: string; showPublication: boolean; technical: boolean; context: AdminContext | undefined }) {
@@ -62,7 +62,7 @@ export default function CatalogActions({ productId, context, technical, showPubl
       <p>Prezzi Shopify correnti. Il comando aggiorna solo i prezzi delle varianti visualizzate; SKU e inventario restano protetti.</p>
       {priceQuery.isPending && <p role='status'>Lettura prezzi…</p>}
       {rows.map((v, index) => <div key={v.id} className='grid gap-2 rounded border p-3 sm:grid-cols-3'>
-        <p className='break-all'>{v.sku}</p>
+        <p>{v.title || 'Formato '+(index+1)}</p>
         <label>Prezzo (€)<Input inputMode='decimal' value={v.price} onChange={e => setPrices({ updatedAt: prices?.updatedAt ?? priceQuery.data!.updatedAt, rows: rows.map((r, i) => i === index ? { ...r, price: e.target.value } : r) })} /></label>
         <label>Prezzo di confronto (€)<Input inputMode='decimal' value={v.compareAtPrice ?? ''} onChange={e => setPrices({ updatedAt: prices?.updatedAt ?? priceQuery.data!.updatedAt, rows: rows.map((r, i) => i === index ? { ...r, compareAtPrice: e.target.value || null } : r) })} /></label>
       </div>)}

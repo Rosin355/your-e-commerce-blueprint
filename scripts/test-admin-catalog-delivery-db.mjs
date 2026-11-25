@@ -59,6 +59,40 @@ for (const direction of ['apply','apply','restore','restore']) {
   END $$;`);
 }
 run([...releaseChecks,'ROLLBACK;'].join('\n'));
+const lifecycle = transactionBody('docs/release/pending/marco-product-lifecycle.sql');
+const reversible = transactionBody('docs/release/pending/marco-reversible-grant.sql');
+const lifecycleChecks = [
+  setup, '\\set direction apply', actions, lifecycle, lifecycle,
+  '\\set staff_id '+actor, '\\set grant_key product_unpublish', reversible, reversible,
+  `DO $$ BEGIN ASSERT (SELECT 'product_unpublish'=ANY(field_keys) AND NOT ('product_delete'=ANY(field_keys)) FROM public.admin_catalog_capabilities WHERE user_id='${actor}'); END $$;`,
+  '\\set direction restore', reversible, '\\set direction apply',
+  `DO $$ DECLARE item text; k text; op uuid; refused boolean;
+  BEGIN
+    ASSERT NOT has_table_privilege('authenticated','public.admin_product_deletion_clearances','SELECT');
+    ASSERT NOT has_table_privilege('service_role','public.admin_product_deletion_clearances','INSERT');
+    FOREACH item IN ARRAY ARRAY['unpublish_catalog_product','archive_catalog_product','restore_catalog_product','delete_catalog_product'] LOOP
+      k:=CASE item WHEN 'delete_catalog_product' THEN 'product_delete' WHEN 'unpublish_catalog_product' THEN 'product_unpublish' ELSE 'product_archive' END;
+      INSERT INTO public.admin_catalog_approvals(actor,action,target,request_key,payload_hash,command,target_snapshot,expires_at)
+      VALUES('${actor}',item,'synthetic-lifecycle',gen_random_uuid(),repeat('a',64),'{}','{}',now()+interval '2 minutes') RETURNING id INTO op;
+      UPDATE public.admin_catalog_capabilities SET field_keys=array_remove(field_keys,k) WHERE user_id='${actor}';
+      refused:=false;
+      BEGIN PERFORM public.admin_claim_catalog_approval(op,'${actor}',repeat('a',64)); EXCEPTION WHEN insufficient_privilege THEN refused:=true; END;
+      ASSERT refused,'Azione senza grant';
+      UPDATE public.admin_catalog_capabilities SET field_keys=array_append(field_keys,k) WHERE user_id='${actor}';
+      ASSERT public.admin_claim_catalog_approval(op,'${actor}',repeat('a',64));
+      UPDATE public.admin_catalog_approvals SET state='COMPLETE' WHERE id=op;
+    END LOOP;
+  END $$;`,
+  '\\set direction restore', lifecycle, lifecycle, actions,
+  `DO $$ BEGIN ASSERT (SELECT count(*)=4 FROM public.admin_catalog_approvals WHERE target='synthetic-lifecycle');
+    ASSERT NOT has_table_privilege('service_role','public.admin_product_deletion_clearances','SELECT'); END $$;`,
+  '\\set direction apply', actions, lifecycle,
+  "DO $$ BEGIN ASSERT (SELECT count(*)=4 FROM public.admin_catalog_approvals WHERE target='synthetic-lifecycle'); END $$;",
+  'ROLLBACK;'
+];
+run(lifecycleChecks.join('\n'));
+console.log('PASS: quattro transizioni nominali, ACL del mandato e rollback con storico.');
+
 const denied = spawnSync('psql',args,{input:[setup,'\\set direction apply','\\set staff_id '+other,tags,'ROLLBACK;'].join('\n'),encoding:'utf8'});
 if (denied.status === 0 || !denied.stderr.includes('query returned no rows')) throw Error('Il secondo Editor deve essere rifiutato dal controllo nominale');
 console.log('PASS: registro e RPC ripristinati, grant nominale ripetibile e secondo Editor rifiutato.');

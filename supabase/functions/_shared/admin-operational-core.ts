@@ -9,6 +9,8 @@ export const DRAFT_BOTANICAL_KEYS = [
   'periodo_ottimale_di_potatura',
   'difficolta_di_coltivazione',
   'faq',
+  'key_features',
+  'key_benefits',
 ] as const;
 /** Pure contracts. No environment access, network calls or inferred taxonomy. */
 export const CANONICAL_HANDLES = [
