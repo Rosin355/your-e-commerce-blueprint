@@ -161,7 +161,7 @@ function ProductEditor({ productId }: {productId: string | undefined}) {
       </section>
       {ADMIN_READ_ONLY_RELEASE ? <p>{siteState(shopifyLive)}</p> : <ProductOperations key={product.productId} productId={product.productId} live={shopifyLive} />}
       {!ADMIN_READ_ONLY_RELEASE && shopifyLive.mapped && shopifyLive.identityVerified && product.entityType !== 'variation' && <CatalogActions key={product.productId} productId={product.productId} technical={technical} showPublication={shopifyLive.publicationStatus==='DRAFT' || (shopifyLive.publicationStatus==='ACTIVE' && shopifyLive.siteVisible===false)} context={context} />}
-      {canManageAssets && <ProductLifecycle key={product.productId} productId={product.productId} allowed={context?.lifecycleActions ?? []} status={shopifyLive.publicationStatus} visible={shopifyLive.siteVisible} />}
+      {!ADMIN_READ_ONLY_RELEASE && context?.ordinaryCatalog && context.canSync && context.lifecycleActions && <ProductLifecycle key={product.productId} productId={product.productId} allowed={canManageAssets?context.lifecycleActions:[]} status={shopifyLive.publicationStatus} visible={shopifyLive.siteVisible} />}
       {canManageAssets && <>
         {context?.canManageGallery && <ProductAssetEditor key={product.productId+'-gallery'} productId={product.productId} kind="gallery"/>}
         {context?.canRenameFormats && <ProductAssetEditor key={product.productId+'-formats'} productId={product.productId} kind="formats"/>}

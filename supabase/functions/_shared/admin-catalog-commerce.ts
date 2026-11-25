@@ -26,7 +26,7 @@ const A = "gid://shopify/Collection/734709547348",
   B = "gid://shopify/Collection/734709514580";
 export const HEADLESS_PUBLICATION_ID = "gid://shopify/Publication/338862113108";
 export const COMMERCE_ACTIONS = [
-  ...assetActions, ...lifecycleWrites, "preview_catalog_lifecycle",
+  ...assetActions, ...lifecycleWrites, "preview_catalog_lifecycle", "get_catalog_lifecycle_receipt",
   "list_editorial_collections",
   "get_catalog_prices",
   "set_catalog_prices",
@@ -472,6 +472,15 @@ export async function handleCatalogCommerce(
   p: Record<string, unknown>,
 ) {
   const action = String(p.action);
+  if (action === 'get_catalog_lifecycle_receipt') {
+    requireCatalog(auth,'sync');
+    demand(typeof p.productId==='string' && UUID.test(p.productId),'Prodotto non valido.');
+    const {data,error}=await db.from('admin_catalog_approvals').select('action,state,created_at')
+      .eq('actor',auth.userId).eq('target',p.productId).in('action',lifecycleWrites)
+      .in('state',['COMPLETE','REVIEW_REQUIRED','IN_FLIGHT']).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    demand(!error,'Ricevuta non disponibile.');
+    return {ok:true, receipt:data};
+  }
   if (action === 'preview_catalog_lifecycle' || lifecycleWrites.includes(action)) {
     const requested = action === 'preview_catalog_lifecycle' ? String(p.operation) : action;
     demand(lifecycleAllowed(auth, requested), 'Azione non autorizzata.');

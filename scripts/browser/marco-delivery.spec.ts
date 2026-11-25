@@ -25,6 +25,7 @@ async function simulate(page: Page, options: { assets?:boolean; lifecycle?:boole
   let value = options.currentText ?? saved.description;
   let version = 1;
   let liveContent = value;
+  let receipt: {action:string;state:string;created_at:string}|null=null;
   let sent = false;
   let pending: AdminAiSuggestion | undefined;
   const uploadKeys: string[] = [];
@@ -65,8 +66,9 @@ async function simulate(page: Page, options: { assets?:boolean; lifecycle?:boole
         id: 'operation', state: sent ? 'VERIFIED_DRAFT' : 'LOCAL_DRAFT', created_at: '2026-11-20', admin_operation_events: [],
         summary: projectDraft(saved, names),
       }] });
+      case 'get_catalog_lifecycle_receipt': return reply({receipt});
       case 'preview_catalog_lifecycle': return reply({hash:'fixture-hash',plan:{title:'Scheda tecnica',status:'DRAFT',variants:[],channels:[]}});
-      case 'archive_catalog_product': expect(input.planHash).toBe('fixture-hash'); return reply({result:{state:'ARCHIVED'}});
+      case 'archive_catalog_product': expect(input.planHash).toBe('fixture-hash');receipt={action,state:'COMPLETE',created_at:'2026-11-25T12:00:00Z'};return reply({result:{state:'ARCHIVED'}});
       case 'sync_field': expect(input.expectedVersion).toBe(version);expect(input.expectedShopifyHash).toBe('initial-hash');liveContent=value;return reply({result:{state:'SYNCED'}});
       case 'update_field': expect(input.expectedVersion).toBe(version); value=input.value;version++;return reply({result:{version}});
       case 'get_product_formats': return reply({updatedAt:changedFormat,formats:[{id:'option-value',name:changedFormat}],variants:[{sku:'QA',format:changedFormat,price:'10.00'}]});
@@ -680,6 +682,8 @@ test('archiviazione nominale: annulla senza scrivere e conferma soltanto il pian
   await panel.getByRole('button',{name:'Archivia prodotto'}).click();
   await panel.getByRole('button',{name:'Conferma · Archivia prodotto'}).click();
   await expect(panel.getByRole('status')).toContainText('Operazione verificata');
+  await page.reload();
+  await expect(panel.getByText(/Ultima operazione · Archivia prodotto/)).toContainText('verificata');
   expect(model.calls.filter(a=>a==='archive_catalog_product')).toHaveLength(1);
 });
 test('un solo consenso salva e crea DRAFT, senza pubblicare',async({page})=>{

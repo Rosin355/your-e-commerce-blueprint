@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { callAdminApi, callCatalogCommand } from '../lib/adminApi';
+import { useAuth } from '@/hooks/useAuth';
 import AiErrorNotice from './AiErrorNotice';
 
 const labels = {
@@ -42,6 +43,20 @@ export default function ProductLifecycle(
   const [typed, setTyped] = useState('');
   const [finished, setFinished] = useState('');
   const cache = useQueryClient();
+  const { user } = useAuth();
+  const receiptKey = ['admin', 'lifecycle-receipt', productId, user?.id];
+  const receipt = useQuery({
+    queryKey: receiptKey,
+    enabled: Boolean(user),
+    retry: false,
+    queryFn: () =>
+      callAdminApi<{ receipt: { action: Action; state: string; created_at: string } | null }>({
+        action: 'get_catalog_lifecycle_receipt',
+        productId,
+      }),
+  });
+  const last = receipt.data?.receipt;
+  const unresolved = Boolean(last && last.state !== 'COMPLETE');
   const read = useMutation({
     mutationFn: (action: Action) =>
       callAdminApi<Preview>({ action: 'preview_catalog_lifecycle', operation: action, productId }),
@@ -57,6 +72,7 @@ export default function ProductLifecycle(
         ...(review.action === 'delete_catalog_product' ? { typedTitle: typed } : {}),
       }, { reviewed: true });
     },
+    onSettled: () => cache.invalidateQueries({ queryKey: receiptKey }),
     onSuccess: () => {
       setFinished('Operazione verificata su Shopify e nella vetrina.');
       setReview(undefined);
@@ -73,11 +89,24 @@ export default function ProductLifecycle(
         : status !== 'ARCHIVED'
     )
   );
-  if (!options.length && !finished) return null;
+  if (!options.length && !finished && !last && !receipt.isError) return null;
   return (
     <section className='space-y-3 rounded-lg border p-4' aria-label='Gestione della vendita'>
       <h2 className='font-semibold'>Gestione della vendita</h2>
       {finished && <p role='status'>{finished}</p>}
+      {last && (
+        <p>
+          Ultima operazione · {labels[last.action]} · {new Date(last.created_at).toLocaleString('it-IT')} ·
+          {' '}
+          {unresolved ? 'esito da riconciliare' : 'verificata'}
+        </p>
+      )}
+      {(receipt.isError || unresolved) && (
+        <p role='alert'>
+          Verifica lo stato registrato prima di un nuovo invio.{' '}
+          <button className='underline' onClick={() => void receipt.refetch()}>Rileggi esito</button>
+        </p>
+      )}
       {!review && (
         <div className='flex flex-wrap gap-2'>
           {options.map((a) => (
@@ -85,7 +114,7 @@ export default function ProductLifecycle(
               key={a}
               type='button'
               variant={a === 'delete_catalog_product' ? 'destructive' : 'outline'}
-              disabled={read.isPending}
+              disabled={read.isPending || !receipt.isSuccess || unresolved}
               onClick={() => {
                 setFinished('');
                 setTyped('');
