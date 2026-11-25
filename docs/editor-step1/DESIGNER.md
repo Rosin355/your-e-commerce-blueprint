@@ -73,3 +73,7 @@ Prove su PDP sintetica desktop 1280/mobile 390 con campo presente/assente/vuoto/
 ## UX test live del 19 novembre 2026 — priorita' cliente Marco
 
 Consulta [BACKLOG-UX-MARCO.md](BACKLOG-UX-MARCO.md) per priorita', prove e criteri di accettazione. In particolare: modalita' semplice con campi modificabili evidenziati, descrizione rich text senza HTML visibile, anteprima completa, categorie ricercabili senza slug, botanica organizzata in sezioni progressive, indicatore inequivocabile bozza locale vs negozio online. Non progettare un'interfaccia che nasconde la mancanza del prezzo nella scheda salvata: esporre la fonte dei dati e lo stato di persistenza.
+
+## Scheda Editor · candidato del 25 novembre
+
+La vista iniziale segue le capability del backend. I dettagli tecnici e i motivi di esclusione si aprono con un controllo nativo accessibile da tastiera. Verde per modifica interna e applicazione delle proposte, blu per invio Shopify, ambra per una verifica, rosso per errori o azioni distruttive. Il testo dell’azione esplicita sempre l’effetto. Il percorso PDP presenta la sintesi vicino all’acquisto e un collegamento alla descrizione estesa. Nella revisione visuale controllare focus, leggibilità a 390 px e messaggi di stato dopo una conferma. [Verbale, collaudo e rollback](../release/MARCO-EDITOR-SHOPIFY-2026-11-25.md)

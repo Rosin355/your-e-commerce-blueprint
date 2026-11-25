@@ -14,7 +14,7 @@ export function projectDraft(raw: unknown, names: ReadonlyMap<string, string>) {
       const months = draftStrings(draftRecord(p.botanical)[key]);
       return months?.length ? [{ key, months }] : [];
     }),
-    title: text(p.title), sku: text(p.sku), description: text(p.description),
+    title: text(p.title), sku: text(p.sku), description: text(p.description), shortDescription: text(p.shortDescription),
     productType: text(p.productType), vendor: text(p.vendor), currency: text(p.currency), tags: draftStrings(p.tags),
     categories: [...(ids ?? []), ...(collections ?? [])].map(id => names.get(id) ?? 'Categoria registrata · nome non verificato'),
     categoryDataIncomplete: !ids || !collections,

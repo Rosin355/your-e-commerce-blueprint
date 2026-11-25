@@ -108,7 +108,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [zoomOpen, setZoomOpen] = useState(false);
-  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+
   const [relatedProducts, setRelatedProducts] = useState<ShopifyProduct[]>([]);
   const [relatedLoading, setRelatedLoading] = useState(true);
 
@@ -276,9 +276,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const descriptionParagraphs = node.description
     ? node.description.split(/\n+/).map((item) => item.trim()).filter(Boolean)
     : [];
-  const descriptionText = descriptionParagraphs.join(" ");
-  const hasLongDescription = descriptionText.length > 220;
-  const shortDescription = hasLongDescription ? `${descriptionText.slice(0, 220).trim()}...` : descriptionText;
+  const intro = node.shortIntro?.value.trim();
+  const distinctIntro = intro && intro.replace(/\s+/g, ' ') !== descriptionParagraphs.join(' ').replace(/\s+/g, ' ');
 
   return (
     <main id="main-content" tabIndex={-1} className="og-storefront bg-background pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">
@@ -595,18 +594,8 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
             <hr className="mt-4 border-border/70" />
 
-            <p className="mt-4 text-[15px] leading-7 text-foreground/85">
-              {descriptionExpanded ? descriptionText : shortDescription}
-            </p>
-            {hasLongDescription && (
-              <button
-                type="button"
-                onClick={() => setDescriptionExpanded((prev) => !prev)}
-                className="mt-2 text-sm font-semibold text-foreground underline underline-offset-4"
-              >
-                {descriptionExpanded ? "Leggi meno" : "Leggi di piu"}
-              </button>
-            )}
+            {distinctIntro && <p aria-label="Descrizione breve" className="mt-4 whitespace-pre-line text-[15px] leading-7">{intro}</p>}
+            {descriptionParagraphs.length > 0 && <a className="mt-2 inline-block text-sm underline" href="#descrizione-estesa">Leggi la descrizione estesa</a>}
 
             {optionGroups.map((group) => {
               // Nascondi l'opzione "Title / Default Title" di Shopify per prodotti senza varianti reali
@@ -792,6 +781,10 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             </div>
           </aside>
         </div>
+            {descriptionParagraphs.length > 0 && <section id="descrizione-estesa" aria-labelledby="titolo-descrizione" className="mt-8 scroll-mt-28 space-y-3">
+              <h2 id="titolo-descrizione" className="font-heading text-xl font-semibold">Descrizione estesa</h2>
+              {descriptionParagraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
+            </section>}
       </section>
 
       <section className="container mx-auto max-w-[1200px] px-4 py-10">

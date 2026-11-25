@@ -62,6 +62,7 @@ export function useDashboardStats() {
 }
 
 export interface ProductFilters {
+  groupFamilies?: boolean;
   productSource?: string;
   category?: string;
   completeness?: "complete" | "incomplete";

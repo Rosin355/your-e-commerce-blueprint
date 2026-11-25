@@ -1,5 +1,10 @@
 ## Chiusura AI della nuova bozza · 24 novembre 2026
 
+## Admin V2 operativo per Marco · 25 novembre
+
+Candidato su ramo isolato. Frontend pubblico ancora index-BcqOotvz.js. Le verifiche funzionali sul candidato con dati sintetici non chiudono il collaudo reale. Apertura di galleria, formati e tag subordinata ai grant nominali. Nessun requisito di produzione acquisito con questa PR. SAL 57,75%. [Verbale, collaudo e rollback](release/MARCO-EDITOR-SHOPIFY-2026-11-25.md)
+
+
 La PR #73 è integrata sul ramo isolato e la Edge product-admin-ai è distribuita. Il database ha tre abilitazioni per la sola nuova bozza di Marco. Il frontend è pubblicato su onlinegarden.it. Una generazione reale sulla descrizione e la riapertura della bozza di collaudo sono verificate. La prova SEO e tag con l’account di Marco rimane aperta. La SAL resta 57,75%. [Stato di rilascio e rollback](release/PR73-CHIUSURA-AI.md)
 
 ## Aggiornamento corrente — 21 novembre 2026, ore 13:29 CET: security release verificata (report Lovable)

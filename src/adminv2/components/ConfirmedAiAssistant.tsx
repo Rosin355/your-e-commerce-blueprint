@@ -10,11 +10,13 @@ import { confirmedFacts } from '../../../supabase/functions/_shared/admin-ai-fac
 interface Props {
   field: Pick<AdminField, 'key' | 'label' | 'editorType' | 'dataType' | 'validationRules' | 'required'>;
   onApply: (value: unknown) => void;
+  onShortApply?: (value: string) => void;
   generate?: typeof suggestConfirmedField;
 }
 
-export default function ConfirmedAiAssistant({field, onApply, generate = suggestConfirmedField}: Props) {
+export default function ConfirmedAiAssistant({field, onApply, onShortApply, generate = suggestConfirmedField}: Props) {
   const [text, setText] = useState('');
+  const [short, setShort] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [proposal, setProposal] = useState<Awaited<ReturnType<typeof suggestConfirmedField>>>();
   const [busy, setBusy] = useState(false);
@@ -26,6 +28,7 @@ export default function ConfirmedAiAssistant({field, onApply, generate = suggest
   function invalidate() {
     revision.current++;
     setProposal(undefined);
+    setShort('');
     setError('');
   }
 
@@ -44,7 +47,11 @@ export default function ConfirmedAiAssistant({field, onApply, generate = suggest
     setBusy(true);
     try {
       const result = await generate({ fieldKey:field.key, facts, confirmed:true, requestKey:crypto.randomUUID() });
-      if (revision.current === current) setProposal(result);
+      if (revision.current === current) {
+        setProposal(result);
+        if (onShortApply && facts.length > 1) setShort(facts.find(line => line.length <= 320 &&
+          line !== String(result.value).replace(/<[^>]*>/g, '').trim()) ?? '');
+      }
     } catch (cause) {
       if (revision.current === current) {
         setError(explainAiRequestError(cause));
@@ -71,15 +78,25 @@ export default function ConfirmedAiAssistant({field, onApply, generate = suggest
     </Button>
     {error && <AiErrorNotice>{error}</AiErrorNotice>}
     {proposal !== undefined && <div className="space-y-3">
-      <h4>Proposta da revisionare</h4>
+      {onShortApply && <section className="space-y-2">
+        <h4>Descrizione breve</h4>
+        {short ? <>
+          <p>Sintesi ricavata da una riga confermata, con selezione deterministica.</p>
+          <Textarea aria-label="Proposta breve" value={short} maxLength={320} onChange={e => setShort(e.target.value)} />
+          <Button variant="editorial" type="button" onClick={() => {
+            if (window.confirm('Usare la sintesi nella descrizione breve? Sostituirà eventuali modifiche aperte in quel campo.')) onShortApply(short);
+          }}>Applica alla descrizione breve</Button>
+        </> : <p>Per proporre una sintesi distinta occorrono almeno due fatti e una riga entro 320 caratteri.</p>}
+      </section>}
+      <h4>{onShortApply ? 'Descrizione estesa da revisionare' : 'Proposta da revisionare'}</h4>
       {proposal.source === 'confirmed_facts' && <p role="status" className="text-sm">Il modello ha modificato o omesso alcune parole. L’anteprima iniziale è stata composta con le tue righe originali, nello stesso ordine.</p>}
       <FieldEditor field={field} value={proposal.value} onChange={value => setProposal({ ...proposal, value })} />
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="outline" onClick={invalidate}>Scarta proposta</Button>
-        <Button type="button" onClick={() => {
-          if (window.confirm('Applicare la proposta alla compilazione locale? Il salvataggio richiede una conferma separata.')) {
+        <Button variant="editorial" type="button" onClick={() => {
+          if (window.confirm(onShortApply ? 'Sostituire il testo della descrizione estesa in modifica? Potrai verificarlo prima di salvarlo.' : 'Applicare la proposta alla compilazione locale? Il salvataggio richiede una conferma separata.')) {
             onApply(proposal.value);
-            invalidate();
+            if (!onShortApply) invalidate();
           }
         }}>Applica alla compilazione</Button>
       </div>

@@ -89,12 +89,12 @@ test("allowlist missing-value contiene campi stagionali e soli campi editoriali 
     "periodo_di_messa_a_dimora",
     "periodo_di_raccolta",
     "periodo_ottimale_di_potatura",
-    "description", "optimized_description", "short_description", "title", "seo_title", "seo_description", "key_benefits", "key_features", "special_bullets",
+    "description", "optimized_description", "short_description", "tags", "title", "seo_title", "seo_description", "key_benefits", "key_features", "special_bullets",
     "difficolta_di_coltivazione",
   ]);
   for (const key of CLIENT_CREATABLE_MISSING_FIELD_KEYS) {
     assert.equal(isClientCreatableMissingFieldKey(key), true, key);
-    assert.equal(isCanaryField({ key, manual_only: false }), !['key_benefits','key_features','special_bullets'].includes(key), key);
+    assert.equal(isCanaryField({ key, manual_only: false }), !['tags','key_benefits','key_features','special_bullets'].includes(key), key);
   }
   for (const key of [
     "price",

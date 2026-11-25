@@ -1,3 +1,6 @@
+import { assetActions, assetWrites, requireAsset, readAssetState, assetPlan, assetView, applyAsset } from './admin-catalog-assets.ts';
+import { HIDDEN_STOREFRONT_PRODUCT_IDS } from './storefront-excluded-products.ts';
+import { verifyCatalogIdentity } from './admin-catalog-identity.ts';
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 import type { AuthContext } from "./admin-v2-types.ts";
 import {
@@ -22,6 +25,7 @@ const A = "gid://shopify/Collection/734709547348",
   B = "gid://shopify/Collection/734709514580";
 export const HEADLESS_PUBLICATION_ID = "gid://shopify/Publication/338862113108";
 export const COMMERCE_ACTIONS = [
+  ...assetActions,
   "list_editorial_collections",
   "get_catalog_prices",
   "set_catalog_prices",
@@ -33,6 +37,7 @@ export const COMMERCE_ACTIONS = [
 export interface CatalogVariant {
   id: string;
   sku: string;
+  title: string;
   price: string;
   compareAtPrice: string | null;
   inventoryQuantity: number;
@@ -51,7 +56,7 @@ export interface CatalogProduct {
   media: { nodes: { status: string; image?: { url: string } | null }[] };
   variants: { nodes: CatalogVariant[]; pageInfo: { hasNextPage: boolean } };
   collections: {
-    nodes: { id: string; handle: string }[];
+    nodes: { id: string; handle: string; title?: string }[];
     pageInfo: { hasNextPage: boolean };
   };
   publishedOnPublication: boolean;
@@ -67,6 +72,9 @@ export async function mappedCatalogProduct(
   const product = await getProduct(db, p.productId);
   demand(product, "Prodotto non disponibile.");
   if (p.action === "publish_catalog_product" || p.action === "preview_catalog_publication") {
+    const originals = await db.from('admin_product_operations').select('payload').eq('product_id', product.id);
+    demand(!originals.error && (originals.data ?? []).every(row => !isTechnicalProduct(
+      [String(row.payload?.sku ?? '')], String(row.payload?.title ?? ''), product.id, row.payload?.tags)), 'La bozza originaria è tecnica o non verificabile.');
     demand(!isTechnicalProduct([product.sku], '', product.id),
       "Il prodotto tecnico non può essere pubblicato.");
   }
@@ -79,8 +87,8 @@ export async function mappedCatalogProduct(
     `query DeliveryProduct($id:ID!,$publication:ID!){product(id:$id){id title handle status updatedAt description seo{title description} tags
     publishedOnPublication(publicationId:$publication)
     media(first:20){nodes{status ... on MediaImage{image{url}}}}
-    variants(first:50){nodes{id sku price compareAtPrice inventoryQuantity inventoryItem{tracked requiresShipping} deliveryProfile{id}} pageInfo{hasNextPage}}
-    collections(first:50){nodes{id handle} pageInfo{hasNextPage}}
+    variants(first:50){nodes{id sku title price compareAtPrice inventoryQuantity inventoryItem{tracked requiresShipping} deliveryProfile{id}} pageInfo{hasNextPage}}
+    collections(first:50){nodes{id handle title} pageInfo{hasNextPage}}
   }}`,
     { id, publication: HEADLESS_PUBLICATION_ID },
   );
@@ -89,6 +97,12 @@ export async function mappedCatalogProduct(
       !data.product.collections.pageInfo.hasNextPage,
     "Stato Shopify incompleto o prodotto oltre il limite del gestionale.",
   );
+  if ([...assetActions,'set_catalog_prices','set_catalog_collections','publish_catalog_product','preview_catalog_publication'].includes(String(p.action))) {
+    demand(product.entity_type !== 'variation', 'Apri il prodotto padre per gestire questa operazione.');
+    const skus = await verifyCatalogIdentity(db, product, id);
+    demand(skus.length === data.product.variants.nodes.length && data.product.variants.nodes.every(v => skus.includes(v.sku)),
+      'I formati interni e le varianti Shopify non coincidono. Verifica il collegamento prima di procedere.');
+  }
   return data.product;
 }
 export async function editorialCollections() {
@@ -191,11 +205,17 @@ export async function commerceSnapshot(
   auth: AuthContext,
   p: Record<string, unknown>,
 ) {
+  if (assetWrites.includes(String(p.action))) requireAsset(auth,p.action);
   const product = await mappedCatalogProduct(db, p);
   demand(
     p.expectedUpdatedAt === product.updatedAt,
     "Shopify è cambiato: ricarica e confronta i dati prima della conferma.",
   );
+  if (assetWrites.includes(String(p.action))) {
+    const state = await readAssetState(product.id);
+    const plan = await assetPlan(db,auth,p,state);
+    return {view:assetView(state,p.action),plan};
+  }
   if (p.action === "set_catalog_prices") {
     priceProposal(product, p);
     return {
@@ -367,8 +387,12 @@ async function publicationChecks(
   rawLogistics: unknown,
 ) {
   demand(
-    !isTechnicalProduct(product.variants.nodes.map(v => v.sku), product.title),
+    !HIDDEN_STOREFRONT_PRODUCT_IDS.has(product.id) && !isTechnicalProduct(product.variants.nodes.map(v => v.sku), product.title, undefined, product.tags),
     "Il prodotto tecnico non può essere pubblicato.",
+  );
+  demand(
+    product.collections.nodes.some(c => (CANONICAL_HANDLES as readonly string[]).includes(c.handle)),
+    "Assegna almeno una categoria editoriale prima di pubblicare.",
   );
   demand(
     ["DRAFT", "ACTIVE"].includes(product.status) && product.title.trim() &&
@@ -410,12 +434,43 @@ async function publicationChecks(
   );
   return classes;
 }
+async function readCatalogVisibility(product: CatalogProduct) {
+  if (HIDDEN_STOREFRONT_PRODUCT_IDS.has(product.id)) return { visible: false, available: false };
+  const detail = await shopifyStorefrontGraphQL<{ product: {id: string; availableForSale: boolean} | null }>(
+    'query EditorStorefrontProduct($handle:String!){product(handle:$handle){id availableForSale}}',
+    {handle: product.handle}, '2026-01');
+  if (detail.product?.id !== product.id) return { visible: false, available: false };
+  let after: string | null = null;
+  for (let page = 0; page < 20; page++) {
+    const {products}: {products: {nodes: {id: string}[]; pageInfo: {hasNextPage: boolean; endCursor: string | null}}} =
+      await shopifyStorefrontGraphQL(
+        'query EditorCatalogVisibility($after:String){products(first:100,after:$after){nodes{id} pageInfo{hasNextPage endCursor}}}',
+        {after}, '2026-01');
+    if (products.nodes.some(node => node.id === product.id))
+      return {visible: true, available: detail.product.availableForSale === true};
+    if (!products.pageInfo.hasNextPage) break;
+    const next: string | null = products.pageInfo.endCursor;
+    if (!next || next === after) break;
+    after = next;
+  }
+  return {visible: false, available: false};
+}
+
 export async function handleCatalogCommerce(
   db: SupabaseClient,
   auth: AuthContext,
   p: Record<string, unknown>,
 ) {
   const action = String(p.action);
+  if (assetActions.includes(action)) {
+    requireAsset(auth,action);
+    const mapped = await mappedCatalogProduct(db,p);
+    const state = await readAssetState(mapped.id);
+    if (!assetWrites.includes(action)) return {ok:true,...assetView(state,action)};
+    demand(writesEnabled() && shopifySyncEnabled() && p.confirm===true && auth.catalogApproval?.action===action,
+      'Conferma server mancante.');
+    return await applyAsset(db,auth,p,state);
+  }
   requireCatalog(
     auth,
     action.includes("prices")
@@ -451,17 +506,20 @@ export async function handleCatalogCommerce(
   if (action === "preview_catalog_publication") {
     const logistics = await shippingClasses(product);
     await publicationChecks(product, logistics);
-    const storefront = await shopifyStorefrontGraphQL<
-      { product: { id: string } | null }
-    >("query DeliveryVisibility($id:ID!){product(id:$id){id}}", {
-      id: product.id,
-    }, "2026-01");
+    const storefront = await readCatalogVisibility(product);
     return {
       ok: true,
       updatedAt: product.updatedAt,
       logistics,
       status: product.status,
-      storefrontVisible: storefront.product?.id === product.id,
+      storefrontVisible: storefront.visible,
+      availableForSale: storefront.available,
+      channelPublished: product.publishedOnPublication,
+      title: product.title,
+      description: product.description,
+      images: product.media.nodes.filter(m => m.status === 'READY' && m.image?.url).length,
+      categories: product.collections.nodes.filter(c => (CANONICAL_HANDLES as readonly string[]).includes(c.handle)).map(c => c.title || c.handle),
+      variants: product.variants.nodes.map(v => ({format: v.title, price: v.price, quantity: v.inventoryQuantity})),
       channel: "Sito Online Garden (Headless)",
       soldOut: product.variants.nodes.every((v) => v.inventoryQuantity <= 0),
     };
@@ -598,19 +656,16 @@ export async function handleCatalogCommerce(
       after.status === "ACTIVE" && after.publishedOnPublication,
       "Stato canale da riconciliare.",
     );
-    const visible = await shopifyStorefrontGraphQL<
-      { product: { id: string } | null }
-    >("query DeliveryVisible($id:ID!){product(id:$id){id}}", {
-      id: product.id,
-    }, "2026-01");
+    const visible = await readCatalogVisibility(after);
     demand(
-      visible.product?.id === product.id,
+      visible.visible,
       "Pubblicazione non ancora leggibile dalla Storefront: attendere verifica senza reinviare.",
     );
     return {
       ok: true,
       result: {
         state: "STOREFRONT_VERIFIED",
+        availableForSale: visible.available,
         url: `https://onlinegarden.it/products/${product.handle}`,
         updatedAt: after.updatedAt,
       },

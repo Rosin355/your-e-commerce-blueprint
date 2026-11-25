@@ -2,7 +2,7 @@ name: Storefront application checks
 
 on:
   pull_request:
-    branches: [main, codex/storefront-main-integration]
+    branches: [main, codex/storefront-main-integration, codex/rilascio-admin-v2-isolato-20261124]
 
 permissions:
   contents: read

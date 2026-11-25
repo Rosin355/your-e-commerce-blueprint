@@ -8,9 +8,9 @@ type Image = { url: string; alt: string };
 type Media = { id: string; state: string; url: string | null; alt: string };
 // UUIDv5, namespace URL. The media journal scopes the key to the signed-in actor
 // and independently verifies the submitted bytes, MIME type and alternative text.
-async function mediaRequestKey(base64: string, mimeType: string) {
+async function mediaRequestKey(base64: string, mimeType: string, altKey = '') {
   const namespace = Uint8Array.from([0x6b,0xa7,0xb8,0x11,0x9d,0xad,0x11,0xd1,0x80,0xb4,0x00,0xc0,0x4f,0xd4,0x30,0xc8]);
-  const name = new TextEncoder().encode(`https://onlinegarden.it/admin/media/${mimeType}/${base64}`);
+  const name = new TextEncoder().encode(`https://onlinegarden.it/admin/media/${mimeType}/${base64}${altKey}`);
   const buffer = new Uint8Array(namespace.length + name.length);
   buffer.set(namespace);
   buffer.set(name, namespace.length);
@@ -21,8 +21,8 @@ async function mediaRequestKey(base64: string, mimeType: string) {
   return [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join('-');
 }
 
-export default function CatalogImages({ images, onChange, ordinary, enabled, sku, requestKey, onUploadingChange, errors = {} }: {
-  errors?: Record<string,string>; images: Image[]; onChange: (images: Image[]) => void; ordinary: boolean; enabled: boolean; sku: string; requestKey?: string | null; onUploadingChange: (busy: boolean) => void;
+export default function CatalogImages({ images, onChange, ordinary, enabled, sku, requestKey, onUploadingChange, separateAlt = false, errors = {} }: {
+  separateAlt?: boolean; errors?: Record<string,string>; images: Image[]; onChange: (images: Image[]) => void; ordinary: boolean; enabled: boolean; sku: string; requestKey?: string | null; onUploadingChange: (busy: boolean) => void;
 }) {
   const [file, setFile] = useState<File>();
   const [alt, setAlt] = useState('');
@@ -39,7 +39,7 @@ export default function CatalogImages({ images, onChange, ordinary, enabled, sku
       reader.onload = () => resolve(String(reader.result).split(',')[1]); reader.readAsDataURL(file);
     });
     const scope = { requestKey, sku };
-    let result = await callAdminApi<{ media: Media }>({ action: 'upload_catalog_image', ...scope, idempotencyKey: await mediaRequestKey(base64, file.type), base64, mimeType: file.type, alt, confirm: true });
+    let result = await callAdminApi<{ media: Media }>({ action: 'upload_catalog_image', ...scope, idempotencyKey: await mediaRequestKey(base64, file.type, separateAlt ? '/alt/'+alt.trim() : ''), base64, mimeType: file.type, alt, confirm: true });
     for (let attempt = 0; result.media.state === 'PROCESSING' && attempt < 30; attempt++) {
       await new Promise(resolve => setTimeout(resolve, 1500));
       result = await callAdminApi<{ media: Media }>({ action: 'get_catalog_media', ...scope, mediaId: result.media.id });
@@ -62,7 +62,7 @@ export default function CatalogImages({ images, onChange, ordinary, enabled, sku
     {upload.isError && <p role='alert'>{upload.error.message} Controlla le immagini già caricate prima di riprovare.</p>}
     <div className='grid gap-3 sm:grid-cols-3'>{images.map((image,i) => <div key={image.url} className='rounded-lg border p-2'>
       <img src={image.url} alt={image.alt} className='h-32 w-full object-contain' /><label className="block">Testo alternativo nella bozza (obbligatorio)
-        <Input id={'image-alt-'+i} required aria-invalid={Boolean(errors['image-alt-'+i])} aria-describedby={errors['image-alt-'+i] ? 'image-alt-error-'+i : undefined} disabled={upload.isPending} value={image.alt} maxLength={250} onChange={e => onChange(images.map(i => i.url === image.url ? { ...i, alt: e.target.value } : i))} />
+        <Input id={'image-alt-'+i} required aria-invalid={Boolean(errors['image-alt-'+i])} aria-describedby={errors['image-alt-'+i] ? 'image-alt-error-'+i : undefined} disabled={upload.isPending} value={image.alt} maxLength={250} readOnly={separateAlt} onChange={e => onChange(images.map(i => i.url === image.url ? { ...i, alt: e.target.value } : i))} />
       </label>{errors['image-alt-'+i] && <p id={'image-alt-error-'+i} className="text-sm text-destructive">{errors['image-alt-'+i]}</p>}<p className="text-xs">Per l’invio a Shopify usa il testo alternativo registrato nella libreria.</p>
       <Button type='button' variant='outline' disabled={upload.isPending} onClick={() => onChange(images.filter(i => i.url !== image.url))}>Rimuovi dalla bozza</Button>
     </div>)}</div>

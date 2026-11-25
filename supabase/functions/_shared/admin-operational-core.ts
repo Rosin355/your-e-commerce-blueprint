@@ -125,6 +125,7 @@ export interface ProductDraft {
   title: string;
   sku: string;
   description: string;
+  shortDescription?: string;
   currency: string;
   vendor: string;
   productType?: string;
@@ -228,6 +229,10 @@ export function validateDraft(raw: unknown): ProductDraft {
     'Contenuti botanici non validi.',
   );
   demand(r.collectionIds===undefined || (Array.isArray(r.collectionIds) && r.collectionIds.length<=23 && r.collectionIds.every(id=>typeof id==='string' && /^gid:\/\/shopify\/Collection\/\d+$/.test(id)) && new Set(r.collectionIds).size===r.collectionIds.length),'Collezioni non valide.');
+  const shortDescription = text(r.shortDescription ?? '', 'Descrizione breve', 320);
+  if (shortDescription) demand(!/[<>]/.test(shortDescription) &&
+    shortDescription !== String(r.description).replace(/<[^>]*>/g, '').trim(),
+    'Scrivi una sintesi distinta dalla descrizione estesa, in testo semplice.');
   const botanical = { ...r.botanical as Record<string, unknown> };
   for (const key of Object.keys(botanical)) {
     if (isSeasonalField(key)) {
@@ -237,6 +242,7 @@ export function validateDraft(raw: unknown): ProductDraft {
   }
   return {
     ...(r.collectionIds!==undefined ? {collectionIds:r.collectionIds as string[]} : {}),
+    ...(shortDescription ? { shortDescription } : {}),
     title: text(r.title, 'Nome prodotto', 255, true),
     sku: familySku,
     description: text(r.description, 'Descrizione', 20000, true),
@@ -303,8 +309,9 @@ export function escapeHtml(s: string) {
 }
 
 /** Publication guard for catalog fixtures, including the pinned acceptance record. */
-export function isTechnicalProduct(skus: string[], title = '', productId?: string) {
-  return productId === 'b998f5bb-e9d4-4d53-a448-7a5129f91ddc' ||
-    /^\s*TEST(?:\s*[-—:]|\s*$)|\bTEST ADMIN\b|\bNON (?:IN VENDITA|PUBBLICARE)\b/i.test(title) ||
+export function isTechnicalProduct(skus: string[], title = '', productId?: string, tags: unknown = []) {
+  return productId === '34627bea-a92c-40de-b34c-ad340c00f456' || productId === 'b998f5bb-e9d4-4d53-a448-7a5129f91ddc' ||
+    /^\s*TEST(?:\s*[-—:]|\s*$)|\bCOLLAUDO\b|\b(?:PRODOTTO|BOZZA) (?:TECNIC[OA]|TEST)\b|\bTEST ADMIN\b|\bNON (?:IN VENDITA|PUBBLICARE)\b/i.test(title) ||
+    (Array.isArray(tags) && tags.some(tag => typeof tag === 'string' && /^(?:test|technical|tecnico|collaudo|non[-_ ]pubblicare)$/i.test(tag.trim()))) ||
     skus.some(sku => /^(?:TEST(?:[-_.]|$)|OG-ADMIN-CHECK-)/i.test(sku.trim()));
 }

@@ -23,6 +23,7 @@ export default function ProductOperations({ productId, live }: { productId: stri
           operations: {
             id: string;
             state: string;
+            canOperate?: boolean;
             summary?: DraftSummary;
             created_at: string;
             admin_operation_events: { state: string; created_at: string }[];
@@ -62,11 +63,10 @@ export default function ProductOperations({ productId, live }: { productId: stri
             <p className='text-sm'>Dati registrati alla creazione. Le modifiche successive sono nei campi editoriali sotto. Le categorie mostrano la selezione salvata. I nomi sono quelli verificabili oggi nel catalogo o nella collezione collegata.</p>
             <DraftSummaryView saved draft={op.summary} />
           </section> : op.state === 'LOCAL_DRAFT' && <p role='status'>Riepilogo della bozza non disponibile per questa versione o account.</p>}
-          <details>
-            <summary className='cursor-pointer'>Operazioni Shopify e storico</summary>
-            {query.data.canManageDraft && op.state === 'LOCAL_DRAFT' && (
+
+            {op.canOperate !== false && query.data.canManageDraft && query.data.canSendDraft && (query.data.ordinaryCatalog || query.data.approvedOperationId === op.id) && op.state === 'LOCAL_DRAFT' && (
               <div className='space-y-2'>
-                <Button
+                <Button variant="shopify"
                   disabled={command.isPending || !query.data.canSendDraft || (!query.data.ordinaryCatalog && query.data.approvedOperationId !== op.id)}
                   onClick={() => {
                     if (window.confirm('Creare una bozza Shopify senza pubblicarla?')) {
@@ -76,29 +76,20 @@ export default function ProductOperations({ productId, live }: { productId: stri
                 >
                   Crea bozza Shopify
                 </Button>
-                {(!query.data.canSendDraft || (!query.data.ordinaryCatalog && query.data.approvedOperationId !== op.id)) && (
-                  <p className='text-sm text-muted-foreground'>
-                    Invio non disponibile: richiede abilitazione operativa e approvazione di questa bozza.
-                  </p>
-                )}
               </div>
             )}
-            {query.data.canManageDraft && ['IN_FLIGHT', 'NEEDS_RECONCILIATION'].includes(op.state) && (
+            {op.canOperate !== false && query.data.canManageDraft && canRecover && (query.data.ordinaryCatalog || query.data.approvedOperationId === op.id) && ['IN_FLIGHT', 'NEEDS_RECONCILIATION'].includes(op.state) && (
               <div className='space-y-2'>
-                <Button
+                <Button variant="shopify"
                   disabled={command.isPending || !canRecover || (!query.data.ordinaryCatalog && query.data.approvedOperationId !== op.id)}
                   onClick={() =>
                     command.mutate({ action: 'recover_shopify_draft', operationId: op.id })}
                 >
                   Recupera stato senza ricreare
                 </Button>
-                {!canRecover && (
-                  <p className='text-sm text-muted-foreground'>
-                    Recupero non disponibile: richiede scritture abilitate e un amministratore autorizzato.
-                  </p>
-                )}
               </div>
             )}
+          <details><summary className='cursor-pointer'>Storico delle sincronizzazioni</summary>
             <ul className='text-sm'>
               {op.admin_operation_events.map((e, i) => (
                 <li key={i}>

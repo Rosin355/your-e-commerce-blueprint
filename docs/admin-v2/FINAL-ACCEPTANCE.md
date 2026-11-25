@@ -20,3 +20,11 @@ Il percorso tecnico è stato eseguito con un account staff in anteprima e con ri
 Marco accede personalmente a /admin, cerca TEST-OG-AI-001, apre lo storico e il riepilogo della foto, del prezzo e della collezione. Confronta il testo attuale con una proposta, sceglie se scartarla o confermarla e rilegge il risultato. Per la prova sulla lavanda si può annullare una modifica. Registrare data, dispositivo, comandi disponibili, esiti e eventuale messaggio di errore senza inserire dati personali. La decisione di accettazione spetta al cliente. Per un controllo Shopify in lettura usare la distinta bozza tecnica già verificata.
 
 [Verbale della prova tecnica precedente](../editor-step1/COLLAUDO-MARCO-STEP1C.md) · [Versioni e stato di produzione](RELEASE-REPORT.md) · [Guida](CLIENT-GUIDE.md).
+
+## Collaudo da registrare con Marco · candidato operativo
+
+- Confermare staff Editor nominale, bozza designata e permessi realmente visibili.
+- Eseguire i casi A–L del verbale su desktop e mobile. Salvare e riaprire separatamente le due descrizioni, quindi rileggere entrambi i target Shopify sulla bozza autorizzata.
+- Provare foto con ALT e rinomina di un formato. Rileggere SKU, ID, prezzi e media prima e dopo. Controllare che un secondo Editor privo del grant sia respinto.
+- Verificare il blocco pubblicazione del prodotto tecnico. Per il caso positivo occorre un prodotto ordinario individuato con mandato commerciale specifico.
+- Registrare data, browser, esito per caso e decisione di Marco. La verifica su iPhone fisico rimane aperta. [Verbale, collaudo e rollback](../release/MARCO-EDITOR-SHOPIFY-2026-11-25.md)

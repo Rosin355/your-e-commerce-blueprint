@@ -16,6 +16,7 @@ export const CLIENT_FIELD_KEYS = [
   "description",
   "short_description",
   "optimized_description",
+  "tags",
   "seo_title",
   "seo_description",
   "nome_botanico",
@@ -83,6 +84,8 @@ export const CATALOG_MUTATIONS: Record<string, string> = {
   apply_categories: "categories",
   set_catalog_collections: "categories",
   set_catalog_prices: "prices",
+  set_catalog_image: "images",
+  rename_catalog_format: "prices",
   publish_catalog_product: "publish",
 };
 export function catalogCommand(raw: unknown): Record<string, unknown> {
@@ -114,6 +117,7 @@ export function catalogCommand(raw: unknown): Record<string, unknown> {
     "expectedShopifyHash",
     "collectionIds",
     "allowSoldOut",
+    "change", "imageId", "libraryId", "optionValueId", "name",
   ];
   const result = Object.fromEntries(
     keys.filter((k) => Object.hasOwn(p, k)).map((k) => [k, p[k]]),

@@ -26,7 +26,8 @@ export default function DraftSummaryView({ draft, saved = false }: { draft: Draf
       <div><dt className="font-medium">Nome prodotto</dt><dd>{draft.title || missing}</dd></div>
       <div><dt className="font-medium">Categorie</dt><dd>{draft.categories?.join(', ') || missing}</dd></div>
     </dl>
-    <div><h4 className="font-medium">Descrizione</h4>{draft.description ? <EditorialText value={draft.description} /> : missing}</div>
+    {draft.shortDescription && <div><h4 className="font-medium">Descrizione breve</h4><p>{draft.shortDescription}</p></div>}
+    <div><h4 className="font-medium">Descrizione estesa</h4>{draft.description ? <EditorialText value={draft.description} /> : missing}</div>
     {Boolean(draft.seasons?.length) && <section><h4 className="font-medium">Periodi botanici</h4>
       <dl>{draft.seasons.map(({ key, months }) => <div key={key}><dt className="capitalize">{key.replace(/_/g, ' ')}</dt><dd>{months.join(', ')}</dd></div>)}</dl>
     </section>}
@@ -40,6 +41,6 @@ export default function DraftSummaryView({ draft, saved = false }: { draft: Draf
         <figure key={i}>{img.url ? <img src={img.url} alt={img.alt || ''} loading="lazy" className="h-24 w-24 rounded border object-contain" /> : 'Riferimento immagine mancante o non verificato'}
           <figcaption>{img.alt || 'Testo alternativo mancante'}</figcaption></figure>)}</div> : 'Nessuna immagine associata'}
     </div>
-    {saved ? details : <details><summary className="cursor-pointer">Codici e dettagli avanzati</summary>{details}</details>}
+    {<details><summary className="cursor-pointer">Codici e dettagli avanzati</summary>{details}</details>}
   </div>;
 }

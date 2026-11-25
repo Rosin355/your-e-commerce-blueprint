@@ -37,7 +37,7 @@ export const SEASONAL_FIELD_KEYS = Object.freeze([
  */
 export const CLIENT_CREATABLE_MISSING_FIELD_KEYS = Object.freeze([
   ...SEASONAL_FIELD_KEYS,
-  "description", "optimized_description", "short_description", "title", "seo_title", "seo_description", "key_benefits", "key_features", "special_bullets",
+  "description", "optimized_description", "short_description", "tags", "title", "seo_title", "seo_description", "key_benefits", "key_features", "special_bullets",
   "difficolta_di_coltivazione",
 ] as const);
 
@@ -83,7 +83,7 @@ const CLIENT_CREATABLE_MISSING_KEYS = new Set<string>(
 const CORE_ALLOWLIST: Readonly<Record<string, "title" | "descriptionHtml" | "vendor" | "tags">> = {
   title: "title",
   description: "descriptionHtml",
-  optimized_description: "descriptionHtml",
+
   vendor: "vendor",
   tags: "tags",
 };
@@ -167,6 +167,9 @@ export function validateConstrainedFieldValue(
   value: unknown,
 ): unknown {
   if (isSeasonalField(fieldKey)) return normalizeMonths(value);
+  if (fieldKey === 'short_description' && (typeof value !== 'string' || !value.trim() || value.length > 320 || /[<>]/.test(value))) {
+    throw new FieldPolicyError('Inserisci una descrizione breve in testo semplice, entro 320 caratteri.');
+  }
   if (fieldKey === "difficolta_di_coltivazione") {
     if (
       typeof value !== "string" ||
@@ -211,7 +214,14 @@ export function resolveShopifyTarget(
   def: FieldDefinition,
 ): ShopifyFieldTarget | null {
   if (!def.publishable || !isRecord(def.shopify_mapping)) return null;
+  // These historical values remain readable. Only the two reviewed editorial
+  // fields own the storefront description targets in Admin V2.
+  if (def.key === 'optimized_description' || def.key === 'short_intro') return null;
   const mapping = def.shopify_mapping;
+  if (def.key === 'short_description') {
+    return mapping.type === 'metafield' && mapping.namespace === 'custom' && mapping.key === 'short_intro'
+      ? { kind: 'metafield', namespace: 'custom', key: 'short_intro', valueType: 'multi_line_text_field' } : null;
+  }
   const type = mapping.type;
 
   if (type === "core") {

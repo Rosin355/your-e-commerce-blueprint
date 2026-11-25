@@ -30,7 +30,7 @@ const TONE_CLASS: Record<string, string> = {
 
 export default function ProductsPage() {
   const context = useAdminContext();
-  const canAuthorDraft = context.data?.roles.some(r => ['admin', 'tech_admin', 'editor'].includes(r));
+  const canAuthorDraft = context.data?.operationalCapabilities?.drafts;
   const [search, setSearch] = useState('');
   const [sku, setSku] = useState('');
   const [gtin, setGtin] = useState('');
@@ -51,6 +51,7 @@ export default function ProductsPage() {
 
   const filters = useMemo<ProductFilters>(
     () => ({
+      groupFamilies: true,
       search: debouncedSearch || undefined,
       sku: debouncedSku || undefined,
       gtin: debouncedGtin || undefined,
@@ -103,7 +104,7 @@ export default function ProductsPage() {
       <section aria-label="Filtri" className="space-y-4 rounded-lg border bg-card p-4">
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-1.5">
-            <Label htmlFor="ricerca">Cerca per nome</Label>
+            <Label htmlFor="ricerca">Cerca per nome o SKU variante</Label>
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
               <Input
@@ -288,6 +289,13 @@ export default function ProductsPage() {
                   {formatDate(p.updatedAt)}
                 </p>
               </Link>
+              {Boolean(p.variants?.length) && <details className="ml-3 rounded-b border p-3">
+                <summary className="cursor-pointer">Formati e prezzi ({p.variants!.length})</summary>
+                <ul>{p.variants!.map(v => <li key={v.productId} className="py-2">
+                  <Link className="underline" to={`/admin/products/${v.productId}`}>{v.format || 'Formato'} · {v.sku}</Link>
+                  {' · '}{v.price == null ? 'Prezzo da verificare' : v.price + ' €'}
+                </li>)}</ul>
+              </details>}
             </li>
           ))}
         </ul>
