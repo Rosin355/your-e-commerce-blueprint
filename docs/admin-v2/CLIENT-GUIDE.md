@@ -35,6 +35,10 @@ Per la prima prova personale usa la bozza tecnica di lavanda già presente. Regi
 
 ## Prossima versione · gestire un prodotto
 
+Il 25 novembre la nuova versione è pronta nell’editor Lovable per la preparazione del collaudo. Sul sito pubblico trovi ancora la versione precedente. Il tuo account ha già i permessi personali di sincronizzazione e pubblicazione. Restano da approvare separatamente la modifica dei tag del catalogo, la galleria di un prodotto collegato e la rinomina di un formato esistente.
+
+Per il collaudo usa una bozza tecnica concordata e salvata con il tuo account. La Quercus della prova precedente appartiene a un altro operatore. Verifica prima descrizioni, SKU, formati e foto con **Salva bozza nell’Admin** e riapri la scheda. L’invio a Shopify richiede l’autorizzazione per quella bozza. Sul prodotto tecnico il percorso termina alla verifica che la pubblicazione sia bloccata. [Checklist personale](FINAL-ACCEPTANCE.md)
+
 1. Apri **Prodotti**. Cerca il nome o lo SKU di un formato. Espandi la famiglia per vedere formati e prezzi.
 2. Apri il prodotto padre. In **Contenuti del prodotto** modifica il testo breve e quello esteso. Con l’AI conferma i fatti e scegli quali proposte applicare.
 3. Premi **Salva modifiche**. Confronta il valore interno con Shopify, scegli il singolo aggiornamento e conferma. Attendi la rilettura prima di considerare aggiornata la scheda.

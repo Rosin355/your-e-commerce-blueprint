@@ -1,3 +1,7 @@
+## Admin V2 per Marco · 25 novembre 2026
+
+La PR #74 è integrata nel ramo collegato all’editor Lovable. Il negozio continua a servire la versione pubblicata in precedenza. Marco è già abilitato alla sincronizzazione e alla pubblicazione manuale. Le nuove azioni su tag, galleria e formati attendono una decisione per il suo account. Per l’accettazione personale resta da concordare la bozza tecnica di Marco. SAL ufficiale **57,75%**. [Verbale del rilascio](release/MARCO-EDITOR-SHOPIFY-2026-11-25.md) · [Guida operativa](admin-v2/CLIENT-GUIDE.md)
+
 ## Stato aggiornato per il cliente — 21 novembre 2026
 
 ## Consegna del pannello prodotti · 21 novembre 2026

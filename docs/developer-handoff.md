@@ -2,7 +2,7 @@
 
 ## Candidato operativo Marco del 25 novembre
 
-L’unica Edge candidata è product-admin-api. Il cliente AI usa il contratto già pubblicato. Le nuove operazioni di galleria e formato richiedono grant personali, versione Shopify, approvazione nel journal e rilettura. Il registro descrizioni, i nuovi comandi del journal e le singole abilitazioni hanno script psql reversibili in docs/release/pending. I pacchetti di rollback richiedono verifica della revisione Edge attiva prima del deploy. [Verbale, collaudo e rollback](release/MARCO-EDITOR-SHOPIFY-2026-11-25.md)
+La PR #74 è integrata a `f5b7ae04830b75b600bd795bce017af53316fbac` sul ramo isolato sincronizzato con Lovable. Il dominio serve ancora `index-BcqOotvz.js`. La sola Edge candidata è `product-admin-api`. Connettore e CLI con l’accesso disponibile non hanno restituito la revisione attiva. Il download della funzione ha dato HTTP 403. Il verbale indica come acquisire il pacchetto sul progetto esistente, verificarne versione e configurazione JWT e distinguere il rollback attivo dall’archivio storico. Registro, journal e singoli grant hanno script già provati in isolamento. Lo snapshot nominativo resta privato. [Decisioni, sequenza SQL e rollback](release/MARCO-EDITOR-SHOPIFY-2026-11-25.md)
 
 
 ## Chiusura AI della nuova bozza · 24 novembre 2026
