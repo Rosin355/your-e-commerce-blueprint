@@ -108,7 +108,7 @@ export function formatChange(state: AssetState, p: Record<string, unknown>) {
   demand(
     state.options.length === 1 && option.name.toLowerCase() === "formato" &&
       current && name && name.length <= 100 &&
-      !/[<>\u0000-\u001f]/u.test(name) &&
+      !/[<>\p{Cc}]/u.test(name) &&
       !option.optionValues.some((v) =>
         v.name.toLocaleLowerCase("it") === name.toLocaleLowerCase("it")
       ),

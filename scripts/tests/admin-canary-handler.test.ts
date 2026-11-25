@@ -420,7 +420,7 @@ test('Scheda SEO: valori inventati o indici fuori dominio scartati campo per cam
     output:{description:[1,1],seoTitle:'Farnia certificata',seoDescription:42,tags:[0,0]}}});
   const body=await (await fixture.request({action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts})).json();
   assert.equal(body.source,'confirmed_facts');
-  assert.deepEqual(Object.values(body.editorial).map((r:any)=>r.source),['deterministic','deterministic','deterministic']);
+  assert.deepEqual(Object.values(body.editorial as Record<string,{source:string}>).map(r=>r.source),['deterministic','deterministic','deterministic']);
   assert.equal(body.editorial.seoDescription.value,facts.join(' '));
   assert.ok(!JSON.stringify(body).includes('certificata'));
   assert.equal(fixture.providerRequests.length,1);
