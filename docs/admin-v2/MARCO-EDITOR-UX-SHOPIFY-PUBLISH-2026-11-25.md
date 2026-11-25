@@ -34,3 +34,30 @@ Data: 25 novembre 2026. **Stato: proposta da implementare, non già distribuita.
 - Delivery: PR unica o intervento coordinato con documentazione `docs/PROJECT_STATUS.md`, guida Marco, note UX designer, handoff developer, QA e SAL. **GO separati** per migrazioni/grant, Edge, merge e Publish, eseguiti solo con prerequisiti e mandato verificabili; mai inviare modifiche commerciali senza conferma esplicita nel pannello.
 
 **Non ancora implementato**: questa pagina è una specifica approvabile, non un attestato di rilascio.
+
+
+## Addendum · 25 novembre 2026 — chiusura AI e ciclo di vita prodotto (requisiti richiesti dal committente)
+
+**Stato:** SPECIFICA DA IMPLEMENTARE, non prova di avvenuto rilascio. PR #74 e #75 sul ramo Lovable isolato già integrate; non riimplementare ciò che funziona. La SAL 57,75% non cambia senza accettazione.
+
+### Obiettivo UX «Marco in pochi passaggi»
+- Home scheda per ruolo Editor basata sui permessi server: vista principale con soli campi/CTA realmente operativi, e **«Opzioni avanzate · Dati tecnici e permessi»** chiusa di default per ogni campo bloccato, identificativo, dettaglio di mapping, motivo `Non disponibile per il tuo ruolo`, log. Nessun elemento importante per l'azione primaria va nascosto.
+- Azione primaria per nuova scheda **«Completa con AI»**; per esistente **«Migliora con AI»**. Nome, categoria e fatti confermati come ingresso; consentire anche fatti importati da Shopify evidenziando chiaramente le informazioni *da confermare*. Precompilare il contesto conosciuto senza chiedere di ridigitare dati, ma l'AI non può creare fatti non verificati.
+- Una chiamata strutturata ove possibile produce descrizione breve `custom.short_intro`, descrizione lunga `descriptionHtml`, SEO title, SEO description, tag, eventuali caratteristiche/FAQ soltanto verificate e supportate. Validazione/fallback per campo, provenance, preview compatta e **«Applica proposte»** con selezione predefinita dei soli campi validi e autorizzati. I contenuti confermati manualmente prevalgono; nessuna sovrascrittura implicita di valori Shopify, prezzo, inventario, SKU, immagini o stato di pubblicazione. Editor può espandere il confronto campo per campo.
+- Per prodotto esistente percorso minimo: **Modifica → AI facoltativa → Rivedi modifiche → Salva e aggiorna Shopify** con un'unica conferma finale consapevole, attuato come operazioni server distinte e verificabili (persistenza, comparison, mutation selettiva, rilettura), idempotenza, controllo concorrenza e rollback. Per nuovo: **Completa con AI → Rivedi → Salva e crea bozza Shopify → Verifica e pubblica** con conferma esplicita di pubblicazione. Non rendere opaca la distinzione tra DRAFT, online e acquistabile.
+
+### Gestione prodotti esistenti, varianti e ciclo di vita
+- Correzione su Shopify dei campi autorizzati, senza duplicazione/matching per titolo; ruoli `edit`, `sync`, `publish` già registrati per Marco, ma controlli live obbligatori. Le tre chiavi aggiuntive da esaminare individualmente sono `tags`, `product_gallery` e `product_formats`.
+- Completare, se richiesto per autonomia reale, creazione/eliminazione di combinazioni su famiglie Shopify **già collegate**, ora non supportata dalla PR #74: identificativi Shopify, riconciliazione interna, prezzi, SKU, stock e media, no retry cieco, conferma per le rimozioni e protezione degli ordini.
+- **Tre azioni distinte e visibili in modo comprensibile**:
+  1. `Rimuovi dal sito` (unpublish dal canale specifico; prodotto Shopify conservato);
+  2. `Archivia` (stato ARCHIVED, recuperabile tramite riattivazione; spiegare impatto sugli altri canali);
+  3. `Elimina definitivamente` (mutation Shopify `productDelete`, irreversibile: accesso specifico nominativo distinto `product_delete`, non concesso per default; conferma rafforzata digitando SKU/titolo e ID identificato; verifica collegamenti padre/varianti, ordini, media, SEO, redirect e storico; audit e tombstone locale, no cancellazione cieca di righe interne e no hard delete di media condivisi).
+- Unpublish/archive anche con permessi separati e conferma esplicita. Se manca scope Shopify reale, mostra messaggio operativo senza simulare successo. Nessun prodotto commerciale va eliminato, archiviato o messo offline in collaudo senza mandato per quell'ID.
+- Colorazione semantica accessibile e distinta: verde contenuti/salvataggio, blu azioni Shopify, ambra verifiche, grigio Advanced/secondary, rosso eliminazione irreversibile ed errori (non per «Annulla»).
+- Proteggere prodotti tecnici, casi con mapping incerto, non idonei per la pubblicazione, storici Woo e duplicati; se eliminazione definitiva impossibile o non autorizzata offrire l'alternativa reversibile, senza aggirare i controlli.
+
+### Gate QA e release
+- Test Node/Deno/PostgreSQL/Chromium+Safari: un account Marco e altro Editor, nuova bozza, prodotto esistente con varianti, AI reale con provider autorizzato e mock, sintesi diversa da lunga dopo rilettura Shopify, SEO/tag, foto/ALT, formati, confronto/sync, unpublish/archive/restore, consenso renforzato per delete e rifiuto server, perdita di rete e replay idempotente, percorsi pubblici e checkout.
+- Nessuna nuova migrazione o deploy senza GO distinto. Per Lovable Cloud accettare come limite di piattaforma il 403 del download della revisione attiva; recupero preparato da commit documentato, con **rischio residuo dichiarato**: commit inviato non prova binaria della revisione runtime. Per rollback frontend usare come baseline immediatamente precedente alla PR #74 `index-BcqOotvz.js`, salvo riscontro live più recente.
+- Documentare per designer/developer/cliente e SAL con categorie IMPLEMENTED / MOCK_TESTED / LIVE_VERIFIED / PUBLISHED / CLIENT_ACCEPTED. Non dichiarare autorizzazione a cancellazioni reali solo perché il committente ne richiede la funzionalità.
