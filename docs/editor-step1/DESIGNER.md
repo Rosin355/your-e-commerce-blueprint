@@ -76,4 +76,6 @@ Consulta [BACKLOG-UX-MARCO.md](BACKLOG-UX-MARCO.md) per priorita', prove e crite
 
 ## Scheda Editor · candidato del 25 novembre
 
+Il merge della PR #74 è visibile nell’editor Lovable. Per la prova con Marco, osservare se distingue il salvataggio interno dall’invio del singolo campo e se comprende perché un’azione di galleria o di formato è indisponibile. Verificare anche che riesca a raggiungere da tastiera la descrizione estesa partendo dalla sintesi nella scheda prodotto. Registrare dispositivo ed esito nella checklist. [Collaudo con Marco](../admin-v2/FINAL-ACCEPTANCE.md)
+
 La vista iniziale segue le capability del backend. I dettagli tecnici e i motivi di esclusione si aprono con un controllo nativo accessibile da tastiera. Verde per modifica interna e applicazione delle proposte, blu per invio Shopify, ambra per una verifica, rosso per errori o azioni distruttive. Il testo dell’azione esplicita sempre l’effetto. Il percorso PDP presenta la sintesi vicino all’acquisto e un collegamento alla descrizione estesa. Nella revisione visuale controllare focus, leggibilità a 390 px e messaggi di stato dopo una conferma. [Verbale, collaudo e rollback](../release/MARCO-EDITOR-SHOPIFY-2026-11-25.md)

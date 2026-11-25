@@ -23,8 +23,9 @@ Marco accede personalmente a /admin, cerca TEST-OG-AI-001, apre lo storico e il 
 
 ## Collaudo da registrare con Marco · candidato operativo
 
-- Confermare staff Editor nominale, bozza designata e permessi realmente visibili.
+- [x] Identificato l’Editor nominale e verificati i suoi permessi nel database. `sync` e `publish` sono presenti.
+- [ ] Designare una bozza tecnica di Marco e registrare lo stato iniziale. La Quercus della PR #73 è una bozza interna di un altro operatore. Verificare nella sessione personale le azioni disponibili e l’esito dei tre eventuali grant.
 - Eseguire i casi A–L del verbale su desktop e mobile. Salvare e riaprire separatamente le due descrizioni, quindi rileggere entrambi i target Shopify sulla bozza autorizzata.
 - Provare foto con ALT e rinomina di un formato. Rileggere SKU, ID, prezzi e media prima e dopo. Controllare che un secondo Editor privo del grant sia respinto.
-- Verificare il blocco pubblicazione del prodotto tecnico. Per il caso positivo occorre un prodotto ordinario individuato con mandato commerciale specifico.
+- Verificare nel controllo preliminare il blocco della pubblicazione del prodotto tecnico. Per il caso positivo si dispone di risposte Shopify simulate. La verifica commerciale reale richiede un mandato distinto.
 - Registrare data, browser, esito per caso e decisione di Marco. La verifica su iPhone fisico rimane aperta. [Verbale, collaudo e rollback](../release/MARCO-EDITOR-SHOPIFY-2026-11-25.md)
