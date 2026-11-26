@@ -1,6 +1,57 @@
 # Rilascio product-admin-api — 26/11/2026
 
-## Candidato dopo approvazione del piano — NON distribuito
+## Review indipendente del candidato e612b24
+
+**Decisione del 26 novembre 2026 · NO-GO al rilascio.** Il confronto diretto con `66f2599` riguarda due moduli Edge, i rispettivi due file di test e una riga di `AGENTS.md`. La prima parte della correzione e le tre modifiche all’interfaccia erano già nel genitore. Le due impronte SHA-256 riportate sotto coincidono con i sorgenti del candidato. Il verbale da aggiornare si trova nel successivo commit documentale `1335c5b`. L’accettazione di Marco resta **PENDING_CLIENT_ACCEPTANCE**, SAL **57,75%**. [Diff diretto](https://github.com/Rosin355/your-e-commerce-blueprint/compare/66f2599...e612b24).
+
+| Controllo | Esito | Evidenza determinante |
+|---|---|---|
+| REVIEW | FAIL | Errori riproducibili su recupero, confronto e visualizzazione |
+| SECURITY | FAIL | Controlli personali di modifica e interruttore di sincronizzazione applicati in modo diverso nei percorsi descritti sotto |
+| FIELD_MAPPING | FAIL | Tutti gli 11 target correnti coincidono. Il controllo immediatamente prima dell’invio accetta un campo che il registro ha nel frattempo riservato alle varianti |
+| SHOPIFY_COMPATIBILITY | FAIL | FAQ JSON equivalenti possono fallire la rilettura. Due tipi lista ammessi dal piano hanno una resa errata sulla PDP |
+| IDEMPOTENCY | FAIL | Una sola creazione remota nei test. Recupero locale bloccato e possibile regressione dello stato terminale |
+| RELEASE_RECOMMENDATION | NO-GO | Correggere i casi sotto e ripetere i test mirati prima di richiedere deploy o Publish |
+
+### Verifica del negozio e dei target
+
+Dalla connessione Shopify Admin in sola lettura, la query su `metafieldDefinitions(ownerType: PRODUCT)` ha restituito 26 definizioni, tutte `PUBLIC_READ`, in un’unica pagina con `hasNextPage=false`. Le 24 definizioni `custom` riportano un elenco di validazioni vuoto. Le due `shopify.*` sono riferimenti tassonomici esclusi dalla nuova bozza. Il solo accesso Storefront alla definizione lascia separata la pubblicazione del prodotto.
+
+| Campi della nuova bozza | Target Shopify verificato |
+|---|---|
+| Nome botanico, nome comune, difficoltà, quattro periodi | Stessa chiave in `custom`, tipo `single_line_text_field`. I mesi vengono normalizzati in ordine di calendario |
+| `short_description` | `custom.short_intro`, tipo `multi_line_text_field` |
+| `faq` | `custom.faq_prodotto`, tipo `json` |
+| `key_features`, `key_benefits` | Stessa chiave in `custom`, entrambe `multi_line_text_field` nella lettura attuale |
+
+Una seconda query sull’identità esatta della Yucca di collaudo ha restituito il prodotto `16026906460500` in stato `ACTIVE`. La lista completa dei metafield visibili alla connessione contiene il marcatore `online_garden.creation_id` e i due tag SEO `global`. I nove valori botanici, FAQ e liste attesi dal precedente collaudo sono ancora assenti da quella lettura. Questi risultati descrivono la produzione alla data della review. Il candidato è stato provato soltanto in isolamento. [Contratto Shopify delle definizioni](https://shopify.dev/docs/api/admin-graphql/2026-01/objects/MetafieldDefinition).
+
+### Difetti che condizionano il rilascio
+
+1. **Approvazione e recupero del salvataggio locale.** Dopo il commit di `admin_save_new_draft`, un errore di rilettura marca l’approvazione `REVIEW_REQUIRED`. Per `save_new_product` la stessa chiave viene rifiutata già alla preparazione dell’approvazione. Il pulsante «Recupera salvataggio con la stessa richiesta» rimane quindi inutilizzabile proprio quando la bozza può già esistere. Serve la rilettura della stessa operazione, legata ad autore e contenuto, senza ripetere il salvataggio. [Salvataggio](https://github.com/Rosin355/your-e-commerce-blueprint/blob/e612b24/supabase/functions/_shared/admin-operational-service.ts#L582) · [Stati ammessi](https://github.com/Rosin355/your-e-commerce-blueprint/blob/e612b24/supabase/functions/_shared/admin-catalog-policy.ts#L140).
+2. **Due tentativi possono contraddirsi sullo stato finale.** In simulazione la recovery completa il mapping. Un errore tardivo della prima rilettura aggiorna la riga per il solo ID e riporta `VERIFIED_DRAFT` a `NEEDS_RECONCILIATION`. È stata osservata una sola create. La transizione di errore deve essere condizionata allo stato ancora aperto e deve preservare mapping e ricevuta già completati. [Gestione del mismatch](https://github.com/Rosin355/your-e-commerce-blueprint/blob/e612b24/supabase/functions/_shared/admin-operational-service.ts#L785).
+3. **Permessi e protezioni.** La creazione remota dell’Editor verifica `drafts`, proprietà della bozza, approvazione specifica e `sync` per ciascun metafield richiesto. Nel salvataggio locale il controllo personale `edit` per campo copre la descrizione breve e le due liste. Nome botanico, periodi, difficoltà e FAQ passano dal solo registro dopo il controllo `drafts`. Inoltre il nuovo invio di metafield segue il flag di creazione DRAFT anche quando l’interruttore della sincronizzazione per campo è spento. Il percorso legge le modifiche successive tramite `updated_at`; il blocco di sync e lo stato di revisione delle singole righe vengono verificati da `sync_field`, non dalla create. Chiarire e applicare la regola specifica per la prima creazione, mantenendo i grant personali. Nessun indizio di pubblicazione automatica o di modifica ai grant di Marco. [Scope del salvataggio](https://github.com/Rosin355/your-e-commerce-blueprint/blob/e612b24/supabase/functions/_shared/admin-operational-service.ts#L525) · [Controlli del field sync](https://github.com/Rosin355/your-e-commerce-blueprint/blob/e612b24/supabase/functions/product-admin-api/index.ts#L453).
+4. **Compatibilità sul percorso completo.** Se un campo passa a `applies_to=variant` dopo il salvataggio, il pianificatore lo ammette ancora sul PRODUCT. Un testo con ritorno a capo supera il preflight per un tipo monoriga. La rilettura remota confronta le FAQ come stringhe e rifiuta oggetti JSON equivalenti con proprietà in ordine diverso. Per le liste `json` e `list.single_line_text_field`, due voci di `key_features` diventano un’unica riga JSON sulla PDP, mentre `key_benefits` scompare. Entrambe le liste hanno dato esito corretto col tipo multilinea attualmente presente nel negozio. Allineare i tipi accettati alla resa effettiva e mantenere l’ordine delle voci nel confronto strutturato. [Piano e rilettura](https://github.com/Rosin355/your-e-commerce-blueprint/blob/e612b24/supabase/functions/_shared/admin-draft-metafields.ts#L79) · [Lettore della PDP](https://github.com/Rosin355/your-e-commerce-blueprint/blob/e612b24/src/components/storefront/pdpMetafields.ts#L32) · [Tipi Shopify](https://shopify.dev/docs/apps/build/metafields/list-of-data-types).
+5. **Errori parziali e bozze precedenti.** La paginazione e l’identità del prodotto vengono controllate. Al primo mismatch il comparatore interrompe la risposta e perde l’elenco dei campi già verificati e di quelli ancora da leggere. Un errore Shopify nella create restituisce una diagnosi generica. Le vecchie `LOCAL_DRAFT` con botanica e senza `botanicalConfirmedKeys` vengono bloccate correttamente, ma la scheda riaperta offre solo l’invio del payload immutabile. Per il collaudo serve un modo esplicito di confermare i valori sulla stessa bozza. Un `VERIFIED_DRAFT` storico continua ad attestare creazione e mapping. La risposta immediata può contenere i dettagli per campo, mentre la riapertura della scheda mostra il riepilogo locale e lo storico dell’operazione. [Conferme](https://github.com/Rosin355/your-e-commerce-blueprint/blob/e612b24/supabase/functions/_shared/admin-draft-metafields.ts#L39) · [Riapertura](https://github.com/Rosin355/your-e-commerce-blueprint/blob/e612b24/src/adminv2/components/ProductOperations.tsx#L47).
+
+### Test indipendenti
+
+| Gruppo sul candidato | PASS | FAIL | Portata |
+|---|---:|---:|---|
+| Node del repository | 208 | 0 | Dodici suite mirate, rete disabilitata |
+| Deno del repository | 40 | 0 | Quattro suite a runtime con `--no-check`, DB e Shopify simulati |
+| Chromium del repository | 4 | 1 | Creazione DRAFT e sync singola simulata. Nel test breve/estesa il modello simulato viene rifiutato prima del salvataggio |
+| Prove Node indipendenti | 3 | 8 | Undici target correnti e due liste multilinea superati. Falliscono quattro rese storiche, FAQ equivalente, testo monoriga, cambio di ambito e recupero della stessa richiesta |
+| Prova Deno indipendente | 0 | 1 | Rilettura tardiva dopo un completamento concorrente |
+| Prova Chromium indipendente | 1 | 0 | Selezione di Novembre e Febbraio, aggiunta di Maggio, conferma revocata e anteprima bloccata. Dopo nuova conferma i tre mesi si rileggono sulla stessa bozza interna simulata |
+
+**Totale sul candidato: 256 PASS, 10 FAIL.** `npm run typecheck`, build Vite e `deno check` dell’entrypoint Edge sono riusciti. Il controllo tipi della suite del servizio con Deno 2.9.5 fallisce prima dell’esecuzione con due `TS2345` alle righe 665 e 675: due callback rendono obbligatorio un argomento opzionale. Il conteggio runtime e quello del compilatore sono separati. Le 128 prove Node e 34 Deno del verbale originario appartengono alla precedente selezione e non entrano nel totale di questa review.
+
+Sul genitore `66f2599` si riproducono lo stesso timeout Chromium prima di «Applica Descrizione estesa» e uno dei due errori Deno di tipo. L’altro errore riguarda il nuovo test di recovery del candidato. Questi controlli sul genitore sono esclusi dal totale. Per il nuovo collaudo servono anche casi con grant Editor parziale in salvataggio, bozza storica priva di conferme e ricevuta mista con un campo corretto e uno mancante.
+
+Il payload della nuova create mantiene `status: DRAFT`, prezzi e opzioni espliciti, riferimenti foto già pronti e politica inventario preesistente. Il diff aggiunge solo i metafield all’input Shopify. Il recupero esegue letture Shopify e può finalizzare il mapping locale. Le prove hanno usato simulazioni locali e query Shopify in sola lettura. [Contratto Shopify di productSet](https://shopify.dev/docs/api/admin-graphql/2026-01/mutations/productSet).
+
+## Evidenze della preparazione del candidato, precedenti alla review indipendente
 
 **Commit sorgente `e612b24`, base `66f2599` · PENDING_CLIENT_ACCEPTANCE.** Il piano approvato autorizza preparazione e test isolati, non deploy/Publish/scritture. Backend e sito di produzione invariati. Shopify riconnesso esclusivamente attraverso lo strumento ufficiale per riprendere le letture; nessun nuovo backend, credenziale personalizzata, grant o modifica ai secret/flag di progetto.
 
@@ -18,7 +69,7 @@
 
 | Voce | Esito |
 |---|---|
-| METAFIELD_SYNC | **FAIL produzione**: 9 valori botanici/FAQ/liste richiesti locali non presenti nella lettura remota. **PASS candidato con mock**, non rilasciato |
+| METAFIELD_SYNC | **FAIL produzione** per i nove valori richiesti. La selezione iniziale di test con mock è passata. La review indipendente sopra registra i casi falliti sul candidato |
 | PRODUCT_STATUS | **ACTIVE**, riletto Shopify e Admin |
 | ONLINE_STORE_PUBLICATION | **NO riferito dal collaudo**, non riletto indipendentemente dagli strumenti disponibili; non attestare tutti i publication IDs |
 | LOVABLE_PUBLICATION | **NO**, strumento Shopify per SKU esatto |
@@ -31,7 +82,7 @@
 
 ### Definizioni reali lette, mapping e valori esposti
 
-Namespace `custom` salvo ultime due righe. Valori “vuoto” = lettura remota di `get_product` Admin, non bozza locale. L'endpoint definizioni non espone `access.storefront`; **non dichiarare PUBLIC_READ verificato**. Tipi reali riportati, nessuna definizione creata o modificata.
+Namespace `custom` salvo le ultime due righe. I valori indicati come vuoti provengono dalla lettura remota di `get_product` Admin. L’endpoint usato in questa prima verifica esponeva solo i tipi. La successiva query Shopify Admin della review indipendente ha confermato `access.storefront=PUBLIC_READ` per tutte le 26 definizioni.
 
 | Metafield | Tipo Shopify letto | Bozza / valore remoto / mapping |
 |---|---|---|
@@ -77,7 +128,7 @@ Namespace `custom` salvo ultime due righe. Valori “vuoto” = lettura remota d
 
 Impronte finali del candidato: `_shared/admin-draft-metafields.ts` SHA-256 `444a4c443eded95a1c26a6820a87ae1e3577e81eb35b51b8c95e25911658e860`; `admin-operational-service.ts` SHA-256 `c48036591335763907ad26c1822e1b0f8818af0f4a8e4ce476c6aae01b16beea`. Nessuna impronta è una revisione runtime distribuita.
 
-### Test del candidato
+### Test della preparazione originaria
 
 - **128 test Node PASS / 0 FAIL**, inclusi 18 nuovi test del piano e dei confronti: testo, FAQ JSON, tipi lista, mapping assente, tipo incompatibile, accesso non pubblico, fonte non confermata, conferme duplicate/spurie, campi mancanti non dedotti, paginazione/read-back assente, confronto read-only senza nuova conferma, preservazione valori, JSON ordinato diversamente, salvataggio locale incompleto e identità/valore divergenti.
 - **34 test Deno PASS / 0 FAIL**, inclusi 6 nuovi test del servizio: invio effettivo botanica/mese/lista e rilettura, metafield remoto mancante, userError Shopify, scope Editor mancante, recovery dopo timeout senza nuovo grant sync/definizioni e rilettura dei campi locali dopo save. Verificata una sola create simulata, zero completamenti su errore, nessuna seconda create. Il test recovery mantiene l’approvazione specifica; nessuna regola di autorizzazione è stata allentata per farlo passare. Un'aspettativa storica IN_FLIGHT è aggiornata a NEEDS_RECONCILIATION, coerente con la gestione esplicita del mismatch.
@@ -86,13 +137,13 @@ Impronte finali del candidato: `_shared/admin-draft-metafields.ts` SHA-256 `444a
 
 ### Gate residui / collaudo Marco
 
-**GO preparazione candidato; NO-GO deploy/Publish ora.** Richiedere autorizzazioni separate solo dopo preflight aggiornato. Restano non completamente esposti dagli endpoint esistenti: Online Store e lista completa publication IDs, disponibilità mercato contestualizzata, access.storefront delle 26 definizioni e valori effettivi dei metafield privi di mapping Admin. Non introdurre/deployare un endpoint diagnostico come alternativa implicita.
+**NO-GO deploy e Publish.** La review indipendente in apertura riporta i blocchi riprodotti e la nuova verifica di accesso Storefront. Le precedenti verifiche coprivano solo in parte i canali e la disponibilità per mercato. Una verifica della pubblicazione richiede una lettura specifica per il canale e il prodotto.
 
 Marco: usare stesso SKU/GID, distinguere fonte botanica da selezione manuale, verificare confronto e messaggi; nuova bozza resta DRAFT; nessuna quantità/foto inventata per pubblicare. Test reale dopo futuro rilascio, solo con mandato specifico per salvataggio/sync. **PENDING_CLIENT_ACCEPTANCE**, SAL **57,75%** invariata. Nessun deploy `product-admin-api` o `product-admin-ai`, Publish, SQL, opt-in, scrittura commerciale o pagamento in questa fase.
 
 ### Diff e recovery proposti, non eseguiti
 
-Diff candidato da `1a65c60` a `e612b24`: tre file di interfaccia `src/adminv2`, tre moduli `_shared` (uno nuovo), due test e `AGENTS.md`; entrypoint API, storefront pubblico, flusso login/cookie/checkout, configurazione funzioni e schema DB non modificati. Documentazione aggiornata separatamente. **Prima di qualsiasi rilascio: mostrare questo diff/test, completare i limiti live sopra e richiedere autorizzazione esplicita.**
+Il diff cumulativo da `1a65c60` a `e612b24` comprende tre file di interfaccia `src/adminv2`, tre moduli `_shared` (uno nuovo), due file di test, `AGENTS.md` e la rinomina del piano Lovable a contenuto identico. Il diff diretto con `66f2599` comprende solo i cinque file indicati in apertura. Il rilascio richiede la chiusura dei difetti della review e autorizzazione esplicita.
 
 Recovery se un futuro rilascio viene autorizzato: ripristino separato dei soli file/artefatti Admin da `1a65c60`, previo mandato; backend tramite nuovo deploy mirato della sola API con il relativo grafo shared approvato, frontend tramite versione precedente pubblicata. Non ripristinare DB o dati Shopify e non reinterpretare bozza/stati già completati; nessun rollback automatico autorizzato. Al momento non occorre recovery perché niente è stato distribuito.
 
