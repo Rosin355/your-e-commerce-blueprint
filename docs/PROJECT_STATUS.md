@@ -825,3 +825,6 @@ Checkout verificato funzionante in anteprima e produzione; fix apertura in nuova
 
 ## 26/11/2026 — Configurazione database e permessi Marco
 Applicati gli script approvati (registro, journal, ciclo di vita, 5 abilitazioni personali), tutti PASS. Cancellazione definitiva non autorizzata a Marco. Nessun deploy, Publish o scrittura Shopify. Dettaglio: `docs/release/MARCO-SQL-PERMESSI-2026-11-26.md`. SAL ufficiale invariata: 57,75%.
+
+## Aggiornamento 26/11/2026
+- `product-admin-api` distribuita da `f32989d`; marker `admin-editor-20261125`. Stato: GO_FOR_MARCO_UAT. Dettagli `docs/release/ADMIN-V2-RILASCIO-PRODUCT-ADMIN-API-2026-11-26.md`.
