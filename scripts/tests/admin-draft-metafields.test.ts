@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { planDraftMetafields, planDraftMetafieldsForComparison, requireDraftBotanicalReview, verifyAdminDraftFields, verifyDraftMetafields } from '../../supabase/functions/_shared/admin-draft-metafields.ts';
+import { comparisonDraftPlan, planDraftMetafields, planDraftMetafieldsForComparison, requireDraftBotanicalReview, verifyAdminDraftFields, verifyDraftMetafields } from '../../supabase/functions/_shared/admin-draft-metafields.ts';
 import { validateDraft, type ProductDraft } from '../../supabase/functions/_shared/admin-operational-core.ts';
 import type { FieldDefinition } from '../../supabase/functions/_shared/admin-v2-types.ts';
 import { draftErrors } from '../../src/adminv2/lib/newDraft.ts';
@@ -115,4 +115,17 @@ test('preflight PRODUCT rifiuta owner variante nel registro e nella definizione 
   await assert.rejects(()=>planDraftMetafields(draft({nome_botanico:'Test'}),[variant],gql([item])),/mapping/);
   assert.throws(()=>planDraftMetafieldsForComparison(draft({nome_botanico:'Test'}),[variant]));
   await assert.rejects(()=>planDraftMetafields(draft({nome_botanico:'Test'}),[field],async<T>()=>({metafieldDefinitions:{nodes:[{namespace:'custom',key:field.key,type:{name:item.type},ownerType:'PRODUCTVARIANT',access:{storefront:'PUBLIC_READ'}}],pageInfo:{hasNextPage:false}}} as T)),/Owner/);
+});
+
+test('preflight aggregato e recovery verificano anche i campi con mapping ancora utilizzabile',async()=>{
+  const item = draft({nome_botanico:'Specie',nome_comune:'Altro',difficolta_di_coltivazione:'Media'});
+  const defs = [def('nome_botanico'),{...def('nome_comune'),applies_to:'variant' as const}];
+  const check = (states:string[]) => (err: {details?:{metafieldVerification?:{state:string}[]}}) => {
+    assert.deepEqual(err.details?.metafieldVerification?.map(row=>row.state),states);
+    return true;
+  };
+  await assert.rejects(()=>planDraftMetafields(item,defs,gql([{key:'nome_botanico',type:'single_line_text_field'}])),check(['UNREAD','BLOCKED','BLOCKED']));
+  const {fields,blocked} = comparisonDraftPlan(item,defs);
+  const remote = async <T>() => ({product:{id:'p',metafields:{nodes:fields,pageInfo:{hasNextPage:false}}}} as T);
+  await assert.rejects(()=>verifyDraftMetafields('p',fields,remote,true,blocked),check(['VERIFIED','BLOCKED','BLOCKED']));
 });

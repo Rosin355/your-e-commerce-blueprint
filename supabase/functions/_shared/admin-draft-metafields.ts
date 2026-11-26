@@ -67,9 +67,35 @@ export async function readDraftMetafieldDefinitions(graphql: GraphQL): Promise<D
   return result;
 }
 
+type Requested = ReturnType<typeof requestedDraftFields>;
+type BlockedField = {fieldKey: string; state: 'BLOCKED'; reason: string};
+
+function collectPlan(requested: Requested, prepare: (item: Requested[number]) => DraftMetafield) {
+  const fields: DraftMetafield[] = [];
+  const blocked: BlockedField[] = [];
+  for (const item of requested) {
+    try { fields.push(prepare(item)); }
+    catch (cause) {
+      blocked.push({fieldKey: item.fieldKey, state: 'BLOCKED',
+        reason: cause instanceof OperationalError ? cause.message : 'Valore non rappresentabile per ' + item.fieldKey + '.'});
+    }
+  }
+  return {fields, blocked};
+}
+
+function requireCompletePlan(plan: ReturnType<typeof collectPlan>) {
+  if (plan.blocked.length) throw new OperationalError('VALIDATION_ERROR', plan.blocked.map(row => row.reason).join(' '),
+    {metafieldVerification: [...unreadDraftMetafields(plan.fields), ...plan.blocked]});
+  return plan.fields;
+}
+
 /** Read comparison does not grant a write or demand fresh authoring acknowledgement. */
 export function planDraftMetafieldsForComparison(draft: ProductDraft, registry: FieldDefinition[]): DraftMetafield[] {
-  return requestedDraftFields(draft).map(({ fieldKey, value }) => {
+  return requireCompletePlan(comparisonDraftPlan(draft, registry));
+}
+
+export function comparisonDraftPlan(draft: ProductDraft, registry: FieldDefinition[]) {
+  return collectPlan(requestedDraftFields(draft), ({ fieldKey, value }) => {
     const field = registry.find(def => def.key === fieldKey);
     const target = field && resolveShopifyTarget(field);
     demand(field?.visible && field.applies_to !== 'variant' && target?.kind === 'metafield', `Mapping di confronto non disponibile per ${fieldKey}: nessuna nuova creazione.`);
@@ -84,8 +110,11 @@ export async function planDraftMetafields(draft: ProductDraft, registry: FieldDe
   requireDraftBotanicalReview(draft);
   const requested = requestedDraftFields(draft);
   if (!requested.length) return [];
-  const definitions = await readDraftMetafieldDefinitions(graphql);
-  return requested.map(({ fieldKey, value }) => {
+  const definitions = await readDraftMetafieldDefinitions(graphql).catch(() => {
+    throw new OperationalError('VALIDATION_ERROR', 'Definizioni Shopify incomplete. Nessun invio.',
+      {metafieldVerification: requested.map(({fieldKey}) => ({fieldKey, state:'UNREAD'}))});
+  });
+  return requireCompletePlan(collectPlan(requested, ({ fieldKey, value }) => {
     const field = registry.find(def => def.key === fieldKey);
     const target = field && resolveShopifyTarget(field);
     demand(field?.visible && field.applies_to !== 'variant' && field.editable && !field.manual_only && target?.kind === 'metafield', `Campo ${fieldKey} senza mapping Shopify autorizzato: nessun invio.`);
@@ -108,7 +137,7 @@ export async function planDraftMetafields(draft: ProductDraft, registry: FieldDe
       demand(type === target.valueType, `Tipo Shopify incompatibile per ${fieldKey}: atteso ${target.valueType}, trovato ${type}.`);
     }
     return { fieldKey, namespace: target.namespace, key: target.key, type, value: wire };
-  });
+  }));
 }
 
 function sameWireValue(type: string, actual: string, expected: string) {
@@ -140,11 +169,11 @@ async function readProductMetafields(productId: string, graphql: GraphQL) {
 }
 
 /** Raccoglie ogni esito prima di decidere se il mapping può essere completato. */
-export async function verifyDraftMetafields(productId: string, plan: DraftMetafield[], graphql: GraphQL, comparison = false) {
-  if (!plan.length) return [];
-  const fields = await readProductMetafields(productId, graphql).catch(() => {
+export async function verifyDraftMetafields(productId: string, plan: DraftMetafield[], graphql: GraphQL, comparison = false, blocked: BlockedField[] = []) {
+  if (!plan.length && !blocked.length) return [];
+  const fields = !plan.length ? [] : await readProductMetafields(productId, graphql).catch(() => {
     throw new OperationalError('NEEDS_RECONCILIATION', 'Rilettura metafield incompleta. Recupera la stessa operazione.',
-      {metafieldVerification: unreadDraftMetafields(plan)});
+      {metafieldVerification: [...unreadDraftMetafields(plan), ...blocked]});
   });
   const results = plan.map(expected => {
     const matches = fields.filter(field => field.namespace === expected.namespace && field.key === expected.key);
@@ -161,9 +190,10 @@ export async function verifyDraftMetafields(productId: string, plan: DraftMetafi
     return { ...expected, type: actual?.type ?? expected.type, value: actual?.value ?? null,
       state: verified ? 'VERIFIED' as const : 'NOT_VERIFIED' as const };
   });
-  if (results.some(row => row.state !== 'VERIFIED')) {
-    const summary = results.map(row => row.fieldKey + (row.state === 'VERIFIED' ? ' verificato' : ' non verificato')).join(', ');
-    throw new OperationalError('NEEDS_RECONCILIATION', 'Sincronizzazione incompleta: ' + summary, { metafieldVerification: results });
+  if (blocked.length || results.some(row => row.state !== 'VERIFIED')) {
+    const all = [...results, ...blocked];
+    const summary = all.map(row => row.fieldKey + (row.state === 'VERIFIED' ? ' verificato' : ' non verificato')).join(', ');
+    throw new OperationalError('NEEDS_RECONCILIATION', 'Sincronizzazione incompleta: ' + summary, { metafieldVerification: all });
   }
   return results;
 }

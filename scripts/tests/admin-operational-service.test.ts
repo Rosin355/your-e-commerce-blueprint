@@ -858,3 +858,55 @@ Deno.test('solo una ricevuta COMPLETE della stessa versione sblocca la create se
     assertEquals(s.saves,0);
   }
 }));
+
+Deno.test('due create concorrenti sulla stessa versione: una sola claim esegue la mutation DRAFT', () => withFlags(async () => {
+  const s=simulation();
+  const barrier=Promise.withResolvers<void>();
+  let arrivals=0;
+  const cmd={action:'create_shopify_draft',operationId:id,confirm:true};
+  const run=()=>handleOperational(s.db,actor,cmd,async(q,v={})=>{
+    if(q.includes('DraftCurrency')) {
+      if (++arrivals===2) barrier.resolve();
+      await barrier.promise;
+    }
+    return s.shopify(q,v);
+  });
+  const outcomes=await Promise.allSettled([run(),run()]);
+  assertEquals(outcomes.filter(result=>result.status==='fulfilled').length,1);
+  assertEquals(s.mutations,1);
+  assertEquals(s.op.state,'VERIFIED_DRAFT');
+}));
+
+Deno.test('fallimento tardivo della versione precedente non modifica una versione diversa ancora in corso', () => withFlags(async () => {
+  const s=simulation();
+  const entered=Promise.withResolvers<void>();
+  const release=Promise.withResolvers<void>();
+  const sending=handleOperational(s.db,actor,{action:'create_shopify_draft',operationId:id,confirm:true},async(q,v={})=>{
+    if(q.includes('query VerifyDraft')) {
+      entered.resolve();
+      await release.promise;
+      throw Error('Connessione interrotta');
+    }
+    return s.shopify(q,v);
+  });
+  await entered.promise;
+  s.op.payload_hash='synthetic-other-version';
+  release.resolve();
+  await assertRejects(()=>sending);
+  assertEquals(s.op.state,'IN_FLIGHT');
+  assertEquals(s.mutations,1);
+}));
+
+Deno.test('cambio versione durante il preflight o la rilettura riuscita ferma la transizione successiva', () => withFlags(async () => {
+  for(const stage of ['DraftCurrency','query VerifyDraft']) {
+    const s=simulation();
+    const sending=()=>handleOperational(s.db,actor,{action:'create_shopify_draft',operationId:id,confirm:true},async <T>(q:string,v:Record<string,unknown>={})=>{
+      const result=await s.shopify<T>(q,v);
+      if(q.includes(stage)) s.op.payload_hash='nuova-versione';
+      return result;
+    });
+    await assertRejects(sending,OperationalError,'Versione o stato');
+    assertEquals(s.completions,0);
+    assertEquals(s.mutations,stage==='DraftCurrency'?0:1);
+  }
+}));
