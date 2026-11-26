@@ -24,3 +24,13 @@ test('image validation rejects spoofed MIME, SVG, empty files and decompression-
   assert.equal(validateImage(png, 'image/png').mime, 'image/png'); assert.throws(() => validateImage(png, 'image/jpeg'));
   view.setUint32(16, 10001); assert.throws(() => validateImage(png, 'image/png'));
 });
+
+test('recupero del salvataggio scaduto: stessa identità, stesso payload e nessun permesso per una nuova scrittura', () => {
+  for (const state of ['IN_FLIGHT','REVIEW_REQUIRED','COMPLETE']) {
+    const row = {actor,action:'save_new_product',payload_hash:'originale',expires_at:'2020-01-01T00:00:00Z',state};
+    assert.equal(approvalValid(row,actor,row.action,row.payload_hash),true);
+    assert.equal(approvalValid(row,'altro',row.action,row.payload_hash),false);
+    assert.equal(approvalValid(row,actor,row.action,'altra-versione'),false);
+    assert.equal(approvalValid(row,actor,'create_shopify_draft',row.payload_hash),false);
+  }
+});

@@ -30,6 +30,7 @@ import {
   parseBotanicalInfo,
   parseFaqItems,
   parseMultilineMetafield,
+  parseTextLines,
   parseKeyBenefits,
   parseProductAttributes,
   parseSeasonalCalendar,
@@ -119,12 +120,12 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const price = selectedVariant?.price ?? node.priceRange.minVariantPrice;
   const inCartQuantity = selectedVariant ? cartItems.find((item) => item.variantId === selectedVariant.id)?.quantity ?? 0 : 0;
 
-  const resolvedSpecialBullets = parseMultilineMetafield(node.specialBullets);
+  const resolvedSpecialBullets = parseTextLines(node.specialBullets);
   const resolvedKeyFeatures = parseMultilineMetafield(node.keyFeatures);
   const resolvedKeyBenefits = parseKeyBenefits(node.keyBenefits, [...resolvedSpecialBullets, ...resolvedKeyFeatures]);
-  const resolvedOriginsHabitat = parseMultilineMetafield(node.originsHabitat);
-  const resolvedPlantKnowledge = parseMultilineMetafield(node.plantKnowledge);
-  const resolvedCareGuide = parseMultilineMetafield(node.careGuide);
+  const resolvedOriginsHabitat = parseTextLines(node.originsHabitat);
+  const resolvedPlantKnowledge = parseTextLines(node.plantKnowledge);
+  const resolvedCareGuide = parseTextLines(node.careGuide);
   const botanical = parseBotanicalInfo(node);
   const resolvedProductAttributes = parseProductAttributes(node.productAttributes);
 
@@ -133,7 +134,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const resolvedHybridizer = isRose ? parseSingleLineMetafield(node.hybridizer) : null;
   const resolvedFlowerColor = parseSingleLineMetafield(node.flowerColor);
   const resolvedLeafColor = parseSingleLineMetafield(node.leafColor);
-  const resolvedCuriosity = parseMultilineMetafield(node.curiosity);
+  const resolvedCuriosity = parseTextLines(node.curiosity);
 
   // Specifiche rapide = attributi JSON + colori + ibridatore (rose). `swatch` opzionale per i colori.
   const quickSpecs: Array<ProductAttribute & { swatch?: string }> = [
