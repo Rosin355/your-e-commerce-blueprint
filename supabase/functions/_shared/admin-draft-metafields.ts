@@ -1,5 +1,5 @@
 import type { FieldDefinition } from './admin-v2-types.ts';
-import { DRAFT_BOTANICAL_KEYS, demand, type ProductDraft } from './admin-operational-core.ts';
+import { DRAFT_BOTANICAL_KEYS, OperationalError, demand, type ProductDraft } from './admin-operational-core.ts';
 import { resolveShopifyTarget, serializeValueForShopify } from './admin-v2-field-policy.ts';
 import { encodeEditorialList } from './editorial-list-codec.ts';
 import { isEditorialList } from './admin-catalog-policy.ts';
@@ -9,24 +9,28 @@ type GraphQL = <T>(query: string, variables: Record<string, unknown>) => Promise
 export interface DraftMetafield { fieldKey: string; namespace: string; key: string; type: string; value: string }
 interface AdminDraftField { key: string; text?: string; json?: unknown; number?: number }
 interface AdminDraftValue { product_id: string; field_key: string; value_text: string | null; value_json: unknown; value_number: number | null }
-interface Definition { namespace: string; key: string; type: { name: string }; access: { storefront: string } }
+interface Definition { ownerType?: string; namespace: string; key: string; type: { name: string }; access: { storefront: string } }
 
 function canonical(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonical);
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([key, item]) => [key, canonical(item)]));
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([key, item]) => [key, canonical(item)]));
   return value;
 }
 
 /** A successful RPC is not a successful field read-back; JSON object key order is irrelevant. */
 export function verifyAdminDraftFields(productId: string, requested: AdminDraftField[], rows: AdminDraftValue[]) {
-  return requested.map(expected => {
+  const results = requested.map(expected => {
     const matches = rows.filter(row => row.product_id === productId && row.field_key === expected.key);
     const actual = matches[0];
     const expectedValue = expected.json ?? expected.text ?? expected.number;
-    demand(matches.length === 1 && actual && JSON.stringify(canonical(actual.value_json ?? actual.value_text ?? actual.value_number)) === JSON.stringify(canonical(expectedValue)),
-      `Campo ${expected.key} non riletto nella bozza Admin: usa la stessa richiesta, senza creare un'altra bozza.`);
-    return { fieldKey: expected.key, value: expectedValue, state: 'VERIFIED_ADMIN' as const };
+    const verified = matches.length === 1 && actual && JSON.stringify(canonical(actual.value_json ?? actual.value_text ?? actual.value_number)) === JSON.stringify(canonical(expectedValue));
+    return { fieldKey: expected.key, value: expectedValue, state: verified ? 'VERIFIED_ADMIN' as const : 'NOT_VERIFIED' as const };
   });
+  const missing = results.filter(row => row.state !== 'VERIFIED_ADMIN');
+  if (missing.length) throw new OperationalError('NEEDS_RECONCILIATION',
+    'Bozza Admin da rileggere per ' + missing.map(row => row.fieldKey).join(', ') + '. Recupera la stessa richiesta.',
+    { adminFieldVerification: results });
+  return results;
 }
 
 export function requestedDraftFields(draft: ProductDraft) {
@@ -50,7 +54,7 @@ export async function readDraftMetafieldDefinitions(graphql: GraphQL): Promise<D
   let after: string | null = null;
   for (let page = 0; page < 20; page++) {
     const data: { metafieldDefinitions: { nodes: Definition[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } } } = await graphql(
-      'query AdminDraftMetafieldDefinitions($after:String){metafieldDefinitions(ownerType:PRODUCT,first:100,after:$after){nodes{namespace key type{name} access{storefront}} pageInfo{hasNextPage endCursor}}}', { after });
+      'query AdminDraftMetafieldDefinitions($after:String){metafieldDefinitions(ownerType:PRODUCT,first:100,after:$after){nodes{ownerType namespace key type{name} access{storefront}} pageInfo{hasNextPage endCursor}}}', { after });
     const connection = data.metafieldDefinitions;
     demand(connection && Array.isArray(connection.nodes) && typeof connection.pageInfo?.hasNextPage === 'boolean', 'Definizioni metafield Shopify incomplete: nessun invio.');
     result.push(...connection.nodes);
@@ -68,7 +72,7 @@ export function planDraftMetafieldsForComparison(draft: ProductDraft, registry: 
   return requestedDraftFields(draft).map(({ fieldKey, value }) => {
     const field = registry.find(def => def.key === fieldKey);
     const target = field && resolveShopifyTarget(field);
-    demand(field?.visible && target?.kind === 'metafield', `Mapping di confronto non disponibile per ${fieldKey}: nessuna nuova creazione.`);
+    demand(field?.visible && field.applies_to !== 'variant' && target?.kind === 'metafield', `Mapping di confronto non disponibile per ${fieldKey}: nessuna nuova creazione.`);
     const serialized = serializeValueForShopify(field, value);
     demand(typeof serialized === 'string', `Valore di confronto non rappresentabile per ${fieldKey}.`);
     return { fieldKey, namespace: target.namespace, key: target.key, type: target.valueType,
@@ -84,15 +88,17 @@ export async function planDraftMetafields(draft: ProductDraft, registry: FieldDe
   return requested.map(({ fieldKey, value }) => {
     const field = registry.find(def => def.key === fieldKey);
     const target = field && resolveShopifyTarget(field);
-    demand(field?.visible && field.editable && !field.manual_only && target?.kind === 'metafield', `Campo ${fieldKey} senza mapping Shopify autorizzato: nessun invio.`);
+    demand(field?.visible && field.applies_to !== 'variant' && field.editable && !field.manual_only && target?.kind === 'metafield', `Campo ${fieldKey} senza mapping Shopify autorizzato: nessun invio.`);
     demand(isFieldEditable(field).ok && validateValue(field, value).ok, `Valore ${fieldKey} non valido nel registro corrente: nessun invio.`);
     const matches = definitions.filter(def => def.namespace === target.namespace && def.key === target.key);
     const definition = matches[0];
     demand(matches.length === 1 && definition, `Definizione Shopify assente o ambigua per ${fieldKey}: nessun invio.`);
+    demand(definition.ownerType === undefined || definition.ownerType === 'PRODUCT', `Owner Shopify incompatibile per ${fieldKey}.`);
     const type = definition.type?.name;
     demand(definition.access?.storefront === 'PUBLIC_READ', `Campo ${fieldKey} non leggibile dal sito: nessun invio.`);
     const serialized = serializeValueForShopify(field, value);
     demand(typeof serialized === 'string', `Campo ${fieldKey} non rappresentabile come metafield.`);
+    demand(type !== 'single_line_text_field' || (!/[\r\n]/.test(serialized) && !(typeof value === 'string' && /[\r\n]/.test(value))), `Il campo ${fieldKey} richiede una sola riga.`);
     let wire = serialized;
     if (isEditorialList(fieldKey)) {
       demand(['json', 'list.single_line_text_field', 'multi_line_text_field'].includes(type), `Tipo Shopify incompatibile per ${fieldKey}: ${type}.`);
@@ -105,9 +111,17 @@ export async function planDraftMetafields(draft: ProductDraft, registry: FieldDe
   });
 }
 
-/** Compare exact identity, type and wire value after creation/recovery. Never mutate. */
-export async function verifyDraftMetafields(productId: string, plan: DraftMetafield[], graphql: GraphQL, comparison = false) {
-  if (!plan.length) return [];
+function sameWireValue(type: string, actual: string, expected: string) {
+  if (actual === expected) return true;
+  if (type !== 'json' && type !== 'list.single_line_text_field') return false;
+  return JSON.stringify(canonical(JSON.parse(actual))) === JSON.stringify(canonical(JSON.parse(expected)));
+}
+
+export function unreadDraftMetafields(plan: DraftMetafield[]) {
+  return plan.map(({fieldKey, namespace, key, type}) => ({fieldKey, namespace, key, type, state: 'UNREAD' as const}));
+}
+
+async function readProductMetafields(productId: string, graphql: GraphQL) {
   const fields: { namespace: string; key: string; type: string; value: string }[] = [];
   let after: string | null = null;
   let complete = false;
@@ -122,14 +136,34 @@ export async function verifyDraftMetafields(productId: string, plan: DraftMetafi
     after = info.endCursor;
   }
   demand(complete, 'Rilettura metafield oltre il limite: riconciliare senza ricreare.');
-  return plan.map(expected => {
+  return fields;
+}
+
+/** Raccoglie ogni esito prima di decidere se il mapping può essere completato. */
+export async function verifyDraftMetafields(productId: string, plan: DraftMetafield[], graphql: GraphQL, comparison = false) {
+  if (!plan.length) return [];
+  const fields = await readProductMetafields(productId, graphql).catch(() => {
+    throw new OperationalError('NEEDS_RECONCILIATION', 'Rilettura metafield incompleta. Recupera la stessa operazione.',
+      {metafieldVerification: unreadDraftMetafields(plan)});
+  });
+  const results = plan.map(expected => {
     const matches = fields.filter(field => field.namespace === expected.namespace && field.key === expected.key);
     const actual = matches[0];
     const readableList = comparison && isEditorialList(expected.fieldKey) && actual &&
       ['json', 'list.single_line_text_field', 'multi_line_text_field'].includes(actual.type);
-    const expectedValue = readableList ? encodeEditorialList(expected.value, actual.type) : expected.value;
-    demand(matches.length === 1 && actual && (actual.type === expected.type || readableList) && actual.value === expectedValue,
-      `Campo ${expected.fieldKey} non verificato su Shopify: riconciliare senza ricreare.`);
-    return { fieldKey: expected.fieldKey, namespace: expected.namespace, key: expected.key, type: actual.type, value: actual.value, state: 'VERIFIED' as const };
+    let verified = false;
+    if (matches.length === 1 && (actual.type === expected.type || readableList)) {
+      try {
+        const value = readableList ? encodeEditorialList(expected.value, actual.type) : expected.value;
+        verified = sameWireValue(actual.type, actual.value, value);
+      } catch { /* Encoding remoto incompatibile. Continua con gli altri campi. */ }
+    }
+    return { ...expected, type: actual?.type ?? expected.type, value: actual?.value ?? null,
+      state: verified ? 'VERIFIED' as const : 'NOT_VERIFIED' as const };
   });
+  if (results.some(row => row.state !== 'VERIFIED')) {
+    const summary = results.map(row => row.fieldKey + (row.state === 'VERIFIED' ? ' verificato' : ' non verificato')).join(', ');
+    throw new OperationalError('NEEDS_RECONCILIATION', 'Sincronizzazione incompleta: ' + summary, { metafieldVerification: results });
+  }
+  return results;
 }

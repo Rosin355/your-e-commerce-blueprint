@@ -1,12 +1,32 @@
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { callAdminApi, callCatalogCommand } from '../lib/adminApi';
 import { useAuth } from '@/hooks/useAuth';
+import DraftVerificationError from './DraftVerificationError';
 import DraftSummaryView from './DraftSummaryView';
 import type { DraftSummary } from '../../../supabase/functions/_shared/admin-draft-view';
 import type { ProductDetail } from '../lib/adminApi';
 import { siteState } from '../lib/labels';
 import { OPERATION_LABELS } from '../lib/operationalApi';
+interface BotanicalReview { hash: string; entries: [string, unknown][]; completed: boolean; canConfirm: boolean }
+
+function HistoricalBotany({ review, pending, confirm }: { review: BotanicalReview; pending: boolean; confirm: (keys: string[]) => void }) {
+  const [checked, setChecked] = useState<string[]>([]);
+  if (review.completed) return <p role="status">Conferma botanica registrata su questa bozza interna.</p>;
+  return <fieldset disabled={!review.canConfirm || pending} className="space-y-2">
+    <legend>Conferma i valori salvati prima dell’invio</legend>
+    {review.entries.map(([key, value]) => <label key={key} className="flex gap-2">
+      <input type="checkbox" checked={checked.includes(key)} onChange={e => {
+        const selected = e.target.checked;
+        setChecked(previous => selected ? [...previous, key] : previous.filter(item => item !== key));
+      }} />
+      {key.replace(/_/g, ' ')} · {typeof value === 'string' ? value : JSON.stringify(value)}
+    </label>)}
+    <Button disabled={checked.length !== review.entries.length} onClick={() => confirm(checked)}>Conferma sulla bozza interna</Button>
+  </fieldset>;
+}
+
 export default function ProductOperations({ productId, live }: { productId: string; live: ProductDetail['shopifyLive'] }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -24,6 +44,7 @@ export default function ProductOperations({ productId, live }: { productId: stri
             id: string;
             state: string;
             canOperate?: boolean;
+            botanicalReview?: BotanicalReview;
             summary?: DraftSummary;
             created_at: string;
             admin_operation_events: { state: string; created_at: string }[];
@@ -34,7 +55,7 @@ export default function ProductOperations({ productId, live }: { productId: stri
     retry: false,
   });
   const command = useMutation({
-    mutationFn: (input: { action: string; operationId: string }) =>
+    mutationFn: (input: { action: string; operationId: string; expectedHash?: string; botanicalConfirmedKeys?: string[] }) =>
       callCatalogCommand({ ...input }),
     onSettled: () => Promise.all([
       query.refetch(),
@@ -64,7 +85,10 @@ export default function ProductOperations({ productId, live }: { productId: stri
             <DraftSummaryView saved draft={op.summary} />
           </section> : op.state === 'LOCAL_DRAFT' && <p role='status'>Riepilogo della bozza non disponibile per questa versione o account.</p>}
 
-            {op.canOperate !== false && query.data.canManageDraft && query.data.canSendDraft && (query.data.ordinaryCatalog || query.data.approvedOperationId === op.id) && op.state === 'LOCAL_DRAFT' && (
+            {op.state === 'VERIFIED_DRAFT' && <p>Creazione e collegamento verificati. Per lo stato dei singoli campi consulta il confronto con Shopify.</p>}
+            {op.botanicalReview && <HistoricalBotany key={op.id + op.botanicalReview.hash} review={op.botanicalReview} pending={command.isPending}
+              confirm={keys => command.mutate({action:'save_new_product', operationId:op.id, expectedHash:op.botanicalReview!.hash, botanicalConfirmedKeys:keys})} />}
+            {op.canOperate !== false && (!op.botanicalReview || op.botanicalReview.completed) && query.data.canManageDraft && query.data.canSendDraft && (query.data.ordinaryCatalog || query.data.approvedOperationId === op.id) && op.state === 'LOCAL_DRAFT' && (
               <div className='space-y-2'>
                 <Button variant="shopify"
                   disabled={command.isPending || !query.data.canSendDraft || (!query.data.ordinaryCatalog && query.data.approvedOperationId !== op.id)}
@@ -101,7 +125,7 @@ export default function ProductOperations({ productId, live }: { productId: stri
           </details>
         </div>
       ))}
-      {command.isError && <p role='alert'>{command.error.message}</p>}
+      {command.isError && <DraftVerificationError error={command.error} />}
       <p className='text-sm'>
         Pubblicazione e inventario richiedono una verifica operativa separata.
       </p>
