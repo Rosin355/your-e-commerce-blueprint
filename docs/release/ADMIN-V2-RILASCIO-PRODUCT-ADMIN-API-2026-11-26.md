@@ -374,3 +374,40 @@ Il pannello Admin è aggiornato. Marco può fare il collaudo dal suo dispositivo
 - Collaudo Marco — responsabile Marco — priorità alta.
 - Test restore snapshot — responsabile tecnico — media.
 - Deploy `product-admin-ai` aggiornato se richiesto — tecnico — media.
+
+## Attestazione rollback PR #78 — 2026-11-26 22:09 UTC
+
+Verifica di gestione e recuperabilità, **separata dai test funzionali**. Nessun deploy, Publish, rollback, merge, modifica applicativa, database, JWT, secret, grant o Shopify. Stato **PENDING_CLIENT_ACCEPTANCE**, SAL **57,75%**.
+
+Mandato: candidato dichiarato `05c5f336ff485748d5bd7026bffd955570d47834`. Checkout osservato pulito `1335c5bf07e1b802df5444a151e6ce169555529a`; il candidato non è disponibile come oggetto nel repository locale. Nessun fetch o cambio branch; la review PR #78 è riferita dal committente, non verificata in questa attività.
+
+| Campo | Risultato attestato |
+|---|---|
+| ACTIVE_EDGE_REVISION | **NON RECUPERATA**: identificativo funzione, revisione/versione e timestamp della revisione attiva non restituiti dagli strumenti di gestione accessibili. |
+| ACTIVE_SOURCE_ATTESTATION | **NON ATTESTATA**: nessun pacchetto attivo scaricato; nessun confronto runtime/Git possibile. `f32989d` resta il precedente rilascio documentato, non prova dell'attuale runtime. |
+| JWT_CONFIGURATION_VERIFIED | **NO** per la configurazione effettiva del gateway. Il config Git corrente non contiene un override `product-admin-api`; il default della piattaforma e i precedenti 401 non attestano il valore live. Nessun cambio JWT. |
+| ROLLBACK_PACKAGE_AVAILABLE | **PARZIALE**: sorgente Git precedente e tutte le dipendenze relative recuperabili; pacchetto runtime completo non disponibile né ridistribuibilità operativa provata. |
+| ROLLBACK_SCOPE | Solo `product-admin-api`, includendo le sue dipendenze nel pacchetto della funzione; nessun deploy di `product-admin-ai`, ripristino DB o frontend previsto. Questa possibilità è documentata, non eseguita o collaudata qui. |
+| ROLLBACK_READINESS | **BLOCKED**. Non dichiarare READY_FOR_RELEASE_AUTHORIZATION. |
+
+### EVIDENCE — prove effettivamente ottenute
+
+1. `project_info` e `lovable supabase info --environment production --json` confermano il backend di produzione Lovable Cloud gestito, collegato all'istanza originale del progetto; binding degli strumenti e configurazione client coerenti. Nessun nuovo ambiente. Identificativi infrastrutturali e chiavi omessi dal verbale.
+2. Lettura autorizzata `supabase functions list` fallita prima di restituire metadata: **Access token not provided**. Non effettuati login, creazione/richiesta credenziali, download o tentativi alternativi. Il CLI Lovable espone info/log/diagnostica, non un comando di esportazione della revisione attiva.
+3. Commit precedente effettivamente recuperabile: `f32989def1fc4d3593744d60c83836a46f247329`. SHA-256 entrypoint sui byte Git: `523f825e1aa3c7c6cc0786d1230073901d18e28451e5aa95efed4e4f4fd7ae0d`, coerente con l'impronta abbreviata del verbale precedente.
+4. Traversata statica ricorsiva degli import/export relativi, incluse dichiarazioni multilinea e import letterali: **40 file**, di cui **29 shared**, **zero dipendenze relative mancanti**. Import remoto dichiarato: `https://esm.sh/@supabase/supabase-js@2.49.8`. Non scaricata né attestata la chiusura transitiva CDN; non dichiarare pacchetto autosufficiente o riproducibilità binaria.
+5. Impronta del manifest Git: `5b8fe5f8f4fe04fdbf959f9d489f744c78b2b7bfaf046b2284bf03e38c936480`. Metodo riproducibile: SHA-256 dei byte di ciascun file ottenuto con `git show <commit>:<path>`; ordinamento lessicografico dei path; concatenazione UTF-8 di righe `path<TAB>sha256<LF>`; SHA-256 della concatenazione. È un'impronta nuova del grafo sorgente, **non** l'hash del bundle inviato storicamente `04c778bd…39692cd`, né del pacchetto attivo.
+6. Diff **Git locale HEAD / Git f32989d**, non runtime: quattro dipendenze del grafo precedente differiscono: `_shared/admin-catalog-assets.ts`, `_shared/admin-catalog-commerce.ts`, `_shared/admin-operational-core.ts`, `_shared/admin-operational-service.ts`. L'entrypoint non differisce. Nessuna differenza runtime/Git attestabile senza il pacchetto attivo; usare shared correnti insieme all'entrypoint storico non ricostruirebbe il grafo storico completo.
+7. Schema dello strumento nativo di deploy: accetta una lista di nomi funzione; può essere limitata alla sola API. Strumento **non invocato**. Le dipendenze shared sono pacchettizzate per funzione; non occorre ridistribuire altre funzioni soltanto perché condividono i file.
+
+### Fonti ufficiali e limiti della UI
+
+- [Edge functions](https://docs.lovable.dev/features/edge-functions): UI con stato, last-updated, deployment count, endpoint, log e **View code**. Nessuna UI di gestione è stata aperta in questa verifica; non sono quindi stati letti tali valori. La documentazione non attesta che View code sia un export completo della specifica revisione runtime, né documenta revisione ID, valore JWT live o download del bundle attivo con tutte le dipendenze.
+- [Git sync](https://docs.lovable.dev/integrations/git-sync-overview#backend-files-in-your-commits): sorgente sincronizzato non equivale a deploy avvenuto.
+- [Version history](https://docs.lovable.dev/features/projects/history): restore di una versione non è rollback selettivo di una funzione; può ridistribuire le funzioni cambiate. Non usarlo per questo mandato.
+
+### REMAINING_BLOCKERS / attestazione richiesta al gestore
+
+Il gestore deve fornire per la sola `product-admin-api` dell'istanza Cloud originale: identificativo funzione, revisione/versione attiva e timestamp UTC; valore gateway `verify_jwt` effettivo; export o snapshot immutabile del pacchetto di quella revisione con shared e dipendenze, inventario e checksum; confronto con il grafo `f32989d`; conferma di conservazione e procedura supportata di ridistribuzione selettiva, preservando JWT/config/secrets e senza ripristino globale o modifiche ad AI, DB e storefront.
+
+Un'attestazione gestionale della corrispondenza tra revisione attiva e pacchetto conservato può sostituire l'accesso diretto al bundle, purché riporti identità della revisione, inventario/checksum e disponibilità di ripristino selettivo. Marker applicativi, test funzionali e sola presenza del commit Git non sostituiscono queste prove. Qualunque deploy o rollback reale richiede successiva autorizzazione esplicita.
