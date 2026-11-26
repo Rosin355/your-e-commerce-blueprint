@@ -1,3 +1,13 @@
+# Admin V2 — metafield/publication audit (2026-11-26)
+
+- [x] Identify exact test product via canonical Admin link, operation and SKU; compare stored values and read source.
+- [x] Diagnose draft metafield omission, missing per-field verification and explicit publication channel scope; run isolated regressions.
+- [x] Document diagnosis, mapping limitations and correction plan; no application edits or deployment.
+- [ ] Read current Shopify definitions, values, publications, markets, inventory and images — Shopify tool authentication expired; no alternative credentials or writes used.
+- [x] Confirm seasonal values' origin — user confirmed manual selection at 18:05 UTC; no evidence of AI-generated months, factual review remains separate.
+- [x] Check sibling Admin field/review/create/recovery/publication paths and live draft/sync RPC contracts; document gaps without changing settled records.
+- [ ] Prepare and validate minimal correction after diagnosis/plan approval; deployment and frontend Publish require separate renewed authorization.
+
 # Admin V2 — real UAT fixes (2026-11-26)
 
 - [x] Prepare lean paginated gallery/formats reads and scoped-grant regressions; no grant changes.
