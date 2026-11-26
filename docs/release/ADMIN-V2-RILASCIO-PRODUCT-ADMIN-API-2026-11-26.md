@@ -1,5 +1,58 @@
 # Rilascio product-admin-api — 26/11/2026
 
+## Piano operativo alternativo per la PR #78 · 26 novembre 2026
+
+**PREDEPLOY_READY = YES · ROLLBACK_SOURCE = VERIFIED · RUNTIME_ATTESTATION = UNAVAILABLE · DEPLOY_AUTHORIZATION_REQUIRED = YES.** Raccomandazione **GO alla finestra controllata** con un solo GO scritto prima di qualsiasi cambio operativo. L’accettazione del cliente resta **PENDING_CLIENT_ACCEPTANCE**, SAL **57,75%**. Questo piano sostituisce il precedente requisito di attestazione Lovable. I risultati del gate precedente e della verifica del gestore restano evidenze storiche. [Verifica del gestore del progetto](https://github.com/Rosin355/your-e-commerce-blueprint/blob/895e0e6f0fccb50c738dd69c20ee84fd9f76cc13/docs/release/ADMIN-V2-RILASCIO-PRODUCT-ADMIN-API-2026-11-26.md)
+
+### Evidenze raccolte
+
+| Oggetto | Esito verificato |
+|---|---|
+| Candidato | Draft PR #78 aperta. HEAD e ramo remoto `codex/fix-metafield-recovery` coincidono con `05c5f336ff485748d5bd7026bffd955570d47834`. Quattro check completati con successo su questo esatto SHA, Storefront / pull-request, Admin catalog / PostgreSQL 17, editor-browser e GitGuardian. [Controlli GitHub](https://github.com/Rosin355/your-e-commerce-blueprint/pull/78/checks) |
+| Sorgente collegato | L’API PR indicava ancora la base `1335c5b`. Il ref remoto `codex/rilascio-admin-v2-isolato-20261124` e l’editor Lovable concordano invece su `895e0e6f0fccb50c738dd69c20ee84fd9f76cc13`, figlio di `1335c5b`. Il solo file cambiato è questo verbale. La verifica locale dei tree risulta compatibile con la nuova base e il risultato differisce dal candidato soltanto nel verbale. Questa procedura usa direttamente il ramo certificato. |
+| GitHub → Lovable | Nei tre workflow presenti sul candidato i job riguardano la CI su pull request. Lovable documenta che all’arrivo dei commit sincronizza i file, aggiorna l’anteprima e lascia separati deploy Edge, migrazioni e Publish. La distribuzione selettiva richiede un’azione nel progetto. Riscontro sul progetto in sola lettura, senza una distribuzione di prova. [Sincronizzazione backend](https://docs.lovable.dev/integrations/git-sync-overview#backend-files-in-your-commits) · [Selettore del ramo](https://docs.lovable.dev/integrations/github#switch-branches) · [Deploy selettivo](https://docs.lovable.dev/features/edge-functions) |
+| Dominio ed endpoint | La home pubblica referenzia `/assets/index-kMoBF-yp.js`. SHA-256 dell’asset scaricato `5f56ebc6dba0610359a64dfa936fc4744419e796d45687728d113fd6dcd4c05d`. Sul percorso pubblico `/functions/v1/product-admin-api` del progetto originale, preflight OPTIONS **200** e POST `get_admin_context` senza credenziali **401**. Sono misure del comportamento osservabile. La sessione personale di Marco resta da provare nella finestra. |
+| Pacchetto precedente | Archivio privato `backups/pr78-rollback/product-admin-api-f32989d-source.tar.gz`. Riletti i 42 file elencati in `SHA256SUMS` e confrontati byte per byte con `f32989def1fc4d3593744d60c83836a46f247329`. Contiene i 40 moduli locali transitivi, il lock Deno e la configurazione Git. Ricalcolati anche il grafo del candidato e le impronte seguenti. |
+
+| SHA-256 | Rollback `f32989d` | Candidato `05c5f33` |
+|---|---|---|
+| Archivio privato di rollback | `6bdc5657e0e22dc503cadcddd4e256a95f46a0609c5575333eb3ac257ae814a3` | — |
+| Manifesto moduli locali | `32216cd8bd49d99268b215f0ea3a7d2cc7fa53dce8581ac47e63b23e703ab527` (40) | `2dadc119563960c41a49bb6716861b3842c0044455470901edee0b2d0187cd85` (41) |
+| Entrypoint | `523f825e1aa3c7c6cc0786d1230073901d18e28451e5aa95efed4e4f4fd7ae0d` | `965d9634dab2109bed61b603b63c56b71c42989e5927795d646256bc5c96518a` |
+
+Il manifesto usa una riga per path relativo, ordinata lessicograficamente, nel formato `sha256␠␠path LF`. Il formato alternativo del verbale Lovable, `path TAB sha256 LF`, dà `5b8fe5f8f4fe04fdbf959f9d489f744c78b2b7bfaf046b2284bf03e38c936480` sugli stessi 40 moduli. Il rischio accettabile solo con GO riguarda la possibile differenza fra questo sorgente ricostruibile e il runtime iniziale, la configurazione JWT effettiva sconosciuta e il rebundling delle dipendenze remote da parte del gestore. Il ritorno a `f32989d` può anche riportare i limiti conosciuti su foto e formati paginati. L’archivio e il precedente typecheck provano la recuperabilità del sorgente. Un ripristino reale richiede la prova funzionale descritta sotto.
+
+### Prima del GO e controlli di sola lettura
+
+1. L’operatore rileva di nuovo SHA di candidato e ramo collegato, quattro check, progetto Cloud `iekwvvihjwghosqdxrdi`, slug `product-admin-api` e digest dell’archivio. Registra in privato ora UTC, ramo iniziale, asset pubblico, contatore e ultima distribuzione visibili in **More → Database → Manage → Edge functions**, errori recenti e operazioni Admin già in corso. Concorda con Marco una finestra senza modifiche amministrative. Verifica l’accesso al selettore rami, alla funzione e ai log con l’account autorizzato esistente.
+2. Con il frontend pubblico corrente e la sessione Editor di Marco, registra la baseline delle letture elencate sotto. Usa la sessione nel browser senza esportare token. Per ogni chiamata conserva soltanto stato HTTP, esito applicativo, conteggi e differenze attese. Confronta i valori sugli stessi target nella stessa finestra.
+3. Verifica in GitHub la disponibilità del ramo di rientro `codex/rollback-product-admin-api-f32989d`. Alla preparazione quel nome era libero. Il riferimento verrà creato al commit integrale storico nella finestra autorizzata, prima di toccare la funzione. L’archivio privato rimane presso l’operatore.
+
+| Lettura | Esito che l’operatore deve confrontare prima, dopo e dopo un eventuale rollback |
+|---|---|
+| Preflight dall’origine pubblica e `get_admin_context` anonimo | OPTIONS 200, CORS utilizzabile dal browser, chiamata anonima 401 senza dati. |
+| `get_admin_context` autenticato | 200, `ok` e stesso ruolo, capability, flag e campi editabili. La sola stringa `backendVersion` è comune a più revisioni. |
+| `list_products` limitato allo SKU tecnico, `get_product`, `get_product_operations` | Aprire `TEST-OG-AI-001` e usare il suo ID interno. Confrontare identità, stato LOCAL_DRAFT, storico e operazione originale. Ammettere soltanto i metadati aggiuntivi di verifica previsti dal candidato. |
+| `get_product_gallery`, `get_product_formats` | Sullo stesso padre tecnico già mappato e autorizzato confrontare SKU, immagini, ALT, formati, prezzi e completezza delle pagine. La LOCAL_DRAFT indicata è priva di mapping. In assenza di un padre idoneo annotare questa copertura come pendente. Un diniego atteso dal grant o dal mapping verifica solo quel diniego. |
+
+Le prove usano le azioni di lettura dell’API anche quando il trasporto è POST. Salvataggio, recupero della bozza remota, creazione di approvazioni, generazione AI e comandi Shopify restano fuori dal collaudo di questa finestra. L’accettazione dei flussi di scrittura richiederà il collaudo dedicato con Marco.
+
+### Unica approvazione e deploy mirato
+
+Il responsabile può autorizzare con un solo messaggio, indicando operatore e finestra UTC: «GO Edge PR #78, SHA `05c5f336ff485748d5bd7026bffd955570d47834`, progetto `iekwvvihjwghosqdxrdi`, sola `product-admin-api`. Accetto il rischio runtime/JWT non attestabile. Autorizzo il riferimento di rollback, le selezioni temporanee del ramo Lovable, il deploy singolo e il rientro immediato a `f32989def1fc4d3593744d60c83836a46f247329` alle condizioni del verbale.» Il GO copre anche il rollback di un deploy iniziato nella finestra. Merge e Publish restano decisioni separate.
+
+1. Dopo il GO, creare su GitHub il **solo riferimento** di rientro se assente, con creazione che fallisce se il nome esiste. Il comando è `gh api --method POST repos/Rosin355/your-e-commerce-blueprint/git/refs -f ref=refs/heads/codex/rollback-product-admin-api-f32989d -f sha=f32989def1fc4d3593744d60c83836a46f247329`. Se esiste, riutilizzarlo soltanto se `git ls-remote --heads origin refs/heads/codex/rollback-product-admin-api-f32989d` restituisce esattamente lo stesso SHA. Verificare che il ramo sia selezionabile prima del deploy.
+2. In **Project settings → Git → GitHub** selezionare `codex/fix-metafield-recovery`. Attendere **In sync with GitHub**, confrontare lo SHA intero dell’editor e il progetto Cloud con quelli approvati. Verificare che asset pubblico e contatori Edge siano ancora quelli di partenza. Sospendere modifiche concorrenti nell’editor per la durata della finestra.
+3. Nella chat del progetto chiedere esattamente «Distribuisci dal checkout attuale la sola Edge Function esistente `product-admin-api` sul backend già collegato. Usa il deploy selettivo con `function_names=["product-admin-api"]`. Conserva la configurazione esistente. Arrestati se occorrono modifiche ai file, al gateway JWT, a secret, ruoli, RLS, capability o SQL, se il target differisce o se l’operazione richiede altre funzioni o Publish.» Usare la procedura nativa, senza impostare flag JWT o applicare il config Git. Registrare UTC, slug, risultato e identificativo se esposto. In caso di timeout osservare contatore, log ed esito prima di qualsiasi ulteriore azione.
+4. Ripetere la matrice dal **frontend pubblico già distribuito** appena la funzione risponde e di nuovo entro 10 minuti. Confrontare log, asset pubblico, accessi e dati. Dopo esito positivo riselezionare il ramo isolato iniziale verificandone SHA e sincronizzazione. Questa operazione riallinea l’editor. Registrare separatamente lo SHA rilasciato della funzione per il prossimo operatore.
+
+### Arresto e rollback
+
+- **Prima del deploy**, fermarsi per SHA o digest diverso, check peggiorato, progetto o slug diverso, rollback non selezionabile, baseline autenticata inutilizzabile, Editor con accessi inattesi, altra distribuzione in corso o modifica di produzione alla sola sincronizzazione. Conservare la baseline e ristabilire il ramo di partenza se già cambiato.
+- **Dopo il deploy**, avviare il rientro per accesso anonimo a dati, diniego inatteso per l’Editor con sessione valida, ampliamento dello scope, dati o stato bozza incongruenti, perdita di compatibilità col frontend pubblico o due letture consecutive in timeout/5xx. Un esito ambiguo del deploy, un secondo slug o un asset pubblico diverso richiedono arresto e riconciliazione delle ricevute. Eseguire rollback della sola API se il candidato risulta distribuito e coinvolto. Ogni altro intervento di produzione resta separato.
+- **Rientro selettivo.** Sospendere l’uso operativo dell’Admin. Selezionare il ramo di rollback in Lovable, attendere sincronizzazione, verificare SHA completo `f32989d…`, entrypoint e manifesto storico. Rilanciare una sola volta la stessa azione nativa con il solo slug `product-admin-api`. Utilizzare l’intero checkout storico, inclusi gli shared. Il ripristino globale di una versione Lovable può ridistribuire altre funzioni. [Comportamento del ripristino Lovable](https://docs.lovable.dev/features/edge-functions)
+- **Prova del rientro.** Ripetere matrice, controllo log e fingerprint frontend. Registrare in privato ricevuta e differenze rispetto alla baseline, poi riportare l’editor sul ramo isolato originale. Se la sorgente precedente non ristabilisce accessi e letture, mantenere sospese le operazioni Admin, preservare operation ID e GID e aprire l’incidente. Evitare reinvii di bozze, ulteriori deploy alla cieca o modifiche ai permessi. Il rollback del codice non annulla eventuali operazioni già avviate da terzi.
+
 ## Gate finale PR #78 · 26 novembre 2026
 
 | Decisione | Esito | Evidenza |
