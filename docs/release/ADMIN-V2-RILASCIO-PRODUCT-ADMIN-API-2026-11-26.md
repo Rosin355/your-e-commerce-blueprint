@@ -1,5 +1,103 @@
 # Rilascio product-admin-api — 26/11/2026
 
+## Candidato dopo approvazione del piano — NON distribuito
+
+**Commit sorgente `e612b24`, base `66f2599` · PENDING_CLIENT_ACCEPTANCE.** Il piano approvato autorizza preparazione e test isolati, non deploy/Publish/scritture. Backend e sito di produzione invariati. Shopify riconnesso esclusivamente attraverso lo strumento ufficiale per riprendere le letture; nessun nuovo backend, credenziale personalizzata, grant o modifica ai secret/flag di progetto.
+
+### Letture live successive: supersedono i limiti del verbale iniziale sotto
+
+- Strumenti Shopify: Product `16026906460500`, Variant `58634556997972`, SKU `OG-NP-146C68CF06-A15884233C`, handle `og-draft-ba386a9a-90b5-4207-a4f8-92dda4ee2002`; una sola corrispondenza del filtro SKU, **ACTIVE**, **non sul canale Lovable**. Ultima modifica Shopify letta: 17:44:42 UTC.
+- Ricerca esatta con `inventory_total:0`: restituisce la stessa famiglia, unica variante; **stock aggregato 0** confermato attraverso filtro Admin Shopify, non un read-back di ogni sede/impegno inventario.
+- Sessione tecnica nativa disponibile: anteprima autenticata `/admin/products/{id}` → **Edge di produzione `product-admin-api`, get_product HTTP 200**. `identityVerified=true`, `publicationStatus=ACTIVE`, `siteVisible=false`, `siteAvailability=null`, prezzo **14,60 EUR**, nessun errore restituito. Non è una sessione Marco, né la revisione binaria del backend.
+- Confronto live dei campi esposti dall'Admin: descrizione formattata e titolo coincidono; nome botanico, difficoltà, FAQ, benefici/caratteristiche **null** su Shopify; quattro periodi **[]** dopo decodifica Admin. Non confondere questi vuoti remoti con i valori locali. `short_description` assente anche nella bozza: non ignorato, non richiesto.
+- Azione Admin esistente `shopify-admin-proxy/list_shopify_metafield_definitions`: **26 definizioni PRODUCT**, inclusi due metafield Shopify taxonomy. Query esistente `first:100` senza pageInfo; risultato inferiore al limite, ma non fornisce accesso Storefront né prova mediante cursore. Il candidato invece impone paginazione e completezza esplicite. Azione `get_product` restituisce **images=[]**, nessuna foto.
+- Dominio pubblico sulla PDP del handle esatto: **“Prodotto non trovato”**, verificato nel browser senza sessione cliente o operazione carrello/checkout. Quindi **STOREFRONT_VISIBILITY=NO** alla verifica, non inferito dalla ricerca “yucca”.
+- DB riletto dopo le verifiche: 13 valori locali, 13 bloccati, zero verifiche remote persistite; invariato. Nessuna scrittura effettuata nei test.
+
+### Output corrente
+
+| Voce | Esito |
+|---|---|
+| METAFIELD_SYNC | **FAIL produzione**: 9 valori botanici/FAQ/liste richiesti locali non presenti nella lettura remota. **PASS candidato con mock**, non rilasciato |
+| PRODUCT_STATUS | **ACTIVE**, riletto Shopify e Admin |
+| ONLINE_STORE_PUBLICATION | **NO riferito dal collaudo**, non riletto indipendentemente dagli strumenti disponibili; non attestare tutti i publication IDs |
+| LOVABLE_PUBLICATION | **NO**, strumento Shopify per SKU esatto |
+| HEADLESS / SITO | Admin restituisce `siteVisible=false`; lista completa di publication IDs non esposta |
+| STOREFRONT_VISIBILITY | **NO**, PDP pubblica esatta non trovata |
+| INVENTORY | **0 aggregato**, filtro `inventory_total:0`, una variante; sedi/impegni non letti |
+| IMMAGINI | **0**, lettura REST Admin del prodotto esatto |
+| DEPLOY_REQUIRED | **Sì**, solo futura `product-admin-api` dopo gate; nessun deploy eseguito |
+| FRONTEND_PUBLISH_REQUIRED | **Sì**, soli messaggi/conferme Admin del candidato; nessun Publish eseguito |
+
+### Definizioni reali lette, mapping e valori esposti
+
+Namespace `custom` salvo ultime due righe. Valori “vuoto” = lettura remota di `get_product` Admin, non bozza locale. L'endpoint definizioni non espone `access.storefront`; **non dichiarare PUBLIC_READ verificato**. Tipi reali riportati, nessuna definizione creata o modificata.
+
+| Metafield | Tipo Shopify letto | Bozza / valore remoto / mapping |
+|---|---|---|
+| care_info | multi_line_text_field | Bozza assente, remoto vuoto; letto pubblico come careInfo |
+| promo_text | single_line_text_field | Bozza assente, remoto vuoto; **registro/legacy prevede multi-line**, da bloccare se richiesto con tipo incompatibile |
+| key_features | multi_line_text_field | Bozza array con testo originale, remoto vuoto; candidato serializza voci reversibili su righe |
+| special_bullets | multi_line_text_field | Bozza assente, remoto vuoto; field sync distinto, non aggiunto al contratto nuova botanical |
+| short_intro | multi_line_text_field | short_description assente; remoto vuoto; mapping canonico della descrizione breve |
+| long_description | rich_text_field | **Nessun campo Admin canonico equivalente**; valore non esposto; descrizione Admin resta core descriptionHtml, non copiarla implicitamente qui |
+| difficolta_di_coltivazione | single_line_text_field | Bozza Media, remoto vuoto; fonte da confermare |
+| origini_e_habitat | multi_line_text_field | Bozza assente, remoto vuoto; target pubblico coerente |
+| nome_botanico | single_line_text_field | Bozza yucca rostrata, remoto vuoto; richiesto ma omesso in produzione |
+| nome_comune | single_line_text_field | Bozza assente, remoto vuoto |
+| attributi_prodotto | json | Nessun campo Admin canonico; valore non esposto; letto dal pubblico, non generare implicitamente |
+| periodo_di_fioritura | single_line_text_field | Bozza Febbraio/Maggio/Luglio/Ottobre, remoto [] |
+| periodo_ottimale_di_potatura | single_line_text_field | Bozza Gennaio/Giugno/Luglio, remoto [] |
+| periodo_di_messa_a_dimora | single_line_text_field | Bozza Gennaio/Marzo/Giugno/Dicembre, remoto [] |
+| periodo_di_raccolta | single_line_text_field | Bozza Febbraio/Giugno, remoto [] |
+| conosci_meglio_la_tua_pianta | multi_line_text_field | Bozza assente, remoto vuoto |
+| come_prendersene_cura | multi_line_text_field | Bozza assente, remoto vuoto; pubblico legge questo, non custom.care_guide |
+| titolo_sezione_faq | single_line_text_field | Bozza assente, remoto vuoto |
+| faq_prodotto | json | Bozza FAQ di prova, remoto vuoto; candidato conserva JSON strutturato dopo conferma |
+| ibridatore | single_line_text_field | Bozza assente, remoto vuoto; permesso/manual-only invariato |
+| colore_fiore | single_line_text_field | Bozza assente, remoto vuoto; permesso/manual-only invariato |
+| colore_foglia | single_line_text_field | Bozza assente, remoto vuoto; permesso/manual-only invariato |
+| curiosita | multi_line_text_field | Bozza assente, remoto vuoto |
+| key_benefits | multi_line_text_field | Bozza rree/gggg, remoto vuoto; dati di prova non verificati, nessuna correzione dei record |
+| shopify.hardiness-zone | list.metaobject_reference | Nessun mapping/grant Admin canonico; valore non esposto, **escluso** |
+| shopify.watering-needs | list.metaobject_reference | Nessun mapping/grant Admin canonico; valore non esposto, **escluso** |
+
+`custom.care_guide` non compare nelle definizioni lette: mapping locale orfano rispetto al contratto pubblico `come_prendersene_cura`. Nessun alias inglese dello script storico compare in questa lettura, eccetto i target reali elencati sopra. Non aggiungere definizioni o cambiare permessi per colmare i vuoti. `long_description` e `promo_text` sono incompatibilità reali del percorso legacy, **non** motivo per duplicare contenuti nella nuova Admin V2.
+
+### Correzione candidata e invarianti
+
+- Nuovo modulo `_shared/admin-draft-metafields.ts`: elenco richiesto derivato dalla bozza, mapping solo dal registro, valori ricontrollati contro registro corrente, definizioni paginated PRODUCT e accesso pubblico, esatta compatibilità di tipo; liste tramite codec reversibile esistente, FAQ JSON, mesi scalari. Mancanza mapping/definizione/accesso/tipo/valore/conferma → errore esplicito prima della claim/create. Nessuna conversione di riferimenti metaobject o HTML a rich_text Shopify implicita.
+- `_shared/admin-operational-core.ts`: campo additivo nel payload `botanicalConfirmedKeys`, validato; niente schema/RPC nuove. Ogni valore botanico presente deve avere conferma individuale prima della nuova preview/save/create. Questa conferma non certifica automaticamente la verità scientifica.
+- Salvataggio nuova bozza: dopo l’RPC esistente rilegge ciascun campo richiesto da `product_current_values`, sul Product ID restituito, confrontando testo/numeri/JSON senza dipendere dall’ordine delle proprietà. Riga assente, identità diversa o valore divergente → niente successo globale; retry mantiene la stessa richiesta. Restituisce `VERIFIED_ADMIN`, distinto da verifica Shopify. Nessun tentativo di correggere record già salvati e nessuna nuova RPC/migration.
+- `_shared/admin-operational-service.ts`: stessa create DRAFT, stessi prezzi/varianti/inventario/immagini/categorie, ma include tutti i metafield autorizzati e richiesti. Prima di finalizzare mapping legge valori esatti, namespace/key/type/identità, tutte le pagine; mismatch → NEEDS_RECONCILIATION, no successo globale e no seconda create. Recovery passa dalla stessa verifica. Le operazioni storiche VERIFIED_DRAFT mantengono il ritorno idempotente precedente, senza reinterpretare o riscrivere record chiusi.
+- Recovery dopo timeout non richiede un nuovo grant sync o nuove definizioni Storefront: confronta mapping e contenuti persistiti con i valori remoti, accettando per liste solo i tre encoding reversibili già ammessi. Restano obbligatori ruolo/capability drafts, proprietà dell’operazione, gate generale e approvazione specifica `recovery:{id}`; nessuna nuova create. **Recovery può finalizzare il mapping locale secondo il contratto preesistente: non è un’azione read-only complessiva e non è stata eseguita su record reali.** Il confronto di bozze esistenti si limita alle letture disponibili e al comparatore puro testato; non introduce un nuovo endpoint o un comando di modifica.
+- Frontend solo `NewProductPage`, `newDraft`, `DraftSummaryView`: checkbox fonte/valore per ogni campo botanico; modifica del campo annulla soltanto la sua conferma; riepilogo locale distinto; dopo create riuscita elenco dei metafield effettivamente riletti con valore e tipo. Nessuna deduzione automatica di mesi. Existing field sync/ProductReview restano invariati, già confrontano e verificano.
+- Nessun cambio `publish_catalog_product`, canali, mercati, grant o pubblicazione implicita. Niente modifiche ai prodotti esistenti, incluso il test Yucca; futura sync selettiva richiede autorizzazione nuova e revisione dei dati di prova.
+- Regola strutturale registrata in `AGENTS.md`; nessuna modifica homepage/catalogo pubblico/PDP/navbar/checkout/pagamenti/clienti/cookie.
+
+Impronte finali del candidato: `_shared/admin-draft-metafields.ts` SHA-256 `444a4c443eded95a1c26a6820a87ae1e3577e81eb35b51b8c95e25911658e860`; `admin-operational-service.ts` SHA-256 `c48036591335763907ad26c1822e1b0f8818af0f4a8e4ce476c6aae01b16beea`. Nessuna impronta è una revisione runtime distribuita.
+
+### Test del candidato
+
+- **128 test Node PASS / 0 FAIL**, inclusi 18 nuovi test del piano e dei confronti: testo, FAQ JSON, tipi lista, mapping assente, tipo incompatibile, accesso non pubblico, fonte non confermata, conferme duplicate/spurie, campi mancanti non dedotti, paginazione/read-back assente, confronto read-only senza nuova conferma, preservazione valori, JSON ordinato diversamente, salvataggio locale incompleto e identità/valore divergenti.
+- **34 test Deno PASS / 0 FAIL**, inclusi 6 nuovi test del servizio: invio effettivo botanica/mese/lista e rilettura, metafield remoto mancante, userError Shopify, scope Editor mancante, recovery dopo timeout senza nuovo grant sync/definizioni e rilettura dei campi locali dopo save. Verificata una sola create simulata, zero completamenti su errore, nessuna seconda create. Il test recovery mantiene l’approvazione specifica; nessuna regola di autorizzazione è stata allentata per farlo passare. Un'aspettativa storica IN_FLIGHT è aggiornata a NEEDS_RECONCILIATION, coerente con la gestione esplicita del mismatch.
+- `deno check product-admin-api/index.ts` PASS; dipendenze locali risolte. Build automatica preview `build OK`; non lanciata manualmente.
+- Browser anteprima con sessione tecnica: scheda esistente leggibile, nuova scheda aperta; giugno selezionato e conferma attiva; aggiunta luglio → conferma annullata, screenshot dei due stati verificati. Zero errori pagina. Rete blocca le azioni non autorizzate al test, inclusa una lettura opzionale `list_catalog_media`; nessun save/create/AI/pubblicazione eseguito. La persistenza è provata soltanto nel servizio con provider/DB simulati, non in produzione.
+
+### Gate residui / collaudo Marco
+
+**GO preparazione candidato; NO-GO deploy/Publish ora.** Richiedere autorizzazioni separate solo dopo preflight aggiornato. Restano non completamente esposti dagli endpoint esistenti: Online Store e lista completa publication IDs, disponibilità mercato contestualizzata, access.storefront delle 26 definizioni e valori effettivi dei metafield privi di mapping Admin. Non introdurre/deployare un endpoint diagnostico come alternativa implicita.
+
+Marco: usare stesso SKU/GID, distinguere fonte botanica da selezione manuale, verificare confronto e messaggi; nuova bozza resta DRAFT; nessuna quantità/foto inventata per pubblicare. Test reale dopo futuro rilascio, solo con mandato specifico per salvataggio/sync. **PENDING_CLIENT_ACCEPTANCE**, SAL **57,75%** invariata. Nessun deploy `product-admin-api` o `product-admin-ai`, Publish, SQL, opt-in, scrittura commerciale o pagamento in questa fase.
+
+### Diff e recovery proposti, non eseguiti
+
+Diff candidato da `1a65c60` a `e612b24`: tre file di interfaccia `src/adminv2`, tre moduli `_shared` (uno nuovo), due test e `AGENTS.md`; entrypoint API, storefront pubblico, flusso login/cookie/checkout, configurazione funzioni e schema DB non modificati. Documentazione aggiornata separatamente. **Prima di qualsiasi rilascio: mostrare questo diff/test, completare i limiti live sopra e richiedere autorizzazione esplicita.**
+
+Recovery se un futuro rilascio viene autorizzato: ripristino separato dei soli file/artefatti Admin da `1a65c60`, previo mandato; backend tramite nuovo deploy mirato della sola API con il relativo grafo shared approvato, frontend tramite versione precedente pubblicata. Non ripristinare DB o dati Shopify e non reinterpretare bozza/stati già completati; nessun rollback automatico autorizzato. Al momento non occorre recovery perché niente è stato distribuito.
+
+## Verbale iniziale audit — prima del piano approvato e delle successive letture live
+
 ## Audit bloccante metafield e pubblicazione — 26/11/2026, richiesta 18:01 UTC
 
 **PENDING_CLIENT_ACCEPTANCE · NO-GO correzione distribuita / Publish.** Revisione sorgente `c80e562707893872b196cd30a28bede2da96b2fd`, checkout inizialmente pulito. In questo intervento: sole letture DB/log/sorgenti e test con mock; aggiornamenti esclusivamente documentali. Nessuna correzione applicativa, mutation Shopify, AI, migration, cambio grant/flag/secret, deploy o Publish.
