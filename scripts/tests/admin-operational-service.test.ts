@@ -22,6 +22,7 @@ function simulation(
     botanical?: Record<string, unknown>;
     missingRemoteMetafield?: boolean;
     metafieldUserError?: boolean;
+    missingAdminField?: boolean;
   } = {},
 ) {
   const draft: ProductDraft = {
@@ -78,6 +79,7 @@ function simulation(
   let mutations = 0;
   let completeCalls = 0;
   let createdInput: Record<string, unknown> | undefined;
+  let savedRows: Record<string, unknown>[] = [];
   const db = {
     from(table: string) {
       let update: Record<string, unknown> | undefined;
@@ -91,6 +93,7 @@ function simulation(
         gt() {
           return chain;
         },
+        in() { return chain; },
         order() {
           return chain;
         },
@@ -112,14 +115,19 @@ function simulation(
         then(resolve: (x: unknown) => void) {
           if (update) Object.assign(op, update);
           resolve({ data: table === 'product_field_definitions' ? [
+            ...['title','description','seo_title','seo_description'].map(key=>({key,visible:true,editable:true,data_type:'text',editor_type:'textarea'})),
             {key:'short_description',visible:true,editable:true,publishable:true,manual_only:false,data_type:'text',editor_type:'textarea',shopify_mapping:options.missingShortMapping?{}:{type:'metafield',namespace:'custom',key:'short_intro'}},
             ...Object.keys(options.botanical ?? {}).map(key=>({key,visible:true,editable:true,publishable:true,manual_only:false,data_type:key==='nome_botanico'?'text':'array',editor_type:'multiselect',shopify_mapping:{type:'metafield',namespace:'custom',key}})),
-          ] : table === 'product_current_values' ? [] : op, error: null });
+          ] : table === 'product_current_values' ? options.missingAdminField?savedRows.slice(1):savedRows : op, error: null });
         },
       };
       return chain;
     },
-    rpc(name: string) {
+    rpc(name: string, args?: Record<string, unknown>) {
+      if (name === 'admin_save_new_draft') {
+        savedRows=((args?.p_fields ?? []) as {key:string;text?:string;json?:unknown;number?:number}[]).map(field=>({product_id:op.product_id,field_key:field.key,value_text:field.text ?? null,value_json:field.json ?? null,value_number:field.number ?? null}));
+        return Promise.resolve({data:{productId:op.product_id,operationId:id,state:'LOCAL_DRAFT'},error:null});
+      }
       if (name === 'admin_claim_draft') {
         const claimed = op.state === 'LOCAL_DRAFT';
         if (claimed) op.state = 'IN_FLIGHT';
@@ -183,7 +191,7 @@ function simulation(
   };
 }
 async function withFlags(run: () => Promise<void>) {
-  const keys = ['PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED', 'PRODUCT_ADMIN_OPERATIONAL_APPROVAL', 'PRODUCT_ADMIN_WRITES_ENABLED', 'PRODUCT_ADMIN_WRITE_MODE'];
+  const keys = ['PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED', 'PRODUCT_ADMIN_OPERATIONAL_APPROVAL', 'PRODUCT_ADMIN_WRITES_ENABLED', 'PRODUCT_ADMIN_WRITE_MODE', 'PRODUCT_ADMIN_DRAFTS_ENABLED'];
   const prior = keys.map((k) => Deno.env.get(k));
   Deno.env.set(keys[0], 'true');
   Deno.env.set(keys[1], JSON.stringify({
@@ -193,6 +201,7 @@ async function withFlags(run: () => Promise<void>) {
   }));
   Deno.env.set(keys[2], 'true');
   Deno.env.set(keys[3], 'full');
+  Deno.env.set(keys[4], 'true');
   try {
     await run();
   } finally {
@@ -655,4 +664,28 @@ Deno.test('Editor senza field scope non contatta Shopify per i nuovi metafield',
   let reads=0;
   await assertRejects(()=>handleOperational(s.db,actor,{action:'create_shopify_draft',operationId:id,confirm:true},async <T>(q:string,v:Record<string,unknown>)=>{reads++;return s.shopify<T>(q,v);}));
   assertEquals(reads,0); assertEquals(s.mutations,0);
+}));
+
+Deno.test('timeout metafield: recovery non richiede nuovo grant sync o definizioni live e non ricrea',()=>withFlags(async()=>{
+  const s=simulation({timeout:true,botanical:{nome_botanico:'Specie sintetica',key_features:['Sempreverde']}});
+  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','sync'],fieldKeys:['nome_botanico','key_features']}};
+  await assertRejects(()=>handleOperational(s.db,author,{action:'create_shopify_draft',operationId:id,confirm:true},s.shopify));
+  assertEquals(s.op.state,'NEEDS_RECONCILIATION');assertEquals(s.mutations,1);
+  const recoveryAuthor={...actor,catalogApproval:{action:'recover_shopify_draft',target:'recovery:'+id,before:{}}};
+  const result=await handleOperational(s.db,recoveryAuthor,{action:'recover_shopify_draft',operationId:id,confirm:true},async <T>(q:string,v:Record<string,unknown>)=>{
+    if(q.includes('AdminDraftMetafieldDefinitions'))throw Error('Nessuna nuova definizione può bloccare una sola rilettura');
+    return s.shopify<T>(q,v);
+  }) as {metafieldVerification:{fieldKey:string;state:string}[]};
+  assertEquals(result.metafieldVerification.length,2);assertEquals(s.completions,1);assertEquals(s.mutations,1);
+}));
+
+Deno.test('nuova bozza salva e rilegge tutti i campi Admin; salvataggio parziale non dichiara successo',()=>withFlags(async()=>{
+  for(const missingAdminField of [false,true]){
+    const s=simulation({botanical:{nome_botanico:'Specie sintetica'},missingAdminField});
+    const author={...actor,catalogApproval:{action:'save_new_product',target:'new-sku:qa-001',before:{}}};
+    const run=()=>handleOperational(s.db,author,{action:'save_new_product',draft:s.op.payload,idempotencyKey:id,confirm:true},s.shopify);
+    if(missingAdminField)await assertRejects(run);
+    else assertEquals((await run() as {adminFieldVerification:{fieldKey:string}[]}).adminFieldVerification.map(field=>field.fieldKey),['title','description','nome_botanico']);
+    assertEquals(s.mutations,0);
+  }
 }));

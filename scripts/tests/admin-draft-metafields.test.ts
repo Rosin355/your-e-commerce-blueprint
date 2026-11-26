@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { planDraftMetafields, requireDraftBotanicalReview, verifyDraftMetafields } from '../../supabase/functions/_shared/admin-draft-metafields.ts';
+import { planDraftMetafields, planDraftMetafieldsForComparison, requireDraftBotanicalReview, verifyAdminDraftFields, verifyDraftMetafields } from '../../supabase/functions/_shared/admin-draft-metafields.ts';
 import { validateDraft, type ProductDraft } from '../../supabase/functions/_shared/admin-operational-core.ts';
 import type { FieldDefinition } from '../../supabase/functions/_shared/admin-v2-types.ts';
 import { draftErrors } from '../../src/adminv2/lib/newDraft.ts';
@@ -58,4 +58,31 @@ test('rilettura parziale/mancante non dichiara VERIFIED',async()=>{
 for(const type of ['json','list.single_line_text_field','multi_line_text_field'])test('liste usano il tipo realmente definito: '+type,async()=>{
  const plan=await planDraftMetafields(draft({key_features:['Sempreverde','Crescita lenta']}),[def('key_features','json','multiselect')],gql([{key:'key_features',type}]));
  assert.equal(plan[0].type,type);assert.equal(plan[0].value,type==='multi_line_text_field'?'Sempreverde\nCrescita lenta':'["Sempreverde","Crescita lenta"]');
+});
+test('confronto read-only mantiene i valori esistenti senza esigere nuove conferme',async()=>{
+ const d=draft({nome_botanico:'Specie'});delete d.botanicalConfirmedKeys;
+ const before=JSON.stringify(d);
+ const plan=planDraftMetafieldsForComparison(d,[def('nome_botanico')]);
+ const result=await verifyDraftMetafields('gid://shopify/Product/1',plan,async <T>()=>({product:{id:'gid://shopify/Product/1',metafields:{nodes:[{namespace:'custom',key:'nome_botanico',type:'single_line_text_field',value:'Specie'}],pageInfo:{hasNextPage:false}}}} as T),true);
+ assert.equal(result[0].value,'Specie');assert.equal(JSON.stringify(d),before);
+});
+test('confronto lista legge solo encodings ammessi, senza nuova definizione o conversione remota',async()=>{
+ const plan=planDraftMetafieldsForComparison(draft({key_features:['Sempreverde','Crescita lenta']}),[def('key_features','json','multiselect')]);
+ for(const type of ['multi_line_text_field','rich_text_field']){
+  const read=async <T>()=>({product:{id:'gid://shopify/Product/1',metafields:{nodes:[{namespace:'custom',key:'key_features',type,value:'Sempreverde\nCrescita lenta'}],pageInfo:{hasNextPage:false}}}} as T);
+  if(type==='rich_text_field')await assert.rejects(()=>verifyDraftMetafields('gid://shopify/Product/1',plan,read,true));
+  else assert.equal((await verifyDraftMetafields('gid://shopify/Product/1',plan,read,true))[0].type,type);
+ }
+});
+test('rilettura Admin verifica testo e FAQ anche con ordine delle proprietà JSON diverso',()=>{
+ const productId='local';const faq=[{question:'Domanda?',answer:'Risposta.'}];
+ const requested=[{key:'nome_botanico',text:'Specie'},{key:'faq',json:faq}];
+ const rows=[{product_id:productId,field_key:'nome_botanico',value_text:'Specie',value_json:null,value_number:null},{product_id:productId,field_key:'faq',value_text:null,value_json:[{answer:'Risposta.',question:'Domanda?'}],value_number:null}];
+ assert.deepEqual(verifyAdminDraftFields(productId,requested,rows).map(row=>row.state),['VERIFIED_ADMIN','VERIFIED_ADMIN']);
+});
+test('salvataggio Admin parziale non equivale a tutti i campi verificati',()=>{
+ assert.throws(()=>verifyAdminDraftFields('local',[{key:'periodo_di_fioritura',json:['Giugno']}],[]));
+});
+test('rilettura Admin di un’altra identità o con valori diversi viene rifiutata',()=>{
+ for(const productId of ['local','other'])assert.throws(()=>verifyAdminDraftFields('local',[{key:'nome_botanico',text:'Specie'}],[{product_id:productId,field_key:'nome_botanico',value_text:'Diversa',value_json:null,value_number:null}]));
 });

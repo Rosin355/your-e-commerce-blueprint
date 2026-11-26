@@ -1,5 +1,5 @@
 import { readDraftSummary } from './admin-draft-summary.ts';
-import { planDraftMetafields, requestedDraftFields, requireDraftBotanicalReview, verifyDraftMetafields } from './admin-draft-metafields.ts';
+import { planDraftMetafields, planDraftMetafieldsForComparison, requestedDraftFields, requireDraftBotanicalReview, verifyAdminDraftFields, verifyDraftMetafields } from './admin-draft-metafields.ts';
 import { editorialCollections } from './admin-catalog-commerce.ts';
 import { catalogAllowed, requireCatalog, CATALOG_MUTATIONS } from './admin-catalog-policy.ts';
 import { canaryScope, requireCanaryProduct } from './admin-canary-service.ts';
@@ -579,7 +579,12 @@ export async function handleOperational(
         'Bozza non salvata: verificare SKU e riprovare con la stessa richiesta.',
       );
     }
-    return { ok: true, result: data };
+    demand(data && typeof data.productId === 'string' && UUID.test(data.productId), 'Salvataggio non riletto: usa la stessa richiesta, senza ricreare la bozza.');
+    const { data: persisted, error: readError } = await db.from('product_current_values')
+      .select('product_id,field_key,value_text,value_json,value_number').eq('product_id', data.productId).in('field_key', fields.map(field => field.key));
+    demand(!readError && Array.isArray(persisted), 'Bozza Admin non riletta: usa la stessa richiesta, senza ricrearla.');
+    const adminFieldVerification = verifyAdminDraftFields(data.productId, fields, persisted);
+    return { ok: true, result: data, adminFieldVerification };
   }
   if (action === 'get_product_operations') {
     demand(typeof p.productId === 'string' && UUID.test(p.productId), 'Prodotto non valido.');
@@ -634,9 +639,11 @@ export async function handleOperational(
     return { ok: true, result: { state: op.state, productId: op.product_id } };
   }
   // Preflight every requested field before claim/create; completed historical records remain untouched.
-  if (ordinary) for (const field of requestedDraftFields(draft)) requireCatalog(auth, 'sync', field.fieldKey);
-  const metafieldPlan = await planDraftMetafields(draft,
-    requestedDraftFields(draft).length ? await getFieldDefinitions(db) : [], shopify);
+  if (ordinary && action === 'create_shopify_draft') for (const field of requestedDraftFields(draft)) requireCatalog(auth, 'sync', field.fieldKey);
+  const registry = requestedDraftFields(draft).length ? await getFieldDefinitions(db) : [];
+  const metafieldPlan = action === 'recover_shopify_draft'
+    ? planDraftMetafieldsForComparison(draft, registry)
+    : await planDraftMetafields(draft, registry, shopify);
   let product: ShopifyDraft;
   let collections = [...(draft.collectionIds ?? [])];
   if (draft.categoryIds.length) {
@@ -779,7 +786,7 @@ export async function handleOperational(
   let metafieldVerification: Awaited<ReturnType<typeof verifyDraftMetafields>>;
   try {
     links = verifiedLinks(draft, op.id, product, collections);
-    metafieldVerification = await verifyDraftMetafields(product.id, metafieldPlan, shopify);
+    metafieldVerification = await verifyDraftMetafields(product.id, metafieldPlan, shopify, action === 'recover_shopify_draft');
   } catch (error) {
     await db.from('admin_product_operations').update({ state: 'NEEDS_RECONCILIATION' }).eq('id', op.id);
     throw new OperationalError('NEEDS_RECONCILIATION',

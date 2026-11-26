@@ -7,7 +7,27 @@ import { isFieldEditable, validateValue } from './admin-v2-validation.ts';
 
 type GraphQL = <T>(query: string, variables: Record<string, unknown>) => Promise<T>;
 export interface DraftMetafield { fieldKey: string; namespace: string; key: string; type: string; value: string }
+interface AdminDraftField { key: string; text?: string; json?: unknown; number?: number }
+interface AdminDraftValue { product_id: string; field_key: string; value_text: string | null; value_json: unknown; value_number: number | null }
 interface Definition { namespace: string; key: string; type: { name: string }; access: { storefront: string } }
+
+function canonical(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([key, item]) => [key, canonical(item)]));
+  return value;
+}
+
+/** A successful RPC is not a successful field read-back; JSON object key order is irrelevant. */
+export function verifyAdminDraftFields(productId: string, requested: AdminDraftField[], rows: AdminDraftValue[]) {
+  return requested.map(expected => {
+    const matches = rows.filter(row => row.product_id === productId && row.field_key === expected.key);
+    const actual = matches[0];
+    const expectedValue = expected.json ?? expected.text ?? expected.number;
+    demand(matches.length === 1 && actual && JSON.stringify(canonical(actual.value_json ?? actual.value_text ?? actual.value_number)) === JSON.stringify(canonical(expectedValue)),
+      `Campo ${expected.key} non riletto nella bozza Admin: usa la stessa richiesta, senza creare un'altra bozza.`);
+    return { fieldKey: expected.key, value: expectedValue, state: 'VERIFIED_ADMIN' as const };
+  });
+}
 
 export function requestedDraftFields(draft: ProductDraft) {
   return [
@@ -43,6 +63,19 @@ export async function readDraftMetafieldDefinitions(graphql: GraphQL): Promise<D
   return result;
 }
 
+/** Read comparison does not grant a write or demand fresh authoring acknowledgement. */
+export function planDraftMetafieldsForComparison(draft: ProductDraft, registry: FieldDefinition[]): DraftMetafield[] {
+  return requestedDraftFields(draft).map(({ fieldKey, value }) => {
+    const field = registry.find(def => def.key === fieldKey);
+    const target = field && resolveShopifyTarget(field);
+    demand(field?.visible && target?.kind === 'metafield', `Mapping di confronto non disponibile per ${fieldKey}: nessuna nuova creazione.`);
+    const serialized = serializeValueForShopify(field, value);
+    demand(typeof serialized === 'string', `Valore di confronto non rappresentabile per ${fieldKey}.`);
+    return { fieldKey, namespace: target.namespace, key: target.key, type: target.valueType,
+      value: isEditorialList(fieldKey) ? encodeEditorialList(serialized, target.valueType) : serialized };
+  });
+}
+
 export async function planDraftMetafields(draft: ProductDraft, registry: FieldDefinition[], graphql: GraphQL): Promise<DraftMetafield[]> {
   requireDraftBotanicalReview(draft);
   const requested = requestedDraftFields(draft);
@@ -73,7 +106,7 @@ export async function planDraftMetafields(draft: ProductDraft, registry: FieldDe
 }
 
 /** Compare exact identity, type and wire value after creation/recovery. Never mutate. */
-export async function verifyDraftMetafields(productId: string, plan: DraftMetafield[], graphql: GraphQL) {
+export async function verifyDraftMetafields(productId: string, plan: DraftMetafield[], graphql: GraphQL, comparison = false) {
   if (!plan.length) return [];
   const fields: { namespace: string; key: string; type: string; value: string }[] = [];
   let after: string | null = null;
@@ -92,7 +125,10 @@ export async function verifyDraftMetafields(productId: string, plan: DraftMetafi
   return plan.map(expected => {
     const matches = fields.filter(field => field.namespace === expected.namespace && field.key === expected.key);
     const actual = matches[0];
-    demand(matches.length === 1 && actual?.type === expected.type && actual.value === expected.value,
+    const readableList = comparison && isEditorialList(expected.fieldKey) && actual &&
+      ['json', 'list.single_line_text_field', 'multi_line_text_field'].includes(actual.type);
+    const expectedValue = readableList ? encodeEditorialList(expected.value, actual.type) : expected.value;
+    demand(matches.length === 1 && actual && (actual.type === expected.type || readableList) && actual.value === expectedValue,
       `Campo ${expected.fieldKey} non verificato su Shopify: riconciliare senza ricreare.`);
     return { fieldKey: expected.fieldKey, namespace: expected.namespace, key: expected.key, type: actual.type, value: actual.value, state: 'VERIFIED' as const };
   });
