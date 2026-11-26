@@ -1,4 +1,4 @@
-# Online Garden · SQL da copiare nell'editor Lovable Cloud
+> **AGGIORNAMENTO 26/11/2026 — INTERFACCIA LOVABLE:** l'utente conferma che la voce SQL Editor non è più disponibile. **NON seguire la navigazione GUI indicata sotto.** Per applicare gli script usando l'agente e gli strumenti cloud del progetto, usare la [nuova procedura Lovable AI](MARCO-LOVABLE-AGENT-SQL-2026-11-26.md). I blocchi SQL sottostanti restano soltanto una trascrizione tecnica degli script originali, non una prova di esecuzione.\n\n# Online Garden · SQL da copiare nell'editor Lovable Cloud
 
 **Versione:** 26 novembre 2026 · **Destinazione:** solo progetto Online Garden / Cloud ref `iekwvvihjwghosqdxrdi`.
 
