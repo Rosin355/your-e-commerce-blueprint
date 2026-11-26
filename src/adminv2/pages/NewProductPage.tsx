@@ -84,14 +84,19 @@ export default function NewProductPage() {
   });
   const send = useMutation({
     mutationFn: (request: string | {action:string;operationId:string}) =>
-      callCatalogCommand<{ result: { state: string } }>({
+      callCatalogCommand<{ result: { state: string }; metafieldVerification?: { fieldKey: string; namespace: string; key: string; type: string; value: string; state: 'VERIFIED' }[] }>({
         action: typeof request==='string'?request:request.action,
         operationId: typeof request==='string'?save.data?.result.operationId:request.operationId,
         confirm: true,
       },{reviewed:typeof request!=='string'}),
   });
   const update = (change: Partial<ProductDraft> | ((previous: ProductDraft) => Partial<ProductDraft>)) => {
-    setDraft(previous => ({ ...previous, ...(typeof change === 'function' ? change(previous) : change) }));
+    setDraft(previous => {
+      const next = typeof change === 'function' ? change(previous) : change;
+      const confirmedKeys = next.botanicalConfirmedKeys ?? previous.botanicalConfirmedKeys;
+      return { ...previous, ...next, botanicalConfirmedKeys: confirmedKeys?.filter(key =>
+        !next.botanical || JSON.stringify(previous.botanical[key]) === JSON.stringify(next.botanical[key])) };
+    });
     preview.reset();
     if (!locked) save.reset();
     setConfirmed(false);
@@ -251,6 +256,13 @@ export default function NewProductPage() {
                     return { botanical };
                   })}
                 />
+                {Object.prototype.hasOwnProperty.call(draft.botanical, d.key) && <label className="flex min-h-11 items-center gap-2">
+                  <Checkbox checked={draft.botanicalConfirmedKeys?.includes(d.key) ?? false}
+                    onCheckedChange={checked => update(previous => ({ botanicalConfirmedKeys: checked === true
+                      ? [...new Set([...(previous.botanicalConfirmedKeys ?? []), d.key])]
+                      : (previous.botanicalConfirmedKeys ?? []).filter(key => key !== d.key) }))} />
+                  Confermo la fonte e il valore di {d.label.toLocaleLowerCase('it')}.
+                </label>}
                 {errors[d.key] && <p id={d.key + "-error"} className="text-sm text-destructive">{errors[d.key]}</p>}
               </div>
             ))}
@@ -335,6 +347,14 @@ export default function NewProductPage() {
           <p>
             La bozza non è pubblicata. L’azione separata “Pubblica” nella scheda verifica dati, classe di spedizione e canale del sito.
           </p>
+          <p>I valori del riepilogo sono salvati nell’Admin. L’invio verifica separatamente ogni metafield richiesto; un errore richiede riconciliazione, non una nuova creazione.</p>
+          {Boolean(send.data?.metafieldVerification?.length) && <section aria-label="Metafield verificati su Shopify" className="space-y-2">
+            <h3 className="font-semibold">Metafield riletti e verificati su Shopify</h3>
+            <dl className="space-y-2 break-words">{send.data?.metafieldVerification?.map(field => <div key={field.fieldKey}>
+              <dt className="font-medium">{definitions.data?.definitions.find(def => def.key === field.fieldKey)?.label ?? field.fieldKey}</dt>
+              <dd>{field.value}</dd><dd className="text-sm text-muted-foreground">{field.namespace}.{field.key} · {field.type} · verificato al momento dell’invio</dd>
+            </div>)}</dl>
+          </section>}
           <details>
             <summary className='cursor-pointer'>Operazioni Shopify separate</summary>
             {catalogue.data?.canSendDraft &&

@@ -5,3 +5,4 @@
 - Role predicates allow only self checks, verified service-role claims, or the postgres session identity; use session_user rather than SECURITY DEFINER current_user to prevent owner-based authorization bypass.
 - Confirmed-fact descriptions use evidence-indexed editorial sections rendered through the shared HTML sanitizer; provider failures fail closed and invalid sections are excluded with typed reviewer warnings, because AI proposals must remain separate from manually approved drafts.
 - Gallery/format reads use a lean paginated Shopify query after the existing scoped grant and family identity checks; mutation snapshots retain their stricter completeness limits to avoid requiring shipping data for display.
+- New draft metafields use registry-derived targets, paginated live definitions and exact post-create read-back; per-field botanical acknowledgement is required, because draft creation must not silently omit requested content or imply publication.

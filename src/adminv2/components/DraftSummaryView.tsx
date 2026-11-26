@@ -19,6 +19,7 @@ export default function DraftSummaryView({ draft, saved = false }: { draft: Draf
       <div key={i}><dt className="font-medium">Codice formato {i + 1}</dt><dd>{v.sku || missing}</dd></div>)}
   </dl>;
   return <div className="space-y-3 break-words text-sm">
+    {saved && <p role="status">Bozza interna salvata · questo riepilogo non attesta la sincronizzazione dei singoli campi o la pubblicazione Shopify.</p>}
     {saved && (!draft.title || !draft.sku || !draft.description || !draft.currency ||
       !draft.variants?.length || draft.variants.some(v => !v.sku || !v.price || !v.option) || draft.categoryDataIncomplete) &&
       <p role="alert">Il salvataggio originario contiene dati mancanti o incompleti. Verifica i campi indicati con il responsabile.</p>}

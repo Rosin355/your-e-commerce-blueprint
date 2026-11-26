@@ -1,4 +1,5 @@
 import { readDraftSummary } from './admin-draft-summary.ts';
+import { planDraftMetafields, requestedDraftFields, requireDraftBotanicalReview, verifyDraftMetafields } from './admin-draft-metafields.ts';
 import { editorialCollections } from './admin-catalog-commerce.ts';
 import { catalogAllowed, requireCatalog, CATALOG_MUTATIONS } from './admin-catalog-policy.ts';
 import { canaryScope, requireCanaryProduct } from './admin-canary-service.ts';
@@ -22,7 +23,6 @@ import {
 } from './admin-operational-core.ts';
 import { payloadHash, writeMode, writesEnabled } from './admin-v2-commands.ts';
 import { getExactShopifyProductMapping, getFieldDefinitions } from './admin-v2-queries-deferred.ts';
-import { resolveShopifyTarget } from './admin-v2-field-policy.ts';
 import { isFieldEditable, validateValue } from './admin-v2-validation.ts';
 import { shopifyAdminGraphQLAtVersion } from './shopify-admin-client.ts';
 
@@ -511,6 +511,7 @@ export async function handleOperational(
   }
   if (action === 'preview_new_product' || action === 'save_new_product') {
     const draft = validateDraft(p.draft);
+    requireDraftBotanicalReview(draft);
     if (action === 'save_new_product' && canary) {
       requireCanaryDraft(requireCanaryScope(scope, auth.userId, auth.roles, action), draft, p.idempotencyKey);
     }
@@ -632,6 +633,10 @@ export async function handleOperational(
   if (op.state === 'VERIFIED_DRAFT') {
     return { ok: true, result: { state: op.state, productId: op.product_id } };
   }
+  // Preflight every requested field before claim/create; completed historical records remain untouched.
+  if (ordinary) for (const field of requestedDraftFields(draft)) requireCatalog(auth, 'sync', field.fieldKey);
+  const metafieldPlan = await planDraftMetafields(draft,
+    requestedDraftFields(draft).length ? await getFieldDefinitions(db) : [], shopify);
   let product: ShopifyDraft;
   let collections = [...(draft.collectionIds ?? [])];
   if (draft.categoryIds.length) {
@@ -692,17 +697,6 @@ export async function handleOperational(
         'Collezione mancante o automatica: assegnazione manuale non consentita.',
       );
     }
-    if (ordinary && draft.shortDescription) {
-        const {data: field, error: registryError} = await db.from('product_field_definitions')
-          .select('key,editable,publishable,shopify_mapping').eq('key','short_description').maybeSingle();
-        demand(!registryError && field?.editable && resolveShopifyTarget(field as FieldDefinition)?.kind === 'metafield',
-          'Il collegamento della descrizione breve deve essere approvato nel registro Admin.');
-        const definitions = await shopify<{metafieldDefinitions:{nodes:{type:{name:string};access:{storefront:string}}[]}}>(
-          'query DraftShortDefinition{metafieldDefinitions(ownerType:PRODUCT,namespace:"custom",key:"short_intro",first:2){nodes{type{name} access{storefront}}}}', {});
-        const rows = definitions.metafieldDefinitions.nodes;
-        demand(rows.length === 1 && rows[0].type.name === 'multi_line_text_field' && rows[0].access.storefront === 'PUBLIC_READ',
-          'Definizione Shopify della descrizione breve non verificata.');
-    }
     const attachedFiles: {id:string}[]=[];
     if(draft.images.length){
       const {data: ready,error: mediaError}=await db.from('admin_catalog_media').select('cdn_url,shopify_file_gid,alt').eq('actor',auth.userId).eq('state','READY').in('cdn_url',draft.images.map(i=>i.url));
@@ -748,7 +742,7 @@ export async function handleOperational(
         key: 'creation_id',
         type: 'single_line_text_field',
         value: op.id,
-      }, ...(draft.shortDescription ? [{ namespace: 'custom', key: 'short_intro', type: 'multi_line_text_field', value: draft.shortDescription }] : [])],
+      }, ...metafieldPlan.map(({ namespace, key, type, value }) => ({ namespace, key, type, value }))],
     };
     try {
       const created = await shopify<
@@ -781,7 +775,16 @@ export async function handleOperational(
   if (canary && scope?.shopifyProductId && product.id !== scope.shopifyProductId) {
     throw new OperationalError('FORBIDDEN', 'Product GID diverso da quello approvato per il canary.');
   }
-  const links = verifiedLinks(draft, op.id, product, collections);
+  let links: ReturnType<typeof verifiedLinks>;
+  let metafieldVerification: Awaited<ReturnType<typeof verifyDraftMetafields>>;
+  try {
+    links = verifiedLinks(draft, op.id, product, collections);
+    metafieldVerification = await verifyDraftMetafields(product.id, metafieldPlan, shopify);
+  } catch (error) {
+    await db.from('admin_product_operations').update({ state: 'NEEDS_RECONCILIATION' }).eq('id', op.id);
+    throw new OperationalError('NEEDS_RECONCILIATION',
+      error instanceof OperationalError ? error.message : 'Campi Shopify non verificati: riconciliare senza ricreare.');
+  }
   const { data: result, error: completeError } = await db.rpc('admin_complete_draft', {
     p_actor: auth.userId,
     p_id: op.id,
@@ -794,5 +797,5 @@ export async function handleOperational(
       'Bozza Shopify individuata; mapping interno da recuperare con la stessa operazione.',
     );
   }
-  return { ok: true, result };
+  return { ok: true, result, metafieldVerification };
 }

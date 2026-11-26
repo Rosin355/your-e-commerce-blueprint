@@ -138,6 +138,7 @@ export interface ProductDraft {
   seoTitle: string;
   seoDescription: string;
   botanical: Record<string, unknown>;
+  botanicalConfirmedKeys?: string[];
   collectionIds?: string[];
 }
 function text(v: unknown, label: string, max: number, required = false): string {
@@ -236,6 +237,9 @@ export function validateDraft(raw: unknown): ProductDraft {
     shortDescription !== String(r.description).replace(/<[^>]*>/g, '').trim(),
     'Scrivi una sintesi distinta dalla descrizione estesa, in testo semplice.');
   const botanical = { ...r.botanical as Record<string, unknown> };
+  demand(r.botanicalConfirmedKeys === undefined || (Array.isArray(r.botanicalConfirmedKeys) &&
+    r.botanicalConfirmedKeys.every(key => typeof key === 'string' && Object.prototype.hasOwnProperty.call(botanical, key)) &&
+    new Set(r.botanicalConfirmedKeys).size === r.botanicalConfirmedKeys.length), 'Conferme botaniche non valide.');
   for (const key of Object.keys(botanical)) {
     if (isSeasonalField(key)) {
       try { botanical[key] = normalizeMonths(botanical[key]); }
@@ -258,6 +262,7 @@ export function validateDraft(raw: unknown): ProductDraft {
     seoTitle: text(r.seoTitle, 'Titolo SEO', 70),
     seoDescription: text(r.seoDescription, 'Descrizione SEO', 320),
     botanical,
+    ...(r.botanicalConfirmedKeys === undefined ? {} : { botanicalConfirmedKeys: r.botanicalConfirmedKeys as string[] }),
   };
 }
 export function categoryDiff(current: string[], proposed: string[], allowed: string[]) {

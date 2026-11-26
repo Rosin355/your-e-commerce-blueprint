@@ -19,6 +19,9 @@ function simulation(
     short?: string;
     missingShortMapping?: boolean;
     useDefaultSeoTitle?: boolean;
+    botanical?: Record<string, unknown>;
+    missingRemoteMetafield?: boolean;
+    metafieldUserError?: boolean;
   } = {},
 ) {
   const draft: ProductDraft = {
@@ -34,7 +37,8 @@ function simulation(
     images: [],
     seoTitle: options.useDefaultSeoTitle ? 'Simulazione' : '',
     seoDescription: '',
-    botanical: {},
+    botanical: options.botanical ?? {},
+    botanicalConfirmedKeys: Object.keys(options.botanical ?? {}),
     variants: [{ sku: 'QA-001', price: '12.00', compareAtPrice: null, option: 'Unico' }],
   };
   if (options.multiVariant) {
@@ -107,7 +111,10 @@ function simulation(
         },
         then(resolve: (x: unknown) => void) {
           if (update) Object.assign(op, update);
-          resolve({ data: table === 'product_current_values' ? [] : op, error: null });
+          resolve({ data: table === 'product_field_definitions' ? [
+            {key:'short_description',visible:true,editable:true,publishable:true,manual_only:false,data_type:'text',editor_type:'textarea',shopify_mapping:options.missingShortMapping?{}:{type:'metafield',namespace:'custom',key:'short_intro'}},
+            ...Object.keys(options.botanical ?? {}).map(key=>({key,visible:true,editable:true,publishable:true,manual_only:false,data_type:key==='nome_botanico'?'text':'array',editor_type:'multiselect',shopify_mapping:{type:'metafield',namespace:'custom',key}})),
+          ] : table === 'product_current_values' ? [] : op, error: null });
         },
       };
       return chain;
@@ -130,6 +137,14 @@ function simulation(
     },
   } as unknown as SupabaseClient;
   const shopify = async <T>(query: string, variables: Record<string, unknown> = {}): Promise<T> => {
+    if (query.includes('AdminDraftMetafieldDefinitions')) return {metafieldDefinitions:{nodes:[
+      ...(options.short ? [{namespace:'custom',key:'short_intro',type:{name:'multi_line_text_field'},access:{storefront:'PUBLIC_READ'}}] : []),
+      ...Object.keys(options.botanical ?? {}).map(key=>({namespace:'custom',key,type:{name:key==='key_features'?'multi_line_text_field':'single_line_text_field'},access:{storefront:'PUBLIC_READ'}})),
+    ],pageInfo:{hasNextPage:false,endCursor:null}}} as T;
+    if (query.includes('AdminVerifyDraftMetafields')) {
+      const fields=(createdInput?.metafields ?? []) as Record<string,unknown>[];
+      return {product:{id:product.id,metafields:{nodes:options.missingRemoteMetafield?fields.slice(0,1):fields,pageInfo:{hasNextPage:false,endCursor:null}}}} as T;
+    }
     if (query.includes('DraftShortDefinition')) return {metafieldDefinitions:{nodes:[{type:{name:'multi_line_text_field'},access:{storefront:'PUBLIC_READ'}}]}} as T;
     if (query.includes('DraftCurrency')) {
       return { shop: { currencyCode: options.currency ?? 'EUR' } } as T;
@@ -150,7 +165,7 @@ function simulation(
       createdInput = variables.input as Record<string, unknown>;
       assertEquals((variables.input as { status: string }).status, 'DRAFT');
       if (options.timeout) throw Error('simulated timeout after remote commit');
-      return { productSet: { product, userErrors: [] } } as T;
+      return { productSet: { product, userErrors: options.metafieldUserError?[{message:'Metafield sintetico rifiutato.'}]:[] } } as T;
     }
     if (query.includes('query VerifyDraft')) return { product } as T;
     if (query.includes('query RecoverDraft')) return { products: { nodes: [product] } } as T;
@@ -243,7 +258,7 @@ Deno.test('fornitore esplicito: un valore remoto diverso blocca il mapping', () 
     OperationalError, 'La bozza Shopify è cambiata');
     assertEquals(s.mutations, 0);
     assertEquals(s.completions, 0);
-    assertEquals(s.op.state, 'IN_FLIGHT');
+    assertEquals(s.op.state, 'NEEDS_RECONCILIATION');
   }));
 Deno.test('fornitore esplicito: invio e verifica mantengono il valore richiesto', () =>
   withFlags(async () => {
@@ -611,4 +626,33 @@ Deno.test('la bozza Shopify registra entrambi i testi solo per l’autore abilit
   assertEquals(s.input?.descriptionHtml,'<p>Test <strong>editoriale</strong></p>');
   assertEquals((s.input?.metafields as {key:string;value:string}[]).find(f=>f.key==='short_intro')?.value,'Sintesi verificata.');
   assertEquals(s.mutations,1);
+}));
+
+Deno.test('nuova bozza invia botanica richiesta e verifica tutti i metafield prima del completamento',()=>withFlags(async()=>{
+  const s=simulation({botanical:{nome_botanico:'Specie sintetica',periodo_di_fioritura:['Giugno','Luglio'],key_features:['Sempreverde','Crescita lenta']}});
+  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','sync'],fieldKeys:['nome_botanico','periodo_di_fioritura','key_features']}};
+  const result=await handleOperational(s.db,author,{action:'create_shopify_draft',operationId:id,confirm:true},s.shopify) as {metafieldVerification:{fieldKey:string;state:string}[]};
+  const fields=s.input?.metafields as {key:string;type:string;value:string}[];
+  assertEquals(fields.find(f=>f.key==='periodo_di_fioritura')?.value,'Giugno, Luglio');
+  assertEquals(fields.find(f=>f.key==='key_features')?.value,'Sempreverde\nCrescita lenta');
+  assertEquals(result.metafieldVerification.length,3);
+  assertEquals(result.metafieldVerification.every(f=>f.state==='VERIFIED'),true);
+  assertEquals(s.completions,1); assertEquals(s.mutations,1);
+}));
+
+for(const failure of ['missingRemoteMetafield','metafieldUserError'] as const)Deno.test('errore metafield impedisce successo globale e seconda create: '+failure,()=>withFlags(async()=>{
+  const s=simulation({short:'Sintesi verificata.',[failure]:true});
+  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','sync'],fieldKeys:['short_description']}};
+  const command={action:'create_shopify_draft',operationId:id,confirm:true};
+  await assertRejects(()=>handleOperational(s.db,author,command,s.shopify));
+  assertEquals(s.completions,0); assertEquals(s.op.state,'NEEDS_RECONCILIATION');
+  await assertRejects(()=>handleOperational(s.db,author,command,s.shopify));
+  assertEquals(s.mutations,1);
+}));
+
+Deno.test('Editor senza field scope non contatta Shopify per i nuovi metafield',()=>withFlags(async()=>{
+  const s=simulation({botanical:{nome_botanico:'Specie sintetica'}});
+  let reads=0;
+  await assertRejects(()=>handleOperational(s.db,actor,{action:'create_shopify_draft',operationId:id,confirm:true},async <T>(q:string,v:Record<string,unknown>)=>{reads++;return s.shopify<T>(q,v);}));
+  assertEquals(reads,0); assertEquals(s.mutations,0);
 }));

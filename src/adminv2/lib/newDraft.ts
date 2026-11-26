@@ -67,6 +67,7 @@ export function draftErrors(draft: ProductDraft, definitions: FieldDefinition[] 
     if (!Object.prototype.hasOwnProperty.call(draft.botanical, def.key)) continue;
     const result = validateValue(def, draft.botanical[def.key]);
     if (!result.ok) errors[def.key] = result.message ?? 'Controlla il valore inserito.';
+    else if (!draft.botanicalConfirmedKeys?.includes(def.key)) errors[def.key] = 'Conferma la fonte di questo dato prima di salvare.';
   }
   return errors;
 }
