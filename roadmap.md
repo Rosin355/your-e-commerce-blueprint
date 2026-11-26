@@ -1,4 +1,14 @@
-# Security audit — Online Garden
+# Admin V2 — real UAT fixes (2026-11-26)
+
+- [x] Prepare lean paginated gallery/formats reads and scoped-grant regressions; no grant changes.
+- [x] Replace extractive description/fallback with evidence-indexed AI proposals and explicit failures; retain draft approval.
+- [x] Run synthetic regressions, Admin browser preview and controlled AI checks; document results.
+- [ ] Confirm original gallery/formats production failure — available Admin lacks Marco's asset field scope; requires an equivalent authorized Editor session/network evidence.
+- [ ] Approve AI factual fidelity on both real UAT inputs — short generation introduced unverified editorial claims; extended generation rejected; exact Yucca input awaits upload.
+- [ ] Deploy corrected involved functions and publish only necessary Admin frontend — held until the two preceding verification blockers pass.
+- [ ] Marco acceptance — must be retested on his device after validated release; PENDING_CLIENT_ACCEPTANCE.
+
+# Historical security audit — outside this UAT-fix scope
 
 - [x] Validate all 15 existing findings against current source and live read-only evidence; runtime order retirement remains unverified.
 - [x] Prepare and test source-only fixes for confirmed endpoint vulnerabilities.

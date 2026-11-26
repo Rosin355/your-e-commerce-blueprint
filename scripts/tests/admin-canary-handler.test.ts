@@ -22,7 +22,7 @@ const draft = { title: 'Bozza sintetica', sku: 'QA-DRAFT-ONLY', description: 'Fi
   variants: [{ sku: 'QA-DRAFT-ONLY', price: '10.00', compareAtPrice: null, option: 'Unico' }] };
 
 // Execute the real HTTP entrypoint and local module graph. All I/O is synthetic and closed.
-function load(options: { anonymous?: boolean; scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; assets?: boolean; imageAssigned?:boolean; commerce?: boolean; publishable?: boolean; indexed?: boolean; media?: boolean; ai?: { grant: boolean; reserved?: boolean; output?: unknown; http?: number; maxLength?: number; batch?: boolean; fields?: string[]; optIns?: string[]; tagsAi?: boolean; badReservation?: boolean; reservationError?: string } } = {}) {
+function load(options: { anonymous?: boolean; scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; assets?: boolean; imageAssigned?:boolean; commerce?: boolean; publishable?: boolean; indexed?: boolean; media?: boolean; ai?: { grant: boolean; reserved?: boolean; output?: unknown; descriptionOutput?: unknown; http?: number; maxLength?: number; batch?: boolean; fields?: string[]; optIns?: string[]; tagsAi?: boolean; badReservation?: boolean; reservationError?: string } } = {}) {
   let handler!: (request: Request) => Promise<Response>;
   const calls = { rpc: 0, shopifyMutations: 0, statusReads: 0, events: 0, uploads: 0 };
   const traces: string[] = [];
@@ -167,7 +167,14 @@ function load(options: { anonymous?: boolean; scope?: unknown; status?: string; 
     vm.runInNewContext(compiled, { exports, require, Request, Response, URL, TextEncoder, crypto, Blob, FormData, atob, AbortSignal, AbortController, clearTimeout, fetch: async (url: string, init: RequestInit) => {
       if (options.ai && url === 'https://ai.gateway.lovable.dev/v1/chat/completions') {
         providerRequests.push(JSON.parse(String(init.body)));
-        return Response.json({choices:[{message:{tool_calls:[{function:{name:providerRequests.at(-1)!.tools[0].function.name,arguments:JSON.stringify({suggested_value:options.ai.output})}}]}}]}, {status:options.ai.http ?? 200});
+        const providerRequest = providerRequests.at(-1);
+        const descriptionCall = providerRequest?.tools[0].function.name === 'propose_field_improvement';
+        const input = JSON.parse(providerRequest?.messages[1].content ?? '{}');
+        const original = String(input.product?.current_value ?? '').split('\n');
+        const output = descriptionCall && options.ai.batch ? options.ai.descriptionOutput ?? {
+          sections:[{heading:'Introduzione',text:'Informazioni editoriali documentate: '+original.join(' '),factIndices:original.map((_v,i)=>i)}],missingInformation:[],
+        } : options.ai.output;
+        return Response.json({choices:[{message:{tool_calls:[{function:{name:providerRequests.at(-1)!.tools[0].function.name,arguments:JSON.stringify({suggested_value:output})}}]}}]}, {status:options.ai.http ?? 200});
       }
       assert.equal(url, 'https://storage.googleapis.com/synthetic-upload'); calls.uploads++; return new Response('', {status:201}); },
       console: { log() {}, error() {}, warn: (line: string) => traces.push(line), info: (line: string) => traces.push(line) }, setTimeout, Deno: { env: { get: (key: string) => env[key] }, serve: (fn: typeof handler) => { handler = fn; } } }, { filename: file });
@@ -353,7 +360,7 @@ test('SKU TEST-OG-AI-001: editor con publish non può preparare o inviare la pub
   assert.equal(fixture.calls.rpc, 0);
 });
 
-test('AI da fatti confermati: handler Editor, diagnosi per fase e fallback senza scritture prodotto', async () => {
+test('AI da fatti confermati: handler Editor, diagnosi per fase e nessun fallback riuscito', async () => {
   const facts = ['La scheda riporta Quercus robur. Il nome è stato verificato.'];
   const request = {action:'suggest_confirmed_field', fieldKey:'description', confirmed:true, requestKey, facts};
   const cases = [
@@ -361,9 +368,9 @@ test('AI da fatti confermati: handler Editor, diagnosi per fase e fallback senza
     { ai:{ grant:true }, override:{confirmed:false}, status:422, code:'INVALID_CONFIRMED_FACTS', reservations:0 },
     { ai:{ grant:true, reserved:false }, status:429, code:'RATE_LIMITED', reservations:1 },
     { ai:{ grant:true, output:null }, status:502, code:'INVALID_MODEL_PROPOSAL', reservations:1 },
-    { ai:{ grant:true, http:503 }, status:502, code:'AI_PROVIDER_ERROR', reservations:1 },
-    { ai:{ grant:true, maxLength:16, output:'Parafrasi di prova' }, status:422, code:'INVALID_FIELD_VALUE', reservations:1 },
-    { ai:{ grant:true, output:'Il modello aggiunge un dettaglio.' }, status:200, code:null, reservations:1 },
+    { ai:{ grant:true, http:503 }, status:503, code:'AI_PROVIDER_ERROR', reservations:1 },
+    { ai:{ grant:true, maxLength:16, output:{sections:[{heading:'Introduzione',text:'Informazioni editoriali documentate: '+facts[0],factIndices:[0]}],missingInformation:[]} }, status:502, code:'INVALID_MODEL_PROPOSAL', reservations:1 },
+    { ai:{ grant:true, output:'Il modello aggiunge un dettaglio.' }, status:502, code:'INVALID_MODEL_PROPOSAL', reservations:1 },
   ];
   for (const example of cases) {
     const fixture = load({ endpoint:'product-admin-ai', catalog:true, role:'editor', ai:example.ai });
@@ -391,7 +398,7 @@ test('AI da fatti confermati: handler Editor, diagnosi per fase e fallback senza
   }
 });
 
-test('Scheda SEO: prenotazione per campo, una richiesta strutturata e validazione server', async () => {
+test('Scheda SEO: prenotazione per campo, descrizione e selezione strutturate e validazione server', async () => {
   const facts = ['Nome comune: Farnia', 'Il cartellino riporta Quercus robur.'];
   const payload = {action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts};
   const keys = ['seo_title','seo_description','tags'];
@@ -400,15 +407,17 @@ test('Scheda SEO: prenotazione per campo, una richiesta strutturata e validazion
   }});
   const body = await (await fixture.request(payload)).json();
   assert.equal(body.ok,true);
-  assert.equal(body.value,'<p>'+facts[1]+'</p><p>'+facts[0]+'</p>');
+  assert.match(body.value, /Informazioni editoriali documentate/);
+  assert.equal(body.source,'model');
   assert.deepEqual(body.editorial,{
     seoTitle:{value:'Quercus robur (Farnia)',source:'model'},
     seoDescription:{value:facts[1],source:'model'},tags:{value:['Farnia','Quercus robur'],source:'model'},
   });
   assert.equal(body.sku,undefined);
   assert.equal(fixture.calls.rpc,1);
-  assert.equal(fixture.providerRequests.length,1);
-  assert.equal(fixture.providerRequests[0].tools[0].function.name,'select_draft_editorial');
+  assert.equal(fixture.providerRequests.length,2);
+  assert.equal(fixture.providerRequests[0].tools[0].function.name,'propose_field_improvement');
+  assert.equal(fixture.providerRequests[1].tools[0].function.name,'select_draft_editorial');
   assert.equal(fixture.calls.shopifyMutations,0);
   assert.equal(fixture.calls.events,0);
 });
@@ -419,11 +428,11 @@ test('Scheda SEO: valori inventati o indici fuori dominio scartati campo per cam
     fields:['seo_title','seo_description','tags'],optIns:['seo_title','seo_description','tags'],tagsAi:true,
     output:{description:[1,1],seoTitle:'Farnia certificata',seoDescription:42,tags:[0,0]}}});
   const body=await (await fixture.request({action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts})).json();
-  assert.equal(body.source,'confirmed_facts');
+  assert.equal(body.source,'model');
   assert.deepEqual(Object.values(body.editorial as Record<string,{source:string}>).map(r=>r.source),['deterministic','deterministic','deterministic']);
   assert.equal(body.editorial.seoDescription.value,facts.join(' '));
   assert.ok(!JSON.stringify(body).includes('certificata'));
-  assert.equal(fixture.providerRequests.length,1);
+  assert.equal(fixture.providerRequests.length,2);
 });
 
 test('Scheda SEO: registro, permessi e prenotazione prevalgono sul payload', async()=>{
@@ -437,14 +446,14 @@ test('Scheda SEO: registro, permessi e prenotazione prevalgono sul payload', asy
   const body=await (await fixture.request(data)).json();
   assert.equal(body.editorial.seoDescription,undefined);
   assert.equal(body.editorial.tags.source,'deterministic');
-  const prompt=JSON.parse(fixture.providerRequests[0].messages[1].content);
+  const prompt=JSON.parse(fixture.providerRequests[1].messages[1].content);
   assert.deepEqual(Object.keys(prompt).sort(),['description','seoTitle']);
   for (const [extra,status] of [[{reserved:false},429],[{badReservation:true},500],[{grant:false},403]] as const) {
     const f=load({endpoint:'product-admin-ai',catalog:true,role:'editor',ai:{...setup,...extra}});
     assert.equal((await f.request(data)).status,status);
     assert.equal(f.providerRequests.length,0);
   }
-  const old=load({endpoint:'product-admin-ai',catalog:true,role:'editor',ai:{...setup,batch:false,output:data.facts.join('\n')}});
+  const old=load({endpoint:'product-admin-ai',catalog:true,role:'editor',ai:{...setup,batch:false,output:{sections:[{heading:'Introduzione',text:'Nome documentato per questa scheda: Farnia.',factIndices:[0]}],missingInformation:[]}}});
   const fallback=await (await old.request(data)).json();
   assert.equal(old.providerRequests.length,1);
   assert.equal(old.providerRequests[0].tools[0].function.name,'propose_field_improvement');
@@ -457,7 +466,7 @@ test('Scheda SEO: RPC assente conserva il servizio precedente, errore ambiguo bl
   const input = {action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts};
   for (const reservationError of ['PGRST202','08006']) {
     const fixture = load({endpoint:'product-admin-ai',catalog:true,role:'editor',ai:{
-      grant:true,batch:true,fields:['seo_title'],reservationError,output:facts[0],
+      grant:true,batch:true,fields:['seo_title'],reservationError,output:{sections:[{heading:'Introduzione',text:'Identità documentata della pianta: il cartellino riporta Quercus robur.',factIndices:[0]}],missingInformation:[]},descriptionOutput:{sections:[{heading:'Introduzione',text:'Identità documentata della pianta: il cartellino riporta Quercus robur.',factIndices:[0]}],missingInformation:[]},
     }});
     const result = await fixture.request(input);
     if (reservationError === 'PGRST202') {

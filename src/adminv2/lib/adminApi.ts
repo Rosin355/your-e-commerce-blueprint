@@ -253,7 +253,7 @@ async function invokeWithAdminSession<T>(
         const code = payload?.error?.code ?? (functionName === 'product-admin-ai' && ctx.status === 401 ? 'UNAUTHENTICATED' : 'INTERNAL_ERROR');
         throw new AdminApiError(
           code,
-          MESSAGES[code] ?? payload?.error?.message ?? MESSAGES.INTERNAL_ERROR,
+          code === 'AI_PROVIDER_ERROR' ? payload?.error?.message ?? MESSAGES[code] : MESSAGES[code] ?? payload?.error?.message ?? MESSAGES.INTERNAL_ERROR,
           payload?.error?.details,
         );
       } catch (parsed) {
@@ -382,10 +382,10 @@ export async function sendFieldSyncCommand(input: {
 }
 
 export async function suggestConfirmedField(input: { fieldKey: string; facts: string[]; confirmed: boolean; requestKey: string }) {
-  const result = await callAdminAiApi<{ok:true;value:unknown;source?: 'model' | 'confirmed_facts'}>({
+  const result = await callAdminAiApi<{ok:true;value:unknown;source?: 'model' | 'confirmed_facts';missingInformation?: string[]}>({
     action: 'suggest_confirmed_field', ...input,
   });
-  if (!result?.ok || result.value == null) {
+  if (!result?.ok || result.value == null || result.source !== 'model') {
     throw new AdminApiError('INVALID_MODEL_PROPOSAL', MESSAGES.INVALID_MODEL_PROPOSAL);
   }
   return result;
@@ -395,9 +395,10 @@ export async function suggestDraftEditorial(input: {draftTitle: string; facts: s
   const result = await callAdminAiApi<{
     ok: boolean; value?: unknown; source?: 'model' | 'confirmed_facts';
     descriptionError?: {code: string; message: string};
+    missingInformation?: string[];
     editorial?: Partial<Record<EditorialKey, EditorialProposal>>;
   }>({action: 'suggest_confirmed_field', fieldKey: 'description', confirmed: true, ...input});
-  if (!result?.ok || (typeof result.value !== 'string' && !result.descriptionError))
+  if (!result?.ok || (!result.descriptionError && (typeof result.value !== 'string' || result.source !== 'model')))
     throw new AdminApiError('INVALID_MODEL_PROPOSAL', MESSAGES.INVALID_MODEL_PROPOSAL);
   return result;
 }

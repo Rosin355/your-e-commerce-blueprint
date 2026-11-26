@@ -1,12 +1,14 @@
-import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { confirmedFacts, authorizeConfirmedAi, generateConfirmedProposal } from '../../supabase/functions/_shared/admin-ai-confirmed';
-import { calculateFieldCapabilities } from '../../supabase/functions/product-admin-api/capabilities';
+import { generateDraftSheet } from '../../supabase/functions/product-admin-ai/draft-sheet';
+import { callAiProvider } from '../../supabase/functions/product-admin-ai/provider';
 import type { AuthContext, FieldDefinition } from '../../supabase/functions/_shared/admin-v2-types';
 const facts=['Il fiore ha petali di colore rosso.','La confezione contiene cinque bulbi.'];
 const def:FieldDefinition={key:'description',label:'Descrizione',editor_type:'richtext',data_type:'text',field_group:'main',visible:true,editable:true,manual_only:false,ai_allowed:true,publishable:true,required:false,protected_on_reimport:true,applies_to:'product',sort_order:1,help_text:null,validation_rules:{},review_policy:'manual_review'};
 const auth:AuthContext={userId:'synthetic',roles:['editor'],catalogGrant:{enabled:true,capabilities:['ai','edit'],fieldKeys:['description']}};
+const prose=()=>({sections:[{heading:'Introduzione',text:'Il colore **rosso** dei petali dà risalto a questo fiore nella scheda del prodotto.',factIndices:[0]},{heading:'Caratteristiche principali',text:'La confezione proposta comprende cinque bulbi, come indicato nelle informazioni confermate.',factIndices:[1]}],missingInformation:['coltivazione']});
+
 test('fatti vuoti, insufficienti, non confermati, personali o HTML non chiamano provider',()=>{
  for(const value of [[],['corto'],['<p>Testo fattuale confermato</p>'],['Contatto sintetico nome@example.test'],Array(13).fill(facts[0])]) assert.throws(()=>confirmedFacts(value,true));
  assert.throws(()=>confirmedFacts(facts,false));assert.deepEqual(confirmedFacts(facts,true),facts);
@@ -18,51 +20,55 @@ test('azione, campo protetto e ai_allowed sono verificati indipendentemente dal 
  authorizeConfirmedAi(auth,def,'suggest_confirmed_field');for(const d of [{...def,ai_allowed:false},{...def,manual_only:true},{...def,key:'price'},{...def,editable:false}])assert.throws(()=>authorizeConfirmedAi(auth,d,'suggest_confirmed_field'));
  assert.throws(()=>authorizeConfirmedAi(auth,def,'publish'));
 });
-test('campo mancante espone assistenza ma non genera o inizializza automaticamente',()=>{
- const caps=calculateFieldCapabilities(def,undefined,'simple',{roles:['editor'],writesEnabled:true,writeMode:'full',aiEnabled:true,scopedFieldKeys:['description'],scopedActions:['update_field']});assert.equal(caps.canSuggestAi,true);assert.equal(caps.currentValueExists,false);
+test('proposta realmente generata, separata dai fatti e formattata',async()=>{
+ let calls=0;const original=JSON.stringify(facts);
+ const result=await generateConfirmedProposal(def,facts,async(strategy,ctx)=>{calls++;assert.equal(strategy.id,'verified-editorial-description');assert.equal(ctx.currentValue,facts.join('\n'));return {value:prose()};});
+ assert.equal(calls,1);assert.equal(result.source,'model');assert.equal(JSON.stringify(facts),original);
+ assert.match(String(result.value),/<h2>Caratteristiche principali<\/h2>/);assert.match(String(result.value),/<strong>rosso<\/strong>/);
+ assert.deepEqual('missingInformation' in result?result.missingInformation:[],['coltivazione']);
 });
-test('nuova bozza e campo vuoto producono una proposta separata da fatti confermati',async()=>{
- let calls=0;const value=await generateConfirmedProposal(def,confirmedFacts(facts,true),async(_strategy,ctx)=>{calls++;assert.equal(ctx.sku,'');assert.deepEqual(ctx.trustedRelatedValues,{});return {value:facts.join('\n')};});
- assert.equal(calls,1);assert.deepEqual(value, { source: 'model', value: facts.map(x=>`<p>${x}</p>`).join('') });
+test('provider riceve lo schema strutturato e non uno schema di copia/riordino',async()=>{
+ let calls=0;
+ const result=await generateConfirmedProposal(def,facts,async(s,c)=>callAiProvider(s,c,{apiKey:'synthetic',model:'synthetic',timeoutMs:12000,fetchImpl:async(_url,init)=>{
+  calls++;const body=JSON.parse(String(init?.body));assert.equal(body.max_tokens,2000);
+  assert.ok(body.tools[0].function.parameters.properties.suggested_value.properties.sections);
+  return Response.json({choices:[{message:{tool_calls:[{function:{name:'propose_field_improvement',arguments:JSON.stringify({suggested_value:prose()})}}]}}]});
+ }}));assert.equal(calls,1);assert.equal(result.source,'model');
 });
-test('liste: ordine proposto lecito e nessun fatto aggiunto',async()=>{
+test('liste restano estrattive: nessuna espansione implicita della capability',async()=>{
  const d={...def,key:'key_features',editor_type:'multiselect',data_type:'json'};assert.deepEqual(await generateConfirmedProposal(d,facts,async()=>({value:[facts[1],facts[0]]})),{source:'model', value:[facts[1],facts[0]]});
+ await assert.rejects(generateConfirmedProposal(d,facts,async()=>({value:['Una caratteristica inventata']})),{code:'INVALID_MODEL_PROPOSAL'});
 });
-for(const value of ['Il fiore è non tossico.','Prezzo 99 euro.','Altezza 120 cm.','Stock 20 pezzi.','SKU NUOVO-123.','Certificazione biologica garantita.','<script>alert(1)</script>'])test('rifiuta invenzione: '+value,async()=>{
- const proposal = await generateConfirmedProposal(def, facts, async () => ({ value }));
- assert.deepEqual(proposal, { source: 'confirmed_facts', value: facts.map(line => `<p>${line}</p>`).join('') });
+test('copia input, ordine di indici e output vuoto sono errori, mai fallback riusciti',async()=>{
+ for(const value of [facts.join('\n'),[1,0],null,{},[],{...prose(),sections:facts.map((text,i)=>({heading:i?'Caratteristiche principali':'Introduzione',text,factIndices:[i]}))}])
+  await assert.rejects(generateConfirmedProposal(def,facts,async()=>({value})),{code:'INVALID_MODEL_PROPOSAL'});
 });
-test('errore provider resta errore, nessuna proposta sostitutiva inventata',async()=>{await assert.rejects(generateConfirmedProposal(def,facts,async()=>{throw Error('synthetic failure');}));});
-
-test('handler deriva attore dalla sessione verificata, non dal payload',()=>{
- const source=readFileSync('supabase/functions/product-admin-ai/index.ts','utf8');assert.match(source,/const auth = await deps.authenticate\(req\)/);assert.match(source,/p_actor:auth.userId/);assert.doesNotMatch(source,/p_actor:payload/);
+for(const invented of ['Altezza 120 cm.','Il fiore è non tossico.','La pianta è rustica e certificata biologica.','Ideale per contesti paesaggistici.','<script>alert(1)</script>'])test('rifiuta affermazione non supportata '+invented,async()=>{
+ const value=prose();value.sections[0].text += ' '+invented;
+ await assert.rejects(generateConfirmedProposal(def,facts,async()=>({value})),{code:'INVALID_MODEL_PROPOSAL'});
 });
-
-test('un paragrafo di più frasi o tre righe distinte, senza descrizione preesistente', async () => {
-  const lines = ['La scheda riporta Quercus robur.', 'Il nome è stato trascritto dal cartellino.', 'Il riferimento A & B è verificato.'];
-  for (const original of [[lines.join(' ')], lines]) {
-    const input = confirmedFacts(original, true);
-    const result = await generateConfirmedProposal(def, input, async () => ({ value: [...input].reverse().join('\n') }));
-    const html = [...input].reverse().map(line => `<p>${line.replace(/&/g, '&amp;')}</p>`).join('');
-    assert.deepEqual(result, { value: html, source: 'model' });
-  }
+test('non omette negazioni né fatti non citati',async()=>{
+ const value=prose();value.sections[0].factIndices=[];
+ await assert.rejects(generateConfirmedProposal(def,facts,async()=>({value})),{code:'INVALID_MODEL_PROPOSAL'});
+ await assert.rejects(generateConfirmedProposal(def,['La scheda non attesta rusticità.',facts[1]],async()=>({value:prose()})),{code:'INVALID_MODEL_PROPOSAL'});
 });
-
-test('punteggiatura, omissioni e duplicati usano tutte le righe originali in ordine', async () => {
-  const expected = facts.map(line => `<p>${line}</p>`).join('');
-  for (const value of [facts[0], facts.join('\n') + '!', [facts[0],facts[0]]]) {
-    assert.deepEqual(await generateConfirmedProposal(def, facts, async () => ({ value })),
-      { value: expected, source: 'confirmed_facts' });
-  }
+test('plain text non contiene markup; richtext sanitizzato e limiti rispettati',async()=>{
+ const result=await generateConfirmedProposal({...def,editor_type:'textarea'},facts,async()=>({value:prose()}));
+ assert.doesNotMatch(String(result.value),/<|\*\*/);
+ await assert.rejects(generateConfirmedProposal({...def,validation_rules:{maxLength:15}},facts,async()=>({value:prose()})),{code:'INVALID_MODEL_PROPOSAL'});
 });
-
-test('formato modello illeggibile e limiti del campo hanno diagnosi distinte', async () => {
-  for (const value of [null, {}, [], ['']]) {
-    await assert.rejects(generateConfirmedProposal(def, facts, async () => ({value})), {code:'INVALID_MODEL_PROPOSAL'});
-  }
-  const limited = {...def, validation_rules:{ maxLength: 15 }};
-  for (const value of [facts.join('\n'), 'Una parafrasi generata.']) {
-    await assert.rejects(generateConfirmedProposal(limited, facts, async () => ({value})), {code:'INVALID_FIELD_VALUE'});
-  }
-  await assert.rejects(generateConfirmedProposal({...def,key:'key_features'}, facts, async () => ({value:['Testo inatteso']})), {code:'INVALID_MODEL_PROPOSAL'});
+test('errore provider resta errore, non altera input né produce proposta Shopify',async()=>{
+ let called=0;await assert.rejects(generateConfirmedProposal(def,facts,async()=>{called++;throw Error('synthetic provider unavailable');}),/synthetic provider unavailable/);assert.equal(called,1);
+});
+test('nuova bozza genera descrizione anche senza campi editoriali aggiuntivi',async()=>{
+ let descriptions=0,selections=0;
+ const result=await generateDraftSheet(def,facts,'Fiore',[],[],async()=>{descriptions++;return {value:prose(),provider:'lovable',model:'synthetic',usageTokens:null};},async()=>{selections++;throw Error('should not call');});
+ assert.equal(descriptions,1);assert.equal(selections,0);assert.equal(result.source,'model');assert.deepEqual(result.editorial,{});
+});
+test('Yucca estesa: coltivazione solo citata, negazioni conservate, nessun beneficio inventato',async()=>{
+ const lines=['Yucca rostrata ha foglie strette blu-verdi.','Sono confermati sole e terreno ben drenato.','Non è confermata la resistenza al gelo.'];
+ const output={sections:[{heading:'Introduzione',text:'Il fogliame della Yucca rostrata si distingue per le foglie strette dal colore blu-verde.',factIndices:[0]},{heading:'Coltivazione e manutenzione',text:'Per la coltivazione, le indicazioni verificate riportano sole e un terreno ben drenato. La resistenza al gelo non è confermata.',factIndices:[1,2]}],missingInformation:['dimensioni']};
+ const result=await generateConfirmedProposal(def,lines,async()=>({value:output}));
+ assert.match(String(result.value),/Coltivazione e manutenzione/);assert.match(String(result.value),/non è confermata/);
+ assert.doesNotMatch(String(result.value),/purifica|certificata|120/);
 });

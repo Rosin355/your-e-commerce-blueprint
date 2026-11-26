@@ -1,6 +1,7 @@
 import type { AuthContext, FieldDefinition } from './admin-v2-types.ts';
 import { catalogAiAllowed, EDITORIAL_AI_FIELDS } from './admin-catalog-policy.ts';
 import { aiDefinitionEligibility, type AiTrustedContext, strategyForField, validateSuggestedValue } from './admin-ai-core.ts';
+import { descriptionInstruction, validateEditorialDescription } from './admin-ai-description.ts';
 export const CONFIRMED_AI_FIELDS = EDITORIAL_AI_FIELDS;
 export { confirmedFacts } from './admin-ai-facts.ts';
 export function authorizeConfirmedAi(auth: AuthContext, def: FieldDefinition | null, action: unknown) {
@@ -17,21 +18,30 @@ export async function generateConfirmedProposal(
   facts: string[],
   generate: (strategy: NonNullable<ReturnType<typeof strategyForField>>, context: AiTrustedContext) => Promise<{ value: unknown }>,
 ) {
-  const strategy = strategyForField(def.key)!;
+  const strategy = strategyForField(def.key);
+  if (!strategy) throw new ConfirmedProposalError('INVALID_FIELD_VALUE', 'Campo AI non supportato.');
+  const description = def.key === 'description';
   const response = await generate({
     ...strategy,
-    instruction: 'Riordina le righe confermate. Riproduci ogni riga intera esattamente una volta, inclusa la punteggiatura. Per il testo separale con un a capo, per gli elenchi usa una riga per voce. Evita titoli e HTML.',
+    ...(description ? { id: 'verified-editorial-description', instruction: descriptionInstruction } : {
+      instruction: 'Riordina le righe confermate. Riproduci ogni riga intera esattamente una volta, inclusa la punteggiatura. Per gli elenchi usa una riga per voce. Evita titoli e HTML.',
+    }),
   }, {
     sku: '', fieldKey: def.key, fieldLabel: def.label,
     currentValue: strategy.kind === 'text' ? facts.join('\n') : facts,
     wordpressOriginal: null, sourceSnapshotId: null, trustedRelatedValues: {},
   });
 
+  if (description) {
+    try { return validateEditorialDescription(def, facts, response.value); }
+    catch (error) { throw new ConfirmedProposalError('INVALID_MODEL_PROPOSAL', error instanceof Error ? error.message : 'Proposta editoriale non valida.'); }
+  }
   return validateConfirmedProposal(def, facts, response.value);
 }
 
 export function validateConfirmedProposal(def: FieldDefinition, facts: string[], raw: unknown) {
-  const strategy = strategyForField(def.key)!;
+  const strategy = strategyForField(def.key);
+  if (!strategy) throw new ConfirmedProposalError('INVALID_FIELD_VALUE', 'Campo AI non supportato.');
   const parts = typeof raw === 'string'
     ? raw.split(/\n+/).map(line => line.trim()).filter(Boolean)
     : raw;
@@ -41,12 +51,12 @@ export function validateConfirmedProposal(def: FieldDefinition, facts: string[],
   const extractive = parts.every(part => facts.includes(part)) && new Set(parts).size === parts.length;
   const description = def.key === 'description';
   const useOriginals = !extractive || (description && parts.length !== facts.length);
-  if (useOriginals && !description) {
+  if (useOriginals) {
     throw new ConfirmedProposalError('INVALID_MODEL_PROPOSAL', 'Il modello ha cambiato i fatti confermati.');
   }
 
-  const lines: string[] = useOriginals ? facts : parts;
-  const source = useOriginals ? 'confirmed_facts' : 'model';
+  const lines: string[] = parts;
+  const source = 'model' as const;
   let value: string | string[] = lines;
   if (strategy.kind === 'text') {
     value = def.editor_type === 'richtext'

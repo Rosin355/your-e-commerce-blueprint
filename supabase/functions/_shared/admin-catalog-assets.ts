@@ -54,9 +54,48 @@ interface AssetState {
   media: { nodes: Image[]; pageInfo: { hasNextPage: boolean } };
   variants: { nodes: Variant[]; pageInfo: { hasNextPage: boolean } };
   options: Option[];
+  writable?: boolean;
 }
-export async function readAssetState(id: string) {
-  const { product } = await graphql<{ product: AssetState | null }>(
+type AssetPage = Omit<AssetState, 'media' | 'variants'> & {
+  media: { nodes: Image[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
+  variants: { nodes: Variant[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
+};
+export async function readAssetState(id: string, readOnly = false, request = graphql): Promise<AssetState> {
+  if (readOnly) {
+    let state: AssetState | undefined;
+    let mediaCursor: string | null = null, variantCursor: string | null = null;
+    let mediaDone = false, variantsDone = false;
+    for (let page = 0; page < 40; page++) {
+      const response: { product: AssetPage | null } = await request<{ product: AssetPage | null }>(`query EditorProductAssetsRead($id:ID!,$mediaAfter:String,$variantsAfter:String,$media:Boolean!,$variants:Boolean!){
+        product(id:$id){id updatedAt options{id name optionValues{id name}}
+          media(first:100,after:$mediaAfter) @include(if:$media){nodes{id status alt ... on MediaImage{image{url}}} pageInfo{hasNextPage endCursor}}
+          variants(first:100,after:$variantsAfter) @include(if:$variants){nodes{id sku price selectedOptions{name value} media(first:10){nodes{id} pageInfo{hasNextPage}}} pageInfo{hasNextPage endCursor}}}}
+      `, { id, mediaAfter: mediaCursor, variantsAfter: variantCursor, media: !mediaDone, variants: !variantsDone });
+      const product = response.product;
+      demand(product?.id === id, 'Prodotto Shopify non disponibile.');
+      if (!state) state = { ...product, media: { nodes: [], pageInfo: { hasNextPage: false } }, variants: { nodes: [], pageInfo: { hasNextPage: false } } };
+      demand(state, 'Stato Shopify non disponibile.');
+      demand(state.updatedAt === product.updatedAt, 'La scheda è cambiata durante la lettura. Riaprila.');
+      if (!mediaDone) {
+        state.media.nodes.push(...product.media.nodes);
+        mediaDone = !product.media.pageInfo.hasNextPage;
+        demand(mediaDone || Boolean(product.media.pageInfo.endCursor && product.media.pageInfo.endCursor !== mediaCursor), 'Paginazione foto non verificabile.');
+        mediaCursor = product.media.pageInfo.endCursor;
+      }
+      if (!variantsDone) {
+        state.variants.nodes.push(...product.variants.nodes);
+        variantsDone = !product.variants.pageInfo.hasNextPage;
+        demand(variantsDone || Boolean(product.variants.pageInfo.endCursor && product.variants.pageInfo.endCursor !== variantCursor), 'Paginazione formati non verificabile.');
+        variantCursor = product.variants.pageInfo.endCursor;
+      }
+      if (mediaDone && variantsDone) {
+        state.writable = state.media.nodes.length <= 30 && state.variants.nodes.length <= 50 && state.variants.nodes.every(v => !v.media.pageInfo.hasNextPage);
+        return state;
+      }
+    }
+    throw new OperationalError('VALIDATION_ERROR', 'Prodotto molto esteso: lettura non completa, nessuna modifica disponibile.');
+  }
+  const { product } = await request<{ product: AssetState | null }>(
     `query EditorProductAssets($id:ID!) {
     product(id:$id){ id updatedAt options{id name optionValues{id name}} media(first:30){nodes{id status alt ... on MediaImage{image{url}}} pageInfo{hasNextPage}}
       variants(first:50){nodes{id sku price selectedOptions{name value} media(first:10){nodes{id} pageInfo{hasNextPage}}} pageInfo{hasNextPage}}}
@@ -81,10 +120,11 @@ export function assetView(state: AssetState, action: unknown) {
       updatedAt: state.updatedAt,
       images: images(state).map((m) => ({
         id: m.id,
-        url: m.image!.url,
+        url: m.image?.url ?? '',
         alt: m.alt ?? "",
         variant: assigned(state, m.id),
       })),
+      canModify: state.writable !== false,
     };
   }
   const option = state.options.length === 1 &&
@@ -93,6 +133,7 @@ export function assetView(state: AssetState, action: unknown) {
     : null;
   return {
     updatedAt: state.updatedAt,
+    canModify: state.writable !== false && Boolean(option),
     formats: option?.optionValues ?? [],
     variants: state.variants.nodes.map((v) => ({
       sku: v.sku,
@@ -249,11 +290,12 @@ export async function applyAsset(
   } else {
     let current = before;
     if (plan.next) {
-      await changeReference(before.id, plan.next.id, true);
+      const next = plan.next;
+      await changeReference(before.id, next.id, true);
       current = await readAssetState(before.id);
       demand(
         images(current).some((m) =>
-          m.id === plan.next!.id && m.alt === plan.next!.alt
+          m.id === next.id && m.alt === next.alt
         ),
         "Nuova foto e ALT da verificare. La foto precedente è conservata.",
       );
@@ -275,7 +317,7 @@ export async function applyAsset(
           JSON.stringify(expected) &&
         (!plan.next ||
           images(current).some((m) =>
-            m.id === plan.next!.id && m.alt === plan.next!.alt
+            m.id === plan.next?.id && m.alt === plan.next?.alt
           )),
       "La galleria riletta è diversa da quella confermata. Non ripetere l’invio.",
     );

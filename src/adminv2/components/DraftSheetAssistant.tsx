@@ -21,6 +21,7 @@ interface Preview {
   rows: SheetPreview;
   source?: 'model' | 'confirmed_facts';
   descriptionError?: string;
+  missingInformation?: string[];
 }
 interface Props {
   draft: Pick<ProductDraft,SheetKey|'botanical'>;
@@ -94,6 +95,7 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
           const reason = sheetValueError('description', proposal.value, context);
           next.rows.description = reason ? { reason } : { value: proposal.value };
           next.source = proposal.source;
+          next.missingInformation = proposal.missingInformation;
         }
       } catch (error) {
         next.descriptionError = explainAiRequestError(error);
@@ -174,11 +176,12 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
           {row.reason && <p className="text-sm">{row.reason}</p>}
           {key === 'description' && preview.descriptionError && <AiErrorNotice>{preview.descriptionError}</AiErrorNotice>}
           {key === 'description' && typeof value === 'string' && <>
-            <p role="status">{row.source === 'manual' ? 'Descrizione rivista manualmente.' : preview.source === 'confirmed_facts' ? 'Descrizione ricomposta con le righe originali confermate.' : preview.source === 'model' ? 'Descrizione organizzata dal modello e verificata.' : 'Descrizione proposta dal servizio. Questa versione non indica la fonte della proposta.'}</p>
+            <p role="status">{row.source === 'manual' ? 'Descrizione rivista manualmente.' : 'Proposta editoriale generata con AI · fatti da ricontrollare prima di accettare.'}</p>
             {sheetDefinition(key, context)?.editor_type === 'richtext'
               ? <RichTextEditor label="Proposta descrizione" disabled={busy} simple value={value} onChange={v => edit(key, v)} />
               : <Textarea disabled={busy} aria-label="Proposta descrizione" value={value} onChange={e => edit(key, e.target.value)} />}
           </>}
+          {key === 'description' && Boolean(preview.missingInformation?.length) && <p>Informazioni da verificare: {preview.missingInformation?.join(', ')}.</p>}
           {(key === 'shortDescription' || key === 'seoTitle' || key === 'seoDescription') && typeof value === 'string' &&
             <Textarea disabled={busy} aria-label={'Proposta ' + sheetLabels[key]} value={value} onChange={e => edit(key, e.target.value)} />}
           {key === 'tags' && Array.isArray(value) && <label className="block">Tag proposti, separati da virgole

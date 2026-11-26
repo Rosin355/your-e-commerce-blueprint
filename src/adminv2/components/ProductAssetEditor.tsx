@@ -9,6 +9,7 @@ import CatalogImages from "./CatalogImages";
 type RemoteImage = { id: string; url: string; alt: string; variant: boolean };
 type Data = {
   updatedAt: string;
+  canModify?: boolean;
   images?: RemoteImage[];
   formats?: { id: string; name: string }[];
   variants?: { sku: string; format: string; price: string }[];
@@ -68,7 +69,7 @@ function AssetForm({ productId, kind, actor }: AssetProps & { actor: string }) {
   });
   const library = useQuery({
     queryKey: ["admin", "own-media", actor],
-    enabled: open && gallery,
+    enabled: open && gallery && query.data?.canModify !== false,
     retry: false,
     queryFn: () =>
       callAdminApi<{ media: { id: string; url: string; alt: string }[] }>({
@@ -133,7 +134,7 @@ function AssetForm({ productId, kind, actor }: AssetProps & { actor: string }) {
           (existing
             ? "Foto senza testo alternativo"
             : "Nessuna foto selezionata")
-        : format!.name,
+        : format?.name ?? '',
       after: gallery
         ? file?.alt ?? "Rimuovi il collegamento della foto da questo prodotto"
         : name.trim(),
@@ -160,6 +161,7 @@ function AssetForm({ productId, kind, actor }: AssetProps & { actor: string }) {
           )}
           {data && !pending && (
             <>
+              {data.canModify === false && <p role="status">Foto e formati consultabili. Per modificare questa famiglia è necessario l’accesso staff nel pannello Shopify.</p>}
               {gallery
                 ? (
                   <>
@@ -195,7 +197,7 @@ function AssetForm({ productId, kind, actor }: AssetProps & { actor: string }) {
                       images={selected}
                       onChange={(items) => setSelected(items.slice(-1))}
                       ordinary
-                      enabled
+                      enabled={data.canModify !== false}
                       sku=""
                       onUploadingChange={setUploading}
                       separateAlt
@@ -250,7 +252,7 @@ function AssetForm({ productId, kind, actor }: AssetProps & { actor: string }) {
                 )}
               <Button
                 variant="editorial"
-                disabled={!ready || uploading}
+                disabled={!ready || uploading || data.canModify === false}
                 onClick={review}
               >
                 Salva e confronta la modifica
@@ -279,6 +281,7 @@ function AssetForm({ productId, kind, actor }: AssetProps & { actor: string }) {
               <Button
                 variant="shopify"
                 disabled={!data ||
+                  data.canModify === false ||
                   data.updatedAt !== pending.expectedUpdatedAt ||
                   send.isPending}
                 onClick={() => {

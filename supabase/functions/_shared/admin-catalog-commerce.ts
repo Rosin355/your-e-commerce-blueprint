@@ -494,9 +494,26 @@ export async function handleCatalogCommerce(
   }
   if (assetActions.includes(action)) {
     requireAsset(auth,action);
+    if (!assetWrites.includes(action)) {
+      // Reading pictures/formats must not require delivery profiles, shipping or a mutation snapshot.
+      demand(typeof p.productId === 'string' && UUID.test(p.productId), 'Prodotto non valido.');
+      const local = await getProduct(db, p.productId);
+      demand(local && local.entity_type !== 'variation', 'Apri il prodotto padre.');
+      const mapping = await getExactShopifyProductMapping(db, local.sku);
+      demand(mapping?.shopify_product_id, 'Mapping Shopify non verificato.');
+      const id = String(mapping.shopify_product_id).startsWith('gid:') ? String(mapping.shopify_product_id) : `gid://shopify/Product/${mapping.shopify_product_id}`;
+      const skus = await verifyCatalogIdentity(db, local, id);
+      let state;
+      try { state = await readAssetState(id, true); }
+      catch (error) {
+        if (error instanceof OperationalError) throw error;
+        throw new OperationalError('VALIDATION_ERROR', 'Impossibile leggere foto e formati da Shopify. Verifica la connessione e gli accessi staff; nessun aggiornamento è stato inviato.');
+      }
+      demand(skus.length === state.variants.nodes.length && state.variants.nodes.every(v => skus.includes(v.sku)), 'Collegamento dei formati da verificare.');
+      return {ok:true,...assetView(state,action)};
+    }
     const mapped = await mappedCatalogProduct(db,p);
     const state = await readAssetState(mapped.id);
-    if (!assetWrites.includes(action)) return {ok:true,...assetView(state,action)};
     demand(writesEnabled() && shopifySyncEnabled() && p.confirm===true && auth.catalogApproval?.action===action,
       'Conferma server mancante.');
     return await applyAsset(db,auth,p,state);

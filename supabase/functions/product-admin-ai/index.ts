@@ -96,11 +96,12 @@ function fail(
   code: string,
   message: string,
   details?: Record<string, unknown>,
+  status?: number,
 ): Response {
   return json({
     ok: false,
     error: { code, message, ...(details ? { details } : {}) },
-  }, HTTP[code] ?? 500);
+  }, status ?? HTTP[code] ?? 500);
 }
 
 function isUuid(value: unknown): value is string {
@@ -193,9 +194,9 @@ export async function handleProductAdminAi(
     if (action === 'suggest_confirmed_field') {
       const requestId = isUuid(payload.requestKey) ? payload.requestKey as string : crypto.randomUUID();
       const trace = { scope: 'product-admin-ai', action, requestId, field: null as string | null };
-      function reject(code: string, stage: string, message: string) {
+      function reject(code: string, stage: string, message: string, status?: number) {
         console.warn(JSON.stringify({ ...trace, stage, code }));
-        return fail(code, message, { requestId });
+        return fail(code, message, { requestId }, status);
       }
       if (!writesEnabled()) return reject('WRITES_DISABLED', 'authorization', 'Assistenza AI temporaneamente disabilitata.');
       const sheet = Object.hasOwn(payload, 'draftTitle');
@@ -247,9 +248,7 @@ export async function handleProductAdminAi(
         const proposal = useDraft
           ? await generateDraftSheet(def!, facts, payload.draftTitle as string, definitions, authorizedFields, deps.generate)
           : await generateConfirmedProposal(def!, facts, deps.generate);
-        if (proposal.source === 'confirmed_facts') {
-          console.info(JSON.stringify({ ...trace, stage: 'fallback', code: 'INVALID_MODEL_PROPOSAL' }));
-        }
+        console.info(JSON.stringify({ ...trace, stage: 'model_validated' }));
         return json({ ok: true, ...proposal });
       } catch (error) {
         if (error instanceof ConfirmedProposalError) {
@@ -258,7 +257,7 @@ export async function handleProductAdminAi(
         if (error instanceof AiProviderError) {
           return error.code === 'MALFORMED_AI_OUTPUT'
             ? reject('INVALID_MODEL_PROPOSAL', 'model', 'La risposta AI non contiene una proposta utilizzabile.')
-            : reject(error.code, 'provider', error.message);
+            : reject(error.code, 'provider', error.message, error.httpStatus);
         }
         return reject('INTERNAL_ERROR', 'generation', 'Errore del servizio durante la preparazione della proposta.');
       }
