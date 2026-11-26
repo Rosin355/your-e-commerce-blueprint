@@ -73,8 +73,8 @@ export default function ConfirmedAiAssistant({field, onApply, onShortApply, gene
       <input type="checkbox" checked={confirmed} onChange={e => { invalidate(); setConfirmed(e.target.checked); }} />
       Confermo che queste informazioni sono verificate e utilizzabili per il prodotto
     </label>
-    <Button type="button" disabled={busy || !confirmed || proposal !== undefined} onClick={requestProposal}>
-      {busy ? 'Preparazione proposta…' : 'Organizza le informazioni con AI'}
+    <Button type="button" disabled={busy || !confirmed || (proposal !== undefined && !proposal.descriptionIssues?.length)} onClick={requestProposal}>
+      {busy ? 'Preparazione proposta…' : proposal?.descriptionIssues?.length ? 'Riprova la descrizione' : 'Organizza le informazioni con AI'}
     </Button>
     {error && <AiErrorNotice>{error}</AiErrorNotice>}
     {proposal !== undefined && <div className="space-y-3">
@@ -89,6 +89,7 @@ export default function ConfirmedAiAssistant({field, onApply, onShortApply, gene
         </> : <p>Per proporre una sintesi distinta occorrono almeno due fatti e una riga entro 320 caratteri.</p>}
       </section>}
       <h4>{onShortApply ? 'Descrizione estesa da revisionare' : 'Proposta da revisionare'}</h4>
+      {proposal.descriptionIssues?.map((issue, index) => <AiErrorNotice key={index}>{issue.section} · {issue.message}</AiErrorNotice>)}
       {proposal.source === 'confirmed_facts' && <p role="status" className="text-sm">Il modello ha modificato o omesso alcune parole. L’anteprima iniziale è stata composta con le tue righe originali, nello stesso ordine.</p>}
       <FieldEditor field={field} value={proposal.value} onChange={value => setProposal({ ...proposal, value })} />
       <div className="flex flex-wrap gap-2">

@@ -20,3 +20,9 @@
 - [x] Apply approved role-disclosure restriction; preserve grants, roles, capabilities and policies.
 - [ ] Verify Marco's authenticated UI — existing Admin session available, no Marco session authorized.
 - [ ] Publish authorized but stopped: checkout verification failed; no frontend publication performed.
+# Definitive AI editor correction (2026-11-26)
+
+- [ ] Reuse candidate; preserve valid sections with explicit warnings, safe rendering and manual approval.
+- [ ] Regressions with exact Yucca and synthetic short evergreen input; exact short UAT input requested.
+- [ ] Non-destructive preview validation and scoped AI-only deployment if all required gates pass.
+- [ ] Update existing report and status; retain PENDING_CLIENT_ACCEPTANCE.

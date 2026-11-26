@@ -1,3 +1,4 @@
+import type { DescriptionIssue } from '../../../supabase/functions/_shared/admin-ai-description';
 import type { EditorialKey, EditorialProposal } from '../../../supabase/functions/_shared/admin-draft-editorial';
 // F6 — Unico canale dati dell'Admin: la Edge Function product-admin-api.
 // Il browser non interroga mai direttamente le tabelle del catalogo.
@@ -382,7 +383,7 @@ export async function sendFieldSyncCommand(input: {
 }
 
 export async function suggestConfirmedField(input: { fieldKey: string; facts: string[]; confirmed: boolean; requestKey: string }) {
-  const result = await callAdminAiApi<{ok:true;value:unknown;source?: 'model' | 'confirmed_facts';missingInformation?: string[]}>({
+  const result = await callAdminAiApi<{ok:true;value:unknown;source?: 'model' | 'confirmed_facts';descriptionIssues?: DescriptionIssue[]; missingInformation?: string[]}>({
     action: 'suggest_confirmed_field', ...input,
   });
   if (!result?.ok || result.value == null || result.source !== 'model') {
@@ -395,7 +396,7 @@ export async function suggestDraftEditorial(input: {draftTitle: string; facts: s
   const result = await callAdminAiApi<{
     ok: boolean; value?: unknown; source?: 'model' | 'confirmed_facts';
     descriptionError?: {code: string; message: string};
-    missingInformation?: string[];
+    descriptionIssues?: DescriptionIssue[]; missingInformation?: string[];
     editorial?: Partial<Record<EditorialKey, EditorialProposal>>;
   }>({action: 'suggest_confirmed_field', fieldKey: 'description', confirmed: true, ...input});
   if (!result?.ok || (!result.descriptionError && (typeof result.value !== 'string' || result.source !== 'model')))

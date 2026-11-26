@@ -1,3 +1,4 @@
+import type { DescriptionIssue } from '../../../supabase/functions/_shared/admin-ai-description';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +23,7 @@ interface Preview {
   source?: 'model' | 'confirmed_facts';
   descriptionError?: string;
   missingInformation?: string[];
+  descriptionIssues?: DescriptionIssue[];
 }
 interface Props {
   draft: Pick<ProductDraft,SheetKey|'botanical'>;
@@ -70,12 +72,12 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
     // Keep the reviewer's other rows (and manual edits) during a description-only retry.
     const next: Preview = { contextKey, rows: { ...(preview?.rows ?? localSheet(context, facts)) } };
     setInputError('');
-    if (!next.rows.description.reason || preview?.descriptionError) {
+    if (!next.rows.description.reason || preview?.descriptionError || preview?.descriptionIssues?.length) {
       pending.current = true;
       setBusy(true);
       try {
         const requestKey = crypto.randomUUID();
-        const proposal = (sources || preview?.descriptionError)
+        const proposal = (sources || preview?.descriptionError || preview?.descriptionIssues?.length)
           ? await suggestConfirmedField({fieldKey: 'description', confirmed: true, facts, requestKey})
           : await suggestDraftEditorial({draftTitle: context.title.trim(), facts, requestKey});
         if ('editorial' in proposal && proposal.editorial) {
@@ -96,6 +98,7 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
           next.rows.description = reason ? { reason } : { value: proposal.value };
           next.source = proposal.source;
           next.missingInformation = proposal.missingInformation;
+          next.descriptionIssues = proposal.descriptionIssues;
         }
       } catch (error) {
         next.descriptionError = explainAiRequestError(error);
@@ -155,8 +158,8 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
     <p id="draft-ai-help" className="text-sm">Inserisci da 1 a 12 righe di 12–500 caratteri. Una riga può contenere più frasi. Per esempio, se verificato, «La scheda riporta il nome Quercus robur». Per indicare un vantaggio usa «Punto di forza: …». Per le domande usa «FAQ: domanda? risposta». Evita dati personali e commerciali.</p>
     <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={confirmed}
       onChange={e => { invalidate(); setConfirmed(e.target.checked); }} />Confermo il nome e le informazioni verificate per questo prodotto</label>
-    <Button variant="editorial" type="button" disabled={busy || !confirmed || Boolean(preview && !preview.descriptionError)} onClick={prepare}>
-      {busy ? 'Preparazione in corso…' : preview?.descriptionError ? 'Riprova la descrizione' : sources ? 'Migliora scheda con AI' : 'Completa scheda con AI'}
+    <Button variant="editorial" type="button" disabled={busy || !confirmed || Boolean(preview && !preview.descriptionError && !preview.descriptionIssues?.length)} onClick={prepare}>
+      {busy ? 'Preparazione in corso…' : (preview?.descriptionError || preview?.descriptionIssues?.length) ? 'Riprova la descrizione' : sources ? 'Migliora scheda con AI' : 'Completa scheda con AI'}
     </Button>
     {inputError && <AiErrorNotice>{inputError}</AiErrorNotice>}
     {preview && <section aria-label="Proposte per la bozza" className="space-y-3">
@@ -181,6 +184,7 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
               ? <RichTextEditor label="Proposta descrizione" disabled={busy} simple value={value} onChange={v => edit(key, v)} />
               : <Textarea disabled={busy} aria-label="Proposta descrizione" value={value} onChange={e => edit(key, e.target.value)} />}
           </>}
+          {key === 'description' && preview.descriptionIssues?.map((issue, index) => <AiErrorNotice key={index}>{issue.section} · {issue.message}</AiErrorNotice>)}
           {key === 'description' && Boolean(preview.missingInformation?.length) && <p>Informazioni da verificare: {preview.missingInformation?.join(', ')}.</p>}
           {(key === 'shortDescription' || key === 'seoTitle' || key === 'seoDescription') && typeof value === 'string' &&
             <Textarea disabled={busy} aria-label={'Proposta ' + sheetLabels[key]} value={value} onChange={e => edit(key, e.target.value)} />}

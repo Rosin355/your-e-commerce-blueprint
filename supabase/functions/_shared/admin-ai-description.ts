@@ -14,6 +14,8 @@ export const descriptionSchema = {
 };
 export const descriptionInstruction = `Rielabora realmente i fatti confermati in una proposta editoriale italiana, non copiarli né limitarli a un riordino. Ogni sezione deve citare in factIndices gli indici zero-based dei fatti che supportano TUTTE le sue affermazioni. Copri tutti i fatti, conservando identità, negazioni, condizioni e misure. Non inferire altre proprietà botaniche o benefici. NON aggiungere giudizi come ideale, unico, ricercato, apprezzato, scultoreo, architettonico o riferimenti al giardinaggio contemporaneo se non presenti nelle fonti. Un portamento ornamentale NON autorizza a inventare utilizzi paesaggistici o preferenze dei clienti. Introduzione naturale e professionale; sezioni botaniche, caratteristiche, coltivazione e utilizzo SOLO se documentate. Nessuna istruzione colturale non attestata. Usa paragrafi separati da una riga vuota, liste con '- ' e **grassetto** mirato; niente HTML, link o istruzioni eseguibili. Lunghezza proporzionata: orientativamente 250–450 parole soltanto con fatti sufficienti, mai aggiungere informazioni o ripetizioni per raggiungerla. Elenca separatamente in missingInformation gli argomenti da verificare, senza inventarne i valori. Restituisci sections e missingInformation secondo lo schema.`;
 
+export interface DescriptionIssue { section: string; code: 'UNSUPPORTED_FACT' | 'INCOMPLETE_RESPONSE' | 'FORMAT_ERROR' | 'EXTRACTIVE_COPY'; message: string }
+
 const plain = (text: string) => text.replace(/\*\*|^\s*#{1,6}\s+|^\s*[-*]\s+/gm, '').replace(/\s+/g, ' ').trim().toLocaleLowerCase('it');
 const escape = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const inline = (text: string) => escape(text).replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
@@ -27,22 +29,35 @@ export function validateEditorialDescription(def: FieldDefinition, facts: string
   const covered = new Set<number>();
   const headings = new Set<string>();
   const source = plain(facts.join(' '));
-  const sections = data.sections.map(item => {
+  const issues: DescriptionIssue[] = [];
+  const sections: { heading: string; text: string }[] = [];
+  for (const item of data.sections) {
+    let section = 'Sezione non identificata';
+    let code: DescriptionIssue['code'] = 'FORMAT_ERROR';
+    try {
     if (!item || typeof item !== 'object') return invalid('Sezione non valida.');
     const { heading, text, factIndices } = item as Record<string, unknown>;
     if (typeof heading !== 'string' || !(descriptionHeadings as readonly string[]).includes(heading) || headings.has(heading) ||
       typeof text !== 'string' || !text.trim() || /[<>]|https?:\/\/|\S+@\S+/i.test(text) ||
       !Array.isArray(factIndices) || !factIndices.length || factIndices.some(i => !Number.isInteger(i) || i < 0 || i >= facts.length)) return invalid('Sezione senza fatti verificabili o formato non sicuro.');
+    section = heading;
     headings.add(heading);
+    code = 'UNSUPPORTED_FACT';
     const evidence = plain(factIndices.map(i => facts[i]).join(' '));
     const evidenceNumbers: string[] = Array.from(evidence.match(/\d+(?:[.,]\d+)?/g) ?? []);
     for (const n of text.match(/\d+(?:[.,]\d+)?/g) ?? []) if (!evidenceNumbers.includes(n)) return invalid('La proposta introduce una misura non confermata.');
     if (/\b(non|mai|senza)\b/u.test(evidence) && !/\b(non|mai|senza)\b/u.test(plain(text))) return invalid('La proposta omette una negazione confermata.');
-    for (const claim of ['tossic', 'rustic', 'certificat', 'biologic', 'purifica', 'ideal', 'scultore', 'architettonic', 'apprezzat', 'ricercat', 'paesaggistic', 'contemporane']) if (plain(text).includes(claim) && !evidence.includes(claim)) return invalid('La proposta introduce una proprietà o un utilizzo non confermato.');
+    for (const claim of ['tossic', 'rustic', 'certificat', 'biologic', 'purifica', 'ideal', 'scultore', 'architettonic', 'apprezzat', 'ricercat', 'paesaggistic', 'contemporane', 'annaffi', 'irrig', 'concim', 'fertilizz', 'potatur', 'commestib', 'velenos', 'sempreverd', 'caduc', 'blu', 'giall', 'rosa', 'rosso', 'bianc']) if (plain(text).includes(claim) && !evidence.includes(claim)) return invalid('La proposta introduce una proprietà o un utilizzo non confermato.');
+    code = 'EXTRACTIVE_COPY';
+    if (source.includes(plain(text))) return invalid('Sezione copiata dai fatti: nessuna rielaborazione utilizzabile.');
     factIndices.forEach(i => covered.add(i));
-    return { heading, text: text.trim() };
-  });
-  if (covered.size !== facts.length || sections.every(s => source.includes(plain(s.text))) || plain(sections.map(s => s.text).join(' ')) === source) return invalid('La risposta copia i fatti o non li conserva tutti: nessuna generazione utilizzabile.');
+    sections.push({ heading, text: text.trim() });
+    } catch (error) {
+      issues.push({ section, code, message: error instanceof Error ? error.message : 'Sezione non utilizzabile.' });
+    }
+  }
+  if (!sections.length) return invalid('Nessuna sezione verificabile: ' + issues.map(i => i.message).join(' '));
+  if (covered.size !== facts.length) issues.push({ section: 'Descrizione', code: 'INCOMPLETE_RESPONSE', message: 'Fatti non coperti dalla proposta: righe ' + facts.map((_, i) => i).filter(i => !covered.has(i)).map(i => i + 1).join(', ') + '. Ricontrollare prima di accettare.' });
   const missing = data.missingInformation;
   if (missing.some(v => !['dimensioni', 'coltivazione', 'manutenzione', 'utilizzo ornamentale'].includes(String(v)))) return invalid('Informazioni mancanti non valide.');
   const rich = def.editor_type === 'richtext';
@@ -55,5 +70,5 @@ export function validateEditorialDescription(def: FieldDefinition, facts: string
   if (!strategy) return invalid('Campo editoriale non supportato.');
   const valid = validateSuggestedValue(def, strategy, value);
   if (!valid.ok) return invalid('Proposta oltre i limiti o incompatibile con il campo.');
-  return { value: valid.value, source: 'model' as const, missingInformation: [...new Set(missing)] as string[] };
+  return { value: valid.value, source: 'model' as const, descriptionIssues: issues, missingInformation: [...new Set(missing)] as string[] };
 }

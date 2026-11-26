@@ -45,12 +45,17 @@ test('copia input, ordine di indici e output vuoto sono errori, mai fallback riu
 });
 for(const invented of ['Altezza 120 cm.','Il fiore è non tossico.','La pianta è rustica e certificata biologica.','Ideale per contesti paesaggistici.','<script>alert(1)</script>'])test('rifiuta affermazione non supportata '+invented,async()=>{
  const value=prose();value.sections[0].text += ' '+invented;
- await assert.rejects(generateConfirmedProposal(def,facts,async()=>({value})),{code:'INVALID_MODEL_PROPOSAL'});
+ const result=await generateConfirmedProposal(def,facts,async()=>({value}));
+ assert.ok('descriptionIssues' in result && result.descriptionIssues.some(i=>i.code==='UNSUPPORTED_FACT' || i.code==='FORMAT_ERROR'));
+ assert.doesNotMatch(String(result.value),new RegExp(invented.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
 });
 test('non omette negazioni né fatti non citati',async()=>{
  const value=prose();value.sections[0].factIndices=[];
- await assert.rejects(generateConfirmedProposal(def,facts,async()=>({value})),{code:'INVALID_MODEL_PROPOSAL'});
- await assert.rejects(generateConfirmedProposal(def,['La scheda non attesta rusticità.',facts[1]],async()=>({value:prose()})),{code:'INVALID_MODEL_PROPOSAL'});
+ const result=await generateConfirmedProposal(def,facts,async()=>({value}));
+ assert.ok('descriptionIssues' in result && result.descriptionIssues.some(i=>i.code==='INCOMPLETE_RESPONSE'));
+ assert.doesNotMatch(String(result.value),/petali/);
+ const negative=await generateConfirmedProposal(def,['La scheda non attesta rusticità.',facts[1]],async()=>({value:prose()}));
+ assert.ok('descriptionIssues' in negative && negative.descriptionIssues.some(i=>i.code==='UNSUPPORTED_FACT'));
 });
 test('plain text non contiene markup; richtext sanitizzato e limiti rispettati',async()=>{
  const result=await generateConfirmedProposal({...def,editor_type:'textarea'},facts,async()=>({value:prose()}));
