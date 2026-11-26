@@ -4,7 +4,7 @@
 - [x] Replace extractive description/fallback with evidence-indexed AI proposals and explicit failures; retain draft approval.
 - [x] Run synthetic regressions, Admin browser preview and controlled AI checks; document results.
 - [ ] Confirm original gallery/formats production failure — available Admin lacks Marco's asset field scope; requires an equivalent authorized Editor session/network evidence.
-- [ ] Approve AI factual fidelity on both real UAT inputs — short generation introduced unverified editorial claims; extended generation rejected; exact Yucca input awaits upload.
+- [ ] Approve AI factual fidelity on both real UAT inputs — short generation introduced unverified editorial claims; extended generation rejected; both exact UAT inputs received; original live model fidelity still awaits controlled retest.
 - [ ] Deploy corrected involved functions and publish only necessary Admin frontend — held until the two preceding verification blockers pass.
 - [ ] Marco acceptance — must be retested on his device after validated release; PENDING_CLIENT_ACCEPTANCE.
 
@@ -23,6 +23,8 @@
 # Definitive AI editor correction (2026-11-26)
 
 - [ ] Reuse candidate; preserve valid sections with explicit warnings, safe rendering and manual approval.
-- [ ] Regressions with exact Yucca and synthetic short evergreen input; exact short UAT input requested.
+- [ ] Regressions with exact Yucca and exact short evergreen UAT input now received; retain separate synthetic fixtures.
 - [ ] Non-destructive preview validation and scoped AI-only deployment if all required gates pass.
 - [ ] Update existing report and status; retain PENDING_CLIENT_ACCEPTANCE.
+
+- [ ] Coordinated release authorized: verify AI/Admin-only frontend diff, deploy only product-admin-ai and Publish; stop on scope drift, no product-admin-api or Shopify writes.

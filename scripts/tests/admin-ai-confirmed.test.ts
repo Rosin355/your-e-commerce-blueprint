@@ -32,6 +32,9 @@ test('provider riceve lo schema strutturato e non uno schema di copia/riordino',
  const result=await generateConfirmedProposal(def,facts,async(s,c)=>callAiProvider(s,c,{apiKey:'synthetic',model:'synthetic',timeoutMs:12000,fetchImpl:async(_url,init)=>{
   calls++;const body=JSON.parse(String(init?.body));assert.equal(body.max_tokens,2000);
   assert.ok(body.tools[0].function.parameters.properties.suggested_value.properties.sections);
+  assert.match(body.messages[0].content,/Rielabora realmente/);
+  assert.doesNotMatch(body.messages[0].content,/Non includere HTML o markdown|"suggested_value":"testo"/);
+  assert.deepEqual(JSON.parse(body.messages[1].content).facts,facts.map((text,index)=>({index,text})));
   return Response.json({choices:[{message:{tool_calls:[{function:{name:'propose_field_improvement',arguments:JSON.stringify({suggested_value:prose()})}}]}}]});
  }}));assert.equal(calls,1);assert.equal(result.source,'model');
 });

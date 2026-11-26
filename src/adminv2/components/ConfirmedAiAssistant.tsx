@@ -19,6 +19,7 @@ export default function ConfirmedAiAssistant({field, onApply, onShortApply, gene
   const [short, setShort] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [proposal, setProposal] = useState<Awaited<ReturnType<typeof suggestConfirmedField>>>();
+  const [generation, setGeneration] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const revision = useRef(0);
@@ -49,6 +50,7 @@ export default function ConfirmedAiAssistant({field, onApply, onShortApply, gene
       const result = await generate({ fieldKey:field.key, facts, confirmed:true, requestKey:crypto.randomUUID() });
       if (revision.current === current) {
         setProposal(result);
+        setGeneration(value => value + 1);
         if (onShortApply && facts.length > 1) setShort(facts.find(line => line.length <= 320 &&
           line !== String(result.value).replace(/<[^>]*>/g, '').trim()) ?? '');
       }
@@ -91,7 +93,7 @@ export default function ConfirmedAiAssistant({field, onApply, onShortApply, gene
       <h4>{onShortApply ? 'Descrizione estesa da revisionare' : 'Proposta da revisionare'}</h4>
       {proposal.descriptionIssues?.map((issue, index) => <AiErrorNotice key={index}>{issue.section} · {issue.message}</AiErrorNotice>)}
       {proposal.source === 'confirmed_facts' && <p role="status" className="text-sm">Il modello ha modificato o omesso alcune parole. L’anteprima iniziale è stata composta con le tue righe originali, nello stesso ordine.</p>}
-      <FieldEditor field={field} value={proposal.value} onChange={value => setProposal({ ...proposal, value })} />
+      <FieldEditor key={generation} field={field} value={proposal.value} onChange={value => setProposal({ ...proposal, value })} />
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="outline" onClick={invalidate}>Scarta proposta</Button>
         <Button variant="editorial" type="button" onClick={() => {

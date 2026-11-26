@@ -61,10 +61,13 @@ const DEFAULT_DEPS: HandlerDependencies = {
   generate: callAiProvider,
 };
 
+export const ADMIN_AI_VERSION = 'verified-editorial-20261126-r2';
+const responseHeaders = { ...corsHeaders, 'X-Admin-AI-Version': ADMIN_AI_VERSION };
+
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...responseHeaders, "Content-Type": "application/json" },
   });
 }
 
@@ -167,7 +170,7 @@ export async function handleProductAdminAi(
   deps: HandlerDependencies = DEFAULT_DEPS,
 ): Promise<Response> {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers: responseHeaders });
   }
   if (req.method !== "POST") {
     return fail("VALIDATION_ERROR", "Metodo non supportato");

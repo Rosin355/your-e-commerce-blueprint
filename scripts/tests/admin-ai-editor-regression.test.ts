@@ -46,3 +46,15 @@ test('F/G: unsafe HTML and provider failure produce explicit failures, never fal
  await assert.rejects(generateConfirmedProposal(def,short,async()=>{throw Error('synthetic provider offline');}),/synthetic provider offline/);
  assert.throws(()=>validateEditorialDescription(def,short,{...rewritten,sections:[{...rewritten.sections[0],text:short[0]}]}));
 });
+test('A: exact short evergreen UAT input remains faithful, without inferring species or care',async()=>{
+ const input=confirmedFacts(readFileSync(new URL('./fixtures/evergreen-uat-20261126.txt',import.meta.url),'utf8').trim().split('\n'),true);
+ assert.equal(input.length,1);
+ const result=await generateConfirmedProposal(def,input,async()=>({value:{sections:[
+  {heading:'Introduzione',text:'Nella famiglia delle **Agavaceae**, questo arbusto sempreverde si distingue per il portamento eretto e la crescita lenta.',factIndices:[0]},
+  {heading:'Descrizione botanica',text:'L’altezza può raggiungere 3 mt. Il fogliame è composto da foglie lineari, rigide, di tonalità verde-argento. Tra giugno e luglio compaiono fiori bianchi, grandi e profumati.',factIndices:[0]},
+  {heading:'Coltivazione e manutenzione',text:'Per il terreno, le informazioni confermate indicano una preferenza per un suolo calcareo con buon drenaggio.',factIndices:[0]}
+ ],missingInformation:['manutenzione']}}));
+ assert.equal(result.source,'model');assert.ok('descriptionIssues' in result);assert.deepEqual(result.descriptionIssues,[]);
+ assert.match(String(result.value),/Agavaceae/);assert.match(String(result.value),/3 mt/);assert.match(String(result.value),/giugno e luglio/);
+ assert.doesNotMatch(String(result.value),/Yucca|sole|irrigaz|concim|gelo/);
+});

@@ -24,6 +24,7 @@ interface Preview {
   descriptionError?: string;
   missingInformation?: string[];
   descriptionIssues?: DescriptionIssue[];
+  descriptionRevision?: string;
 }
 interface Props {
   draft: Pick<ProductDraft,SheetKey|'botanical'>;
@@ -99,6 +100,7 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
           next.source = proposal.source;
           next.missingInformation = proposal.missingInformation;
           next.descriptionIssues = proposal.descriptionIssues;
+          next.descriptionRevision = requestKey;
         }
       } catch (error) {
         next.descriptionError = explainAiRequestError(error);
@@ -181,7 +183,7 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
           {key === 'description' && typeof value === 'string' && <>
             <p role="status">{row.source === 'manual' ? 'Descrizione rivista manualmente.' : 'Proposta editoriale generata con AI · fatti da ricontrollare prima di accettare.'}</p>
             {sheetDefinition(key, context)?.editor_type === 'richtext'
-              ? <RichTextEditor label="Proposta descrizione" disabled={busy} simple value={value} onChange={v => edit(key, v)} />
+              ? <RichTextEditor key={preview.descriptionRevision} label="Proposta descrizione" disabled={busy} simple value={value} onChange={v => edit(key, v)} />
               : <Textarea disabled={busy} aria-label="Proposta descrizione" value={value} onChange={e => edit(key, e.target.value)} />}
           </>}
           {key === 'description' && preview.descriptionIssues?.map((issue, index) => <AiErrorNotice key={index}>{issue.section} · {issue.message}</AiErrorNotice>)}
