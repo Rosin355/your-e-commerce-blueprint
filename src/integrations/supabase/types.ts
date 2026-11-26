@@ -288,6 +288,59 @@ export type Database = {
           },
         ]
       }
+      admin_product_deletion_clearances: {
+        Row: {
+          actor: string
+          commercially_approved: boolean
+          expires_at: string
+          internal_refs_clear: boolean
+          issued_at: string
+          media_clear: boolean
+          orders_checked: boolean
+          product_id: string
+          redirects_checked: boolean
+          reference: string
+          shopify_gid: string
+          shopify_updated_at: string
+        }
+        Insert: {
+          actor: string
+          commercially_approved: boolean
+          expires_at: string
+          internal_refs_clear: boolean
+          issued_at?: string
+          media_clear: boolean
+          orders_checked: boolean
+          product_id: string
+          redirects_checked: boolean
+          reference: string
+          shopify_gid: string
+          shopify_updated_at: string
+        }
+        Update: {
+          actor?: string
+          commercially_approved?: boolean
+          expires_at?: string
+          internal_refs_clear?: boolean
+          issued_at?: string
+          media_clear?: boolean
+          orders_checked?: boolean
+          product_id?: string
+          redirects_checked?: boolean
+          reference?: string
+          shopify_gid?: string
+          shopify_updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_product_deletion_clearances_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_product_operations: {
         Row: {
           actor: string

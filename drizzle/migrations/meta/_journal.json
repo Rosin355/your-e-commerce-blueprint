@@ -148,6 +148,27 @@
       "when": 1795539011604,
       "tag": "0020_admin_new_draft_editorial",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1795706896276,
+      "tag": "0021_marco_editor_registry",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1795706917695,
+      "tag": "0022_marco_editor_actions",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1795706953290,
+      "tag": "0023_marco_product_lifecycle",
+      "breakpoints": true
     }
   ]
 }
