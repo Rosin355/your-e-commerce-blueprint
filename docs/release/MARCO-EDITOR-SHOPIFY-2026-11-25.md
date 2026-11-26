@@ -1,5 +1,9 @@
 # Admin V2 operativo per Marco · verbale del 25 novembre 2026
 
+## Decisione successiva alla PR #75
+
+Il verbale seguente conserva la fotografia della #74. Per il candidato consolidato utilizzare la finestra unica del 25 novembre. Il mandato autorizza la preparazione del ripristino storico della sola Edge da `5a37f71`, con il rischio residuo del runtime non scaricabile. Il GO di produzione rimane distinto per ciascuna operazione. [Verbale vigente, pacchetti e decisioni](ADMIN-V2-CONSEGNA-MARCO-2026-11-25.md)
+
 **PR #74 integrata nel ramo Lovable isolato il 25 novembre 2026 alle 12:19 CET. Editor sincronizzato, frontend pubblico ancora alla PR #73. SAL ufficiale 57,75%.**
 
 Il merge `f5b7ae04830b75b600bd795bce017af53316fbac` ha come primo genitore la base `8528dbed0eb9dec96bde1abbd58c1769b22a7d38` e come secondo l’HEAD autorizzato `b881b4edd4fea4ae1ec30d3b56d0f5c7eea89425`. L’albero del merge coincide con quello dell’HEAD verificato. Destinazione esclusiva `codex/rilascio-admin-v2-isolato-20261124`. GitHub riportava PR integrabile e quattro controlli verdi, `editor-browser`, `Storefront / pull-request`, `Admin catalog / PostgreSQL 17` e `GitGuardian Security Checks`. [Ricevuta della PR #74](https://github.com/Rosin355/your-e-commerce-blueprint/pull/74) · [Commit di merge](https://github.com/Rosin355/your-e-commerce-blueprint/commit/f5b7ae04830b75b600bd795bce017af53316fbac)

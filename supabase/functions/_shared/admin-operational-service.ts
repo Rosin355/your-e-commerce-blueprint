@@ -523,6 +523,9 @@ export async function handleOperational(
     if(draft.collectionIds?.length){const eligible=await editorialCollections();demand(draft.collectionIds.every(id=>eligible.some(c=>c.id===id)),'Collezione editoriale non verificata.');}
     const defs = await getFieldDefinitions(db);
     if (draft.shortDescription) requireCatalog(auth, 'edit', 'short_description');
+    for (const key of ['key_features','key_benefits']) {
+      if (Object.hasOwn(draft.botanical,key)) requireCatalog(auth,'edit',key);
+    }
     const fields = validatedFields(draft, defs);
     const catalog = await catalogCategories(db);
     demand(

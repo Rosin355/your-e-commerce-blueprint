@@ -1,4 +1,9 @@
 # Online Garden — UX semplificata Marco + operatività Shopify
+
+## Riepilogo unico e ciclo di vendita
+
+L’assistente sulle schede esistenti precarica i dati editoriali utilizzabili. I campi preparati confluiscono nel confronto prima dell’invio. Rimozione dal sito, archivio, ripristino in bozza ed eliminazione richiedono autorizzazioni e conferme distinte. Valutare con Marco comprensione dei valori importati, provenienza delle proposte, operazioni parziali e ricevute. [Evidenza e sessione di accettazione](../release/ADMIN-V2-CONSEGNA-MARCO-2026-11-25.md)
+
 Data: 25 novembre 2026. **Stato: specifica iniziale e candidato in revisione.** Documento per designer, developer, QA e cliente. SAL ufficiale 57,75% finché non siano conclusi rilascio e accettazione.
 
 ## Baseline verificata

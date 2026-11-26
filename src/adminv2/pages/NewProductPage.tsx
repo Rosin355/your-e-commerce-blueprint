@@ -74,21 +74,21 @@ export default function NewProductPage() {
       if (error instanceof AdminApiError && error.code === 'CANCELLED') setLocked(false);
       reportConflict(error);
     },
-    mutationFn: () =>
+    mutationFn: (reviewed: boolean = false) =>
       callCatalogCommand<{ result: { productId: string; operationId: string; state: string } }>({
         action: 'save_new_product',
         draft,
         idempotencyKey: catalogue.data?.canaryRequestKey ?? key,
         confirm: confirmed,
-      }),
+      }, {reviewed}),
   });
   const send = useMutation({
-    mutationFn: (action: string) =>
+    mutationFn: (request: string | {action:string;operationId:string}) =>
       callCatalogCommand<{ result: { state: string } }>({
-        action,
-        operationId: save.data?.result.operationId,
+        action: typeof request==='string'?request:request.action,
+        operationId: typeof request==='string'?save.data?.result.operationId:request.operationId,
         confirm: true,
-      }),
+      },{reviewed:typeof request!=='string'}),
   });
   const update = (change: Partial<ProductDraft> | ((previous: ProductDraft) => Partial<ProductDraft>)) => {
     setDraft(previous => ({ ...previous, ...(typeof change === 'function' ? change(previous) : change) }));
@@ -157,19 +157,18 @@ export default function NewProductPage() {
         <legend className='px-2 font-semibold'>{steps[step]}</legend>
         <div hidden={step !== 0} className="space-y-5">
           {field('Nome prodotto (obbligatorio)', 'title')}
-          {adminContext.data?.canUseAi === false && <p className="text-sm">L’assistente AI è disabilitato per questo account o ambiente. Puoi compilare la bozza a mano.</p>}
           {adminContext.data?.canUseAi && catalogue.data?.canAuthorDraft && definitions.data &&
             <DraftSheetAssistant draft={draft} context={{
               title: draft.title,
               categories: [...draft.categoryIds, ...(draft.collectionIds ?? [])].flatMap(id => categoryNames.has(id) ? [categoryNames.get(id)!] : []),
-              definitions: definitions.data.definitions.filter(d => (d.key !== 'short_description' || adminContext.data.supportsDistinctDescriptions) && (
-                ['description', 'short_description', 'seo_title', 'seo_description', 'tags'].includes(d.key) ||
+              definitions: definitions.data.definitions.filter(d => (!['key_features','key_benefits','faq'].includes(d.key) || adminContext.data.supportsSheetEvidence) && (d.key !== 'short_description' || adminContext.data.supportsDistinctDescriptions) && (
+                ['description', 'short_description', 'seo_title', 'seo_description', 'tags','key_features','key_benefits','faq'].includes(d.key) ||
                 ['productType', 'product_type'].includes(String(d.shopify_mapping?.field)))),
               canFillDraft: ordinary && catalogue.data.canSaveDraft,
               editableKeys: adminContext.data.editableFieldKeys ?? [],
               supportsType: adminContext.data.supportsCatalogSourceAndProductType === true,
-            }} onApply={change => {
-              update(change);
+            }} onApply={(change,extra) => {
+              update(previous=>({...change, botanical:{...previous.botanical,...extra}}));
               if (change.description !== undefined) setDescriptionRevision(n => n + 1);
               if (change.tags) setTagsInput(change.tags.join(', '));
             }} />}
@@ -210,12 +209,6 @@ export default function NewProductPage() {
           </section>
           <CatalogImages errors={errors} onUploadingChange={setUploading} images={draft.images} onChange={images => update({ images })} ordinary={ordinary}
               enabled={adminContext.data?.canUploadImages === true} sku={draft.sku} requestKey={catalogue.data?.canaryRequestKey} />
-          <details className="space-y-3"><summary className="cursor-pointer font-medium">Opzioni avanzate</summary>
-            {field('Codice prodotto (SKU famiglia)', 'sku')}
-            <Button type="button" variant="outline" onClick={() => rename(generateFamilySku(), true)}>Genera altri codici</Button>
-            {field('Valuta (codice ISO)', 'currency')}
-            {field('Fornitore', 'vendor')}
-            {adminContext.data?.supportsCatalogSourceAndProductType && field('Tipo prodotto', 'productType')}
             <label className="block">Tag separati da virgole<Input id="tags" value={tagsInput} aria-invalid={Boolean(errors.tags)} aria-describedby={errors.tags ? 'tags-error' : undefined}
               onChange={e => { setTagsInput(e.target.value); update({ tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) }); }} /></label>
             {errors.tags && <p id="tags-error" className="text-sm text-destructive">{errors.tags}</p>}
@@ -223,11 +216,18 @@ export default function NewProductPage() {
             {field('Titolo SEO', 'seoTitle')}
             {field('Descrizione SEO', 'seoDescription', true)}
             </details>
+          <details className="space-y-3"><summary className="cursor-pointer font-medium">Opzioni avanzate · Dati tecnici e permessi</summary>
+          {adminContext.data?.canUseAi === false && <p className="text-sm">L’assistente AI è disabilitato per questo account o ambiente. Puoi compilare la bozza a mano.</p>}
+            {field('Codice prodotto (SKU famiglia)', 'sku')}
+            <Button type="button" variant="outline" onClick={() => rename(generateFamilySku(), true)}>Genera altri codici</Button>
+            {field('Valuta (codice ISO)', 'currency')}
+            {field('Fornitore', 'vendor')}
+            {adminContext.data?.supportsCatalogSourceAndProductType && field('Tipo prodotto', 'productType')}
             <details><summary className='cursor-pointer font-medium'>Informazioni botaniche e FAQ facoltative</summary>
             <p className='my-2 text-sm'>Inserisci soltanto i dati e i periodi che hai verificato.</p>
             {definitions.isError && <p role='alert'>Registro campi non disponibile.</p>}
             {definitions.data?.definitions.filter((d) =>
-              (DRAFT_BOTANICAL_KEYS as readonly string[]).includes(d.key) && d.visible &&
+              (DRAFT_BOTANICAL_KEYS as readonly string[]).includes(d.key) && (!['key_features','key_benefits'].includes(d.key) || (adminContext.data?.supportsSheetEvidence && adminContext.data.editableFieldKeys?.includes(d.key))) && d.visible &&
               d.editable && !d.manual_only
             ).map((d) => (
               <div key={d.key} id={d.key} tabIndex={-1} role="group" aria-label={d.label} aria-describedby={errors[d.key] ? d.key + "-error" : undefined}>
@@ -275,7 +275,7 @@ export default function NewProductPage() {
               <Checkbox
                 checked={confirmed}
                 onCheckedChange={(value) => setConfirmed(value === true)}
-              />Confermo i dati: salva soltanto una bozza interna.
+              />Confermo i dati visualizzati.
             </label>
             <Button
               type='button'
@@ -283,11 +283,21 @@ export default function NewProductPage() {
                 save.isPending}
               onClick={() => {
                 setLocked(true);
-                save.mutate();
+                save.mutate(false);
               }}
             >
               Salva bozza nell’Admin
             </Button>
+            {ordinary && catalogue.data?.canSaveDraft && catalogue.data.canSendDraft && <Button type="button" variant="shopify"
+              disabled={!confirmed || preview.data?.shopifySkuVerified!==true || save.isPending || send.isPending || locked}
+              onClick={async()=>{
+                if (!window.confirm('Salvare la scheda visualizzata e creare un solo prodotto Shopify in stato DRAFT, fuori vendita?')) return;
+                setLocked(true);
+                try {
+                  const local=await save.mutateAsync(true);
+                  await send.mutateAsync({action:'create_shopify_draft',operationId:local.result.operationId});
+                } catch { /* The two mutation states expose the completed stage and its recovery. */ }
+              }}>Salva e crea bozza Shopify</Button>}
             {!catalogue.data?.canSaveDraft && (
               <p>
                 Salvataggio non ancora abilitato per questo ambiente o account. Puoi compilare e
@@ -308,7 +318,7 @@ export default function NewProductPage() {
           <p>{save.error.message}</p>
           {locked && <p>I dati restano bloccati per evitare una seconda richiesta diversa dopo un timeout.</p>}
           {locked && catalogue.data?.canSaveDraft && (
-            <Button disabled={save.isPending} onClick={() => save.mutate()}>
+            <Button disabled={save.isPending} onClick={() => save.mutate(false)}>
               Recupera salvataggio con la stessa richiesta
             </Button>
           )}

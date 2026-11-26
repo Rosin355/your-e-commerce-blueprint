@@ -1,5 +1,9 @@
 # Online Garden — developer handoff
 
+## Consegna consolidata sul ramo Lovable isolato
+
+Il frontend legge i grant effettivi, prepara le proposte e confronta versione, identità e hash. La verifica autorevole resta in Edge e nella RPC di acquisizione. Il journal serializza le richieste sul prodotto e conserva gli esiti dubbi. Le azioni sul ciclo di vendita verificano il risultato anche in Storefront. La ricevuta è filtrata per attore e prodotto. Il codice di ripristino documentato è `5a37f71`. Per il rilascio puntuale confrontare manifest, gateway e comportamento senza sessione, poi il contratto Editor autenticato. La versione attiva di Lovable non è scaricabile. [Artefatti, hash, sequenza SQL e rollback](release/ADMIN-V2-CONSEGNA-MARCO-2026-11-25.md)
+
 ## Candidato operativo Marco del 25 novembre
 
 La PR #74 è integrata a `f5b7ae04830b75b600bd795bce017af53316fbac` sul ramo isolato sincronizzato con Lovable. Il dominio serve ancora `index-BcqOotvz.js`. La sola Edge candidata è `product-admin-api`. Connettore e CLI con l’accesso disponibile non hanno restituito la revisione attiva. Il download della funzione ha dato HTTP 403. Il verbale indica come acquisire il pacchetto sul progetto esistente, verificarne versione e configurazione JWT e distinguere il rollback attivo dall’archivio storico. Registro, journal e singoli grant hanno script già provati in isolamento. Lo snapshot nominativo resta privato. [Decisioni, sequenza SQL e rollback](release/MARCO-EDITOR-SHOPIFY-2026-11-25.md)

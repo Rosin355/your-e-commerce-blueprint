@@ -30,14 +30,15 @@ BEGIN
     IF strpos(body,new_case)=0 THEN EXECUTE replace(replace(def,old_case,new_case),old_actor,new_actor); END IF;
     IF strpos(chk,new_list)=0 THEN
       ALTER TABLE public.admin_catalog_approvals DROP CONSTRAINT admin_catalog_approvals_action_check;
-      EXECUTE 'ALTER TABLE public.admin_catalog_approvals ADD CONSTRAINT admin_catalog_approvals_action_check '||replace(baseline,old_list,new_list);
+      SELECT EXISTS(SELECT 1 FROM public.admin_catalog_approvals WHERE action IN ('unpublish_catalog_product','archive_catalog_product','restore_catalog_product','delete_catalog_product')) INTO retained;
+      EXECUTE 'ALTER TABLE public.admin_catalog_approvals ADD CONSTRAINT admin_catalog_approvals_action_check '||replace(baseline,old_list,new_list)||CASE WHEN retained THEN ' NOT VALID' ELSE '' END;
     END IF;
   ELSE
     IF EXISTS(SELECT 1 FROM public.admin_catalog_approvals WHERE action IN ('set_catalog_image','rename_catalog_format') AND state IN ('IN_FLIGHT','REVIEW_REQUIRED'))
       THEN RAISE EXCEPTION 'Operazione da riconciliare prima del rollback'; END IF;
     IF strpos(body,new_case)>0 THEN EXECUTE replace(replace(def,new_case,old_case),new_actor,old_actor); END IF;
     IF strpos(chk,new_list)>0 THEN
-      SELECT EXISTS(SELECT 1 FROM public.admin_catalog_approvals WHERE action IN ('set_catalog_image','rename_catalog_format')) INTO retained;
+      SELECT EXISTS(SELECT 1 FROM public.admin_catalog_approvals WHERE action IN ('set_catalog_image','rename_catalog_format','unpublish_catalog_product','archive_catalog_product','restore_catalog_product','delete_catalog_product')) INTO retained;
       ALTER TABLE public.admin_catalog_approvals DROP CONSTRAINT admin_catalog_approvals_action_check;
       EXECUTE 'ALTER TABLE public.admin_catalog_approvals ADD CONSTRAINT admin_catalog_approvals_action_check '||baseline||CASE WHEN retained THEN ' NOT VALID' ELSE '' END;
     END IF;

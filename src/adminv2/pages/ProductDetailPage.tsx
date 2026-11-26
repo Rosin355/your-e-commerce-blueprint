@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import ConfirmedAiAssistant from '../components/ConfirmedAiAssistant';
+import ExistingSheetAssistant from '../components/ExistingSheetAssistant';
 import AiErrorNotice from '../components/AiErrorNotice';
 import { isTechnicalProduct } from '../../../supabase/functions/_shared/admin-operational-core';
+import ProductReview from '../components/ProductReview';
+import ProductLifecycle from '../components/ProductLifecycle';
 import ProductAssetEditor from '../components/ProductAssetEditor';
 import CatalogActions from '../components/CatalogActions';
 import ProductOperations from '../components/ProductOperations';
@@ -48,6 +50,10 @@ export default function ProductDetailPage() {
 function ProductEditor({ productId }: {productId: string | undefined}) {
   const { data, isLoading, isError, error, refetch } = useProductDetail(productId);
   const { data: context } = useAdminContext();
+  const [working,setWorking]=useState<Record<string,unknown>>({});
+  function workingValue(key:string,value:unknown,editing:boolean) {
+    setWorking(previous=>{const next={...previous}; if(editing)next[key]=value;else delete next[key];return next;});
+  }
   const [prepared, setPrepared] = useState<Record<string,{value: unknown; version: number | null; hash?: string; revision:number}>>({});
   const command = useFieldCommand(productId);
   const fieldSync = useFieldSync(productId);
@@ -82,7 +88,7 @@ function ProductEditor({ productId }: {productId: string | undefined}) {
   const titleField = sections
     .flatMap((s) => s.fields)
     .find((f) => f.key === 'title' || f.key === 'name');
-  const title = (titleField?.value as string) ?? product.sku;
+  const title = (titleField?.value as string) || (titleField?.shopifyLiveValue as string) || 'Scheda prodotto';
   const technical = isTechnicalProduct([product.sku], title, product.productId, sections.flatMap(s => s.fields).find(f => f.key === 'tags')?.value);
   const canManageAssets = !ADMIN_READ_ONLY_RELEASE && context?.ordinaryCatalog &&
     product.entityType !== 'variation' && shopifyLive.available && shopifyLive.mapped && shopifyLive.identityVerified;
@@ -92,21 +98,22 @@ function ProductEditor({ productId }: {productId: string | undefined}) {
   const groups = [
     { name: 'Contenuti del prodotto', keys: ['title', 'description', 'short_description'] },
     { name: 'Ricerca e navigazione', keys: ['seo_title', 'seo_description', 'tags'] },
-    { name: 'Caratteristiche verificate', keys: ['nome_botanico', 'nome_comune', 'key_features', 'key_benefits', 'special_bullets', 'faq', 'periodo_di_fioritura', 'periodo_di_messa_a_dimora', 'periodo_di_raccolta', 'periodo_ottimale_di_potatura', 'difficolta_di_coltivazione'] },
   ].map(group => ({ ...group, fields: allFields.filter(f => group.keys.includes(f.key) &&
     context?.canWrite && !ADMIN_READ_ONLY_RELEASE && f.capabilities.canUpdate && f.version !== null &&
     isEditorValueSupported(f, f.capabilities.currentValueExists ? f.value : f.shopifyLiveValue ?? f.value)) }));
   const mainFields = new Set(groups.flatMap(group => group.fields));
   const long = allFields.find(f => f.key === 'description');
-  const short = allFields.find(f => f.key === 'short_description');
-  function prepareField(field: AdminField, value: unknown) {
+  function prepareField(field: AdminField, value: unknown, version=field.version, hash=field.shopifyBaselineHash) {
+    workingValue(field.key,undefined,false);
     const id = product.productId + field.key;
-    setPrepared(previous => ({ ...previous, [id]: {value, version: field.version, hash: field.shopifyBaselineHash, revision:(previous[id]?.revision ?? 0) + 1} }));
+    setPrepared(previous => ({ ...previous, [id]: {value, version, hash, revision:(previous[id]?.revision ?? 0) + 1} }));
   }
   const renderField = (field: AdminField) => (
     <FieldCard
       key={product.productId + field.key + (prepared[product.productId + field.key]?.revision ?? 0)}
       prepared={prepared[product.productId + field.key]}
+      onStage={context?.ordinaryCatalog && mainFields.has(field) ? (value,version,hash)=>prepareField(field,value,version,hash):undefined}
+      onWorkingValue={mainFields.has(field)?(value,editing)=>workingValue(field.key,value,editing):undefined}
       advanced={!mainFields.has(field)}
       field={ADMIN_READ_ONLY_RELEASE ? readOnlyField(field) : field}
       onCommand={command.mutateAsync}
@@ -154,6 +161,7 @@ function ProductEditor({ productId }: {productId: string | undefined}) {
       </section>
       {ADMIN_READ_ONLY_RELEASE ? <p>{siteState(shopifyLive)}</p> : <ProductOperations key={product.productId} productId={product.productId} live={shopifyLive} />}
       {!ADMIN_READ_ONLY_RELEASE && shopifyLive.mapped && shopifyLive.identityVerified && product.entityType !== 'variation' && <CatalogActions key={product.productId} productId={product.productId} technical={technical} showPublication={shopifyLive.publicationStatus==='DRAFT' || (shopifyLive.publicationStatus==='ACTIVE' && shopifyLive.siteVisible===false)} context={context} />}
+      {!ADMIN_READ_ONLY_RELEASE && context?.ordinaryCatalog && context.canSync && context.lifecycleActions && <ProductLifecycle key={product.productId} productId={product.productId} allowed={canManageAssets?context.lifecycleActions:[]} status={shopifyLive.publicationStatus} visible={shopifyLive.siteVisible} />}
       {canManageAssets && <>
         {context?.canManageGallery && <ProductAssetEditor key={product.productId+'-gallery'} productId={product.productId} kind="gallery"/>}
         {context?.canRenameFormats && <ProductAssetEditor key={product.productId+'-formats'} productId={product.productId} kind="formats"/>}
@@ -163,18 +171,23 @@ function ProductEditor({ productId }: {productId: string | undefined}) {
       {context?.canUseAi && aiSuggestions.isError && <AiErrorNotice>Lettura delle proposte non riuscita. Puoi modificare la bozza manualmente.{' '}
         <button className="underline" onClick={() => void aiSuggestions.refetch()}>Rileggi le proposte salvate</button>
       </AiErrorNotice>}
-      {product.parentProductId && <Link className="underline" to={`/admin/products/${product.parentProductId}`}>Torna al prodotto padre {product.parentSku}</Link>}
-      {context?.canUseAi && long && short && mainFields.has(long) && mainFields.has(short) && long.capabilities.canSuggestAi && short.capabilities.canSuggestAi &&
-        <details className="rounded-lg border p-4"><summary className="cursor-pointer font-semibold">Prepara le due descrizioni con AI</summary>
-          <ConfirmedAiAssistant key={product.productId + long.version + '/' + short.version} field={long}
-            onApply={value => prepareField(long, value)} onShortApply={value => prepareField(short, value)} />
-        </details>}
+
+      {context?.canUseAi && long && mainFields.has(long) && long.aiAllowed && !long.manualOnly &&
+        <ExistingSheetAssistant key={product.productId} fields={allFields} title={title} liveVerified={shopifyLive.identityVerified===true}
+          activeValues={{...Object.fromEntries(allFields.flatMap(f=>{const p=prepared[product.productId+f.key];return p?[[f.key,p.value]]:[];})),...working}}
+          stage={prepareField}/>}
       {groups.filter(group => group.fields.length).map((group, index) => <details key={group.name} open={index === 0} className="rounded-lg border p-4">
         <summary className="cursor-pointer font-semibold">{group.name}</summary>
         <div className="mt-3 grid gap-3 lg:grid-cols-2">{group.fields.map(renderField)}</div>
       </details>)}
+      {context?.ordinaryCatalog && context.canWrite && <ProductReview key={product.productId} productId={product.productId}
+        items={allFields.flatMap(field=>{const change=prepared[product.productId+field.key];
+          return change && !Object.prototype.hasOwnProperty.call(working,field.key)?[{field,change,send:context.canSync===true && shopifyLive.identityVerified===true && field.shopifySyncAllowed===true && Boolean(change.hash)}]:[];})}
+        onDone={key=>setPrepared(prev=>{const next={...prev};delete next[product.productId+key];return next;})}
+        onRefresh={refetch}/>}
       <details className="space-y-3 rounded-lg border p-4">
         <summary className="cursor-pointer font-semibold">Opzioni avanzate · Dati tecnici e permessi</summary>
+        {product.parentProductId && <Link className="underline" to={`/admin/products/${product.parentProductId}`}>Torna al prodotto padre {product.parentSku}</Link>}
         <div className="space-x-2 text-sm">{product.sku} · {ENTITY_LABEL[product.entityType] ?? product.entityType}</div>
       <details className="rounded-lg border bg-card p-4"><summary className="cursor-pointer">Avanzato · lettura Shopify</summary>
         <div className="mb-2 flex items-center justify-between gap-2">

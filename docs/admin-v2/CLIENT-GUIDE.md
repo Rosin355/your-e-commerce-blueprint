@@ -1,5 +1,13 @@
 # Usare l’Admin di Online Garden
 
+## Percorso della prossima versione
+
+**In collaudo sul candidato.** In **Prodotti** apri una scheda e scegli **Migliora scheda con AI**. Leggi le informazioni già presenti, correggi quelle importate e conferma soltanto i fatti che conosci. Nell’anteprima puoi cambiare il testo, escludere una proposta o applicare tutte quelle valide. Il campo indica l’origine e mostra il valore già presente. **Rivedi modifiche** mostra quali dati salverai nell’Admin e quali invierai anche a Shopify. Controlla l’elenco prima di premere **Salva e aggiorna Shopify**. Se un campo è cambiato nel frattempo, rileggilo prima di riprovare.
+
+Per creare un prodotto usa **Completa scheda con AI**, controlla la breve e l’estesa e inserisci foto, formati e prezzi. **Salva e crea bozza Shopify** genera un solo DRAFT fuori vendita. Solo dopo la verifica commerciale comparirà **Pubblica su Shopify**. I codici si trovano in **Opzioni avanzate · Dati tecnici e permessi**.
+
+Per sospendere una vendita sul sito scegli **Rimuovi dal sito**. Per ritirare il prodotto da tutti i canali scegli **Archivia prodotto**. Puoi ripristinarlo come bozza e rileggere la ricevuta nella stessa scheda. Queste azioni richiedono l’abilitazione personale. La cancellazione permanente richiede anche un mandato sul prodotto e la digitazione del nome esatto. Sulle famiglie esistenti puoi rinominare un formato autorizzato. Aggiunta e rimozione delle combinazioni restano aperte. [Collaudo e stato di rilascio](../release/ADMIN-V2-CONSEGNA-MARCO-2026-11-25.md)
+
 Apri [l’area staff](https://onlinegarden.it/admin) con la tua utenza personale. Il catalogo si trova in **Prodotti**. Inserisci un nome, uno SKU o un codice a barre. Puoi combinare categoria, tipo, origine, completezza e revisione. «Aggiornato» descrive la sincronizzazione. La visibilità sul canale ha una voce dedicata. Apri la scheda per verificare anche la disponibilità.
 
 ## Creare un prodotto

@@ -87,6 +87,10 @@ export const CATALOG_MUTATIONS: Record<string, string> = {
   set_catalog_image: "images",
   rename_catalog_format: "prices",
   publish_catalog_product: "publish",
+  unpublish_catalog_product: "sync",
+  archive_catalog_product: "sync",
+  restore_catalog_product: "sync",
+  delete_catalog_product: "sync",
 };
 export function catalogCommand(raw: unknown): Record<string, unknown> {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
@@ -117,7 +121,7 @@ export function catalogCommand(raw: unknown): Record<string, unknown> {
     "expectedShopifyHash",
     "collectionIds",
     "allowSoldOut",
-    "change", "imageId", "libraryId", "optionValueId", "name",
+    "planHash", "typedTitle", "change", "imageId", "libraryId", "optionValueId", "name",
   ];
   const result = Object.fromEntries(
     keys.filter((k) => Object.hasOwn(p, k)).map((k) => [k, p[k]]),
