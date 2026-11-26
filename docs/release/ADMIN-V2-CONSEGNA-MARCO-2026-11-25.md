@@ -1,3 +1,9 @@
+## Addendum 26 novembre 2026 · SQL eseguito, GO release ancora separati
+
+La finestra database è stata completata sull'unico Lovable Cloud di progetto: migrazioni Drizzle 0021–0023, mapping `short_description` su `custom.short_intro`, journal e le cinque chiavi personali `tags`, `product_gallery`, `product_formats`, `product_unpublish`, `product_archive`. Lettura DB indipendente: **una sola riga** ha tutte e cinque le chiavi; `product_delete` assegnato a **zero account**; **otto** operazioni storiche conservate; **zero** in stato incerto. I grant permanenti `sync` e `publish` risultavano già esistenti. Il report di esecuzione è [MARCO-SQL-PERMESSI-2026-11-26.md](MARCO-SQL-PERMESSI-2026-11-26.md).
+
+La baseline pre-apply è stata acquisita privatamente e il pacchetto dichiarato completo, **ma non è stato eseguito un restore reale**. Il rapporto della PR #73 attesta `product-admin-ai` già distribuita; non richiederne il redeploy senza evidenza di modifica e necessità. Nessun deploy delle Edge in questa finestra SQL, nessun Publish e nessuna scrittura su Shopify. I GO per `product-admin-api`, eventuale `product-admin-ai` solo se necessaria, prova autenticata con Marco, scritture commerciali e Publish rimangono distinti. La baseline frontend precedente al nuovo Publish è `index-BcqOotvz.js`, da verificare nuovamente al momento del rilascio. **SAL 57,75%**.
+
 # Admin V2 · decisione sulla consegna operativa a Marco
 
 **25 novembre 2026 · GO al collaudo isolato. NO-GO alla consegna commerciale. SAL ufficiale 57,75%.**
