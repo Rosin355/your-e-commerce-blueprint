@@ -1,5 +1,66 @@
 # Rilascio product-admin-api — 26/11/2026
 
+## Correzione definitiva AI editor — rilascio coordinato 26/11/2026
+
+**Stato: PENDING_CLIENT_ACCEPTANCE.** Autorizzazione coordinata ricevuta alle 17:05 UTC. Commit applicativo `d25292501a0d65aff5f28a6820f487836683bb78`; base del candidato `c4eaf74`, integrazione intermedia `ada4861`. Solo backend Lovable Cloud esistente. Nessuna nuova funzione/funzionalità “Genera scheda completa con AI”.
+
+### Regola e verifica dei percorsi
+Una proposta deve rielaborare soltanto fatti verificati, non dichiarare riuscito un fallback, mostrare la formattazione corretta e rimanere separata dalla bozza fino alla conferma.
+- Nuova scheda: `NewProductPage` → `DraftSheetAssistant` → `suggestDraftEditorial` → `generateDraftSheet` → `generateConfirmedProposal`: codice letto e regressioni PASS; nessun salvataggio automatico.
+- Prodotto esistente: fonti confermate in `DraftSheetAssistant`, campo vuoto in `FieldCard` → `ConfirmedAiAssistant` → `suggestConfirmedField`: codice letto; entrambi mostrano avvisi di sezione e aggiornano l’editor alla nuova risposta, senza perdere il controllo manuale.
+- Suggerimenti persistenti: `AiSuggestionCard` → `generate_ai_suggestion` → `service.generateAiSuggestion`: codice letto; percorso separato, senza fallback estrattivo, con versione/prenotazione e conferma. Non modificate proposte pregresse o record approvati.
+- Formattazione: contratto `sections/text/factIndices`; Markdown limitato convertito in HTML dal renderer, poi sanitizer condiviso; `RichTextEditor`/`EditorialText` sanitizzano anche nel browser. Nessun HTML arbitrario accettato dal modello.
+- Selezioni SEO/tag: `admin-draft-editorial` mantiene scelte con origine deterministica esplicita e grant per campo; non presentate come prosa AI. Nessuna nuova capability.
+- RPC: `reserve_confirmed_ai_request`/`reserve_new_draft_editorial_v1` sono prenotazioni autorizzative, non generatori o fallback; codice chiamante letto, RPC non modificate né eseguite durante questi test. Nessun job background o altra Edge aggiunta a questo flusso.
+- Bozza/Shopify: funzioni di approvazione e invio esistenti invariate; test sintetici coprono il comportamento, nessuna scrittura di produzione. Asset API candidate ancora NON distribuite.
+
+### Correzioni
+- Riutilizzato il candidato, senza doppio motore. Corretto anche il conflitto residuo tra prompt generico (valore testuale/niente Markdown) e schema editoriale: ora prompt dedicato con fatti indicizzati e formato coerente.
+- Validator: sezioni invalide escluse con codici `UNSUPPORTED_FACT`, `INCOMPLETE_RESPONSE`, `FORMAT_ERROR`, `EXTRACTIVE_COPY`; sezioni valide conservate. Se nulla è utilizzabile, errore esplicito; mai sostituzione con originali. Numeri, negazioni, citazioni e guardie sui claim preservati/estesi.
+- UI: avvisi visibili in entrambi gli assistenti; retry aggiornato realmente nell’editor, vecchi avvisi rimossi con la nuova risposta; applicazione e salvataggio restano separati.
+- I controlli automatici NON certificano semanticamente ogni possibile proposizione: revisionare tutte le affermazioni contro i fatti è obbligatorio. Nessuna promessa generale di assenza di allucinazioni.
+
+### Test eseguiti
+- Node Admin: **272 PASS / 0 FAIL**; ultime regressioni handler+AI dopo il marker **64 PASS / 0 FAIL** (riesecuzione, non da sommare).
+- Deno descrizioni/asset/servizio: **27 PASS / 0 FAIL**; `deno check product-admin-ai/index.ts` PASS; compilazione automatica preview `build OK`.
+- Input originali conservati nei test: Yucca rostrata (11 righe/2696 caratteri), arbusto Agavaceae (1 riga). Provider SIMULATO: prosa rielaborata fedele alle fixture, sezioni/lista/grassetto, risposta incompleta, misure/claim inventati, HTML arbitrario, copie e provider indisponibile. Nessuna chiamata AI a consumo in questo intervento.
+- Browser Admin autenticato prima del rilascio: dashboard/new-product read-only; AI simulata, avvisi/anteprima/scarto PASS, bozza vuota, zero scritture.
+- Retry/mobile: fixture Editor sintetica isolata con tutti i provider remoti bloccati, Python Playwright PASS; nuova risposta visibile, avvisi precedenti rimossi, scarto, zero mutazioni/errori pagina. Il runner JS Playwright non parte perché il browser della sua versione non è installato: usato il browser Python già disponibile, senza installazioni. Test JS di regressione mantenuto nel progetto.
+- Nuova sessione Admin post-autorizzazione non disponibile: il percorso nativo `--self` rifiuta l’associazione corrente; nessun account creato/impersonato. Non confondere i test sintetici con un nuovo collaudo autenticato di produzione.
+
+### Perimetro e distribuzione
+- Diff frontend rispetto a `f32989d`: soltanto `ConfirmedAiAssistant.tsx`, `DraftSheetAssistant.tsx`, `ProductAssetEditor.tsx`, `adminApi.ts`. Asset editor: avviso `canModify=false` e disabilitazione dei comandi non eseguibili, nessuna modifica API/grant. Zero file homepage/catalogo/PDP/navbar/checkout/pagamenti/clienti/cookie.
+- Deploy nativo effettuato: **solo `product-admin-ai`** dal commit verificato. `product-admin-api` NON ridistribuita.
+- 27 moduli locali, zero import mancanti/sibling. Entrypoint SHA-256 `29f1dcd692938ed64274f80a965c84340f9c6130f9bed3d76b2ccaa21ece6618`.
+- Impronta locale del manifest ordinato path/hash: `46cdf26c88a269bb4d153d092fec10bfc500fc165252cd44ac6f3107e93f1866`. Impronta nativa sorgenti+impostazioni inviate: `c9e642028af58be0d4be92e49521e3dac8825af4a99656ed25acff2071193dab`; formati distinti, non da confrontare come hash equivalenti.
+- Runtime: OPTIONS **200**, POST senza autenticazione **401**, entrambi con `X-Admin-AI-Version=verified-editorial-20261126-r2`. Versione applicativa attestata; ID/revisione/download runtime non esposti, checksum runtime binario non attestabile.
+- Publish frontend **completato e verificato sul dominio pubblico** dopo una sola richiesta: nuovo asset `index-kMoBF-yp.js`, precedente `index-DwN3gNmM.js`. ID deploy frontend non esposto dallo strumento. `/admin`, homepage e `/products` HTTP 200; login Admin visibile, zero errori pagina. Il frontend LIVE è stato inoltre collaudato con provider/identità interamente sintetici e isolati: anteprima formattata, avviso sezione esclusa, Riprova con nuova risposta, avvisi eliminati, bozza vuota e Scarta PASS, zero mutazioni. Questo NON attesta una nuova sessione Admin reale o una generazione Gemini reale post-rilascio.
+- Nessun cambio DB/RLS/ACL/ruoli/opt-in/secret/flag/Shopify/inventario/prezzi/ordini/DNS.
+
+### Recovery e retest Marco
+Recovery tecnico: precedente sorgente AI recuperabile dal commit `f32989def1fc4d3593744d60c83836a46f247329`, entrypoint SHA `a8a6621d21babc237a926d3689e98d6bc75b489c70c165a9a2d4243fdcacd625`; solo nuovo deploy mirato previa decisione, nessun rollback/restore eseguito. Frontend precedente identificato dall’asset `index-DwN3gNmM.js`; non è una prova di restore eseguito.
+
+Marco deve ripetere sui due testi ORIGINALI: login, conferma fatti, Completa scheda con AI, confronto di ogni sezione, formattazione senza Markdown letterale, avvisi e Riprova in caso parziale/errore, Scarta/applica alla sola bozza dopo conferma. Nessuna sincronizzazione Shopify o pubblicazione prodotto. Generazione REALE con Gemini e sessione Marco restano da collaudare; bug immagini/formati e relativo API fix non dichiarati risolti da questo deploy. SAL invariata **57,75%**.
+
+---
+
+### Esito finale richiesto
+| Voce | Esito |
+|---|---|
+| Root cause risolta | YES nel codice distribuito: niente prompt estrattivo/fallback descrizione |
+| Validator corretto | YES, sezioni escluse e avvisi, errore se nessuna proposta utilizzabile |
+| Prompt corretto | YES, fatti indicizzati e schema coerente |
+| Rendering corretto | YES, preview e bundle LIVE testati con risposte sintetiche |
+| Test | Node 272 PASS; Deno 27 PASS; handler finale 64 PASS; browser Python PASS |
+| Deploy effettuato | YES, solo product-admin-ai |
+| Publish frontend necessario | YES, autorizzato/completato; asset index-kMoBF-yp.js |
+| Versione runtime verificata | verified-editorial-20261126-r2 tramite header live; hash binario non recuperabile |
+| Retest Marco | REQUIRED; login reale e generazioni Gemini sui due input originali non eseguiti dopo il rilascio |
+
+**GO rilascio tecnico completato; NO-GO accettazione definitiva prima del collaudo Marco.** Nessuna scrittura prodotti/Shopify o modifica catalogo pubblico. Le prove AI reali precedenti restano nel verbale storico e NON sono presentate come PASS del nuovo candidato.
+
+## Verbale storico del candidato precedente (non sostituisce lo stato corrente)
+
 ## Aggiornamento collaudo reale — correzioni candidate, NON distribuite
 
 **Stato: PENDING_CLIENT_ACCEPTANCE · NO-GO rilascio delle correzioni.** Base controllata `1423a9c0241925e6d1115a4cac47f53c6a493255`. Nessuna migration, cambio grant/ruoli/flag/secret, scrittura prodotti, deploy Edge o Publish in questo intervento.
