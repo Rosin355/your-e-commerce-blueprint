@@ -3,10 +3,12 @@
 - [x] Identify exact test product via canonical Admin link, operation and SKU; compare stored values and read source.
 - [x] Diagnose draft metafield omission, missing per-field verification and explicit publication channel scope; run isolated regressions.
 - [x] Document diagnosis, mapping limitations and correction plan; no application edits or deployment.
-- [ ] Read current Shopify definitions, values, publications, markets, inventory and images — Shopify tool authentication expired; no alternative credentials or writes used.
+- [x] Read live exact Product/Variant/SKU, 26 PRODUCT definitions, Admin-visible field values, stock-zero match, images and public PDP after official Shopify reconnection; no writes.
+- [ ] Complete Online Store publication IDs, market context, definition access and values of unmapped taxonomy/long-description fields — existing read endpoints do not expose them completely; do not add/deploy an endpoint implicitly.
 - [x] Confirm seasonal values' origin — user confirmed manual selection at 18:05 UTC; no evidence of AI-generated months, factual review remains separate.
 - [x] Check sibling Admin field/review/create/recovery/publication paths and live draft/sync RPC contracts; document gaps without changing settled records.
-- [ ] Prepare and validate minimal correction after diagnosis/plan approval; deployment and frontend Publish require separate renewed authorization.
+- [x] Prepare approved source-only candidate e612b24 with paginated live definitions, per-field botanical acknowledgement, local/remote read-back and failure reconciliation; 128 Node + 34 Deno PASS; browser review invalidation PASS.
+- [ ] Deploy candidate and publish Admin messages — requires separate renewed authorization and remaining live checks; production remains unchanged.
 
 # Admin V2 — real UAT fixes (2026-11-26)
 
