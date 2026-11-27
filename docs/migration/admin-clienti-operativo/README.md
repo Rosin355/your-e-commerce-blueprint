@@ -2,6 +2,14 @@
 
 **Candidato implementativo della #81, base 3684bf6. PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Nessuna modifica a produzione. Il prototipo sintetico e il registro locale degli acquisti restano disponibili sui percorsi precedenti.
 
+## Decisione del titolare: parità amministrativa di Marco
+
+**Requisito confermato:** Marco deve avere le stesse sezioni e funzioni amministrative del responsabile, non soltanto consultare questo archivio. Il grant `woo_archive.page_admins` proposto nella PR è una **capability limitata all'archivio**, utile come soluzione circoscritta ma **non sufficiente a dichiarare soddisfatta la parità Admin globale**. Il preflight in sola lettura ha individuato un candidato nominativo con ruolo Editor; non equivale a una verifica definitiva dell'identità o del ruolo desiderato.
+
+**Gate dedicato, senza cambio implicito:** riconoscere l'identità di Marco con due riferimenti privati indipendenti; verificare le differenze reali fra i due account e gli effetti di un eventuale passaggio a Admin globale (catalogo, personale, accesso dati, Shopify separato). Preparare una matrice dei permessi e il piano di elevazione/revoca con test, audit e autorizzazione nominativa del titolare. Non applicare grant limitati spacciandoli per parità globale, né promuovere automaticamente l'utente durante l'installazione dell'archivio.
+
+**Ambiente di prova:** non creare un secondo progetto Supabase senza richiesta esplicita; usare il PostgreSQL locale e il browser mock per i test isolati. Prima della distribuzione su quello esistente, documentare le verifiche Auth/PostgREST realmente eseguibili con gli strumenti disponibili, le differenze rispetto a un collaudo completo e i rischi residui. Backup ripristinabile, approvazione conservazione, migrazione SQL, import privato, cambio ruolo e Publish richiedono gate distinti.
+
 ## Titolare e designer
 
 La nuova voce **Clienti storici** apre `/admin/clienti-storici` dopo verifica server del grant. Il cruscotto mostra clienti Woo, acquirenti e somma dei contatori. L'elenco risponde a ricerca esplicita per nome, email o ID Woo e ai filtri con/senza acquisti. Pagine da 50 elementi in ordine di ID. La scheda aggiunge l'email storica. Il CSV include l'intera selezione filtrata, con motivazione predefinita e limite server di 10.000 righe. L'audit registra il rilascio dei dati da parte del server. Il salvataggio del file sul dispositivo è un'operazione successiva del browser.
