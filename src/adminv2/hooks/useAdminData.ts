@@ -1,6 +1,7 @@
 // F6 — Hook di lettura: cache, retry, debounce e paginazione a cursore.
 import { useEffect, useState } from 'react';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ADMIN_READ_ONLY_RELEASE } from '../lib/readOnlyRelease';
 import {
@@ -44,6 +45,20 @@ export function useAdminContext() {
     enabled: Boolean(user),
     staleTime: 5 * 60_000,
     retry,
+  });
+}
+
+export function useArchiveAccess() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['admin', 'woo-archive-access', user?.id],
+    enabled: Boolean(user),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('woo_archive_access');
+      return !error && data === true;
+    },
+    staleTime: 0,
+    retry: false,
   });
 }
 
