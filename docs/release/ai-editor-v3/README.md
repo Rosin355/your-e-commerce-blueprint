@@ -176,3 +176,27 @@ Il calcolo usa i listini dei fornitori. Lovable usa crediti e indica di riferirs
 4. **Solo dopo:** proporre, con autorizzazione e budget espliciti, un pilota A/B di **una coppia** Gemini 3 Flash Preview vs GPT-5.4 Mini, stesso input, schema, limiti e validator corretto; approvare l'eventuale estensione a tre coppie soltanto se la prima misura e' informativa. Non cambiare `ADMIN_AI_MODEL` o altri settings globali per eseguire il confronto; evitare impatto sull'Admin pubblicato.
 
 **Gate:** nessun deploy, Publish, merge, modifica privilegi, chiamata Gemini/OpenAI reale o scrittura prodotto autorizzati da questa decisione. PENDING_CLIENT_ACCEPTANCE; SAL ufficiale 57,75%.
+
+## Candidato semantico e pilota da una coppia
+
+**PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Il commit documentale `628c784` è la base del candidato. Per il precedente retest Admin l'esito è `NOT_RETRIEVABLE`. Nelle sessioni disponibili manca la risposta originale. Restano verificabili 165 parole finali, 9/15 fatti coperti, sei segnalati scoperti e quattro problemi di sezione. Ricevute/accettate/scartate/derivate, elenco puntuale degli scarti, identità delle sei omissioni e parole grezze restano indisponibili. Questa consegna non attribuisce retroattivamente un nuovo punteggio al retest reale.
+
+### Confronto a input e risposta identici
+
+La fixture mirata restituisce due sezioni sintetiche sulla stessa fonte Yucca. Una contiene il portamento verticale e una cura inventata, l'altra definisce eleganti i fiori. Il confronto usa il codice applicativo della base e il candidato con la stessa risposta. Entrambi restituiscono 30 parole finali. [Fixture](../../../scripts/tests/fixtures/yucca-filamentosa-v3-semantica.json) · [Regressioni](../../../scripts/tests/admin-ai-product-editor-v3.test.ts)
+
+| Misura sulla fixture | Base | Candidato |
+|---|---:|---:|
+| Utilizzabili coperti, conteggio storico | 4/15 | 5/15 |
+| Distinti coperti | 3/14 | 4/14 |
+| Distinti scoperti | 11 | 10 |
+| Sezioni ricevute / accettate / scartate / derivate | 2 / 1 / 1 / 3 | 2 / 1 / 1 / 3 |
+| Testo del modello conservato | «I fiori sono eleganti.» | «Il portamento è verticale.» |
+
+Nel candidato si misurano **13 parole proposte dalla fixture**, **4 accettate**, **9 scartate**, **26 derivate localmente**, **30 finali**. Una sezione è accettata in parte. Il motivo associato alla seconda frase è la cura priva di fonte, quello della sezione Fioritura è il giudizio estetico privo di fonte per il fiore. I dieci fatti distinti scoperti sono senza riscontro nel grezzo citato di questa fixture. Un controllo separato riproduce una perdita verificabile di un fatto presente nel grezzo per copia estrattiva. La fixture completa continua a coprire 15/15, ossia 14/14 distinti, con 254 parole e cinque sezioni valide.
+
+**MODEL_AB_READY.** Preparata una coppia con `google/gemini-3-flash-preview` e `openai/gpt-5.4-mini`, identificativi letti dal catalogo ufficiale. Il dry-run ha verificato due richieste identiche salvo modello, SHA-256 del contratto `70b8f37a2d2be826ac8910453da49420ae8748cd8591fb18f26c7e0be8117d18`, con zero chiamate reali. Costo effettivo, latenza e qualità dei due modelli restano da misurare. [Protocollo, rubriche e costi](../../editor-step1/DEVELOPER.md#protocollo-ab-proposto) · [Catalogo Lovable](https://ai.gateway.lovable.dev/v1/models)
+
+**REGRESSION_TESTS.** Superate le suite offline Node (724), Deno (132) e Chromium con backend simulato (41). La prova browser verifica le due coperture, l'origine delle parole, il testo conservato, i motivi di scarto e l'assenza di un salvataggio. Superati anche il typecheck dell'Admin, dell'entrypoint AI e del banco A/B e la build frontend.
+
+**READY_FOR_CONTROLLED_TEST** per una coppia isolata dopo autorizzazione della spesa. La decisione sul modello richiede revisione umana dei 14 fatti distinti, delle frasi non supportate, dello stile e della SEO. Il ramo contiene codice e prove offline, senza deploy, Publish, merge o scritture Shopify/DB.

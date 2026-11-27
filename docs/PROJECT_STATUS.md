@@ -1,3 +1,7 @@
+## 27/11/2026 — Validatore V3 e confronto modelli predisposto
+
+**READY_FOR_CONTROLLED_TEST · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Sulla fixture mirata il candidato passa da 3/14 a 4/14 fatti distinti (da 4/15 a 5/15 nel conteggio storico). La fonte supporta il portamento verticale. La cura inventata e il giudizio estetico sui fiori sono scartati. Il retest storico resta a 165 parole e 9/15. Preparata una coppia Gemini/GPT-5.4 Mini con identificativi verificati nel gateway. Eseguite solo prove sintetiche. [Verbale e gate](release/ai-editor-v3/README.md#candidato-semantico-e-pilota-da-una-coppia)
+
 ## 27/11/2026 — Retest reale AI Product Editor V3 su Yucca filamentosa
 
 **PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Il retest successivo al deploy ha prodotto 165 parole, con 9/15 fatti coperti e quattro problemi di sezione. Il registro Lovable conferma Gemini 3 Flash Preview nella finestra della prova. I motivi dei singoli scarti e la lunghezza grezza richiedono evidenze assenti nel registro. La decisione sul modello resta aperta. [Diagnosi e verbale UAT](release/ai-editor-v3/README.md#diagnosi-del-retest-da-165-parole)

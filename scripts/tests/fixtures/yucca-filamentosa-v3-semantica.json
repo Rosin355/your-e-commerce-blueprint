@@ -1,0 +1,15 @@
+{
+  "sections": [
+    {
+      "heading": "Portamento e sviluppo",
+      "text": "Il portamento è verticale. I fiori richiedono irrigazioni quotidiane.",
+      "factIndices": [0]
+    },
+    {
+      "heading": "Fioritura",
+      "text": "I fiori sono eleganti.",
+      "factIndices": [0, 2]
+    }
+  ],
+  "missingInformation": []
+}

@@ -19,7 +19,7 @@ const initial: ProductDraft = {
   seoTitle: 'Titolo SEO sintetico', seoDescription: 'Descrizione SEO sintetica',
 };
 
-async function simulate(page: Page, options: {article?: 'complete'|'partial'|'legacy'; assets?:boolean; lifecycle?:boolean; existingAi?:boolean; syncReview?:boolean; conflictAfterSave?:boolean; readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; modelSeo?: boolean; denyDescription?: boolean } = {}) {
+async function simulate(page: Page, options: {article?: 'complete'|'partial'|'legacy'|'semantic'; assets?:boolean; lifecycle?:boolean; existingAi?:boolean; syncReview?:boolean; conflictAfterSave?:boolean; readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; modelSeo?: boolean; denyDescription?: boolean } = {}) {
   let changedFormat='Unico';
   const gallery:{id:string;alt:string;url:string;variant:boolean}[]=[];
   const failures = [...(options.aiFailures ?? [])];
@@ -122,7 +122,8 @@ async function simulate(page: Page, options: {article?: 'complete'|'partial'|'le
           expect(input.confirmed).toBe(true);
           if(options.article==='legacy')return reply({source:'model',value:'<p>V2</p>',promptVersion:'online-garden-editoriale-it@2'});
           const partial = options.article === 'partial' && !input.section;
-          const data=JSON.parse(readFileSync(new URL(partial ? '../tests/fixtures/yucca-filamentosa-v3-uat-parziale.json' : '../tests/fixtures/yucca-filamentosa-v3.json',import.meta.url),'utf8'));
+          const fixture = partial ? 'v3-uat-parziale' : options.article === 'semantic' ? 'v3-semantica' : 'v3';
+          const data=JSON.parse(readFileSync(new URL('../tests/fixtures/yucca-filamentosa-' + fixture + '.json',import.meta.url),'utf8'));
           if(input.section) {
             expect(input.revision.target).toBe(input.section);
             expect(input.fieldKey).toBe('description');
@@ -878,4 +879,23 @@ test('V3 completa manualmente la fixture UAT oltre 250 parole senza altre richie
   expect(words).toBeGreaterThanOrEqual(250);expect(words).toBeLessThanOrEqual(450);
   expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(1);
   expect(model.calls).not.toContain('save_new_product');
+});
+
+test('V3 espone copertura distinta e provenienza delle parole della generazione parziale',async({page})=>{
+  const state=await simulate(page,{article:'semantic',sheet:true});
+  await prepareArticle(page);
+  await expect(page.getByText(/5 \/ 15 fatti verificati coperti/)).toBeVisible();
+  await expect(page.getByText(/4 \/ 14 fatti distinti coperti/)).toBeVisible();
+  await page.getByText('Misure della prima generazione',{exact:true}).click();
+  await expect(page.getByText(/Parole generate dal modello: 13/)).toContainText('26 derivate localmente');
+  await expect(page.getByText(/Parole generate dal modello: 13/)).toContainText('4 del modello accettate');
+  await expect(page.getByText(/Parole generate dal modello: 13/)).toContainText('30 finali iniziali');
+  const body=page.getByRole('article',{name:'Pagina prodotto in anteprima'});
+  await expect(body).toContainText('Il portamento è verticale.');
+  await expect(body).not.toContainText('I fiori sono eleganti.');
+  await expect(body).not.toContainText('irrigazioni quotidiane');
+  await page.getByText(/^Verifica editoriale/).click();
+  await expect(page.getByText(/Portamento e sviluppo · frase 2/)).toBeVisible();
+  expect(state.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(1);
+  expect(state.calls).not.toContain('save_new_product');
 });

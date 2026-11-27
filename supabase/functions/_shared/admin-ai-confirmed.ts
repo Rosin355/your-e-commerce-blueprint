@@ -31,7 +31,7 @@ export async function generateConfirmedProposal(
   if (!allowed.some(Boolean)) {
     if (description && request.review && !request.section) {
       const assessment = validateEditorialDescription(def, facts, {sections:[],missingInformation:[]}, request);
-      return {...assessment,source:'source_review' as const};
+      return {...assessment,generationAudit:undefined,source:'source_review' as const};
     }
     throw new ConfirmedProposalError('INVALID_MODEL_PROPOSAL','Tutti i fatti richiedono verifica. Correggi le informazioni prima di rigenerare.');
   }

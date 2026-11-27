@@ -1,6 +1,6 @@
 import type { EditorialSection, Heading } from '../../../supabase/functions/_shared/admin-ai-sections';
 import type { FactOutcome } from '../../../supabase/functions/_shared/admin-ai-evidence';
-import type { DescriptionIssue } from '../../../supabase/functions/_shared/admin-ai-description';
+import type { DescriptionIssue, GenerationAudit } from '../../../supabase/functions/_shared/admin-ai-description';
 import type { EditorialKey, EditorialProposal } from '../../../supabase/functions/_shared/admin-draft-editorial';
 // F6 — Unico canale dati dell'Admin: la Edge Function product-admin-api.
 // Il browser non interroga mai direttamente le tabelle del catalogo.
@@ -389,6 +389,7 @@ interface EditorialReviewResponse {
   coverage?: FactOutcome[];
   promptVersion?: string;
   sectionAudit?: {received: number; accepted: number; rejected: number; derived: number};
+  generationAudit?: GenerationAudit;
   descriptionIssues?: DescriptionIssue[];
   missingInformation?: string[];
 }

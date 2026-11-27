@@ -16,7 +16,7 @@ import { factsFromText } from '../../../supabase/functions/_shared/admin-ai-fact
 import { articleVersion } from '../../../supabase/functions/_shared/admin-ai-revision';
 import { isHeading } from '../../../supabase/functions/_shared/admin-ai-sections';
 import { analyzeFacts, unsupportedSection } from '../../../supabase/functions/_shared/admin-ai-evidence';
-import type { DescriptionIssue } from '../../../supabase/functions/_shared/admin-ai-description';
+import type { DescriptionIssue, GenerationAudit } from '../../../supabase/functions/_shared/admin-ai-description';
 import { suggestDraftEditorial } from '../lib/adminApi';
 import { explainAiRequestError } from '../lib/explainAiError';
 import {
@@ -49,6 +49,7 @@ interface Proposal {
   missing: string[];
   issues: DescriptionIssue[];
   sectionAudit?: {received: number; accepted: number; rejected: number; derived: number};
+  generationAudit?: GenerationAudit;
   requestId: string;
 }
 interface Props {
@@ -112,7 +113,7 @@ export default function CustomerDraftEditor(
   const intro = rows.find((r) => r.key === 'shortDescription');
   const unresolvedIssues = (proposal?.issues ?? []).filter((issue, index, all) =>
     issue.code !== 'INCOMPLETE_RESPONSE' && all.findIndex(i => i.section === issue.section &&
-      i.code === issue.code && i.message === issue.message) === index);
+      i.code === issue.code && i.message === issue.message && i.sentence === issue.sentence) === index);
   const recoveryHeadings = new Set(assessment.missing.map(f => suggestionHeading(f.text)));
   for (const key of ['Introduzione','Descrizione botanica','Coltivazione e manutenzione'] as const) {
     if (assessment.problems.includes(key + ' da recuperare.')) recoveryHeadings.add(key);
@@ -171,6 +172,7 @@ export default function CustomerDraftEditor(
         missing: result.missingInformation ?? [],
         issues: result.descriptionIssues ?? [],
         sectionAudit: result.sectionAudit,
+        generationAudit: result.generationAudit,
       });
     } catch (e) {
       if (ticket === seq.current) setError(e instanceof Error ? e.message : explainAiRequestError(e));
@@ -399,6 +401,18 @@ export default function CustomerDraftEditor(
                   (assessment.problems.length + unresolvedIssues.length) + ' problemi di sezione',
                 ].join(' · ')}
               </p>
+              <p>{assessment.distinctCovered} / {assessment.distinctUsable} fatti distinti coperti nella scheda corrente</p>
+              {proposal.generationAudit && <details className='mt-2 text-sm'>
+                <summary>Misure della prima generazione</summary>
+                <p>Parole generate dal modello: {proposal.generationAudit.words.generated ?? 'dato assente'} ·
+                  {' '}{proposal.generationAudit.words.accepted} del modello accettate dal validatore ·
+                  {' '}{proposal.generationAudit.words.derived} derivate localmente · {proposal.generationAudit.words.final} finali iniziali</p>
+                <p>{proposal.generationAudit.partialSections} sezioni conservate in parte ·
+                  {' '}{proposal.generationAudit.filteredFacts.length} fatti distinti riconosciuti nel grezzo e scartati ·
+                  {' '}{proposal.generationAudit.unmatchedFacts.length} fatti distinti scoperti senza riscontro nel grezzo citato</p>
+                {proposal.generationAudit.filteredFacts.length > 0 && <ul>{proposal.generationAudit.filteredFacts.map(i =>
+                  <li key={i}>{assessment.coverage[i]?.text}</li>)}</ul>}
+              </details>}
             </div>
             <Button size='sm' variant='outline' disabled={locked} onClick={discard}>Rivedi le fonti</Button>
           </div>

@@ -2,6 +2,7 @@ import type { EditorialSection, Heading } from '../../../supabase/functions/_sha
 import { descriptionHeadings, isHeading, renderSections, suggestionHeading } from '../../../supabase/functions/_shared/admin-ai-sections';
 import {
   analyzeFacts,
+  countEditorialWords,
   factCoverage,
   normalize,
   unsupportedSection,
@@ -221,6 +222,7 @@ export function articleAssessment(rows: ArticleRow[], facts: string[]) {
   const coverage = factCoverage(analysis, sections);
   const covered = coverage.filter((f) => f.status === 'included' || f.status === 'equivalent').length;
   const missing = coverage.filter((f) => f.status === 'uncovered');
+  const distinct = coverage.filter(f => !f.exclusion && f.duplicateOf === undefined);
   const problems = sections.flatMap((s) => {
     const reason = unsupportedSection(s.text, analysis.filter((f) => s.factIndices.includes(f.row)));
     return reason ? [s.heading + ' · ' + reason] : [];
@@ -237,8 +239,10 @@ export function articleAssessment(rows: ArticleRow[], facts: string[]) {
     coverage,
     covered,
     missing,
+    distinctUsable: distinct.length,
+    distinctCovered: distinct.filter(f => f.status === 'included' || f.status === 'equivalent').length,
     problems,
-    words: sections.map((s) => s.text).join(' ').trim().split(/\s+/).filter(Boolean).length,
+    words: sections.reduce((n, s) => n + countEditorialWords(s.text), 0),
   };
 }
 export function application(rows: ArticleRow[], ctx: SheetContext) {
