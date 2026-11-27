@@ -388,6 +388,7 @@ interface EditorialReviewResponse {
   sections?: EditorialSection[];
   coverage?: FactOutcome[];
   promptVersion?: string;
+  sectionAudit?: {received: number; accepted: number; rejected: number; derived: number};
   descriptionIssues?: DescriptionIssue[];
   missingInformation?: string[];
 }

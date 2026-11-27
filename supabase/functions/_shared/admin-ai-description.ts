@@ -9,7 +9,7 @@ import {
   isHeading,
   renderSections,
 } from './admin-ai-sections.ts';
-import { analyzeFacts, factCoverage, normalize, unsupportedSection } from './admin-ai-evidence.ts';
+import { analyzeFacts, factCoverage, normalize, unsupportedSection, type SourceFact } from './admin-ai-evidence.ts';
 
 export interface DescriptionIssue {
   section: string;
@@ -37,6 +37,30 @@ function copiedFromSource(text: string, facts: string[]) {
   // Adding a heading or a short lead to a pasted paragraph is still extractive.
   const spans = words.slice(0, -5).map((_, i) => words.slice(i, i + 6).join(' '));
   return spans.filter((span) => source.includes(span)).length > spans.length * 0.8;
+}
+
+// Only complete positive constructions are eligible. Never salvage a rejected provider section silently.
+function completeSupportedHeadings(sections: EditorialSection[], analysis: SourceFact[], title: string) {
+  const atoms = analysis.filter(f => !f.exclusion);
+  const canAdd = (heading: Heading) => !sections.some(s => s.heading === heading);
+  const add = (heading: Heading, text: string, fact: SourceFact) => {
+    if (canAdd(heading) && !unsupportedSection(text, [fact])) {
+      sections.push({ heading, text, factIndices: [fact.row], origin: 'derived' });
+    }
+  };
+  if (!title || title.length > 120 || !/^[\p{L}\p{M} ’'-]+$/u.test(title)) return;
+  // Cross-sentence restrictions must be reviewed together.
+  if (atoms.some(f => /\b(?:non|solo|soltanto|salvo|eccetto|tranne|tuttavia|purché|rettifica|invece)\b/iu.test(f.text))) return;
+  for (const fact of atoms) {
+    const value = fact.text.replace(/[.]$/, '');
+    if (/^(?:arbusto|albero) (?:sempreverde|caducifoglio)$/iu.test(value)) {
+      add('Introduzione', title + ' è un ' + value.toLocaleLowerCase('it') + '.', fact);
+    }
+    const place = /^originari[oa] (de(?:gli|i|l|lla|lle) [\p{L} -]+)$/iu.exec(value);
+    if (place) add('Descrizione botanica', 'La specie è originaria ' + place[1] + '.', fact);
+    const soil = /^(?:predilige|preferisce) (un (?:terreno|substrato|suolo) [\p{L} -]+)$/iu.exec(value);
+    if (soil) add('Coltivazione e manutenzione', 'Per la coltivazione, ' + title + ' preferisce ' + soil[1] + '.', fact);
+  }
 }
 
 export function validateEditorialDescription(
@@ -75,7 +99,7 @@ export function validateEditorialDescription(
       });
       continue;
     }
-    seen.add(heading);
+    if (!request.article) seen.add(heading);
     const cited = analysis.filter((a) => factIndices.includes(a.row) && (!request.article || !a.exclusion));
     const unsupported = unsupportedSection(text, cited);
     if (unsupported) {
@@ -90,10 +114,16 @@ export function validateEditorialDescription(
       });
       continue;
     }
+    seen.add(heading);
     sections.push({ heading, text: text.trim(), factIndices: [...new Set<number>(factIndices)] });
   }
   if (!sections.length && (!request.review || request.section)) {
     throw new Error('Nessuna sezione verificabile. ' + issues.map((i) => i.message).join(' '));
+  }
+  const acceptedCount = sections.length;
+  if (request.article && request.review && !request.section && sections.length) {
+    completeSupportedHeadings(sections, analysis, request.productName ?? '');
+    sections.sort((a,b) => descriptionHeadings.indexOf(a.heading) - descriptionHeadings.indexOf(b.heading));
   }
   const coverage = factCoverage(analysis, sections);
   if (!request.section) {
@@ -113,6 +143,10 @@ export function validateEditorialDescription(
   }
   return {
     value,
+    ...(request.article ? { sectionAudit: {
+      received: data.sections.length, accepted: acceptedCount, rejected: data.sections.length - acceptedCount,
+      derived: sections.length - acceptedCount,
+    }} : {}),
     source: 'model' as const,
     sections,
     coverage,

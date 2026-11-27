@@ -121,7 +121,8 @@ async function simulate(page: Page, options: {article?: 'complete'|'partial'|'le
         if(options.article && input.article) {
           expect(input.confirmed).toBe(true);
           if(options.article==='legacy')return reply({source:'model',value:'<p>V2</p>',promptVersion:'online-garden-editoriale-it@2'});
-          const data=JSON.parse(readFileSync(new URL('../tests/fixtures/yucca-filamentosa-v3.json',import.meta.url),'utf8'));
+          const partial = options.article === 'partial' && !input.section;
+          const data=JSON.parse(readFileSync(new URL(partial ? '../tests/fixtures/yucca-filamentosa-v3-uat-parziale.json' : '../tests/fixtures/yucca-filamentosa-v3.json',import.meta.url),'utf8'));
           if(input.section) {
             expect(input.revision.target).toBe(input.section);
             expect(input.fieldKey).toBe('description');
@@ -129,8 +130,8 @@ async function simulate(page: Page, options: {article?: 'complete'|'partial'|'le
             if(input.revision.instruction==='errore simulato')return route.fulfill({status:422,json:{ok:false,error:{code:'INVALID_MODEL_PROPOSAL'}}});
             data.sections=data.sections.filter((s:{heading:string})=>s.heading===input.section);
             if(input.section==='Fioritura' && input.revision.instruction==='Rendi più naturale')data.sections[0].text=data.sections[0].text.replace('si osserva','si vede');
-          } else if(options.article==='partial') data.sections=data.sections.filter((s:{heading:string})=>s.heading==='Fioritura');
-          return reply({...validateEditorialDescription({key:'description',editor_type:'richtext',data_type:'text',validation_rules:{}} as FieldDefinition,input.facts,data,{article:true,review:true,section:input.section}),editorial:{seoTitle:{value:'Yucca filamentosa',source:'model'},seoDescription:{value:'Yucca filamentosa, arbusto sempreverde.',source:'deterministic'},tags:{value:['Yucca filamentosa'],source:'model'}}});
+          }
+          return reply({...validateEditorialDescription({key:'description',editor_type:'richtext',data_type:'text',validation_rules:{}} as FieldDefinition,input.facts,data,{article:true,review:true,section:input.section,productName:input.draftTitle}),editorial:{seoTitle:{value:'Yucca filamentosa – arbusto sempreverde',source:'model'},seoDescription:{value:'Yucca filamentosa – arbusto sempreverde. Predilige un terreno fertile e ben drenato.',source:'deterministic'},tags:{value:['Yucca filamentosa','arbusto sempreverde'],source:'deterministic'}}});
         }
         expect(Object.keys(input).sort()).toEqual(['action','confirmed',...('draftTitle' in input ? ['draftTitle'] : []),'facts','fieldKey',...('productName' in input ? ['productName'] : []),'requestKey']);
         if ('draftTitle' in input) expect(input.draftTitle).toBeTruthy();
@@ -797,7 +798,9 @@ test('V3 Yucca su tablet: PDP, modifica isolata, confronto, conferme botaniche e
   const review=page.getByRole('region',{name:'Revisione finale'});
   await expect(review).toContainText('modificato manualmente');
   await expect(review).toContainText('Agavaceae');
-  await review.getByLabel(/Confermo fonte e valore di Domande frequenti/).check();
+  for (const label of ['Domande frequenti','Punti di forza','Caratteristiche principali']) {
+    await review.getByLabel('Confermo fonte e valore di ' + label, {exact:false}).check();
+  }
   await review.getByLabel(/Ho revisionato i contenuti/).check();
   await page.getByRole('button',{name:'Approva scheda e applica alla bozza'}).click();
   await expect(page.getByText('Contenuti applicati alla bozza interna')).toBeVisible();
@@ -809,7 +812,13 @@ test('V3 Yucca su tablet: PDP, modifica isolata, confronto, conferme botaniche e
   await page.getByRole('link',{name:'Apri scheda prodotto e storico'}).click();
   await page.reload();
   expect(model.saved().title).toBe('Yucca filamentosa');expect(model.saved().description).toContain('si presentano lineari');
-  expect(model.saved().botanicalConfirmedKeys).toEqual(['faq']);expect(model.saved().botanical).not.toHaveProperty('key_features');
+  expect(model.saved().botanicalConfirmedKeys?.slice().sort()).toEqual(['faq','key_benefits','key_features']);
+  for (const key of ['faq','key_benefits','key_features']) expect(model.saved().botanical[key]).toBeTruthy();
+  expect(model.saved().shortDescription).toContain('Yucca filamentosa');
+  expect(model.saved().seoTitle).toBe('Yucca filamentosa – arbusto sempreverde');
+  expect(model.saved().seoDescription).toContain('terreno fertile');
+  expect(model.saved().tags).toEqual(['Yucca filamentosa','arbusto sempreverde']);
+  expect(model.saved().botanical).not.toHaveProperty('curiosity');
   const restored=page.getByRole('heading',{name:'Riepilogo della bozza interna salvata'}).locator('..');
   await expect(restored).toContainText('si presentano lineari');
   await expect(restored).toContainText('12,00 EUR');
@@ -817,11 +826,19 @@ test('V3 Yucca su tablet: PDP, modifica isolata, confronto, conferme botaniche e
   expect(model.calls.filter(a=>/shopify_draft|publish|sync_field/.test(a))).toEqual([]);
   expect(model.unexpected).toEqual([]);
 });
-test('V3 blocca la risposta parziale e recupera solo l’introduzione; @2 e grant mancanti chiudono il percorso',async({page})=>{
+test('V3 blocca la risposta UAT parziale e recupera per sezione; @2 e grant mancanti chiudono il percorso',async({page})=>{
   const model=await simulate(page,{article:'partial',sheet:true});await prepareArticle(page);
   await page.getByRole('button',{name:'Rivedi scheda completa'}).click();
   await expect(page.getByRole('button',{name:'Approva scheda e applica alla bozza'})).toBeDisabled();
-  await page.getByRole('button',{name:'Recupera introduzione'}).click();
+  const recovery = page.getByRole('region',{name:'Recupero della descrizione'});
+  await expect(recovery).toContainText('Alcune informazioni non sono ancora incluse');
+  await expect(recovery.getByRole('button',{name:'Recupera fatto'})).toHaveCount(0);
+  const group = recovery.locator('details').filter({has:page.locator('summary',{hasText:'Descrizione botanica'})});
+  await group.locator('summary').click();
+  await group.getByRole('button',{name:'Integra manualmente'}).click();
+  await page.getByRole('button',{name:'Annulla',exact:true}).click();
+  expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(1);
+  await group.getByRole('button',{name:'Rivedi con AI'}).click();
   await page.getByRole('button',{name:'Prepara revisione'}).click();
   await page.getByRole('button',{name:'Conferma modifica'}).click();
   await expect(page.getByRole('article').getByRole('region',{name:'Introduzione',exact:true})).toBeVisible();
@@ -839,4 +856,26 @@ test('V3 impedisce l’inferenza senza grant per description',async({page})=>{
   await page.getByLabel('Informazioni sul prodotto').fill(yuccaSource);await page.getByLabel(/Ho verificato le informazioni/).check();
   await expect(page.getByRole('button',{name:'Genera scheda completa con AI'})).toBeDisabled();
   expect(model.calls).not.toContain('suggest_confirmed_field');
+});
+
+test('V3 completa manualmente la fixture UAT oltre 250 parole senza altre richieste AI',async({page})=>{
+  const model=await simulate(page,{article:'partial',sheet:true});
+  await prepareArticle(page);
+  const approved=JSON.parse(readFileSync(new URL('../tests/fixtures/yucca-filamentosa-v3.json',import.meta.url),'utf8'));
+  const article=page.getByRole('article',{name:'Pagina prodotto in anteprima'});
+  for(const section of approved.sections as {heading:string;text:string;factIndices:number[]}[]) {
+    const block=article.getByRole('region',{name:section.heading,exact:true});
+    await block.getByRole('button',{name:'Modifica',exact:true}).click();
+    await block.getByLabel('Testo della sezione').fill(section.text);
+    await block.getByText('Fonti utilizzate per questa sezione',{exact:true}).click();
+    for(const i of section.factIndices) await block.getByRole('checkbox',{name:new RegExp('^Riga '+(i+1)+' ·')}).check();
+    await block.getByRole('button',{name:'Conferma modifica'}).click();
+    await expect(block.getByLabel('Testo della sezione')).toHaveCount(0);
+  }
+  const summary=page.getByText(/15 \/ 15 fatti verificati coperti/);
+  await expect(summary).toBeVisible();
+  const words=Number((await summary.innerText()).match(/(\d+) parole/)?.[1]);
+  expect(words).toBeGreaterThanOrEqual(250);expect(words).toBeLessThanOrEqual(450);
+  expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(1);
+  expect(model.calls).not.toContain('save_new_product');
 });

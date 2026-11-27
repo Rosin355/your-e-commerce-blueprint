@@ -170,3 +170,78 @@ test('la preferenza di revisione non costituisce una fonte; la prenotazione SEO 
   );
   assert.equal(called, false);
 });
+
+test('UAT ricostruita: 137 parole, tre equivalenze, recupero locale e SEO senza seconda chiamata', async () => {
+  const partial = JSON.parse(load('v3-uat-parziale.json'));
+  const before = articleAssessment(articleRows(partial.sections, facts), facts);
+  assert.equal(before.words, 137);
+  assert.equal(before.covered, 8);
+  assert.equal(before.coverage.filter(f => f.duplicateOf !== undefined).length, 1);
+  for (const fragment of ['Fiori bianco crema', 'All\'inizio dell\'estate', 'la pianta tende']) {
+    assert.equal(before.coverage.find(f => f.text.startsWith(fragment))?.status, 'equivalent');
+  }
+  const definitions = ['seo_title','seo_description','tags'].map(key => ({
+    ...description, key, editor_type:key === 'tags' ? 'multiselect' : 'text',
+    data_type:key === 'tags' ? 'json' : 'text',
+  } as FieldDefinition));
+  let calls = 0;
+  const result = await generateDraftSheet(description,facts,ctx.title,definitions,[],async (_strategy, context) => {
+    calls++;
+    assert.ok(context.sourceAtoms?.every(f => 'suggestedHeading' in f));
+    return {value:partial,provider:'lovable',model:'fixture',usageTokens:null};
+  },async () => { throw Error('Prenotazione SEO assente'); },true);
+  assert.equal(calls,1);
+  assert.ok('sections' in result && result.sections);
+  const assessment = articleAssessment(articleRows(result.sections,facts,result.editorial),facts);
+  assert.equal(assessment.covered,10);
+  assert.equal(assessment.missing.length,5);
+  assert.deepEqual(assessment.problems,[]);
+  assert.deepEqual(result.sections.filter(s=>s.origin==='derived').map(s=>s.heading),
+    ['Introduzione','Descrizione botanica','Coltivazione e manutenzione']);
+  assert.equal(result.editorial.seoTitle?.value,'Yucca filamentosa – arbusto sempreverde');
+  assert.match(String(result.editorial.seoDescription?.value),/terreno fertile e ben drenato/);
+  assert.deepEqual(result.editorial.tags?.value,['Yucca filamentosa','arbusto sempreverde']);
+  assert.equal(result.editorial.tags?.source,'deterministic');
+});
+
+test('un organo o una polarità errati non coprono una misura o un fatto affermativo', () => {
+  for (const [source, text] of [
+    ['Gli steli floreali possono arrivare a 3 metri.', 'La pianta può arrivare a 3 metri.'],
+    ['La pianta produce numerosi germogli basali.', 'La pianta non produce numerosi germogli basali.'],
+    ['La specie appartiene alla famiglia delle Agavaceae.', 'La specie appartiene alla famiglia delle Asparagaceae.'],
+  ]) {
+    const check = articleAssessment([{key:'Descrizione botanica',text,factIndices:[0],origin:'model'}],[source]);
+    assert.equal(check.covered,0);
+    assert.ok(check.problems.length>0);
+  }
+});
+
+test('una sezione scartata resta diagnosticata anche quando si recupera una nuova frase dalle fonti', async () => {
+  const partial = JSON.parse(load('v3-uat-parziale.json'));
+  partial.sections.push({heading:'Coltivazione e manutenzione',text:'Richiede irrigazioni quotidiane.',factIndices:[0]});
+  const result = await generateConfirmedProposal(description,facts,async () => ({value:partial}),
+    {article:true,review:true,productName:ctx.title});
+  assert.ok('sections' in result && result.sections);
+  assert.deepEqual(result.sectionAudit,{received:4,accepted:3,rejected:1,derived:3});
+  assert.ok(result.descriptionIssues.some(i => i.section === 'Coltivazione e manutenzione' && i.code === 'UNSUPPORTED_FACT'));
+  assert.doesNotMatch(result.value as string,/quotidiane/);
+});
+
+test('la forma e il colore delle foglie non possono coprire la proprietà dei fiori', () => {
+  const statement='Fiori bianco crema a forma di campana.';
+  const check=articleAssessment([{key:'Fioritura',text:'Compaiono i fiori. Le foglie sono bianco crema a forma di campana.',
+    factIndices:[0,1],origin:'model'}],[statement,'Le foglie sono bianco crema a forma di campana.']);
+  assert.equal(check.coverage[0].status,'uncovered');
+});
+
+test('una prima sezione errata non oscura la successiva versione valida dello stesso titolo', async () => {
+  const partial = JSON.parse(load('v3-uat-parziale.json'));
+  partial.sections.unshift({heading:'Fioritura',text:'I fiori sono velenosi.',factIndices:[0]});
+  const result = await generateConfirmedProposal(description,facts,async () => ({value:partial}),
+    {article:true,review:true,productName:ctx.title});
+  assert.ok('sections' in result && result.sections);
+  assert.equal(result.sections.filter(s => s.heading==='Fioritura').length,1);
+  assert.equal(result.sectionAudit?.rejected,1);
+  assert.ok(result.descriptionIssues.some(i => i.code==='UNSUPPORTED_FACT'));
+  assert.doesNotMatch(result.value as string,/velenosi/);
+});

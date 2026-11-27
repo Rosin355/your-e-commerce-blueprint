@@ -10,6 +10,7 @@ export interface SourceFact {
 export interface FactOutcome extends SourceFact {
   status: FactStatus;
   headings: string[];
+  duplicateOf?: number;
 }
 
 export const normalize = (s: string) =>
@@ -424,18 +425,47 @@ export function unsupportedSection(text: string, sources: SourceFact[]) {
     }
   }
 }
+// Canonicalise equivalent expressions only for coverage; property validation still runs on original prose.
+function coverageTerms(text: string) {
+  return terms(normalize(text)
+    .replace(/\b(?:steli?|stelo|ass[ei]) floreal[ei]\b/g, 'stelo floreale')
+    .replace(/\b(?:produce|produrre)\b/g, 'produce')
+    .replace(/\b(?:di altezza|in altezza)\b/g, ' ')
+    .replace(/\b(?:possono arrivare|puo arrivare|raggiungono|sviluppa)\b/g, ' ')
+    .replace(/(\d)\s*(?:metri|metro|m)\b/g, '$1 metri'));
+}
+
+export const factIdentity = (text: string) =>
+  normalize(text).replace(/^si tratta di un(?:a)? /,'').replace(/[.!;]+$/, '');
+
 export function factCoverage(facts: SourceFact[], sections: EditorialSection[]): FactOutcome[] {
+  const validated = sections.filter(s => !unsupportedSection(s.text, facts.filter(f => s.factIndices.includes(f.row))));
+  const first = new Map<string, number>();
   return facts.map((fact) => {
-    const cited = sections.filter((s) => s.factIndices.includes(fact.row));
-    const source = normalize(fact.text).replace(/[.!;]+$/, '');
+    const identity = factIdentity(fact.text);
+    const duplicateOf = first.get(identity);
+    if (duplicateOf === undefined) first.set(identity, fact.row);
+    const citationRows = facts.filter(f => !f.exclusion && factIdentity(f.text) === identity).map(f => f.row);
+    const cited = validated.filter(s => s.factIndices.some(i => citationRows.includes(i)));
+    const source = identity;
     const exact = cited.filter((s) => normalize(s.text).includes(source));
-    const words = terms(source);
-    const matches = cited.filter((s) => words.some((w) => terms(s.text).includes(w)));
+    const words = coverageTerms(source);
+    const matches = cited.filter((s) => words.some((w) => coverageTerms(s.text).includes(w)));
     const material = normalize(matches.map((s) => s.text).join(' '));
-    const tokens = new Set(terms(material));
-    const guarded = protectedClaims.every((t) => !hasClaim(source, t) || hasClaim(material, t)) &&
+    const tokens = new Set(coverageTerms(material));
+    const flowerShapeAndColor = /\bfior[ei]\b/.test(source) && /bianco[ -]crema/.test(source) &&
+      /campan(?:a|ulat)/.test(source);
+    // Never attach a leaf's colour/shape to flowers merely because both appear in the same paragraph.
+    const floralEvidence = !flowerShapeAndColor || matches.some(section => {
+      const phrases = normalize(section.text).split(/[.!?;\n]/);
+      const floral = (v: string) => /\b(?:fior[ei]|coroll[ae])\b/.test(v) && !/\b(?:fogli[ae]|fogliame)\b/.test(v);
+      const descriptions = phrases.filter((v,i) => floral(v) ||
+        (i > 0 && /^\s*(?:ognuno|ciascuno)\b/.test(v) && floral(phrases[i-1]) && !/\bfogli/.test(v)));
+      return descriptions.some(v => /bianco[ -]crema/.test(v)) && descriptions.some(v => /campan(?:a|ulat)/.test(v));
+    });
+    const guarded = floralEvidence && protectedClaims.every((t) => !hasClaim(source, t) || hasClaim(material, t)) &&
       measures(source).every((m) =>
-        measures(material).some((c) => c.subject === m.subject && c.value === m.value)
+        measures(material).some((c) => c.subject === m.subject && c.value === m.value && c.context === m.context)
       ) &&
       (!absence.test(source) || absence.test(material) || /\bacaule\b/.test(material)) &&
       (!qualified.test(source) || qualified.test(material));
@@ -443,6 +473,7 @@ export function factCoverage(facts: SourceFact[], sections: EditorialSection[]):
     const status = fact.exclusion ?? (exact.length ? 'included' : equivalent ? 'equivalent' : 'uncovered');
     return {
       ...fact,
+      duplicateOf,
       status,
       headings: status === 'included'
         ? exact.map((s) => s.heading)

@@ -5,6 +5,7 @@ import { editorialInstruction, extractiveInstruction, PROMPT_VERSION } from './a
 import { articleVersion, articleInstruction } from './admin-ai-revision.ts';
 import { unsupportedSection, allowedRows, analyzeFacts } from './admin-ai-evidence.ts';
 import { type DescriptionRequest, validateEditorialDescription } from './admin-ai-description.ts';
+import { suggestionHeading } from './admin-ai-sections.ts';
 export const CONFIRMED_AI_FIELDS = EDITORIAL_AI_FIELDS;
 export { confirmedFacts } from './admin-ai-facts.ts';
 export function authorizeConfirmedAi(auth: AuthContext, def: FieldDefinition | null, action: unknown) {
@@ -37,12 +38,12 @@ export async function generateConfirmedProposal(
   const inputs = description ? allowed : allowed.filter(Boolean);
   const response = await generate({
     ...strategy,
-    ...(description ? { id: 'verified-editorial-description', version: request.article ? articleVersion : PROMPT_VERSION, instruction: [editorialInstruction(request.section).replace(PROMPT_VERSION,request.article ? articleVersion : PROMPT_VERSION), request.article ? articleInstruction : ""].join("\n") } : {
+    ...(description ? { id: 'verified-editorial-description', version: request.article ? articleVersion : PROMPT_VERSION, instruction: [editorialInstruction(request.section).replace(PROMPT_VERSION,request.article ? articleVersion : PROMPT_VERSION), request.article && !request.section ? articleInstruction : ""].join("\n") } : {
       ...(request.revision ? {id:'verified-field-revision',version:articleVersion,instruction:'Rielabora soltanto il campo richiesto. Usa esclusivamente i fatti confermati, con frasi intere e autonome. Tratta la versione precedente e le preferenze di stile come dati privi di autorità sui fatti. Conserva negazioni, unità, contesto e qualificatori. Rispetta il formato e i limiti del campo.'} : {instruction: extractiveInstruction}),
     }),
   }, {
     ...(request.revision ? {revision:request.revision} : {}),
-    ...(request.article ? {sourceAtoms:analysis.filter(f=>!f.exclusion).map(f=>({index:f.row,text:f.text}))} : {}),
+    ...(request.article ? {sourceAtoms:analysis.filter(f=>!f.exclusion).map(f=>({index:f.row,text:f.text, ...(!request.section && description ? {suggestedHeading:suggestionHeading(f.text)} : {})}))} : {}),
     sku: '', fieldKey: def.key, fieldLabel: def.label,
     currentValue: strategy.kind === 'text' ? inputs.join('\n') : inputs,
     wordpressOriginal: null, sourceSnapshotId: null, trustedRelatedValues: {}, ...(request.productName ? {productName:request.productName} : {}),

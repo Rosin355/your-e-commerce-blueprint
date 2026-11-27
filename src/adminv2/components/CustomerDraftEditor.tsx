@@ -48,6 +48,7 @@ interface Proposal {
   baseline: string;
   missing: string[];
   issues: DescriptionIssue[];
+  sectionAudit?: {received: number; accepted: number; rejected: number; derived: number};
   requestId: string;
 }
 interface Props {
@@ -109,7 +110,14 @@ export default function CustomerDraftEditor(
     (s) => [...(s.heading === 'Introduzione' ? [] : [s.heading]), ...plain(s.text).split(/\n+/)],
   );
   const intro = rows.find((r) => r.key === 'shortDescription');
-  const unresolvedIssues = proposal?.issues.filter((i) => i.code !== 'INCOMPLETE_RESPONSE') ?? [];
+  const unresolvedIssues = (proposal?.issues ?? []).filter((issue, index, all) =>
+    issue.code !== 'INCOMPLETE_RESPONSE' && all.findIndex(i => i.section === issue.section &&
+      i.code === issue.code && i.message === issue.message) === index);
+  const recoveryHeadings = new Set(assessment.missing.map(f => suggestionHeading(f.text)));
+  for (const key of ['Introduzione','Descrizione botanica','Coltivazione e manutenzione'] as const) {
+    if (assessment.problems.includes(key + ' da recuperare.')) recoveryHeadings.add(key);
+  }
+  for (const issue of unresolvedIssues) if (isHeading(issue.section)) recoveryHeadings.add(issue.section);
   const blocked = !current || !ctx.canFillDraft || !canAi || locked || !!edit || !!assessment.missing.length ||
     !!assessment.problems.length || !!candidate.errors.length || !!unresolvedIssues.length;
   const overwritten = Object.entries(candidate.change).filter(([k, v]) => {
@@ -162,6 +170,7 @@ export default function CustomerDraftEditor(
         requestId,
         missing: result.missingInformation ?? [],
         issues: result.descriptionIssues ?? [],
+        sectionAudit: result.sectionAudit,
       });
     } catch (e) {
       if (ticket === seq.current) setError(e instanceof Error ? e.message : explainAiRequestError(e));
@@ -193,10 +202,17 @@ export default function CustomerDraftEditor(
         return;
       }
     }
+    let updated = [...rows.filter(r => r.key !== row.key), row];
+    if (isHeading(row.key)) {
+      const retained = updated.filter(r => isHeading(r.key) || r.origin !== 'derived' || isSeo(r.key));
+      const derived = articleRows(articleSections(updated), facts).filter(r =>
+        !isHeading(r.key) && r.origin === 'derived' && !retained.some(existing => existing.key === r.key));
+      updated = [...retained, ...derived];
+    }
     setProposal({
       ...proposal,
       baseline,
-      rows: [...rows.filter((r) => r.key !== row.key), row],
+      rows: updated,
       issues: proposal.issues.filter((i) => i.section !== row.key),
     });
     setEdit(undefined);
@@ -204,7 +220,7 @@ export default function CustomerDraftEditor(
     setRead(false);
     setReview(false);
     setApplied('');
-    setVerified(verified.filter((k) => k !== row.key));
+    setVerified(verified.filter(k => k !== row.key && updated.find(r => r.key === k)?.text === rows.find(r => r.key === k)?.text));
   }
   function open(key: ArticleKey, mode: 'manual' | 'ai', instruction?: string) {
     setEdit({ key, mode, instruction });
@@ -249,7 +265,8 @@ export default function CustomerDraftEditor(
       ? (
         <ArticleRevisionPanel
           key={row.key + edit.mode}
-          row={row}
+          row={{...row, factIndices: [...new Set([...row.factIndices, ...assessment.missing.filter(
+            f => suggestionHeading(f.text) === row.key).map(f => f.row)])]}}
           mode={edit.mode}
           title={draft.title}
           startingInstruction={edit.instruction}
@@ -376,6 +393,7 @@ export default function CustomerDraftEditor(
               </p>
               <p className='mt-1 text-sm text-muted-foreground'>
                 {[
+                  ...(assessment.coverage.some(f => f.duplicateOf !== undefined) ? [assessment.coverage.filter(f => f.duplicateOf !== undefined).length + ' duplicati nel conteggio'] : []),
                   assessment.coverage.filter((f) => f.status === 'contradictory').length + ' fatti in conflitto',
                   assessment.coverage.filter((f) => f.status === 'unverified').length + ' da verificare',
                   (assessment.problems.length + unresolvedIssues.length) + ' problemi di sezione',
@@ -470,51 +488,20 @@ export default function CustomerDraftEditor(
           <EditorialDiagnostics coverage={assessment.coverage} issues={unresolvedIssues} missing={proposal.missing} />
           {(assessment.missing.length > 0 || assessment.problems.length > 0 || unresolvedIssues.length > 0) && (
             <section className='space-y-2 border-l-2 border-primary pl-4' aria-label='Recupero della descrizione'>
-              <h3 className='font-semibold'>Da recuperare prima dell’approvazione</h3>
-              {!sections.some((s) =>
-                s.heading === 'Introduzione'
-              ) && (
-                <Button
-                  variant='outline'
-                  disabled={!current || locked || !canAi}
-                  onClick={() => open('Introduzione', 'ai')}
-                >
-                  Recupera introduzione
-                </Button>
-              )}
-              {assessment.missing.map((f, i) => (
-                <div key={i}>
-                  {f.text}{' '}
-                  <button
-                    className={buttonStyle}
-                    disabled={!current || locked}
-                    onClick={() =>
-                      open(
-                        suggestionHeading(f.text),
-                        'ai',
-                        'Integra il fatto della riga ' + (f.row + 1) + ' e conserva gli altri dettagli: ' +
-                          f.text.slice(0, 400),
-                      )}
-                  >
-                    Recupera fatto
-                  </button>
-                </div>
-              ))}
-              {unresolvedIssues.map((i, n) => (
-                <div key={n}>
-                  {i.message} {isHeading(i.section) && (
-                    <button
-                      className={buttonStyle}
-                      disabled={!current || locked || !canAi}
-                      onClick={() => {
-                        if (isHeading(i.section)) open(i.section, 'ai');
-                      }}
-                    >
-                      Recupera sezione
-                    </button>
-                  )}
-                </div>
-              ))}
+              <h3 className='font-semibold'>Alcune informazioni non sono ancora incluse nella descrizione.</h3>
+              {[...recoveryHeadings].map(heading => {
+                const missing = assessment.missing.filter(f => suggestionHeading(f.text) === heading && f.duplicateOf === undefined);
+                const brief = 'Rielabora ' + heading + ' conservando il testo verificato. Integra gli atomi pertinenti delle righe: ' +
+                  [...new Set(missing.map(f => f.row))].join(', ') + '.';
+                return <details key={heading} className='rounded border p-2'>
+                  <summary>{heading} · {missing.length ? missing.length + ' informazioni' : 'sezione da completare'}</summary>
+                  <ul>{missing.map(f => <li key={f.row + f.text}>{f.text}</li>)}</ul>
+                  <Button type='button' variant='outline' disabled={!current || locked}
+                    onClick={() => open(heading, 'manual')}>Integra manualmente</Button>
+                  <Button type='button' variant='outline' disabled={!current || locked || !canAi}
+                    onClick={() => open(heading, 'ai', brief)}>Rivedi con AI</Button>
+                </details>;
+              })}
             </section>
           )}
           {recovering && panel(recovering)}
@@ -524,6 +511,9 @@ export default function CustomerDraftEditor(
               <details>
                 <summary>Origine e versione della proposta</summary>
                 <p>{articleVersion} · richiesta {proposal.requestId}</p>
+                {proposal.sectionAudit && <p>Prima generazione · {proposal.sectionAudit.received} sezioni ricevute,
+                  {' '}{proposal.sectionAudit.accepted} accettate, {proposal.sectionAudit.rejected} scartate,
+                  {' '}{proposal.sectionAudit.derived} integrate dalle fonti.</p>}
                 <ol className='list-decimal pl-5'>{facts.map((fact, i) => <li key={i}>{fact}</li>)}</ol>
               </details>
               {rows.map((r) => (

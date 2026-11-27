@@ -1,5 +1,5 @@
 import type { EditorialSection, Heading } from '../../../supabase/functions/_shared/admin-ai-sections';
-import { descriptionHeadings, isHeading, renderSections } from '../../../supabase/functions/_shared/admin-ai-sections';
+import { descriptionHeadings, isHeading, renderSections, suggestionHeading } from '../../../supabase/functions/_shared/admin-ai-sections';
 import {
   analyzeFacts,
   factCoverage,
@@ -43,13 +43,7 @@ const questions: Partial<Record<Heading, string>> = {
 };
 const clean = (s: string) => s.replace(/\*\*/g, '').replace(/^\s*-\s+/gm, '').trim();
 const sentences = (s: string) => clean(s).split(/(?<=[.!?])\s+(?=[\p{Lu}])/u).filter(Boolean);
-export function suggestionHeading(text: string): Heading {
-  if (/fior|giugno|estate/i.test(text)) return 'Fioritura';
-  if (/terren|dren|irrig|coltiv/i.test(text)) return 'Coltivazione e manutenzione';
-  if (/fogli|filament|rosett/i.test(text)) return 'Fogliame e caratteristiche distintive';
-  if (/altezza|portamento|svilupp|fusto/i.test(text)) return 'Portamento e sviluppo';
-  return 'Descrizione botanica';
-}
+export { suggestionHeading } from '../../../supabase/functions/_shared/admin-ai-sections';
 export function historicalText(input: string) {
   const plain = (s: string) =>
     s.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, '').replace(/<\/(?:p|div|li)>|<br\s*\/?>/gi, '\n').replace(
@@ -115,7 +109,7 @@ export function articleRows(
     key: s.heading,
     text: s.text,
     factIndices: s.factIndices,
-    origin: 'model',
+    origin: s.origin ?? 'model',
   }));
   function add(key: ArticleKey, text: string, indices: number[], origin: ArticleRow['origin'] = 'derived') {
     if (text.trim()) rows.push({ key, text, factIndices: [...new Set(indices)], origin });
@@ -232,6 +226,13 @@ export function articleAssessment(rows: ArticleRow[], facts: string[]) {
     return reason ? [s.heading + ' · ' + reason] : [];
   });
   if (!sections.some((s) => s.heading === 'Introduzione')) problems.push('Introduzione da recuperare.');
+  const required: Heading[] = ['Descrizione botanica', 'Coltivazione e manutenzione'];
+  for (const heading of required) {
+    const supported = analysis.some(f => !f.exclusion && (heading === 'Descrizione botanica'
+      ? /\b(?:specie|originari[oa]|provenienza|nome botanico|cultivar|famiglia)\b/iu.test(f.text)
+      : suggestionHeading(f.text) === heading));
+    if (supported && !sections.some(s => s.heading === heading)) problems.push(heading + ' da recuperare.');
+  }
   return {
     coverage,
     covered,

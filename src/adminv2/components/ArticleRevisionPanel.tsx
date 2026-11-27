@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { articleVersion, type EditorialRevision } from '../../../supabase/functions/_shared/admin-ai-revision';
+import { analyzeFacts } from '../../../supabase/functions/_shared/admin-ai-evidence';
 import EditorialText from './EditorialText';
 import { isHeading, renderSections } from '../../../supabase/functions/_shared/admin-ai-sections';
 import { suggestConfirmedField, suggestDraftEditorial } from '../lib/adminApi';
@@ -18,6 +19,8 @@ export default function ArticleRevisionPanel({ row, mode, facts, title, starting
   onConfirm: (next: ArticleRow) => void;
 }) {
   const [text, setText] = useState(row.text);
+  const sourceFacts = analyzeFacts(facts);
+  const [indices, setIndices] = useState(row.factIndices);
   const [brief, setBrief] = useState(startingInstruction ?? '');
   const [proposal, setProposal] = useState<ArticleRow>();
   const [busy, setBusy] = useState(false);
@@ -83,10 +86,23 @@ export default function ArticleRevisionPanel({ row, mode, facts, title, starting
       <h4 className='font-semibold'>{rowLabel(row.key)}</h4>
       {mode === 'manual'
         ? (
+          <>
           <label className='block'>
             Testo della sezione
             <Textarea rows={4} value={text} onChange={(e) => setText(e.target.value)} />
           </label>
+          {isHeading(row.key) && <details>
+            <summary>Fonti utilizzate per questa sezione</summary>
+            {facts.map((_, index) => {
+              const atoms = sourceFacts.filter(f => f.row === index && !f.exclusion);
+              return atoms.length > 0 && <label className='block' key={index}>
+                <input type='checkbox' checked={indices.includes(index)} onChange={e => setIndices(
+                  e.target.checked ? [...indices,index] : indices.filter(n => n !== index))} />
+                {' '}Riga {index + 1} · {atoms.map(f => f.text).join(' ')}
+              </label>;
+            })}
+          </details>}
+          </>
         )
         : (
           <>
@@ -126,6 +142,7 @@ export default function ArticleRevisionPanel({ row, mode, facts, title, starting
                 </Button>
               ))}
             </div>
+            <p className='text-sm'>Prepara revisione avvia una richiesta AI a consumo per questa sezione.</p>
             <Button disabled={busy} onClick={revise}>
               {busy ? 'Preparazione della revisione…' : 'Prepara revisione'}
             </Button>
@@ -151,7 +168,7 @@ export default function ArticleRevisionPanel({ row, mode, facts, title, starting
         <Button
           disabled={busy || (mode === 'manual' ? !text.trim() : !proposal)}
           onClick={() => {
-            const next = mode === 'manual' ? { ...row, text: text.trim(), origin: 'manual' as const } : proposal;
+            const next = mode === 'manual' ? { ...row, text: text.trim(), factIndices: indices, origin: 'manual' as const } : proposal;
             if (next) onConfirm(next);
           }}
         >

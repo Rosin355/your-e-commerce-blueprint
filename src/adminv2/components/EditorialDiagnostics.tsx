@@ -36,7 +36,7 @@ export default function EditorialDiagnostics({ issues = [], coverage = [], missi
         <ol className='list-decimal pl-5'>
           {coverage.map((f, i) => (
             <li key={i}>
-              <strong>{labels[f.status]}</strong> · {f.text} {f.reason} {f.headings.join(', ')}
+              <strong>{labels[f.status]}</strong>{f.duplicateOf !== undefined && ' · Duplicato della riga ' + (f.duplicateOf + 1)} · {f.text} {f.reason} {f.headings.join(', ')}
             </li>
           ))}
         </ol>

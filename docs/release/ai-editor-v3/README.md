@@ -70,3 +70,55 @@ La V3 si confronta con il ramo della #80. La #80 si confronta con il ramo della 
 - **Criterio UX richiesto dal titolare:** "Da recuperare prima dell'approvazione" deve essere un riepilogo breve e comprensibile, con eventuale recupero semiautomatico già nella generazione entro il limite massimo di chiamate autorizzate; restano manuali solo le vere ambiguità, contraddizioni e fatti non attestati. Evitare una sequenza di dieci click e non far eseguire generazioni aggiuntive nascoste.
 
 **Prossima azione:** aprire un fix sulla PR V3 con fixture di regressione basata su output osservato, copertura e SEO, più UAT visivo, senza nuovi deploy, Publish, scritture prodotto o ulteriori invocazioni AI prima di autorizzazione. Restano `PENDING_CLIENT_ACCEPTANCE` e SAL ufficiale **57,75%**.
+
+## Correzione post-UAT · candidata al retest
+
+Il riferimento live è il verbale del commit `8a759b0`. Le schermate documentano tre sezioni visibili, 137 parole e dieci omissioni segnalate. Il verbale del deploy registra separatamente un tentativo autenticato rifiutato prima del modello. Mancano gli argomenti grezzi restituiti dal provider e l'esito per singola sezione della sessione mostrata nelle schermate. Non sono ricostruibili retroattivamente il motivo di ciascuno scarto, i grant effettivi della sessione o le sue prenotazioni SEO.
+
+### Risultati misurati
+
+| Prova | Parole | Fatti coperti sui 15 utilizzabili | Esito |
+|---|---:|---:|---|
+| UAT riportata dal responsabile | 137 | 5 | Tre sezioni visibili; approvazione editoriale respinta |
+| Ricostruzione delle tre sezioni sul codice precedente | 137 | 5 | Baseline riprodotta |
+| Identico testo con il comparatore corretto | 137 | 8 | Riconosciuti fiore campanulato bianco crema, altezza dello stelo floreale e germogli basali |
+| Identica risposta simulata dopo integrazione locale | 163 | 10 | Tre sezioni recuperate, cinque informazioni ancora da integrare, approvazione bloccata |
+| Stessa scheda completata manualmente nel browser | 292 | 15 | Nessuna richiesta AI oltre a quella iniziale simulata |
+| Risposta completa indipendente del provider simulato | 254 | 15 | Percorso iniziale completo in una risposta descrittiva |
+
+La fixture parziale riproduce lunghezza, contatore iniziale, temi e sinonimi osservati. Il testo è una ricostruzione sintetica. Il denominatore di 15 mantiene confrontabilità con la UAT e include due formulazioni dello stesso arbusto sempreverde. La UI identifica il duplicato e lo raggruppa nel recupero. Quattro affermazioni contraddittorie e una ambigua rimangono escluse. Il target di 250–450 parole si applica a fonti sufficientemente ricche; una risposta lacunosa richiede revisione, senza riempitivi per raggiungere il numero.
+
+### Contratto AI e indicazioni developer
+
+- Il provider riceveva atomi con indici condivisi dalla stessa riga e una richiesta generale di completezza. Ora riceve anche la sezione suggerita per ogni atomo nella generazione iniziale. Il prompt specifica come citare la riga originale e come distribuire le affermazioni prima di rispondere. La revisione mirata mantiene l'istruzione per una sola sezione. Budget, versione di trasporto V3 e prenotazioni esistenti restano quelli della #83.
+- Il validatore scarta l'intera sezione per formato, fonte insufficiente o copia estrattiva. Per il prossimo retest il riepilogo conserva il numero di sezioni ricevute, accettate, scartate e derivate localmente. Se il provider ha restituito almeno una sezione valida, la prima generazione può colmare tre titoli mancanti da costrutti positivi circoscritti (portamento sempreverde, origine, preferenza di terreno). Le integrazioni sono indicate come derivate dalle fonti; un precedente scarto della stessa sezione resta un avviso da risolvere esplicitamente.
+- La copertura lessicale richiedeva tutte le radici, compresi verbi accessori, e trattava in modo differente stelo/asse, produce/produrre e m/metri. La correzione si applica alle sezioni validate con riferimenti pertinenti. Colore e forma devono riferirsi al fiore. Restano i controlli su misura, organo, contesto, frequenza, negazione e famiglia. L'indice di fonte da solo non assegna copertura.
+- Nella selezione SEO il modello sceglie indici di candidati già ammessi. La vecchia lista poteva proporre soltanto il titolo prodotto e il primo frammento breve. La #83 filtrava già definizioni, grant e campi restituiti dalla prenotazione batch. Se la RPC batch manca, il percorso legacy può prenotare la sola descrizione. La selezione SEO/tag può essere eseguita soltanto per le chiavi prenotate e idonee; i tag AI richiedono il mapping core previsto. Una proposta deterministica è distinta dalla selezione modello. Nessun retry.
+- Con la Yucca, anche senza prenotazione SEO, il test produce **Yucca filamentosa – arbusto sempreverde**, **Yucca filamentosa – arbusto sempreverde. Predilige un terreno fertile e ben drenato.**, tag **Yucca filamentosa** e **arbusto sempreverde**. I candidati ricchi usano fatti positivi e verificati e passano la validazione del registro. I campi indisponibili non vengono applicati. Le collezioni richiedono un ID ammesso dal catalogo e una selezione esplicita.
+
+### Matrice di persistenza
+
+| Campo | Anteprima | Applicazione al modulo | Persistenza Admin simulata | Destinazione Shopify prevista | Pubblicazione / storefront |
+|---|---|---|---|---|---|
+| Estesa | Sezioni, origine e copertura | HTML sanificato con grant description | description | descriptionHtml | Scheda prodotto del canale |
+| Breve | Sintesi distinta | Con supporto e grant short_description | shortDescription | custom.short_intro se definizione compatibile | Introduzione PDP |
+| Titolo SEO | Modello o derivato | Con grant seo_title e limite campo | seoTitle | seo.title | Metadati della pagina |
+| Meta description | Modello o derivata | Con grant seo_description e limite campo | seoDescription | seo.description | Metadati della pagina; snippet a discrezione del motore |
+| Tag | Lista verificabile | Con registro/abilitazione bozze e controllo formato | tags | tags core | Tassonomia; visibilità secondo storefront |
+| Caratteristiche principali | Elenco | Se selezionato e confermato, con grant | botanical.key_features | custom.key_features se definito | Blocco PDP condizionale |
+| Punti di forza | Solo impieghi o vantaggi documentati | Stessa conferma individuale | botanical.key_benefits | custom.key_benefits se definito | Blocco PDP condizionale |
+| FAQ | Coppie domanda/risposta | Con conferma specifica | botanical.faq | Mapping FAQ verificato verso custom.faq_prodotto | Fisarmonica PDP |
+| Curiosità | Estratto o modifica manuale | Solo anteprima autonoma | Nessun campo nella nuova bozza | Proposta futura: riusare la chiave di registro curiosita e il metafield custom.curiosita | Il consumer PDP esiste già; il percorso dalla nuova bozza richiede ancora sviluppo |
+
+La prova browser controlla il payload salvato per tutti gli otto campi supportati, la riapertura della bozza e l'assenza di curiosità autonome nel payload. Per rendere persistibili le curiosità occorre estendere allowlist della nuova bozza, conferma individuale, validazione per tipo, proiezione di rilettura e verifica definizione/valore del metafield. I contenuti già presenti nel corpo esteso seguono soltanto quel corpo. Sincronizzazione e pubblicazione richiedono autorizzazioni, mapping e riletture separati; in questo collaudo non è stato contattato Shopify.
+
+### Guida al collaudo cliente e designer
+
+1. Inserire la fonte Yucca verificata, generare una volta e annotare versione, identificativo richiesta, parole e contatori. In **Rivedi scheda completa → Origine e versione** controllare i conteggi delle sezioni prima della revisione. Verificare introduzione, botanica e terreno. Distinguere l'altezza dello stelo dall'altezza della pianta.
+2. Nel riepilogo **Alcune informazioni non sono ancora incluse nella descrizione** aprire una sezione. **Integra manualmente** consente di scrivere e indicare le righe utilizzate. **Rivedi con AI** apre il confronto: soltanto **Prepara revisione** invia la richiesta aggiuntiva a consumo. In un collaudo senza budget aggiuntivo usare il percorso manuale. Confermare o annullare prima di passare alla sezione successiva.
+3. Controllare che le modifiche aggiornino la copertura e le sintesi derivate; le revisioni manuali autonome vengono preservate. Verificare che le informazioni mancanti e gli scarti irrisolti impediscano l'approvazione. Controllare SEO, limiti dei campi, tag e assenza di collezioni presunte.
+4. Nella prova simulata confermare separatamente caratteristiche, punti di forza e FAQ; applicare al modulo, salvare la bozza interna e riaprirla. Le curiosità devono essere segnalate come sola anteprima. Confrontare il valore visibile con il valore persistito prima di chiedere qualunque prova di sincronizzazione o pubblicazione.
+
+Collaudo offline completato con 718 test Node, 132 test Deno e 40 test browser superati. Verificati anche i tipi dell’entrypoint Deno e la build dell’Admin.
+
+**READY_FOR_RETEST** per il candidato offline. Il raggiungimento del target di lunghezza e copertura da parte di Gemini al primo tentativo reale richiede una successiva prova autorizzata. PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.

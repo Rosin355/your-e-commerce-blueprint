@@ -1,3 +1,7 @@
+## 27/11/2026 — Correzione Product Editor V3 dopo il collaudo Yucca
+
+**READY_FOR_RETEST · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** La regressione ricostruisce il 5/15 su 137 parole. Sul medesimo testo la copertura corretta è 8/15; con tre sezioni derivate localmente arriva a 10/15 e 163 parole. I cinque fatti residui bloccano l’approvazione. Nel browser la revisione manuale raggiunge 15/15 e 292 parole senza ulteriori richieste AI. Verificati SEO deterministica e salvataggio simulato degli otto campi supportati. Curiosità autonome in sola anteprima. [Verbale, matrice e guida al retest](release/ai-editor-v3/README.md#correzione-post-uat--candidata-al-retest)
+
 ## 27/11/2026 — Product Editor V3 pronto per UAT isolato
 
 Il candidato V3 deriva dalla head della Draft #80, `bcb431e`, che registra anche la prova reale e il deploy selettivo di `product-admin-ai` con prompt @2 dal commit `da55301`. La V3 introduce anteprima cliente, revisione contestuale, copertura dei fatti e approvazione della bozza interna. Il collaudo simulato su Yucca copre 15 fatti utilizzabili su 15 e tiene separati quattro conflitti e una formulazione ambigua. L’AI reale V3, la distribuzione e l’accettazione cliente sono aperte. **READY_FOR_UAT isolato · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** [Verbale V3, mapping e anteprima](release/ai-editor-v3/README.md)
