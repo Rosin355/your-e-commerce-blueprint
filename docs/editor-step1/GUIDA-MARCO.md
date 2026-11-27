@@ -1,5 +1,15 @@
 # Marco · Prima prova dell’editor prodotti
 
+## Collaudo V3 · Yucca filamentosa
+
+1. Nell’ambiente di prova apri **Nuovo prodotto**, resta in **Anteprima cliente** e incolla il testo originale della Yucca dopo averne verificato la fonte.
+2. Genera la scheda. Confronta intro, fogliame, fioritura e terreno con il testo. Controlla separatamente le due famiglie, le misure della pianta e dello stelo e la frase ambigua sul fusto.
+3. Modifica il fogliame a mano. Nella fioritura usa **Modifica con AI**, confronta prima/dopo e prova prima ad annullare, poi a confermare. Verifica che il fogliame conservi il tuo testo.
+4. Apri SEO, categorie e revisione finale. Controlla le omissioni e i limiti, conferma singolarmente le FAQ o gli altri campi botanici che vuoi salvare, poi approva la scheda.
+5. Salva la bozza interna simulata. Se manca un prezzo di prova, inseriscilo nel campo indicato e torna all’anteprima. Riapri la scheda e confronta descrizione, FAQ e riepilogo. Registra un esito distinto per stile, fedeltà botanica e facilità d’uso.
+
+**PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** [Verbale e immagini di riferimento](../release/ai-editor-v3/README.md)
+
 La prima prova si fa insieme al responsabile Online Garden sulla lavanda di prova. Puoi leggere la scheda, provare a cambiare una parola e scegliere **Annulla**. Lascia i prodotti in vendita come sono.
 
 ## Aprire la scheda e provare una modifica

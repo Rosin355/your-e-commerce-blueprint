@@ -1,3 +1,4 @@
+import { articleVersion } from './admin-ai-revision.ts';
 import type { FieldDefinition } from './admin-v2-types.ts';
 import { strategyForField, validateSuggestedValue } from './admin-ai-core.ts';
 import { missingTopics, PROMPT_VERSION } from './admin-ai-editorial-contract.ts';
@@ -22,6 +23,8 @@ export interface DescriptionIssue {
 export interface DescriptionRequest {
   productName?: string;
   section?: Heading;
+  article?: boolean;
+  revision?: import('./admin-ai-revision.ts').EditorialRevision;
   review?: boolean;
 }
 
@@ -73,7 +76,7 @@ export function validateEditorialDescription(
       continue;
     }
     seen.add(heading);
-    const cited = analysis.filter((a) => factIndices.includes(a.row));
+    const cited = analysis.filter((a) => factIndices.includes(a.row) && (!request.article || !a.exclusion));
     const unsupported = unsupportedSection(text, cited);
     if (unsupported) {
       issues.push({ section: heading, code: 'UNSUPPORTED_FACT', message: unsupported });
@@ -113,7 +116,7 @@ export function validateEditorialDescription(
     source: 'model' as const,
     sections,
     coverage,
-    promptVersion: PROMPT_VERSION,
+    promptVersion: request.article ? articleVersion : PROMPT_VERSION,
     descriptionIssues: issues,
     missingInformation: [...new Set(data.missingInformation)] as string[],
   };

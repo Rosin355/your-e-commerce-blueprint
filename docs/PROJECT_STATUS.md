@@ -1,3 +1,7 @@
+## 27/11/2026 — Product Editor V3 pronto per UAT isolato
+
+Il candidato V3 deriva dalla head della Draft #80, `bcb431e`, che registra anche la prova reale e il deploy selettivo di `product-admin-ai` con prompt @2 dal commit `da55301`. La V3 introduce anteprima cliente, revisione contestuale, copertura dei fatti e approvazione della bozza interna. Il collaudo simulato su Yucca copre 15 fatti utilizzabili su 15 e tiene separati quattro conflitti e una formulazione ambigua. L’AI reale V3, la distribuzione e l’accettazione cliente sono aperte. **READY_FOR_UAT isolato · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** [Verbale V3, mapping e anteprima](release/ai-editor-v3/README.md)
+
 ## 27/11/2026 — AI Product Editor V2 in collaudo
 
 Candidato sviluppato sul branch `codex/ai-product-editor-v2-20261127` da `1da7ee1` della Draft #79. Il contratto `online-garden-editoriale-it@2` introduce rendiconto dei fatti, gestione di negazioni e conflitti, avvisi editoriali e revisione per sezione. I test usano il testo originale della Yucca filamentosa e un provider simulato. **READY_FOR_UAT** in ambiente isolato. Prova con AI reale, collaudo personale di Marco e rilascio restano da autorizzare o completare. **PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** [Verbale, matrice dei campi e checklist](release/ADMIN-V2-AI-PRODUCT-EDITOR-2026-11-27.md)

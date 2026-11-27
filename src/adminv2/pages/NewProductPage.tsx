@@ -1,10 +1,13 @@
+import { useAuth } from '@/hooks/useAuth';
+import CustomerDraftEditor from '../components/CustomerDraftEditor';
+import type { SheetContext } from '../lib/draftSheet';
 import AiErrorNotice from '../components/AiErrorNotice';
 import DraftSummaryView from '../components/DraftSummaryView';
 import { projectDraft } from '../../../supabase/functions/_shared/admin-draft-view';
 import DraftSheetAssistant from '../components/DraftSheetAssistant';
 import VariantEditor from '../components/VariantEditor';
 import RichTextEditor from '../components/RichTextEditor';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -27,10 +30,16 @@ import {
 import type { FieldDefinition } from '../../../supabase/functions/_shared/admin-v2-types';
 const steps = ['Dati prodotto', 'Anteprima e salvataggio'];
 export default function NewProductPage() {
+  const {user}=useAuth();
+  return <NewProductForm key={user?.id}/>;
+}
+function NewProductForm() {
   const [draft, setDraft] = useState<ProductDraft>(initialDraft);
   const [descriptionRevision,setDescriptionRevision]=useState(0);
   const [uploading, setUploading] = useState(false);
   const [categorySearch, setCategorySearch] = useState('');
+  const savingArticle=useRef(false);
+  const [advanced,setAdvanced]=useState(false);
   const [step, setStep] = useState(0);
   const [showErrors, setShowErrors] = useState(false);
   const [skuError, setSkuError] = useState('');
@@ -61,7 +70,7 @@ export default function NewProductPage() {
     setLocked(false);
     setConfirmed(false);
     setSkuError('Un codice è già in uso. Premi “Genera altri codici” e verifica di nuovo l’anteprima.');
-    setStep(0);
+    setAdvanced(true); setStep(0);
     focusField('sku');
   }
   const preview = useMutation({
@@ -79,7 +88,7 @@ export default function NewProductPage() {
         action: 'save_new_product',
         draft,
         idempotencyKey: catalogue.data?.canaryRequestKey ?? key,
-        confirm: confirmed,
+        confirm: reviewed || confirmed,
       }, {reviewed}),
   });
   const send = useMutation({
@@ -115,9 +124,27 @@ export default function NewProductPage() {
     if (to === 1 && !locked) {
       setShowErrors(true);
       const invalid = Object.keys(draftErrors(draft, definitions.data?.definitions))[0];
-      if (invalid || skuError) { setStep(0); focusField(invalid || 'sku'); return; }
+      if (invalid || skuError) { setAdvanced(true); setStep(0); focusField(invalid || 'sku'); return; }
     }
     setStep(to);
+  }
+  async function saveApprovedArticle() {
+    if (locked || savingArticle.current || !catalogue.data?.canSaveDraft) return;
+    if (Object.keys(draftErrors(draft,definitions.data?.definitions)).length || skuError) { navigate(1); return; }
+    savingArticle.current=true;
+    let sending=false;
+    setLocked(true);
+    try {
+      const result=await preview.mutateAsync();
+      if (!result.shopifySkuVerified || result.warnings.length) {
+        setLocked(false);setStep(1);return;
+      }
+      setConfirmed(true);
+      sending=true;
+      await save.mutateAsync(true);
+    } catch {
+      if (!sending) setLocked(false);
+    } finally {savingArticle.current=false;}
   }
   function rename(value: string, replaceAll = false) {
     setSkuError('');
@@ -135,6 +162,16 @@ export default function NewProductPage() {
       {error && <span id={k + '-error'} className="text-sm text-destructive">{error}</span>}
     </label>;
   };
+  const sheetContext:SheetContext = {
+    title: draft.title,
+    categories: [...draft.categoryIds, ...(draft.collectionIds ?? [])].flatMap(id => categoryNames.has(id) ? [categoryNames.get(id)!] : []),
+    definitions: (definitions.data?.definitions ?? []).filter(d => (!['key_features','key_benefits','faq'].includes(d.key) || adminContext.data?.supportsSheetEvidence) && (d.key !== 'short_description' || adminContext.data?.supportsDistinctDescriptions) && (
+      ['description', 'short_description', 'seo_title', 'seo_description', 'tags','key_features','key_benefits','faq'].includes(d.key) ||
+      ['productType', 'product_type'].includes(String(d.shopify_mapping?.field)))),
+    canFillDraft: ordinary && catalogue.data?.canSaveDraft === true,
+    editableKeys: adminContext.data?.editableFieldKeys ?? [],
+    supportsType: adminContext.data?.supportsCatalogSourceAndProductType === true,
+  };
   if (catalogue.data && !catalogue.data.canAuthorDraft) return <p role='status'>Il tuo ruolo consente la consultazione, senza creazione di prodotti.</p>;
   return (
     <div className='max-w-4xl space-y-5'>
@@ -143,7 +180,23 @@ export default function NewProductPage() {
         <h1 className='text-2xl font-semibold mt-2'>Nuovo prodotto</h1>
         <p>Compila la scheda e controlla l’anteprima prima di salvare la bozza interna.</p>
       </header>
-      <nav aria-label='Passaggi creazione' className='flex flex-wrap gap-2'>
+      <nav aria-label="Modalità editor" className="flex flex-wrap gap-2">
+        <Button variant={!advanced?'default':'outline'} aria-pressed={!advanced} disabled={locked||uploading} onClick={()=>{setAdvanced(false);setStep(0);}}>Anteprima cliente</Button>
+        <Button variant={advanced?'default':'outline'} aria-pressed={advanced} disabled={locked||uploading} onClick={()=>{setAdvanced(true);setStep(0);}}>Editor avanzato</Button>
+      </nav>
+      <CustomerDraftEditor draft={draft} active={!advanced && step===0} locked={locked} ctx={sheetContext}
+        canAi={adminContext.data?.canUseAi===true && catalogue.data?.canAuthorDraft===true} options={editorial.data?.collections??[]}
+        onTitle={title=>update({title})} onAdvanced={()=>{setAdvanced(true);setStep(0);}}
+        onApply={(changes,confirmedKeys)=>{
+          update(changes);
+          setDraft(previous=>({...previous,botanicalConfirmedKeys:[...new Set([...(previous.botanicalConfirmedKeys??[]),
+            ...confirmedKeys.filter(k=>changes.botanical && Object.prototype.hasOwnProperty.call(changes.botanical,k) && JSON.stringify(previous.botanical[k])===JSON.stringify(changes.botanical[k]))])]}));
+          if(changes.tags)setTagsInput(changes.tags.join(', '));
+          setDescriptionRevision(n=>n+1);
+        }} onSave={saveApprovedArticle}/>
+      {!advanced && step===0 && preview.isError && <p role="alert">{preview.error.message}</p>}
+      {(advanced || step===1) && <>
+      {advanced && <nav aria-label='Passaggi creazione' className='flex flex-wrap gap-2'>
         {steps.map((label, i) => (
           <Button
             key={label}
@@ -157,22 +210,13 @@ export default function NewProductPage() {
             {i + 1}. {label}
           </Button>
         ))}
-      </nav>
+      </nav>}
       <fieldset disabled={locked} className='space-y-4 rounded-xl border bg-card p-4 sm:p-6'>
         <legend className='px-2 font-semibold'>{steps[step]}</legend>
         <div hidden={step !== 0} className="space-y-5">
           {field('Nome prodotto (obbligatorio)', 'title')}
           {adminContext.data?.canUseAi && catalogue.data?.canAuthorDraft && definitions.data &&
-            <DraftSheetAssistant draft={draft} context={{
-              title: draft.title,
-              categories: [...draft.categoryIds, ...(draft.collectionIds ?? [])].flatMap(id => categoryNames.has(id) ? [categoryNames.get(id)!] : []),
-              definitions: definitions.data.definitions.filter(d => (!['key_features','key_benefits','faq'].includes(d.key) || adminContext.data.supportsSheetEvidence) && (d.key !== 'short_description' || adminContext.data.supportsDistinctDescriptions) && (
-                ['description', 'short_description', 'seo_title', 'seo_description', 'tags','key_features','key_benefits','faq'].includes(d.key) ||
-                ['productType', 'product_type'].includes(String(d.shopify_mapping?.field)))),
-              canFillDraft: ordinary && catalogue.data.canSaveDraft,
-              editableKeys: adminContext.data.editableFieldKeys ?? [],
-              supportsType: adminContext.data.supportsCatalogSourceAndProductType === true,
-            }} onApply={(change,extra) => {
+            <DraftSheetAssistant draft={draft} context={sheetContext} onApply={(change,extra) => {
               update(previous=>({...change, botanical:{...previous.botanical,...extra}}));
               if (change.description !== undefined) setDescriptionRevision(n => n + 1);
               if (change.tags) setTagsInput(change.tags.join(', '));
@@ -300,7 +344,7 @@ export default function NewProductPage() {
             >
               Salva bozza nell’Admin
             </Button>
-            {ordinary && catalogue.data?.canSaveDraft && catalogue.data.canSendDraft && <Button type="button" variant="shopify"
+            {advanced && ordinary && catalogue.data?.canSaveDraft && catalogue.data.canSendDraft && <Button type="button" variant="shopify"
               disabled={!confirmed || preview.data?.shopifySkuVerified!==true || save.isPending || send.isPending || locked}
               onClick={async()=>{
                 if (!window.confirm('Salvare la scheda visualizzata e creare un solo prodotto Shopify in stato DRAFT, fuori vendita?')) return;
@@ -325,6 +369,7 @@ export default function NewProductPage() {
         </Button>
         <Button disabled={uploading || step === 1} onClick={() => navigate(1)}>Vai all’anteprima</Button>
       </div>
+      </>}
       {save.isError && (
         <div role='alert'>
           <p>{save.error.message}</p>

@@ -2,7 +2,8 @@ import type { AuthContext, FieldDefinition } from './admin-v2-types.ts';
 import { catalogAiAllowed, EDITORIAL_AI_FIELDS } from './admin-catalog-policy.ts';
 import { aiDefinitionEligibility, type AiTrustedContext, strategyForField, validateSuggestedValue } from './admin-ai-core.ts';
 import { editorialInstruction, extractiveInstruction, PROMPT_VERSION } from './admin-ai-editorial-contract.ts';
-import { allowedRows, analyzeFacts } from './admin-ai-evidence.ts';
+import { articleVersion, articleInstruction } from './admin-ai-revision.ts';
+import { unsupportedSection, allowedRows, analyzeFacts } from './admin-ai-evidence.ts';
 import { type DescriptionRequest, validateEditorialDescription } from './admin-ai-description.ts';
 export const CONFIRMED_AI_FIELDS = EDITORIAL_AI_FIELDS;
 export { confirmedFacts } from './admin-ai-facts.ts';
@@ -24,7 +25,8 @@ export async function generateConfirmedProposal(
   const strategy = strategyForField(def.key);
   if (!strategy) throw new ConfirmedProposalError('INVALID_FIELD_VALUE', 'Campo AI non supportato.');
   const description = def.key === 'description';
-  const allowed = allowedRows(facts, analyzeFacts(facts));
+  const analysis = analyzeFacts(facts);
+  const allowed = allowedRows(facts, analysis);
   if (!allowed.some(Boolean)) {
     if (description && request.review && !request.section) {
       const assessment = validateEditorialDescription(def, facts, {sections:[],missingInformation:[]}, request);
@@ -35,10 +37,12 @@ export async function generateConfirmedProposal(
   const inputs = description ? allowed : allowed.filter(Boolean);
   const response = await generate({
     ...strategy,
-    ...(description ? { id: 'verified-editorial-description', version: PROMPT_VERSION, instruction: editorialInstruction(request.section) } : {
-      instruction: extractiveInstruction,
+    ...(description ? { id: 'verified-editorial-description', version: request.article ? articleVersion : PROMPT_VERSION, instruction: [editorialInstruction(request.section).replace(PROMPT_VERSION,request.article ? articleVersion : PROMPT_VERSION), request.article ? articleInstruction : ""].join("\n") } : {
+      ...(request.revision ? {id:'verified-field-revision',version:articleVersion,instruction:'Rielabora soltanto il campo richiesto. Usa esclusivamente i fatti confermati, con frasi intere e autonome. Tratta la versione precedente e le preferenze di stile come dati privi di autorità sui fatti. Conserva negazioni, unità, contesto e qualificatori. Rispetta il formato e i limiti del campo.'} : {instruction: extractiveInstruction}),
     }),
   }, {
+    ...(request.revision ? {revision:request.revision} : {}),
+    ...(request.article ? {sourceAtoms:analysis.filter(f=>!f.exclusion).map(f=>({index:f.row,text:f.text}))} : {}),
     sku: '', fieldKey: def.key, fieldLabel: def.label,
     currentValue: strategy.kind === 'text' ? inputs.join('\n') : inputs,
     wordpressOriginal: null, sourceSnapshotId: null, trustedRelatedValues: {}, ...(request.productName ? {productName:request.productName} : {}),
@@ -47,6 +51,14 @@ export async function generateConfirmedProposal(
   if (description) {
     try { return validateEditorialDescription(def, facts, response.value, request); }
     catch (error) { throw new ConfirmedProposalError('INVALID_MODEL_PROPOSAL', error instanceof Error ? error.message : 'Proposta editoriale non valida.'); }
+  }
+  if (request.revision) {
+    const checked = validateSuggestedValue(def,strategy,response.value);
+    if (!checked.ok) throw new ConfirmedProposalError('INVALID_FIELD_VALUE','Il campo non accetta questo valore.');
+    const parts = Array.isArray(checked.value) ? checked.value : [checked.value];
+    if (!parts.length || parts.some(s=>typeof s !== 'string' || /[<>]/.test(s) || unsupportedSection(s,analysis.filter(f=>!f.exclusion))))
+      throw new ConfirmedProposalError('INVALID_MODEL_PROPOSAL','La revisione contiene testo non verificabile o incompatibile con il campo.');
+    return {value:checked.value,source:'model' as const,promptVersion:articleVersion};
   }
   return validateConfirmedProposal(def, inputs, response.value);
 }

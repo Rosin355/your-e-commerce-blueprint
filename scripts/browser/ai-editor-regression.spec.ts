@@ -33,6 +33,7 @@ test('AI sections remain proposals; retry replaces rendered content and clears e
  let generations=0;
  const mutations=await simulate(page,()=>{generations++; return {source:'model',value:generations===1?'<p>Arbusto con foglie <strong>verdi</strong>.</p><h2>Caratteristiche principali</h2><ul><li>Fogliame verde</li></ul>':'<p>Seconda proposta con fogliame <strong>verde</strong>.</p>',descriptionIssues:generations===1?[{section:'Coltivazione',code:'UNSUPPORTED_FACT',message:'Irrigazione esclusa: non confermata.'}]:[],missingInformation:[]};});
  await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
  await page.getByLabel('Nome prodotto (obbligatorio)').fill('Arbusto sintetico');
  const panel=page.getByRole('region',{name:'Assistenza AI nuova scheda'});
  await panel.getByRole('textbox',{name:'Informazioni verificate'}).fill('Arbusto sempreverde con foglie verdi.');
@@ -66,6 +67,7 @@ test('Yucca: modifica, approvazione, rifiuto e rigenerazione isolata con recover
    return {source:'model',value:'<p>Fioritura rivista</p>',sections:[{...flower,text:'A giugno e luglio compaiono i fiori penduli color crema.'}],descriptionIssues:[]};
  });
  await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
  await page.getByLabel('Nome prodotto (obbligatorio)').fill('Yucca filamentosa');
  const panel=page.getByRole('region',{name:'Assistenza AI nuova scheda'});
  await panel.getByLabel('Informazioni verificate',{exact:true}).fill(source);

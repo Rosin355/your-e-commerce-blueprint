@@ -1,3 +1,11 @@
+# Admin V2 — candidato Product Editor V3 (27 novembre 2026)
+
+- [x] Separare il candidato dalla #78 e derivare la V3 dalla head della #80, che dipende dalla #79.
+- [x] Collaudare il percorso UI, le conferme per campo, la copertura Yucca e la riapertura di una singola bozza interna con provider simulato.
+- [ ] UAT cliente sul percorso V3 e confronto editoriale con il test reale precedente su @2.
+- [ ] Verificare separatamente il modello reale @3 in ambiente autorizzato. Rilascio del frontend e della funzione AI da decidere dopo il collaudo.
+- [ ] Seguire la roadmap indipendente della #78 per i metafield. **PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** [Verbale V3](docs/release/ai-editor-v3/README.md)
+
 # Admin V2 — metafield/publication audit (2026-11-26)
 
 - [x] Identify exact test product via canonical Admin link, operation and SKU; compare stored values and read source.

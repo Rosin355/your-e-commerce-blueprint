@@ -395,7 +395,8 @@ function hasDescriptionResult(result: EditorialReviewResponse & {source?: string
   return result.source === 'model' || (result.source === 'source_review' && result.value === '' &&
     result.sections?.length === 0 && Boolean(result.coverage?.length));
 }
-export async function suggestConfirmedField(input: { productName?: string; section?: Heading; fieldKey: string; facts: string[]; confirmed: boolean; requestKey: string }) {
+type ArticleOptions = {article?: true; revision?: import("../../../supabase/functions/_shared/admin-ai-revision").EditorialRevision};
+export async function suggestConfirmedField(input: ArticleOptions & { productName?: string; section?: Heading; fieldKey: string; facts: string[]; confirmed: boolean; requestKey: string }) {
   const result = await callAdminAiApi<EditorialReviewResponse & {ok:true;value:unknown;source?: 'model' | 'confirmed_facts' | 'source_review'}>({
     action: 'suggest_confirmed_field', ...input,
   });
@@ -405,7 +406,7 @@ export async function suggestConfirmedField(input: { productName?: string; secti
   return result;
 }
 
-export async function suggestDraftEditorial(input: {draftTitle: string; facts: string[]; requestKey: string}) {
+export async function suggestDraftEditorial(input: ArticleOptions & {draftTitle: string; facts: string[]; requestKey: string}) {
   const result = await callAdminAiApi<EditorialReviewResponse & {
     ok: boolean; value?: unknown; source?: 'model' | 'confirmed_facts' | 'source_review';
     descriptionError?: {code: string; message: string};

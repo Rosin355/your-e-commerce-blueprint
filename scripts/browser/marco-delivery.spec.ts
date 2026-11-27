@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { validateEditorialDescription } from '../../supabase/functions/_shared/admin-ai-description';
+import type { FieldDefinition } from '../../supabase/functions/_shared/admin-v2-types';
 import { expect, test, type Page } from '@playwright/test';
 import { projectDraft } from '../../supabase/functions/_shared/admin-draft-view';
 import type { AdminAiSuggestion } from '../../src/adminv2/lib/adminApi';
@@ -16,7 +19,7 @@ const initial: ProductDraft = {
   seoTitle: 'Titolo SEO sintetico', seoDescription: 'Descrizione SEO sintetica',
 };
 
-async function simulate(page: Page, options: { assets?:boolean; lifecycle?:boolean; existingAi?:boolean; syncReview?:boolean; conflictAfterSave?:boolean; readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; modelSeo?: boolean; denyDescription?: boolean } = {}) {
+async function simulate(page: Page, options: {article?: 'complete'|'partial'|'legacy'; assets?:boolean; lifecycle?:boolean; existingAi?:boolean; syncReview?:boolean; conflictAfterSave?:boolean; readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; modelSeo?: boolean; denyDescription?: boolean } = {}) {
   let changedFormat='Unico';
   const gallery:{id:string;alt:string;url:string;variant:boolean}[]=[];
   const failures = [...(options.aiFailures ?? [])];
@@ -50,7 +53,7 @@ async function simulate(page: Page, options: { assets?:boolean; lifecycle?:boole
     calls.push(action);
     const reply = (result: object) => route.fulfill({ json: { ok: true, ...result } });
     switch (action) {
-      case 'get_admin_context': return reply({ lifecycleActions:options.lifecycle?['archive_catalog_product']:[], roles: ['editor'], canWrite: true, canUseAi: options.allowAi !== false, ordinaryCatalog: true, canManageGallery: options.assets===true, canRenameFormats:options.assets===true, canSync:options.assets===true, supportsCatalogSourceAndProductType: true, supportsDistinctDescriptions: true, canUploadImages: options.media === true, editableFieldKeys: [...(options.denyDescription ? [] : ['description']), ...(options.sheet ? ['short_description', 'seo_title', 'seo_description'] : [])], canPublish: true });
+      case 'get_admin_context': return reply({ lifecycleActions:options.lifecycle?['archive_catalog_product']:[], roles: ['editor'], canWrite: true, canUseAi: options.allowAi !== false, ordinaryCatalog: true, canManageGallery: options.assets===true, canRenameFormats:options.assets===true, canSync:options.assets===true, supportsCatalogSourceAndProductType: true, supportsDistinctDescriptions: true, supportsSheetEvidence:!!options.article, canUploadImages: options.media === true, editableFieldKeys: [...(options.denyDescription ? [] : ['description']), ...(options.article?['faq','key_features','key_benefits']:[]), ...(options.sheet ? ['short_description', 'seo_title', 'seo_description'] : [])], canPublish: true });
       case 'get_product': return reply({
         product: { productId, sku: saved.sku, entityType: 'simple', isActive: true },
         shopifyLive: options.assets ? {available:true,mapped:true,identityVerified:true,publicationStatus:'DRAFT'} : sent ? { available: true, mapped: true, publicationStatus: 'DRAFT' } : { available: false, mapped: false }, history: [],
@@ -107,7 +110,7 @@ async function simulate(page: Page, options: { assets?:boolean; lifecycle?:boole
         return reply({ media: { id: 'file-1', state: 'READY', url: initial.images[0].url, alt: input.alt } });
       case 'get_field_definitions': {
         const def = {key:'description',label:'Descrizione',editor_type:'richtext',data_type:'text',visible:true,editable:true,ai_allowed:true,manual_only:false,validation_rules:{}};
-        return reply({definitions:[def, ...(options.sheet ? [
+        return reply({definitions:[def,...(options.article?['key_features','key_benefits','faq'].map(key=>({...def,key,label:key,data_type:'json',editor_type:key==='faq'?'faq':'multiselect',ai_allowed:key!=='faq'})):[]), ...(options.sheet ? [
           {...def, key:'short_description', editor_type:'textarea'}, {...def, key:'seo_title', editor_type:'text'}, {...def, key:'seo_description', editor_type:'textarea'},
           {...def, key:'tags', editor_type:'multiselect', data_type:'json', ai_allowed:false},
           {...def, key:'periodo_di_fioritura', label:'Periodo di fioritura', editor_type:'multiselect', data_type:'json', ai_allowed:false},
@@ -115,6 +118,20 @@ async function simulate(page: Page, options: { assets?:boolean; lifecycle?:boole
         ] : [])]});
       }
       case 'suggest_confirmed_field': {
+        if(options.article && input.article) {
+          expect(input.confirmed).toBe(true);
+          if(options.article==='legacy')return reply({source:'model',value:'<p>V2</p>',promptVersion:'online-garden-editoriale-it@2'});
+          const data=JSON.parse(readFileSync(new URL('../tests/fixtures/yucca-filamentosa-v3.json',import.meta.url),'utf8'));
+          if(input.section) {
+            expect(input.revision.target).toBe(input.section);
+            expect(input.fieldKey).toBe('description');
+            expect(input).not.toHaveProperty('draftTitle');
+            if(input.revision.instruction==='errore simulato')return route.fulfill({status:422,json:{ok:false,error:{code:'INVALID_MODEL_PROPOSAL'}}});
+            data.sections=data.sections.filter((s:{heading:string})=>s.heading===input.section);
+            if(input.section==='Fioritura' && input.revision.instruction==='Rendi più naturale')data.sections[0].text=data.sections[0].text.replace('si osserva','si vede');
+          } else if(options.article==='partial') data.sections=data.sections.filter((s:{heading:string})=>s.heading==='Fioritura');
+          return reply({...validateEditorialDescription({key:'description',editor_type:'richtext',data_type:'text',validation_rules:{}} as FieldDefinition,input.facts,data,{article:true,review:true,section:input.section}),editorial:{seoTitle:{value:'Yucca filamentosa',source:'model'},seoDescription:{value:'Yucca filamentosa, arbusto sempreverde.',source:'deterministic'},tags:{value:['Yucca filamentosa'],source:'model'}}});
+        }
         expect(Object.keys(input).sort()).toEqual(['action','confirmed',...('draftTitle' in input ? ['draftTitle'] : []),'facts','fieldKey',...('productName' in input ? ['productName'] : []),'requestKey']);
         if ('draftTitle' in input) expect(input.draftTitle).toBeTruthy();
         expect(input.fieldKey).toBe('description');
@@ -182,6 +199,7 @@ test('scheda reale: proposta immediata, refresh, scarto, obsolescenza e applicaz
 test('wizard reale: categoria, virgola, anteprima e riapertura del riepilogo', async ({ page }, testInfo) => {
   const model = await simulate(page, { media: true });
   await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
   await page.getByLabel('Nome prodotto').fill(initial.title);
   await page.getByText('Opzioni avanzate · Dati tecnici e permessi', {exact:true}).click();
   await page.locator('#sku').fill(initial.sku);
@@ -260,6 +278,7 @@ test('riepilogo legacy in sola lettura: struttura sicura, foto e SEO', async ({ 
 test('upload simulato: una chiave per lo stesso file anche dopo nuova selezione, rimozione solo locale', async ({ page }) => {
   const model = await simulate(page, { media: true });
   await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
   const image = { name: 'fixture.png', mimeType: 'image/png', buffer: Buffer.from('fixture locale') };
   const file = page.getByLabel('Scegli immagine dal computer');
   await file.setInputFiles(image);
@@ -301,6 +320,7 @@ for (const width of [390,1280]) test('AI descrizione vuota: errore, riprova e sa
   const model = await simulate(page,{aiFailures:['connection','INVALID_MODEL_PROPOSAL']});
   await page.setViewportSize({width,height:860});
   await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
   await page.getByLabel('Nome prodotto (obbligatorio)').fill('Quercus robur');
   await page.getByRole('textbox',{name:'Prezzo di vendita 1'}).fill('10');
   const panel = page.getByRole('region',{name:'Assistenza AI nuova scheda'});
@@ -377,6 +397,7 @@ test('AI descrizione esistente: permesso negato e proposta applicata solo al mod
 test('AI descrizione editor senza grant: compilazione manuale disponibile', async ({page})=>{
   const model=await simulate(page,{allowAi:false});
   await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
   await expect(page.getByRole('textbox',{name:'Descrizione verificata'})).toBeEditable();
   await expect(page.getByRole('button',{name:'Completa scheda con AI'})).toHaveCount(0);
   expect(model.calls).not.toContain('suggest_confirmed_field');
@@ -385,6 +406,7 @@ test('AI descrizione editor senza grant: compilazione manuale disponibile', asyn
 test('Scheda AI Editor: approvazione parziale e cumulativa, due formati e riapertura interna', async ({page}) => {
   const model = await simulate(page, {sheet:true,media:true});
   await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
   await page.getByLabel('Nome prodotto (obbligatorio)').fill('Quercus robur');
   await page.getByRole('checkbox',{name:categoryName}).check();
   await page.getByText('Scegli fra le tue immagini già caricate').click();
@@ -470,6 +492,7 @@ test('Scheda AI Editor: approvazione parziale e cumulativa, due formati e riaper
 test('Scheda AI Editor: un campo negato lascia utilizzabili gli altri', async ({page}) => {
   const model = await simulate(page, {sheet:true,denyDescription:true});
   await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
   await page.getByLabel('Nome prodotto (obbligatorio)').fill('Nome verificato');
   const assistant=page.getByRole('region',{name:'Assistenza AI nuova scheda'});
   await assistant.getByLabel('Informazioni verificate',{exact:true}).fill(verifiedParagraph);
@@ -496,6 +519,7 @@ test('Scheda AI Editor: il cambio nome scarta la risposta in ritardo e conserva 
     await route.fulfill({ json:{ok:true,value:'<p>'+verifiedParagraph+'</p>',source:'model'} });
   });
   await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
   const title=page.getByLabel('Nome prodotto (obbligatorio)');
   const assistant=page.getByRole('region',{name:'Assistenza AI nuova scheda'});
   await title.fill('Prima scheda');
@@ -515,6 +539,7 @@ test('Scheda AI Editor: il cambio nome scarta la risposta in ritardo e conserva 
 test('Scheda AI Editor: metadata utilizzabili durante errore provider e campo escluso preservato al retry', async ({page}) => {
   const model = await simulate(page,{sheet:true,noTypeDomain:true,aiFailures:['AI_PROVIDER_ERROR']});
   await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
   await page.getByLabel('Nome prodotto (obbligatorio)').fill('Quercus robur');
   await page.getByRole('checkbox',{name:categoryName}).check();
   await page.getByText('Opzioni avanzate · Dati tecnici e permessi',{exact:true}).click();
@@ -551,6 +576,7 @@ test('Scheda AI Editor: metadata utilizzabili durante errore provider e campo es
 test('Scheda SEO: origine modello e fallback, revisione e riapertura interna', async ({page}) => {
   const model=await simulate(page,{sheet:true,modelSeo:true,noTypeDomain:true});
   await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
   await page.getByLabel('Nome prodotto (obbligatorio)').fill('Quercus robur');
   await page.getByLabel('Prezzo di vendita 1',{exact:true}).fill('12.00');
   const assistant=page.getByRole('region',{name:'Assistenza AI nuova scheda'});
@@ -604,6 +630,7 @@ for (const width of [390,1280]) test('permessi e dati tecnici dietro un controll
 test('breve ed estesa approvate separatamente restano distinte nella bozza riaperta',async({page})=>{
   const model=await simulate(page,{sheet:true});
   await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
   await page.getByLabel('Nome prodotto (obbligatorio)').fill('Scheda di collaudo');
   await page.getByRole('textbox',{name:'Prezzo di vendita 1'}).fill('10');
   const panel=page.getByRole('region',{name:'Assistenza AI nuova scheda'});
@@ -691,6 +718,7 @@ test('archiviazione nominale: annulla senza scrivere e conferma soltanto il pian
 test('un solo consenso salva e crea DRAFT, senza pubblicare',async({page})=>{
   const model=await simulate(page,{allowDraftSend:true,sheet:true});
   await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
   await page.getByLabel('Nome prodotto (obbligatorio)').fill('Pianta di collaudo');
   await page.getByRole('textbox',{name:'Descrizione verificata'}).fill('Descrizione verificata del prodotto.');
   await page.getByLabel('Prezzo di vendita 1',{exact:true}).fill('10.00');
@@ -719,4 +747,96 @@ for(const conflict of [false,true])test('revisione Shopify: '+(conflict?'il conf
   else await expect(review.getByRole('status')).toContainText('aggiornamento verificato');
   expect(model.calls.filter(a=>a==='update_field')).toHaveLength(1);
   expect(model.calls.filter(a=>a==='sync_field')).toHaveLength(conflict?0:1);
+});
+
+const yuccaSource=readFileSync(new URL('../tests/fixtures/yucca-filamentosa-uat-20261127.txt',import.meta.url),'utf8');
+async function prepareArticle(page:Page) {
+  await page.goto('/admin/products/new');
+  await expect(page.getByRole('button',{name:'Anteprima cliente',exact:true})).toHaveAttribute('aria-pressed','true');
+  await page.getByRole('textbox',{name:'Nome prodotto',exact:true}).fill('Yucca filamentosa');
+  await page.getByLabel('Informazioni sul prodotto').fill(yuccaSource);
+  await page.getByLabel(/Ho verificato le informazioni/).check();
+  await page.getByRole('button',{name:'Genera scheda completa con AI'}).click();
+}
+test('V3 Yucca su tablet: PDP, modifica isolata, confronto, conferme botaniche e riapertura interna',async({page},testInfo)=>{
+  await page.setViewportSize({width:900,height:1060});
+  const model=await simulate(page,{article:'complete',sheet:true,allowDraftSend:true});
+  await prepareArticle(page);
+  const article=page.getByRole('article',{name:'Pagina prodotto in anteprima'});
+  await expect(article.getByRole('heading',{name:'Yucca filamentosa',exact:true})).toBeVisible();
+  await expect(page.getByText(/15 \/ 15 fatti verificati coperti/)).toBeVisible();
+  await expect(article.locator('img')).toHaveCount(0);
+  await expect(article).not.toContainText('Formato unico');
+  const leaf=article.getByRole('region',{name:'Fogliame e caratteristiche distintive',exact:true});
+  const flower=article.getByRole('region',{name:'Fioritura',exact:true});
+  await leaf.getByRole('button',{name:'Modifica',exact:true}).click();
+  const editor=leaf.getByLabel('Testo della sezione');
+  const manual=(await editor.inputValue()).replace('sono lineari','si presentano lineari');
+  await editor.fill(manual);await leaf.getByRole('button',{name:'Conferma modifica'}).click();
+  await flower.getByRole('button',{name:'Modifica con AI'}).click();
+  await flower.getByLabel('Istruzione per l’AI').fill('errore simulato');
+  await flower.getByRole('button',{name:'Prepara revisione'}).click();
+  await expect(flower.getByRole('alert')).toContainText('testo precedente');
+  await flower.getByRole('button',{name:'Rendi più naturale'}).click();
+  await flower.getByRole('button',{name:'Prepara revisione'}).click();
+  await expect(flower.getByText('Dopo',{exact:true})).toBeVisible();
+  await flower.getByRole('region',{name:'Modifica di Fioritura'}).screenshot({path:testInfo.outputPath('confronto.png')});
+  await flower.getByRole('button',{name:'Annulla'}).click();
+  await expect(flower).toContainText('si osserva');
+  await flower.getByRole('button',{name:'Modifica con AI'}).click();
+  await flower.getByRole('button',{name:'Rendi più naturale'}).click();
+  await flower.getByRole('button',{name:'Prepara revisione'}).click();
+  await flower.getByRole('button',{name:'Conferma modifica'}).click();
+  await expect(flower).toContainText('si vede');await expect(leaf).toContainText(manual);
+  await expect(article.getByRole('region',{name:'Curiosità botaniche',exact:true})).toContainText('filamenti');
+  await article.getByRole('button',{name:'Come si presenta la fioritura?'}).click();
+  await expect(article.getByRole('region',{name:'Domande frequenti',exact:true})).toContainText('giugno e luglio');
+  await page.getByRole('button',{name:'Anteprima cliente',exact:true}).scrollIntoViewIfNeeded();
+  await page.screenshot({path:testInfo.outputPath('anteprima-tablet.png')});
+  await page.getByRole('button',{name:'Rivedi scheda completa'}).click();
+  const review=page.getByRole('region',{name:'Revisione finale'});
+  await expect(review).toContainText('modificato manualmente');
+  await expect(review).toContainText('Agavaceae');
+  await review.getByLabel(/Confermo fonte e valore di Domande frequenti/).check();
+  await review.getByLabel(/Ho revisionato i contenuti/).check();
+  await page.getByRole('button',{name:'Approva scheda e applica alla bozza'}).click();
+  await expect(page.getByText('Contenuti applicati alla bozza interna')).toBeVisible();
+  expect(model.calls).not.toContain('save_new_product');
+  await page.getByRole('button',{name:'Salva bozza interna',exact:true}).click();
+  await page.getByRole('textbox',{name:'Prezzo di vendita 1'}).fill('12,00');
+  await page.getByRole('button',{name:'Anteprima cliente',exact:true}).click();
+  await page.getByRole('button',{name:'Salva bozza interna',exact:true}).dblclick();
+  await page.getByRole('link',{name:'Apri scheda prodotto e storico'}).click();
+  await page.reload();
+  expect(model.saved().title).toBe('Yucca filamentosa');expect(model.saved().description).toContain('si presentano lineari');
+  expect(model.saved().botanicalConfirmedKeys).toEqual(['faq']);expect(model.saved().botanical).not.toHaveProperty('key_features');
+  const restored=page.getByRole('heading',{name:'Riepilogo della bozza interna salvata'}).locator('..');
+  await expect(restored).toContainText('si presentano lineari');
+  await expect(restored).toContainText('12,00 EUR');
+  expect(model.calls.filter(a=>a==='save_new_product')).toHaveLength(1);
+  expect(model.calls.filter(a=>/shopify_draft|publish|sync_field/.test(a))).toEqual([]);
+  expect(model.unexpected).toEqual([]);
+});
+test('V3 blocca la risposta parziale e recupera solo l’introduzione; @2 e grant mancanti chiudono il percorso',async({page})=>{
+  const model=await simulate(page,{article:'partial',sheet:true});await prepareArticle(page);
+  await page.getByRole('button',{name:'Rivedi scheda completa'}).click();
+  await expect(page.getByRole('button',{name:'Approva scheda e applica alla bozza'})).toBeDisabled();
+  await page.getByRole('button',{name:'Recupera introduzione'}).click();
+  await page.getByRole('button',{name:'Prepara revisione'}).click();
+  await page.getByRole('button',{name:'Conferma modifica'}).click();
+  await expect(page.getByRole('article').getByRole('region',{name:'Introduzione',exact:true})).toBeVisible();
+  expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(2);
+  expect(model.calls).not.toContain('save_new_product');
+});
+test('V3 respinge la risposta del backend @2',async({page})=>{
+  await simulate(page,{article:'legacy',sheet:true});await prepareArticle(page);
+  await expect(page.getByRole('alert')).toContainText('contratto editoriale V3');
+  await expect(page.getByRole('button',{name:'Rivedi scheda completa'})).toHaveCount(0);
+});
+test('V3 impedisce l’inferenza senza grant per description',async({page})=>{
+  const model=await simulate(page,{article:'complete',sheet:true,denyDescription:true});await page.goto('/admin/products/new');
+  await page.getByRole('textbox',{name:'Nome prodotto',exact:true}).fill('Yucca filamentosa');
+  await page.getByLabel('Informazioni sul prodotto').fill(yuccaSource);await page.getByLabel(/Ho verificato le informazioni/).check();
+  await expect(page.getByRole('button',{name:'Genera scheda completa con AI'})).toBeDisabled();
+  expect(model.calls).not.toContain('suggest_confirmed_field');
 });

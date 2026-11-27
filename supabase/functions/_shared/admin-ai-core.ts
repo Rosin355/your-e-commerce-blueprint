@@ -245,6 +245,8 @@ export function aiValueEligibility(
 
 export interface AiTrustedContext {
   productName?: string;
+  revision?: import('./admin-ai-revision.ts').EditorialRevision;
+  sourceAtoms?: {index:number; text:string}[];
   sku: string;
   fieldKey: string;
   fieldLabel: string;

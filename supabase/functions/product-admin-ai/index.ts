@@ -1,5 +1,6 @@
 import { isHeading } from '../_shared/admin-ai-sections.ts';
 import { getFieldDefinitions } from '../_shared/admin-v2-queries.ts';
+import {validRevision} from '../_shared/admin-ai-revision.ts';
 import { generateDraftSheet } from './draft-sheet.ts';
 import { registryKeys, safeLabel } from '../_shared/admin-draft-editorial.ts';
 import { ConfirmedProposalError, authorizeConfirmedAi, confirmedFacts, generateConfirmedProposal } from '../_shared/admin-ai-confirmed.ts';
@@ -204,11 +205,16 @@ export async function handleProductAdminAi(
       }
       if (!writesEnabled()) return reject('WRITES_DISABLED', 'authorization', 'Assistenza AI temporaneamente disabilitata.');
       const sheet = Object.hasOwn(payload, 'draftTitle');
-      if (sheet && Object.keys(payload).some(k => !['action','fieldKey','draftTitle','facts','requestKey','confirmed'].includes(k)))
+      if (sheet && Object.keys(payload).some(k => !['action','fieldKey','draftTitle','facts','requestKey','confirmed','article','revision'].includes(k)))
         return reject('VALIDATION_ERROR', 'input', 'La scheda nuova accetta solo nome e fatti confermati.');
       if (sheet && (payload.fieldKey !== 'description' || typeof payload.draftTitle !== 'string' ||
         !safeLabel(payload.draftTitle) || payload.draftTitle.length > 255))
         return reject('VALIDATION_ERROR', 'input', 'Verifica il nome del prodotto.');
+      const article = payload.article === true;
+      const revision = validRevision(payload.revision) ? payload.revision : undefined;
+      if ((payload.article !== undefined && !article) || (payload.revision !== undefined && (!article || !revision ||
+        (sheet ? !Object.hasOwn(registryKeys,revision.target) : revision.target !== (payload.section ?? payload.fieldKey)))))
+        return reject('VALIDATION_ERROR','input','Revisione o destinazione non valida.');
       const section = payload.section;
       const productName = payload.productName;
       if ((section !== undefined && (!isHeading(section) || sheet || payload.fieldKey !== 'description')) ||
@@ -229,7 +235,7 @@ export async function handleProductAdminAi(
       let batch = useDraft && Deno.env.get('PRODUCT_ADMIN_DRAFT_AI_EDITORIAL_ENABLED') !== 'false';
       // The legacy RPC authorizes description alone. Additional inference requires
       // a transaction explicitly authorizing the individual fields for this actor.
-      const hash = await payloadHash(sheet ? {facts, title:payload.draftTitle} : {facts, section, productName});
+      const hash = await payloadHash(sheet ? {facts, title:payload.draftTitle, article:payload.article, revision} : {facts, section, productName, article:payload.article, revision});
       const reservation = {p_actor:auth.userId,p_request_key:payload.requestKey,p_context_hash:hash};
       const reserveDescription = () => serviceClient().rpc('reserve_confirmed_ai_request',{...reservation,p_field_key:def!.key,p_action:action});
       let result = batch
@@ -255,8 +261,8 @@ export async function handleProductAdminAi(
         const definitions = registry?.filter(d => keys.some(key => key === d.key)) ?? [];
         const authorizedFields = batch ? keys.filter(key => reserved.fields.includes(key) && (key === 'tags' || auth.catalogGrant?.fieldKeys.includes(key))) : [];
         const proposal = useDraft
-          ? await generateDraftSheet(def!, facts, payload.draftTitle as string, definitions, authorizedFields, deps.generate)
-          : await generateConfirmedProposal(def!, facts, deps.generate, {section:isHeading(section) ? section : undefined, productName:typeof productName === 'string' ? productName : undefined, review:productName !== undefined});
+          ? await generateDraftSheet(def!, facts, payload.draftTitle as string, definitions, authorizedFields, deps.generate, undefined, article, revision)
+          : await generateConfirmedProposal(def!, facts, deps.generate, {article, revision, section:isHeading(section) ? section : undefined, productName:typeof productName === 'string' ? productName : undefined, review:productName !== undefined});
         console.info(JSON.stringify({ ...trace, stage: 'model_validated' }));
         return json({ ok: true, ...proposal });
       } catch (error) {

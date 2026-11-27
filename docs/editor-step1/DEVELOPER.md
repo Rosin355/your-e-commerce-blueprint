@@ -1,5 +1,9 @@
 # Step 1 — editor prodotti: implementazione e limiti
 
+## V3 · Contratto e mapping
+
+La domanda editoriale usa lo stesso endpoint, la stessa prenotazione per operatore e la stessa validazione dei fatti. La risposta V3 espone il prompt versionato. La destinazione di una revisione deve coincidere con la sezione o il campo autorizzato. Per SEO e tag la richiesta mirata usa le chiavi ammesse dalla riserva batch. Le conferme botaniche si applicano esclusivamente ai valori strutturati presentati nella revisione finale. La chiave idempotente della bozza attraversa verifica e salvataggio. [Matrice dei campi, provenienza e controlli](../release/ai-editor-v3/README.md)
+
 ## Versione in esercizio e ripristino · 20 novembre 2026
 
 Il merge applicativo è `1fd8e7bc15b0c38f6dcaa1a6d17ade3506f0f245`. Lovable ha distribuito `product-admin-api` con i moduli condivisi del riepilogo. Il frontend pubblicato legge i dati della creazione e mostra a parte i valori editoriali correnti e lo stato di vendita verificabile. Le proposte AI usano la funzione `product-admin-ai` già in esercizio. Nessuna nuova migrazione. La verifica autenticata post-pubblicazione attesta il comportamento integrato. Lovable non fornisce il confronto binario con il codice Edge in esecuzione né lo SHA del bundle servito. [Verbale live](COLLAUDO-MARCO-STEP1C.md#verifica-live-dopo-publish-frontend--20-novembre-2026)
