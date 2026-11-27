@@ -122,3 +122,18 @@ La prova browser controlla il payload salvato per tutti gli otto campi supportat
 Collaudo offline completato con 718 test Node, 132 test Deno e 40 test browser superati. Verificati anche i tipi dell’entrypoint Deno e la build dell’Admin.
 
 **READY_FOR_RETEST** per il candidato offline. Il raggiungimento del target di lunghezza e copertura da parte di Gemini al primo tentativo reale richiede una successiva prova autorizzata. PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.
+
+## Retest reale V3: diagnosi modello vs validatore
+
+**Esito UAT condiviso in screenshot:** 165 parole e 9/15 fatti utilizzabili coperti; un duplicato contato, quattro fatti in conflitto, uno da verificare e quattro problemi di sezione. Sei fatti restano non coperti. Titolo e meta SEO ora risultano piu articolati, ma l'esito editoriale non e approvato.
+
+**Da distinguere (non ancora provato quale sia la causa dominante):**
+
+- Modello: il sorgente usa ADMIN_AI_MODEL se impostato, altrimenti google/gemini-3-flash-preview. Non e documentato il modello effettivo del singolo retest; consultare il registro AI.
+- Configurazione: temperatura 0.2, max_tokens 2000 per descrizione, timeout 12s; verificare se finish_reason, usage o timeout abbiano inciso. Non assumere che i limiti siano stati raggiunti.
+- Validator: valida e puo scartare la sezione intera se una frase non e supportata, per problemi di formato o copia estrattiva. Acquisire sectionAudit (received/accepted/rejected/derived) e ragioni di ogni scarto, confrontando numero di parole prima e dopo il filtro.
+- Le fonti del test contengono contraddizioni su famiglia e altezza della pianta, piu un'espressione ambigua sul fusto. Non risolvere con inferenze automatiche. Valutare le sei omissioni residue come omissione effettiva, equivalenza o risultato di sezione scartata.
+
+**Proposta di decisione:** prima diagnosi in sola lettura della richiesta recente, senza nuove invocazioni AI. Solo dopo, A/B controllato, esplicitamente autorizzato e con costo contingentato, tra modello Google e modello OpenAI effettivamente disponibile nel workspace, usando stesso input, schema e validator. Valutare testo grezzo, sezioni accettate, copertura, stile, SEO, costo e latenza. Cambiare modello senza correggere l'interazione con il validator non garantisce una descrizione migliore.
+
+Nessun deploy, Publish, migrazione, salvataggio prodotto o chiamata AI autorizzati dalla presente nota. PENDING_CLIENT_ACCEPTANCE, SAL 57,75%.
