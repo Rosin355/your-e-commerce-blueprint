@@ -1,0 +1,39 @@
+<!doctype html><html lang="it"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>Clienti storici e migrazione · Proposta Admin V2</title>
+<style>
+*{box-sizing:border-box}body{margin:auto;padding:2rem;max-width:80rem;font:1rem/1.5 system-ui;color:#153528;background:#f7faf7}h1{line-height:1.1}article,section{background:white;border:1px solid #b5cbbb;border-radius:.6rem;padding:1rem;margin:1rem 0}.metrics,.filters{display:flex;flex-wrap:wrap;gap:1.4rem}.metrics strong{display:block;font-size:1.7rem}label{display:grid;gap:.3rem}input,select,button{font:inherit;padding:.45rem}.table{overflow:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:.6rem;border-bottom:1px solid #d2ded4}button{background:#164e37;color:white;border:0;border-radius:.3rem;cursor:pointer}small{color:#476052}
+</style>
+<main><small>Admin V2 · Prototipo offline con dati sintetici</small><h1>Clienti storici e migrazione</h1>
+<section aria-label="Dashboard" class="metrics" id="metrics"></section>
+<section><div class="filters"><label>Cerca identificativo<input id="search" type="search"></label>
+<label>Provenienza<select id="source"><option value="">Tutte</option><option>WooCommerce</option><option>Shopify</option></select></label>
+<label>Stato<select id="state"><option value="">Tutti</option></select></label>
+<label>Duplicati<select id="dups"><option value="">Tutti</option><option value="1">Solo segnalati</option></select></label></div>
+<div class="table"><table><thead><tr><th>ID Woo</th><th>ID Shopify candidato</th><th>ID Shopify nativo o verificato</th><th>Provenienza</th><th>Stato</th><th>Duplicato</th><th>Ordini storici Woo¹</th><th>Ordini Shopify</th></tr></thead><tbody id="rows"></tbody></table></div>
+<p>¹ Contatore dichiarato da WooCommerce. Il trattino indica un dato non disponibile.</p>
+<button id="export">Esporta selezione sintetica</button></section>
+<article><h2>Audit della sessione dimostrativa</h2><ol id="audit"></ol></article></main>
+<script id="fixtures" type="application/json">
+[
+ ["W-DEMO-01","","S-DEMO-01","WooCommerce + Shopify","Verificato",false,2,1],
+ ["W-DEMO-02","S-DEMO-02","","WooCommerce + Shopify","Da verificare",false,0,0],
+ ["W-DEMO-03","","","WooCommerce","Duplicato",true,1,null],
+ ["W-DEMO-04","","","WooCommerce","Duplicato",true,0,null],
+ ["W-DEMO-05","","","WooCommerce","Escluso",false,1,null],
+ ["W-DEMO-06","","","WooCommerce","Senza riscontro",false,0,null],
+ ["","","S-DEMO-07","Shopify","Nativo Shopify",false,null,3]
+]
+</script><script>
+const el=id=>document.getElementById(id);
+const records=JSON.parse(el('fixtures').textContent);
+const states=[...new Set(records.map(r=>r[4]))];
+states.forEach(s=>el('state').add(new Option(s,s)));
+const metrics=[['Account Woo',records.filter(r=>r[0]).length],['Profili Shopify',records.filter(r=>r[1]||r[2]).length],['Associazioni verificate',records.filter(r=>r[4]==='Verificato').length],['Clienti Woo con acquisti',records.filter(r=>r[6]>0&&r[4]!=='Escluso').length]];
+for(const [label,value] of metrics){const box=document.createElement('div');const strong=document.createElement('strong');strong.textContent=value;box.append(strong,label);el('metrics').append(box)}
+function selection(){return records.filter(r=>r.slice(0,3).join(' ').toLowerCase().includes(el('search').value.trim().toLowerCase())&&r[3].includes(el('source').value)&&(!el('state').value||r[4]===el('state').value)&&(!el('dups').value||r[5]))}
+function render(){el('rows').replaceChildren();for(const record of selection()){const row=el('rows').insertRow();record.forEach((v,i)=>row.insertCell().textContent=i===5?(v?'Sì':'—'):(v==null||v===''?'—':v))}if(!selection().length){const c=el('rows').insertRow().insertCell();c.colSpan=8;c.textContent='Nessun risultato'}}
+function audit(action){const li=document.createElement('li');li.textContent=new Date().toLocaleTimeString('it-IT')+' · Admin demo · '+action;el('audit').prepend(li)}
+['search','state','source','dups'].forEach(id=>el(id).addEventListener('input',render));
+el('export').onclick=()=>{const selected=selection();const data=[['woo_id','shopify_candidato','shopify_verificato_o_nativo','provenienza','stato','duplicato','conteggio_woo','ordini_shopify'],...selected];const url=URL.createObjectURL(new Blob([data.map(r=>r.join(',')).join('\r\n')],{type:'text/csv'}));const a=document.createElement('a');a.href=url;a.download='demo-clienti-sintetici.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);audit('Esportazione sintetica · '+selected.length+' righe')};render();audit('Consultazione del prototipo');
+</script></html>
