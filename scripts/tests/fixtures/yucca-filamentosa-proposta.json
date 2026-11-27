@@ -1,0 +1,48 @@
+{
+  "sections": [
+    {
+      "heading": "Introduzione",
+      "text": "La **Yucca filamentosa** è una pianta da fiore originaria degli Stati Uniti sud-orientali. Si presenta come un arbusto sempreverde dal portamento eretto, molto apprezzato in orticoltura. Due aspetti ne segnano il profilo: le rosette di foglie alla base e, all’inizio dell’estate, i lunghi steli che portano i fiori.",
+      "factIndices": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "heading": "Descrizione botanica",
+      "text": "Generalmente senza fusto, la pianta tende a produrre numerosi germogli basali. È alla base che si formano le rosette: le foglie nastriformi sono riunite in fitti gruppi.",
+      "factIndices": [
+        0,
+        2
+      ]
+    },
+    {
+      "heading": "Fogliame e caratteristiche distintive",
+      "text": "Le foglie lineari mostrano tonalità che vanno dal verde argentato al verde-azzurro. Il carattere distintivo si osserva sul bordo della foglia: i margini sono sfilacciati e lungo il loro profilo si distinguono filamenti bianchi. Questo dettaglio permette di riconoscere la Yucca filamentosa tra le altre specie del genere.",
+      "factIndices": [
+        0,
+        2
+      ]
+    },
+    {
+      "heading": "Fioritura",
+      "text": "All’inizio dell’estate la pianta sviluppa steli floreali che possono arrivare fino a **3 metri di altezza**. Nel periodo compreso tra giugno e luglio, lungo l’asse floreale sbocciano numerosi fiori penduli. Ognuno richiama la forma di una campana; il colore bianco crema accomuna i fiori portati dallo stelo.",
+      "factIndices": [
+        0,
+        2
+      ]
+    },
+    {
+      "heading": "Coltivazione e manutenzione",
+      "text": "Per la coltivazione, questa specie predilige un terreno che unisca fertilità e buon drenaggio.",
+      "factIndices": [
+        0
+      ]
+    }
+  ],
+  "missingInformation": [
+    "utilizzo ornamentale",
+    "dimensioni"
+  ]
+}

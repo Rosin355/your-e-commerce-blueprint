@@ -244,6 +244,7 @@ export function aiValueEligibility(
 }
 
 export interface AiTrustedContext {
+  productName?: string;
   sku: string;
   fieldKey: string;
   fieldLabel: string;

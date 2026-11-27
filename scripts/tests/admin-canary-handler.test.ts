@@ -170,9 +170,9 @@ function load(options: { anonymous?: boolean; scope?: unknown; status?: string; 
         const providerRequest = providerRequests.at(-1);
         const descriptionCall = providerRequest?.tools[0].function.name === 'propose_field_improvement';
         const input = JSON.parse(providerRequest?.messages[1].content ?? '{}');
-        const original = String(input.product?.current_value ?? '').split('\n');
+        const referenced = (input.facts ?? []) as {index:number;text:string}[];
         const output = descriptionCall && options.ai.batch ? options.ai.descriptionOutput ?? {
-          sections:[{heading:'Introduzione',text:'Informazioni editoriali documentate: '+original.join(' '),factIndices:original.map((_v,i)=>i)}],missingInformation:[],
+          sections:[{heading:'Introduzione',text:'Informazioni editoriali documentate: '+referenced.map(f=>f.text).join(' '),factIndices:referenced.map(f=>f.index)}],missingInformation:[],
         } : options.ai.output;
         return Response.json({choices:[{message:{tool_calls:[{function:{name:providerRequests.at(-1)!.tools[0].function.name,arguments:JSON.stringify({suggested_value:output})}}]}}]}, {status:options.ai.http ?? 200});
       }
@@ -429,8 +429,9 @@ test('Scheda SEO: valori inventati o indici fuori dominio scartati campo per cam
     output:{description:[1,1],seoTitle:'Farnia certificata',seoDescription:42,tags:[0,0]}}});
   const body=await (await fixture.request({action:'suggest_confirmed_field',fieldKey:'description',draftTitle:'Quercus robur',confirmed:true,requestKey,facts})).json();
   assert.equal(body.source,'model');
-  assert.deepEqual(Object.values(body.editorial as Record<string,{source:string}>).map(r=>r.source),['deterministic','deterministic','deterministic']);
-  assert.equal(body.editorial.seoDescription.value,facts.join(' '));
+  assert.deepEqual(Object.values(body.editorial as Record<string,{source:string}>).map(r=>r.source),['deterministic','deterministic']);
+  assert.equal(body.editorial.seoDescription,undefined);
+  assert.ok(body.coverage.some((f:{status:string})=>f.status==='unverified'));
   assert.ok(!JSON.stringify(body).includes('certificata'));
   assert.equal(fixture.providerRequests.length,2);
 });
@@ -536,4 +537,27 @@ test('una foto associata a una variante e un file fuori dalla libreria impedisco
     assert.notEqual((await s.request({action:'prepare_catalog_approval',command,confirm:true})).status,200);
     assert.equal(s.calls.shopifyMutations,0);
   }
+});
+
+test('Rigenerazione mirata attraversa il medesimo handler e usa soltanto la prenotazione description',async()=>{
+  const output={sections:[{heading:'Fioritura',text:'In giugno compaiono i fiori color crema.',factIndices:[0]}],missingInformation:[]};
+  const setup={endpoint:'product-admin-ai',catalog:true,role:'editor',ai:{grant:true,output}};
+  const payload={action:'suggest_confirmed_field',fieldKey:'description',productName:'Yucca filamentosa',section:'Fioritura',
+    facts:['I fiori sono color crema e compaiono in giugno.'],confirmed:true,requestKey};
+  const fixture=load(setup);
+  const body=await (await fixture.request(payload)).json();
+  assert.equal(body.ok,true);
+  assert.equal(body.promptVersion,'online-garden-editoriale-it@2');
+  assert.equal(body.sections[0].heading,'Fioritura');
+  assert.equal(fixture.calls.rpc,1);
+  assert.equal(fixture.providerRequests.length,1);
+  assert.match(fixture.providerRequests[0].messages[0].content,/una sola sezione/);
+  assert.equal(fixture.calls.shopifyMutations,0);
+  const wrong=load(setup);
+  const invalid=await (await wrong.request({...payload,section:'Prezzo'})).json();
+  assert.equal(invalid.error.code,'VALIDATION_ERROR');
+  assert.equal(wrong.providerRequests.length,0);
+  const denied=load({...setup,ai:{...setup.ai,grant:false}});
+  assert.equal((await (await denied.request(payload)).json()).error.code,'FORBIDDEN');
+  assert.equal(denied.providerRequests.length,0);
 });

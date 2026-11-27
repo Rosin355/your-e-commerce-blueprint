@@ -1,3 +1,4 @@
+import { isHeading } from '../_shared/admin-ai-sections.ts';
 import { getFieldDefinitions } from '../_shared/admin-v2-queries.ts';
 import { generateDraftSheet } from './draft-sheet.ts';
 import { registryKeys, safeLabel } from '../_shared/admin-draft-editorial.ts';
@@ -208,6 +209,11 @@ export async function handleProductAdminAi(
       if (sheet && (payload.fieldKey !== 'description' || typeof payload.draftTitle !== 'string' ||
         !safeLabel(payload.draftTitle) || payload.draftTitle.length > 255))
         return reject('VALIDATION_ERROR', 'input', 'Verifica il nome del prodotto.');
+      const section = payload.section;
+      const productName = payload.productName;
+      if ((section !== undefined && (!isHeading(section) || sheet || payload.fieldKey !== 'description')) ||
+        (productName !== undefined && (typeof productName !== 'string' || !safeLabel(productName) || productName.length > 255 || payload.fieldKey !== 'description')))
+        return reject('VALIDATION_ERROR', 'input', 'Titolo prodotto o sezione non validi.');
       const registry = sheet ? await getFieldDefinitions(serviceClient()) : undefined;
       const def = registry ? registry.find(d => d.key === 'description') ?? null :
         typeof payload.fieldKey === 'string' ? await repo.getDefinition(payload.fieldKey) : null;
@@ -223,7 +229,7 @@ export async function handleProductAdminAi(
       let batch = useDraft && Deno.env.get('PRODUCT_ADMIN_DRAFT_AI_EDITORIAL_ENABLED') !== 'false';
       // The legacy RPC authorizes description alone. Additional inference requires
       // a transaction explicitly authorizing the individual fields for this actor.
-      const hash = await payloadHash(sheet ? {facts, title:payload.draftTitle} : {facts});
+      const hash = await payloadHash(sheet ? {facts, title:payload.draftTitle} : {facts, section, productName});
       const reservation = {p_actor:auth.userId,p_request_key:payload.requestKey,p_context_hash:hash};
       const reserveDescription = () => serviceClient().rpc('reserve_confirmed_ai_request',{...reservation,p_field_key:def!.key,p_action:action});
       let result = batch
@@ -250,7 +256,7 @@ export async function handleProductAdminAi(
         const authorizedFields = batch ? keys.filter(key => reserved.fields.includes(key) && (key === 'tags' || auth.catalogGrant?.fieldKeys.includes(key))) : [];
         const proposal = useDraft
           ? await generateDraftSheet(def!, facts, payload.draftTitle as string, definitions, authorizedFields, deps.generate)
-          : await generateConfirmedProposal(def!, facts, deps.generate);
+          : await generateConfirmedProposal(def!, facts, deps.generate, {section:isHeading(section) ? section : undefined, productName:typeof productName === 'string' ? productName : undefined, review:productName !== undefined});
         console.info(JSON.stringify({ ...trace, stage: 'model_validated' }));
         return json({ ok: true, ...proposal });
       } catch (error) {
