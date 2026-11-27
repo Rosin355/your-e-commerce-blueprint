@@ -137,3 +137,31 @@ Collaudo offline completato con 718 test Node, 132 test Deno e 40 test browser s
 **Proposta di decisione:** prima diagnosi in sola lettura della richiesta recente, senza nuove invocazioni AI. Solo dopo, A/B controllato, esplicitamente autorizzato e con costo contingentato, tra modello Google e modello OpenAI effettivamente disponibile nel workspace, usando stesso input, schema e validator. Valutare testo grezzo, sezioni accettate, copertura, stile, SEO, costo e latenza. Cambiare modello senza correggere l'interazione con il validator non garantisce una descrizione migliore.
 
 Nessun deploy, Publish, migrazione, salvataggio prodotto o chiamata AI autorizzati dalla presente nota. PENDING_CLIENT_ACCEPTANCE, SAL 57,75%.
+
+## Diagnosi del retest da 165 parole
+
+**27 novembre 2026 · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Esito editoriale ancora insufficiente. Il verbale delle 19:43 registra il risultato dell'operatore. Il registro AI di Lovable e il log della funzione aggiungono le evidenze seguenti.
+
+| Voce | Evidenza relativa al retest |
+|---|---|
+| ACTUAL_MODEL | L'ultima attività `chat_completions` del gateway nella finestra del retest riporta `google/gemini-3-flash-preview`, completata con successo. La funzione registra `suggest_confirmed_field`, campo `description`, stadio `model_validated` alle 19:39:20 (ora italiana). L'attribuzione alla Yucca si basa sulla finestra temporale e sul percorso descrittivo. I due registri consultati non espongono una chiave comune che identifichi il prodotto. |
+| PROVIDER_LIMITS | Nel pannello dei secret di progetto al momento della diagnosi sono assenti `ADMIN_AI_MODEL` e `ADMIN_AI_TIMEOUT_MS`. Il percorso di produzione usa i default. Temperatura 0,2, timeout 12 s per chiamata, `max_tokens` 2.000 per la descrizione e 256 per l'eventuale selezione SEO. Il limite applicativo della descrizione è di 8.000 caratteri e il suo superamento genera un errore. Il gateway riporta 1.358 token in ingresso, 626 in uscita, 3,6 s e 0,0051 crediti per l'attività osservata. `finish_reason` non disponibile. |
+| MODEL_OUTPUT_WORDS | Non verificabile. Il gateway segnala che il contenuto di richiesta e risposta non è stato conservato per questa attività. I token di uscita includono la risposta strutturata e non misurano le parole delle sezioni. |
+| VALIDATED_OUTPUT_WORDS | **165** parole nell'anteprima UAT, calcolate sui testi delle sezioni finali. Il totale può comprendere integrazioni locali. |
+| SECTION_AUDIT | Ricevute, accettate, scartate e derivate: **quattro valori indisponibili**. Mancano il riepilogo iniziale e la lista dei motivi per titolo. Il dato disponibile è **4 problemi di sezione**, somma di problemi dell'anteprima e avvisi deduplicati. |
+| Copertura e SEO | **9/15 (60%)**, sei fatti segnalati scoperti, un duplicato nel denominatore, quattro affermazioni in conflitto e una da verificare escluse. Titolo e meta SEO più articolati secondo UAT. Mancano elementi per classificare singolarmente le sei omissioni o attribuire il miglioramento SEO a una seconda chiamata. |
+
+**ROOT_CAUSES.** Il successo in 3,6 s e i 626 token in uscita non indicano esaurimento del limite di 2.000 o timeout. Nel replay il prompt contiene tutte le 15 affermazioni ammesse. Il validatore può perdere una sezione intera per una frase equivalente e il contatore può segnalare scoperta un'affermazione presente. Una risposta simulata completa passa con 254 parole e 15/15. Rimangono indeterminate nel retest reale la quota già omessa dal modello, quella eliminata dal filtro e quella presente ma non riconosciuta. [Prove sulle parafrasi e regole di conteggio](../../editor-step1/DEVELOPER.md#diagnosi-yucca-del-27-novembre-2026)
+
+**RECOMMENDED_MODEL_TEST.** Pilota proposto fra Gemini 3 Flash Preview e OpenAI GPT-5.4 Mini. Entrambi figurano nel catalogo del workspace. Il protocollo misura la differenza prima e dopo la validazione, la qualità italiana in cieco, la completezza SEO, la latenza e il costo. [Protocollo e criteri](../../editor-step1/DEVELOPER.md#protocollo-ab-proposto) · [Catalogo chat ufficiale](https://docs.lovable.dev/features/ai-chat)
+
+**ESTIMATED_COST_COMPARISON.** Per una singola descrizione di 1.358 token in ingresso e 626 in uscita, a tariffa API standard in USD per milione di token testuali, ingresso senza cache:
+
+| Modello | Ingresso / uscita per milione | Stima teorica a volumi identici |
+|---|---:|---:|
+| Gemini 3 Flash Preview | 0,50 / 3,00 USD | 0,002557 USD |
+| GPT-5.4 Mini | 0,75 / 4,50 USD | 0,0038355 USD (+50%) |
+
+Il calcolo usa i listini dei fornitori. Lovable usa crediti e indica di riferirsi a quei listini per confronti relativi. L'unico consumo misurato è **0,0051 crediti** per la chiamata Gemini. Mancano un consumo osservato di B e una tariffa gateway in crediti per fare una previsione di addebito. [Google](https://ai.google.dev/gemini-api/docs/pricing#gemini-3-flash-preview) · [OpenAI](https://developers.openai.com/api/docs/models/gpt-5.4-mini) · [Criterio di fatturazione Lovable](https://docs.lovable.dev/features/ai#usage-and-pricing)
+
+**NEXT_ACTION.** Recuperare dalla risposta già ricevuta i quattro contatori di `sectionAudit` e, per ciascun elemento di `descriptionIssues`, solo sezione, codice e messaggio. Se la risposta è ancora in anteprima, «Revisione finale → Origine e versione della proposta» mostra i contatori quando il pannello è accessibile. Per le sei omissioni occorrono anche le voci `coverage` scoperte. Se la sessione è chiusa e manca una copia, il numero di parole grezze e l'attribuzione retrospettiva degli scarti restano indisponibili. Alla prossima prova autorizzata, raccogliere le misure pre/post nel banco di prova. Questa diagnosi ha utilizzato registri esistenti e prove offline.

@@ -4,6 +4,52 @@
 
 La domanda editoriale usa lo stesso endpoint, la stessa prenotazione per operatore e la stessa validazione dei fatti. La risposta V3 espone il prompt versionato. La destinazione di una revisione deve coincidere con la sezione o il campo autorizzato. Per SEO e tag la richiesta mirata usa le chiavi ammesse dalla riserva batch. Le conferme botaniche si applicano esclusivamente ai valori strutturati presentati nella revisione finale. La chiave idempotente della bozza attraversa verifica e salvataggio. [Matrice dei campi, provenienza e controlli](../release/ai-editor-v3/README.md)
 
+### Diagnosi Yucca del 27 novembre 2026
+
+Il riferimento applicativo è `874f2d3`, sorgente del deploy correttivo. La funzione scrive l'evento `model_validated` dopo la validazione e invia `sectionAudit`, `descriptionIssues` e `coverage` nella risposta all'editor. Il log dell'evento conserva lo stadio raggiunto. Il gateway conserva modello, consumi e durata anche quando il contenuto della richiesta è assente. Per il risultato reale e i limiti di attribuzione si veda il [verbale UAT](../release/ai-editor-v3/README.md#diagnosi-del-retest-da-165-parole). [Entrypoint](../../supabase/functions/product-admin-ai/index.ts) · [Registro attività Lovable](https://docs.lovable.dev/features/ai#monitor-ai-usage-and-activity)
+
+**Percorso dei dati.** Nel replay offline la fixture Yucca attraversa lo stesso serializzatore della generazione iniziale. Le tre righe producono 20 affermazioni. Il corpo della richiesta simulata contiene tutte le 15 utilizzabili, distribuite 5, 4 e 6 per riga, con indice della riga e sezione suggerita per ciascuna. Il denominatore dell'UAT include un duplicato di «arbusto sempreverde» (14 fatti distinti). Sono esclusi i due valori di famiglia, le due altezze riferite alla pianta e la formulazione ambigua sul fusto. Resta eleggibile l'altezza dello **stelo floreale**. Il prompt chiede di distribuire i fatti e orientarsi a 250–450 parole quando le fonti lo consentono. Per il retest manca il corpo inviato al gateway, quindi la verifica dei 15 elementi riguarda la fixture e il codice. [Fixture](../../scripts/tests/fixtures/yucca-filamentosa-uat-20261127.txt) · [Preparazione dei fatti](../../supabase/functions/_shared/admin-ai-confirmed.ts) · [Prompt V3](../../supabase/functions/_shared/admin-ai-revision.ts)
+
+**Lettura dei contatori.** `received` conta le sezioni strutturate ricevute, `accepted` quelle del modello che superano i controlli, `rejected = received − accepted`. `derived` conta le sezioni aggiunte localmente dopo almeno un'accettazione nella generazione iniziale. Le aggiunte possibili sono introduzione, provenienza nella descrizione botanica e terreno nella coltivazione, se i costrutti sorgente lo consentono. Una sezione scartata produce un elemento con titolo, codice e messaggio. La ricostruzione dello stesso titolo conserva quel motivo. [Validazione e ricostruzione](../../supabase/functions/_shared/admin-ai-description.ts)
+
+| Codice | Condizione osservabile nel codice |
+|---|---|
+| `FORMAT_ERROR` | Titolo sconosciuto o già accettato, testo assente o con markup, URL o e-mail, oppure indici assenti o non validi. Il messaggio raggruppa più condizioni. |
+| `UNSUPPORTED_FACT` | La prima frase che fallisce il controllo di fonte, lessico, proprietà, misura, organo o qualificatore causa lo scarto della sezione intera. Il messaggio indica la regola fallita. |
+| `EXTRACTIVE_COPY` | Il testo normalizzato è contenuto nella fonte. Da 25 parole si verifica anche se oltre l'80% delle sequenze di sei parole è già presente. |
+| `INCOMPLETE_RESPONSE` | Avviso complessivo per i fatti ancora scoperti dopo l'integrazione. È escluso dal contatore dei problemi di sezione. |
+
+La UI somma i problemi ricalcolati sul testo corrente (incluse le sezioni attese mancanti) agli scarti deduplicati per titolo, codice e messaggio. La copertura richiede sia la riga citata sia il riconoscimento delle proprietà e dei termini dell'affermazione. Per un confronto in parole contare soltanto i testi delle sezioni, con lo stesso criterio della UI: si sommano separatamente parole del modello accettate, scartate e aggiunte localmente. La differenza fra totale grezzo e finale da sola nasconde le integrazioni. [Validatore delle fonti](../../supabase/functions/_shared/admin-ai-evidence.ts) · [Conteggio parole e copertura](../../src/adminv2/lib/customerArticle.ts) · [Contatore in anteprima](../../src/adminv2/components/CustomerDraftEditor.tsx)
+
+**Prove controllate offline su `874f2d3`.** Con `article: true` e `review: true`, passare a `validateEditorialDescription` una sezione con il testo indicato e l'indice della fonte. Per i primi due casi utilizzare «Portamento e sviluppo» e la riga 0 della fixture Yucca. Per gli altri, utilizzare «Fioritura» e la singola fonte indicata, indice 0.
+
+| Fonte | Testo della sezione di prova | Esito |
+|---|---|---|
+| Portamento eretto | Lo sviluppo è verticale. | Sezione scartata con `UNSUPPORTED_FACT` per insufficiente riscontro lessicale. |
+| Portamento eretto | Il portamento è verticale. | Sezione accettata, fatto ancora `uncovered`. La parafrasi supera il primo controllo e perde il credito di copertura. |
+| Fiori penduli di colore crema. | I fiori sono di colore crema. Le corolle ricadono verso il basso. | La seconda frase determina lo scarto dell'intera sezione, compresa la prima frase supportata. |
+| I fiori sono penduli. | I fiori sono eleganti. | Sezione accettata, fatto scoperto. L'aggettivo valutativo passa pur essendo privo di supporto nella fonte. |
+| I fiori sono penduli. | I fiori sono penduli. | Scarto intenzionale per `EXTRACTIVE_COPY`, anche su una frase breve. |
+| Steli floreali che possono arrivare a 3 metri di altezza. | La pianta raggiunge 3 metri di altezza. | Scarto corretto con messaggio «Misura, unità o organo non confermati.» |
+
+La risposta completa della fixture restituisce 5 sezioni ricevute, 5 accettate, 0 scartate, 0 derivate, 254 parole e 15/15. Questi esempi si possono riprodurre senza provider. I 16 test V2/V3 sono passati con `node --require ./ci/offline-network.cjs --import tsx --test scripts/tests/admin-ai-product-editor-{v2,v3}.test.ts`. [Test di regressione V3](../../scripts/tests/admin-ai-product-editor-v3.test.ts)
+
+### Protocollo A/B proposto
+
+Confrontare Gemini 3 Flash Preview (A) con GPT-5.4 Mini di OpenAI (B), entrambi presenti nel catalogo chat del workspace. Il nome del modello OpenAI è verificato. Prima di un test autorizzato verificare l'identificativo di instradamento Lovable e la compatibilità con temperatura, limite di output e chiamata strutturata obbligatoria. Una differenza di protocollo rende il confronto a parità di condizioni non valutabile. [Modelli chat Lovable](https://docs.lovable.dev/features/ai-chat)
+
+Usare un banco di prova isolato con la medesima fixture, il prompt `@3`, le 15 affermazioni, i titoli, gli indici, lo schema e il validatore di `874f2d3`. Variare solo il modello della descrizione. Per isolare il suo contributo alla SEO, mantenere la stessa selezione deterministica dai candidati in entrambi i bracci. Tre coppie sulla stessa Yucca, con ordine A/B alternato dopo sorteggio del primo, danno sei chiamate descrittive preventivabili, senza retry. Tenere 2.000 token, temperatura 0,2 e timeout 12 s. Due revisori leggono testi anonimizzati rispetto al modello, giudicando anche le parafrasi corrette che il contatore considera scoperte. Un pilota su una specie misura questo caso.
+
+| Metrica per tentativo | Misura e lettura |
+|---|---|
+| Fedeltà e copertura | Registrare prima del filtro e alla fine i fatti supportati su 15 e su 14 distinti, con esito umano e automatico. Classificare ogni omissione come assente nel grezzo, persa in uno scarto o espressa ma non riconosciuta. Contare separatamente fatti inventati, contraddizioni e misure attribuite all'organo errato. |
+| Sezioni e lunghezza | Registrare i quattro contatori, motivo per titolo, percentuale di sezioni del modello accettate e parole grezze, accettate, scartate, derivate e finali. Valutare le 250–450 parole insieme alla disponibilità di contenuto e ai riempitivi. |
+| Stile | Ogni revisore assegna 1–5 a naturalezza dell'italiano, precisione botanica e scorrevolezza senza ripetizioni. Registrare i giudizi indipendenti e motivare i disaccordi. |
+| Completezza SEO | 0–3, un punto per titolo identificativo e informativo, meta autonoma sostenuta dai fatti, tag pertinenti e autorizzati. Usare gli stessi limiti di campo e annotare la provenienza di ogni valore. |
+| Tempo e costo | Per ogni chiamata registrare esito, latenza, token in/out, crediti effettivi e `finish_reason` se esposto. Riportare mediana e intervallo, i timeout, il costo totale e quello per scheda che supera i criteri. |
+
+Decisione proposta: valutare il cambio solo con zero fatti inventati, conflitti reintrodotti o misure attribuite all'organo sbagliato. Cercare copertura umana completa, sezioni richieste valide e miglioramento ripetuto della qualità finale rispetto ad A a costo e latenza accettabili. Se la copertura grezza è buona in entrambi e la perdita si concentra dopo il filtro, intervenire sulle equivalenze dimostrate con regressioni mirate. Le prove a pagamento richiedono un budget approvato separatamente. [Confronto economico e stato UAT](../release/ai-editor-v3/README.md#diagnosi-del-retest-da-165-parole)
+
 ## Versione in esercizio e ripristino · 20 novembre 2026
 
 Il merge applicativo è `1fd8e7bc15b0c38f6dcaa1a6d17ade3506f0f245`. Lovable ha distribuito `product-admin-api` con i moduli condivisi del riepilogo. Il frontend pubblicato legge i dati della creazione e mostra a parte i valori editoriali correnti e lo stato di vendita verificabile. Le proposte AI usano la funzione `product-admin-ai` già in esercizio. Nessuna nuova migrazione. La verifica autenticata post-pubblicazione attesta il comportamento integrato. Lovable non fornisce il confronto binario con il codice Edge in esecuzione né lo SHA del bundle servito. [Verbale live](COLLAUDO-MARCO-STEP1C.md#verifica-live-dopo-publish-frontend--20-novembre-2026)
