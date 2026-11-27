@@ -115,7 +115,7 @@ async function simulate(page: Page, options: { assets?:boolean; lifecycle?:boole
         ] : [])]});
       }
       case 'suggest_confirmed_field': {
-        expect(Object.keys(input).sort()).toEqual(['action','confirmed',...('draftTitle' in input ? ['draftTitle'] : []),'facts','fieldKey','requestKey']);
+        expect(Object.keys(input).sort()).toEqual(['action','confirmed',...('draftTitle' in input ? ['draftTitle'] : []),'facts','fieldKey',...('productName' in input ? ['productName'] : []),'requestKey']);
         if ('draftTitle' in input) expect(input.draftTitle).toBeTruthy();
         expect(input.fieldKey).toBe('description');
         expect(input.confirmed).toBe(true);
@@ -125,7 +125,7 @@ async function simulate(page: Page, options: { assets?:boolean; lifecycle?:boole
         return reply({...(options.modelSeo && input.draftTitle ? {editorial:{
           seoTitle:{value:input.draftTitle+' (Farnia)',source:'model'},seoDescription:{value:input.facts[0],source:'model'},
           tags:{value:[input.draftTitle],source:'deterministic'},
-        }} : {}),source:'confirmed_facts',value:input.facts.map((line:string) => `<p>${line}</p>`).join('')});
+        }} : {}),source:'model',value:input.facts.map((line:string) => `<p>${line}</p>`).join('')});
       }
       case 'preview_new_product': return reply({ warnings: [], shopifySkuVerified:true });
       case 'prepare_catalog_approval': return reply({ approvalId: 'synthetic-approval' });
@@ -324,16 +324,16 @@ for (const width of [390,1280]) test('AI descrizione vuota: errore, riprova e sa
   await panel.getByRole('checkbox').check();
   for (const message of ['Connessione al servizio AI','Il modello ha restituito']) {
     await run.press('Enter');
-    await expect(alert).toContainText(message);
+    await expect(message.startsWith('Connessione') ? alert : panel.getByRole('status')).toContainText(message);
     await expect(facts).toHaveValue(verifiedParagraph);
     await expect(panel.getByRole('checkbox')).toBeChecked();
     await expect(description).toHaveText('');
   }
   await run.press('Enter');
   await expect(alert).toHaveCount(0);
-  await expect(panel.getByRole('status')).toContainText('righe originali');
+  await expect(panel.getByRole('status')).toContainText('Proposta editoriale generata con AI');
   await expect(description).toHaveText('');
-  const apply=panel.getByRole('button',{name:'Applica Descrizione estesa',exact:true});
+  const apply=panel.getByRole('button',{name:'Accetta Descrizione estesa',exact:true});
   page.once('dialog',dialog=>dialog.dismiss());
   await apply.press('Enter');
   await expect(description).toHaveText('');
@@ -366,7 +366,7 @@ test('AI descrizione esistente: permesso negato e proposta applicata solo al mod
   await run.click();
   await expect(panel.getByRole('alert')).toContainText('non è autorizzato');
   await run.click();
-  await expect(panel.getByRole('status')).toContainText('righe originali');
+  await expect(panel.getByRole('status')).toContainText('Proposta editoriale generata con AI');
   page.once('dialog',dialog=>dialog.accept());
   await panel.getByRole('button',{name:'Applica alla compilazione'}).click();
   await expect(page.getByRole('textbox',{name:'Descrizione',exact:true})).toHaveText(verifiedParagraph);
@@ -399,6 +399,7 @@ test('Scheda AI Editor: approvazione parziale e cumulativa, due formati e riaper
   const sku = await page.locator('#sku').inputValue();
   await page.getByText('Informazioni botaniche e FAQ facoltative').click();
   for (const month of ['Novembre','Febbraio','Maggio']) await page.getByRole('checkbox',{name:'Periodo di fioritura: '+month,exact:true}).check();
+  await page.getByRole('checkbox',{name:'Confermo la fonte e il valore di periodo di fioritura.'}).check();
   await page.locator('#vendor').fill('Fornitore manuale');
   await page.locator('#tags').fill('Tag manuale');
   await page.getByText('SEO facoltativa').click();
@@ -412,10 +413,10 @@ test('Scheda AI Editor: approvazione parziale e cumulativa, due formati e riaper
   const preview = assistant.getByRole('region',{name:'Proposte per la bozza'});
   await expect(preview.getByRole('heading',{level:4})).toHaveCount(6);
   await expect(preview.getByLabel('Tipo verificato')).toHaveValue('');
-  await expect(preview.getByRole('button',{name:'Applica Tipo prodotto'})).toHaveCount(0);
+  await expect(preview.getByRole('button',{name:'Accetta Tipo prodotto'})).toHaveCount(0);
   await expect(page.getByRole('textbox',{name:'Descrizione verificata',exact:true})).toHaveText('');
   page.once('dialog',d => d.accept());
-  await preview.getByRole('button',{name:'Applica Descrizione estesa',exact:true}).click();
+  await preview.getByRole('button',{name:'Accetta Descrizione estesa',exact:true}).click();
   await expect(page.getByRole('textbox',{name:'Descrizione verificata',exact:true})).toHaveText(verifiedParagraph);
   await page.getByRole('button',{name:'Vai all’anteprima'}).click();
   await page.getByRole('button',{name:'Indietro'}).click();
@@ -426,7 +427,7 @@ test('Scheda AI Editor: approvazione parziale e cumulativa, due formati e riaper
   await advanced.click();
   await page.locator('#seoTitle').fill('SEO modificato durante la revisione');
   await advanced.click();
-  const all = preview.getByRole('button',{name:'Applica tutte le proposte disponibili'});
+  const all = preview.getByRole('button',{name:'Accetta tutte le proposte valide non rifiutate'});
   const cancelled = page.waitForEvent('dialog');
   const firstClick = all.click();
   const dialog = await cancelled;
@@ -476,7 +477,7 @@ test('Scheda AI Editor: un campo negato lascia utilizzabili gli altri', async ({
   await assistant.getByRole('button',{name:'Completa scheda con AI'}).click();
   await expect(assistant.getByRole('group',{name:'Descrizione estesa',exact:true})).toContainText('permesso di modifica');
   page.once('dialog',d=>d.accept());
-  await assistant.getByRole('button',{name:'Applica Titolo SEO'}).click();
+  await assistant.getByRole('button',{name:'Accetta Titolo SEO'}).click();
   await expect(page.locator('#seoTitle')).toHaveValue('Nome verificato');
   await expect(page.getByRole('textbox',{name:'Descrizione verificata',exact:true})).toHaveText('');
   expect(model.calls).not.toContain('suggest_confirmed_field');
@@ -525,18 +526,19 @@ test('Scheda AI Editor: metadata utilizzabili durante errore provider e campo es
   await expect(assistant.getByRole('alert')).toBeVisible();
   await expect(assistant.getByRole('group',{name:'Tipo prodotto',exact:true})).toContainText('Manca un elenco verificato');
   await expect(assistant.getByRole('group',{name:'Tag',exact:true})).toContainText('Quercus robur, '+categoryName);
-  await assistant.getByRole('button',{name:'Escludi Tag',exact:true}).click();
+  await assistant.getByRole('group',{name:'Tag',exact:true}).getByRole('button',{name:'Rifiuta proposta'}).click();
   await assistant.getByLabel('Proposta Titolo SEO').fill('Nome SEO rivisto');
   page.once('dialog',d=>d.accept());
-  await assistant.getByRole('button',{name:'Applica tutte le proposte disponibili'}).click();
+  await assistant.getByRole('button',{name:'Accetta tutte le proposte valide non rifiutate'}).click();
   await expect(page.locator('#seoTitle')).toHaveValue('Nome SEO rivisto');
   await expect(page.locator('#tags')).toHaveValue('Tag originale');
   await expect(page.locator('#productType')).toHaveValue('');
   await expect(page.getByRole('textbox',{name:'Descrizione verificata',exact:true})).toHaveText('');
   await assistant.getByRole('button',{name:'Riprova la descrizione'}).click();
   await expect(assistant.getByRole('alert')).toHaveCount(0);
-  await expect(assistant.getByRole('button',{name:'Includi Tag',exact:true})).toBeVisible();
+  await expect(assistant.getByRole('group',{name:'Tag',exact:true}).getByRole('button',{name:'Ripristina proposta'})).toBeVisible();
   await expect(assistant.getByLabel('Proposta Titolo SEO')).toHaveValue('Nome SEO rivisto');
+  page.once('dialog', d=>d.accept());
   await assistant.getByRole('button',{name:'Scarta anteprima'}).click();
   await expect(assistant.getByRole('region',{name:'Proposte per la bozza'})).toHaveCount(0);
   await expect(page.locator('#tags')).toHaveValue('Tag originale');
@@ -567,7 +569,7 @@ test('Scheda SEO: origine modello e fallback, revisione e riapertura interna', a
   await assistant.getByLabel('Proposta Titolo SEO').fill('Farnia (Quercus robur)');
   await expect(title).toContainText('Modifica manuale');
   page.once('dialog',d=>d.accept());
-  await assistant.getByRole('button',{name:'Applica tutte le proposte disponibili'}).click();
+  await assistant.getByRole('button',{name:'Accetta tutte le proposte valide non rifiutate'}).click();
   await page.getByRole('button',{name:'Vai all’anteprima'}).click();
   await page.getByRole('button',{name:'Verifica anteprima'}).click();
   await page.getByRole('checkbox',{name:/Confermo i dati/}).check();
@@ -610,10 +612,10 @@ test('breve ed estesa approvate separatamente restano distinte nella bozza riape
   await panel.getByRole('checkbox').check();
   await panel.getByRole('button',{name:'Completa scheda con AI'}).click();
   page.on('dialog',dialog=>dialog.accept());
-  await panel.getByRole('button',{name:'Applica Descrizione breve',exact:true}).click();
+  await panel.getByRole('button',{name:'Accetta Descrizione breve',exact:true}).click();
   await expect(page.locator('#shortDescription')).toHaveValue(first);
   await expect(page.getByRole('textbox',{name:'Descrizione verificata'})).toHaveText('');
-  await panel.getByRole('button',{name:'Applica Descrizione estesa',exact:true}).click();
+  await panel.getByRole('button',{name:'Accetta Descrizione estesa',exact:true}).click();
   await page.getByRole('button',{name:'Vai all’anteprima'}).click();
   await page.getByRole('button',{name:'Verifica anteprima'}).click();
   await page.getByRole('checkbox',{name:/Confermo i dati/}).check();
@@ -661,7 +663,7 @@ test('scheda esistente: fonti precaricate, proposta autorizzata e riepilogo prim
   await assistant.getByRole('button',{name:'Migliora scheda con AI'}).click();
   await expect(assistant.getByText('Proposte AI per questo prodotto')).toBeVisible();
   page.once('dialog',d=>d.accept());
-  await assistant.getByRole('button',{name:'Applica Descrizione estesa',exact:true}).click();
+  await assistant.getByRole('button',{name:'Accetta Descrizione estesa',exact:true}).click();
   expect(model.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(1);
   expect(model.calls).not.toContain('update_field');
   const review=page.getByRole('region',{name:'Revisione modifiche'});

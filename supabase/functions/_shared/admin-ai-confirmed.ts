@@ -1,7 +1,9 @@
 import type { AuthContext, FieldDefinition } from './admin-v2-types.ts';
 import { catalogAiAllowed, EDITORIAL_AI_FIELDS } from './admin-catalog-policy.ts';
 import { aiDefinitionEligibility, type AiTrustedContext, strategyForField, validateSuggestedValue } from './admin-ai-core.ts';
-import { descriptionInstruction, validateEditorialDescription } from './admin-ai-description.ts';
+import { editorialInstruction, extractiveInstruction, PROMPT_VERSION } from './admin-ai-editorial-contract.ts';
+import { allowedRows, analyzeFacts } from './admin-ai-evidence.ts';
+import { type DescriptionRequest, validateEditorialDescription } from './admin-ai-description.ts';
 export const CONFIRMED_AI_FIELDS = EDITORIAL_AI_FIELDS;
 export { confirmedFacts } from './admin-ai-facts.ts';
 export function authorizeConfirmedAi(auth: AuthContext, def: FieldDefinition | null, action: unknown) {
@@ -17,26 +19,36 @@ export async function generateConfirmedProposal(
   def: FieldDefinition,
   facts: string[],
   generate: (strategy: NonNullable<ReturnType<typeof strategyForField>>, context: AiTrustedContext) => Promise<{ value: unknown }>,
+  request: DescriptionRequest = {},
 ) {
   const strategy = strategyForField(def.key);
   if (!strategy) throw new ConfirmedProposalError('INVALID_FIELD_VALUE', 'Campo AI non supportato.');
   const description = def.key === 'description';
+  const allowed = allowedRows(facts, analyzeFacts(facts));
+  if (!allowed.some(Boolean)) {
+    if (description && request.review && !request.section) {
+      const assessment = validateEditorialDescription(def, facts, {sections:[],missingInformation:[]}, request);
+      return {...assessment,source:'source_review' as const};
+    }
+    throw new ConfirmedProposalError('INVALID_MODEL_PROPOSAL','Tutti i fatti richiedono verifica. Correggi le informazioni prima di rigenerare.');
+  }
+  const inputs = description ? allowed : allowed.filter(Boolean);
   const response = await generate({
     ...strategy,
-    ...(description ? { id: 'verified-editorial-description', instruction: descriptionInstruction } : {
-      instruction: 'Riordina le righe confermate. Riproduci ogni riga intera esattamente una volta, inclusa la punteggiatura. Per gli elenchi usa una riga per voce. Evita titoli e HTML.',
+    ...(description ? { id: 'verified-editorial-description', version: PROMPT_VERSION, instruction: editorialInstruction(request.section) } : {
+      instruction: extractiveInstruction,
     }),
   }, {
     sku: '', fieldKey: def.key, fieldLabel: def.label,
-    currentValue: strategy.kind === 'text' ? facts.join('\n') : facts,
-    wordpressOriginal: null, sourceSnapshotId: null, trustedRelatedValues: {},
+    currentValue: strategy.kind === 'text' ? inputs.join('\n') : inputs,
+    wordpressOriginal: null, sourceSnapshotId: null, trustedRelatedValues: {}, ...(request.productName ? {productName:request.productName} : {}),
   });
 
   if (description) {
-    try { return validateEditorialDescription(def, facts, response.value); }
+    try { return validateEditorialDescription(def, facts, response.value, request); }
     catch (error) { throw new ConfirmedProposalError('INVALID_MODEL_PROPOSAL', error instanceof Error ? error.message : 'Proposta editoriale non valida.'); }
   }
-  return validateConfirmedProposal(def, facts, response.value);
+  return validateConfirmedProposal(def, inputs, response.value);
 }
 
 export function validateConfirmedProposal(def: FieldDefinition, facts: string[], raw: unknown) {

@@ -26,7 +26,11 @@ test('B: exact eleven-line Yucca UAT input, preserving confirmed numerical facts
   {heading:'Utilizzo ornamentale',text:'In Australia è molto apprezzata e viene occasionalmente impiegata nei giardini residenziali come esemplare ornamentale singolo.',factIndices:[10]}
  ],missingInformation:['manutenzione']};
  const result=await generateConfirmedProposal(def,yucca,async()=>({value}));
- assert.equal(result.source,'model');assert.ok('descriptionIssues' in result);assert.deepEqual(result.descriptionIssues,[]);
+ assert.equal(result.source,'model');assert.ok('descriptionIssues' in result);
+ // The old mock cites the whole paragraph but omits several source details, including the US states.
+ assert.ok(result.descriptionIssues.some(i=>i.code==='INCOMPLETE_RESPONSE'));
+ assert.ok(result.coverage.some(f=>f.status==='uncovered' && f.text.includes('California')));
+ assert.ok(result.descriptionIssues.every(i=>i.code==='INCOMPLETE_RESPONSE'));
  assert.match(String(result.value),/4,5/);assert.match(String(result.value),/60 cm/);assert.match(String(result.value),/100 cm/);
  assert.match(String(result.value),/<h2>Descrizione botanica/);assert.notEqual(result.value,yucca.join('\n'));
 });

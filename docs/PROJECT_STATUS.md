@@ -1,3 +1,7 @@
+## 27/11/2026 — AI Product Editor V2 in collaudo
+
+Candidato sviluppato sul branch `codex/ai-product-editor-v2-20261127` da `1da7ee1` della Draft #79. Il contratto `online-garden-editoriale-it@2` introduce rendiconto dei fatti, gestione di negazioni e conflitti, avvisi editoriali e revisione per sezione. I test usano il testo originale della Yucca filamentosa e un provider simulato. **READY_FOR_UAT** in ambiente isolato. Prova con AI reale, collaudo personale di Marco e rilascio restano da autorizzare o completare. **PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** [Verbale, matrice dei campi e checklist](release/ADMIN-V2-AI-PRODUCT-EDITOR-2026-11-27.md)
+
 ## 26/11/2026 — Candidato metafield preparato dopo approvazione, NON distribuito
 
 - 27/11/2026: candidato AI Product Editor (Admin V2) READY_FOR_UAT in preview; vedi docs/release/ADMIN-V2-AI-PRODUCT-EDITOR-2026-11-27.md. Nessun deploy/Publish.

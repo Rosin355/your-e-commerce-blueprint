@@ -32,7 +32,7 @@ export function editorialOptions(title: string, facts: string[]): EditorialOptio
   // A separate qualification may limit another line. Keep these facts together.
   const qualified = facts.some(line => /\b(non|ma|solo|soltanto|salvo|eccetto|tranne|tuttavia|purché|rettifica|invece)\b/iu.test(line));
   const prose = facts.filter(line => !/^(?:nome comune|nome botanico|cultivar):/iu.test(line));
-  const excerpts = qualified ? [all] : unique([prose.join(' '), ...prose, all]);
+  const excerpts = !prose.length ? [] : qualified ? [all] : unique([prose.join(' '), ...prose, all]);
   const meta = unique(excerpts.filter(Boolean).flatMap(v => {
     const includeName = !v.toLowerCase().includes(title.toLowerCase()) && title.length + v.length + 3 <= 160;
     return includeName ? [v, title + ' — ' + v] : [v];
