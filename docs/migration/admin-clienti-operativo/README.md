@@ -10,6 +10,8 @@
 
 **Ambiente di prova:** non creare un secondo progetto Supabase senza richiesta esplicita; usare il PostgreSQL locale e il browser mock per i test isolati. Prima della distribuzione su quello esistente, documentare le verifiche Auth/PostgREST realmente eseguibili con gli strumenti disponibili, le differenze rispetto a un collaudo completo e i rischi residui. Backup ripristinabile, approvazione conservazione, migrazione SQL, import privato, cambio ruolo e Publish richiedono gate distinti.
 
+Per la decisione di rilascio fare riferimento al [gate finale, matrice dei permessi, guida e UAT](GATE-FINALE.md). La procedura di grant archivio documentata sotto rimane una possibilità tecnica circoscritta. Il gate C corrente riguarda la parità amministrativa globale.
+
 ## Titolare e designer
 
 La nuova voce **Clienti storici** apre `/admin/clienti-storici` dopo verifica server del grant. Il cruscotto mostra clienti Woo, acquirenti e somma dei contatori. L'elenco risponde a ricerca esplicita per nome, email o ID Woo e ai filtri con/senza acquisti. Pagine da 50 elementi in ordine di ID. La scheda aggiunge l'email storica. Il CSV include l'intera selezione filtrata, con motivazione predefinita e limite server di 10.000 righe. L'audit registra il rilascio dei dati da parte del server. Il salvataggio del file sul dispositivo è un'operazione successiva del browser.

@@ -1,3 +1,7 @@
+## 27/11/2026 — Gate finale archivio Woo e parità Admin
+
+**BLOCKED per il rilascio · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Preflight locale 5.450 clienti e 952 acquisti. Verificati in sola lettura ruoli, campi e capability dei due profili staff; nominativo di Marco da attestare con due riferimenti privati. Backup produzione non verificabile con gli accessi attuali (catalogo backup 403); restore sintetico locale superato. Quattro decisioni separate per schema, import, parità globale e Publish. [Matrice, prove e gate](migration/admin-clienti-operativo/GATE-FINALE.md)
+
 ## 27/11/2026 — Archivio clienti WooCommerce in Admin V2
 
 **PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Implementazione preparata dal commit `3684bf6` della #81. Archivio privato, API con controllo Admin, audit, importatore offline e pagina collaudati su dati sintetici. Preflight live in sola lettura: un Admin e due Editor, un candidato nominativo Editor. Associazione all’identità staff da attestare privatamente. Applicazione schema, import, eventuale grant archivio e Publish richiedono autorizzazione. [Consegna e gate operativi](migration/admin-clienti-operativo/README.md)

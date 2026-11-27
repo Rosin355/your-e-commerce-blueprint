@@ -109,6 +109,31 @@ class ArchiveTest(unittest.TestCase):
         self.assertEqual(self.sql(f"select quantity from woo_archive.audit where action='export' and quantity>0 and actor='{MARCO}'"),'26')
         self.sql(f"delete from woo_archive.page_admins where user_id='{MARCO}'")
         self.call(MARCO,'list',ok=False)
+        # Percorso Admin globale, separato dal grant limitato alla pagina.
+        self.sql(f"insert into public.user_roles values ('{MARCO}','admin')")
+        for action,args in [('list',''),('detail',',p_id=>1'),
+                            ('export',",p_purpose=>'verifica_archivio'")]:
+            self.assertEqual(self.call(MARCO,action,args),self.call(OWNER,action,args))
+        self.sql(f"delete from public.user_roles where user_id='{MARCO}' and role='admin'")
+        self.assertEqual(self.sql(f"select role from public.user_roles where user_id='{MARCO}'"),'editor')
+        self.call(MARCO,'export',",p_purpose=>'verifica_archivio'",ok=False)
+
+        # Un ripristino sintetico misura il metodo, non certifica i backup del provider.
+        dump=self.folder/'fixture.dump'
+        subprocess.run(['pg_dump','-Fc','-f',dump],env=self.env,check=True)
+        self.sql('create database archive_restore template template0')
+        subprocess.run(['pg_restore','--exit-on-error','-d','archive_restore',dump],env=self.env,check=True)
+        proof="""select count(*), sum(purchases) from woo_archive.customers;
+                 select count(*) from woo_archive.audit;
+                 select bool_and(relrowsecurity) from pg_class where relnamespace='woo_archive'::regnamespace
+                       and relkind='r';
+                 select has_table_privilege('authenticated','woo_archive.customers','select');
+                 select has_function_privilege('anon',
+                    'public.woo_archive_read(text,text,text,integer,bigint,text)','execute');"""
+        restored=subprocess.run(['psql','-XAtq','-d','archive_restore','-v','ON_ERROR_STOP=1'],
+                                input=proof,text=True,env=self.env,capture_output=True,check=True)
+        self.assertEqual(restored.stdout.strip(),self.sql(proof))
+        self.assertEqual(restored.stdout.strip().splitlines()[-3:],['t','f','f'])
         self.sql('set role authenticated; select * from woo_archive.customers',False)
         self.sql('set role authenticated; delete from woo_archive.audit',False)
         self.sql("""create function woo_archive.fail() returns trigger language plpgsql as
