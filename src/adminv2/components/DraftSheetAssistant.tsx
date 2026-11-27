@@ -15,6 +15,7 @@ import EditorialText from './EditorialText';
 import ValueDisplay from './ValueDisplay';
 import FieldEditor from './FieldEditor';
 import { validateValue } from '../../../supabase/functions/_shared/admin-v2-validation';
+import { mergeRegenerated, manualOnlySections, reviewLabels, reviewStatus, setReview, type ReviewMap } from '../lib/sheetReview';
 import { evidenceLabels, evidenceReview, type EvidenceKey, type EvidenceReview } from '../lib/sheetEvidence';
 
 interface Preview {
@@ -41,6 +42,9 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
   const [busy, setBusy] = useState(false);
   const [inputError, setInputError] = useState('');
   const [result, setResult] = useState<Preview>();
+  const [review, setReviewMap] = useState<ReviewMap>({});
+  const [regenerating, setRegenerating] = useState<SheetKey>();
+  const [regenError, setRegenError] = useState<{key:SheetKey;message:string}>();
   const revision = useRef(0);
   const pending = useRef(false);
   // Ignore late responses when the product, selected categories or effective grants change.
@@ -49,6 +53,7 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
     revision.current++;
     setConfirmed(false);
     setResult(undefined);
+    setReviewMap({});
     setInputError('');
   }, [contextKey]);
   const preview = result?.contextKey === contextKey ? result : undefined;
@@ -57,6 +62,8 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
     revision.current++;
     setInputError('');
     setResult(undefined);
+    setReviewMap({});
+    setRegenError(undefined);
   }
 
   async function prepare() {
@@ -113,7 +120,38 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
     if (current === revision.current) { setExtra(evidenceReview(facts,context.definitions,context.editableKeys)); setResult(next); }
   }
 
+  /** Regenerates one field only; accepted fields and every other row are preserved. */
+  async function regenerate(key: SheetKey) {
+    if (!preview || pending.current || review[key] === 'accepted') return;
+    let facts: string[];
+    try { facts = confirmedFacts(text.split('\n').map(v => v.trim()).filter(Boolean), confirmed); }
+    catch (error) { setRegenError({key, message: error instanceof Error ? error.message : 'Controlla le informazioni inserite.'}); return; }
+    const current = revision.current;
+    pending.current = true; setBusy(true); setRegenerating(key); setRegenError(undefined);
+    try {
+      const requestKey = crypto.randomUUID();
+      let fresh: SheetPreview[SheetKey] | undefined;
+      if (key === 'description') {
+        const proposal = await suggestConfirmedField({fieldKey: 'description', confirmed: true, facts, requestKey});
+        if (typeof proposal.value === 'string' && !sheetValueError('description', proposal.value, context)) fresh = { value: proposal.value, source: 'model' };
+      } else if (key === 'productType') {
+        fresh = localSheet(context, facts).productType;
+      } else {
+        const proposal = await suggestDraftEditorial({draftTitle: context.title.trim(), facts, requestKey});
+        const row = 'editorial' in proposal ? proposal.editorial?.[key as keyof NonNullable<typeof proposal.editorial>] : undefined;
+        if (row && row.source === 'model' && !sheetValueError(key, row.value, context)) fresh = row;
+      }
+      if (current !== revision.current) return;
+      const merged = mergeRegenerated(preview.rows, review, key, fresh);
+      if (!merged.changed) setRegenError({key, message: 'L’AI non ha prodotto una proposta valida: il valore precedente è stato mantenuto.'});
+      else { setResult({ ...preview, rows: merged.rows, ...(key === 'description' ? { descriptionError: undefined, descriptionIssues: undefined, descriptionRevision: requestKey } : {}) }); setReviewMap(merged.map); }
+    } catch (error) {
+      setRegenError({key, message: explainAiRequestError(error) + ' Il valore precedente è stato mantenuto.'});
+    } finally { pending.current = false; setBusy(false); setRegenerating(undefined); }
+  }
+
   function edit(key: SheetKey, value: string | string[], tagText?: string) {
+    if (preview && review[key] !== 'accepted') setReviewMap(setReview(review, key, null));
     if (preview) setResult({ ...preview, rows: { ...preview.rows, [key]: { ...preview.rows[key], value, source: 'manual', tagText, reason: undefined } } });
   }
 
@@ -123,7 +161,7 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
   }
   function applicable(key: SheetKey) {
     const value = preview?.rows[key].value;
-    return !preview?.rows[key].excluded && value !== undefined && different(key) && !sheetValueError(key, value, context);
+    return review[key] !== 'rejected' && !preview?.rows[key].excluded && value !== undefined && different(key) && !sheetValueError(key, value, context);
   }
   function extraValid(key: EvidenceKey) {
     const row=extra[key], def=context.definitions.find(d=>d.key===key);
@@ -148,6 +186,9 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
       if (key === 'tags' && Array.isArray(value)) change.tags = value;
       else if (key !== 'tags' && typeof value === 'string') change[key] = value;
     }
+    let accepted = review;
+    for (const key of eligible) accepted = setReview(accepted, key, 'accepted');
+    setReviewMap(accepted);
     onApply(change,Object.fromEntries(extras.map(k=>[k,extra[k]!.value])));
   }
 
@@ -166,13 +207,15 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
     {inputError && <AiErrorNotice>{inputError}</AiErrorNotice>}
     {preview && <section aria-label="Proposte per la bozza" className="space-y-3">
       <h3 className="font-semibold">Proposte AI per questo prodotto</h3>
-      <p className="text-sm">Ogni campo indica come è stata preparata la proposta. Puoi applicare i campi singolarmente.</p>
+      <p className="text-sm">Nessuna proposta è approvata finché non premi «Accetta». Accettare aggiorna solo la bozza locale: salvataggio, invio a Shopify e pubblicazione restano passaggi separati.</p>
       {sheetKeys.map(key => {
         const row = preview.rows[key];
         const value = row.value;
         const validation = value === undefined ? undefined : sheetValueError(key, value, context);
         return <div key={key} role="group" aria-label={sheetLabels[key]} className="space-y-2 rounded border p-3">
           <h4 className="font-medium">{sheetLabels[key]}</h4>
+          <p className="text-sm font-medium" data-review-status={reviewStatus(row, review, key)}>Stato · {reviewLabels[reviewStatus(row, review, key)]}</p>
+          {regenError?.key === key && <AiErrorNotice>{regenError.message}</AiErrorNotice>}
           {key !== 'description' && value !== undefined && row.source && <p className="text-sm">{{
             model: 'Selezione del modello su informazioni verificate',
             deterministic: key === 'productType' ? 'Corrispondenza con il registro dei tipi verificati' : 'Fallback deterministico da informazioni verificate',
@@ -210,13 +253,16 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
             {key === 'description' ? <EditorialText value={draft.description} /> : <p>{key === 'tags' ? draft.tags.join(', ') : draft[key]}</p>}</div>}
           {!draft[key]?.length && <p className="text-sm">Valore attuale · vuoto</p>}
           {value !== undefined && !different(key) && <p className="text-sm">Presente nella bozza</p>}
-          {value !== undefined && different(key) && <div className="flex flex-wrap gap-2">
-            <Button disabled={busy || !applicable(key)} type="button" variant="editorial" onClick={() => apply([key])}>Applica {sheetLabels[key]}</Button>
-            <Button disabled={busy} type="button" variant="ghost" onClick={() => setResult({ ...preview, rows: {
-              ...preview.rows, [key]: { ...row, excluded: !row.excluded },
-            } })}>{row.excluded ? 'Includi ' : 'Escludi '}{sheetLabels[key]}</Button>
-            {row.excluded && <span className="self-center text-sm">Escluso dall’approvazione</span>}
-          </div>}
+          <div className="flex flex-wrap gap-2">
+            {value !== undefined && different(key) && review[key] !== 'rejected' &&
+              <Button disabled={busy || !applicable(key)} type="button" variant="editorial" onClick={() => apply([key])}>Accetta {sheetLabels[key]}</Button>}
+            {value !== undefined && review[key] !== 'accepted' && <Button disabled={busy} type="button" variant="ghost"
+              onClick={() => setReviewMap(setReview(review, key, review[key] === 'rejected' ? null : 'rejected'))}>
+              {review[key] === 'rejected' ? 'Ripristina proposta' : 'Rifiuta proposta'}</Button>}
+            <Button disabled={busy || review[key] === 'accepted'} type="button" variant="outline" onClick={() => regenerate(key)}>
+              {regenerating === key ? 'Rigenerazione…' : key === 'productType' ? 'Ricalcola dai fatti' : 'Rigenera con AI'}</Button>
+            {review[key] === 'accepted' && <Button disabled={busy} type="button" variant="ghost" onClick={() => setReviewMap(setReview(review, key, null))}>Sblocca per modificare</Button>}
+          </div>
         </div>;
       })}
       {(Object.keys(evidenceLabels) as EvidenceKey[]).map(key=>{
@@ -232,8 +278,12 @@ export default function DraftSheetAssistant({ draft, context, onApply, sources, 
           {!valid.ok && <AiErrorNotice>{valid.message}</AiErrorNotice>}
         </div>;
       })}
+      <div className="space-y-1 rounded border border-dashed p-3 text-sm" aria-label="Campi non generati dall'AI">
+        <p className="font-medium">Campi esclusi dall’AI</p>
+        {manualOnlySections.map(item => <p key={item.label}>{item.label} · {item.reason}</p>)}
+      </div>
       <div className="flex flex-wrap gap-2">
-        <Button variant="editorial" type="button" disabled={busy || (!sheetKeys.some(applicable) && !extraKeys.length)} onClick={() => apply(sheetKeys,true)}>Applica tutte le proposte disponibili</Button>
+        <Button variant="editorial" type="button" disabled={busy || (!sheetKeys.some(applicable) && !extraKeys.length)} onClick={() => apply(sheetKeys,true)}>Accetta tutte le proposte valide non rifiutate</Button>
         <Button type="button" variant="outline" disabled={busy} onClick={invalidate}>Scarta anteprima</Button>
       </div>
     </section>}
