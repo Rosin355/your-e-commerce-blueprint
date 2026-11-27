@@ -1,0 +1,35 @@
+{
+  "status": "SUCCESS",
+  "function_names": [
+    "product-admin-ai"
+  ],
+  "source_commit": "874f2d398bdb4c635955243ac2a3e1fc5546a254",
+  "package_manifest_sha256": "d6c02bbce3b9d7365a16278487ac32edfcfbcddadab0b08f196dd54b7e9ccf41",
+  "submitted_source_sha256_files_and_settings": "14af6f9a418c63416d46ee02ab570f85f718ddecef55101a3d37bdc4f27fc332",
+  "deployment_id": null,
+  "runtime_sha_attested": false,
+  "tool_response": "Successfully deployed edge functions: product-admin-ai",
+  "options": {
+    "checked_at": "2026-11-27T18:33:27.943276+00:00",
+    "options_status": 200,
+    "version_header": "verified-editorial-20261126-r2"
+  },
+  "auth_checks": {
+    "missing_token": 401,
+    "invalid_token": 401,
+    "authenticated_invalid_product_id": 422,
+    "authenticated_empty_facts": 422
+  },
+  "offline_regressions": {
+    "passed": 43,
+    "failed": 0
+  },
+  "gemini_calls_by_agent": 0,
+  "rollback": {
+    "source_commit": "fa2a0796a93cd2fe1d4ee7de1b80f9b0cf8dc0c1",
+    "manifest_sha256": "8c867bad8767991a2d1826b36041bf0183bfcb587470b451b8d39c044647594e",
+    "executed": false
+  },
+  "acceptance": "PENDING_CLIENT_ACCEPTANCE",
+  "sal": "57,75%"
+}

@@ -1,5 +1,6 @@
 # Admin V2 — candidato Product Editor V3 (27 novembre 2026)
 
+- [x] Deploy correttivo autorizzato della sola product-admin-ai da 874f2d3: manifest/ricevuta conservati, auth e log PASS, 43 regressioni offline PASS; zero Gemini, rollback non necessario. [Verbale](docs/release/DEPLOY-CORRETTIVO-PRODUCT-ADMIN-AI-V3-874f2d3-2026-11-27.md)
 - [x] Preflight candidato 874f2d3: compatibilità, autenticazione non generativa, 850 prove offline, rollback sorgente e piano retest; GO condizionato, nessun deploy/Gemini. [Rapporto](docs/release/PREFLIGHT-RETEST-GEMINI-V3-874f2d3-2026-11-27.md)
 - [x] Separare il candidato dalla #78 e derivare la V3 dalla head della #80, che dipende dalla #79.
 - [x] Collaudare il percorso UI, le conferme per campo, la copertura Yucca e la riapertura di una singola bozza interna con provider simulato.
