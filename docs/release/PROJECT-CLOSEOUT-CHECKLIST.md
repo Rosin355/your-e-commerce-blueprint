@@ -1,3 +1,7 @@
+## Consegna controllata Admin V2 · 28 novembre 2026
+
+**NO-GO al rilascio attuale · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Candidato integrato `14cd12a` verificato: 737 Node, 141 Deno, 46 browser PASS, preview autenticata read-only e percorso bozza/riapertura interamente simulato. Artefatti e restore sorgenti offline conservati; manca l'attestazione della corrispondenza fra revisioni attive e rollback supportato dal provider. Curiosità autonoma non persistibile con i grant attuali; nessun permesso modificato. Una sola DRAFT tecnica pianificata, non creata. Mantenere Gemini 3 Flash Preview senza ulteriori A/B. Nessun deploy, Publish, merge, migration o dato reale modificato. [Checklist operativa unica e azione minima](admin-v2-consegna-2026-11-28/README.md#checklist-unica-di-consegna).
+
 ## Decisione del 20 novembre · backup storico e 301
 
 **Preparazione tecnica completata. Attivazione sospesa.** Sedici identità confermate nuovamente nel catalogo e nelle pagine pubbliche, zero redirect verso la nuova scheda. Restano tre identità incerte e 1.255 percorsi da riconciliare. Il referto TAR chiude l’analisi del frammento disponibile. Il recupero dei contenuti originali resta aperto fino a una fonte integra o a un export selettivo. Il titolare deve approvare destinazioni, livello HTTP, piano DNS/posta e rollback. [Matrice e procedura operativa](../seo/REDIRECT-301-RELEASE-GATE-2026-11-20.md)

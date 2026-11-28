@@ -1,3 +1,7 @@
+# Stato corrente · consegna controllata del 28 novembre 2026
+
+Il titolare mantiene **Gemini 3 Flash Preview** e chiude ulteriori confronti A/B per questa consegna: i protocolli sotto restano cronologia, non azioni da eseguire. Candidato integrato esatto `14cd12a`, 737 Node + 141 Deno + 46 browser PASS e restore sorgenti offline verificato. **NO-GO al rilascio attuale** per mancata attestazione delle revisioni runtime/rollback operativo. Nessuna modifica applicativa, deploy, Publish, merge, grant, migration, chiamata AI o scrittura reale. Curiosità manuale collaudata con grant sintetico, non persistibile con i grant reali attuali. [Verbale unico aggiornato, artefatti, mapping e checklist](../admin-v2-consegna-2026-11-28/README.md). **PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.**
+
 # Admin V2 Product Editor V3 · verbale del 27 novembre 2026
 
 **READY_FOR_UAT nell’ambiente isolato con provider simulato. PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.**

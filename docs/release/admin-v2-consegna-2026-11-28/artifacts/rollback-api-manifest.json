@@ -1,0 +1,183 @@
+{
+  "label": "rollback-api",
+  "sourceCommit": "f32989def1fc4d3593744d60c83836a46f247329",
+  "slug": "product-admin-api",
+  "modules": 40,
+  "runtimeAttested": false,
+  "remoteImports": [
+    "https://esm.sh/@supabase/supabase-js@2.49.8"
+  ],
+  "files": [
+    {
+      "path": "ci/deno-ci.lock",
+      "sha256": "ed7d0b62e05053ea68c0f3dc5a1a506254f73a67421f02ac34d200c6e8d828f4"
+    },
+    {
+      "path": "supabase/config.toml",
+      "sha256": "a480d878e9995e8922d0cf4a11bad601979ef474e1b6f2432d6a6f56e6b1495c"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-ai-core.ts",
+      "sha256": "c711f3f2eb9ad17726943f9837853ff5e0923350ee9fa6e167c2305ea469857b"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-canary-policy.ts",
+      "sha256": "15d0e0929d63d71d04727e7169ac2a606e6138cd8a86671cb48a9eca25270d2d"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-canary-service.ts",
+      "sha256": "ba80dd0f038f3e2cc2a83291caf7dbbf1c4f941ccdbc25a260d3d3ad5c0b870f"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-catalog-approvals.ts",
+      "sha256": "a3e75503780367de33f7536a3cca730376b9f57788a2944cae11e5bd7d5a2fa8"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-catalog-assets.ts",
+      "sha256": "e9f34a5fb98463b3906689bd418d901905e9b149b844a4b7dc030548f07ed5ab"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-catalog-commerce.ts",
+      "sha256": "bdc594eb6d8f7c1bec14ffd4fffd5a80360acd8b3214a81570573d3c34b36943"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-catalog-identity.ts",
+      "sha256": "b76f12e89a6b439a493e68ccc00f7f97fedd5c797cd84c60968eeb0b38e8069b"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-catalog-lifecycle.ts",
+      "sha256": "de53cca2e9b3db3a870bb1d363bdaa7387a7d66e014e5703fda9ed2948fab2ef"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-catalog-media.ts",
+      "sha256": "ed14ce26000ff26f1e94e35c0545eb1e69298c9f176e65a767b1c8ffa7a97fbf"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-catalog-policy.ts",
+      "sha256": "71bc6bab5b327871bfda88026fb23550800233f3bf08367bcde9ffc5b2d61b0a"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-draft-summary.ts",
+      "sha256": "d3b320e95dbf702df1663ec355bf5526d9510945eac22ff3c24b0217a78e6df9"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-draft-view.ts",
+      "sha256": "10e43fe79cf2a205d67315af948a2710672041f71b0ef7f9c50569a806944df4"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-list-publication.ts",
+      "sha256": "d79ae6e3c731deb02bd85d38336717cc850f8f0cc00c0371c93f45e6749785f3"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-operational-core.ts",
+      "sha256": "930e82a99b576d7f305ab8b6840f2c8fe57830e0da5d9efd2a8d71c1399eff80"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-operational-service.ts",
+      "sha256": "367865284253cb0f5040c99577742bb39b80cab61fad09542d91930d34588446"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-auth.ts",
+      "sha256": "8d13f385b735117948e240fe461ae90281d977604fc44e4ac4fa8f106f9e0f78"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-commands.ts",
+      "sha256": "e8842e1940e68b15072d8086c50382416416b2c19e3c9f2bc18b7570f4660e83"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-field-policy.ts",
+      "sha256": "6e556bcd599cc3ebd9d89582eb456161851dd193900fc3df2f7202d2b594a929"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-list-filters.ts",
+      "sha256": "eeb1b7b512e147f1337fedd6263fb3bf1799b9e3b7c738bcc6e89ec113830ce6"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-permissions.ts",
+      "sha256": "fea2803e916197ae294c64c63dc9ea299cc6a953268eb82946f8060b2138697e"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-queries-deferred.ts",
+      "sha256": "8418564b32893a476b386435e4b0e0463d934992a4d4b8b9080a8b4ada2ebd2f"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-shopify-field-sync.ts",
+      "sha256": "24b8c8a757c77a39ee365e54bf310d98d02fd9debc3f3c8f10ccb59b123da9b1"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-types.ts",
+      "sha256": "32d2db90a6560be2cfeb1a38e7ca156b121a304ea077d453efb13ab5fd8dfe6c"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-validation.ts",
+      "sha256": "21f6099da1b160d199175710624938c68301da41c5d508d5a6be37612aece6cc"
+    },
+    {
+      "path": "supabase/functions/_shared/editorial-list-codec.ts",
+      "sha256": "a478a799408ffd2dce3dfe15d5cd177f9857be02ebf2aaaf4cc7790b0abeb4cf"
+    },
+    {
+      "path": "supabase/functions/_shared/shopify-admin-client.ts",
+      "sha256": "9c947e59af993977960677cec0c269800b89f40764493974be75fd47ff4ebec2"
+    },
+    {
+      "path": "supabase/functions/_shared/shopify-storefront-server.ts",
+      "sha256": "d24bbb6d035f2ea34e04b075c3890ef031f2b1a17b94cbe583144c1e282baaf3"
+    },
+    {
+      "path": "supabase/functions/_shared/storefront-excluded-products.ts",
+      "sha256": "e5cc3cf81423f1e485577b9562e877c112abfa404778def352996d85ce59cda7"
+    },
+    {
+      "path": "supabase/functions/_shared/vendor/editorial-html.mjs",
+      "sha256": "dab5fc584156b69889fe5a61149f91db5d899dec6b8f6adfe5da76d519d5fcbd"
+    },
+    {
+      "path": "supabase/functions/product-admin-api/auth.ts",
+      "sha256": "22bded8c7885a2d3cc2a286c356df3f0752b415b9e1c6f7758ab2f742748fd0d"
+    },
+    {
+      "path": "supabase/functions/product-admin-api/capabilities.ts",
+      "sha256": "0e196dfd8b16c7d0879880447cc350b5ac13000ae61cbe68f04d35862fb83d4a"
+    },
+    {
+      "path": "supabase/functions/product-admin-api/commands.ts",
+      "sha256": "b2a18c531cf7b48a55a0383119979b602b3ba01c4c2c27afb673def682ab0576"
+    },
+    {
+      "path": "supabase/functions/product-admin-api/field-policy.ts",
+      "sha256": "5bd1810742f0113b319b51b3970ccbda4f2a747c4bf09093b2f570f77a591bd4"
+    },
+    {
+      "path": "supabase/functions/product-admin-api/index.ts",
+      "sha256": "523f825e1aa3c7c6cc0786d1230073901d18e28451e5aa95efed4e4f4fd7ae0d"
+    },
+    {
+      "path": "supabase/functions/product-admin-api/permissions.ts",
+      "sha256": "13a517845ba3de908aa5cb0769fdc9cb7627490cf624bce288224220de51ac41"
+    },
+    {
+      "path": "supabase/functions/product-admin-api/queries.ts",
+      "sha256": "7ba77eec35047ba86a3154a8ebf941c63e7e39b3f8be785bcf1707e1226d77ff"
+    },
+    {
+      "path": "supabase/functions/product-admin-api/serializers.ts",
+      "sha256": "ccf651ee11a1eaaf7f5c9a36acf484df6f15c6c295264b6ea697a9dd9c82123f"
+    },
+    {
+      "path": "supabase/functions/product-admin-api/shopify-field-sync.ts",
+      "sha256": "7642f5209f8040162b463b76b760da8eff04ef844d9e77ee23d8f5f7914dc7d5"
+    },
+    {
+      "path": "supabase/functions/product-admin-api/types.ts",
+      "sha256": "31d0e609e1ece2837493a3d5106173cdc799711beff5f78ce4bb891d1be242ce"
+    },
+    {
+      "path": "supabase/functions/product-admin-api/validation.ts",
+      "sha256": "baf6becb7c09e1756922b99ee4634328062758cfbe773409bd65267f9c25453b"
+    }
+  ],
+  "graphManifestSha256": "d89c17cd3a75f8f3ded8fad3a191b52292083938c55f68e5097f7e3e82cb4b6b",
+  "archiveSha256": "abe7d408dd4d05d8a8e7dcffd17f96ad4d32d857e6cb1b93b8d4645d0e3f1c0a",
+  "restoreByteComparison": "PASS"
+}

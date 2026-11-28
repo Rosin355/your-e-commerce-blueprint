@@ -1,0 +1,64 @@
+{
+  "url": "http://localhost:8080/admin/products/new",
+  "controls": {
+    "Anteprima cliente": 1,
+    "Genera scheda completa con AI": 1,
+    "Editor avanzato": 1,
+    "Salva bozza interna": 0
+  },
+  "context": {
+    "backendVersion": "admin-editor-20261125",
+    "roles": [
+      "admin",
+      "editor"
+    ],
+    "supportsDistinctDescriptions": true,
+    "supportsSheetEvidence": true,
+    "supportsManualDraftCuriosity": null,
+    "editableFieldKeys": [
+      "title",
+      "description",
+      "short_description",
+      "optimized_description",
+      "seo_title",
+      "seo_description",
+      "nome_botanico",
+      "nome_comune",
+      "periodo_di_fioritura",
+      "periodo_di_messa_a_dimora",
+      "periodo_di_raccolta",
+      "periodo_ottimale_di_potatura",
+      "difficolta_di_coltivazione",
+      "faq",
+      "key_benefits",
+      "key_features",
+      "special_bullets"
+    ],
+    "operationalCapabilities": {
+      "drafts": true,
+      "draftShopify": true,
+      "categories": true,
+      "approvalConfigured": true
+    }
+  },
+  "page_errors": [],
+  "calls": [
+    {
+      "function": "product-admin-api",
+      "action": "get_admin_context"
+    },
+    {
+      "function": "product-admin-api",
+      "action": "catalog_categories"
+    },
+    {
+      "function": "product-admin-api",
+      "action": "list_editorial_collections"
+    },
+    {
+      "function": "product-admin-api",
+      "action": "get_field_definitions"
+    }
+  ],
+  "blocked": []
+}

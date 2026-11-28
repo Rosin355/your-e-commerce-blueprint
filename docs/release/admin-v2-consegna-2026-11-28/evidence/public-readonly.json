@@ -1,0 +1,33 @@
+{
+  "pages": [
+    {
+      "page": "home",
+      "status": 200,
+      "title": "Online Garden — Piante online",
+      "headings": [
+        "Piante da giardino,\nscelte con cura"
+      ],
+      "addToCart": 0
+    },
+    {
+      "page": "catalogo",
+      "status": 200,
+      "title": "Tutti i prodotti | Online Garden",
+      "headings": [
+        "Tutti i prodotti"
+      ],
+      "addToCart": 0
+    },
+    {
+      "page": "pdp",
+      "status": 200,
+      "title": "Rosa Jasmina - Rampicante | Online Garden",
+      "headings": [
+        "Rosa Jasmina - Rampicante"
+      ],
+      "addToCart": 1
+    }
+  ],
+  "page_errors": [],
+  "blocked": []
+}

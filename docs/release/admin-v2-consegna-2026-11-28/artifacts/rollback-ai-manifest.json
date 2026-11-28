@@ -1,0 +1,147 @@
+{
+  "label": "rollback-ai",
+  "sourceCommit": "874f2d398bdb4c635955243ac2a3e1fc5546a254",
+  "slug": "product-admin-ai",
+  "modules": 31,
+  "runtimeAttested": false,
+  "remoteImports": [
+    "https://esm.sh/@supabase/supabase-js@2.49.8"
+  ],
+  "files": [
+    {
+      "path": "ci/deno-ci.lock",
+      "sha256": "ed7d0b62e05053ea68c0f3dc5a1a506254f73a67421f02ac34d200c6e8d828f4"
+    },
+    {
+      "path": "supabase/config.toml",
+      "sha256": "a480d878e9995e8922d0cf4a11bad601979ef474e1b6f2432d6a6f56e6b1495c"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-ai-confirmed.ts",
+      "sha256": "b05942e603fb49bab1834d3088a81349762cf8c644316b2c4cacee07c3f48148"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-ai-core.ts",
+      "sha256": "2fabbbc3de8f91809952e9ec7070ae6ee6f77f497f4ac79f619ccb2e3c75ade1"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-ai-description.ts",
+      "sha256": "1067919a0de847f6a2e8e359fc98a5b00515a5a8e564275618f5dac124d11957"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-ai-editorial-contract.ts",
+      "sha256": "467c6511d6aa4765abfc639603774a51b2ec1083b7bab30cce99eff783203201"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-ai-evidence.ts",
+      "sha256": "1e19dd2c60459efa20f9961274a5ecda59f39f47310d5217761d7c8c6b83c6ff"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-ai-facts.ts",
+      "sha256": "06a55eb38ee4284fceab13399cdcc4d2befd1b73079655b6a5427bfb967df6e1"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-ai-revision.ts",
+      "sha256": "1e4a06fe03ffbab70b1e71aac1c3afec0d01f1b395fe1e6c52738596f74aa99f"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-ai-sections.ts",
+      "sha256": "767b0319520ecf61eccce8bd766f8cec934df2d0178226c9e3f9eb80167214d1"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-catalog-approvals.ts",
+      "sha256": "a3e75503780367de33f7536a3cca730376b9f57788a2944cae11e5bd7d5a2fa8"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-catalog-policy.ts",
+      "sha256": "71bc6bab5b327871bfda88026fb23550800233f3bf08367bcde9ffc5b2d61b0a"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-draft-editorial.ts",
+      "sha256": "b2092c7057ae382ae4bf475275ced7c7287323f046dfa146cce570b52f4fbca4"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-operational-core.ts",
+      "sha256": "ec0fb414af373b82dc0a5a750c1770cf64ba71779e363f68bef438bc2c5cf8ea"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-auth.ts",
+      "sha256": "8d13f385b735117948e240fe461ae90281d977604fc44e4ac4fa8f106f9e0f78"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-commands.ts",
+      "sha256": "e8842e1940e68b15072d8086c50382416416b2c19e3c9f2bc18b7570f4660e83"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-field-policy.ts",
+      "sha256": "6e556bcd599cc3ebd9d89582eb456161851dd193900fc3df2f7202d2b594a929"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-list-filters.ts",
+      "sha256": "eeb1b7b512e147f1337fedd6263fb3bf1799b9e3b7c738bcc6e89ec113830ce6"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-permissions.ts",
+      "sha256": "fea2803e916197ae294c64c63dc9ea299cc6a953268eb82946f8060b2138697e"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-queries-deferred.ts",
+      "sha256": "8418564b32893a476b386435e4b0e0463d934992a4d4b8b9080a8b4ada2ebd2f"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-queries.ts",
+      "sha256": "f819f12ff2a7a422a54ee4ac5adf033ac5f314512772f07548a18b13ffc1d748"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-shopify-field-sync.ts",
+      "sha256": "24b8c8a757c77a39ee365e54bf310d98d02fd9debc3f3c8f10ccb59b123da9b1"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-types.ts",
+      "sha256": "32d2db90a6560be2cfeb1a38e7ca156b121a304ea077d453efb13ab5fd8dfe6c"
+    },
+    {
+      "path": "supabase/functions/_shared/admin-v2-validation.ts",
+      "sha256": "21f6099da1b160d199175710624938c68301da41c5d508d5a6be37612aece6cc"
+    },
+    {
+      "path": "supabase/functions/_shared/cors.ts",
+      "sha256": "7791fb587a8b02c9bcf360681c2006aec6b45bf55a43e2729c93cbe3c0d08ca2"
+    },
+    {
+      "path": "supabase/functions/_shared/editorial-list-codec.ts",
+      "sha256": "a478a799408ffd2dce3dfe15d5cd177f9857be02ebf2aaaf4cc7790b0abeb4cf"
+    },
+    {
+      "path": "supabase/functions/_shared/shopify-admin-client.ts",
+      "sha256": "9c947e59af993977960677cec0c269800b89f40764493974be75fd47ff4ebec2"
+    },
+    {
+      "path": "supabase/functions/_shared/vendor/editorial-html.mjs",
+      "sha256": "dab5fc584156b69889fe5a61149f91db5d899dec6b8f6adfe5da76d519d5fcbd"
+    },
+    {
+      "path": "supabase/functions/product-admin-ai/ai-core.ts",
+      "sha256": "856f2f7cecf74fd77e673a67aa8d9df890b3ec3bd222b7d6a3b01c3bc74c2364"
+    },
+    {
+      "path": "supabase/functions/product-admin-ai/draft-sheet.ts",
+      "sha256": "0d9762b1a65904cf152acb00a5925132ee580141ebf9e428ba92554f7f65d04e"
+    },
+    {
+      "path": "supabase/functions/product-admin-ai/index.ts",
+      "sha256": "843334e3ce883a1cad45798a34260c3a5e2f58ce7e3ea2e5859eba7561b201cb"
+    },
+    {
+      "path": "supabase/functions/product-admin-ai/provider.ts",
+      "sha256": "9e97bfc0d6f0948b7340d2891eb5d55a195d5acd35bb945b0d3acf002bc404f5"
+    },
+    {
+      "path": "supabase/functions/product-admin-ai/service.ts",
+      "sha256": "26da9816eb7b096d1f0e076c5007e32e7867e21676631bc6f7f85756dabed18b"
+    }
+  ],
+  "graphManifestSha256": "d6c02bbce3b9d7365a16278487ac32edfcfbcddadab0b08f196dd54b7e9ccf41",
+  "archiveSha256": "cd7b59f8f153f271e2786552383e85e77f77d71137d01b4f3c7c42df895996b3",
+  "restoreByteComparison": "PASS"
+}
