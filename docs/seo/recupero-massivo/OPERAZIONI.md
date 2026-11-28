@@ -43,3 +43,11 @@ Al primo mapping errato, loop, perdita di UTM, intercettazione di un flusso comm
 - Gate successivo: acquisire UUID completo e verificare che il pilota corrisponda alla versione servita, poi inventariare tutte le route e redirect esistenti prima del change. **Nessun lotto massivo puo essere indicato come LIVE solo da questo screenshot.**
 
 `PENDING_CLIENT_ACCEPTANCE` - SAL `57,75%`.
+
+## Snapshot route pre-change, 28 novembre 2026 ore 17:31
+
+Screenshot del titolare nella scheda Workers & Pages > `onlinegarden-301-redirects` > **Domains**: Worker URL di produzione attivo; sezione **Custom Domains and Routes** elenca **una sola route**, `onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/*`, zona `onlinegarden.it`. Non risultano altre route associate a questo Worker nell'elenco mostrato. Versione attiva gia osservata nel medesimo pannello: prefisso `7d009cbd`, 100% traffico; UUID completo da conservare privatamente.
+
+Sequenza minima proposta: aggiungere in modo **additivo** una sola route pilota per `www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/*`, associata allo stesso Worker; non modificare quella apex. Verificare con `curl -sS -o /dev/null -D - 'https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=test301'` che il primo hop sia HTTP 301 con `Location: https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=test301`. Se continua il redirect verso il vecchio permalink apex, sospendere e ispezionare precedenza delle Rules prima di ampliare. Una route HTTP non certifica il codice massivo distribuito; i lotti restano non deployati. Dopo PASS si potranno predisporre i due pattern generali previsti dal pacchetto, con rollout progressivo e rollback.
+
+Stato: `PENDING_CLIENT_ACCEPTANCE` / SAL 57,75%.
