@@ -1841,6 +1841,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      woo_archive_access: { Args: Record<PropertyKey, never>; Returns: boolean }
+      woo_archive_read: {
+        Args: { p_action: string; p_query?: string; p_filter?: string; p_page?: number; p_id?: number; p_purpose?: string }
+        Returns: Json
+      }
       admin_claim_catalog_approval: {
         Args: { p_actor: string; p_hash: string; p_id: string }
         Returns: boolean

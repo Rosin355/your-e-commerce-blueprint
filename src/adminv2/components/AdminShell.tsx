@@ -9,12 +9,13 @@ import {
   Send,
   Settings,
   Upload,
+  Users,
   Wrench,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
-import { useAdminContext } from '../hooks/useAdminData';
+import { useAdminContext, useArchiveAccess } from '../hooks/useAdminData';
 import { LEGACY_TOOLS_ENABLED } from '../lib/flags';
 import { ADMIN_READ_ONLY_RELEASE, ADMIN_READ_ONLY_VERSION, READ_ONLY_RELEASE_NOTICE } from '../lib/readOnlyRelease';
 
@@ -32,6 +33,11 @@ export default function AdminShell() {
   const { data: context } = useAdminContext();
   const roles = context?.roles ?? [];
   const isTechAdmin = roles.includes('tech_admin');
+
+  const access = useArchiveAccess();
+  const nav = access.data === true
+    ? [...NAV, { to: '/admin/clienti-storici', label: 'Clienti storici', icon: Users, end: false }]
+    : NAV;
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -62,7 +68,7 @@ export default function AdminShell() {
 
         <nav aria-label="Menu principale" className="mx-auto max-w-7xl px-2 pb-2">
           <ul className="flex flex-wrap gap-1">
-            {NAV.map(({ to, label, icon: Icon, end }) => (
+            {nav.map(({ to, label, icon: Icon, end }) => (
               <li key={to}>
                 <NavLink
                   to={to}

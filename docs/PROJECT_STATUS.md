@@ -1,3 +1,15 @@
+## 28 novembre 2026 · Archivio privato e accesso staff
+
+**PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Originale verificato localmente: 5.450 customer, 857 acquirenti, 952 acquisti. Import produzione 0. Route live 404. Il candidato di parità amministrativa supera la prova PostgreSQL su identità sintetiche. Promozioni reali 0. [Ricevuta e decisioni del titolare](migration/admin-clienti-operativo/GATE-FINALE.md#ricevuta-del-28-novembre-2026).
+
+## 27/11/2026 — Gate finale archivio Woo e parità Admin
+
+**BLOCKED per il rilascio · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Preflight locale 5.450 clienti e 952 acquisti. Verificati in sola lettura ruoli, campi e capability dei due profili staff; nominativo di Marco da attestare con due riferimenti privati. Backup produzione non verificabile con gli accessi attuali (catalogo backup 403); restore sintetico locale superato. Quattro decisioni separate per schema, import, parità globale e Publish. [Matrice, prove e gate](migration/admin-clienti-operativo/GATE-FINALE.md)
+
+## 27/11/2026 — Archivio clienti WooCommerce in Admin V2
+
+**PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Implementazione preparata dal commit `3684bf6` della #81. Archivio privato, API con controllo Admin, audit, importatore offline e pagina collaudati su dati sintetici. Preflight live in sola lettura: un Admin e due Editor, un candidato nominativo Editor. Associazione all’identità staff da attestare privatamente. Applicazione schema, import, eventuale grant archivio e Publish richiedono autorizzazione. [Consegna e gate operativi](migration/admin-clienti-operativo/README.md)
+
 ## 24/11/2026 — Admin V2 pubblicato (GO A + GO B)
 
 **Rilascio registrato da Lovable:** backend `product-admin-api` distribuito dal ramo isolato `codex/rilascio-admin-v2-isolato-20261124`; controlli post-deploy `OPTIONS 200`, anonimo `401`, letture Admin autenticate `200` secondo verbale. Frontend pubblicato su `onlinegarden.it` con asset `index-jqOemgjy.js`, sostituendo r2 `index-DSQ4UzGV.js`. Home, catalogo, `/admin`, `/account` e carrello fino al checkout Shopify verificati nel test di Lovable, **nessun ordine/addebito**. L'Admin autenticato e le 4 correzioni in produzione (creazione semplificata, SKU automatici, mesi indipendenti e AI) **non sono ancora stati verificati con Marco**. La revisione runtime Edge non è direttamente leggibile: rollback previsto mediante nuovo deploy dei sorgenti r2 `ca9050d`, mentre rollback frontend via Cronologia Lovable alla versione r2. **SAL 57,75% invariata.** [Verbale di rilascio](release/ADMIN-V2-MARCO-RELEASE-2026-11-24.md) · [Guida Marco](admin-v2/CLIENT-GUIDE.md). Cloudflare zona Active, ma Edge Certificate non ancora attestato Active; proxy e 301 separati.
