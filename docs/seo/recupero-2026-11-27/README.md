@@ -125,3 +125,11 @@ Riferimento regole Worker: https://developers.cloudflare.com/workers/configurati
 Prossima prova senza modifiche: richiesta GET diretta al vecchio percorso con `utm_source=test301` digitato manualmente, oppure `curl -sS -o /dev/null -D - 'https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=test301'`. Richiedere `HTTP 301` e `Location` puntato alla PDP con `utm_source=test301`; controllare assenza di hop aggiuntivi e loop. Solo dopo questa evidenza considerare PASS il pilota apex, quindi verificare www con la sua route separata. Non estendere ancora alle 32 route del pacchetto completo.
 
 `PENDING_CLIENT_ACCEPTANCE`, SAL 57,75%.
+
+## UAT browser Rosa Jasmina: UTM test301 conservato
+
+**28 novembre 2026, screenshot inviato dal titolare.** La barra degli indirizzi mostra `onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=test301`, con PDP Rosa Jasmina - Rampicante caricata (immagine, prezzo e formato visibili). Il test e' stato avviato dal percorso legacy con `utm_source=test301` digitato in barra come istruito. **PASS del percorso browser e conservazione dell'UTM**; non e' stata acquisita una risposta HTTP grezza a certificare `301` e relativo header `Location`. Un tentativo automatico esterno di recuperare tale risposta nella sessione non e' stato accessibile. Non segnare 301 certificato senza header.
+
+Gate immediato: verifica senza seguire redirect (es. `curl -sS -o /dev/null -D - 'https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=test301'`) aspettando status 301 e Location con `/products/rosa-jasmina-rampicante?utm_source=test301`. Poi test della route www, test di homepage/catalogo/auth/checkout senza acquisto e solo infine estensione progressiva agli altri 15 prodotti. Nessuna evidenza che i restanti 15 siano attivi.
+
+`PENDING_CLIENT_ACCEPTANCE`, SAL 57,75%.
