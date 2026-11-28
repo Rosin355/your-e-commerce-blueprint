@@ -56,3 +56,18 @@ Controllo statico del pacchetto ZIP ricevuto privatamente dal titolare, SHA-256 
 - Verifica effettuata esclusivamente su struttura e coerenza statica; **non** certifica configurazione della zona, DNS live, status 301 live, zero redirect chain o realizzabilita' del rollback sul gestore. Restano `BLOCKED_INFRA` e 0/16 diretti attivi fino a test autenticato del pilota.
 
 Non inserire credenziali, documenti di backup o verbali privati del personale nel repository. `PENDING_CLIENT_ACCEPTANCE`, SAL 57,75%.
+
+## Controllo manuale TLS e regole del 28 novembre 2026
+
+Il titolare ha condiviso schermate del pannello Cloudflare della zona `onlinegarden.it`. Questa e' una **verifica visiva**, non una lettura API, e non autorizza modifiche.
+
+- SSL/TLS encryption mode: **Full** (non **Full (strict)**). Prima di abilitare Full (strict) verificare certificato valido sull'origine in configurazione Lovable proxy.
+- Edge Certificates: Universal SSL attivo per `onlinegarden.it` e `*.onlinegarden.it`, certificato backup emesso (scadenza indicata 22 febbraio 2027).
+- TLS 1.3 e Automatic HTTPS Rewrites visivamente attivi; Always Use HTTPS **off**. Non abilitare quest'ultimo senza test di precedenza e loop con redirect dell'hosting.
+- Schermata Rules > Overview: presenta template per creare nuove regole, **non** attesta l'assenza di Page Rules gia' attive; verificare la lista prima dell'attivazione.
+- DNS apex e www restano record A `185.158.133.1`, DNS only. Nessuna route Worker; pilota non attivabile in sicurezza senza riconnessione esplicita Lovable in modalita' Cloudflare proxy e CNAME fornito dalla piattaforma.
+- Il sito pubblico e' in esercizio: **non** modificare i record A in Proxied, non scollegare il dominio senza una finestra di manutenzione, prova di rollback e nuovo collegamento Lovable predisposto.
+
+Prossimo gate: ottenere da Lovable il record CNAME esatto e le istruzioni supportate per il ricollegamento con `Uses Cloudflare or similar proxy`, preservando www e il rollback alla configurazione precedente. Quindi verificare HTTP(S), auth, carrello, checkout (senza ordine), www, UTM, e solo infine attivare il Worker pilota Rosa Jasmina. Zero redirect prodotto attivi attestati.
+
+`PENDING_CLIENT_ACCEPTANCE` | SAL 57,75%.
