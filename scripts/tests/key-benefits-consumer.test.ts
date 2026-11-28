@@ -7,7 +7,7 @@ const benefits={type:'multi_line_text_field',value:'Secondo & à 🌱\nPrimo < l
 test('benefits conserva ordine, duplicati interni e caratteri speciali',()=>{
  assert.deepEqual(parseKeyBenefits(benefits),['Secondo & à 🌱','Primo < limite','Ripetuto','Ripetuto']);
 });
-for(const input of [undefined,null,{type:'multi_line_text_field',value:''},{type:'json',value:'["Uno"]'},{value:'Uno'},{type:'multi_line_text_field',value:'Uno\n\nDue'},{type:'multi_line_text_field',value:' Uno'},{type:'multi_line_text_field',value:'Uno\r\nDue'}])test('benefits vuoto/incompatibile/ambiguo resta invisibile '+JSON.stringify(input),()=>assert.deepEqual(parseKeyBenefits(input),[]));
+for(const input of [undefined,null,{type:'multi_line_text_field',value:''},{type:'json',value:'{"legacy":"Uno"}'},{value:'Uno'},{type:'multi_line_text_field',value:'Uno\n\nDue'},{type:'multi_line_text_field',value:' Uno'},{type:'multi_line_text_field',value:'Uno\r\nDue'}])test('benefits vuoto/incompatibile/ambiguo resta invisibile '+JSON.stringify(input),()=>assert.deepEqual(parseKeyBenefits(input),[]));
 test('sopprime solo duplicati esatti con le sezioni esistenti, senza alterarle',()=>{
  const features={value:'Comune\nCaratteristica'},special={value:'Speciale\nAltro'};
  const existing=[...parseMultilineMetafield(features),...parseMultilineMetafield(special)];const before=structuredClone(existing);
@@ -26,3 +26,12 @@ test('nuova revisione solo benefits: approvazioni degli altri due consumer invar
  assert.equal(freshListSyncApproval({action:'sync_field',fieldKey:'key_benefits'},{syncRevision:'editorial-list-sync-v2'}),false);
  assert.equal(freshListSyncApproval({action:'sync_field',fieldKey:'key_benefits'},{syncRevision:'editorial-list-sync-v3'}),true);
 });
+
+for (const type of ['json','list.single_line_text_field']) {
+  for (const [key, parse] of [['key_features',parseMultilineMetafield],['key_benefits',parseKeyBenefits]] as const) {
+    test('PDP mostra le singole voci di '+key+' con tipo storico '+type, () => {
+      const values = ['Seconda','Prima','Prima'];
+      assert.deepEqual(parse({type,value:JSON.stringify(values)}),values);
+    });
+  }
+}

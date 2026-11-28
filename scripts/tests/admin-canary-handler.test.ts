@@ -22,7 +22,7 @@ const draft = { title: 'Bozza sintetica', sku: 'QA-DRAFT-ONLY', description: 'Fi
   variants: [{ sku: 'QA-DRAFT-ONLY', price: '10.00', compareAtPrice: null, option: 'Unico' }] };
 
 // Execute the real HTTP entrypoint and local module graph. All I/O is synthetic and closed.
-function load(options: { anonymous?: boolean; scope?: unknown; status?: string; sku?: string; role?: string; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; assets?: boolean; imageAssigned?:boolean; commerce?: boolean; publishable?: boolean; indexed?: boolean; media?: boolean; ai?: { grant: boolean; reserved?: boolean; output?: unknown; descriptionOutput?: unknown; http?: number; maxLength?: number; batch?: boolean; fields?: string[]; optIns?: string[]; tagsAi?: boolean; badReservation?: boolean; reservationError?: string } } = {}) {
+function load(options: { anonymous?: boolean; scope?: unknown; status?: string; sku?: string; role?: string; roles?: string[]; master?: boolean; mapping?: string; opKey?: string; opState?: string; endpoint?: string; catalog?: boolean; fullMode?: boolean; assets?: boolean; imageAssigned?:boolean; commerce?: boolean; publishable?: boolean; indexed?: boolean; media?: boolean; ai?: { grant: boolean; reserved?: boolean; output?: unknown; descriptionOutput?: unknown; http?: number; maxLength?: number; batch?: boolean; fields?: string[]; optIns?: string[]; tagsAi?: boolean; badReservation?: boolean; reservationError?: string } } = {}) {
   let handler!: (request: Request) => Promise<Response>;
   const calls = { rpc: 0, shopifyMutations: 0, statusReads: 0, events: 0, uploads: 0 };
   const traces: string[] = [];
@@ -105,7 +105,7 @@ function load(options: { anonymous?: boolean; scope?: unknown; status?: string; 
       if (options.anonymous && id === 'https://esm.sh/@supabase/supabase-js@2.49.8') {
         return {createClient: () => { throw new Error('Unexpected database access before authentication'); }};
       }
-      if (id.endsWith('/admin-v2-auth.ts') && !options.anonymous) return { authenticate: async () => ({ userId: actor, roles: [options.role ?? 'admin'] }), serviceClient: () => db, AuthError: class extends Error {} };
+      if (id.endsWith('/admin-v2-auth.ts') && !options.anonymous) return { authenticate: async () => ({ userId: actor, roles: options.roles ?? [options.role ?? 'admin'] }), serviceClient: () => db, AuthError: class extends Error {} };
       if (options.publishable && id.endsWith('/shopify-storefront-server.ts')) return {
         shopifyStorefrontGraphQL:async () => ({product: {id:commerceProduct.id,availableForSale:true}, products:{pageInfo:{hasNextPage:false,endCursor:null},nodes:options.indexed === false ? [] : [{id:commerceProduct.id}]}}),
       };
@@ -560,4 +560,25 @@ test('Rigenerazione mirata attraversa il medesimo handler e usa soltanto la pren
   const denied=load({...setup,ai:{...setup.ai,grant:false}});
   assert.equal((await (await denied.request(payload)).json()).error.code,'FORBIDDEN');
   assert.equal(denied.providerRequests.length,0);
+});
+
+test('V3: la stessa revisione passa da grant, riserva e verifica di origine per Admin ed Editor',async()=>{
+  const output={sections:[{heading:'Fioritura',text:'In giugno compaiono i fiori color crema.',factIndices:[0]}],missingInformation:[]};
+  const revision={target:'Fioritura',current:'I fiori compaiono in giugno.',instruction:'Rendi più naturale'};
+  const payload={action:'suggest_confirmed_field',article:true,revision,fieldKey:'description',productName:'Yucca filamentosa',section:'Fioritura',
+    facts:['I fiori sono color crema e compaiono in giugno.'],confirmed:true,requestKey};
+  for(const roles of [['editor'],['admin','editor']]){
+    const s=load({endpoint:'product-admin-ai',roles,catalog:true,ai:{grant:true,output}});
+    const result=await (await s.request(payload)).json();
+    assert.equal(result.promptVersion,'online-garden-editoriale-it@3',JSON.stringify(result));
+    assert.equal(s.calls.rpc,1);assert.equal(s.providerRequests.length,1);assert.equal(s.calls.shopifyMutations,0);
+    assert.deepEqual(JSON.parse(s.providerRequests[0].messages[1].content).revision,revision);
+  }
+  const adminOnly=load({endpoint:'product-admin-ai',role:'admin',catalog:true,ai:{grant:true,output}});
+  assert.equal((await (await adminOnly.request(payload)).json()).error.code,'FORBIDDEN');
+  assert.equal(adminOnly.providerRequests.length,0);
+  const denied=load({endpoint:'product-admin-ai',role:'editor',catalog:true,ai:{grant:false,output}});
+  assert.equal((await (await denied.request(payload)).json()).error.code,'FORBIDDEN');
+  assert.equal((await (await denied.request({...payload,revision:{...revision,target:'key_features'}})).json()).error.code,'VALIDATION_ERROR');
+  assert.equal(denied.providerRequests.length,0);assert.equal(denied.calls.shopifyMutations,0);
 });

@@ -45,7 +45,7 @@ export function sourceFacts(fields: AdminField[]) {
       'key_benefits',
       'nome_botanico',
       'nome_comune',
-      'faq',
+      'faq', 'curiosita', 'care_guide', 'plant_knowledge', 'origins_habitat',
     ]
   ) {
     const field = fields.find((f) => f.key === key);
@@ -54,7 +54,7 @@ export function sourceFacts(fields: AdminField[]) {
       const [value, origin] of [[field.shopifyLiveValue, 'Shopify · da verificare'], [
         field.value,
         field.reviewStatus === 'approved' ? 'Admin · confermato' : 'Admin · da verificare',
-      ]] as const
+      ], [field.sourceState === 'linked_snapshot' && field.sourceSnapshotId ? field.baselineValue : undefined, 'Archivio storico · da verificare']] as const
     ) {
       const parts = Array.isArray(value) ? value : [value];
       for (const part of parts) {

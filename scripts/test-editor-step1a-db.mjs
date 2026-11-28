@@ -43,6 +43,10 @@ try {
  console.log('PASS Path A generator: new custom migration after the checked-in journal with increasing when and snapshot, absent 0016/0017 snapshots accepted; canonical SQL unchanged.');
  await sql.begin(tx=>tx.unsafe(readFileSync('supabase/migrations/20260923155153_add_lossless_lineage_and_ai_versions.sql','utf8').replace(/^begin;$/m,'').replace(/^commit;$/m,'')));
  await sql.unsafe(readFileSync('supabase/migrations/20260930152426_harden_product_admin_ai_concurrency.sql','utf8'));
+ // Synthetic pre-0021 registry: the migration verifies both historical rows before touching the mapping.
+ await sql`insert into public.product_field_definitions(key,label,editor_type,editable,visible,publishable,shopify_mapping)
+   values ('short_description','Sintesi','textarea',true,true,true,'{}'),
+          ('short_intro','Introduzione','textarea',true,true,true,'{"type":"metafield","namespace":"custom","key":"short_intro"}')`;
  const valuesBefore=await sql`select jsonb_agg(to_jsonb(v) order by id) as rows from public.product_current_values v`;
  const rolesBefore=await sql`select jsonb_agg(to_jsonb(r) order by user_id,role) as rows from public.user_roles r`;
  const before=await sql`select jsonb_agg(to_jsonb(c) order by user_id) as rows from public.admin_catalog_capabilities c`;
@@ -74,6 +78,8 @@ try {
  const defaultsBefore=await sql`select jsonb_agg(to_jsonb(d) order by oid) as rows from pg_default_acl d`;
  await migrate(drizzle(sql),{migrationsFolder:migrationFolder});
  await migrate(drizzle(sql),{migrationsFolder:migrationFolder}); // second invocation is a read-only replay
+ assert.deepEqual((await sql`select shopify_mapping from public.product_field_definitions where key='short_description'`)[0].shopify_mapping,
+   {type:'metafield',namespace:'custom',key:'short_intro'});
  const after=await sql`select jsonb_agg(to_jsonb(c) order by user_id) as rows from public.admin_catalog_capabilities c`;
  assert.deepEqual(after,before,'migration changed an account grant');
  assert.deepEqual(await sql`select jsonb_agg(to_jsonb(d) order by oid) as rows from pg_default_acl d`,defaultsBefore,'migration changed default privileges');

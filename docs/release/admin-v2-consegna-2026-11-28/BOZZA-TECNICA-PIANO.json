@@ -1,0 +1,30 @@
+{
+  "executionAllowed": false,
+  "created": false,
+  "candidate": "14cd12a82192e54156815100ce7e5689e03a8654",
+  "title": "TEST — Yucca filamentosa — NON IN VENDITA",
+  "sku": "OG-QA-ADMINV2-20261128-14CD12A",
+  "status": "DRAFT",
+  "publicationIds": [],
+  "activate": false,
+  "publish": false,
+  "currency": "EUR",
+  "technicalPrice": "0.00",
+  "variantCount": 1,
+  "variantOption": "Formato tecnico unico",
+  "images": [],
+  "categoryIds": [],
+  "collectionIds": [],
+  "inventoryWriteAllowed": false,
+  "fixture": "scripts/tests/fixtures/yucca-filamentosa-v3.json",
+  "fixtureSha256": "37926e067b3bcacb59aea3cd7ed7cb945489b98deeac15f10a9caf4c97a0dd33",
+  "contentSource": "Fixture simulata, testi da approvare manualmente; nessuna Gemini",
+  "manualCuriosity": "Escludere da payload persistente senza grant corrente; non modificare permessi",
+  "futurePrerequisites": [
+    "Nuova autorizzazione per una sola bozza interna e una sola create Shopify DRAFT",
+    "Ricerca esatta SKU prima della create, arresto se già presente",
+    "Verifica tutti i campi richiesti dopo salvataggio e riapertura",
+    "Conservare operation ID e chiave idempotente; nessuna seconda create dopo timeout",
+    "Rilettura Shopify su stesso GID, status DRAFT e nessuna pubblicazione; stop su mismatch"
+  ]
+}

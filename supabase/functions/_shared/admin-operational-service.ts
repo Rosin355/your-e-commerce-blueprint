@@ -1,7 +1,9 @@
+import { isManualDraftCuriosity } from './admin-v2-field-policy.ts';
 import { readDraftSummary } from './admin-draft-summary.ts';
-import { planDraftMetafields, planDraftMetafieldsForComparison, requestedDraftFields, requireDraftBotanicalReview, verifyAdminDraftFields, verifyDraftMetafields } from './admin-draft-metafields.ts';
+import { comparisonDraftPlan, planDraftMetafields, requestedDraftFields, requireDraftBotanicalReview, unreadDraftMetafields, verifyAdminDraftFields, verifyDraftMetafields } from './admin-draft-metafields.ts';
 import { editorialCollections } from './admin-catalog-commerce.ts';
-import { catalogAllowed, requireCatalog, CATALOG_MUTATIONS } from './admin-catalog-policy.ts';
+import { shopifySyncEnabled } from './admin-v2-shopify-field-sync.ts';
+import { botanicalReviewTarget, catalogAllowed, requireCatalog, CATALOG_MUTATIONS } from './admin-catalog-policy.ts';
 import { canaryScope, requireCanaryProduct } from './admin-canary-service.ts';
 import { requireCanaryScope, requireCanaryDraft } from './admin-canary-policy.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
@@ -111,6 +113,45 @@ export async function catalogCategories(db: SupabaseClient) {
       'Conteggi interni delle assegnazioni approvate; non sono conteggi Shopify né attestazioni di pubblicazione. Lettura paginata, non snapshot transazionale.',
   };
 }
+function editorialKeys(draft: ProductDraft) {
+  return ['title', 'description', ...(draft.tags.length ? ['tags'] : []),
+    ...(draft.seoTitle ? ['seo_title'] : []), ...(draft.seoDescription ? ['seo_description'] : []),
+    ...requestedDraftFields(draft).map(field => field.fieldKey)];
+}
+
+// The operational RPCs lock the same operation and advance its state atomically.
+// A saved payload is immutable through the Admin API. Recheck its version after external I/O.
+async function checkDraftVersion(db: SupabaseClient, op: {id:string; actor:string; payload_hash:string}, states:string[]) {
+  const {data, error} = await db.from('admin_product_operations').select('id')
+    .eq('id', op.id).eq('actor', op.actor).eq('payload_hash', op.payload_hash).in('state', states).single();
+  if (error || !data) throw new OperationalError('NEEDS_RECONCILIATION',
+    'Versione o stato della bozza cambiati. Ricarica la stessa operazione.');
+}
+
+async function hasBotanicalReceipt(db: SupabaseClient, actor: string, id: string, hash: string) {
+  const { data, error } = await db.from('admin_catalog_approvals').select('id').eq('actor', actor)
+    .eq('action', 'save_new_product').eq('target', botanicalReviewTarget(id)).eq('state', 'COMPLETE')
+    .contains('result', { botanicalReview: { operationId: id, payloadHash: hash } }).limit(1).maybeSingle();
+  demand(!error, 'Ricevuta botanica non disponibile. Rileggere la bozza.');
+  return Boolean(data);
+}
+
+async function localReceipt<T extends {productId: string}>(db: SupabaseClient, result: T, fields: ReturnType<typeof validatedFields>) {
+  demand(result && UUID.test(result.productId), 'Salvataggio non riletto: recuperare la stessa richiesta.');
+  const { data, error } = await db.from('product_current_values')
+    .select('product_id,field_key,value_text,value_json,value_number').eq('product_id', result.productId)
+    .in('field_key', fields.map(field => field.key));
+  if (error || !Array.isArray(data)) throw new OperationalError('NEEDS_RECONCILIATION',
+    'Bozza Admin salvata. Recupera la stessa richiesta per rileggere i campi.',
+    {productId: result.productId, adminFieldVerification: fields.map(field => ({fieldKey: field.key, state:'UNREAD'}))});
+  try {
+    return { ok: true, result, adminFieldVerification: verifyAdminDraftFields(result.productId, fields, data) };
+  } catch (cause) {
+    if (!(cause instanceof OperationalError)) throw cause;
+    throw new OperationalError(cause.code, cause.message, {...cause.details, productId: result.productId});
+  }
+}
+
 function validatedFields(draft: ProductDraft, defs: FieldDefinition[]) {
   const entries: Record<string, unknown> = {
     title: draft.title,
@@ -123,7 +164,7 @@ function validatedFields(draft: ProductDraft, defs: FieldDefinition[]) {
     demand(!Object.hasOwn(entries, key), 'Campo botanico duplicato.');
     const def = defs.find((d) => d.key === key);
     demand(
-      def && def.applies_to !== 'variant' && isFieldEditable(def).ok && !def.manual_only &&
+      def && def.applies_to !== 'variant' && isFieldEditable(def).ok && (key === 'curiosita' ? isManualDraftCuriosity(def) : !def.manual_only) &&
         (DRAFT_BOTANICAL_KEYS as readonly string[]).includes(key),
       'Campo botanico non ammesso dal registro.',
     );
@@ -246,7 +287,8 @@ export async function handleOperational(
   if (ordinary) {
     if (CATALOG_MUTATIONS[action]) {
       requireCatalog(auth, CATALOG_MUTATIONS[action]);
-      const target = action === 'save_new_product' ? 'new-sku:' + String((p.draft as Record<string,unknown>)?.sku ?? '').toLowerCase()
+      const target = action === 'save_new_product' && typeof p.operationId === 'string' ? botanicalReviewTarget(p.operationId)
+        : action === 'save_new_product' ? 'new-sku:' + String((p.draft as Record<string,unknown>)?.sku ?? '').toLowerCase()
         : action === 'recover_shopify_draft' ? 'recovery:' + String(p.operationId)
         : action === 'create_shopify_draft' ? String(p.operationId) : String(p.productId);
       demand(auth.catalogApproval?.action === action && auth.catalogApproval.target === target, 'Conferma server specifica mancante.');
@@ -451,7 +493,7 @@ export async function handleOperational(
       );
       for (const id of add) {
         const r = await shopify<{ collectionAddProducts: { userErrors: unknown[] } }>(
-          'mutation AssignCollection($id:ID!,$products:[ID!]!){collectionAddProducts(id:$id,productIds:$products){userErrors{message}}}',
+          'mutation AssignCollection($id:ID!,$products:[ID!]!){collectionAddProducts(id:$id,productIds:$products){userErrors{field message}}}',
           { id, products: [mapping.shopify_product_id] },
         );
         demand(!r.collectionAddProducts.userErrors.length, 'Assegnazione Shopify rifiutata.');
@@ -509,11 +551,34 @@ export async function handleOperational(
       );
     }
   }
+  if (action === 'save_new_product' && p.operationId !== undefined) {
+    demand(ordinary && flags.drafts && p.confirm === true && typeof p.operationId === 'string' && UUID.test(p.operationId),
+      'Conferma locale non disponibile.');
+    const {data: op, error} = await db.from('admin_product_operations').select('id,payload,payload_hash,state')
+      .eq('actor', auth.userId).eq('id', p.operationId).single();
+    demand(!error && op?.state === 'LOCAL_DRAFT' && op.payload_hash === p.expectedHash, 'Versione della bozza cambiata.');
+    const draft = validateDraft({...op.payload, botanicalConfirmedKeys: p.botanicalConfirmedKeys});
+    requireDraftBotanicalReview(draft);
+    for (const key of Object.keys(draft.botanical)) requireCatalog(auth, 'edit', key);
+    validatedFields(draft, await getFieldDefinitions(db));
+    // withCatalogApproval persists this receipt in the existing journal. The save payload is immutable.
+    return {ok: true, botanicalReview: {operationId: op.id, payloadHash: op.payload_hash}};
+  }
   if (action === 'preview_new_product' || action === 'save_new_product') {
     const draft = validateDraft(p.draft);
     requireDraftBotanicalReview(draft);
     if (action === 'save_new_product' && canary) {
       requireCanaryDraft(requireCanaryScope(scope, auth.userId, auth.roles, action), draft, p.idempotencyKey);
+    }
+    if (Object.hasOwn(draft.botanical, 'curiosita')) requireCatalog(auth, 'edit', 'curiosita');
+    if (ordinary) for (const key of editorialKeys(draft)) requireCatalog(auth, 'edit', key);
+    if (auth.catalogApproval?.recoverSavedDraft) {
+      const { data: op, error } = await db.from('admin_product_operations')
+        .select('id,product_id,state,payload_hash').eq('actor', auth.userId).eq('request_key', p.idempotencyKey).maybeSingle();
+      demand(!error && op && op.payload_hash === await payloadHash({...draft}),
+        'Salvataggio ancora non attestato. Verifica la stessa richiesta senza ricreare la bozza.');
+      return localReceipt(db, {operationId: op.id, productId: op.product_id, state: op.state, replayed: true},
+        validatedFields(draft, await getFieldDefinitions(db)));
     }
     if (ordinary && draft.images.length) {
       const {data: media,error: mediaError}=await db.from('admin_catalog_media').select('cdn_url').eq('actor',auth.userId).eq('state','READY').in('cdn_url',draft.images.map(i=>i.url));
@@ -579,19 +644,14 @@ export async function handleOperational(
         'Bozza non salvata: verificare SKU e riprovare con la stessa richiesta.',
       );
     }
-    demand(data && typeof data.productId === 'string' && UUID.test(data.productId), 'Salvataggio non riletto: usa la stessa richiesta, senza ricreare la bozza.');
-    const { data: persisted, error: readError } = await db.from('product_current_values')
-      .select('product_id,field_key,value_text,value_json,value_number').eq('product_id', data.productId).in('field_key', fields.map(field => field.key));
-    demand(!readError && Array.isArray(persisted), 'Bozza Admin non riletta: usa la stessa richiesta, senza ricrearla.');
-    const adminFieldVerification = verifyAdminDraftFields(data.productId, fields, persisted);
-    return { ok: true, result: data, adminFieldVerification };
+    return localReceipt(db, data, fields);
   }
   if (action === 'get_product_operations') {
     demand(typeof p.productId === 'string' && UUID.test(p.productId), 'Prodotto non valido.');
     const canManageDraft = catalogAllowed(auth, 'drafts') || auth.roles.some(r => ['admin', 'tech_admin'].includes(r));
     const columns = 'id,product_id,state,created_at,updated_at,admin_operation_events(state,created_at)';
     const { data, error } = await db.from('admin_product_operations')
-      .select(canManageDraft ? columns + ',payload,actor' : columns)
+      .select(canManageDraft ? columns + ',payload,actor,payload_hash' : columns)
       .eq('product_id', p.productId).order('created_at', { ascending: false });
     if (error) throw new OperationalError('CATALOG_UNAVAILABLE', 'Storico operazioni non disponibile.');
     const operations = await Promise.all((data ?? []).map(async row => {
@@ -599,7 +659,18 @@ export async function handleOperational(
         id: string; state: string; product_id: string; created_at: string; updated_at: string;
         admin_operation_events: { state: string; created_at: string }[]; payload?: unknown; actor?: string;
       };
-      return { id, state, product_id, created_at, updated_at, admin_operation_events, canOperate: !ordinary || actor === auth.userId,
+      let botanicalReview;
+      if (ordinary && actor === auth.userId && state === 'LOCAL_DRAFT' && payload && typeof payload === 'object') {
+        const raw = payload as Partial<ProductDraft>;
+        const entries = Object.entries(raw.botanical ?? {});
+        if (entries.some(([key]) => !raw.botanicalConfirmedKeys?.includes(key))) {
+          const hash = (row as unknown as {payload_hash:string}).payload_hash;
+          const completed = await hasBotanicalReceipt(db, auth.userId, id, hash);
+          botanicalReview = { hash, entries, completed,
+            canConfirm: flags.drafts && catalogAllowed(auth,'drafts') && entries.every(([key]) => catalogAllowed(auth,'edit',key)) };
+        }
+      }
+      return { id, state, botanicalReview, product_id, created_at, updated_at, admin_operation_events, canOperate: !ordinary || actor === auth.userId,
         ...(canManageDraft ? { summary: await readDraftSummary(db, payload, shopify) } : {}) };
     }));
     return {
@@ -625,6 +696,7 @@ export async function handleOperational(
   if (error || !op) throw new OperationalError('NOT_FOUND', 'Operazione non disponibile.');
   if (ordinary && op.actor !== auth.userId) throw new OperationalError('FORBIDDEN', 'Questa operazione appartiene a un altro operatore.');
   const draft = validateDraft(op.payload);
+  if (action === 'create_shopify_draft' && Object.hasOwn(draft.botanical, 'curiosita')) requireCatalog(auth, 'sync', 'curiosita');
   if (draft.shortDescription && action === 'create_shopify_draft') requireCatalog(auth, 'sync', 'short_description');
   if (canary) {
     requireCanaryDraft(requireCanaryScope(scope, auth.userId, auth.roles, action), draft, op.request_key);
@@ -639,11 +711,16 @@ export async function handleOperational(
     return { ok: true, result: { state: op.state, productId: op.product_id } };
   }
   // Preflight every requested field before claim/create; completed historical records remain untouched.
-  if (ordinary && action === 'create_shopify_draft') for (const field of requestedDraftFields(draft)) requireCatalog(auth, 'sync', field.fieldKey);
+  if (action === 'create_shopify_draft') {
+    if (ordinary) for (const key of editorialKeys(draft)) requireCatalog(auth, 'sync', key);
+    if (requestedDraftFields(draft).length) demand(shopifySyncEnabled(), 'Invio dei metafield Shopify disabilitato.');
+    const keys = Object.keys(draft.botanical);
+    if (ordinary && keys.some(key => !draft.botanicalConfirmedKeys?.includes(key)) &&
+        await hasBotanicalReceipt(db, auth.userId, op.id, op.payload_hash)) draft.botanicalConfirmedKeys = keys;
+  }
   const registry = requestedDraftFields(draft).length ? await getFieldDefinitions(db) : [];
-  const metafieldPlan = action === 'recover_shopify_draft'
-    ? planDraftMetafieldsForComparison(draft, registry)
-    : await planDraftMetafields(draft, registry, shopify);
+  const comparison = action === 'recover_shopify_draft' ? comparisonDraftPlan(draft, registry) : undefined;
+  const metafieldPlan = comparison?.fields ?? await planDraftMetafields(draft, registry, shopify);
   let product: ShopifyDraft;
   let collections = [...(draft.collectionIds ?? [])];
   if (draft.categoryIds.length) {
@@ -663,11 +740,10 @@ export async function handleOperational(
     const found = await shopify<{ products: { nodes: ShopifyDraft[] } }>(
       `query RecoverDraft($query:String!){products(first:2,query:$query){nodes{${PRODUCT_FIELDS}}}}`,
       { query: `handle:og-draft-${op.id}` },
-    );
-    demand(
-      found.products.nodes.length === 1,
+    ).catch(() => null);
+    if (found?.products?.nodes?.length !== 1) throw new OperationalError('NEEDS_RECONCILIATION',
       'Bozza non individuata univocamente: attendere o verificare manualmente, senza reinviare.',
-    );
+      {metafieldVerification: [...unreadDraftMetafields(metafieldPlan), ...(comparison?.blocked ?? [])]});
     product = found.products.nodes[0];
   } else {
     demand(
@@ -714,6 +790,7 @@ export async function handleOperational(
     }
     if (canary) requireCanaryDraft(requireCanaryScope(canaryScope(), auth.userId, auth.roles, action), draft, op.request_key);
     demand(approvalMatches(approval(), 'create_shopify_draft', op.id), 'Approvazione scaduta prima dell’invio.');
+    await checkDraftVersion(db, op, ['LOCAL_DRAFT']);
     const { data: claimed, error: claimError } = await db.rpc('admin_claim_draft', {
       p_actor: auth.userId,
       p_id: op.id,
@@ -753,13 +830,23 @@ export async function handleOperational(
     };
     try {
       const created = await shopify<
-        { productSet: { product: ShopifyDraft | null; userErrors: { message: string }[] } }
+        { productSet: { product: ShopifyDraft | null; userErrors: { message: string; field?: string[] }[] } }
       >(
         `mutation AdminCreateDraft($input:ProductSetInput!){productSet(input:$input,synchronous:true){product{${PRODUCT_FIELDS}} userErrors{message}}}`,
         { input },
       );
+      if (created.productSet.userErrors.length) {
+        // Position zero is the creation marker. Shopify can also reject the input as a whole.
+        const rejected = created.productSet.userErrors.map(error => error.field ?? [])
+          .filter(path => path[0] === 'input' && path[1] === 'metafields' && /^\d+$/.test(path[2]))
+          .map(path => Number(path[2]) - 1);
+        const rows = unreadDraftMetafields(metafieldPlan).map((row, index) => ({
+          ...row, state: rejected.includes(index) ? 'REJECTED' : row.state,
+        }));
+        throw new OperationalError('NEEDS_RECONCILIATION', 'Shopify ha rifiutato la creazione. Verifica lo stato della stessa operazione.', {metafieldVerification: rows});
+      }
       demand(
-        created.productSet.product && !created.productSet.userErrors.length,
+        created.productSet.product,
         'Shopify non ha confermato la bozza: recuperare lo stato.',
       );
       const read = await shopify<{ product: ShopifyDraft | null }>(
@@ -768,30 +855,35 @@ export async function handleOperational(
       );
       demand(read.product, 'Rilettura Shopify non disponibile.');
       product = read.product;
-    } catch {
+    } catch (cause) {
       await db.from('admin_product_operations').update({ state: 'NEEDS_RECONCILIATION' }).eq(
         'id',
         op.id,
-      ).eq('state', 'IN_FLIGHT');
-      throw new OperationalError(
-        'NEEDS_RECONCILIATION',
+      ).eq('state', 'IN_FLIGHT').eq('payload_hash', op.payload_hash);
+      if (cause instanceof OperationalError && cause.details) throw cause;
+      throw new OperationalError('NEEDS_RECONCILIATION',
         'Esito Shopify incerto. Usare Recupera stato; non creare una nuova richiesta.',
-      );
+        {metafieldVerification: unreadDraftMetafields(metafieldPlan)});
     }
   }
   if (canary && scope?.shopifyProductId && product.id !== scope.shopifyProductId) {
     throw new OperationalError('FORBIDDEN', 'Product GID diverso da quello approvato per il canary.');
   }
   let links: ReturnType<typeof verifiedLinks>;
-  let metafieldVerification: Awaited<ReturnType<typeof verifyDraftMetafields>>;
+  let metafieldVerification: Awaited<ReturnType<typeof verifyDraftMetafields>> | undefined;
   try {
+    demand(product.handle === 'og-draft-' + op.id && product.metafield?.value === op.id, 'Identità Shopify da riconciliare.');
+    metafieldVerification = await verifyDraftMetafields(product.id, metafieldPlan, shopify, Boolean(comparison), comparison?.blocked);
     links = verifiedLinks(draft, op.id, product, collections);
-    metafieldVerification = await verifyDraftMetafields(product.id, metafieldPlan, shopify, action === 'recover_shopify_draft');
   } catch (error) {
-    await db.from('admin_product_operations').update({ state: 'NEEDS_RECONCILIATION' }).eq('id', op.id);
+    // IN_FLIGHT is a one-way claim. A completed operation must never be reopened.
+    await db.from('admin_product_operations').update({ state: 'NEEDS_RECONCILIATION' })
+      .eq('id', op.id).eq('state', 'IN_FLIGHT').eq('payload_hash', op.payload_hash);
     throw new OperationalError('NEEDS_RECONCILIATION',
-      error instanceof OperationalError ? error.message : 'Campi Shopify non verificati: riconciliare senza ricreare.');
+      error instanceof OperationalError ? error.message : 'Campi Shopify non verificati: riconciliare senza ricreare.',
+      (error instanceof OperationalError && error.details) || {metafieldVerification: metafieldVerification ?? [...unreadDraftMetafields(metafieldPlan), ...(comparison?.blocked ?? [])]});
   }
+  await checkDraftVersion(db, op, ['IN_FLIGHT', 'NEEDS_RECONCILIATION', 'VERIFIED_DRAFT']);
   const { data: result, error: completeError } = await db.rpc('admin_complete_draft', {
     p_actor: auth.userId,
     p_id: op.id,
@@ -802,6 +894,7 @@ export async function handleOperational(
     throw new OperationalError(
       'NEEDS_RECONCILIATION',
       'Bozza Shopify individuata; mapping interno da recuperare con la stessa operazione.',
+      {metafieldVerification},
     );
   }
   return { ok: true, result, metafieldVerification };

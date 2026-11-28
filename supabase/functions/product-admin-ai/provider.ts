@@ -70,16 +70,16 @@ interface ProviderOptions {
 }
 
 export function callAiProvider(strategy: PromptStrategy, context: AiTrustedContext, options: ProviderOptions = {}) {
-  if (strategy.id === 'verified-editorial-description') {
+  if (strategy.id === 'verified-editorial-description' || strategy.id === 'verified-field-revision') {
     return complete({
       system: strategy.instruction,
-      user: JSON.stringify({ productName: context.productName, facts: String(context.currentValue).split('\n').map((text, index) => ({ index, text })).filter(f => f.text) }),
+      user: JSON.stringify({ productName: context.productName, field:context.fieldKey, limit:strategy.maxOutputChars, revision:context.revision, facts: context.sourceAtoms ?? String(context.currentValue).split('\n').map((text, index) => ({ index, text })).filter(f => f.text) }),
     }, outputSchema(strategy), 'propose_field_improvement', options);
   }
   return complete(buildPrompt(strategy, context), outputSchema(strategy), 'propose_field_improvement', options);
 }
 
-export function callDraftSheetProvider(facts: string[], candidates: Partial<EditorialOptions>, options: ProviderOptions = {}) {
+export function callDraftSheetProvider(facts: string[], candidates: Partial<EditorialOptions>, options: ProviderOptions = {}, revision?: AiTrustedContext['revision']) {
   const indices = { type: 'array', items: { type: 'integer' } };
   const properties: Record<string, unknown> = {};
   for (const key of Object.keys(candidates) as EditorialKey[]) properties[key] = key === 'tags' ? indices : { type: 'integer' };
@@ -94,7 +94,7 @@ export function callDraftSheetProvider(facts: string[], candidates: Partial<Edit
   } : {}) };
   return complete({
     system: selectionInstruction,
-    user: JSON.stringify({ description: facts, ...promptCandidates }),
+    user: JSON.stringify({ description: facts, ...promptCandidates, revision }),
   }, schema, 'select_draft_editorial', options);
 }
 

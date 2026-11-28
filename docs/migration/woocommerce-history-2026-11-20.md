@@ -1,5 +1,9 @@
 # Online Garden · migrazione clienti e ordini del 20 novembre 2026
 
+## Mandato archivio privato · 28 novembre 2026
+
+La destinazione richiesta è esclusivamente l'archivio privato nel Lovable Cloud esistente: **nessun cliente WooCommerce va importato o associato a Shopify**. La ricostruzione di transazioni resta indisponibile; il contatore non è uno storico ordini. #84 `ce9514f` riconcilia 5.450 customer / 857 acquirenti / 952 acquisti dichiarati nelle prove precedenti. Oggi schema assente e 0 clienti importati; CSV originale non disponibile nel sandbox. Backup produttivo/recuperabilità e trattamento devono essere approvati nel verbale privato unico. La migrazione e il canale import della #84 richiedono compatibilità Cloud prima di applicazione; nessuna modifica automatica. [Vincoli, procedura e blocchi precisi](../release/CONSEGNA-FINALE-2026-11-28.md#6-archivio-privato-prerequisiti-ed-impedimenti-esatti). Le ipotesi di trasferimento/anagrafica Shopify sotto sono cronologia superata per il presente archivio. PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.
+
 ## Chiusura del ciclo · 21 novembre 2026
 
 **`BLOCKED_SOURCE_UNAVAILABLE` — 0/953 ordini trasferiti.** Il proprietario ha confermato l’indisponibilità del vecchio WooCommerce. La parte leggibile del TAR troncato non contiene il database ordini. La ricerca si chiude qui. Si conservano privatamente i due CSV minimizzati e, per un eventuale futuro ritrovamento, il codice dell’importatore e il relativo journal. Il writer è rimasto inattivo.

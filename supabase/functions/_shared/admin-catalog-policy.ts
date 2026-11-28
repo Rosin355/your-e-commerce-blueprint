@@ -27,6 +27,7 @@ export const CLIENT_FIELD_KEYS = [
   "periodo_ottimale_di_potatura",
   "difficolta_di_coltivazione",
   "faq",
+  "curiosita",
   "key_benefits", "key_features", "special_bullets",
 ];
 // Initial catalog AI scope, independent of the shared edit field grant.
@@ -112,6 +113,7 @@ export function catalogCommand(raw: unknown): Record<string, unknown> {
     "expectedVersion",
     "idempotencyKey",
     "operationId",
+    "botanicalConfirmedKeys",
     "draft",
     "categoryIds",
     "expectedHash",
@@ -137,6 +139,14 @@ export function catalogCommand(raw: unknown): Record<string, unknown> {
   }
   return result;
 }
+export function botanicalReviewTarget(operationId: string) {
+  return 'draft-botany:' + operationId;
+}
+
+export function savedDraftReceipt(action: string, state: string) {
+  return action === 'save_new_product' && (state === 'REVIEW_REQUIRED' || state === 'IN_FLIGHT');
+}
+
 export function approvalValid(
   row: {
     actor: string;
@@ -150,12 +160,11 @@ export function approvalValid(
   hash: string,
   now = Date.now(),
 ) {
-  return row.actor === actor && row.action === action &&
-    row.payload_hash === hash &&
-    (["PENDING", "COMPLETE"].includes(row.state) ||
-      (action === "recover_shopify_draft" &&
-        row.state === "REVIEW_REQUIRED")) &&
-    Date.parse(row.expires_at) > now;
+  if (row.actor !== actor || row.action !== action || row.payload_hash !== hash) return false;
+  if (savedDraftReceipt(action, row.state) || (action === 'save_new_product' && row.state === 'COMPLETE')) return true;
+  if (!(Date.parse(row.expires_at) > now)) return false;
+  return row.state === 'PENDING' || row.state === 'COMPLETE' ||
+    (action === 'recover_shopify_draft' && row.state === 'REVIEW_REQUIRED');
 }
 
 /** Accept actual image bytes, not MIME/file extension alone. SVG and active content are rejected. */

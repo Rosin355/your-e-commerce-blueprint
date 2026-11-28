@@ -1,3 +1,4 @@
+import { ProductHighlights, ProductCuriosity, ProductHeading, ProductFaq, ProductDescription, ProductIntro } from "./ProductEditorial";
 import { formatMoney, formatProductPrice } from "@/lib/storefront-money";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
@@ -30,6 +31,7 @@ import {
   parseBotanicalInfo,
   parseFaqItems,
   parseMultilineMetafield,
+  parseTextLines,
   parseKeyBenefits,
   parseProductAttributes,
   parseSeasonalCalendar,
@@ -119,12 +121,12 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const price = selectedVariant?.price ?? node.priceRange.minVariantPrice;
   const inCartQuantity = selectedVariant ? cartItems.find((item) => item.variantId === selectedVariant.id)?.quantity ?? 0 : 0;
 
-  const resolvedSpecialBullets = parseMultilineMetafield(node.specialBullets);
+  const resolvedSpecialBullets = parseTextLines(node.specialBullets);
   const resolvedKeyFeatures = parseMultilineMetafield(node.keyFeatures);
   const resolvedKeyBenefits = parseKeyBenefits(node.keyBenefits, [...resolvedSpecialBullets, ...resolvedKeyFeatures]);
-  const resolvedOriginsHabitat = parseMultilineMetafield(node.originsHabitat);
-  const resolvedPlantKnowledge = parseMultilineMetafield(node.plantKnowledge);
-  const resolvedCareGuide = parseMultilineMetafield(node.careGuide);
+  const resolvedOriginsHabitat = parseTextLines(node.originsHabitat);
+  const resolvedPlantKnowledge = parseTextLines(node.plantKnowledge);
+  const resolvedCareGuide = parseTextLines(node.careGuide);
   const botanical = parseBotanicalInfo(node);
   const resolvedProductAttributes = parseProductAttributes(node.productAttributes);
 
@@ -133,7 +135,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
   const resolvedHybridizer = isRose ? parseSingleLineMetafield(node.hybridizer) : null;
   const resolvedFlowerColor = parseSingleLineMetafield(node.flowerColor);
   const resolvedLeafColor = parseSingleLineMetafield(node.leafColor);
-  const resolvedCuriosity = parseMultilineMetafield(node.curiosity);
+  const resolvedCuriosity = parseTextLines(node.curiosity);
 
   // Specifiche rapide = attributi JSON + colori + ibridatore (rose). `swatch` opzionale per i colori.
   const quickSpecs: Array<ProductAttribute & { swatch?: string }> = [
@@ -277,7 +279,6 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
     ? node.description.split(/\n+/).map((item) => item.trim()).filter(Boolean)
     : [];
   const intro = node.shortIntro?.value.trim();
-  const distinctIntro = intro && intro.replace(/\s+/g, ' ') !== descriptionParagraphs.join(' ').replace(/\s+/g, ' ');
 
   return (
     <main id="main-content" tabIndex={-1} className="og-storefront bg-background pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">
@@ -579,10 +580,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             <p id="selected-variant-status" role="status" aria-atomic="true" className="sr-only">
               {selectedVariant ? `${selectedVariant.title}, ${formatMoney(price)}, ${selectedVariant.availableForSale ? "disponibile" : "non disponibile"}, quantità ${quantity}` : "Nessuna variante selezionata"}
             </p>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-dark">Online Garden</p>
-            <h1 className="mt-2 text-[2rem] font-heading font-semibold leading-[1.1] text-foreground md:text-[2.25rem]">
-              {node.title}
-            </h1>
+            <ProductHeading title={node.title} />
             {botanical.botanicalName && (
               <p className="mt-1.5 text-sm italic text-muted-foreground">{botanical.botanicalName}</p>
             )}
@@ -594,7 +592,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
 
             <hr className="mt-4 border-border/70" />
 
-            {distinctIntro && <p aria-label="Descrizione breve" className="mt-4 whitespace-pre-line text-[15px] leading-7">{intro}</p>}
+            <ProductIntro intro={intro} paragraphs={descriptionParagraphs} />
             {descriptionParagraphs.length > 0 && <a className="mt-2 inline-block text-sm underline" href="#descrizione-estesa">Leggi la descrizione estesa</a>}
 
             {optionGroups.map((group) => {
@@ -781,10 +779,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
             </div>
           </aside>
         </div>
-            {descriptionParagraphs.length > 0 && <section id="descrizione-estesa" aria-labelledby="titolo-descrizione" className="mt-8 scroll-mt-28 space-y-3">
-              <h2 id="titolo-descrizione" className="font-heading text-xl font-semibold">Descrizione estesa</h2>
-              {descriptionParagraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
-            </section>}
+            <ProductDescription paragraphs={descriptionParagraphs} />
       </section>
 
       <section className="container mx-auto max-w-[1200px] px-4 py-10">
@@ -794,14 +789,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               Punti di forza
             </AccordionTrigger>
             <AccordionContent className="pb-6">
-              <ul className="space-y-3 text-[15px] leading-7 text-muted-foreground">
-                {resolvedKeyBenefits.map((benefit, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <span className="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-foreground" />
-                    <span>{benefit}</span>
-                  </li>
-                ))}
-              </ul>
+              <ProductHighlights items={resolvedKeyBenefits} />
             </AccordionContent>
           </AccordionItem>}
           {resolvedKeyFeatures.length > 0 && <AccordionItem value="features">
@@ -809,14 +797,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               Caratteristiche principali
             </AccordionTrigger>
             <AccordionContent className="pb-6">
-              <ul className="space-y-3 text-[15px] leading-7 text-muted-foreground">
-                {resolvedKeyFeatures.map((f) => (
-                  <li key={f} className="flex items-start gap-3">
-                    <span className="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-foreground" />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
+              <ProductHighlights items={resolvedKeyFeatures} />
             </AccordionContent>
           </AccordionItem>}
           <AccordionItem value="care">
@@ -832,16 +813,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
                 Curiosità
               </AccordionTrigger>
               <AccordionContent className="pb-6">
-                <div className="border-l-2 border-primary/40 bg-muted/30 py-4 pl-5 pr-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                    Lo sapevi che
-                  </p>
-                  <div className="mt-2 space-y-3 text-[15px] leading-7 text-foreground/85">
-                    {resolvedCuriosity.map((paragraph, idx) => (
-                      <p key={idx}>{paragraph}</p>
-                    ))}
-                  </div>
-                </div>
+                <ProductCuriosity items={resolvedCuriosity} />
               </AccordionContent>
             </AccordionItem>
           ) : (
@@ -867,18 +839,7 @@ export const Pdp = ({ product, selectedVariant, setSelectedVariant, careInfoCont
               {faqTitle}
             </h2>
           </div>
-          <Accordion type="multiple" className="w-full">
-            {faqItems.map((item, idx) => (
-              <AccordionItem key={`faq-${idx}`} value={`faq-${idx}`}>
-                <AccordionTrigger className="py-5 text-left text-[15px] font-semibold text-foreground hover:no-underline md:text-base">
-                  {item.question}
-                </AccordionTrigger>
-                <AccordionContent className="pb-6 text-[15px] leading-7 text-muted-foreground">
-                  {item.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          <ProductFaq items={faqItems} />
         </section>
       )}
 

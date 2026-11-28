@@ -1,0 +1,48 @@
+{
+  "sections": [
+    {
+      "heading": "Introduzione",
+      "text": "La **Yucca filamentosa** è un arbusto sempreverde originario degli Stati Uniti sud-orientali. È una specie da fiore molto apprezzata in orticoltura, riconoscibile anche quando si osserva soltanto il fogliame. Il portamento è eretto: alla base si raccolgono le rosette, mentre all’inizio dell’estate gli steli floreali si alzano sopra le foglie.",
+      "factIndices": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "heading": "Descrizione botanica",
+      "text": "Per descrivere il portamento di questa Yucca conviene distinguere la pianta dai suoi steli floreali. La pianta è solitamente priva di fusto e tende a produrre numerosi germogli basali. Da questi prendono forma le rosette: ognuna raccoglie un fitto gruppo di foglie nastriformi. L’altezza documentata durante la fioritura riguarda gli steli che portano i fiori.",
+      "factIndices": [
+        0,
+        2
+      ]
+    },
+    {
+      "heading": "Fogliame e caratteristiche distintive",
+      "text": "Le foglie sono lineari e allungate, simili a nastri. Nelle descrizioni del fogliame compaiono tanto il verde argentato quanto il verde-azzurro. Il dettaglio più caratteristico si trova lungo i margini sfilacciati: seguendo il bordo della foglia si distinguono i filamenti bianchi. Proprio i filamenti lungo i margini fogliari permettono di distinguere la Yucca filamentosa dalle altre specie del genere.",
+      "factIndices": [
+        0,
+        2
+      ]
+    },
+    {
+      "heading": "Fioritura",
+      "text": "La fioritura si osserva all’inizio dell’estate, tra giugno e luglio. In questo periodo la pianta sviluppa lunghi steli floreali che possono arrivare fino a **3 metri di altezza**. Sul lungo asse floreale si aprono numerosi fiori penduli. Guardando il singolo fiore si riconoscono la forma a campana e il colore bianco crema; nell’insieme, i fiori accompagnano lo sviluppo verticale dello stelo.",
+      "factIndices": [
+        0,
+        2
+      ]
+    },
+    {
+      "heading": "Coltivazione e manutenzione",
+      "text": "Per la coltivazione, la Yucca filamentosa predilige un terreno fertile e ben drenato. Nella scelta del terreno vanno quindi considerati insieme la fertilità del substrato e il suo drenaggio.",
+      "factIndices": [
+        0
+      ]
+    }
+  ],
+  "missingInformation": [
+    "utilizzo ornamentale",
+    "dimensioni"
+  ]
+}

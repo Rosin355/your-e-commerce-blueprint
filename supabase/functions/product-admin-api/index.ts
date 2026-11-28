@@ -164,6 +164,7 @@ Deno.serve(async (req) => {
         backendVersion: "admin-editor-20261125",
         supportsDistinctDescriptions: true,
         supportsSheetEvidence: true,
+        supportsManualDraftCuriosity: true,
         supportsCatalogSourceAndProductType: true,
         ordinaryCatalog: ordinary,
         canUseAi: enabled && catalogAiAllowed(auth),
@@ -671,7 +672,7 @@ Deno.serve(async (req) => {
   } catch (err) {
     if (err instanceof OperationalError) {
       console.log(redactedLog(action, actorId, err.code));
-      return json({ ok: false, error: { code: err.code, message: err.message } }, err.code === 'FORBIDDEN' ? 403 : 400);
+      return json({ ok: false, error: { code: err.code, message: err.message, details: err.details } }, err.code === 'FORBIDDEN' ? 403 : 400);
     }
     if (err instanceof AuthError) return fail(err.code, err.message);
     console.error(redactedLog(action, actorId, "INTERNAL_ERROR", { hint: (err as Error)?.name }));

@@ -1,5 +1,9 @@
 # Admin V2 — AI Product Editor
 
+## V3 · Anteprima cliente e revisione della bozza completa
+
+La V3 si apre con nome, fonti e generazione. La proposta si legge nella vista prodotto, con modifiche contestuali e revisione finale. La scheda avanzata conserva il percorso tecnico V2. Il verbale distingue il test reale precedente su @2 dal collaudo V3 con provider simulato. [Percorso, copertura, campi e immagini della V3](ai-editor-v3/README.md)
+
 ## V2 · Candidato per il collaudo del 27 novembre 2026
 
 **READY_FOR_UAT in ambiente di prova · PENDING_CLIENT_ACCEPTANCE · SAL ufficiale 57,75%.** La V2 deriva dal commit originale `1da7ee1` della [Draft #79](https://github.com/Rosin355/your-e-commerce-blueprint/pull/79). Le prove descritte qui usano sorgenti locali, un provider simulato e dati sintetici. La V2 non è distribuita.

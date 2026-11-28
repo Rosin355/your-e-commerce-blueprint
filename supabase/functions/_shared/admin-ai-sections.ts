@@ -17,6 +17,7 @@ export interface EditorialSection {
   heading: Heading;
   text: string;
   factIndices: number[];
+  origin?: 'derived';
 }
 
 const escape = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -41,4 +42,15 @@ export function renderSections(sections: Pick<EditorialSection, 'heading' | 'tex
       }).join('');
     }).join(''),
   );
+}
+
+// Routing hints for generation and human review. They do not authorize new claims.
+export function suggestionHeading(text: string): Heading {
+  if (/terren|dren|irrig|substrat|coltivazione/i.test(text)) return 'Coltivazione e manutenzione';
+  if (/infioresc|fiori|fioritura|floreal|giugno|estate/i.test(text)) return 'Fioritura';
+  if (/portamento|germogli basali|altezza|sviluppo|fusto/i.test(text)) return 'Portamento e sviluppo';
+  if (/fogli|filamenti|rosett/i.test(text)) return 'Fogliame e caratteristiche distintive';
+  if (/apprezzat.+orticoltura|utilizzo ornamentale/i.test(text)) return 'Utilizzo ornamentale';
+  if (/^(?:si tratta di un )?arbusto sempreverde[.]?$/i.test(text)) return 'Introduzione';
+  return 'Descrizione botanica';
 }

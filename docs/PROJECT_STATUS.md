@@ -1,3 +1,45 @@
+## 28 novembre 2026 · Consegna finale operativa, filoni indipendenti
+
+**NO-GO alla consegna produttiva completa · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Nessun nuovo sviluppo, deploy, Publish, merge, migrazione, chiamata Gemini o dato reale modificato. Candidato #83 `14cd12a` invariato, HEAD iniziale documentale `3c4deda`; frontend pubblicato il 26/11, asset baseline ancora identici. Ultime baseline Edge documentate API `f32989d` / AI `874f2d3`, non revisioni runtime attestate. Checksum dei cinque archivi intatti; rollback operativo ancora da attestare, Revert generale può distribuire anche altre Edge e non va usato come rollback solo-frontend.
+
+Preview Admin autenticata: controlli V3 visibili, quattro letture 200, zero AI e scritture. 924 test simulati precedenti conservati, non ripetuti. Home/catalogo/PDP pubblici 200; 60 GET redirect e 16 PDP renderizzate con canonical atteso PASS, **0 redirect legacy→PDP osservati**. Nessuna sessione Cloudflare autenticata: consegnati CSV e pacchetti già implementati, non attivati; CSV da solo perde UTM sulle query. Archivio #84 assente, **0 clienti importati**: backup/trattamento/fonte e compatibilità DDL/canale import Cloud restano prerequisiti. Grant Marco invariati (8 capability, 17/22 campi, 0/3 opt-in); vecchia proposta che revoca extra esclusa, preparata soltanto elevazione additiva nominativa. **Gemini 3 Flash Preview mantenuto; nessun A/B.** [Tabella unica, azioni esatte, versioni e checklist](release/CONSEGNA-FINALE-2026-11-28.md).
+
+## 28 novembre 2026 · Consegna controllata Admin V2
+
+**NO-GO al rilascio attuale · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Candidato esatto `14cd12a82192e54156815100ce7e5689e03a8654`, branch Lovable `codex/ai-product-editor-v3-20261127`. Verificati 737 Node, 141 Deno e 46 browser con servizi simulati; preview autenticata in sola lettura. Archivi frontend pubblico e due baseline Edge/candidati conservati in Git, estrazione byte-per-byte e controllo tipi dei quattro pacchetti PASS. Versioni runtime attive e rollback operativo non attestabili dagli strumenti: acquisire la corrispondenza gestionale fra revisioni attive e artefatti ripristinabili prima del rilascio. Curiosità manuale implementata, ma zero grant reali: nessun cambio permessi. Predisposto soltanto il piano della singola DRAFT tecnica. **Gemini 3 Flash Preview mantenuto; ulteriori A/B esclusi dalla consegna corrente**; note A/B sotto sono cronologia superata dalla decisione del titolare. Nessun Publish, deploy, merge, migration, AI o dato reale modificato. [Verbale unico, artefatti e checklist](release/admin-v2-consegna-2026-11-28/README.md).
+
+## 28 novembre 2026 · Chiusura tecnica dei tre filoni
+
+**PENDING_CLIENT_ACCEPTANCE · SAL ufficiale 57,75%.** Il candidato applicativo riunisce la genealogia di #79, #80, #83 e la correzione #78. Curiosità dispone di un percorso manuale con doppia rilettura collaudata in isolamento. Il registro live espone zero grant nominativi per il campo. A/B bloccato prima di ogni chiamata, costo incrementale 0 crediti. Nessuna distribuzione dell’editor integrato. [Matrice campi, UAT, guida e rollback](release/ai-editor-v3/README.md#candidato-integrato-e-uat-del-28-novembre-2026)
+
+- **Redirect, PR #82.** 16 identità e 16 PDP verificate, 272 risposte HTTP. Zero redirect legacy diretti attivati. Configurazioni pilota e completa verificate in isolamento. [Ricevute e change Cloudflare](https://github.com/Rosin355/your-e-commerce-blueprint/blob/6257b67/docs/seo/recupero-2026-11-27/README.md)
+- **Archivio e Marco, PR #84.** Originale riconciliato a 5.450 clienti, 857 acquirenti e 952 acquisti. Zero clienti importati, zero promozioni. Prova locale di restore, parità completa e autorizzazioni. Backup ripristinabile in produzione, conservazione e identità nominativa attendono attestazione. [Ricevuta, autorizzazioni e rollback](https://github.com/Rosin355/your-e-commerce-blueprint/blob/ce9514f/docs/migration/admin-clienti-operativo/GATE-FINALE.md)
+- **Sito attivo.** Homepage, catalogo, dashboard staff, login anonimo e checkout Shopify con riepilogo verificati. Zero ordini. Il nuovo editor integrato e la pagina clienti storici attendono il rilascio.
+
+## 28/11/2026 — Pilota A/B Yucca bloccato prima della prima chiamata
+
+**BLOCKED · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Il controllo offline sul candidato `d64abfb` è passato. La credenziale gateway dedicata è assente nell’ambiente del banco. Nessuno dei due modelli è stato invocato: 0 chiamate e 0 crediti Lovable consumati per il pilota. La scelta del modello resta aperta. [Verbale del pilota](release/ai-editor-v3/README.md#pilota-ab-del-28-novembre-2026)
+
+## 27/11/2026 — Validatore V3 e confronto modelli predisposto
+
+**READY_FOR_CONTROLLED_TEST · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Sulla fixture mirata il candidato passa da 3/14 a 4/14 fatti distinti (da 4/15 a 5/15 nel conteggio storico). La fonte supporta il portamento verticale. La cura inventata e il giudizio estetico sui fiori sono scartati. Il retest storico resta a 165 parole e 9/15. Preparata una coppia Gemini/GPT-5.4 Mini con identificativi verificati nel gateway. Eseguite solo prove sintetiche. [Verbale e gate](release/ai-editor-v3/README.md#candidato-semantico-e-pilota-da-una-coppia)
+
+## 27/11/2026 — Retest reale AI Product Editor V3 su Yucca filamentosa
+
+**PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Il retest successivo al deploy ha prodotto 165 parole, con 9/15 fatti coperti e quattro problemi di sezione. Il registro Lovable conferma Gemini 3 Flash Preview nella finestra della prova. I motivi dei singoli scarti e la lunghezza grezza richiedono evidenze assenti nel registro. La decisione sul modello resta aperta. [Diagnosi e verbale UAT](release/ai-editor-v3/README.md#diagnosi-del-retest-da-165-parole)
+
+## 27/11/2026 — Deploy correttivo isolato product-admin-ai V3
+
+**DEPLOY SUCCESS · READY_FOR_REAL_GEMINI_TEST · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Distribuita esclusivamente `product-admin-ai` dal sorgente autorizzato `874f2d398bdb4c635955243ac2a3e1fc5546a254`; 31 file verificati byte per byte, manifest `d6c02bbc…e9ccf41`. Ricevuta sorgenti/settings `14af6f9a…7fc332`, non SHA runtime. OPTIONS 200, senza token/token invalido 401; controlli autenticati non generativi 422 attesi prima di prenotazione/provider, log post-deploy coerenti senza errore tecnico, 43 regressioni offline PASS. Anteprima Admin autenticata visibile e sito pubblico HTTP 200. Zero chiamate Gemini: il titolare eseguirà una sola generazione. Nessun’altra funzione, Publish, merge, migration, permesso, secret, configurazione o dato commerciale modificato. Rollback a `fa2a079` conservato e autorizzato solo per regressione tecnica confermata, non eseguito. Runtime crittografico non attestabile; `sectionAudit` da verificare nella futura risposta valida, qualità reale ancora da accettare. [Ricevuta, controlli e rollback](release/DEPLOY-CORRETTIVO-PRODUCT-ADMIN-AI-V3-874f2d3-2026-11-27.md).
+
+## 27/11/2026 — Correzione Product Editor V3 dopo il collaudo Yucca
+
+**READY_FOR_RETEST · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** La regressione ricostruisce il 5/15 su 137 parole. Sul medesimo testo la copertura corretta è 8/15; con tre sezioni derivate localmente arriva a 10/15 e 163 parole. I cinque fatti residui bloccano l’approvazione. Nel browser la revisione manuale raggiunge 15/15 e 292 parole senza ulteriori richieste AI. Verificati SEO deterministica e salvataggio simulato degli otto campi supportati. Curiosità autonome in sola anteprima. [Verbale, matrice e guida al retest](release/ai-editor-v3/README.md#correzione-post-uat--candidata-al-retest)
+
+## 27/11/2026 — Product Editor V3 pronto per UAT isolato
+
+Il candidato V3 deriva dalla head della Draft #80, `bcb431e`, che registra anche la prova reale e il deploy selettivo di `product-admin-ai` con prompt @2 dal commit `da55301`. La V3 introduce anteprima cliente, revisione contestuale, copertura dei fatti e approvazione della bozza interna. Il collaudo simulato su Yucca copre 15 fatti utilizzabili su 15 e tiene separati quattro conflitti e una formulazione ambigua. L’AI reale V3, la distribuzione e l’accettazione cliente sono aperte. **READY_FOR_UAT isolato · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** [Verbale V3, mapping e anteprima](release/ai-editor-v3/README.md)
+
 ## 27/11/2026 — AI Product Editor V2 in collaudo
 
 Candidato sviluppato sul branch `codex/ai-product-editor-v2-20261127` da `1da7ee1` della Draft #79. Il contratto `online-garden-editoriale-it@2` introduce rendiconto dei fatti, gestione di negazioni e conflitti, avvisi editoriali e revisione per sezione. I test usano il testo originale della Yucca filamentosa e un provider simulato. **READY_FOR_UAT** in ambiente isolato. Prova con AI reale, collaudo personale di Marco e rilascio restano da autorizzare o completare. **PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** [Verbale, matrice dei campi e checklist](release/ADMIN-V2-AI-PRODUCT-EDITOR-2026-11-27.md)

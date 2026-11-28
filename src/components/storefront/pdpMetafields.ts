@@ -1,7 +1,7 @@
 import { decodeEditorialList } from "../../../supabase/functions/_shared/editorial-list-codec";
 import type { ShopifyProduct } from "@/lib/shopify";
 
-type Metafield = { value?: string | null } | null | undefined;
+type Metafield = { value?: string | null; type?: string } | null | undefined;
 
 type ProductNode = ShopifyProduct["node"];
 
@@ -34,6 +34,15 @@ export function parseSingleLineMetafield(mf: Metafield): string | null {
 
 export function parseMultilineMetafield(mf: Metafield, fallback: string[] = []): string[] {
   if (!mf?.value) return fallback;
+  if (mf.type === 'json' || mf.type === 'list.single_line_text_field') {
+    try { return decodeEditorialList(mf.value, mf.type); } catch { return fallback; }
+  }
+  if (mf.type && mf.type !== 'multi_line_text_field') return fallback;
+  return parseTextLines(mf, fallback);
+}
+
+export function parseTextLines(mf: Metafield, fallback: string[] = []): string[] {
+  if (!mf?.value) return fallback;
   const items = mf.value
     .split("\n")
     .map((item) => item.trim())
@@ -43,7 +52,7 @@ export function parseMultilineMetafield(mf: Metafield, fallback: string[] = []):
 
 /** New benefits only: fail closed on incompatible data, suppress exact cross-section duplicates. */
 export function parseKeyBenefits(mf: { value?: string | null; type?: string } | null | undefined, alreadyVisible: readonly string[] = []): string[] {
-  if (!mf?.value || mf.type !== 'multi_line_text_field') return [];
+  if (!mf?.value || !mf.type) return [];
   try {
     const existing = new Set(alreadyVisible);
     return decodeEditorialList(mf.value, mf.type).filter(item => !existing.has(item));

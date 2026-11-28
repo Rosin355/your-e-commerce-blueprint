@@ -206,6 +206,14 @@ function metafieldValueType(def: FieldDefinition): ShopifyFieldTarget & { kind: 
   };
 }
 
+export function isManualDraftCuriosity(def: FieldDefinition) {
+  const mapping = def.shopify_mapping;
+  return def.key === 'curiosita' && def.manual_only && def.visible && def.editable && def.publishable &&
+    (def.applies_to === 'product' || def.applies_to === 'both') && def.field_group === 'botanical' &&
+    def.data_type === 'text' && def.editor_type === 'textarea' &&
+    isRecord(mapping) && mapping.type === 'metafield' && mapping.namespace === 'custom' && mapping.key === 'curiosita';
+}
+
 /**
  * Il client invia esclusivamente fieldKey. Il target viene derivato da una
  * definizione caricata dal DB e accettato soltanto da questa allowlist.

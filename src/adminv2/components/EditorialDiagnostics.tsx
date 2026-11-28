@@ -30,13 +30,14 @@ export default function EditorialDiagnostics({ issues = [], coverage = [], missi
         ].filter(Boolean).map((v) => ' · ' + v)}
       </summary>
       {issues.length > 0 && (
-        <ul className='list-disc pl-5'>{issues.map((i, n) => <li key={n}>{i.section} · {i.message}</li>)}</ul>
+        <ul className='list-disc pl-5'>{issues.map((i, n) => <li key={n}>{i.section}
+          {i.sentence !== undefined && ' · frase ' + i.sentence} · {i.message}</li>)}</ul>
       )}
       {coverage.length > 0 && (
         <ol className='list-decimal pl-5'>
           {coverage.map((f, i) => (
             <li key={i}>
-              <strong>{labels[f.status]}</strong> · {f.text} {f.reason} {f.headings.join(', ')}
+              <strong>{labels[f.status]}</strong>{f.duplicateOf !== undefined && ' · Duplicato della riga ' + (f.duplicateOf + 1)} · {f.text} {f.reason} {f.headings.join(', ')}
             </li>
           ))}
         </ol>

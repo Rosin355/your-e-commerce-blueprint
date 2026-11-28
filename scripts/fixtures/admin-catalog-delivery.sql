@@ -1,6 +1,9 @@
 INSERT INTO auth.users(id) VALUES('00000000-0000-4000-8000-000000000001'),('00000000-0000-4000-8000-000000000002');
 INSERT INTO public.user_roles VALUES('00000000-0000-4000-8000-000000000001','editor'),('00000000-0000-4000-8000-000000000002','editor');
 INSERT INTO public.product_field_definitions(key,label,editable,visible) VALUES('title','Nome',true,true);
+INSERT INTO public.product_field_definitions(key,label,field_group,editor_type,manual_only,visible,editable)
+VALUES('curiosita','Curiosità botaniche','botanical','textarea',true,true,true)
+ON CONFLICT(key) DO UPDATE SET manual_only=true,visible=true,editable=true,field_group='botanical';
 DO $$ DECLARE t text; f text; r text; BEGIN
  FOREACH t IN ARRAY ARRAY['admin_product_operations','admin_product_shopify_links','admin_operation_events','admin_category_operations','admin_catalog_capabilities','admin_catalog_approvals','admin_catalog_media'] LOOP
   ASSERT (SELECT relrowsecurity FROM pg_class WHERE oid=to_regclass('public.'||t)),'RLS absent';
@@ -25,7 +28,10 @@ DO $$ DECLARE a uuid:='00000000-0000-4000-8000-000000000001'; other_actor uuid:=
  ASSERT public.admin_claim_catalog_approval(approval,a,repeat('a',64)),'Authorized claim refused';
  ASSERT NOT public.admin_claim_catalog_approval(approval,a,repeat('a',64)),'Second claim accepted';
  UPDATE public.admin_catalog_approvals SET state='COMPLETE' WHERE id=approval;
- saved:=public.admin_save_new_draft(a,gen_random_uuid(),repeat('c',64),'{"sku":"DELIVERY-FIXTURE","variants":[{"sku":"DELIVERY-FIXTURE"}],"categoryIds":[]}', '[{"key":"title","text":"Fixture"}]');
+ saved:=public.admin_save_new_draft(a,gen_random_uuid(),repeat('c',64),'{"sku":"DELIVERY-FIXTURE","variants":[{"sku":"DELIVERY-FIXTURE"}],"categoryIds":[]}', '[{"key":"title","text":"Fixture"},{"key":"curiosita","text":"Filamenti verificati."}]');
+ ASSERT EXISTS(SELECT FROM public.product_current_values WHERE product_id=(saved->>'productId')::uuid
+   AND field_key='curiosita' AND value_text='Filamenti verificati.' AND value_origin='manual' AND publish_blocked),
+   'Curiosità manuale assente o pubblicabile dopo il solo salvataggio interno';
  -- The ordinary wizard persists collection GIDs with the operation, alongside prices.
  DECLARE test_payload jsonb := '{"sku":"TEST-OG-AI-001","title":"TEST - Lavanda","description":"<p>Descrizione sintetica.</p>","currency":"EUR","variants":[{"sku":"TEST-OG-AI-001","option":"Formato unico","price":"10.00"}],"collectionIds":["gid://shopify/Collection/123"],"categoryIds":[]}';
          test_saved jsonb; replay jsonb; test_key uuid := gen_random_uuid();

@@ -1,10 +1,11 @@
 import { assertEquals, assertRejects } from 'jsr:@std/assert';
+import { prepareCatalogApproval, withCatalogApproval } from '../../supabase/functions/_shared/admin-catalog-approvals.ts';
 import { handleOperational } from '../../supabase/functions/_shared/admin-operational-service.ts';
 import { OperationalError, type ProductDraft } from '../../supabase/functions/_shared/admin-operational-core.ts';
 import type { AuthContext } from '../../supabase/functions/_shared/admin-v2-types.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
 const id = '40000000-0000-4000-8000-000000000001',
-  actor: AuthContext = { userId: '00000000-0000-4000-8000-000000000001', roles: ['editor'], catalogGrant: { enabled: true, capabilities: ['drafts','categories'], fieldKeys: [] }, catalogApproval: { action: 'create_shopify_draft', target: id, before: {} } };
+  actor: AuthContext = { userId: '00000000-0000-4000-8000-000000000001', roles: ['editor'], catalogGrant: { enabled: true, capabilities: ['drafts','categories','sync','edit'], fieldKeys: ['title','description','seo_title'] }, catalogApproval: { action: 'create_shopify_draft', target: id, before: {} } };
 function simulation(
   options: {
     timeout?: boolean;
@@ -23,6 +24,7 @@ function simulation(
     missingRemoteMetafield?: boolean;
     metafieldUserError?: boolean;
     missingAdminField?: boolean;
+    botanicalReceipt?: boolean;
   } = {},
 ) {
   const draft: ProductDraft = {
@@ -47,7 +49,7 @@ function simulation(
     draft.variants.push({ sku: 'QA-002', price: '13.00', compareAtPrice: null, option: 'Altro' });
   }
   const op = {
-    actor: actor.userId, id,
+    actor: actor.userId, id, request_key: id, payload_hash: 'fixture-version',
     product_id: '30000000-0000-4000-8000-000000000001',
     payload: draft,
     state: 'LOCAL_DRAFT',
@@ -77,19 +79,29 @@ function simulation(
     },
   };
   let mutations = 0;
+  let saves = 0;
   let completeCalls = 0;
   let createdInput: Record<string, unknown> | undefined;
   let savedRows: Record<string, unknown>[] = [];
   const db = {
     from(table: string) {
       let update: Record<string, unknown> | undefined;
+      const filters: [string, unknown][] = [];
+      const matchesOp = () => filters.every(([key, value]) => Reflect.get(op, key) === value);
       const chain = {
         select() {
           return chain;
         },
-        eq() {
+        eq(key: string, value: unknown) {
+          filters.push([key, value]);
           return chain;
         },
+        contains(column:string, value:unknown) {
+          assertEquals(column,'result');
+          assertEquals(value,{botanicalReview:{operationId:id,payloadHash:op.payload_hash}});
+          return chain;
+        },
+        limit() { return chain; },
         gt() {
           return chain;
         },
@@ -105,15 +117,20 @@ function simulation(
           return chain;
         },
         maybeSingle() {
+          if (table === 'admin_catalog_approvals' && options.botanicalReceipt) {
+            assertEquals(Object.fromEntries(filters),{actor:actor.userId,action:'save_new_product',target:'draft-botany:'+id,state:'COMPLETE'});
+            return Promise.resolve({data:{id},error:null});
+          }
+          if (table === 'admin_product_operations') return Promise.resolve({data:saves && matchesOp() ? {...op} : null, error:null});
           const definition = {key:'short_description',editable:true,publishable:true,shopify_mapping:
             options.missingShortMapping ? {} : {type:'metafield',namespace:'custom',key:'short_intro'}};
           return Promise.resolve({data:table === 'product_field_definitions' ? definition : null,error:null});
         },
         single() {
-          return Promise.resolve({ data: op, error: null });
+          return Promise.resolve({ data: matchesOp() ? {...op} : null, error: null });
         },
         then(resolve: (x: unknown) => void) {
-          if (update) Object.assign(op, update);
+          if (update && matchesOp()) Object.assign(op, update);
           resolve({ data: table === 'product_field_definitions' ? [
             ...['title','description','seo_title','seo_description'].map(key=>({key,visible:true,editable:true,data_type:'text',editor_type:'textarea'})),
             {key:'short_description',visible:true,editable:true,publishable:true,manual_only:false,data_type:'text',editor_type:'textarea',shopify_mapping:options.missingShortMapping?{}:{type:'metafield',namespace:'custom',key:'short_intro'}},
@@ -125,6 +142,9 @@ function simulation(
     },
     rpc(name: string, args?: Record<string, unknown>) {
       if (name === 'admin_save_new_draft') {
+        saves++;
+        op.payload_hash = String(args?.p_hash);
+        op.request_key = String(args?.p_key);
         savedRows=((args?.p_fields ?? []) as {key:string;text?:string;json?:unknown;number?:number}[]).map(field=>({product_id:op.product_id,field_key:field.key,value_text:field.text ?? null,value_json:field.json ?? null,value_number:field.number ?? null}));
         return Promise.resolve({data:{productId:op.product_id,operationId:id,state:'LOCAL_DRAFT'},error:null});
       }
@@ -173,7 +193,7 @@ function simulation(
       createdInput = variables.input as Record<string, unknown>;
       assertEquals((variables.input as { status: string }).status, 'DRAFT');
       if (options.timeout) throw Error('simulated timeout after remote commit');
-      return { productSet: { product, userErrors: options.metafieldUserError?[{message:'Metafield sintetico rifiutato.'}]:[] } } as T;
+      return { productSet: { product, userErrors: options.metafieldUserError?[{field:['input','metafields','1','value'],message:'Metafield sintetico rifiutato.'}]:[] } } as T;
     }
     if (query.includes('query VerifyDraft')) return { product } as T;
     if (query.includes('query RecoverDraft')) return { products: { nodes: [product] } } as T;
@@ -186,12 +206,13 @@ function simulation(
     get mutations() {
       return mutations;
     },
+    get saves() { return saves; },
     get input() { return createdInput; },
     get completions() { return completeCalls; },
   };
 }
 async function withFlags(run: () => Promise<void>) {
-  const keys = ['PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED', 'PRODUCT_ADMIN_OPERATIONAL_APPROVAL', 'PRODUCT_ADMIN_WRITES_ENABLED', 'PRODUCT_ADMIN_WRITE_MODE', 'PRODUCT_ADMIN_DRAFTS_ENABLED'];
+  const keys = ['PRODUCT_ADMIN_DRAFT_SHOPIFY_ENABLED', 'PRODUCT_ADMIN_OPERATIONAL_APPROVAL', 'PRODUCT_ADMIN_WRITES_ENABLED', 'PRODUCT_ADMIN_WRITE_MODE', 'PRODUCT_ADMIN_DRAFTS_ENABLED','PRODUCT_ADMIN_SHOPIFY_SYNC_ENABLED'];
   const prior = keys.map((k) => Deno.env.get(k));
   Deno.env.set(keys[0], 'true');
   Deno.env.set(keys[1], JSON.stringify({
@@ -202,6 +223,7 @@ async function withFlags(run: () => Promise<void>) {
   Deno.env.set(keys[2], 'true');
   Deno.env.set(keys[3], 'full');
   Deno.env.set(keys[4], 'true');
+  Deno.env.set(keys[5], 'true');
   try {
     await run();
   } finally {
@@ -624,7 +646,7 @@ Deno.test('publication badges distinguish local, Shopify and channel state and p
 
 Deno.test('la bozza Shopify registra entrambi i testi solo per l’autore abilitato',()=>withFlags(async()=>{
   const s=simulation({short:'Sintesi verificata.'});
-  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','edit','sync'],fieldKeys:['short_description']}};
+  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','edit','sync'],fieldKeys:['title','description','short_description']}};
   const command={action:'create_shopify_draft',operationId:id,confirm:true};
   await assertRejects(()=>handleOperational(s.db,{...author,userId:'00000000-0000-4000-8000-000000000009'},command,s.shopify));
   assertEquals(s.mutations,0);
@@ -639,7 +661,7 @@ Deno.test('la bozza Shopify registra entrambi i testi solo per l’autore abilit
 
 Deno.test('nuova bozza invia botanica richiesta e verifica tutti i metafield prima del completamento',()=>withFlags(async()=>{
   const s=simulation({botanical:{nome_botanico:'Specie sintetica',periodo_di_fioritura:['Giugno','Luglio'],key_features:['Sempreverde','Crescita lenta']}});
-  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','sync'],fieldKeys:['nome_botanico','periodo_di_fioritura','key_features']}};
+  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','sync'],fieldKeys:['title','description','nome_botanico','periodo_di_fioritura','key_features']}};
   const result=await handleOperational(s.db,author,{action:'create_shopify_draft',operationId:id,confirm:true},s.shopify) as {metafieldVerification:{fieldKey:string;state:string}[]};
   const fields=s.input?.metafields as {key:string;type:string;value:string}[];
   assertEquals(fields.find(f=>f.key==='periodo_di_fioritura')?.value,'Giugno, Luglio');
@@ -651,9 +673,11 @@ Deno.test('nuova bozza invia botanica richiesta e verifica tutti i metafield pri
 
 for(const failure of ['missingRemoteMetafield','metafieldUserError'] as const)Deno.test('errore metafield impedisce successo globale e seconda create: '+failure,()=>withFlags(async()=>{
   const s=simulation({short:'Sintesi verificata.',[failure]:true});
-  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','sync'],fieldKeys:['short_description']}};
+  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','sync'],fieldKeys:['title','description','short_description']}};
   const command={action:'create_shopify_draft',operationId:id,confirm:true};
-  await assertRejects(()=>handleOperational(s.db,author,command,s.shopify));
+  const error=await assertRejects(()=>handleOperational(s.db,author,command,s.shopify),OperationalError);
+  assertEquals((error.details?.metafieldVerification as {state:string}[]).map(row=>row.state),
+    [failure==='metafieldUserError'?'REJECTED':'NOT_VERIFIED']);
   assertEquals(s.completions,0); assertEquals(s.op.state,'NEEDS_RECONCILIATION');
   await assertRejects(()=>handleOperational(s.db,author,command,s.shopify));
   assertEquals(s.mutations,1);
@@ -662,17 +686,17 @@ for(const failure of ['missingRemoteMetafield','metafieldUserError'] as const)De
 Deno.test('Editor senza field scope non contatta Shopify per i nuovi metafield',()=>withFlags(async()=>{
   const s=simulation({botanical:{nome_botanico:'Specie sintetica'}});
   let reads=0;
-  await assertRejects(()=>handleOperational(s.db,actor,{action:'create_shopify_draft',operationId:id,confirm:true},async <T>(q:string,v:Record<string,unknown>)=>{reads++;return s.shopify<T>(q,v);}));
+  await assertRejects(()=>handleOperational(s.db,actor,{action:'create_shopify_draft',operationId:id,confirm:true},async <T>(q:string,v:Record<string,unknown> = {})=>{reads++;return s.shopify<T>(q,v);}));
   assertEquals(reads,0); assertEquals(s.mutations,0);
 }));
 
 Deno.test('timeout metafield: recovery non richiede nuovo grant sync o definizioni live e non ricrea',()=>withFlags(async()=>{
   const s=simulation({timeout:true,botanical:{nome_botanico:'Specie sintetica',key_features:['Sempreverde']}});
-  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','sync'],fieldKeys:['nome_botanico','key_features']}};
+  const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','sync'],fieldKeys:['title','description','nome_botanico','key_features']}};
   await assertRejects(()=>handleOperational(s.db,author,{action:'create_shopify_draft',operationId:id,confirm:true},s.shopify));
   assertEquals(s.op.state,'NEEDS_RECONCILIATION');assertEquals(s.mutations,1);
   const recoveryAuthor={...actor,catalogApproval:{action:'recover_shopify_draft',target:'recovery:'+id,before:{}}};
-  const result=await handleOperational(s.db,recoveryAuthor,{action:'recover_shopify_draft',operationId:id,confirm:true},async <T>(q:string,v:Record<string,unknown>)=>{
+  const result=await handleOperational(s.db,recoveryAuthor,{action:'recover_shopify_draft',operationId:id,confirm:true},async <T>(q:string,v:Record<string,unknown> = {})=>{
     if(q.includes('AdminDraftMetafieldDefinitions'))throw Error('Nessuna nuova definizione può bloccare una sola rilettura');
     return s.shopify<T>(q,v);
   }) as {metafieldVerification:{fieldKey:string;state:string}[]};
@@ -682,10 +706,207 @@ Deno.test('timeout metafield: recovery non richiede nuovo grant sync o definizio
 Deno.test('nuova bozza salva e rilegge tutti i campi Admin; salvataggio parziale non dichiara successo',()=>withFlags(async()=>{
   for(const missingAdminField of [false,true]){
     const s=simulation({botanical:{nome_botanico:'Specie sintetica'},missingAdminField});
-    const author={...actor,catalogApproval:{action:'save_new_product',target:'new-sku:qa-001',before:{}}};
+    const author={...actor,catalogGrant:{enabled:true,capabilities:['drafts','edit'],fieldKeys:['title','description','nome_botanico']},catalogApproval:{action:'save_new_product',target:'new-sku:qa-001',before:{}}};
     const run=()=>handleOperational(s.db,author,{action:'save_new_product',draft:s.op.payload,idempotencyKey:id,confirm:true},s.shopify);
     if(missingAdminField)await assertRejects(run);
     else assertEquals((await run() as {adminFieldVerification:{fieldKey:string}[]}).adminFieldVerification.map(field=>field.fieldKey),['title','description','nome_botanico']);
     assertEquals(s.mutations,0);
+  }
+}));
+
+Deno.test('commit locale seguito da rilettura interrotta: due retry leggono lo stesso prodotto e la stessa operazione', () => withFlags(async () => {
+  const options = {missingAdminField:true};
+  const s = simulation(options);
+  const command = {action:'save_new_product', draft:s.op.payload, idempotencyKey:id, confirm:true};
+  const approval = {action:'save_new_product', target:'new-sku:qa-001', before:{}};
+  await assertRejects(() => handleOperational(s.db, {...actor, catalogApproval:approval}, command, s.shopify));
+  assertEquals(s.saves, 1);
+  options.missingAdminField = false;
+  const recover = (request = command) => handleOperational(s.db, {...actor, catalogApproval:{...approval, recoverSavedDraft:true}}, request, () => { throw Error('Shopify non previsto'); });
+  const [first, second] = await Promise.all([recover(), recover()]);
+  assertEquals(first, second);
+  assertEquals((first as {result:unknown}).result, {operationId:id, productId:s.op.product_id, state:'LOCAL_DRAFT', replayed:true});
+  await assertRejects(() => recover({...command, draft:{...command.draft, title:'Altra versione'}}));
+  assertEquals(s.saves, 1);
+  assertEquals(s.mutations, 0);
+}));
+
+Deno.test('creazione, due recovery e una rilettura tardiva convergono sulla stessa VERIFIED_DRAFT', () => withFlags(async () => {
+  const s = simulation({botanical:{nome_botanico:'Specie sintetica'}});
+  const author = {...actor, catalogGrant:{enabled:true, capabilities:['drafts','sync'],fieldKeys:['title','description','nome_botanico']}};
+  const recover = {...actor, catalogApproval:{action:'recover_shopify_draft',target:'recovery:'+id,before:{}}};
+  const entered = Promise.withResolvers<void>();
+  const release = Promise.withResolvers<void>();
+  const creating = handleOperational(s.db, author, {action:'create_shopify_draft',operationId:id,confirm:true}, async (query, vars = {}) => {
+    if (query.includes('AdminVerifyDraftMetafields')) {
+      entered.resolve();
+      await release.promise;
+      throw Error('Rilettura interrotta');
+    }
+    return s.shopify(query,vars);
+  });
+  await entered.promise;
+  const command = {action:'recover_shopify_draft',operationId:id,confirm:true};
+  await Promise.all([handleOperational(s.db, recover, command, s.shopify),handleOperational(s.db, recover, command, s.shopify)]);
+  assertEquals(s.op.state,'VERIFIED_DRAFT');
+  release.resolve();
+  await assertRejects(() => creating);
+  assertEquals(s.op.state,'VERIFIED_DRAFT');
+  assertEquals(s.mutations,1);
+}));
+
+Deno.test('editor con grant parziale: verifica edit locale e sync remota per ogni campo botanico', () => withFlags(async () => {
+  const values = {nome_botanico:'Sintetico',nome_comune:'Test',difficolta_di_coltivazione:'Media',periodo_di_fioritura:['Febbraio','Maggio'],periodo_di_raccolta:['Gennaio'],periodo_di_messa_a_dimora:['Marzo'],periodo_ottimale_di_potatura:['Aprile'],faq:[{question:'Q?',answer:'A.'}],key_benefits:['Uno'],key_features:['Due']};
+  for (const [fieldKey,value] of Object.entries(values)) {
+    const s = simulation({botanical:{[fieldKey]:value}});
+    for (const action of ['save_new_product','create_shopify_draft']) {
+      const local = action === 'save_new_product';
+      const subject = {...actor,catalogApproval:{action,target:local?'new-sku:qa-001':id,before:{}}};
+      const command = local ? {action,draft:s.op.payload,idempotencyKey:id,confirm:true} : {action,operationId:id,confirm:true};
+      const error = await assertRejects(() => handleOperational(s.db,subject,command,() => {throw Error('Shopify inatteso');}), OperationalError);
+      assertEquals(error.code,'FORBIDDEN',fieldKey);
+      assertEquals(s.saves,0);
+      assertEquals(s.mutations,0);
+    }
+  }
+}));
+
+Deno.test('bozza storica: conferma dei mesi legata ad autore, operazione e versione senza create', () => withFlags(async () => {
+  const key = 'periodo_di_fioritura';
+  const s = simulation({botanical:{[key]:['Febbraio','Maggio','Novembre']}});
+  delete s.op.payload.botanicalConfirmedKeys;
+  const subject = {...actor,catalogGrant:{enabled:true,capabilities:['drafts','edit'],fieldKeys:[key]},catalogApproval:{action:'save_new_product',target:'draft-botany:'+id,before:{}}};
+  const command = {action:'save_new_product',operationId:id,expectedHash:s.op.payload_hash,botanicalConfirmedKeys:[key],confirm:true};
+  await assertRejects(() => handleOperational(s.db,subject,{...command, botanicalConfirmedKeys:[]},s.shopify));
+  await assertRejects(() => handleOperational(s.db,subject,{...command, expectedHash:'superato'},s.shopify));
+  await assertRejects(() => handleOperational(s.db,{...subject,userId:'altro-editor'},command,s.shopify));
+  assertEquals(await handleOperational(s.db,subject,command,s.shopify),{ok:true,botanicalReview:{operationId:id,payloadHash:s.op.payload_hash}});
+  assertEquals(s.op.state,'LOCAL_DRAFT');
+  assertEquals(s.op.payload.botanicalConfirmedKeys,undefined);
+  assertEquals(s.saves,0);
+  assertEquals(s.mutations,0);
+}));
+
+Deno.test('API completa: prepare, claim, commit, perdita di rilettura e recupero con la chiave originale scaduta', () => withFlags(async () => {
+  const options = {missingAdminField:true};
+  const s = simulation(options);
+  const subject:AuthContext = {...actor, catalogApproval:undefined};
+  const action = 'save_new_product';
+  const command = {action, draft:s.op.payload, idempotencyKey:id};
+  let approval:Record<string,unknown>|undefined;
+  let claims = 0;
+  const db = {
+    from(table:string) {
+      if (table !== 'admin_catalog_approvals') return s.db.from(table);
+      const filters: [string, unknown[]][] = [];
+      let update:Record<string,unknown>|undefined;
+      const matches = () => approval && filters.every(([key,values]) => values.includes(approval![key]));
+      const chain = {
+        select() {return chain;},
+        eq(key:string,value:unknown) {filters.push([key,[value]]);return chain;},
+        in(key:string,values:unknown[]) {filters.push([key,values]);return chain;},
+        maybeSingle() {return Promise.resolve({data:matches()?{...approval}:null,error:null});},
+        single() {return chain.maybeSingle();},
+        insert(row:Record<string,unknown>) {assertEquals(approval,undefined);approval={...row,id,state:'PENDING'};return chain;},
+        update(row:Record<string,unknown>) {update=row;return chain;},
+        then(resolve:(response:unknown)=>void) {if(matches() && update)Object.assign(approval!,update);resolve({error:null});},
+      };
+      return chain;
+    },
+    rpc(name:string) {
+      assertEquals(name,'admin_claim_catalog_approval');
+      claims++;
+      assertEquals(approval?.state,'PENDING');
+      approval!.state='IN_FLIGHT';
+      return Promise.resolve({data:true,error:null});
+    },
+  } as unknown as SupabaseClient;
+  const call = async (request=command) => {
+    const {approvalId} = await prepareCatalogApproval(db,subject,{command:request,confirm:true});
+    const body = {...request,approvalId,confirm:true};
+    return withCatalogApproval(db,subject,body,async () => Response.json(await handleOperational(s.db,subject,body,s.shopify)));
+  };
+  await assertRejects(call);
+  assertEquals(approval?.state,'REVIEW_REQUIRED');
+  assertEquals(s.saves,1);
+  approval!.expires_at='2000-01-01T00:00:00Z';
+  options.missingAdminField=false;
+  await assertRejects(()=>call({...command,draft:{...command.draft,title:'Altra versione'}}));
+  const recovered=await (await call()).json();
+  assertEquals(recovered.result.operationId,id);
+  assertEquals(approval?.state,'COMPLETE');
+  assertEquals((await (await call()).json()).result.productId,s.op.product_id);
+  assertEquals(claims,1);
+  assertEquals(s.saves,1);
+  assertEquals(s.mutations,0);
+}));
+
+Deno.test('solo una ricevuta COMPLETE della stessa versione sblocca la create separata di una LOCAL_DRAFT storica', () => withFlags(async () => {
+  const command={action:'create_shopify_draft',operationId:id,confirm:true};
+  const subject={...actor,catalogGrant:{enabled:true,capabilities:['drafts','sync'],fieldKeys:['title','description','nome_botanico']}};
+  for (const botanicalReceipt of [false,true]) {
+    const s=simulation({botanical:{nome_botanico:'Specie sintetica'},botanicalReceipt});
+    delete s.op.payload.botanicalConfirmedKeys;
+    if (botanicalReceipt) {
+      const result=await handleOperational(s.db,subject,command,s.shopify) as {metafieldVerification:{state:string}[]};
+      assertEquals(result.metafieldVerification.map(row=>row.state),['VERIFIED']);
+      assertEquals(s.op.state,'VERIFIED_DRAFT');
+      const replay=await handleOperational(s.db,subject,command,s.shopify) as {metafieldVerification?:unknown};
+      assertEquals(replay.metafieldVerification,undefined);
+    } else await assertRejects(()=>handleOperational(s.db,subject,command,s.shopify),OperationalError,'Conferma la fonte');
+    assertEquals(s.mutations,botanicalReceipt?1:0);
+    assertEquals(s.saves,0);
+  }
+}));
+
+Deno.test('due create concorrenti sulla stessa versione: una sola claim esegue la mutation DRAFT', () => withFlags(async () => {
+  const s=simulation();
+  const barrier=Promise.withResolvers<void>();
+  let arrivals=0;
+  const cmd={action:'create_shopify_draft',operationId:id,confirm:true};
+  const run=()=>handleOperational(s.db,actor,cmd,async(q,v={})=>{
+    if(q.includes('DraftCurrency')) {
+      if (++arrivals===2) barrier.resolve();
+      await barrier.promise;
+    }
+    return s.shopify(q,v);
+  });
+  const outcomes=await Promise.allSettled([run(),run()]);
+  assertEquals(outcomes.filter(result=>result.status==='fulfilled').length,1);
+  assertEquals(s.mutations,1);
+  assertEquals(s.op.state,'VERIFIED_DRAFT');
+}));
+
+Deno.test('fallimento tardivo della versione precedente non modifica una versione diversa ancora in corso', () => withFlags(async () => {
+  const s=simulation();
+  const entered=Promise.withResolvers<void>();
+  const release=Promise.withResolvers<void>();
+  const sending=handleOperational(s.db,actor,{action:'create_shopify_draft',operationId:id,confirm:true},async(q,v={})=>{
+    if(q.includes('query VerifyDraft')) {
+      entered.resolve();
+      await release.promise;
+      throw Error('Connessione interrotta');
+    }
+    return s.shopify(q,v);
+  });
+  await entered.promise;
+  s.op.payload_hash='synthetic-other-version';
+  release.resolve();
+  await assertRejects(()=>sending);
+  assertEquals(s.op.state,'IN_FLIGHT');
+  assertEquals(s.mutations,1);
+}));
+
+Deno.test('cambio versione durante il preflight o la rilettura riuscita ferma la transizione successiva', () => withFlags(async () => {
+  for(const stage of ['DraftCurrency','query VerifyDraft']) {
+    const s=simulation();
+    const sending=()=>handleOperational(s.db,actor,{action:'create_shopify_draft',operationId:id,confirm:true},async <T>(q:string,v:Record<string,unknown>={})=>{
+      const result=await s.shopify<T>(q,v);
+      if(q.includes(stage)) s.op.payload_hash='nuova-versione';
+      return result;
+    });
+    await assertRejects(sending,OperationalError,'Versione o stato');
+    assertEquals(s.completions,0);
+    assertEquals(s.mutations,stage==='DraftCurrency'?0:1);
   }
 }));

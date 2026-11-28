@@ -1,3 +1,37 @@
+# Consegna finale operativa — 28 novembre 2026
+
+- [x] Product Editor V3: pubblicazione/ricevute riconciliate, checksum rollback intatti, preview autenticata iniziale PASS; gate runtime e rollback operativo documentato, nessun rilascio.
+- [x] Redirect #82: CSV/pacchetti pilota e completo recuperati, 60 HTTP e 16 PDP DOM verificati; istruzione Cloudflare consegnata, nessuna attivazione senza accesso zona.
+- [x] Archivio #84: backend/schema assente verificati, importatore esaminato e verbale privato unico predisposto; compatibilità DDL/canale import e backup/trattamento non approvati, nessuna migrazione/import.
+- [x] Marco: ruoli/capability letti senza PII, preparata elevazione solo additiva; vecchio script revocante escluso, domanda nominativa aperta, nessun cambio reale.
+- [x] Precisazione backup 13:20 UTC: documentazione ufficiale verificata, account Auth inclusi nel perimetro documentato; granularità ACL e restore reale non attestati. Il titolare conferma nessun ripristino; nessun blocco esteso agli altri filoni.
+- [x] Autorizzazione Marco 13:21 UTC registrata; primo riscontro Auth aggregato confermato, seconda prova non disponibile negli incarichi. Richiesto documento preciso invito staff/onboarding indipendente con Marco ed email; nessuna promozione.
+- [x] Schermata backup letta: ultimo punto 2026-11-28 05:31:17 UTC, nessun restore eseguito; documentata copertura Auth e granularità ACL/prova recupero ancora mancanti.
+- [x] Aggiornati documentazione/guide e tabella finale distinguendo risultati reali e simulati; PENDING_CLIENT_ACCEPTANCE e SAL 57,75% invariati.
+- [ ] Rilasciare editor — attende attestazione gestore runtime/rollback e GO produttivo.
+- [ ] Attivare redirect — attende gestore autenticato Cloudflare, verifica precedenza e ricevuta pilota.
+- [ ] Archivio reale — attende DDL/canale import compatibili, ricevuta recuperabilità e verbale privacy/fonte approvati.
+- [ ] Elevare Marco ed eventuale singolo grant Curiosità — attende due attestazioni indipendenti e autorizzazione riferita all'account esatto.
+
+# Consegna controllata Admin V2 — 28 novembre 2026
+
+- [x] Identificare frontend pubblico per asset e baseline documentate delle sole product-admin-api / product-admin-ai, distinguendo sorgenti da runtime.
+- [x] Preparare archivi e manifest ricostruibili, verificare il restore offline e controlli tipi dei quattro pacchetti senza distribuire nulla.
+- [x] Verificare il candidato 14cd12a e il percorso browser simulato anteprima → modifica → approvazione → bozza → riapertura; 737 Node + 141 Deno + 46 browser PASS.
+- [x] Verificare invarianti catalogo/checkout, mapping degli otto contenuti e predisporre una sola bozza tecnica senza crearla; grant reali Curiosità assenti, nessun permesso modificato.
+- [x] Aggiornare verbale e checklist con un unico NO-GO e azioni minime; nessun A/B, permesso, deploy, Publish o dato reale modificato. [Consegna](docs/release/admin-v2-consegna-2026-11-28/README.md)
+- [ ] Acquisire attestazione revisioni attive/artefatti e rollback provider — strumenti senza export runtime; unica azione di sblocco tecnico prima di chiedere autorizzazione al rilascio.
+
+# Admin V2 — candidato Product Editor V3 (27 novembre 2026)
+
+- [x] Deploy correttivo autorizzato della sola product-admin-ai da 874f2d3: manifest/ricevuta conservati, auth e log PASS, 43 regressioni offline PASS; zero Gemini, rollback non necessario. [Verbale](docs/release/DEPLOY-CORRETTIVO-PRODUCT-ADMIN-AI-V3-874f2d3-2026-11-27.md)
+- [x] Preflight candidato 874f2d3: compatibilità, autenticazione non generativa, 850 prove offline, rollback sorgente e piano retest; GO condizionato, nessun deploy/Gemini. [Rapporto](docs/release/PREFLIGHT-RETEST-GEMINI-V3-874f2d3-2026-11-27.md)
+- [x] Separare il candidato dalla #78 e derivare la V3 dalla head della #80, che dipende dalla #79.
+- [x] Collaudare il percorso UI, le conferme per campo, la copertura Yucca e la riapertura di una singola bozza interna con provider simulato.
+- [ ] UAT cliente sul percorso V3 — richiede accettazione personale; nessun ulteriore confronto A/B autorizzato.
+- [ ] Verificare separatamente il modello reale @3 in ambiente autorizzato. Rilascio del frontend e della funzione AI da decidere dopo il collaudo.
+- [x] Integrare e verificare in isolamento la #78 nel candidato 14cd12a; rilascio reale ancora soggetto al gate rollback. **PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** [Verbale V3](docs/release/ai-editor-v3/README.md)
+
 # Admin V2 — metafield/publication audit (2026-11-26)
 
 - [x] Identify exact test product via canonical Admin link, operation and SKU; compare stored values and read source.

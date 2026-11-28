@@ -10,11 +10,13 @@ export interface SourceFact {
 export interface FactOutcome extends SourceFact {
   status: FactStatus;
   headings: string[];
+  duplicateOf?: number;
 }
 
 export const normalize = (s: string) =>
   s.toLocaleLowerCase('it').normalize('NFD').replace(/\p{M}/gu, '').replace(/\*\*/g, '').replace(/[’']/g, ' ')
     .replace(/\s+/g, ' ').trim();
+export const countEditorialWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 const absence =
   /\b(?:senza|priv[oaie] di|sprovvist[oaie] di|assenza (?:di|del)|non (?:ha|presenta|possiede|sviluppa)(?: (?:un|il))?)\s+(?:un\s+)?fust[oi]\b/;
 const qualified =
@@ -26,6 +28,33 @@ function frequency(s:string) {
   return '';
 }
 const commercial = /\b(?:prezz\w*|sku|disponibil\w*|inventario|stock|giacenz\w*|euro)\b|€/;
+// Only a complete assertion about growth habit can establish this equivalence.
+// In particular, "sviluppo verticale dello stelo" describes a different subject.
+const uprightHabit = /^(?:(?:il|lo) )?(?:portamento|sviluppo)(?: della pianta)? (?:e )?(?:eretto|verticale)$/;
+function hasUprightHabit(text: string) {
+  return normalize(text).split(/[.!?;\n]/).some(sentence => {
+    if (frequency(sentence) || growthContext(sentence) ||
+      /\b(?:non|senza|mai|solo|soltanto|se|salvo|tranne|purche|quando|esclusivamente|durante)\b/.test(sentence)) return false;
+    const clause = sentence.split(':')[0].trim();
+    if (uprightHabit.test(clause)) return true;
+    const match = /\bportamento(?: della pianta)? (?:e )?(?:eretto|verticale)\b/.exec(clause);
+    if (!match || !/^(?:$|,| e )/.test(clause.slice(match.index + match[0].length))) return false;
+    return !/\b(?:fogli\w*|fior[ei]|stel[oi]|coroll[ae]|ram[oi]|radic[ei])\b/.test(clause.slice(0, match.index));
+  });
+}
+// Match only standalone floral predicates. Qualifiers, negations and other organs
+// must continue through the original botanical checks.
+const hangingFlowers = /^(?:i )?fiori (?:(?:sono )?penduli|ricadono verso il basso)$/;
+function statesHangingFlowers(text: string) {
+  return normalize(text).split(/[.!?;\n]/).some(clause => hangingFlowers.test(clause.trim()));
+}
+function hangingOrgans(text: string): string[] {
+  return text.split(/[.,;:!?\n]/).flatMap(clause => {
+    const context = clause.match(/\b(?:se|solo|salvo|senza|non|mai|quando|durante)\b/g) ?? [];
+    return [...clause.matchAll(/\b(fior[ei]|fogli[ae]|coroll[ae]|stel[oi]|ram[oi]|radic[ei]|frutt[oi]) (?:non )?(?:(?:sono|e|si presenta|si presentano) )?(?:pendul[oaie]|ricad(?:e|ono) verso il basso)\b/g)]
+      .map(match => [match[1].slice(0,-1),frequency(clause),...context].join('|'));
+  });
+}
 const uncertain =
   /\b(?:forse|ipotetic\w*|da verificare|da confermare|non (?:e |sono )?(?:verificat\w*|conferm\w*|attest\w*)|potrebbe)\b/;
 const families = (s: string): string[] => s.match(/\b[a-z]+aceae\b/g) ?? [];
@@ -331,6 +360,36 @@ function propertyError(sentence: string, sources: SourceFact[]) {
   const anchors = sources.filter((a) => !a.exclusion);
   if (!anchors.length) return 'La fonte richiede verifica o correzione.';
   const evidence = normalize(anchors.map((a) => a.text).join(' '));
+  const hanging = hangingOrgans(s);
+  if (hanging.length) {
+    const evidence = anchors.flatMap(a => hangingOrgans(normalize(a.text)));
+    if (!hanging.every(claim => evidence.includes(claim))) return 'Orientamento non confermato per l’organo indicato.';
+  }
+  if (hasUprightHabit(sentence) && !anchors.some(a => hasUprightHabit(a.text))) {
+    return 'Portamento eretto della pianta non confermato.';
+  }
+  // Direct predicates include "il portamento dello stelo è verticale" and
+  // "le foglie hanno un portamento eretto". Neither is evidence of plant habit.
+  const organDirection = /\b(fogl(?:ia|ie)|fior[ei]|stel[oi]|radic[ei]) (?:(?:sono|e) |(?:ha|hanno) (?:un )?(?:portamento|sviluppo) )?(?:vertical[ei]|erett[oaie])\b/;
+  const direction = organDirection.exec(s);
+  if (direction && !anchors.some(a => {
+    const atom = normalize(a.text);
+    return organDirection.exec(atom)?.[1].slice(0, 3) === direction[1].slice(0, 3) && !negativeObjects(atom).length;
+  })) return 'Orientamento non confermato per l’organo indicato.';
+  // A subjective adjective needs evidence about the same organ. Do not transfer
+  // an assessment of the foliage to the flowers just because both rows are cited.
+  if (/\belegant[ei]\b/.test(s)) {
+    const subject = (value: string) => {
+      const organs = [...value.matchAll(/\b(fior[ei]|coroll[ae]|fogli[ae]|fogliame|stel[oi]|piant[ae]|portamento)\b/g)]
+        .map(m => /^(fior|coroll)/.test(m[1]) ? 'fiore' : m[1].slice(0, 4));
+      return new Set(organs).size === 1 ? organs[0] : undefined;
+    };
+    const organ = subject(s);
+    if (!organ || !anchors.some(a => {
+      const atom = normalize(a.text);
+      return subject(atom) === organ && /\belegant[ei]\b/.test(atom) && !negativeObjects(atom).length;
+    })) return 'Giudizio estetico non confermato per il soggetto indicato.';
+  }
   if (commercial.test(s)) return 'Dati commerciali esclusi dalla generazione.';
   if (families(s).some((f) => !families(evidence).includes(f))) return 'Famiglia botanica non confermata.';
   for (const m of measures(s)) {
@@ -408,6 +467,7 @@ export function unsupportedSection(text: string, sources: SourceFact[]) {
   for (const sentence of text.split(/(?<=[.!?;])\s+|\n+/).filter(Boolean)) {
     const message = propertyError(sentence, sources);
     if (message) return message;
+    if (uprightHabit.test(normalize(sentence).replace(/[.!?]$/, ''))) continue;
     const words = terms(sentence);
     if (/^(?:caratteristiche(?: principali| confermate)?|dettagli(?: botanici)?):$/i.test(sentence.trim())) {
       continue;
@@ -424,25 +484,78 @@ export function unsupportedSection(text: string, sources: SourceFact[]) {
     }
   }
 }
+// Canonicalise equivalent expressions only for coverage; property validation still runs on original prose.
+function coverageTerms(text: string) {
+  const canonical = normalize(text).replace(/(?:^|(?<=[.!?;:\n]))[^.!?;:\n]+/g,
+    clause => uprightHabit.test(clause.trim()) ? ' portamento eretto ' :
+      hangingFlowers.test(clause.trim()) ? ' fiori penduli ' : clause);
+  return terms(canonical
+    .replace(/\b(?:steli?|stelo|ass[ei]) floreal[ei]\b/g, 'stelo floreale')
+    .replace(/\b(?:produce|produrre)\b/g, 'produce')
+    .replace(/\b(?:di altezza|in altezza)\b/g, ' ')
+    .replace(/\b(?:possono arrivare|puo arrivare|raggiungono|sviluppa)\b/g, ' ')
+    .replace(/(\d)\s*(?:metri|metro|m)\b/g, '$1 metri'));
+}
+
+// A salvaged sentence must stand on one source atom. Generic word overlap that
+// suffices for reviewing a full paragraph does not justify keeping a fragment.
+export function independentlyGrounded(sentence: string, cited: SourceFact[]) {
+  const words = coverageTerms(sentence);
+  const subjects = (s: string) => new Set((normalize(s).match(/\b(?:portamento|sviluppo|fior[ei]|coroll[ae]|fogli[ae]|fogliame|stel[oi]|pianta|terreno|substrato|suolo|arbusto)\b/g) ?? [])
+    .map(v => /^(?:terreno|substrato|suolo)$/.test(v) ? 'terreno' : v.slice(0, 4)));
+  const stated = [...subjects(sentence)];
+  return words.length > 0 && cited.some(f => {
+    if (f.exclusion || unsupportedSection(sentence, [f])) return false;
+    if (hasUprightHabit(sentence) && hasUprightHabit(f.text)) return true;
+    if (hangingFlowers.test(normalize(sentence).replace(/[.!?]$/, '')) && statesHangingFlowers(f.text)) return true;
+    const sourceSubjects = subjects(f.text);
+    if (stated.length !== 1 || sourceSubjects.size !== 1 || !sourceSubjects.has(stated[0])) return false;
+    const source = new Set(coverageTerms(f.text));
+    return words.every(w => source.has(w));
+  });
+}
+
+export const factIdentity = (text: string) =>
+  normalize(text).replace(/^si tratta di un(?:a)? /,'').replace(/[.!;]+$/, '');
+
 export function factCoverage(facts: SourceFact[], sections: EditorialSection[]): FactOutcome[] {
+  const validated = sections.filter(s => !unsupportedSection(s.text, facts.filter(f => s.factIndices.includes(f.row))));
+  const first = new Map<string, number>();
   return facts.map((fact) => {
-    const cited = sections.filter((s) => s.factIndices.includes(fact.row));
-    const source = normalize(fact.text).replace(/[.!;]+$/, '');
-    const exact = cited.filter((s) => normalize(s.text).includes(source));
-    const words = terms(source);
-    const matches = cited.filter((s) => words.some((w) => terms(s.text).includes(w)));
+    const identity = factIdentity(fact.text);
+    const duplicateOf = first.get(identity);
+    if (duplicateOf === undefined) first.set(identity, fact.row);
+    const citationRows = facts.filter(f => !f.exclusion && factIdentity(f.text) === identity).map(f => f.row);
+    const cited = validated.filter(s => s.factIndices.some(i => citationRows.includes(i)));
+    const source = identity;
+    const relevant = hasUprightHabit(source) ? cited.filter(s => hasUprightHabit(s.text)) : cited;
+    const exact = relevant.filter((s) => normalize(s.text).includes(source));
+    const words = coverageTerms(source);
+    const matches = relevant.filter((s) => words.some((w) => coverageTerms(s.text).includes(w)));
     const material = normalize(matches.map((s) => s.text).join(' '));
-    const tokens = new Set(terms(material));
-    const guarded = protectedClaims.every((t) => !hasClaim(source, t) || hasClaim(material, t)) &&
+    const tokens = new Set(coverageTerms(material));
+    const flowerShapeAndColor = /\bfior[ei]\b/.test(source) && /bianco[ -]crema/.test(source) &&
+      /campan(?:a|ulat)/.test(source);
+    // Never attach a leaf's colour/shape to flowers merely because both appear in the same paragraph.
+    const floralEvidence = !flowerShapeAndColor || matches.some(section => {
+      const phrases = normalize(section.text).split(/[.!?;\n]/);
+      const floral = (v: string) => /\b(?:fior[ei]|coroll[ae])\b/.test(v) && !/\b(?:fogli[ae]|fogliame)\b/.test(v);
+      const descriptions = phrases.filter((v,i) => floral(v) ||
+        (i > 0 && /^\s*(?:ognuno|ciascuno)\b/.test(v) && floral(phrases[i-1]) && !/\bfogli/.test(v)));
+      return descriptions.some(v => /bianco[ -]crema/.test(v)) && descriptions.some(v => /campan(?:a|ulat)/.test(v));
+    });
+    const guarded = floralEvidence && protectedClaims.every((t) => !hasClaim(source, t) || hasClaim(material, t)) &&
       measures(source).every((m) =>
-        measures(material).some((c) => c.subject === m.subject && c.value === m.value)
+        measures(material).some((c) => c.subject === m.subject && c.value === m.value && c.context === m.context)
       ) &&
       (!absence.test(source) || absence.test(material) || /\bacaule\b/.test(material)) &&
       (!qualified.test(source) || qualified.test(material));
-    const equivalent = words.length > 0 && guarded && words.every((w) => tokens.has(w));
+    const equivalent = words.length > 0 && guarded && (words.every((w) => tokens.has(w)) ||
+      (uprightHabit.test(source) && relevant.length > 0));
     const status = fact.exclusion ?? (exact.length ? 'included' : equivalent ? 'equivalent' : 'uncovered');
     return {
       ...fact,
+      duplicateOf,
       status,
       headings: status === 'included'
         ? exact.map((s) => s.heading)

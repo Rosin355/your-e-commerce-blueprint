@@ -1,5 +1,13 @@
 # Step 1 — UX di verifica
 
+## Stato operativo · 28 novembre 2026
+
+La V3 iniziale è visibile nell'anteprima autenticata, non sul frontend pubblico. Conservare l'interfaccia esistente: nessun nuovo sviluppo esplorativo. Le 254 parole, il confronto e la riapertura completa sono evidenze della fixture già collaudata, non una generazione reale corrente. Approvazione, bozza interna e DRAFT Shopify rimangono stati distinti. Curiosità autonoma non persistibile con i grant live attuali. Archivio clienti e Admin globale Marco non ancora rilasciati; non presentarli come disponibili. [Rapporto unico e UAT successiva](../release/CONSEGNA-FINALE-2026-11-28.md), PENDING_CLIENT_ACCEPTANCE, SAL 57,75%.
+
+## V3 · Anteprima cliente
+
+Il primo schermo contiene nome, fonte e generazione. Nel risultato si leggono insieme la quota di fatti coperti e i problemi aperti. Le azioni di sezione sono **Modifica** e **Modifica con AI**. Il confronto prima/dopo richiede una scelta esplicita. Su tablet i controlli vanno a capo e il testo resta in una colonna. Conservare i componenti pubblici di titolo, breve, descrizione, punti elenco, curiosità e FAQ. Le differenze della galleria e dei contenuti commerciali sono indicate accanto all’anteprima. [Catture su tablet](../release/ai-editor-v3/README.md)
+
 ## Candidato per Marco · 25 novembre 2026
 
 Nel percorso principale contano i contenuti e l’esito dell’operazione. La vista raccoglie nome, foto, prezzi/formati, testi, SEO e tag. Il pannello tecnico è chiuso alla prima apertura. Nella proposta editoriale, confrontare valore attuale, suggerimento, origine ed eventuali dati mancanti. Verde per preparare/salvare, blu per Shopify, ambra per i controlli, grigio per annullare, rosso per errori ed eliminazione. L’azione distruttiva mostra l’effetto e richiede la digitazione esatta. Verificare con Marco la comprensione delle diciture «Solo Admin», «Admin e Shopify», «Fuori vendita» e «esito da riconciliare». Restano aperti Safari desktop e iPhone. [Collaudo e ricevute](../release/ADMIN-V2-CONSEGNA-MARCO-2026-11-25.md)

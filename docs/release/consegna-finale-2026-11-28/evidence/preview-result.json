@@ -1,0 +1,48 @@
+{
+  "preview_url": "/admin/products/new",
+  "controls": {
+    "Anteprima cliente": true,
+    "Genera scheda completa con AI": true,
+    "Editor avanzato": true
+  },
+  "advanced_save_visible": false,
+  "backend": {
+    "roles": [
+      "admin",
+      "editor"
+    ],
+    "backendVersion": "admin-editor-20261125",
+    "supportsDistinctDescriptions": true,
+    "supportsSheetEvidence": true,
+    "supportsManualDraftCuriosity": null,
+    "canUseAi": true,
+    "operationalCapabilities": {
+      "drafts": true,
+      "draftShopify": true,
+      "categories": true,
+      "approvalConfigured": true
+    }
+  },
+  "calls": [
+    {
+      "action": "get_admin_context",
+      "status": 200
+    },
+    {
+      "action": "get_field_definitions",
+      "status": 200
+    },
+    {
+      "action": "list_editorial_collections",
+      "status": 200
+    },
+    {
+      "action": "catalog_categories",
+      "status": 200
+    }
+  ],
+  "blocked": [
+    "list_catalog_media"
+  ],
+  "page_errors": []
+}

@@ -1,6 +1,6 @@
 import type { EditorialSection, Heading } from '../../../supabase/functions/_shared/admin-ai-sections';
 import type { FactOutcome } from '../../../supabase/functions/_shared/admin-ai-evidence';
-import type { DescriptionIssue } from '../../../supabase/functions/_shared/admin-ai-description';
+import type { DescriptionIssue, GenerationAudit } from '../../../supabase/functions/_shared/admin-ai-description';
 import type { EditorialKey, EditorialProposal } from '../../../supabase/functions/_shared/admin-draft-editorial';
 // F6 — Unico canale dati dell'Admin: la Edge Function product-admin-api.
 // Il browser non interroga mai direttamente le tabelle del catalogo.
@@ -17,6 +17,7 @@ export interface AdminContext {
   lifecycleActions?: string[];
   supportsDistinctDescriptions?: boolean;
   supportsSheetEvidence?: boolean;
+  supportsManualDraftCuriosity?: boolean;
   supportsCatalogSourceAndProductType?: boolean;
   canUseAi?: boolean;
   canUploadImages?: boolean;
@@ -303,7 +304,7 @@ export async function callCatalogCommand<T = unknown>(body: Record<string, unkno
     return await callAdminApi<T>({ ...command, approvalId: approval.approvalId, confirm: true });
   } catch (error) {
     // Recovery never creates remotely and may need a fresh confirmation after expiry.
-    if (body.action === 'recover_shopify_draft') catalogRequests.delete(fingerprint);
+    if (body.action === 'recover_shopify_draft' || (body.action === 'save_new_product' && body.operationId)) catalogRequests.delete(fingerprint);
     throw error;
   }
 }
@@ -388,6 +389,8 @@ interface EditorialReviewResponse {
   sections?: EditorialSection[];
   coverage?: FactOutcome[];
   promptVersion?: string;
+  sectionAudit?: {received: number; accepted: number; rejected: number; derived: number};
+  generationAudit?: GenerationAudit;
   descriptionIssues?: DescriptionIssue[];
   missingInformation?: string[];
 }
@@ -395,7 +398,8 @@ function hasDescriptionResult(result: EditorialReviewResponse & {source?: string
   return result.source === 'model' || (result.source === 'source_review' && result.value === '' &&
     result.sections?.length === 0 && Boolean(result.coverage?.length));
 }
-export async function suggestConfirmedField(input: { productName?: string; section?: Heading; fieldKey: string; facts: string[]; confirmed: boolean; requestKey: string }) {
+type ArticleOptions = {article?: true; revision?: import("../../../supabase/functions/_shared/admin-ai-revision").EditorialRevision};
+export async function suggestConfirmedField(input: ArticleOptions & { productName?: string; section?: Heading; fieldKey: string; facts: string[]; confirmed: boolean; requestKey: string }) {
   const result = await callAdminAiApi<EditorialReviewResponse & {ok:true;value:unknown;source?: 'model' | 'confirmed_facts' | 'source_review'}>({
     action: 'suggest_confirmed_field', ...input,
   });
@@ -405,7 +409,7 @@ export async function suggestConfirmedField(input: { productName?: string; secti
   return result;
 }
 
-export async function suggestDraftEditorial(input: {draftTitle: string; facts: string[]; requestKey: string}) {
+export async function suggestDraftEditorial(input: ArticleOptions & {draftTitle: string; facts: string[]; requestKey: string}) {
   const result = await callAdminAiApi<EditorialReviewResponse & {
     ok: boolean; value?: unknown; source?: 'model' | 'confirmed_facts' | 'source_review';
     descriptionError?: {code: string; message: string};
