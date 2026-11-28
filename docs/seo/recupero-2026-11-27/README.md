@@ -117,3 +117,11 @@ Passaggio successivo autorizzato: impostare il CNAME `www` come Proxied e verifi
 Gate imminente: prima controllare in browser `https://www.onlinegarden.it` -> `https://onlinegarden.it` senza errori, quindi collegare **solo** la route pilota `onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/*` al Worker preesistente `onlinegarden-301-redirects`. Testare la sorgente legacy con e senza UTM, verificare 301, destinazione PDP corretta, assenza di loop e stabilita' di home/catalogo/checkout. Solo in seguito valutare la route pilota `www` e l'estensione. L'esecuzione dei cambi DNS e route resta manuale sotto controllo del titolare. I 16 redirect prodotto **non** sono ancora attestati come attivi.
 
 Riferimento regole Worker: https://developers.cloudflare.com/workers/configuration/routing/routes/ .
+
+## Prima navigazione pilota Rosa Jasmina: destinazione confermata da operatore
+
+**28 novembre 2026.** Il titolare riferisce che il vecchio percorso Rosa Jasmina naviga alla PDP `https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=chatgpt.com`. Cio' conferma **solo la destinazione finale osservata nel browser**. Il parametro `utm_source=chatgpt.com` puo' essere stato aggiunto dalla piattaforma che ha aperto il link e non dimostra la conservazione di un UTM arbitrario; non e' stata attestata l'effettiva prima risposta HTTP `301` o il suo header `Location`. Un controllo automatico esterno di questa sessione non e' riuscito a recuperare la risposta HTTP, quindi non viene dichiarato PASS definitivo.
+
+Prossima prova senza modifiche: richiesta GET diretta al vecchio percorso con `utm_source=test301` digitato manualmente, oppure `curl -sS -o /dev/null -D - 'https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=test301'`. Richiedere `HTTP 301` e `Location` puntato alla PDP con `utm_source=test301`; controllare assenza di hop aggiuntivi e loop. Solo dopo questa evidenza considerare PASS il pilota apex, quindi verificare www con la sua route separata. Non estendere ancora alle 32 route del pacchetto completo.
+
+`PENDING_CLIENT_ACCEPTANCE`, SAL 57,75%.
