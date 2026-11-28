@@ -13,8 +13,11 @@ from urllib.parse import urlsplit
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--expect-active", action="store_true",
                     help="Exit nonzero unless all 16 redirects pass, for a fully approved rollout.")
+parser.add_argument("--pilot", action="store_true", help="Check only the first approved legacy path on both hosts.")
 args = parser.parse_args()
 rules = json.loads(Path("infra/seo/redirect-candidates.json").read_text())["rules"]
+if args.pilot:
+    rules = rules[:1]
 with open("docs/seo/LEGACY-URL-REDIRECT-MAP.csv", newline="") as stream:
     historical = list(csv.DictReader(stream))
 tasks = []

@@ -1,3 +1,7 @@
+## 28 novembre 2026 · Redirect WooCommerce
+
+**BLOCKED_INFRA · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Verificati 16 SKU/GID e 16 PDP, 272 risposte HTTP raccolte. Zero dei 16 redirect diretti attivi. Pronti [CSV, configurazione pilota/completa e rollback](seo/recupero-2026-11-27/README.md#28-novembre-2026--blocked_infra).
+
 ## 24/11/2026 — Admin V2 pubblicato (GO A + GO B)
 
 **Rilascio registrato da Lovable:** backend `product-admin-api` distribuito dal ramo isolato `codex/rilascio-admin-v2-isolato-20261124`; controlli post-deploy `OPTIONS 200`, anonimo `401`, letture Admin autenticate `200` secondo verbale. Frontend pubblicato su `onlinegarden.it` con asset `index-jqOemgjy.js`, sostituendo r2 `index-DSQ4UzGV.js`. Home, catalogo, `/admin`, `/account` e carrello fino al checkout Shopify verificati nel test di Lovable, **nessun ordine/addebito**. L'Admin autenticato e le 4 correzioni in produzione (creazione semplificata, SKU automatici, mesi indipendenti e AI) **non sono ancora stati verificati con Marco**. La revisione runtime Edge non è direttamente leggibile: rollback previsto mediante nuovo deploy dei sorgenti r2 `ca9050d`, mentre rollback frontend via Cronologia Lovable alla versione r2. **SAL 57,75% invariata.** [Verbale di rilascio](release/ADMIN-V2-MARCO-RELEASE-2026-11-24.md) · [Guida Marco](admin-v2/CLIENT-GUIDE.md). Cloudflare zona Active, ma Edge Certificate non ancora attestato Active; proxy e 301 separati.

@@ -21,3 +21,26 @@ Il [CSV Cloudflare](cloudflare-bulk.csv) comprende 32 sorgenti esatte senza sche
 1. Rieseguire baseline HTTP e controllo identità con catalogo aggiornato. Verificare fonte, ID, SKU, canonical, prima risposta, assenza di homepage, catene e loop. Generare la lista con `python3 infra/seo/prepara-bulk-recupero.py` dalla radice e confrontarla byte per byte.
 2. Eseguire `node infra/seo/check-redirect-candidates.mjs`. Il test locale copre 384 redirect simulati, percorsi protetti e manifest disattivato. Sui soli URL approvati prevedere prima un collaudo controllato. Con approvazione di tutte le righe usare `python3 infra/seo/check-redirect-http.py --expect-active`. Ogni primo salto deve dare 301 e Location attesa; ogni destinazione deve dare direttamente 200.
 3. Verificare query miste, sconosciute, slash, carrello, POST, host, TLS e disponibilità. Monitorare indicizzazione e segnalazioni Search Console. Sospendere la regola se cambiano identità o canonical o compaiono catene. Conservare la baseline e seguire il piano di ripristino del [gate infrastrutturale](../REDIRECT-301-RELEASE-GATE-2026-11-20.md).
+
+## 28 novembre 2026 · BLOCKED_INFRA
+
+Il ricontrollo ha trovato 16 prodotti Shopify ACTIVE con GID, handle e almeno uno SKU di variante concordante con la matrice Woo. Tutte le [16 PDP](schede-2026-11-28.json) danno 200 diretto, canonical esatto, H1 e JSON-LD Product coerenti con Shopify, senza noindex. Le [272 prime risposte HTTP](http-2026-11-28.csv) comprendono 136 risposte 200 e 136 risposte 301. Dieci letture inizialmente scadute sono state ripetute e sostituite con la risposta effettiva. Delle 208 prove sulle sorgenti, zero arrivano direttamente alla PDP prevista. I 301 esistenti normalizzano host o protocollo. I 1.258 percorsi sospesi restano esclusi.
+
+La sessione Cloudflare apre il login. Manca un accesso verificato alla zona con lettura della precedenza, versione precedente e ripristino. Attivazioni e rollback reali in questa esecuzione sono entrambi zero.
+
+### Consegna al gestore della zona
+
+Il [CSV definitivo](cloudflare-bulk.csv) censisce i 32 abbinamenti esatti. Un Bulk Redirect con questi flag perde gli UTM se applicato alle query. Per l’intero contratto usare il Worker generato dalle stesse 16 righe verificate. Il generatore controlla l’impronta del manifest, scrive in una cartella nuova e produce un modulo autosufficiente e la relativa configurazione Wrangler. Il repository non associa route né avvia un deploy. [Formato CSV Cloudflare](https://developers.cloudflare.com/rules/url-forwarding/bulk-redirects/reference/csv-file-format/)
+
+Dalla radice del branch #82 generare i due pacchetti con i comandi seguenti, scegliendo cartelle private nuove. Il pilota usa Rosa Jasmina su www e apex. Il pacchetto completo sostituisce il pilota con lo stesso nome Worker. La configurazione comprende rispettivamente 2 e 32 route, ognuna limitata al percorso legacy e al relativo host. Il suffisso wildcard abilita il confronto in presenza di query. Il modulo verifica poi il percorso letterale prima di produrre un 301. [Route Cloudflare](https://developers.cloudflare.com/workers/configuration/routing/routes/)
+
+```sh
+node infra/seo/build-rollout.mjs pilot /tmp/og-301-pilota
+node infra/seo/build-rollout.mjs full /tmp/og-301-completo
+```
+
+Il modulo intercetta GET e HEAD. Rimuove l’attributo Woo `attribute_dimensioni` e conserva, anche se ripetuti, `utm_source`, `utm_medium`, `utm_campaign`, `utm_term` e `utm_content`. Passa all’origine gli altri metodi, le query non ammesse, i prefissi simili e i prodotti esclusi. In isolamento sono passati 384 casi sul resolver e 576 casi sui due moduli generati.
+
+**Unica azione del titolare** — affidare al gestore autenticato della zona `onlinegarden.it` il change pilota → completo con ricevuta e ripristino. Il gestore esporta prima ordine delle regole www/HTTPS, route e versione Worker corrente, e verifica che le route o il nome non appartengano a un altro servizio. Una regola precedente che risponde con un redirect interrompe l’elaborazione. Se il gestore non può isolare i soli percorsi del change o ripristinare la versione precedente, mantiene il blocco. [Ordine di esecuzione Cloudflare](https://developers.cloudflare.com/rules/reference/traffic-sequence/)
+
+Il gestore pubblica il pacchetto pilota dalla zona confermata, poi esegue `python3 infra/seo/check-redirect-http.py --pilot --expect-active` e controlla il passaggio all’origine per una query sconosciuta e un percorso escluso. Estende solo dopo che la prima risposta di ogni sorgente pilota è 301 verso la PDP, anche su HTTP e www, con 200 diretto a destinazione. Sul completo usa `python3 infra/seo/check-redirect-http.py --expect-active` e ripete le sedici PDP. Per il rollback ripristina le route, l’ordine e la versione esportati, ritira solo le associazioni nuove e confronta i primi hop con la baseline. Conserva ricevute e identificativi del change nel registro della zona.
