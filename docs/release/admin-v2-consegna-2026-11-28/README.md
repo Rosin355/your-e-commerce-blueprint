@@ -1,5 +1,7 @@
 # Online Garden — consegna controllata Admin V2
 
+**Addendum operativo 28/11, mandato finale:** prevale la [consegna finale unica](../CONSEGNA-FINALE-2026-11-28.md). Pubblicazione e checksum degli archivi ricontrollati, V3 iniziale visibile in preview, nessun rilascio. Documentata la procedura History/Publish e il rischio di redeploy Edge con Revert generale: gate rollback ancora non attestato. Preparata l'aggiunta nominativa minima Curiosità, non applicata; autorizzazione della singola DRAFT sempre distinta. Il documento sotto resta ricevuta delle verifiche precedenti, non nuovo test eseguito.
+
 28 novembre 2026. **Decisione unica: NO-GO al rilascio attuale. PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.**
 
 Il candidato integrato è verificato in isolamento; manca l'identificazione ripristinabile delle revisioni effettivamente attive. Non confondere un archivio Git ricostruito con un export del runtime. Nessuna modifica applicativa, Publish, merge, deploy, migration, grant, salvataggio reale o operazione Shopify in questa verifica. Gemini 3 Flash Preview mantenuto; nessun A/B né chiamata AI reale.

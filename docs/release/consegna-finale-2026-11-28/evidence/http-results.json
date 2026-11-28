@@ -1,0 +1,482 @@
+[
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/",
+    "expected": "https://onlinegarden.it/products/agave-americana-verde",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/",
+    "expected": "https://onlinegarden.it/products/agave-americana-verde",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/agave-americana-verde/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/",
+    "expected": "https://onlinegarden.it/products/kalanchoe-calandiva-bianco",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/",
+    "expected": "https://onlinegarden.it/products/kalanchoe-calandiva-bianco",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/kalanchoe-calandiva-bianco/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/",
+    "expected": "https://onlinegarden.it/products/kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/",
+    "expected": "https://onlinegarden.it/products/kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-interno/grasse-e-succulente/kalanchoe-tetraphylla/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/",
+    "expected": "https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/",
+    "expected": "https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/da-frutto/castanea-sativa-marrone-di-marradi-castagno-marrone/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/da-frutto/prunus-avium-lapins-ciliegio/",
+    "expected": "https://onlinegarden.it/products/prunus-avium-lapins-ciliegio",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/da-frutto/prunus-avium-lapins-ciliegio/",
+    "expected": "https://onlinegarden.it/products/prunus-avium-lapins-ciliegio",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/da-frutto/prunus-avium-lapins-ciliegio/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/",
+    "expected": "https://onlinegarden.it/products/calycanthus-floridus-calicanto-estivo",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/",
+    "expected": "https://onlinegarden.it/products/calycanthus-floridus-calicanto-estivo",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-floridus-calicanto-estivo/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/",
+    "expected": "https://onlinegarden.it/products/calycanthus-venus-calicanto-estivo",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/",
+    "expected": "https://onlinegarden.it/products/calycanthus-venus-calicanto-estivo",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/calycanthus-venus-calicanto-estivo/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/",
+    "expected": "https://onlinegarden.it/products/rhyncospermum-asiaticum-tricolor-gelsomino",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/",
+    "expected": "https://onlinegarden.it/products/rhyncospermum-asiaticum-tricolor-gelsomino",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/rhyncospermum-asiaticum-tricolor-gelsomino/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/",
+    "expected": "https://onlinegarden.it/products/elaeagnus-ebbingei-aurea-eleagno",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/",
+    "expected": "https://onlinegarden.it/products/elaeagnus-ebbingei-aurea-eleagno",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/elaeagnus-ebbingei-aurea-eleagno/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/",
+    "expected": "https://onlinegarden.it/products/fagus-sylvatica-dawyck-purple-faggio",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/",
+    "expected": "https://onlinegarden.it/products/fagus-sylvatica-dawyck-purple-faggio",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/fagus-sylvatica-dawyck-purple-faggio/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/",
+    "expected": "https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/",
+    "expected": "https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-mariken/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/",
+    "expected": "https://onlinegarden.it/products/ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/",
+    "expected": "https://onlinegarden.it/products/ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/ginkgo-biloba-menhir/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/",
+    "expected": "https://onlinegarden.it/products/parrotia-persica-bella-albero-pagoda",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/",
+    "expected": "https://onlinegarden.it/products/parrotia-persica-bella-albero-pagoda",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-esterno/arbusti/parrotia-persica-bella-albero-pagoda/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/",
+    "expected": "https://onlinegarden.it/products/paulownia-tomentosa-paulonia",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/",
+    "expected": "https://onlinegarden.it/products/paulownia-tomentosa-paulonia",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-esterno/alberi/paulownia-tomentosa-paulonia/"
+  },
+  {
+    "kind": "source",
+    "url": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/",
+    "expected": "https://onlinegarden.it/products/tradescantia-nanouk",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "source",
+    "url": "https://www.onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/",
+    "expected": "https://onlinegarden.it/products/tradescantia-nanouk",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/piante-da-interno/piante-da-appartamento/tradescantia-nanouk/"
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/agave-americana-verde",
+    "expected": "https://onlinegarden.it/products/agave-americana-verde",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/calycanthus-floridus-calicanto-estivo",
+    "expected": "https://onlinegarden.it/products/calycanthus-floridus-calicanto-estivo",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/calycanthus-venus-calicanto-estivo",
+    "expected": "https://onlinegarden.it/products/calycanthus-venus-calicanto-estivo",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone",
+    "expected": "https://onlinegarden.it/products/castanea-sativa-marrone-di-marradi-castagno-marrone",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/elaeagnus-ebbingei-aurea-eleagno",
+    "expected": "https://onlinegarden.it/products/elaeagnus-ebbingei-aurea-eleagno",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/fagus-sylvatica-dawyck-purple-faggio",
+    "expected": "https://onlinegarden.it/products/fagus-sylvatica-dawyck-purple-faggio",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo",
+    "expected": "https://onlinegarden.it/products/ginkgo-biloba-mariken-albero-nano-da-giardino-e-terrazzo",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante",
+    "expected": "https://onlinegarden.it/products/ginkgo-biloba-menhir-lalbero-antico-dal-portamento-elegante",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/kalanchoe-calandiva-bianco",
+    "expected": "https://onlinegarden.it/products/kalanchoe-calandiva-bianco",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie",
+    "expected": "https://onlinegarden.it/products/kalanchoe-tetraphylla-kalanchoe-a-quattro-foglie",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/parrotia-persica-bella-albero-pagoda",
+    "expected": "https://onlinegarden.it/products/parrotia-persica-bella-albero-pagoda",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/paulownia-tomentosa-paulonia",
+    "expected": "https://onlinegarden.it/products/paulownia-tomentosa-paulonia",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/prunus-avium-lapins-ciliegio",
+    "expected": "https://onlinegarden.it/products/prunus-avium-lapins-ciliegio",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/rhyncospermum-asiaticum-tricolor-gelsomino",
+    "expected": "https://onlinegarden.it/products/rhyncospermum-asiaticum-tricolor-gelsomino",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "target",
+    "url": "https://onlinegarden.it/products/tradescantia-nanouk",
+    "expected": "https://onlinegarden.it/products/tradescantia-nanouk",
+    "status": 200,
+    "location": null,
+    "canonical": null,
+    "noindex": false
+  },
+  {
+    "kind": "pilot_query",
+    "url": "http://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_campaign=og301",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_campaign=og301"
+  },
+  {
+    "kind": "pilot_query",
+    "url": "http://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?attribute_dimensioni=vaso-18&utm_source=collaudo",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?attribute_dimensioni=vaso-18&utm_source=collaudo"
+  },
+  {
+    "kind": "pilot_query",
+    "url": "http://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?unknown=test",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?unknown=test"
+  },
+  {
+    "kind": "pilot_query",
+    "url": "http://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_campaign=og301",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_campaign=og301"
+  },
+  {
+    "kind": "pilot_query",
+    "url": "http://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?attribute_dimensioni=vaso-18&utm_source=collaudo",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?attribute_dimensioni=vaso-18&utm_source=collaudo"
+  },
+  {
+    "kind": "pilot_query",
+    "url": "http://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?unknown=test",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?unknown=test"
+  },
+  {
+    "kind": "pilot_query",
+    "url": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_campaign=og301",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "pilot_query",
+    "url": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?attribute_dimensioni=vaso-18&utm_source=collaudo",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "pilot_query",
+    "url": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?unknown=test",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 200,
+    "location": null
+  },
+  {
+    "kind": "pilot_query",
+    "url": "https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_campaign=og301",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_campaign=og301"
+  },
+  {
+    "kind": "pilot_query",
+    "url": "https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?attribute_dimensioni=vaso-18&utm_source=collaudo",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?attribute_dimensioni=vaso-18&utm_source=collaudo"
+  },
+  {
+    "kind": "pilot_query",
+    "url": "https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?unknown=test",
+    "expected": "https://onlinegarden.it/products/rosa-jasmina-rampicante",
+    "status": 301,
+    "location": "https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?unknown=test"
+  },
+  {
+    "kind": "frontend_asset",
+    "host": "https://onlinegarden.it",
+    "asset": "/assets/index-kMoBF-yp.js",
+    "status": 200,
+    "sha256": "5f56ebc6dba0610359a64dfa936fc4744419e796d45687728d113fd6dcd4c05d"
+  },
+  {
+    "kind": "frontend_asset",
+    "host": "https://onlinegarden.it",
+    "asset": "/assets/index-jst0clO4.css",
+    "status": 200,
+    "sha256": "20e6fa8033d9c163e78c330641c33c4e7a36085c1b14147ea26b4cc0de42878d"
+  },
+  {
+    "kind": "frontend_asset",
+    "host": "https://ecom-blueprint-gen.lovable.app",
+    "asset": "/assets/index-kMoBF-yp.js",
+    "status": 200,
+    "sha256": "5f56ebc6dba0610359a64dfa936fc4744419e796d45687728d113fd6dcd4c05d"
+  },
+  {
+    "kind": "frontend_asset",
+    "host": "https://ecom-blueprint-gen.lovable.app",
+    "asset": "/assets/index-jst0clO4.css",
+    "status": 200,
+    "sha256": "20e6fa8033d9c163e78c330641c33c4e7a36085c1b14147ea26b4cc0de42878d"
+  }
+]

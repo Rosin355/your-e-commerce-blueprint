@@ -1,5 +1,11 @@
 # Online Garden — developer handoff
 
+## Consegna finale controllata · 28 novembre 2026
+
+Prevale il [rapporto unico](release/CONSEGNA-FINALE-2026-11-28.md): #83 applicativo `14cd12a`, #82 `6257b67`, #84 `ce9514f`, indipendenti e non merged. Pubblico ancora frontend del 26/11; baseline Edge documentate API `f32989d`, AI `874f2d3`, non runtime attested. Revert di progetto può ridistribuire Edge: non usarlo per un rollback solo-frontend. Conservare grafi shared storici, secret/config separati; nessuna migrazione richiesta dall'editor.
+
+La #84 non è applicabile invariata sotto i vincoli Cloud correnti (oggetti applicativi fuori `public`, FK nuova verso `auth.users`); il writer richiede un canale libpq non attestato disponibile. Nessuna correzione o migrazione implicita. La proposta `parita-admin.proposta.sql` revoca campi/opt-in: **non eseguirla** per il mandato corrente; elevazione Marco soltanto additiva dopo identità/autorizzazione. CSV 301 da solo perde UTM, usare i pacchetti Worker già implementati con pilota e rollback di zona. Zero AI reale/deploy/Publish/dati in questa consegna; 924 prove precedenti non ripetute. Gemini 3 Flash Preview invariato, PENDING_CLIENT_ACCEPTANCE, SAL 57,75%.
+
 ## Consegna consolidata sul ramo Lovable isolato
 
 Il frontend legge i grant effettivi, prepara le proposte e confronta versione, identità e hash. La verifica autorevole resta in Edge e nella RPC di acquisizione. Il journal serializza le richieste sul prodotto e conserva gli esiti dubbi. Le azioni sul ciclo di vendita verificano il risultato anche in Storefront. La ricevuta è filtrata per attore e prodotto. Il codice di ripristino documentato è `5a37f71`. Per il rilascio puntuale confrontare manifest, gateway e comportamento senza sessione, poi il contratto Editor autenticato. La versione attiva di Lovable non è scaricabile. [Artefatti, hash, sequenza SQL e rollback](release/ADMIN-V2-CONSEGNA-MARCO-2026-11-25.md)

@@ -1,3 +1,18 @@
+# Consegna finale operativa — 28 novembre 2026
+
+- [x] Product Editor V3: pubblicazione/ricevute riconciliate, checksum rollback intatti, preview autenticata iniziale PASS; gate runtime e rollback operativo documentato, nessun rilascio.
+- [x] Redirect #82: CSV/pacchetti pilota e completo recuperati, 60 HTTP e 16 PDP DOM verificati; istruzione Cloudflare consegnata, nessuna attivazione senza accesso zona.
+- [x] Archivio #84: backend/schema assente verificati, importatore esaminato e verbale privato unico predisposto; compatibilità DDL/canale import e backup/trattamento non approvati, nessuna migrazione/import.
+- [x] Marco: ruoli/capability letti senza PII, preparata elevazione solo additiva; vecchio script revocante escluso, domanda nominativa aperta, nessun cambio reale.
+- [x] Precisazione backup 13:20 UTC: documentazione ufficiale verificata, account Auth inclusi nel perimetro documentato; granularità ACL e restore reale non attestati. Il titolare conferma nessun ripristino; nessun blocco esteso agli altri filoni.
+- [x] Autorizzazione Marco 13:21 UTC registrata; primo riscontro Auth aggregato confermato, seconda prova non disponibile negli incarichi. Richiesto documento preciso invito staff/onboarding indipendente con Marco ed email; nessuna promozione.
+- [x] Schermata backup letta: ultimo punto 2026-11-28 05:31:17 UTC, nessun restore eseguito; documentata copertura Auth e granularità ACL/prova recupero ancora mancanti.
+- [x] Aggiornati documentazione/guide e tabella finale distinguendo risultati reali e simulati; PENDING_CLIENT_ACCEPTANCE e SAL 57,75% invariati.
+- [ ] Rilasciare editor — attende attestazione gestore runtime/rollback e GO produttivo.
+- [ ] Attivare redirect — attende gestore autenticato Cloudflare, verifica precedenza e ricevuta pilota.
+- [ ] Archivio reale — attende DDL/canale import compatibili, ricevuta recuperabilità e verbale privacy/fonte approvati.
+- [ ] Elevare Marco ed eventuale singolo grant Curiosità — attende due attestazioni indipendenti e autorizzazione riferita all'account esatto.
+
 # Consegna controllata Admin V2 — 28 novembre 2026
 
 - [x] Identificare frontend pubblico per asset e baseline documentate delle sole product-admin-api / product-admin-ai, distinguendo sorgenti da runtime.

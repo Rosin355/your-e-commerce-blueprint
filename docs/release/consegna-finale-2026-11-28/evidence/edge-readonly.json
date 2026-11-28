@@ -1,0 +1,26 @@
+[
+  {
+    "function": "product-admin-api",
+    "status": 200,
+    "available_headers": {
+      "Date": "Sat, 28 Nov 2026 13:17:44 GMT",
+      "sb-request-id": "01a2224d-f67e-7559-a0ce-5862fd8481dd",
+      "x-deno-execution-id": "3b26e78f-bfcd-40f8-9443-5fcfce47fdc2",
+      "x-sb-edge-region": "eu-central-1"
+    },
+    "deployment_id": null,
+    "runtime_sha_attested": false
+  },
+  {
+    "function": "product-admin-ai",
+    "status": 200,
+    "available_headers": {
+      "Date": "Sat, 28 Nov 2026 13:17:44 GMT",
+      "sb-request-id": "01a2224d-f771-7cf3-a03e-20181605a9e3",
+      "x-deno-execution-id": "d5470310-fa71-4c12-8e8f-7428b360d9e0",
+      "x-sb-edge-region": "eu-central-1"
+    },
+    "deployment_id": null,
+    "runtime_sha_attested": false
+  }
+]
