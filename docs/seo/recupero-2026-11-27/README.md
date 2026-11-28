@@ -101,3 +101,11 @@ Gate successivo: test diretto HTTPS del dominio principale e www in browser del 
 - Nessuna route legacy 301 attivata; rimane **0/16 redirect prodotto live attestati**. Non confondere il 301 host/protocollo Lovable con il 301 di mapping prodotto.
 
 `PENDING_CLIENT_ACCEPTANCE` | SAL 57,75%.
+
+## Verifica visuale homepage e Rosa Jasmina su apex Proxied
+
+**28 novembre 2026, conferma del titolare:** con `CNAME @ -> ecom-blueprint-gen.lovable.app` in modalita **Proxied**, la homepage e la PDP di Rosa Jasmina risultano visibili e senza errori riferiti dal titolare. Questa e' una verifica manuale visuale, **non** una certificazione HTTP, checkout, login o certificato origin. Il CNAME `www` era ancora DNS only alla precedente schermata.
+
+Passaggio successivo autorizzato: impostare il CNAME `www` come Proxied e verificare che `https://www.onlinegarden.it` raggiunga `https://onlinegarden.it` senza loop o errori TLS; in caso di problemi ripristinare `www` a DNS only. Nessuna route Worker da associare prima di PASS. SSL/TLS Full e record email invariati. Nessun redirect legacy diretto attivo ancora attestato (0/16).
+
+`PENDING_CLIENT_ACCEPTANCE` | SAL 57,75%.
