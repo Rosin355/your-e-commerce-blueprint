@@ -1,0 +1,71 @@
+{
+  "utc": "2026-11-28T15:13:22.660Z",
+  "rows": [
+    {
+      "name": "Pagina /",
+      "pass": true,
+      "http": 200,
+      "h1": "Piante da giardino,\nscelte con cura"
+    },
+    {
+      "name": "Pagina /collections/all",
+      "pass": true,
+      "http": 200,
+      "h1": "Tutti i prodotti"
+    },
+    {
+      "name": "Pagina /products/rosa-jasmina-rampicante",
+      "pass": true,
+      "http": 200,
+      "h1": "Rosa Jasmina - Rampicante"
+    },
+    {
+      "name": "Pagina /auth",
+      "pass": true,
+      "http": 200,
+      "login_host": "shopify.com",
+      "campo_email": true
+    },
+    {
+      "name": "http://onlinegarden.it/",
+      "pass": true,
+      "final": "https://onlinegarden.it/",
+      "http": 200
+    },
+    {
+      "name": "https://www.onlinegarden.it/",
+      "pass": true,
+      "final": "https://onlinegarden.it/",
+      "http": 200
+    },
+    {
+      "name": "http://www.onlinegarden.it/",
+      "pass": true,
+      "final": "https://onlinegarden.it/",
+      "http": 200
+    },
+    {
+      "name": "Carrello vuoto",
+      "pass": true,
+      "cart": "vuoto"
+    },
+    {
+      "name": "Checkout con carrello e risposta Shopify sintetici",
+      "pass": true,
+      "cartCreate_intercettata": 1,
+      "checkout_intercettato": 1
+    },
+    {
+      "name": "Passaggio origine /prodotto/rose/rosa-jasmina-rampicante/?qa_non_riconosciuto=1",
+      "pass": true,
+      "http": 200,
+      "location": ""
+    },
+    {
+      "name": "Passaggio origine /prodotto/controllo-inesistente-301/",
+      "pass": true,
+      "http": 200,
+      "location": ""
+    }
+  ]
+}

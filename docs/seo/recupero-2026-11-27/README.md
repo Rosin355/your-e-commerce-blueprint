@@ -1,5 +1,7 @@
 # Recupero catalogo e piano Cloudflare · 27 novembre 2026
 
+**Esito del 28 novembre, successivo ai dati riportati sotto.** Registro definitivo di 1.410 percorsi, 1.113 APPROVED, 72 REVIEW e 225 BLOCKED. Il Worker esistente usa due route generali nel pacchetto preparato. Un solo percorso risponde con 301 diretto sull’apex. Sul www è misurato un passaggio intermedio. Le indicazioni storiche sui 16 prodotti e sulle route per singolo percorso sono superate dal [fascicolo massivo](../recupero-massivo/).
+
 **READY_FOR_APPROVAL per 16 percorsi. Attivazione BLOCKED.** PENDING_CLIENT_ACCEPTANCE · SAL 57,75%. La lista è un artefatto offline per la revisione del titolare.
 
 ## Inventario e matrice
@@ -32,12 +34,7 @@ La sessione Cloudflare apre il login. Manca un accesso verificato alla zona con 
 
 Il [CSV definitivo](cloudflare-bulk.csv) censisce i 32 abbinamenti esatti. Un Bulk Redirect con questi flag perde gli UTM se applicato alle query. Per l’intero contratto usare il Worker generato dalle stesse 16 righe verificate. Il generatore controlla l’impronta del manifest, scrive in una cartella nuova e produce un modulo autosufficiente e la relativa configurazione Wrangler. Il repository non associa route né avvia un deploy. [Formato CSV Cloudflare](https://developers.cloudflare.com/rules/url-forwarding/bulk-redirects/reference/csv-file-format/)
 
-Dalla radice del branch #82 generare i due pacchetti con i comandi seguenti, scegliendo cartelle private nuove. Il pilota usa Rosa Jasmina su www e apex. Il pacchetto completo sostituisce il pilota con lo stesso nome Worker. La configurazione comprende rispettivamente 2 e 32 route, ognuna limitata al percorso legacy e al relativo host. Il suffisso wildcard abilita il confronto in presenza di query. Il modulo verifica poi il percorso letterale prima di produrre un 301. [Route Cloudflare](https://developers.cloudflare.com/workers/configuration/routing/routes/)
-
-```sh
-node infra/seo/build-rollout.mjs pilot /tmp/og-301-pilota
-node infra/seo/build-rollout.mjs full /tmp/og-301-completo
-```
+Nella revisione storica `18d47ec` i due pacchetti originali contenevano rispettivamente 2 e 32 route. La versione corrente del generatore produce i sei lotti del nuovo fascicolo. Per le istruzioni eseguibili usare la [procedura aggiornata](../recupero-massivo/OPERAZIONI.md). [Regole delle route Cloudflare](https://developers.cloudflare.com/workers/configuration/routing/routes/)
 
 Il modulo intercetta GET e HEAD. Rimuove l’attributo Woo `attribute_dimensioni` e conserva, anche se ripetuti, `utm_source`, `utm_medium`, `utm_campaign`, `utm_term` e `utm_content`. Passa all’origine gli altri metodi, le query non ammesse, i prefissi simili e i prodotti esclusi. In isolamento sono passati 384 casi sul resolver e 576 casi sui due moduli generati.
 

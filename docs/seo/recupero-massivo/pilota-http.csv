@@ -1,0 +1,17 @@
+method,url,status,location,curl_exit,expected_after,target_after,matches_after
+GET,http://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,True
+GET,http://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,301,https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,False
+GET,https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,True
+GET,https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_medium=seo&attribute_dimensioni=test,301,https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=collaudo&utm_medium=seo,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=collaudo&utm_medium=seo,True
+GET,https://onlinegarden.it/products/rosa-jasmina-rampicante,200,,0,200,,True
+GET,https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=collaudo&utm_medium=seo,200,,0,200,,True
+GET,https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,301,https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,False
+GET,https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_medium=seo&attribute_dimensioni=test,301,https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_medium=seo&attribute_dimensioni=test,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=collaudo&utm_medium=seo,False
+HEAD,http://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,True
+HEAD,http://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,301,https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,False
+HEAD,https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,True
+HEAD,https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_medium=seo&attribute_dimensioni=test,301,https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=collaudo&utm_medium=seo,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=collaudo&utm_medium=seo,True
+HEAD,https://onlinegarden.it/products/rosa-jasmina-rampicante,200,,0,200,,True
+HEAD,https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=collaudo&utm_medium=seo,200,,0,200,,True
+HEAD,https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,301,https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante,False
+HEAD,https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_medium=seo&attribute_dimensioni=test,301,https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=collaudo&utm_medium=seo&attribute_dimensioni=test,0,301,https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=collaudo&utm_medium=seo,False

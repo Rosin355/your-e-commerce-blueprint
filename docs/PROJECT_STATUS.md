@@ -1,6 +1,6 @@
-## 28 novembre 2026 · Redirect WooCommerce
+## 28 novembre 2026 · Recupero SEO WooCommerce
 
-**BLOCKED_INFRA · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Verificati 16 SKU/GID e 16 PDP, 272 risposte HTTP raccolte. Zero dei 16 redirect diretti attivi. Pronti [CSV, configurazione pilota/completa e rollback](seo/recupero-2026-11-27/README.md#28-novembre-2026--blocked_infra).
+**PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Esaminati 1.410 percorsi distinti. Pronti per il rilascio progressivo 1.113 redirect su 1.111 schede, con 72 percorsi in revisione e 225 bloccati. Le 5.640 richieste pubbliche confermano un solo 301 diretto sull’apex, Rosa Jasmina. Sul www la normalizzazione dell’host aggiunge un salto. Il pacchetto per il Worker esistente è preparato e verificato localmente. Al titolare della zona resta il change controllato, con identificazione della versione di rollback e collaudo del pilota www prima di ampliare. [Registro e prove](seo/recupero-massivo/) · [Rilascio](seo/recupero-massivo/OPERAZIONI.md)
 
 ## 24/11/2026 — Admin V2 pubblicato (GO A + GO B)
 

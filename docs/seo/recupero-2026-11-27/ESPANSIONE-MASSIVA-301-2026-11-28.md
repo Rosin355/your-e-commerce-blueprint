@@ -1,5 +1,7 @@
 # Espansione massiva redirect WooCommerce -> Shopify · 28 novembre 2026
 
+**Esito del 28 novembre, successivo ai dati riportati sotto.** Registro definitivo di 1.410 percorsi, 1.113 APPROVED, 72 REVIEW e 225 BLOCKED. Il Worker esistente usa due route generali nel pacchetto preparato. Un solo percorso risponde con 301 diretto sull’apex. Sul www è misurato un passaggio intermedio. Le indicazioni storiche sui 16 prodotti e sulle route per singolo percorso sono superate dal [fascicolo massivo](../recupero-massivo/).
+
 ## Stato verificato
 
 **PILOTA APEX PASS (HTTP)**. Test HTTP fornito dal titolare il 28/11/2026 ore 14:45:47 GMT:

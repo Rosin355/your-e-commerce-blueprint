@@ -1,0 +1,55 @@
+{
+  "paths": 1410,
+  "approved": 1113,
+  "status": {
+    "BLOCKED": 225,
+    "APPROVED": 1113,
+    "REVIEW": 72
+  },
+  "reasons": {
+    "IDENTITA_ARCHIVIATA_DIVERGENTE": 6,
+    "CATEGORIA_ARCHIVIATA_ID_SKU": 127,
+    "NESSUN_LEGAME_URL_ID": 37,
+    "ID_STORICO_SENZA_SUCCESSORE_VERIFICATO": 23,
+    "PDP_STORICA_ID": 127,
+    "CATEGORIA_E_MEDIA_WOO_UNIVOCA": 114,
+    "SITEMAP_IMMAGINE_ESATTA": 729,
+    "FASCICOLO_16": 16,
+    "IDENTITA_SHOPIFY_ASSENTE": 77,
+    "PRODOTTO_NON_ATTIVO": 16,
+    "PERMALINK_NON_CORROBORATO": 32,
+    "ALIAS_SENZA_PROVA_DIRETTA": 3,
+    "IDENTITA_SHOPIFY_AMBIGUO": 80,
+    "COLLISIONE_IDENTITA_WOO": 23
+  },
+  "sources": {
+    "ARCHIVIO_AGGIUNTIVO": {
+      "REVIEW": 27,
+      "BLOCKED": 28,
+      "APPROVED": 81
+    },
+    "GSC": {
+      "BLOCKED": 197,
+      "APPROVED": 1032,
+      "REVIEW": 45
+    }
+  },
+  "audit_1048": {
+    "APPROVED": 987,
+    "BLOCKED": 30,
+    "REVIEW": 31
+  },
+  "original_collisions_blocked": 5,
+  "unique_approved_destinations": 1111,
+  "pdp_total": 1173,
+  "pdp_pass": 1173,
+  "first_hop_requests": 5640,
+  "first_hop_direct": {
+    "onlinegarden.it": [
+      "/prodotto/rose/rosa-jasmina-rampicante/"
+    ],
+    "www.onlinegarden.it": []
+  },
+  "mapping_sha256": "f0ace50c863c4d030c31d8fa5e31de5575c50d9f4188d10e3695f3d6fc3e394f",
+  "registro_sha256": "ff46cc43e152f8fd991d75649078092c8d6235967a059be0fa8b638d1e50af7e"
+}
