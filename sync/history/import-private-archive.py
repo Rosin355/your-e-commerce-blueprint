@@ -73,11 +73,13 @@ def main():
     parser.add_argument('--expected-accounts', type=int, default=5453)
     parser.add_argument('--expected-customers', type=int, default=5450)
     parser.add_argument('--expected-purchases', type=int, default=952)
+    parser.add_argument('--expected-buyers', type=int, default=857)
     args = parser.parse_args()
     with open(args.source, encoding='utf-8-sig', newline='') as stream:
         rows, accounts = project(stream)
     count = sum(r[-1] for r in rows)
-    if (accounts,len(rows),count) != (args.expected_accounts,args.expected_customers,args.expected_purchases):
+    buyers = sum(row[-1] > 0 for row in rows)
+    if (accounts,len(rows),buyers,count) != (args.expected_accounts,args.expected_customers,args.expected_buyers,args.expected_purchases):
         raise ValueError('Censimento divergente')
     if args.apply:
         if not os.environ.get('PGSERVICE'):
@@ -88,7 +90,7 @@ def main():
                                 stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
         if result.returncode:
             raise ValueError('Transazione non confermata. Verificare il registro e ripetere lo snapshot.')
-    print(f'Account {accounts}, clienti {len(rows)}, acquisti {count}, modalità {"applica" if args.apply else "verifica"}')
+    print(f'Account {accounts}, clienti {len(rows)}, acquirenti {buyers}, acquisti {count}, modalità {"applica" if args.apply else "verifica"}')
 
 
 if __name__ == '__main__':

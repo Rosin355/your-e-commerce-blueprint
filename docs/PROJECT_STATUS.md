@@ -1,3 +1,7 @@
+## 28 novembre 2026 · Archivio privato e accesso staff
+
+**PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Originale verificato localmente: 5.450 customer, 857 acquirenti, 952 acquisti. Import produzione 0. Route live 404. Il candidato di parità amministrativa supera la prova PostgreSQL su identità sintetiche. Promozioni reali 0. [Ricevuta e decisioni del titolare](migration/admin-clienti-operativo/GATE-FINALE.md#ricevuta-del-28-novembre-2026).
+
 ## 27/11/2026 — Gate finale archivio Woo e parità Admin
 
 **BLOCKED per il rilascio · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Preflight locale 5.450 clienti e 952 acquisti. Verificati in sola lettura ruoli, campi e capability dei due profili staff; nominativo di Marco da attestare con due riferimenti privati. Backup produzione non verificabile con gli accessi attuali (catalogo backup 403); restore sintetico locale superato. Quattro decisioni separate per schema, import, parità globale e Publish. [Matrice, prove e gate](migration/admin-clienti-operativo/GATE-FINALE.md)

@@ -76,7 +76,7 @@ class ArchiveTest(unittest.TestCase):
                                 f'demo{i}@example.invalid',int(i%2==1),'SECRET_FIXTURE','SECRET_FIXTURE'])
         def run_import():
             return subprocess.run([sys.executable,IMPORTER,path,'--apply','--expected-accounts','54',
-                                   '--expected-customers','53','--expected-purchases','27'],
+                                   '--expected-customers','53','--expected-buyers','27','--expected-purchases','27'],
                                   env=self.env,capture_output=True,text=True)
         fixture()
         self.assertEqual(run_import().returncode,0)
@@ -144,6 +144,38 @@ class ArchiveTest(unittest.TestCase):
         self.call(OWNER,'list',ok=False)
         self.assertNotIn('SECRET_FIXTURE',self.sql('select jsonb_agg(to_jsonb(c)) from woo_archive.customers c'))
 
+
+    def test_staff_alignment(self):
+        script=ROOT/'docs/migration/admin-clienti-operativo/parita-admin.proposta.sql'
+        self.sql(f"""
+            alter table auth.users add column email text, add column email_confirmed_at timestamptz;
+            update auth.users set email=id::text||'@example.invalid',email_confirmed_at=now();
+            insert into public.user_roles values ('{OWNER}','editor');
+            create table public.admin_catalog_capabilities(user_id uuid primary key, enabled boolean,
+                capabilities text[], field_keys text[],approved_reference text,updated_at timestamptz);
+            create table public.admin_draft_ai_field_opt_ins(actor uuid,field_key text);
+            insert into public.admin_catalog_capabilities
+              select id,true,array['edit','sync','drafts','images','categories','prices','publish','ai'],
+                array(select 'fixture_'||n from generate_series(1,17)n),'fixture',now()
+              from auth.users where id in ('{OWNER}','{MARCO}');
+            update public.admin_catalog_capabilities set field_keys=field_keys||
+                array['product_archive','product_formats','product_gallery','product_unpublish','tags'] where user_id='{MARCO}';
+            insert into public.admin_draft_ai_field_opt_ins select '{MARCO}',unnest(array['seo_title','seo_description','tags']);
+        """)
+        def exercise(apply=False,email=None):
+            values=dict(owner_id=OWNER,staff_id=MARCO,owner_email=OWNER+'@example.invalid',
+                        staff_email=email or MARCO+'@example.invalid',approval_ref='fixture-private')
+            if apply: values['apply_change']='on'
+            args=['psql','-Xq']
+            for key,val in values.items(): args.extend(['-v',key+'='+val])
+            return subprocess.run(args+['-f',str(script)],env=self.env,capture_output=True).returncode
+        self.assertNotEqual(exercise(True,'different@example.invalid'),0)
+        self.assertEqual(exercise(),0)
+        self.assertEqual(self.sql(f"select count(*) from public.user_roles where user_id='{MARCO}' and role='admin'"),'0')
+        self.assertEqual(exercise(True),0)
+        self.assertEqual(self.sql(f"select cardinality(field_keys) from public.admin_catalog_capabilities where user_id='{MARCO}'"),'17')
+        self.assertEqual(self.sql(f"select count(*) from public.admin_draft_ai_field_opt_ins where actor='{MARCO}'"),'0')
+        self.assertNotEqual(exercise(True),0)
 
 if __name__=='__main__':
     unittest.main()
