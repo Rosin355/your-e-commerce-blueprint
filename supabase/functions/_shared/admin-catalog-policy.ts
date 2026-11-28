@@ -27,6 +27,7 @@ export const CLIENT_FIELD_KEYS = [
   "periodo_ottimale_di_potatura",
   "difficolta_di_coltivazione",
   "faq",
+  "curiosita",
   "key_benefits", "key_features", "special_bullets",
 ];
 // Initial catalog AI scope, independent of the shared edit field grant.

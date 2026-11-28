@@ -19,7 +19,7 @@ const initial: ProductDraft = {
   seoTitle: 'Titolo SEO sintetico', seoDescription: 'Descrizione SEO sintetica',
 };
 
-async function simulate(page: Page, options: {historicalBotany?:boolean; interruptedSave?:boolean; article?: 'complete'|'partial'|'legacy'|'semantic'; assets?:boolean; lifecycle?:boolean; existingAi?:boolean; syncReview?:boolean; conflictAfterSave?:boolean; readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; modelSeo?: boolean; denyDescription?: boolean } = {}) {
+async function simulate(page: Page, options: {manualCuriosity?:boolean; historicalBotany?:boolean; interruptedSave?:boolean; article?: 'complete'|'partial'|'legacy'|'semantic'; assets?:boolean; lifecycle?:boolean; existingAi?:boolean; syncReview?:boolean; conflictAfterSave?:boolean; readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; modelSeo?: boolean; denyDescription?: boolean } = {}) {
   let changedFormat='Unico';
   let botanicalConfirmed=false;
   let originalSaveKey:string|undefined;
@@ -55,7 +55,7 @@ async function simulate(page: Page, options: {historicalBotany?:boolean; interru
     calls.push(action);
     const reply = (result: object) => route.fulfill({ json: { ok: true, ...result } });
     switch (action) {
-      case 'get_admin_context': return reply({ lifecycleActions:options.lifecycle?['archive_catalog_product']:[], roles: ['editor'], canWrite: true, canUseAi: options.allowAi !== false, ordinaryCatalog: true, canManageGallery: options.assets===true, canRenameFormats:options.assets===true, canSync:options.assets===true, supportsCatalogSourceAndProductType: true, supportsDistinctDescriptions: true, supportsSheetEvidence:!!options.article, canUploadImages: options.media === true, editableFieldKeys: [...(options.denyDescription ? [] : ['description']), ...(options.article?['faq','key_features','key_benefits']:[]), ...(options.sheet ? ['short_description', 'seo_title', 'seo_description', 'periodo_di_fioritura'] : [])], canPublish: true });
+      case 'get_admin_context': return reply({ lifecycleActions:options.lifecycle?['archive_catalog_product']:[], roles: ['editor'], canWrite: true, canUseAi: options.allowAi !== false, ordinaryCatalog: true, canManageGallery: options.assets===true, canRenameFormats:options.assets===true, canSync:options.assets===true, supportsCatalogSourceAndProductType: true, supportsDistinctDescriptions: true, supportsSheetEvidence:!!options.article, supportsManualDraftCuriosity:!!options.manualCuriosity, canUploadImages: options.media === true, editableFieldKeys: [...(options.manualCuriosity?['curiosita']:[]), ...(options.denyDescription ? [] : ['description']), ...(options.article?['faq','key_features','key_benefits']:[]), ...(options.sheet ? ['short_description', 'seo_title', 'seo_description', 'periodo_di_fioritura'] : [])], canPublish: true });
       case 'get_product': return reply({
         product: { productId, sku: saved.sku, entityType: 'simple', isActive: true },
         shopifyLive: options.assets ? {available:true,mapped:true,identityVerified:true,publicationStatus:'DRAFT'} : sent ? { available: true, mapped: true, publicationStatus: 'DRAFT' } : { available: false, mapped: false }, history: [],
@@ -113,7 +113,8 @@ async function simulate(page: Page, options: {historicalBotany?:boolean; interru
         return reply({ media: { id: 'file-1', state: 'READY', url: initial.images[0].url, alt: input.alt } });
       case 'get_field_definitions': {
         const def = {key:'description',label:'Descrizione',editor_type:'richtext',data_type:'text',visible:true,editable:true,ai_allowed:true,manual_only:false,validation_rules:{}};
-        return reply({definitions:[def,...(options.article?['key_features','key_benefits','faq'].map(key=>({...def,key,label:key,data_type:'json',editor_type:key==='faq'?'faq':'multiselect',ai_allowed:key!=='faq'})):[]), ...(options.sheet ? [
+        return reply({definitions:[def,
+          {...def,key:'curiosita',applies_to:'both',field_group:'botanical',label:'Curiosità botaniche',manual_only:true,publishable:true,ai_allowed:false,editor_type:'textarea',shopify_mapping:{type:'metafield',namespace:'custom',key:'curiosita'}},...(options.article?['key_features','key_benefits','faq'].map(key=>({...def,key,label:key,data_type:'json',editor_type:key==='faq'?'faq':'multiselect',ai_allowed:key!=='faq'})):[]), ...(options.sheet ? [
           {...def, key:'short_description', editor_type:'textarea'}, {...def, key:'seo_title', editor_type:'text'}, {...def, key:'seo_description', editor_type:'textarea'},
           {...def, key:'tags', editor_type:'multiselect', data_type:'json', ai_allowed:false},
           {...def, key:'periodo_di_fioritura', label:'Periodo di fioritura', editor_type:'multiselect', data_type:'json', ai_allowed:false},
@@ -783,7 +784,7 @@ async function prepareArticle(page:Page) {
 }
 test('V3 Yucca su tablet: PDP, modifica isolata, confronto, conferme botaniche e riapertura interna',async({page},testInfo)=>{
   await page.setViewportSize({width:900,height:1060});
-  const model=await simulate(page,{article:'complete',sheet:true,allowDraftSend:true});
+  const model=await simulate(page,{article:'complete',sheet:true,allowDraftSend:true,manualCuriosity:true});
   await prepareArticle(page);
   const article=page.getByRole('article',{name:'Pagina prodotto in anteprima'});
   await expect(article.getByRole('heading',{name:'Yucca filamentosa',exact:true})).toBeVisible();
@@ -812,6 +813,9 @@ test('V3 Yucca su tablet: PDP, modifica isolata, confronto, conferme botaniche e
   await flower.getByRole('button',{name:'Conferma modifica'}).click();
   await expect(flower).toContainText('si vede');await expect(leaf).toContainText(manual);
   await expect(article.getByRole('region',{name:'Curiosità botaniche',exact:true})).toContainText('filamenti');
+  const curiosity=article.getByRole('region',{name:'Curiosità botaniche',exact:true});
+  await curiosity.getByRole('button',{name:'Modifica',exact:true}).click();
+  await curiosity.getByRole('button',{name:'Conferma modifica'}).click();
   await article.getByRole('button',{name:'Come si presenta la fioritura?'}).click();
   await expect(article.getByRole('region',{name:'Domande frequenti',exact:true})).toContainText('giugno e luglio');
   await page.getByRole('button',{name:'Anteprima cliente',exact:true}).scrollIntoViewIfNeeded();
@@ -820,7 +824,7 @@ test('V3 Yucca su tablet: PDP, modifica isolata, confronto, conferme botaniche e
   const review=page.getByRole('region',{name:'Revisione finale'});
   await expect(review).toContainText('modificato manualmente');
   await expect(review).toContainText('Agavaceae');
-  for (const label of ['Domande frequenti','Punti di forza','Caratteristiche principali']) {
+  for (const label of ['Domande frequenti','Punti di forza','Caratteristiche principali','Curiosità botaniche']) {
     await review.getByLabel('Confermo fonte e valore di ' + label, {exact:false}).check();
   }
   await review.getByLabel(/Ho revisionato i contenuti/).check();
@@ -834,13 +838,13 @@ test('V3 Yucca su tablet: PDP, modifica isolata, confronto, conferme botaniche e
   await page.getByRole('link',{name:'Apri scheda prodotto e storico'}).click();
   await page.reload();
   expect(model.saved().title).toBe('Yucca filamentosa');expect(model.saved().description).toContain('si presentano lineari');
-  expect(model.saved().botanicalConfirmedKeys?.slice().sort()).toEqual(['faq','key_benefits','key_features']);
+  expect(model.saved().botanicalConfirmedKeys?.slice().sort()).toEqual(['curiosita','faq','key_benefits','key_features']);
   for (const key of ['faq','key_benefits','key_features']) expect(model.saved().botanical[key]).toBeTruthy();
   expect(model.saved().shortDescription).toContain('Yucca filamentosa');
   expect(model.saved().seoTitle).toBe('Yucca filamentosa – arbusto sempreverde');
   expect(model.saved().seoDescription).toContain('terreno fertile');
   expect(model.saved().tags).toEqual(['Yucca filamentosa','arbusto sempreverde']);
-  expect(model.saved().botanical).not.toHaveProperty('curiosity');
+  expect(model.saved().botanical.curiosita).toContain('filamenti');
   const restored=page.getByRole('heading',{name:'Riepilogo della bozza interna salvata'}).locator('..');
   await expect(restored).toContainText('si presentano lineari');
   await expect(restored).toContainText('12,00 EUR');

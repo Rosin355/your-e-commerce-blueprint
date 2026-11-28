@@ -1,3 +1,4 @@
+import { isManualDraftCuriosity } from './admin-v2-field-policy.ts';
 import type { FieldDefinition } from './admin-v2-types.ts';
 import { DRAFT_BOTANICAL_KEYS, OperationalError, demand, type ProductDraft } from './admin-operational-core.ts';
 import { resolveShopifyTarget, serializeValueForShopify } from './admin-v2-field-policy.ts';
@@ -98,7 +99,7 @@ export function comparisonDraftPlan(draft: ProductDraft, registry: FieldDefiniti
   return collectPlan(requestedDraftFields(draft), ({ fieldKey, value }) => {
     const field = registry.find(def => def.key === fieldKey);
     const target = field && resolveShopifyTarget(field);
-    demand(field?.visible && field.applies_to !== 'variant' && target?.kind === 'metafield', `Mapping di confronto non disponibile per ${fieldKey}: nessuna nuova creazione.`);
+    demand(field?.visible && field.applies_to !== 'variant' && (fieldKey !== 'curiosita' || isManualDraftCuriosity(field)) && target?.kind === 'metafield', `Mapping di confronto non disponibile per ${fieldKey}: nessuna nuova creazione.`);
     const serialized = serializeValueForShopify(field, value);
     demand(typeof serialized === 'string', `Valore di confronto non rappresentabile per ${fieldKey}.`);
     return { fieldKey, namespace: target.namespace, key: target.key, type: target.valueType,
@@ -117,7 +118,7 @@ export async function planDraftMetafields(draft: ProductDraft, registry: FieldDe
   return requireCompletePlan(collectPlan(requested, ({ fieldKey, value }) => {
     const field = registry.find(def => def.key === fieldKey);
     const target = field && resolveShopifyTarget(field);
-    demand(field?.visible && field.applies_to !== 'variant' && field.editable && !field.manual_only && target?.kind === 'metafield', `Campo ${fieldKey} senza mapping Shopify autorizzato: nessun invio.`);
+    demand(field?.visible && field.applies_to !== 'variant' && field.editable && (fieldKey === 'curiosita' ? isManualDraftCuriosity(field) : !field.manual_only) && target?.kind === 'metafield', `Campo ${fieldKey} senza mapping Shopify autorizzato: nessun invio.`);
     demand(isFieldEditable(field).ok && validateValue(field, value).ok, `Valore ${fieldKey} non valido nel registro corrente: nessun invio.`);
     const matches = definitions.filter(def => def.namespace === target.namespace && def.key === target.key);
     const definition = matches[0];

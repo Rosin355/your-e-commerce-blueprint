@@ -17,6 +17,7 @@ export interface AdminContext {
   lifecycleActions?: string[];
   supportsDistinctDescriptions?: boolean;
   supportsSheetEvidence?: boolean;
+  supportsManualDraftCuriosity?: boolean;
   supportsCatalogSourceAndProductType?: boolean;
   canUseAi?: boolean;
   canUploadImages?: boolean;

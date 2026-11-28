@@ -1,3 +1,4 @@
+import { isManualDraftCuriosity } from '../../../supabase/functions/_shared/admin-v2-field-policy';
 import type { EditorialSection, Heading } from '../../../supabase/functions/_shared/admin-ai-sections';
 import { descriptionHeadings, isHeading, renderSections, suggestionHeading } from '../../../supabase/functions/_shared/admin-ai-sections';
 import {
@@ -206,7 +207,10 @@ export function rowValue(row: ArticleRow) {
   return row.text;
 }
 export function unavailable(key: ArticleKey, ctx: SheetContext) {
-  if (key === 'curiosity') return 'La bozza interna non ha un campo Curiosità. La proposta resta solo in anteprima.';
+  if (key === 'curiosity') {
+    return ctx.canFillDraft && ctx.editableKeys.includes('curiosita') && ctx.definitions.some(isManualDraftCuriosity)
+      ? undefined : 'Curiosità disponibile solo in anteprima. Verifica il backend, il mapping e il permesso nominativo.';
+  }
   if (isStructured(key)) {
     const def = ctx.definitions.find((d) => d.key === key);
     if (!ctx.canFillDraft || !def || def.manual_only || !isFieldEditable(def).ok || !ctx.editableKeys.includes(key)) {
@@ -256,7 +260,15 @@ export function application(rows: ArticleRow[], ctx: SheetContext) {
   else change.description = description;
   for (const row of rows) {
     const k = row.key;
-    if (isHeading(k) || k === 'curiosity' || unavailable(k, ctx)) continue;
+    if (isHeading(k) || unavailable(k, ctx)) continue;
+    if (k === 'curiosity') {
+      if (row.origin === 'manual') {
+        const def = ctx.definitions.find(isManualDraftCuriosity)!;
+        if (validateValue(def, row.text).ok) botanical.curiosita = row.text;
+        else errors.push('Curiosità botaniche · valore non valido.');
+      }
+      continue;
+    }
     const value = rowValue(row);
     if (isStructured(k)) {
       const def = ctx.definitions.find((d) => d.key === k)!;

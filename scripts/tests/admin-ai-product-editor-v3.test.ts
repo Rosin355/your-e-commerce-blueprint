@@ -331,3 +331,33 @@ test('rifiuta il recupero parziale se cambia una condizione, un riferimento o la
   assert.ok(extractive.descriptionIssues.some(i=>i.code==='EXTRACTIVE_COPY'));
   assert.throws(()=>validateEditorialDescription(description,['I fiori sono penduli.'],mixed,{article:true,review:true,section:'Fioritura'}));
 });
+
+test('curiosità nel campo manuale solo con fonte approvata, registro idoneo e grant',()=>{
+  const cur={...description,key:'curiosita',applies_to:'both',field_group:'botanical',label:'Curiosità',manual_only:true,publishable:true,editor_type:'textarea',
+    shopify_mapping:{type:'metafield',namespace:'custom',key:'curiosita'}} as FieldDefinition;
+  const context={...ctx,definitions:[...ctx.definitions,cur],editableKeys:[...ctx.editableKeys,'curiosita']};
+  const rows=articleRows(fixture.sections,facts);
+  const edited=rows.map(r=>r.key==='curiosity'?{...r,origin:'manual' as const}:r);
+  assert.equal(application(rows,context).botanical.curiosita,undefined);
+  assert.equal(application(edited,{...context,editableKeys:[]}).botanical.curiosita,undefined);
+  assert.equal(application(edited,ctx).botanical.curiosita,undefined);
+  assert.match(String(application(edited,context).botanical.curiosita),/filamenti/);
+});
+
+test('la parafrasi di fiori penduli copre lo stesso fatto e conserva il soggetto',()=>{
+  const section={heading:'Fioritura' as const,text:'I fiori ricadono verso il basso.',factIndices:[0]};
+  const review=(source:string)=>articleAssessment([{key:section.heading,text:section.text,factIndices:[0],origin:'model'}],[source]);
+  assert.equal(review('Fiori penduli.').coverage[0].status,'equivalent');
+  for(const source of ['Foglie pendule.','I fiori non sono penduli.','I fiori sono talvolta penduli.','I fiori sono eleganti.']) {
+    assert.ok(review(source).problems.length);
+    assert.notEqual(review(source).coverage[0].status,'equivalent');
+  }
+});
+
+test('una citazione con fiori penduli e foglie lineari non trasferisce la direzione al fogliame',()=>{
+  for(const text of ['Le foglie sono pendule.','Le foglie ricadono verso il basso.']) {
+    const review=articleAssessment([{key:'Fogliame e caratteristiche distintive',text,factIndices:[0,1],origin:'model'}],
+      ['Le foglie sono lineari.','Fiori penduli.']);
+    assert.ok(review.problems.some(reason=>reason.includes('Orientamento')));
+  }
+});

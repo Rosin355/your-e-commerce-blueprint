@@ -125,10 +125,12 @@ export default function CustomerDraftEditor(
     const original = draft[k as keyof ProductDraft];
     return original?.toString() && JSON.stringify(original) !== JSON.stringify(v);
   }).map(([k]) => k === 'description' ? 'Descrizione estesa' : rowLabel(k as ArticleKey));
-  for (const k of verified) {
+  const fieldKey = (key: string) => key === 'curiosity' ? 'curiosita' : key;
+  const confirmedFields = verified.map(fieldKey).filter(key => Object.prototype.hasOwnProperty.call(candidate.botanical, key));
+  for (const k of confirmedFields) {
     if (
       draft.botanical[k] !== undefined && JSON.stringify(draft.botanical[k]) !== JSON.stringify(candidate.botanical[k])
-    ) overwritten.push(rowLabel(k as ArticleKey));
+    ) overwritten.push(rowLabel((k === 'curiosita' ? 'curiosity' : k) as ArticleKey));
   }
   function discard() {
     if (proposal && !window.confirm('Scartare questa anteprima e ricominciare dalle fonti?')) return;
@@ -302,7 +304,7 @@ export default function CustomerDraftEditor(
     if (!proposal || blocked || !read || (overwritten.length > 0 && !acceptReplace)) return;
     const botanical = {
       ...draft.botanical,
-      ...Object.fromEntries(Object.entries(candidate.botanical).filter(([k]) => verified.includes(k))),
+      ...Object.fromEntries(Object.entries(candidate.botanical).filter(([k]) => confirmedFields.includes(k))),
     };
     const checked = categories.filter((id) => suggestions.some((s) => s.id === id));
     const changes = {
@@ -312,7 +314,7 @@ export default function CustomerDraftEditor(
     };
     setApplied(editorialSnapshot({ ...draft, ...changes }));
     setReview(false);
-    onApply(changes, verified);
+    onApply(changes, confirmedFields);
   }
   const absent = (Object.keys(extraLabels) as (keyof typeof extraLabels)[]).filter((k) =>
     !rows.some((r) => r.key === k)
@@ -539,7 +541,9 @@ export default function CustomerDraftEditor(
                     : 'derivato dalle fonti'}
                   <p className='whitespace-pre-line'>{plain(r.text)}</p>
                   {unavailable(r.key, ctx) && <p>{unavailable(r.key, ctx)}</p>}
-                  {isStructured(r.key) && !unavailable(r.key, ctx) && (
+                  {r.key === 'curiosity' && r.origin !== 'manual' && !unavailable(r.key, ctx) &&
+                    <p>Per salvare la curiosità, verifica la fonte e conferma il testo con Modifica.</p>}
+                  {(isStructured(r.key) || (r.key === 'curiosity' && r.origin === 'manual')) && !unavailable(r.key, ctx) && (
                     <label className='flex min-h-11 items-center gap-2'>
                       <input
                         type='checkbox'

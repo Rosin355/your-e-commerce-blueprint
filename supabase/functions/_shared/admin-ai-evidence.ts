@@ -42,6 +42,19 @@ function hasUprightHabit(text: string) {
     return !/\b(?:fogli\w*|fior[ei]|stel[oi]|coroll[ae]|ram[oi]|radic[ei])\b/.test(clause.slice(0, match.index));
   });
 }
+// Match only standalone floral predicates. Qualifiers, negations and other organs
+// must continue through the original botanical checks.
+const hangingFlowers = /^(?:i )?fiori (?:(?:sono )?penduli|ricadono verso il basso)$/;
+function statesHangingFlowers(text: string) {
+  return normalize(text).split(/[.!?;\n]/).some(clause => hangingFlowers.test(clause.trim()));
+}
+function hangingOrgans(text: string): string[] {
+  return text.split(/[.,;:!?\n]/).flatMap(clause => {
+    const context = clause.match(/\b(?:se|solo|salvo|senza|non|mai|quando|durante)\b/g) ?? [];
+    return [...clause.matchAll(/\b(fior[ei]|fogli[ae]|coroll[ae]|stel[oi]|ram[oi]|radic[ei]|frutt[oi]) (?:non )?(?:(?:sono|e|si presenta|si presentano) )?(?:pendul[oaie]|ricad(?:e|ono) verso il basso)\b/g)]
+      .map(match => [match[1].slice(0,-1),frequency(clause),...context].join('|'));
+  });
+}
 const uncertain =
   /\b(?:forse|ipotetic\w*|da verificare|da confermare|non (?:e |sono )?(?:verificat\w*|conferm\w*|attest\w*)|potrebbe)\b/;
 const families = (s: string): string[] => s.match(/\b[a-z]+aceae\b/g) ?? [];
@@ -347,6 +360,11 @@ function propertyError(sentence: string, sources: SourceFact[]) {
   const anchors = sources.filter((a) => !a.exclusion);
   if (!anchors.length) return 'La fonte richiede verifica o correzione.';
   const evidence = normalize(anchors.map((a) => a.text).join(' '));
+  const hanging = hangingOrgans(s);
+  if (hanging.length) {
+    const evidence = anchors.flatMap(a => hangingOrgans(normalize(a.text)));
+    if (!hanging.every(claim => evidence.includes(claim))) return 'Orientamento non confermato per l’organo indicato.';
+  }
   if (hasUprightHabit(sentence) && !anchors.some(a => hasUprightHabit(a.text))) {
     return 'Portamento eretto della pianta non confermato.';
   }
@@ -469,7 +487,8 @@ export function unsupportedSection(text: string, sources: SourceFact[]) {
 // Canonicalise equivalent expressions only for coverage; property validation still runs on original prose.
 function coverageTerms(text: string) {
   const canonical = normalize(text).replace(/(?:^|(?<=[.!?;:\n]))[^.!?;:\n]+/g,
-    clause => uprightHabit.test(clause.trim()) ? ' portamento eretto ' : clause);
+    clause => uprightHabit.test(clause.trim()) ? ' portamento eretto ' :
+      hangingFlowers.test(clause.trim()) ? ' fiori penduli ' : clause);
   return terms(canonical
     .replace(/\b(?:steli?|stelo|ass[ei]) floreal[ei]\b/g, 'stelo floreale')
     .replace(/\b(?:produce|produrre)\b/g, 'produce')
@@ -488,6 +507,7 @@ export function independentlyGrounded(sentence: string, cited: SourceFact[]) {
   return words.length > 0 && cited.some(f => {
     if (f.exclusion || unsupportedSection(sentence, [f])) return false;
     if (hasUprightHabit(sentence) && hasUprightHabit(f.text)) return true;
+    if (hangingFlowers.test(normalize(sentence).replace(/[.!?]$/, '')) && statesHangingFlowers(f.text)) return true;
     const sourceSubjects = subjects(f.text);
     if (stated.length !== 1 || sourceSubjects.size !== 1 || !sourceSubjects.has(stated[0])) return false;
     const source = new Set(coverageTerms(f.text));

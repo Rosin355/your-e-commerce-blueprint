@@ -164,6 +164,7 @@ Deno.serve(async (req) => {
         backendVersion: "admin-editor-20261125",
         supportsDistinctDescriptions: true,
         supportsSheetEvidence: true,
+        supportsManualDraftCuriosity: true,
         supportsCatalogSourceAndProductType: true,
         ordinaryCatalog: ordinary,
         canUseAi: enabled && catalogAiAllowed(auth),

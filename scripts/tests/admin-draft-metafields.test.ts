@@ -129,3 +129,21 @@ test('preflight aggregato e recovery verificano anche i campi con mapping ancora
   const remote = async <T>() => ({product:{id:'p',metafields:{nodes:fields,pageInfo:{hasNextPage:false}}}} as T);
   await assert.rejects(()=>verifyDraftMetafields('p',fields,remote,true,blocked),check(['VERIFIED','BLOCKED','BLOCKED']));
 });
+
+test('curiosità manuale confermata richiede il mapping esatto e il tipo Shopify verificato',async()=>{
+  const field:FieldDefinition={...def('curiosita','text','textarea'),manual_only:true,field_group:'botanical',applies_to:'both'};
+  const value='Il margine della foglia presenta filamenti.';
+  const input=draft({curiosita:value});
+  const definitions=gql([{key:'curiosita',type:'multi_line_text_field'}]);
+  const plan=await planDraftMetafields(input,[field],definitions);
+  assert.deepEqual(plan,[{fieldKey:'curiosita',namespace:'custom',key:'curiosita',type:'multi_line_text_field',value}]);
+  const read = (remote:string) => async <T>() => ({product:{id:'fixture',metafields:{
+    nodes:[{...plan[0],value:remote}],pageInfo:{hasNextPage:false}}}} as T);
+  assert.equal((await verifyDraftMetafields('fixture',plan,read(value)))[0].state,'VERIFIED');
+  await assert.rejects(()=>verifyDraftMetafields('fixture',plan,read('Un valore diverso.')));
+  for(const wrong of [{manual_only:false},{field_group:'system'},{shopify_mapping:{type:'metafield',namespace:'custom',key:'altro'}},{publishable:false}]) {
+    await assert.rejects(()=>planDraftMetafields(input,[{...field,...wrong}],definitions),/mapping/);
+  }
+  await assert.rejects(()=>planDraftMetafields(input,[field],gql([{key:'curiosita',type:'json'}])),/incompatibile/);
+  await assert.rejects(()=>planDraftMetafields({...input,botanicalConfirmedKeys:[]},[field],definitions),/Conferma/);
+});

@@ -1,3 +1,4 @@
+import { isManualDraftCuriosity } from '../../../supabase/functions/_shared/admin-v2-field-policy';
 import { useAuth } from '@/hooks/useAuth';
 import CustomerDraftEditor from '../components/CustomerDraftEditor';
 import type { SheetContext } from '../lib/draftSheet';
@@ -166,8 +167,8 @@ function NewProductForm() {
   const sheetContext:SheetContext = {
     title: draft.title,
     categories: [...draft.categoryIds, ...(draft.collectionIds ?? [])].flatMap(id => categoryNames.has(id) ? [categoryNames.get(id)!] : []),
-    definitions: (definitions.data?.definitions ?? []).filter(d => (!['key_features','key_benefits','faq'].includes(d.key) || adminContext.data?.supportsSheetEvidence) && (d.key !== 'short_description' || adminContext.data?.supportsDistinctDescriptions) && (
-      ['description', 'short_description', 'seo_title', 'seo_description', 'tags','key_features','key_benefits','faq'].includes(d.key) ||
+    definitions: (definitions.data?.definitions ?? []).filter(d => (d.key !== 'curiosita' || adminContext.data?.supportsManualDraftCuriosity) && (!['key_features','key_benefits','faq'].includes(d.key) || adminContext.data?.supportsSheetEvidence) && (d.key !== 'short_description' || adminContext.data?.supportsDistinctDescriptions) && (
+      ['description', 'short_description', 'seo_title', 'seo_description', 'tags','key_features','key_benefits','faq','curiosita'].includes(d.key) ||
       ['productType', 'product_type'].includes(String(d.shopify_mapping?.field)))),
     canFillDraft: ordinary && catalogue.data?.canSaveDraft === true,
     editableKeys: adminContext.data?.editableFieldKeys ?? [],
@@ -278,7 +279,7 @@ function NewProductForm() {
             {definitions.isError && <p role='alert'>Registro campi non disponibile.</p>}
             {definitions.data?.definitions.filter((d) =>
               (DRAFT_BOTANICAL_KEYS as readonly string[]).includes(d.key) && (!ordinary || adminContext.data?.editableFieldKeys?.includes(d.key)) && (!['key_features','key_benefits'].includes(d.key) || (adminContext.data?.supportsSheetEvidence && adminContext.data.editableFieldKeys?.includes(d.key))) && d.visible &&
-              d.editable && !d.manual_only
+              d.editable && (d.key === 'curiosita' ? adminContext.data?.supportsManualDraftCuriosity && adminContext.data.editableFieldKeys?.includes(d.key) && isManualDraftCuriosity(d) : !d.manual_only)
             ).map((d) => (
               <div key={d.key} id={d.key} tabIndex={-1} role="group" aria-label={d.label} aria-describedby={errors[d.key] ? d.key + "-error" : undefined}>
                 <h3>{d.label}</h3>

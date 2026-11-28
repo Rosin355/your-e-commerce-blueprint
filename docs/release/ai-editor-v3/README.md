@@ -213,3 +213,40 @@ La variabile dedicata `YUCCA_AB_GATEWAY_KEY` era assente nell’ambiente di esec
 | B · `openai/gpt-5.4-mini` | Non eseguito | 0 | 0 crediti |
 
 **AB_EXECUTED = NO · TOTAL_AI_CALLS = 0 · ACTUAL_COST = 0 crediti Lovable.** Per entrambi i bracci mancano misure reali di parole, copertura, sezioni, affermazioni prive di fonte, tasso di scarto, stile italiano, latenza e token. Nessuna scheda anonima X/Y è stata generata. Il confronto editoriale resta aperto fino alla disponibilità della credenziale dedicata nell’ambiente del banco. **PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.**
+
+## Candidato integrato e UAT del 28 novembre 2026
+
+La PR #83 comprende V1 e V2. La correzione certificata #78 e la precedente testa di #83 avevano sviluppi indipendenti dopo `1335c5b`. Il commit di integrazione `3bd3805` ha come genitori `d026849` (#83, comprendente il candidato semantico `d64abfb`) e `05c5f33` (#78). Il conflitto riguardava esclusivamente le fixture browser condivise. Il ramo integrato conserva i casi di entrambi i candidati e le conferme accessibili dell’interfaccia corrente. Il candidato applicativo è consegnato sulla #83 e sul branch `codex/candidato-integrato-editor-metafield-20261128`. Le PR redirect e archivio seguono rilasci distinti.
+
+**Correzioni dimostrate.** Con la fonte «Fiori penduli», la frase «I fiori ricadono verso il basso» passava il controllo di sezione, ma il contatore segnalava omissione. Ora la conta come equivalenza. Una seconda regressione con «Foglie lineari» e «Fiori penduli» accettava «Le foglie sono pendule». Ora il validatore controlla il soggetto anche quando entrambe le fonti sono citate. I test comprendono negazione, frequenza e attributi privi di fonte. Il riferimento editoriale resta 250–450 parole quando le fonti lo consentono. La lunghezza della fixture completa e il recupero manuale oltre 250 parole sono verifiche isolate. Nessuna misura del pilota reale è disponibile.
+
+**Matrice di persistenza.** Shopify Admin e il registro campi del progetto collegato sono stati interrogati in sola lettura. La colonna PDP indica quanti dei 16 prodotti del campione SEO contenevano già un valore non vuoto secondo Shopify Admin. I grant sono assegnazioni nominative abilitate osservate nel registro. Per salvare o sincronizzare servono anche ruolo, capability e conferme pertinenti.
+
+| Contenuto approvato | Destinazione Shopify | Grant | Valori presenti su 16 | Prova del candidato |
+|---|---|---:|---:|---|
+| Descrizione estesa e paragrafi di coltivazione | `descriptionHtml` | 2 | 16 | Bozza interna, riapertura e confronto HTML |
+| Descrizione breve | `custom.short_intro`, testo multiriga | 2 | 3 | Registry, preflight del tipo, rilettura |
+| FAQ | `custom.faq_prodotto`, JSON | 2 | 3 | Domande e risposte, confronto strutturale |
+| Caratteristiche | `custom.key_features`, testo multiriga | 2 | 3 | Voci distinte, confronto e resa PDP |
+| Punti di forza | `custom.key_benefits`, testo multiriga | 2 | 0 | Codec reversibile e confronto simulato |
+| SEO title / meta description | `seo.title` / `seo.description` | 2 per campo | 3 / 3 | Salvataggio e rilettura sulla fixture |
+| Tag | `tags` | 1 | 0 | Campo nativo, vincoli sui tag logistici |
+| Curiosità | `custom.curiosita`, testo multiriga | **0** | **0** | Input manuale, grant e tipo esatti, consenso individuale, rilettura interna e Shopify simulata |
+
+Le cinque definizioni metafield della matrice sono PRODUCT con accesso Storefront PUBLIC_READ, verificato nella lista completa del namespace custom. Curiosità ha un campo Admin botanico visibile, modificabile, pubblicabile e `manual_only`. Nel candidato il backend annuncia `supportsManualDraftCuriosity`. L’editor abilita la persistenza solo con versione, mapping e grant coerenti. Richiede una revisione manuale del testo e una conferma specifica. Una proposta derivata può restare in anteprima. Il backend valida il registro e il grant in salvataggio e in sincronizzazione, verifica il tipo Shopify e rilegge la bozza tramite il percorso #78. PostgreSQL locale ha riletto il valore manuale con pubblicazione interna bloccata. Il browser ha riaperto la bozza simulata con il testo confermato. La prova Shopify sintetica distingue un valore identico da uno divergente. Nessun campo ha ricevuto una scrittura Shopify live durante questa UAT. Il GID indicato nel verbale storico #78 non è stato restituito dal negozio connesso in questa sessione. Le riletture di valori esistenti sulle 16 PDP attestano soltanto il campione corrente.
+
+### Verbale UAT, rilascio e rollback
+
+| Livello | Risultato del 28 novembre |
+|---|---|
+| Offline | 737 test Node, 141 Deno e 46 Chromium superati. TypeScript, build Vite e controllo Deno degli entrypoint riusciti. Banco A/B offline sul riferimento autorizzato con zero richieste. |
+| Database locale | Suite catalogo e registro superate su PostgreSQL effimero. Salvato e riletto il campo manuale sulla RPC locale. Verificati anche ACL, dinieghi, replay e rollback. |
+| Produzione, lettura | Homepage e catalogo accessibili. Sessione staff con dashboard e Nuovo prodotto. L’ingresso anonimo in Admin mostra il login. L’editor integrato non è esposto nella pagina Nuovo prodotto osservata. La route clienti storici risponde 404. |
+| Checkout ospite | Dalla PDP il browser ha raggiunto la pagina Shopify «Check-out - Online Garden», risposta finale 200 e riepilogo ordine visibile. Sessione isolata, nessun dato personale inserito e zero ordini. |
+| AI e distribuzione | Mancava la credenziale dedicata al banco. Chiamate Gemini/OpenAI 0, costo incrementale del pilota 0 crediti. Nessuna nuova distribuzione, migrazione, pubblicazione o promozione staff. Il precedente deploy della sola Edge AI è documentato per il 27 novembre alla revisione `874f2d3`. |
+
+**Guida di collaudo per Marco.** In una preview autorizzata inserire nome e fonte Yucca, verificare la fonte e generare la scheda. Controllare copertura su 14 fatti distinti e provenienza delle parole. Modificare una sola sezione e confrontare prima/dopo. Per Curiosità verificare il testo manualmente e confermare fonte e valore se il grant è presente. Approvare la scheda e scegliere «Salva bozza interna». Riaprire lo stesso ID e confrontare i campi. La creazione DRAFT Shopify richiede il comando distinto, il consenso specifico e la rilettura. Una rilettura mancante o divergente deve aprire la riconciliazione della stessa operazione.
+
+**Gate applicativo.** Il titolare può autorizzare un singolo change di collaudo e rilascio indicando candidato, account abilitato al campo Curiosità, bozza tecnica fuori vendita e finestra. Prima della distribuzione il gestore acquisisce le versioni ripristinabili del frontend e delle funzioni `product-admin-api` e `product-admin-ai`, inclusi i moduli condivisi, verifica la compatibilità in preview e conserva gli artefatti precedenti. Il collaudo controlla la corrispondenza dei valori, prima dopo riapertura Admin, poi con Shopify Admin sul solo DRAFT autorizzato. In caso di regressione riporta frontend e funzioni alle revisioni registrate, ritira il solo grant introdotto dal change e conserva bozze, mapping e journal. Il progetto resta PENDING_CLIENT_ACCEPTANCE con SAL 57,75%.
+
+**Decisione modello.** Mantenere provvisoriamente Gemini. Il pilota autorizzato sul riferimento `d64abfb` è bloccato fino alla disponibilità della chiave dedicata nell’ambiente del banco. Non esistono due schede reali anonimizzabili, una graduatoria o un costo per braccio osservato. Usare la coppia già autorizzata, senza retry, e registrare la revisione esatta del validatore per entrambi i bracci.

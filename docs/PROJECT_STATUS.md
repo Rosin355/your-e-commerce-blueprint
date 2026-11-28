@@ -1,3 +1,11 @@
+## 28 novembre 2026 · Chiusura tecnica dei tre filoni
+
+**PENDING_CLIENT_ACCEPTANCE · SAL ufficiale 57,75%.** Il candidato applicativo riunisce la genealogia di #79, #80, #83 e la correzione #78. Curiosità dispone di un percorso manuale con doppia rilettura collaudata in isolamento. Il registro live espone zero grant nominativi per il campo. A/B bloccato prima di ogni chiamata, costo incrementale 0 crediti. Nessuna distribuzione dell’editor integrato. [Matrice campi, UAT, guida e rollback](release/ai-editor-v3/README.md#candidato-integrato-e-uat-del-28-novembre-2026)
+
+- **Redirect, PR #82.** 16 identità e 16 PDP verificate, 272 risposte HTTP. Zero redirect legacy diretti attivati. Configurazioni pilota e completa verificate in isolamento. [Ricevute e change Cloudflare](https://github.com/Rosin355/your-e-commerce-blueprint/blob/6257b67/docs/seo/recupero-2026-11-27/README.md)
+- **Archivio e Marco, PR #84.** Originale riconciliato a 5.450 clienti, 857 acquirenti e 952 acquisti. Zero clienti importati, zero promozioni. Prova locale di restore, parità completa e autorizzazioni. Backup ripristinabile in produzione, conservazione e identità nominativa attendono attestazione. [Ricevuta, autorizzazioni e rollback](https://github.com/Rosin355/your-e-commerce-blueprint/blob/ce9514f/docs/migration/admin-clienti-operativo/GATE-FINALE.md)
+- **Sito attivo.** Homepage, catalogo, dashboard staff, login anonimo e checkout Shopify con riepilogo verificati. Zero ordini. Il nuovo editor integrato e la pagina clienti storici attendono il rilascio.
+
 ## 28/11/2026 — Pilota A/B Yucca bloccato prima della prima chiamata
 
 **BLOCKED · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Il controllo offline sul candidato `d64abfb` è passato. La credenziale gateway dedicata è assente nell’ambiente del banco. Nessuno dei due modelli è stato invocato: 0 chiamate e 0 crediti Lovable consumati per il pilota. La scelta del modello resta aperta. [Verbale del pilota](release/ai-editor-v3/README.md#pilota-ab-del-28-novembre-2026)

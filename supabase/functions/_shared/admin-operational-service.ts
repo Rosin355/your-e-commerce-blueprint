@@ -1,3 +1,4 @@
+import { isManualDraftCuriosity } from './admin-v2-field-policy.ts';
 import { readDraftSummary } from './admin-draft-summary.ts';
 import { comparisonDraftPlan, planDraftMetafields, requestedDraftFields, requireDraftBotanicalReview, unreadDraftMetafields, verifyAdminDraftFields, verifyDraftMetafields } from './admin-draft-metafields.ts';
 import { editorialCollections } from './admin-catalog-commerce.ts';
@@ -163,7 +164,7 @@ function validatedFields(draft: ProductDraft, defs: FieldDefinition[]) {
     demand(!Object.hasOwn(entries, key), 'Campo botanico duplicato.');
     const def = defs.find((d) => d.key === key);
     demand(
-      def && def.applies_to !== 'variant' && isFieldEditable(def).ok && !def.manual_only &&
+      def && def.applies_to !== 'variant' && isFieldEditable(def).ok && (key === 'curiosita' ? isManualDraftCuriosity(def) : !def.manual_only) &&
         (DRAFT_BOTANICAL_KEYS as readonly string[]).includes(key),
       'Campo botanico non ammesso dal registro.',
     );
@@ -569,6 +570,7 @@ export async function handleOperational(
     if (action === 'save_new_product' && canary) {
       requireCanaryDraft(requireCanaryScope(scope, auth.userId, auth.roles, action), draft, p.idempotencyKey);
     }
+    if (Object.hasOwn(draft.botanical, 'curiosita')) requireCatalog(auth, 'edit', 'curiosita');
     if (ordinary) for (const key of editorialKeys(draft)) requireCatalog(auth, 'edit', key);
     if (auth.catalogApproval?.recoverSavedDraft) {
       const { data: op, error } = await db.from('admin_product_operations')
@@ -694,6 +696,7 @@ export async function handleOperational(
   if (error || !op) throw new OperationalError('NOT_FOUND', 'Operazione non disponibile.');
   if (ordinary && op.actor !== auth.userId) throw new OperationalError('FORBIDDEN', 'Questa operazione appartiene a un altro operatore.');
   const draft = validateDraft(op.payload);
+  if (action === 'create_shopify_draft' && Object.hasOwn(draft.botanical, 'curiosita')) requireCatalog(auth, 'sync', 'curiosita');
   if (draft.shortDescription && action === 'create_shopify_draft') requireCatalog(auth, 'sync', 'short_description');
   if (canary) {
     requireCanaryDraft(requireCanaryScope(scope, auth.userId, auth.roles, action), draft, op.request_key);

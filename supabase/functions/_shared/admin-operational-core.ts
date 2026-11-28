@@ -9,6 +9,7 @@ export const DRAFT_BOTANICAL_KEYS = [
   'periodo_ottimale_di_potatura',
   'difficolta_di_coltivazione',
   'faq',
+  'curiosita',
   'key_features',
   'key_benefits',
 ] as const;
