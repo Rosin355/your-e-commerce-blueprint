@@ -1,3 +1,17 @@
+## 28 novembre 2026 · Pilota Cloudflare PASS apex + www (primo hop diretto)
+
+**Evidenza HTTP fornita dal titolare (28/11/2026, GET senza seguire redirect).** Il Worker `onlinegarden-301-redirects`, versione attiva prefisso `7d009cbd` da Dashboard Cloudflare, restituisce:
+
+- **Apex**, `GET https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=test301`: `HTTP/2 301`, `location: https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=test301`, `server: cloudflare`, `cache-control: no-store` (28 novembre, 14:45:47 GMT).
+- **www**, `GET https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=test301`: `HTTP/2 301`, **lo stesso Location diretto alla PDP sull'apex**, UTM preservato, `server: cloudflare`, `cache-control: no-store` (28 novembre, **16:34:24 GMT**).
+- Screenshot del titolare: sotto Workers & Pages > Worker > Domains e presente la route apex `onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/*`. Il test www dimostra il funzionamento del pilota dopo aggiunta della route `www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/*`; verificare l'elenco delle route completo prima del change massivo.
+- I due test sono **primo hop diretto**, senza passaggio preliminare al vecchio URL sull'apex. Il difetto di doppio hop www registrato nel report di baseline precedente al change e risolto per **questo pilota**. Le precedenti 5.640 prove misuravano lo stato pre-change e non vanno rietichettate come post-change.
+- **Stato:** pilota HTTP PASS su entrambi gli host; i **1.113 mapping APPROVED restano preparati, NON distribuiti**. Altri 1.112 non sono ancora attivi, salvo diversa prova live. Verificare versione attiva e conservare ID completo privatamente prima del rilascio.
+
+**Prossimo gate operativo:** esaminare il pacchetto ZIP e i suoi SHA-256, verificare il sorgente `50/worker.mjs` e la relazione con il pilota, caricare/distribuire nel **Worker esistente** la versione cumulativa da 50 mantenendo per il momento le due route pilota strette; ripetere i test pilota. Solo dopo, aggiungere in modo additivo `onlinegarden.it/prodotto/*` e `www.onlinegarden.it/prodotto/*` (senza `/*`) e collaudare 50 righe piu regressioni e pass-through prima del lotto 250. Ricordare che distribuire codice e associare route sono **due changes distinti** e che il rollback deve includere entrambi. Non cambiare DNS, origine Lovable, SSL/TLS, catalogo, checkout o email.
+
+**Stato progetto:** `PENDING_CLIENT_ACCEPTANCE`, SAL 57,75%.
+
 # Rilascio e ripristino del Worker onlinegarden-301-redirects
 
 ## Stato di partenza del 28 novembre 2026
