@@ -19,8 +19,10 @@ const initial: ProductDraft = {
   seoTitle: 'Titolo SEO sintetico', seoDescription: 'Descrizione SEO sintetica',
 };
 
-async function simulate(page: Page, options: {article?: 'complete'|'partial'|'legacy'|'semantic'; assets?:boolean; lifecycle?:boolean; existingAi?:boolean; syncReview?:boolean; conflictAfterSave?:boolean; readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; modelSeo?: boolean; denyDescription?: boolean } = {}) {
+async function simulate(page: Page, options: {historicalBotany?:boolean; interruptedSave?:boolean; article?: 'complete'|'partial'|'legacy'|'semantic'; assets?:boolean; lifecycle?:boolean; existingAi?:boolean; syncReview?:boolean; conflictAfterSave?:boolean; readError?: boolean; legacy?: boolean; media?: boolean; allowDraftSend?: boolean; currentText?: string; aiFailures?: string[]; allowAi?: boolean; sheet?: boolean; noTypeDomain?: boolean; modelSeo?: boolean; denyDescription?: boolean } = {}) {
   let changedFormat='Unico';
+  let botanicalConfirmed=false;
+  let originalSaveKey:string|undefined;
   const gallery:{id:string;alt:string;url:string;variant:boolean}[]=[];
   const failures = [...(options.aiFailures ?? [])];
   let saved = structuredClone(initial);
@@ -53,7 +55,7 @@ async function simulate(page: Page, options: {article?: 'complete'|'partial'|'le
     calls.push(action);
     const reply = (result: object) => route.fulfill({ json: { ok: true, ...result } });
     switch (action) {
-      case 'get_admin_context': return reply({ lifecycleActions:options.lifecycle?['archive_catalog_product']:[], roles: ['editor'], canWrite: true, canUseAi: options.allowAi !== false, ordinaryCatalog: true, canManageGallery: options.assets===true, canRenameFormats:options.assets===true, canSync:options.assets===true, supportsCatalogSourceAndProductType: true, supportsDistinctDescriptions: true, supportsSheetEvidence:!!options.article, canUploadImages: options.media === true, editableFieldKeys: [...(options.denyDescription ? [] : ['description']), ...(options.article?['faq','key_features','key_benefits']:[]), ...(options.sheet ? ['short_description', 'seo_title', 'seo_description'] : [])], canPublish: true });
+      case 'get_admin_context': return reply({ lifecycleActions:options.lifecycle?['archive_catalog_product']:[], roles: ['editor'], canWrite: true, canUseAi: options.allowAi !== false, ordinaryCatalog: true, canManageGallery: options.assets===true, canRenameFormats:options.assets===true, canSync:options.assets===true, supportsCatalogSourceAndProductType: true, supportsDistinctDescriptions: true, supportsSheetEvidence:!!options.article, canUploadImages: options.media === true, editableFieldKeys: [...(options.denyDescription ? [] : ['description']), ...(options.article?['faq','key_features','key_benefits']:[]), ...(options.sheet ? ['short_description', 'seo_title', 'seo_description', 'periodo_di_fioritura'] : [])], canPublish: true });
       case 'get_product': return reply({
         product: { productId, sku: saved.sku, entityType: 'simple', isActive: true },
         shopifyLive: options.assets ? {available:true,mapped:true,identityVerified:true,publicationStatus:'DRAFT'} : sent ? { available: true, mapped: true, publicationStatus: 'DRAFT' } : { available: false, mapped: false }, history: [],
@@ -68,6 +70,7 @@ async function simulate(page: Page, options: {article?: 'complete'|'partial'|'le
       case 'get_product_operations': return reply({ canManageDraft: true, ordinaryCatalog: true, canSendDraft: options.allowDraftSend === true, operations: [{
         id: 'operation', state: sent ? 'VERIFIED_DRAFT' : 'LOCAL_DRAFT', created_at: '2026-11-20', admin_operation_events: [],
         summary: projectDraft(saved, names),
+        ...(options.historicalBotany ? {botanicalReview:{hash:'immutable',entries:[['periodo_di_fioritura',['Febbraio','Maggio','Novembre']]],completed:botanicalConfirmed,canConfirm:true}} : {}),
       }] });
       case 'get_catalog_lifecycle_receipt': return reply({receipt});
       case 'preview_catalog_lifecycle': return reply({hash:'fixture-hash',plan:{title:'Scheda tecnica',status:'DRAFT',variants:[],channels:[]}});
@@ -155,6 +158,23 @@ async function simulate(page: Page, options: {article?: 'complete'|'partial'|'le
         return reply({ result: { state: 'VERIFIED_DRAFT' } });
       case 'save_new_product':
         expect(input.approvalId).toBe('synthetic-approval');
+        if (options.historicalBotany) {
+          expect(input.operationId).toBe('operation');
+          expect(input.expectedHash).toBe('immutable');
+          expect(input.botanicalConfirmedKeys).toEqual(['periodo_di_fioritura']);
+          expect(input.draft).toBeUndefined();
+          botanicalConfirmed=true;
+          return reply({botanicalReview:{operationId:input.operationId,payloadHash:input.expectedHash}});
+        }
+        if (options.interruptedSave && !originalSaveKey) {
+          originalSaveKey=input.idempotencyKey;
+          saved=input.draft;
+          return route.fulfill({status:409,json:{error:{code:'NEEDS_RECONCILIATION',message:'Bozza salvata, rilettura interrotta.'}}});
+        }
+        if (options.interruptedSave) {
+          expect(input.idempotencyKey).toBe(originalSaveKey);
+          expect(input.draft).toEqual(saved);
+        }
         saved = input.draft;
         value = saved.description;
         return reply({ result: { productId, operationId: 'operation', state: 'LOCAL_DRAFT' } });
@@ -389,6 +409,7 @@ test('AI descrizione esistente: permesso negato e proposta applicata solo al mod
   await expect(panel.getByRole('alert')).toContainText('non è autorizzato');
   await run.click();
   await expect(panel.getByRole('status')).toContainText('Proposta editoriale generata con AI');
+  await expect(panel.getByRole('button',{name:'Applica alla compilazione'})).toBeVisible();
   page.once('dialog',dialog=>dialog.accept());
   await panel.getByRole('button',{name:'Applica alla compilazione'}).click();
   await expect(page.getByRole('textbox',{name:'Descrizione',exact:true})).toHaveText(verifiedParagraph);
@@ -898,4 +919,65 @@ test('V3 espone copertura distinta e provenienza delle parole della generazione 
   await expect(page.getByText(/Portamento e sviluppo · frase 2/)).toBeVisible();
   expect(state.calls.filter(a=>a==='suggest_confirmed_field')).toHaveLength(1);
   expect(state.calls).not.toContain('save_new_product');
+});
+
+test('riapertura bozza storica: confermare mesi sulla stessa scheda precede ogni invio',async({page})=>{
+  const model=await simulate(page,{historicalBotany:true,allowDraftSend:true});
+  await page.goto('/admin/products/'+productId);
+  const button=page.getByRole('button',{name:'Conferma sulla bozza interna'});
+  await expect(button).toBeDisabled();
+  await expect(page.getByRole('button',{name:'Crea bozza Shopify'})).toHaveCount(0);
+  await page.getByRole('checkbox',{name:/Febbraio.*Maggio.*Novembre/}).check();
+  page.once('dialog',dialog=>dialog.accept());
+  await button.click();
+  await expect(page.getByText('Conferma botanica registrata su questa bozza interna.')).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('button',{name:'Crea bozza Shopify'})).toBeVisible();
+  expect(model.calls.filter(action=>action==='save_new_product')).toHaveLength(1);
+  expect(model.calls).not.toContain('create_shopify_draft');
+});
+
+test('rilettura locale interrotta: il pulsante di recupero invia la stessa chiave e apre la stessa bozza',async({page})=>{
+  const model=await simulate(page,{interruptedSave:true});
+  await page.goto('/admin/products/new');
+  await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
+  await page.getByLabel('Nome prodotto (obbligatorio)').fill('Pianta sintetica');
+  await page.getByRole('textbox',{name:'Prezzo di vendita 1'}).fill('10');
+  await page.getByRole('textbox',{name:'Descrizione verificata'}).fill('Descrizione sintetica della bozza.');
+  await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+  await page.getByRole('button',{name:'Verifica anteprima'}).click();
+  await page.getByRole('checkbox',{name:/Confermo i dati/}).check();
+  page.on('dialog',dialog=>dialog.accept());
+  await page.getByRole('button',{name:'Salva bozza nell’Admin'}).click();
+  await page.getByRole('button',{name:'Recupera salvataggio con la stessa richiesta'}).click();
+  await expect(page.getByRole('link',{name:'Apri scheda prodotto e storico'})).toHaveAttribute('href','/admin/products/'+productId);
+  expect(model.calls).not.toContain('create_shopify_draft');
+});
+
+test('mesi manuali, revoca della conferma, salvataggio e riapertura della stessa bozza',async({page})=>{
+ const model=await simulate(page,{sheet:true});
+ await page.goto('/admin/products/new');
+ await page.getByRole('button',{name:'Editor avanzato',exact:true}).click();
+ await page.getByLabel('Nome prodotto (obbligatorio)').fill('Scheda sintetica');
+ await page.getByRole('textbox',{name:'Descrizione verificata'}).fill('Test descrizione.');
+ await page.getByRole('textbox',{name:'Prezzo di vendita 1'}).fill('10');
+ await page.getByText('Opzioni avanzate · Dati tecnici e permessi',{exact:true}).click();
+ await page.getByText('Informazioni botaniche e FAQ facoltative',{exact:true}).click();
+ const month=(name:string)=>page.getByRole('checkbox',{name:'Periodo di fioritura: '+name,exact:true});
+ await month('Novembre').check(); await month('Febbraio').check();
+ const source=page.getByRole('checkbox',{name:/Confermo la fonte e il valore di periodo di fioritura/i});
+ await source.check(); await month('Maggio').check(); await expect(source).not.toBeChecked();
+ await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+ await expect(page.getByText('Conferma la fonte di questo dato prima di salvare.')).toBeVisible();
+ await source.check();
+ await page.getByRole('button',{name:'Vai all’anteprima'}).click();
+ await page.getByRole('button',{name:'Verifica anteprima'}).click();
+ await page.getByRole('checkbox',{name:/Confermo i dati/}).check();
+ page.once('dialog',d=>d.accept()); await page.getByRole('button',{name:'Salva bozza nell’Admin'}).click();
+ await page.getByRole('link',{name:'Apri scheda prodotto e storico'}).click(); await page.reload();
+ const summary=page.getByRole('heading',{name:'Riepilogo della bozza interna salvata'}).locator('..');
+ await summary.getByText('Codici e dettagli avanzati').click();
+ await expect(summary.getByText('Febbraio, Maggio, Novembre',{exact:true})).toBeVisible();
+ expect(model.saved()?.botanicalConfirmedKeys).toEqual(['periodo_di_fioritura']);
+ expect(model.calls).not.toContain('create_shopify_draft');
 });

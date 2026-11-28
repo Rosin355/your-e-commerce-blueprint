@@ -2,6 +2,7 @@ import { useAuth } from '@/hooks/useAuth';
 import CustomerDraftEditor from '../components/CustomerDraftEditor';
 import type { SheetContext } from '../lib/draftSheet';
 import AiErrorNotice from '../components/AiErrorNotice';
+import DraftVerificationError from '../components/DraftVerificationError';
 import DraftSummaryView from '../components/DraftSummaryView';
 import { projectDraft } from '../../../supabase/functions/_shared/admin-draft-view';
 import DraftSheetAssistant from '../components/DraftSheetAssistant';
@@ -276,7 +277,7 @@ function NewProductForm() {
             <p className='my-2 text-sm'>Inserisci soltanto i dati e i periodi che hai verificato.</p>
             {definitions.isError && <p role='alert'>Registro campi non disponibile.</p>}
             {definitions.data?.definitions.filter((d) =>
-              (DRAFT_BOTANICAL_KEYS as readonly string[]).includes(d.key) && (!['key_features','key_benefits'].includes(d.key) || (adminContext.data?.supportsSheetEvidence && adminContext.data.editableFieldKeys?.includes(d.key))) && d.visible &&
+              (DRAFT_BOTANICAL_KEYS as readonly string[]).includes(d.key) && (!ordinary || adminContext.data?.editableFieldKeys?.includes(d.key)) && (!['key_features','key_benefits'].includes(d.key) || (adminContext.data?.supportsSheetEvidence && adminContext.data.editableFieldKeys?.includes(d.key))) && d.visible &&
               d.editable && !d.manual_only
             ).map((d) => (
               <div key={d.key} id={d.key} tabIndex={-1} role="group" aria-label={d.label} aria-describedby={errors[d.key] ? d.key + "-error" : undefined}>
@@ -371,8 +372,8 @@ function NewProductForm() {
       </div>
       </>}
       {save.isError && (
-        <div role='alert'>
-          <p>{save.error.message}</p>
+        <div>
+          <DraftVerificationError error={save.error} />
           {locked && <p>I dati restano bloccati per evitare una seconda richiesta diversa dopo un timeout.</p>}
           {locked && catalogue.data?.canSaveDraft && (
             <Button disabled={save.isPending} onClick={() => save.mutate(false)}>
@@ -392,7 +393,7 @@ function NewProductForm() {
           <p>
             La bozza non è pubblicata. L’azione separata “Pubblica” nella scheda verifica dati, classe di spedizione e canale del sito.
           </p>
-          <p>I valori del riepilogo sono salvati nell’Admin. L’invio verifica separatamente ogni metafield richiesto; un errore richiede riconciliazione, non una nuova creazione.</p>
+          <p>I valori del riepilogo sono salvati nell’Admin. La verifica della creazione riguarda la bozza Shopify. L’invio verifica separatamente ogni metafield richiesto; un errore richiede riconciliazione, non una nuova creazione.</p>
           {Boolean(send.data?.metafieldVerification?.length) && <section aria-label="Metafield verificati su Shopify" className="space-y-2">
             <h3 className="font-semibold">Metafield riletti e verificati su Shopify</h3>
             <dl className="space-y-2 break-words">{send.data?.metafieldVerification?.map(field => <div key={field.fieldKey}>
@@ -417,7 +418,7 @@ function NewProductForm() {
             )}
             {send.isError && (
               <>
-                <p role='alert'>{send.error.message}</p>
+                <DraftVerificationError error={send.error} />
                 {catalogue.data?.canRecoverDraft && (ordinary || catalogue.data.approvedOperationId === save.data.result.operationId) && canRecoverDraftAfterError(
                   adminContext.data,
                   Boolean(save.data?.result.operationId),

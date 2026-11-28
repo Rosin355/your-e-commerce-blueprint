@@ -146,3 +146,14 @@ for(const width of [1280,390])test(`PDP Punti di forza condizionale, senza dupli
   await expect(page.getByText('Voce comune',{exact:true})).toHaveCount(1);
  }
 });
+
+for (const type of ['json','list.single_line_text_field']) test('PDP: caratteristiche e benefici nei metafield storici '+type, async ({page}) => {
+  await page.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
+  await page.goto('/scripts/browser/pdp-benefits.html?mode='+type);
+  for (const [section,items] of [['Caratteristiche principali',['Caratteristica esistente','Voce comune']],['Punti di forza',['Beneficio distinto','Secondo beneficio']]] as const) {
+    const button=page.getByRole('button',{name:section,exact:true});
+    if (await button.getAttribute('aria-expanded')!=='true') await button.click();
+    const list=page.locator('[data-state="open"]').filter({has:button}).first().getByRole('listitem');
+    await expect(list).toHaveText([...items]);
+  }
+});

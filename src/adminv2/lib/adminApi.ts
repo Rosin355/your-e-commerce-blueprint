@@ -303,7 +303,7 @@ export async function callCatalogCommand<T = unknown>(body: Record<string, unkno
     return await callAdminApi<T>({ ...command, approvalId: approval.approvalId, confirm: true });
   } catch (error) {
     // Recovery never creates remotely and may need a fresh confirmation after expiry.
-    if (body.action === 'recover_shopify_draft') catalogRequests.delete(fingerprint);
+    if (body.action === 'recover_shopify_draft' || (body.action === 'save_new_product' && body.operationId)) catalogRequests.delete(fingerprint);
     throw error;
   }
 }

@@ -3,6 +3,8 @@ import type { AuthContext } from "./admin-v2-types.ts";
 import { payloadHash, writesEnabled } from "./admin-v2-commands.ts";
 import {
   approvalValid,
+  botanicalReviewTarget,
+  savedDraftReceipt,
   isEditorialList,
   editorialListSyncRevision,
   CATALOG_MUTATIONS,
@@ -55,6 +57,12 @@ export async function catalogSnapshot(
   p: Record<string, unknown>,
 ) {
   const action = String(p.action);
+  if (action === "save_new_product" && typeof p.operationId === 'string') {
+    const { data, error } = await db.from('admin_product_operations').select('id,actor,state,payload_hash')
+      .eq('id', p.operationId).eq('actor', auth.userId).single();
+    demand(!error && data?.state === 'LOCAL_DRAFT' && data.payload_hash === p.expectedHash, 'Bozza cambiata: ricaricare prima di confermare.');
+    return { operationId: data.id, payloadHash: data.payload_hash };
+  }
   if (action === "save_new_product") return { newDraft: true };
   if (["create_shopify_draft", "recover_shopify_draft"].includes(action)) {
     const { data, error } = await db.from("admin_product_operations").select(
@@ -146,7 +154,7 @@ export async function prepareCatalogApproval(
   const command = catalogCommand(p.command);
   demandCommand(auth, command);
   const target = command.action === "save_new_product"
-    ? "new-sku:" +
+    ? typeof command.operationId === 'string' ? botanicalReviewTarget(command.operationId) : "new-sku:" +
       String((command.draft as Record<string, unknown>)?.sku ?? "")
         .toLowerCase()
     : ["create_shopify_draft", "recover_shopify_draft"].includes(
@@ -239,6 +247,23 @@ export async function withCatalogApproval(
       },
     );
   }
+  // A committed local save can be read back even after the original approval expires.
+  // This path never claims another write or invokes the original save RPC.
+  if (savedDraftReceipt(String(p.action), approval.state)) {
+    if (p.operationId) demand(Date.parse(approval.expires_at) > Date.now(), 'Conferma botanica scaduta. Conferma nuovamente i valori salvati.');
+    auth.catalogApproval = { action: 'save_new_product', target: approval.target, before: approval.target_snapshot, recoverSavedDraft: !p.operationId };
+    try {
+      const response = await dispatch();
+      const result = await response.clone().json();
+      if (response.ok && result.ok !== false) {
+        const { error } = await db.from('admin_catalog_approvals').update({
+          state: 'COMPLETE', result, finished_at: new Date().toISOString(),
+        }).eq('id', approval.id).eq('actor', auth.userId).in('state', ['REVIEW_REQUIRED','IN_FLIGHT']);
+        demand(!error, 'Bozza riletta. Riprovare il recupero della ricevuta.');
+      }
+      return response;
+    } finally { delete auth.catalogApproval; }
+  }
   await demandNoUnresolvedListSync(db, auth, command, approval.target, approval.id);
   const snapshot = extraSnapshot
     ? await extraSnapshot()
@@ -280,7 +305,7 @@ export async function withCatalogApproval(
     }
     if (
       p.action === "recover_shopify_draft" && response.ok &&
-      result?.result?.state === "VERIFIED_DRAFT"
+      result?.result?.state === "VERIFIED_DRAFT" && Array.isArray(result.metafieldVerification)
     ) {
       const { error: reconcileError } = await db.from("admin_catalog_approvals")
         .update({
@@ -291,7 +316,7 @@ export async function withCatalogApproval(
         .eq("actor", auth.userId).eq("action", "create_shopify_draft").eq(
           "target",
           String(p.operationId),
-        ).eq("state", "REVIEW_REQUIRED");
+        ).in("state", ["IN_FLIGHT", "REVIEW_REQUIRED"]);
       if (reconcileError) {
         throw new OperationalError(
           "NEEDS_RECONCILIATION",
@@ -303,6 +328,7 @@ export async function withCatalogApproval(
   } catch (error) {
     await db.from("admin_catalog_approvals").update({
       state: "REVIEW_REQUIRED",
+      ...(error instanceof OperationalError && error.details ? { result: { ok: false, error: {code: error.code, message: error.message, details: error.details} } } : {}),
       finished_at: new Date().toISOString(),
     }).eq("id", approval.id).eq("state", "IN_FLIGHT");
     throw error;

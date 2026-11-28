@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { planDraftMetafields, planDraftMetafieldsForComparison, requireDraftBotanicalReview, verifyAdminDraftFields, verifyDraftMetafields } from '../../supabase/functions/_shared/admin-draft-metafields.ts';
+import { comparisonDraftPlan, planDraftMetafields, planDraftMetafieldsForComparison, requireDraftBotanicalReview, verifyAdminDraftFields, verifyDraftMetafields } from '../../supabase/functions/_shared/admin-draft-metafields.ts';
 import { validateDraft, type ProductDraft } from '../../supabase/functions/_shared/admin-operational-core.ts';
 import type { FieldDefinition } from '../../supabase/functions/_shared/admin-v2-types.ts';
 import { draftErrors } from '../../src/adminv2/lib/newDraft.ts';
@@ -85,4 +85,47 @@ test('salvataggio Admin parziale non equivale a tutti i campi verificati',()=>{
 });
 test('rilettura Admin di un’altra identità o con valori diversi viene rifiutata',()=>{
  for(const productId of ['local','other'])assert.throws(()=>verifyAdminDraftFields('local',[{key:'nome_botanico',text:'Specie'}],[{product_id:productId,field_key:'nome_botanico',value_text:'Diversa',value_json:null,value_number:null}]));
+});
+test('FAQ: ordine delle proprietà irrilevante, ordine delle domande e valori significativi',async()=>{
+  const faq = [{question:'Prima?',answer:'A'},{question:'Seconda?',answer:'B'}];
+  const plan = await planDraftMetafields(draft({faq}),[def('faq','json','json',{type:'metafield',namespace:'custom',key:'faq_prodotto'})],gql([{key:'faq_prodotto',type:'json'}]));
+  const read = (items:unknown) => verifyDraftMetafields('product',plan,async<T>()=>({product:{id:'product',metafields:{nodes:[{...plan[0],value:JSON.stringify(items)}],pageInfo:{hasNextPage:false}}}} as T));
+  assert.equal((await read(faq.map(({question,answer})=>({answer,question}))))[0].state,'VERIFIED');
+  await assert.rejects(()=>read([...faq].reverse()));
+  await assert.rejects(()=>read([{question:'Prima?',answer:'B'},faq[1]]));
+});
+
+test('ricevuta di tre campi: corretto, valore diverso e assente; nessun successo globale',async()=>{
+  const plan = ['nome_botanico','nome_comune','difficolta_di_coltivazione'].map(fieldKey=>({fieldKey,namespace:'custom',key:fieldKey,type:'single_line_text_field',value:'Valore'}));
+  const read = async<T>() => ({product:{id:'product',metafields:{nodes:[plan[0],{...plan[1],value:'Altro'}],pageInfo:{hasNextPage:false}}}} as T);
+  await assert.rejects(()=>verifyDraftMetafields('product',plan,read), (error: {details?:{metafieldVerification?:{fieldKey:string;state:string}[]}}) => {
+    assert.deepEqual(error.details?.metafieldVerification?.map(r=>[r.fieldKey,r.state]),plan.map((r,i)=>[r.fieldKey,i===0?'VERIFIED':'NOT_VERIFIED']));
+    return true;
+  });
+  await assert.rejects(()=>verifyDraftMetafields('product',plan,async()=>{throw Error('rete');}), (error: {details?:{metafieldVerification?:{state:string}[]}}) => {
+    assert.deepEqual(error.details?.metafieldVerification?.map(r=>r.state),['UNREAD','UNREAD','UNREAD']);
+    return true;
+  });
+});
+
+test('preflight PRODUCT rifiuta owner variante nel registro e nella definizione e testi monoriga con CR o LF',async()=>{
+  const field=def('nome_botanico'), item={key:field.key,type:'single_line_text_field'};
+  for(const value of ['Uno\nDue','Uno\rDue','Uno\n','\rDue']) await assert.rejects(()=>planDraftMetafields(draft({nome_botanico:value}),[field],gql([item])),/una sola riga/);
+  const variant:FieldDefinition={...field,applies_to:'variant'};
+  await assert.rejects(()=>planDraftMetafields(draft({nome_botanico:'Test'}),[variant],gql([item])),/mapping/);
+  assert.throws(()=>planDraftMetafieldsForComparison(draft({nome_botanico:'Test'}),[variant]));
+  await assert.rejects(()=>planDraftMetafields(draft({nome_botanico:'Test'}),[field],async<T>()=>({metafieldDefinitions:{nodes:[{namespace:'custom',key:field.key,type:{name:item.type},ownerType:'PRODUCTVARIANT',access:{storefront:'PUBLIC_READ'}}],pageInfo:{hasNextPage:false}}} as T)),/Owner/);
+});
+
+test('preflight aggregato e recovery verificano anche i campi con mapping ancora utilizzabile',async()=>{
+  const item = draft({nome_botanico:'Specie',nome_comune:'Altro',difficolta_di_coltivazione:'Media'});
+  const defs = [def('nome_botanico'),{...def('nome_comune'),applies_to:'variant' as const}];
+  const check = (states:string[]) => (err: {details?:{metafieldVerification?:{state:string}[]}}) => {
+    assert.deepEqual(err.details?.metafieldVerification?.map(row=>row.state),states);
+    return true;
+  };
+  await assert.rejects(()=>planDraftMetafields(item,defs,gql([{key:'nome_botanico',type:'single_line_text_field'}])),check(['UNREAD','BLOCKED','BLOCKED']));
+  const {fields,blocked} = comparisonDraftPlan(item,defs);
+  const remote = async <T>() => ({product:{id:'p',metafields:{nodes:fields,pageInfo:{hasNextPage:false}}}} as T);
+  await assert.rejects(()=>verifyDraftMetafields('p',fields,remote,true,blocked),check(['VERIFIED','BLOCKED','BLOCKED']));
 });
