@@ -89,3 +89,15 @@ Prossimo gate: ottenere da Lovable il record CNAME esatto e le istruzioni suppor
 Gate successivo: test diretto HTTPS del dominio principale e www in browser del titolare, pagina prodotto, login e carrello e, ove possibile, checkout non confermato. Se PASS, eseguire controllo di configurazione certificati e proxy, poi abilitare Proxied per i due CNAME nell'ambito del change autorizzato, con pronta inversione DNS only se si manifestano errori. Non inserire route Worker fino alla verifica del proxy, della correttezza dell'origine e dell'assenza di regressioni.
 
 **Redirect legacy diretti: 0/16 ancora attestati.** `PENDING_CLIENT_ACCEPTANCE`, SAL 57,75%.
+
+## Proxy apex attivato, www ancora DNS only
+
+**28 novembre 2026, prova visiva dal pannello DNS Cloudflare, nessun test HTTP conclusivo al momento del rilievo.**
+- `CNAME onlinegarden.it -> ecom-blueprint-gen.lovable.app`: **Proxied** (nuvola arancione), TTL Auto.
+- `CNAME www.onlinegarden.it -> ecom-blueprint-gen.lovable.app`: **DNS only** (nuvola grigia), TTL Auto.
+- Il pannello mostra un avviso di possibile esposizione IP dell'origine per record DNS only mentre un altro record e' proxied. L'avviso non attesta un problema di raggiungibilita'.
+- MX, record email IONOS e TXT Lovable non risultano alterati nello screenshot.
+- **Gate in corso:** validare HTTPS homepage e PDP Rosa Jasmina sul dominio apex. In caso di PASS, valutare Proxied su www e ripetere test di normalizzazione www/apex e checkout senza acquisto prima di associare route Worker. In caso di errore SSL/Cloudflare, riportare apex a DNS only e sospendere.
+- Nessuna route legacy 301 attivata; rimane **0/16 redirect prodotto live attestati**. Non confondere il 301 host/protocollo Lovable con il 301 di mapping prodotto.
+
+`PENDING_CLIENT_ACCEPTANCE` | SAL 57,75%.
