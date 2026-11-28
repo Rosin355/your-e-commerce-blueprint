@@ -1,3 +1,7 @@
+## 28/11/2026 — Pilota A/B Yucca bloccato prima della prima chiamata
+
+**BLOCKED · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Il controllo offline sul candidato `d64abfb` è passato. La credenziale gateway dedicata è assente nell’ambiente del banco. Nessuno dei due modelli è stato invocato: 0 chiamate e 0 crediti Lovable consumati per il pilota. La scelta del modello resta aperta. [Verbale del pilota](release/ai-editor-v3/README.md#pilota-ab-del-28-novembre-2026)
+
 ## 27/11/2026 — Validatore V3 e confronto modelli predisposto
 
 **READY_FOR_CONTROLLED_TEST · PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Sulla fixture mirata il candidato passa da 3/14 a 4/14 fatti distinti (da 4/15 a 5/15 nel conteggio storico). La fonte supporta il portamento verticale. La cura inventata e il giudizio estetico sui fiori sono scartati. Il retest storico resta a 165 parole e 9/15. Preparata una coppia Gemini/GPT-5.4 Mini con identificativi verificati nel gateway. Eseguite solo prove sintetiche. [Verbale e gate](release/ai-editor-v3/README.md#candidato-semantico-e-pilota-da-una-coppia)

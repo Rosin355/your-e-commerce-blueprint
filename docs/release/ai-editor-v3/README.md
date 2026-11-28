@@ -200,3 +200,16 @@ Nel candidato si misurano **13 parole proposte dalla fixture**, **4 accettate**,
 **REGRESSION_TESTS.** Superate le suite offline Node (724), Deno (132) e Chromium con backend simulato (41). La prova browser verifica le due coperture, l'origine delle parole, il testo conservato, i motivi di scarto e l'assenza di un salvataggio. Superati anche il typecheck dell'Admin, dell'entrypoint AI e del banco A/B e la build frontend.
 
 **READY_FOR_CONTROLLED_TEST** per una coppia isolata dopo autorizzazione della spesa. La decisione sul modello richiede revisione umana dei 14 fatti distinti, delle frasi non supportate, dello stile e della SEO. Il ramo contiene codice e prove offline, senza deploy, Publish, merge o scritture Shopify/DB.
+
+## Pilota A/B del 28 novembre 2026
+
+**BLOCKED prima dell’invocazione.** Sul commit `d64abfb54c4ef642ccd66e27b547a1e7a9d03bda` il controllo offline di `scripts/yucca-model-pair.ts` è passato con rete bloccata e 0 chiamate gateway. Il contratto per i due bracci ha lo stesso SHA-256, `70b8f37a2d2be826ac8910453da49420ae8748cd8591fb18f26c7e0be8117d18`. La sola fixture sintetica ha prodotto 13 parole proposte, 4 conservate, 9 scartate, 26 derivate localmente e 30 finali, con 4/14 fatti distinti coperti.
+
+La variabile dedicata `YUCCA_AB_GATEWAY_KEY` era assente nell’ambiente di esecuzione. Il controllo ha letto esclusivamente la disponibilità della variabile. Il banco reale non è partito.
+
+| Braccio | Stato | Chiamate reali | Consumo del pilota |
+|---|---|---:|---:|
+| A · `google/gemini-3-flash-preview` | Non eseguito | 0 | 0 crediti |
+| B · `openai/gpt-5.4-mini` | Non eseguito | 0 | 0 crediti |
+
+**AB_EXECUTED = NO · TOTAL_AI_CALLS = 0 · ACTUAL_COST = 0 crediti Lovable.** Per entrambi i bracci mancano misure reali di parole, copertura, sezioni, affermazioni prive di fonte, tasso di scarto, stile italiano, latenza e token. Nessuna scheda anonima X/Y è stata generata. Il confronto editoriale resta aperto fino alla disponibilità della credenziale dedicata nell’ambiente del banco. **PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.**
