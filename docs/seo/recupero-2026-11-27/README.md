@@ -81,3 +81,11 @@ Prossimo gate: ottenere da Lovable il record CNAME esatto e le istruzioni suppor
 **Rollback:** ricollegare Lovable in modalita' standard e ripristinare i record A da export se l'intervento fallisce; non considerarlo istantaneo o gia' collaudato. La proposta di rollback dopo 60 minuti e' una soglia organizzativa, non una garanzia sul tempo necessario a DNS, certificati e propagazione. Resta 0/16 redirect legacy diretti attivi fino a evidenza live.
 
 `PENDING_CLIENT_ACCEPTANCE` - SAL 57,75%.
+
+## Screenshot Cloudflare: CNAME installati, DNS only
+
+**28 novembre 2026, screenshot del titolare.** La pagina DNS di Cloudflare mostra entrambi i record web sostituiti con `CNAME onlinegarden.it -> ecom-blueprint-gen.lovable.app` e `CNAME www.onlinegarden.it -> ecom-blueprint-gen.lovable.app`, con `TTL Auto` e **DNS only**. I precedenti record A non sono piu visibili, mentre MX, SPF, DKIM, DMARC e TXT di verifica Lovable risultano conservati. Verifica visuale limitata al pannello; non implica ancora un test pubblico riuscito o l'attivazione Worker.
+
+Gate successivo: test diretto HTTPS del dominio principale e www in browser del titolare, pagina prodotto, login e carrello e, ove possibile, checkout non confermato. Se PASS, eseguire controllo di configurazione certificati e proxy, poi abilitare Proxied per i due CNAME nell'ambito del change autorizzato, con pronta inversione DNS only se si manifestano errori. Non inserire route Worker fino alla verifica del proxy, della correttezza dell'origine e dell'assenza di regressioni.
+
+**Redirect legacy diretti: 0/16 ancora attestati.** `PENDING_CLIENT_ACCEPTANCE`, SAL 57,75%.
