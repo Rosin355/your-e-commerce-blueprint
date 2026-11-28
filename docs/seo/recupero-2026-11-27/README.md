@@ -71,3 +71,13 @@ Il titolare ha condiviso schermate del pannello Cloudflare della zona `onlinegar
 Prossimo gate: ottenere da Lovable il record CNAME esatto e le istruzioni supportate per il ricollegamento con `Uses Cloudflare or similar proxy`, preservando www e il rollback alla configurazione precedente. Quindi verificare HTTP(S), auth, carrello, checkout (senza ordine), www, UTM, e solo infine attivare il Worker pilota Rosa Jasmina. Zero redirect prodotto attivi attestati.
 
 `PENDING_CLIENT_ACCEPTANCE` | SAL 57,75%.
+
+## Gate Lovable proxy: GO condizionato, change non eseguito
+
+**28 novembre 2026 - evidenza comunicata dal gestore Lovable, nessuna modifica live.** Lovable ha confermato che il progetto supporta Advanced > Uses Cloudflare or similar proxy, ma i CNAME definitivi vengono esposti solo durante la riconnessione. Il dominio e' attualmente attivo in modalita' standard con record A apex e www verso 185.158.133.1, entrambi DNS only. L'opzione standard non supporta le route Worker con il proxy spento. Fonte: https://docs.lovable.dev/features/custom-domain-connect#advanced-use-a-cdn-or-reverse-proxy .
+
+**Decisione:** NO-GO ad attivazione immediata dei 301; GO soltanto alla preparazione del cambio. Salvare export DNS integrale Cloudflare e screenshot di Lovable Domains, conservandoli in privato. Organizzare una finestra di possibile indisponibilita' con presidio contemporaneo Lovable+Cloudflare; solo allora eseguire ricollegamento in modalita' proxy secondo CNAME realmente visualizzati. Preservare www->apex e dominio primario; lasciare intatti MX/SPF/DKIM/DMARC e TXT di verifica. Configurare SSL seguendo evidenze certificati, poi verificare home, catalogo, PDP, login, carrello e accesso a checkout senza ordini reali. Solo dopo collegare due route Worker di Rosa Jasmina e osservare status 301 diretto con UTM. Non attivare subito tutte le 32 route.
+
+**Rollback:** ricollegare Lovable in modalita' standard e ripristinare i record A da export se l'intervento fallisce; non considerarlo istantaneo o gia' collaudato. La proposta di rollback dopo 60 minuti e' una soglia organizzativa, non una garanzia sul tempo necessario a DNS, certificati e propagazione. Resta 0/16 redirect legacy diretti attivi fino a evidenza live.
+
+`PENDING_CLIENT_ACCEPTANCE` - SAL 57,75%.
