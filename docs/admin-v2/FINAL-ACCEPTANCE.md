@@ -1,5 +1,13 @@
 # Accettazione Admin V2 · 21 novembre 2026
 
+## Accettazione del rilascio AI del 26 novembre 2026
+
+**`PENDING_CLIENT_ACCEPTANCE`.** Il collaudo precedente alla r2 documenta la descrizione quasi copiata sui due testi originali. Sul Pero restano aperte le segnalazioni distinte di immagini e formati. Il verbale del rilascio pubblicato riporta le verifiche tecniche e identifica quali prove richiedono ancora l’Editor di Marco. [Esiti per caso e riscontri mancanti](../release/ADMIN-V2-RILASCIO-PRODUCT-ADMIN-API-2026-11-26.md#collaudo-manuale-di-marco-del-26-novembre)
+
+- [ ] Marco verifica in produzione la generazione reale sui testi Yucca rostrata e arbusto Agavaceae e registra l’esito per ciascuno.
+- [ ] Marco apre sul Pero la galleria e i formati e registra un esito distinto per ogni lettura.
+- [ ] Marco comunica la decisione di accettazione con data e ambito. SAL ufficiale **57,75%**.
+
 ## Collaudo personale sul candidato consolidato
 
 - [x] Fixture di nuova bozza, prodotto esistente, proposta per campo, conservazione dei valori, conflitti e verifica del singolo aggiornamento.

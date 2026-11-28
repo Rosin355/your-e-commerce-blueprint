@@ -271,7 +271,22 @@ Una proposta deve rielaborare soltanto fatti verificati, non dichiarare riuscito
 ### Recovery e retest Marco
 Recovery tecnico: precedente sorgente AI recuperabile dal commit `f32989def1fc4d3593744d60c83836a46f247329`, entrypoint SHA `a8a6621d21babc237a926d3689e98d6bc75b489c70c165a9a2d4243fdcacd625`; solo nuovo deploy mirato previa decisione, nessun rollback/restore eseguito. Frontend precedente identificato dall’asset `index-DwN3gNmM.js`; non è una prova di restore eseguito.
 
-Marco deve ripetere sui due testi ORIGINALI: login, conferma fatti, Completa scheda con AI, confronto di ogni sezione, formattazione senza Markdown letterale, avvisi e Riprova in caso parziale/errore, Scarta/applica alla sola bozza dopo conferma. Nessuna sincronizzazione Shopify o pubblicazione prodotto. Generazione REALE con Gemini e sessione Marco restano da collaudare; bug immagini/formati e relativo API fix non dichiarati risolti da questo deploy. SAL invariata **57,75%**.
+### Collaudo manuale di Marco del 26 novembre
+
+| Caso | Riscontro prima del rilascio r2 | Esito sulla versione pubblicata |
+|---|---|---|
+| Descrizione estesa · Yucca rostrata | Dopo la conferma dei fatti e «Completa scheda con AI», l’anteprima mostrava «Descrizione ricomposta con le righe originali confermate». Il testo era quasi identico all’input, senza sezioni editoriali e con il Markdown visibile letteralmente. | Retest con Marco e Gemini reale da documentare. |
+| Descrizione estesa · testo breve sull’arbusto Agavaceae | Il resoconto del collaudo riferisce lo stesso comportamento anche con l’input breve. | Retest con Marco e Gemini reale da documentare. |
+| Pero · immagini | Segnalato un errore nell’apertura della galleria. Manca lo stato HTTP della lettura eseguita con l’Editor di Marco. | **APERTO.** Da verificare la chiamata `get_product_gallery` nella sua sessione. |
+| Pero · formati | Segnalato un errore nella lettura dei formati. Manca lo stato HTTP della lettura eseguita con l’Editor di Marco. | **APERTO.** Da verificare la chiamata `get_product_formats` nella sua sessione. |
+
+La segnalazione AI è registrata nel progetto Lovable alle 16:50 UTC, prima dell’autorizzazione al rilascio delle 17:05 UTC. I log precedenti registrano due risposte del provider HTTP 200 e l’attivazione del fallback. I log non conservano i testi delle risposte e quindi non permettono di abbinare le due chiamate ai singoli input. [Testo originale Yucca](../../scripts/tests/fixtures/yucca-rostrata-uat-20261126.txt) · [Testo originale breve](../../scripts/tests/fixtures/evergreen-uat-20261126.txt)
+
+Per immagini e formati è stato osservato HTTP 403 `FORBIDDEN` su entrambe le letture con l’account Admin tecnico, privo delle chiavi personali necessarie. La causa dell’errore sul dispositivo di Marco resta da identificare. La correzione delle letture paginate in `product-admin-api` è stata provata con un Editor simulato e resta da distribuire.
+
+**Riscontro tecnico sulla r2.** La lettura di `/admin` punta a `index-kMoBF-yp.js`. La richiesta OPTIONS a `product-admin-ai` restituisce HTTP 200 e l’intestazione `X-Admin-AI-Version: verified-editorial-20261126-r2`. Il commit applicativo è `d252925`. Il verbale di rilascio registra **272 test Node e 27 Deno PASS**, zero fallimenti. I 64 casi dell’handler rieseguiti sono già inclusi. Sul bundle pubblico, anteprima, avvisi, nuovo tentativo e scarto sono stati provati con identità e provider simulati.
+
+**Accettazione cliente · `PENDING_CLIENT_ACCEPTANCE`.** Per completare il verbale servono l’esito di Marco sui due testi con Gemini reale, il riscontro separato su galleria e formati e la sua decisione esplicita. Per ogni anomalia annotare azione, messaggio visibile e, se disponibile, codice HTTP. La prova editoriale può concludersi con «Scarta» o con l’applicazione alla sola bozza autorizzata. SAL **57,75%**.
 
 ---
 
