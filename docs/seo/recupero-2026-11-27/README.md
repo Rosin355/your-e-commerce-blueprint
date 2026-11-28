@@ -109,3 +109,11 @@ Gate successivo: test diretto HTTPS del dominio principale e www in browser del 
 Passaggio successivo autorizzato: impostare il CNAME `www` come Proxied e verificare che `https://www.onlinegarden.it` raggiunga `https://onlinegarden.it` senza loop o errori TLS; in caso di problemi ripristinare `www` a DNS only. Nessuna route Worker da associare prima di PASS. SSL/TLS Full e record email invariati. Nessun redirect legacy diretto attivo ancora attestato (0/16).
 
 `PENDING_CLIENT_ACCEPTANCE` | SAL 57,75%.
+
+## Test con www Proxied: conferma operatore, verifica HTTP pendente
+
+**28 novembre 2026.** Il titolare ha confermato di avere eseguito anche il passaggio `CNAME www.onlinegarden.it -> ecom-blueprint-gen.lovable.app` da DNS only a **Proxied**; l'ultima prova HTTP verificata manualmente riguarda l'apex homepage e la PDP Rosa Jasmina. **Il www -> apex non e' ancora attestato da un HTTP smoke test**. Nessuna nuova route Worker certificata attiva in questo passaggio.
+
+Gate imminente: prima controllare in browser `https://www.onlinegarden.it` -> `https://onlinegarden.it` senza errori, quindi collegare **solo** la route pilota `onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/*` al Worker preesistente `onlinegarden-301-redirects`. Testare la sorgente legacy con e senza UTM, verificare 301, destinazione PDP corretta, assenza di loop e stabilita' di home/catalogo/checkout. Solo in seguito valutare la route pilota `www` e l'estensione. L'esecuzione dei cambi DNS e route resta manuale sotto controllo del titolare. I 16 redirect prodotto **non** sono ancora attestati come attivi.
+
+Riferimento regole Worker: https://developers.cloudflare.com/workers/configuration/routing/routes/ .
