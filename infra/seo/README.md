@@ -1,5 +1,7 @@
 ## Procedure per il responsabile · 20 novembre 2026
 
+**Esito del 28 novembre, successivo ai dati riportati sotto.** Registro definitivo di 1.410 percorsi, 1.113 APPROVED, 72 REVIEW e 225 BLOCKED. Il Worker esistente usa due route generali nel pacchetto preparato. Un solo percorso risponde con 301 diretto sull’apex. Sul www è misurato un passaggio intermedio. Le indicazioni storiche sui 16 prodotti e sulle route per singolo percorso sono superate dal [fascicolo massivo](../../docs/seo/recupero-massivo/).
+
 [Gate dei 16 redirect, verifica prima/dopo e rollback](../../docs/seo/REDIRECT-301-RELEASE-GATE-2026-11-20.md). Il comando `node infra/seo/check-redirect-candidates.mjs` prova tutte le righe in memoria. Il verificatore `python3 infra/seo/check-redirect-http.py` legge le sole risposte HTTP pubbliche. L’opzione `--expect-active` verifica i 301 dopo una futura attivazione integrale. Il manifest incluso resta disabilitato.
 
 ---

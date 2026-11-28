@@ -1,0 +1,121 @@
+{
+  "export_prodotti": [
+    {
+      "file": "wc-product-export-28-2-2026-1772300858057.csv",
+      "sha256": "e6bd2a7a2c5b94b3d33f97ae40aa0730108131e25d49fad3f5ed1522e4d96dbc"
+    },
+    {
+      "file": "wc-product-export-27-7-2026-1785163055481.csv",
+      "sha256": "5731229481a5e7b4368afd422b9359227ce6d5a18648354a9647e05d174f1987"
+    },
+    {
+      "file": "wc-product-export-27-7-2026-1785163338872.csv",
+      "sha256": "2ffeff8ce7898e6f620db3313f9a021a932b9a18abb6561fabe7b287a510982b"
+    },
+    {
+      "file": "wc-product-export-27-7-2026-1785163453321.csv",
+      "sha256": "134397080efe5b3a3371ca9ddb69f994de8f51a0f17abfc2553a067d7454a9d9"
+    },
+    {
+      "file": "wc-product-export-27-7-2026-1785163658156.csv",
+      "sha256": "d5c8cd3595df4fb65f809e81a37443ac7564e72d2d9766056becac8c2d98458e"
+    },
+    {
+      "file": "wc-product-export-27-7-2026-1785163759646.csv",
+      "sha256": "37462ab899415030c8d030232b90c6767010222842c7d7626bf9aeea73e37c2d"
+    },
+    {
+      "file": "wc-product-export-27-7-2026-1785164253248.csv",
+      "sha256": "cb253c8512100a0fc14825dcc39fe25c3a8533b5477daf6b6ef0ea97904a648d"
+    },
+    {
+      "file": "wc-product-export-27-7-2026-1785164406854.csv",
+      "sha256": "95e688170215420177a7349ec7e7297e4804166b054e4656d1e21f6c8b029874"
+    },
+    {
+      "file": "wc-product-export-27-7-2026-1785164449980.csv",
+      "sha256": "8568fb4d3d2e6065a72f5e440c1279f30367bc4f2c0713d27f99d1e673c16c24"
+    },
+    {
+      "file": "onlinegarden_wc_redirect_inventory_review.csv",
+      "sha256": "f0f267d623b932c6fffb522c3c6528069584d62ce37abcd7192b850f6b178cd1"
+    }
+  ],
+  "catalogo_shopify": {
+    "prodotti": 1364,
+    "pagine": 14,
+    "paginazione_varianti_completa": true,
+    "sha256_snapshot": "bd5eec2f987050665d60e546e7c64955a9066ee6a94c938a04b72b0cdce98d7e"
+  },
+  "sitemap_attuale": {
+    "url": "https://onlinegarden.it/sitemap.xml",
+    "sha256": "c98da0f9044622456e68468bb5ac405726a0998ffb7bea8daf37886e0e01d118"
+  },
+  "indice_woo": {
+    "url": "https://web.archive.org/web/20241102183941id_/https://www.onlinegarden.it/sitemap_index.xml",
+    "sha256": "3e733c0c77c7076568b436b0078835220900b7ceb3034416fa54cf950527e6a1"
+  },
+  "sitemap_storiche": [
+    {
+      "source": "https://www.onlinegarden.it/product-sitemap1.xml",
+      "result": "200 https://web.archive.org/web/20241102213347id_/https://www.onlinegarden.it/product-sitemap1.xml",
+      "sha256": "716966612692ffe70b4aabf9a736d562f8647c429a42d993dc5be0341b3c7571",
+      "paths": 201
+    },
+    {
+      "source": "https://www.onlinegarden.it/product-sitemap2.xml",
+      "result": "200 https://web.archive.org/web/20241105112943id_/https://www.onlinegarden.it/product-sitemap2.xml",
+      "sha256": "0624e6a0c0f59c504d8f4c07ec1d17b81c2988979ad21da2fca4e3813f79662a",
+      "paths": 200
+    },
+    {
+      "source": "https://www.onlinegarden.it/product-sitemap3.xml",
+      "result": "200 https://web.archive.org/web/20241102202940id_/https://www.onlinegarden.it/product-sitemap3.xml",
+      "sha256": "6520cf23b3a606b3b49bb4786ca310be89d9c76a3fe167b44f7d04b121d9d6a9",
+      "paths": 200
+    },
+    {
+      "source": "https://www.onlinegarden.it/product-sitemap4.xml",
+      "result": "200 https://web.archive.org/web/20241107225311id_/https://www.onlinegarden.it/product-sitemap4.xml",
+      "sha256": "0a49752540bc51d9bba7ba8f6d33a846e488b1464242226de454a045e383a8ab",
+      "paths": 200
+    },
+    {
+      "source": "https://www.onlinegarden.it/product-sitemap5.xml",
+      "result": "200 https://web.archive.org/web/20241102214517id_/https://www.onlinegarden.it/product-sitemap5.xml",
+      "sha256": "b24127063f09cc88f9c60d5b7e5c4871c056595751f15cd21e3ca086fb3a5832",
+      "paths": 200
+    },
+    {
+      "source": "https://www.onlinegarden.it/product-sitemap6.xml",
+      "result": "200 https://web.archive.org/web/20241107121457id_/https://www.onlinegarden.it/product-sitemap6.xml",
+      "sha256": "2f0cfd342c9ad830ccd8b72846b5ddea40edefa0e0084df6216841593b7d1cc4",
+      "paths": 200
+    },
+    {
+      "source": "https://www.onlinegarden.it/product-sitemap7.xml",
+      "result": "404 https://web.archive.org/web/20241102183941id_/https://www.onlinegarden.it/product-sitemap7.xml"
+    }
+  ],
+  "cdx": {
+    "archivio": "https://web.archive.org/cdx/search/cdx",
+    "colonne": [
+      "timestamp",
+      "original",
+      "statuscode"
+    ],
+    "sha256": "a5fc5f98c66c02bc7de7df47cf3e77f6bc1c9267a4ac80a6250af6a998c4bf17",
+    "righe": 1372
+  },
+  "categorie": {
+    "url_osservati": 74,
+    "risposte_con_canonical": 30,
+    "schede_con_id_e_sku": 224,
+    "percorsi_distinti": 191
+  },
+  "pdp_woo": {
+    "catture_con_id_e_canonical": 161,
+    "percorso_ricevute": "archivio-origini.csv",
+    "pagine_distinte_tentate": 466
+  }
+}

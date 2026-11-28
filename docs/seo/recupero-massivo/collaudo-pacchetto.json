@@ -1,0 +1,58 @@
+{
+  "lotti": [
+    {
+      "stage": "pilot",
+      "paths": 1,
+      "worker_sha256": "4f9a52dcc82ea65821925f44356f7ee7bb941af56c6bd70c595d7f17c5c94f1c",
+      "source_sha256": "f0ace50c863c4d030c31d8fa5e31de5575c50d9f4188d10e3695f3d6fc3e394f"
+    },
+    {
+      "stage": "50",
+      "paths": 50,
+      "worker_sha256": "3fa05e4e926722cd34626eebf73edafc42893147d258e3a4412ef07a02c9749e",
+      "source_sha256": "f0ace50c863c4d030c31d8fa5e31de5575c50d9f4188d10e3695f3d6fc3e394f"
+    },
+    {
+      "stage": "250",
+      "paths": 250,
+      "worker_sha256": "0dc288a8d6076c73903f16f44720adbe15bc6b3716bdfed46b8d3a1e22807db2",
+      "source_sha256": "f0ace50c863c4d030c31d8fa5e31de5575c50d9f4188d10e3695f3d6fc3e394f"
+    },
+    {
+      "stage": "500",
+      "paths": 500,
+      "worker_sha256": "db6ec835e1faae67e47c2b8e7d69f30132d181e82a6176436761b3b3f6f243e9",
+      "source_sha256": "f0ace50c863c4d030c31d8fa5e31de5575c50d9f4188d10e3695f3d6fc3e394f"
+    },
+    {
+      "stage": "1000",
+      "paths": 1000,
+      "worker_sha256": "6ed684a07f5553bef89dbfa5a4d0b69457c9f41ad03620ea21f181507f6aa4df",
+      "source_sha256": "f0ace50c863c4d030c31d8fa5e31de5575c50d9f4188d10e3695f3d6fc3e394f"
+    },
+    {
+      "stage": "full",
+      "paths": 1113,
+      "worker_sha256": "bd1f1ef07840ad2ef259b55915402d7f69dae710d3f80e3ea003478b7cbd86b9",
+      "source_sha256": "f0ace50c863c4d030c31d8fa5e31de5575c50d9f4188d10e3695f3d6fc3e394f"
+    }
+  ],
+  "simulazione": {
+    "redirect": 69936,
+    "origine": 7290,
+    "storici": 384
+  },
+  "workerd": {
+    "lotto": "full",
+    "richieste": 2230,
+    "esito": "PASS"
+  },
+  "wrangler": {
+    "versione": "4.169.0",
+    "dry_run": "PASS",
+    "dimensione_KiB": 161.88,
+    "gzip_KiB": 18.99
+  },
+  "pilota_originale_sha256": "54686b0b7c0cf55e37afed0c8faff34a156901e794f13834f6c5811c9d4f8c14",
+  "zip_sha256": "df88ba51bada268ca72d11247e74f413dbd8302785b06aa3d469c4abc53c0b8b"
+}

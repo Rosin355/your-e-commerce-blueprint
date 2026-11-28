@@ -1,3 +1,21 @@
+## 28 novembre 2026 · Pilota Cloudflare PASS apex + www (primo hop diretto)
+
+**Evidenza HTTP fornita dal titolare (28/11/2026, GET senza seguire redirect).** Il Worker `onlinegarden-301-redirects`, versione attiva prefisso `7d009cbd` da Dashboard Cloudflare, restituisce:
+
+- **Apex**, `GET https://onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=test301`: `HTTP/2 301`, `location: https://onlinegarden.it/products/rosa-jasmina-rampicante?utm_source=test301`, `server: cloudflare`, `cache-control: no-store` (28 novembre, 14:45:47 GMT).
+- **www**, `GET https://www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/?utm_source=test301`: `HTTP/2 301`, **lo stesso Location diretto alla PDP sull'apex**, UTM preservato, `server: cloudflare`, `cache-control: no-store` (28 novembre, **16:34:24 GMT**).
+- Screenshot del titolare: sotto Workers & Pages > Worker > Domains e presente la route apex `onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/*`. Il test www dimostra il funzionamento del pilota dopo aggiunta della route `www.onlinegarden.it/prodotto/rose/rosa-jasmina-rampicante/*`; verificare l'elenco delle route completo prima del change massivo.
+- I due test sono **primo hop diretto**, senza passaggio preliminare al vecchio URL sull'apex. Il difetto di doppio hop www registrato nel report di baseline precedente al change e risolto per **questo pilota**. Le precedenti 5.640 prove misuravano lo stato pre-change e non vanno rietichettate come post-change.
+- **Stato:** pilota HTTP PASS su entrambi gli host; i **1.113 mapping APPROVED restano preparati, NON distribuiti**. Altri 1.112 non sono ancora attivi, salvo diversa prova live. Verificare versione attiva e conservare ID completo privatamente prima del rilascio.
+
+**Prossimo gate operativo:** esaminare il pacchetto ZIP e i suoi SHA-256, verificare il sorgente `50/worker.mjs` e la relazione con il pilota, caricare/distribuire nel **Worker esistente** la versione cumulativa da 50 mantenendo per il momento le due route pilota strette; ripetere i test pilota. Solo dopo, aggiungere in modo additivo `onlinegarden.it/prodotto/*` e `www.onlinegarden.it/prodotto/*` (senza `/*`) e collaudare 50 righe piu regressioni e pass-through prima del lotto 250. Ricordare che distribuire codice e associare route sono **due changes distinti** e che il rollback deve includere entrambi. Non cambiare DNS, origine Lovable, SSL/TLS, catalogo, checkout o email.
+
+**Stato progetto:** `PENDING_CLIENT_ACCEPTANCE`, SAL 57,75%.
+
+## 28 novembre 2026 · Recupero SEO WooCommerce
+
+**PENDING_CLIENT_ACCEPTANCE · SAL 57,75%.** Esaminati 1.410 percorsi distinti. Pronti per il rilascio progressivo 1.113 redirect su 1.111 schede, con 72 percorsi in revisione e 225 bloccati. Le 5.640 richieste pubbliche confermano un solo 301 diretto sull’apex, Rosa Jasmina. Sul www la normalizzazione dell’host aggiunge un salto. Il pacchetto per il Worker esistente è preparato e verificato localmente. Al titolare della zona resta il change controllato, con identificazione della versione di rollback e collaudo del pilota www prima di ampliare. [Registro e prove](seo/recupero-massivo/) · [Rilascio](seo/recupero-massivo/OPERAZIONI.md)
+
 ## 24/11/2026 — Admin V2 pubblicato (GO A + GO B)
 
 **Rilascio registrato da Lovable:** backend `product-admin-api` distribuito dal ramo isolato `codex/rilascio-admin-v2-isolato-20261124`; controlli post-deploy `OPTIONS 200`, anonimo `401`, letture Admin autenticate `200` secondo verbale. Frontend pubblicato su `onlinegarden.it` con asset `index-jqOemgjy.js`, sostituendo r2 `index-DSQ4UzGV.js`. Home, catalogo, `/admin`, `/account` e carrello fino al checkout Shopify verificati nel test di Lovable, **nessun ordine/addebito**. L'Admin autenticato e le 4 correzioni in produzione (creazione semplificata, SKU automatici, mesi indipendenti e AI) **non sono ancora stati verificati con Marco**. La revisione runtime Edge non è direttamente leggibile: rollback previsto mediante nuovo deploy dei sorgenti r2 `ca9050d`, mentre rollback frontend via Cronologia Lovable alla versione r2. **SAL 57,75% invariata.** [Verbale di rilascio](release/ADMIN-V2-MARCO-RELEASE-2026-11-24.md) · [Guida Marco](admin-v2/CLIENT-GUIDE.md). Cloudflare zona Active, ma Edge Certificate non ancora attestato Active; proxy e 301 separati.
