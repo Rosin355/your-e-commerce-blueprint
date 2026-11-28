@@ -32,3 +32,14 @@ Il controllo browser confronta titolo, H1, JSON-LD, canonical e indicizzabilità
 Al primo mapping errato, loop, perdita di UTM, intercettazione di un flusso commerciale o incremento di 5xx, sospendere l’avanzamento. In Deployments selezionare **l’UUID precedentemente salvato** e usare Rollback. Per uno split preesistente ripristinare le percentuali documentate. Ripristinare separatamente la configurazione dei trigger e delle eventuali eccezioni di redirect dal registro del change, rimuovendo soltanto le aggiunte effettuate. Verificare Rosa Jasmina su entrambi gli host, almeno un percorso appena ritirato, le regressioni commerciali e il confronto con le ricevute precedenti. I client che hanno già memorizzato un 301 possono continuare a usarlo. Il Worker restituisce `Cache-Control: no-store`. [Rollback Cloudflare](https://developers.cloudflare.com/workers/versions-and-deployments/rollbacks/)
 
 È inclusa la copia `rollback/pilota-originale.mjs` del Worker pilota precedente, SHA-256 `54686b0b7c0cf55e37afed0c8faff34a156901e794f13834f6c5811c9d4f8c14`. Il Worker e il file Wrangler originali sono stati ricostruiti dal commit `18d47ec` e confrontati byte per byte con lo ZIP originario del titolare, SHA-256 `e790e15cc2a57154a228f68f3637b94ef7cd4eb6bf1a8d5bfef6f4c01f838158`. Per ripristinare utilizzare la versione attiva registrata dal provider prima del change. La corrispondenza fra il sorgente originale e l’UUID realmente in produzione resta da attestare nel pannello. Il nome di esempio del vecchio file Wrangler appartiene al fascicolo storico.
+
+## Baseline Cloudflare identificata tramite screenshot del titolare
+
+**28 novembre 2026, ore locali circa 17:26, evidenza visuale.** Nel pannello Cloudflare Workers & Pages > `onlinegarden-301-redirects` > Deployments il titolare mostra:
+
+- Versione **attiva**: prefisso ID `7d009cbd`, **100% del traffico**, deploy manuale circa due ore prima, `0%` error rate mostrato nel pannello e `0 req/sec` al momento dello screenshot.
+- Versione **precedente** elencata: prefisso `c1232c3b`; non e' dimostrato che contenga il pilota, quindi **non** usarla automaticamente come rollback.
+- I valori sono abbreviazioni visualizzate: l'UUID completo della versione attiva deve essere copiato tramite l'icona accanto alla riga e conservato nell'archivio **privato** del change, non dedotto dal prefisso.
+- Gate successivo: acquisire UUID completo e verificare che il pilota corrisponda alla versione servita, poi inventariare tutte le route e redirect esistenti prima del change. **Nessun lotto massivo puo essere indicato come LIVE solo da questo screenshot.**
+
+`PENDING_CLIENT_ACCEPTANCE` - SAL `57,75%`.
