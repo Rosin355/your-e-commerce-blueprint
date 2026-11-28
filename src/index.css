@@ -254,3 +254,8 @@ All colors MUST be HSL.
     outline-offset: 2px;
   }
 }
+
+/* The hosted banner lives outside React. Keep it off account and staff screens after SPA navigation. */
+body:not(:has([data-storefront-privacy])) :is(#shopify-pc__banner, #shopify-pc__prefs) {
+  display: none !important;
+}
